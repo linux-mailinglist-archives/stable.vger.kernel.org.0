@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A22F260FE46
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:03:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0719A60FEE3
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:09:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236889AbiJ0RDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:03:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58020 "EHLO
+        id S237087AbiJ0RJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:09:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236900AbiJ0RDp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:03:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E06D1974F5
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:03:45 -0700 (PDT)
+        with ESMTP id S237085AbiJ0RJU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:09:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A6CA1A2097
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:09:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C412DB82716
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:03:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2032CC433C1;
-        Thu, 27 Oct 2022 17:03:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A0B962402
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:09:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BA5C433D6;
+        Thu, 27 Oct 2022 17:09:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890222;
-        bh=AyN1dGNemw8klUM2mo4PivRWqiU0Z5zmSgMrqYFeX2I=;
+        s=korg; t=1666890558;
+        bh=108BECBLVqzBMV+FtJE3RX1wtbE8kXUb0eA97tY+xoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MzVCEVBgMdvz75/riX8mhyoSosOWYpQIZ/xTqDnyG+UN2dwQi4gTer2G4I72gWytY
-         PZ4KIwgnuxtNn/P7BB7UEjNT5lCvLeKa5vg0bgmA4apIbOiVSmfeCd/yGC3Gxq/zMW
-         OPdqu2mRjKvX0TrTaQUK6EdhHRrMoDU1emBh8qu0=
+        b=UJ/Xa288jVSmR+vIKrEx3dR13sPp9Cf1Qj0B0i8FD7mImYA3G9SuycnqM6U7QbWro
+         CfzrX8cVXr6GaV3GkYPY+Tuw01VtzOe/na1Pt3nOAjEdOCLb4z+h0jFVRt3zh8Qoof
+         In4EU4RUnB8m1eGaOhVSvSwoJwz13QN5HE9ZMFF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Namjae Jeon <linkinjeon@kernel.org>,
-        Hyunchul Lee <hyc.lee@gmail.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 69/79] ksmbd: handle smb2 query dir request for OutputBufferLength that is too small
+        patches@lists.linux.dev, Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Allison Collins <allison.henderson@oracle.com>,
+        Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Chandan Babu R <chandan.babu@oracle.com>
+Subject: [PATCH 5.4 19/53] xfs: factor common AIL item deletion code
 Date:   Thu, 27 Oct 2022 18:56:07 +0200
-Message-Id: <20221027165057.216735311@linuxfoundation.org>
+Message-Id: <20221027165050.553015391@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
-References: <20221027165054.917467648@linuxfoundation.org>
+In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
+References: <20221027165049.817124510@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +57,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Dave Chinner <dchinner@redhat.com>
 
-[ Upstream commit 65ca7a3ffff811d6c0d4342d467c381257d566d4 ]
+commit 4165994ac9672d91134675caa6de3645a9ace6c8 upstream.
 
-We found the issue that ksmbd return STATUS_NO_MORE_FILES response
-even though there are still dentries that needs to be read while
-file read/write test using framtest utils.
-windows client send smb2 query dir request included
-OutputBufferLength(128) that is too small to contain even one entry.
-This patch make ksmbd immediately returns OutputBufferLength of response
-as zero to client.
+Factor the common AIL deletion code that does all the wakeups into a
+helper so we only have one copy of this somewhat tricky code to
+interface with all the wakeups necessary when the LSN of the log
+tail changes.
 
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Stable-dep-of: 88541cb414b7 ("ksmbd: fix incorrect handling of iterate_dir")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Allison Collins <allison.henderson@oracle.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/smb2pdu.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_inode_item.c |   12 +-----------
+ fs/xfs/xfs_trans_ail.c  |   48 ++++++++++++++++++++++++++----------------------
+ fs/xfs/xfs_trans_priv.h |    4 +++-
+ 3 files changed, 30 insertions(+), 34 deletions(-)
 
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index bec9a84572c0..ef0aef78eba6 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -3962,6 +3962,12 @@ int smb2_query_dir(struct ksmbd_work *work)
- 	set_ctx_actor(&dir_fp->readdir_data.ctx, __query_dir);
+--- a/fs/xfs/xfs_inode_item.c
++++ b/fs/xfs/xfs_inode_item.c
+@@ -744,17 +744,7 @@ xfs_iflush_done(
+ 				xfs_clear_li_failed(blip);
+ 			}
+ 		}
+-
+-		if (mlip_changed) {
+-			if (!XFS_FORCED_SHUTDOWN(ailp->ail_mount))
+-				xlog_assign_tail_lsn_locked(ailp->ail_mount);
+-			if (list_empty(&ailp->ail_head))
+-				wake_up_all(&ailp->ail_empty);
+-		}
+-		spin_unlock(&ailp->ail_lock);
+-
+-		if (mlip_changed)
+-			xfs_log_space_wake(ailp->ail_mount);
++		xfs_ail_update_finish(ailp, mlip_changed);
+ 	}
  
- 	rc = iterate_dir(dir_fp->filp, &dir_fp->readdir_data.ctx);
-+	/*
-+	 * req->OutputBufferLength is too small to contain even one entry.
-+	 * In this case, it immediately returns OutputBufferLength 0 to client.
-+	 */
-+	if (!d_info.out_buf_len && !d_info.num_entry)
-+		goto no_buf_len;
- 	if (rc == 0)
- 		restart_ctx(&dir_fp->readdir_data.ctx);
- 	if (rc == -ENOSPC)
-@@ -3988,10 +3994,12 @@ int smb2_query_dir(struct ksmbd_work *work)
- 		rsp->Buffer[0] = 0;
- 		inc_rfc1001_len(rsp_org, 9);
- 	} else {
-+no_buf_len:
- 		((struct file_directory_info *)
- 		((char *)rsp->Buffer + d_info.last_entry_offset))
- 		->NextEntryOffset = 0;
--		d_info.data_count -= d_info.last_entry_off_align;
-+		if (d_info.data_count >= d_info.last_entry_off_align)
-+			d_info.data_count -= d_info.last_entry_off_align;
+ 	/*
+--- a/fs/xfs/xfs_trans_ail.c
++++ b/fs/xfs/xfs_trans_ail.c
+@@ -680,6 +680,27 @@ xfs_ail_push_all_sync(
+ 	finish_wait(&ailp->ail_empty, &wait);
+ }
  
- 		rsp->StructureSize = cpu_to_le16(9);
- 		rsp->OutputBufferOffset = cpu_to_le16(72);
--- 
-2.35.1
-
++void
++xfs_ail_update_finish(
++	struct xfs_ail		*ailp,
++	bool			do_tail_update) __releases(ailp->ail_lock)
++{
++	struct xfs_mount	*mp = ailp->ail_mount;
++
++	if (!do_tail_update) {
++		spin_unlock(&ailp->ail_lock);
++		return;
++	}
++
++	if (!XFS_FORCED_SHUTDOWN(mp))
++		xlog_assign_tail_lsn_locked(mp);
++
++	if (list_empty(&ailp->ail_head))
++		wake_up_all(&ailp->ail_empty);
++	spin_unlock(&ailp->ail_lock);
++	xfs_log_space_wake(mp);
++}
++
+ /*
+  * xfs_trans_ail_update - bulk AIL insertion operation.
+  *
+@@ -739,15 +760,7 @@ xfs_trans_ail_update_bulk(
+ 	if (!list_empty(&tmp))
+ 		xfs_ail_splice(ailp, cur, &tmp, lsn);
+ 
+-	if (mlip_changed) {
+-		if (!XFS_FORCED_SHUTDOWN(ailp->ail_mount))
+-			xlog_assign_tail_lsn_locked(ailp->ail_mount);
+-		spin_unlock(&ailp->ail_lock);
+-
+-		xfs_log_space_wake(ailp->ail_mount);
+-	} else {
+-		spin_unlock(&ailp->ail_lock);
+-	}
++	xfs_ail_update_finish(ailp, mlip_changed);
+ }
+ 
+ bool
+@@ -791,10 +804,10 @@ void
+ xfs_trans_ail_delete(
+ 	struct xfs_ail		*ailp,
+ 	struct xfs_log_item	*lip,
+-	int			shutdown_type) __releases(ailp->ail_lock)
++	int			shutdown_type)
+ {
+ 	struct xfs_mount	*mp = ailp->ail_mount;
+-	bool			mlip_changed;
++	bool			need_update;
+ 
+ 	if (!test_bit(XFS_LI_IN_AIL, &lip->li_flags)) {
+ 		spin_unlock(&ailp->ail_lock);
+@@ -807,17 +820,8 @@ xfs_trans_ail_delete(
+ 		return;
+ 	}
+ 
+-	mlip_changed = xfs_ail_delete_one(ailp, lip);
+-	if (mlip_changed) {
+-		if (!XFS_FORCED_SHUTDOWN(mp))
+-			xlog_assign_tail_lsn_locked(mp);
+-		if (list_empty(&ailp->ail_head))
+-			wake_up_all(&ailp->ail_empty);
+-	}
+-
+-	spin_unlock(&ailp->ail_lock);
+-	if (mlip_changed)
+-		xfs_log_space_wake(ailp->ail_mount);
++	need_update = xfs_ail_delete_one(ailp, lip);
++	xfs_ail_update_finish(ailp, need_update);
+ }
+ 
+ int
+--- a/fs/xfs/xfs_trans_priv.h
++++ b/fs/xfs/xfs_trans_priv.h
+@@ -92,8 +92,10 @@ xfs_trans_ail_update(
+ }
+ 
+ bool xfs_ail_delete_one(struct xfs_ail *ailp, struct xfs_log_item *lip);
++void xfs_ail_update_finish(struct xfs_ail *ailp, bool do_tail_update)
++			__releases(ailp->ail_lock);
+ void xfs_trans_ail_delete(struct xfs_ail *ailp, struct xfs_log_item *lip,
+-		int shutdown_type) __releases(ailp->ail_lock);
++		int shutdown_type);
+ 
+ static inline void
+ xfs_trans_ail_remove(
 
 
