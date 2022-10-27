@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 415F860FE47
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:03:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E247E60FEBB
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236898AbiJ0RDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:03:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58058 "EHLO
+        id S237031AbiJ0RHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:07:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236902AbiJ0RDr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:03:47 -0400
+        with ESMTP id S237036AbiJ0RHs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:07:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CB2E197F91
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:03:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F49D19DDBB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:07:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D810623F5
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:03:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF4A3C433C1;
-        Thu, 27 Oct 2022 17:03:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E1DB610AB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:07:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32FAEC433D6;
+        Thu, 27 Oct 2022 17:07:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890225;
-        bh=vhd+ti1PHyQTdJ3ugJ3V5BoIBeXZMGEZVmo4QFENfA4=;
+        s=korg; t=1666890466;
+        bh=d+kNiKLfb5aZ+Sqlj1aZseEsi7E2u6pyyKZKyhCk+Ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eXEO6DEn7+Htm20keQWBc48ZtJgjYa6Lv2a+aIUmL2ekcUQzkYx7uvnBwgvzgObQ0
-         Z0zHS7h+EOHU6As0nJUWqs2VAXO4KLBeqFpA6RpWdFAubPOq8pbW2k1rivrD+WZS1Y
-         tshiEtVPhTiUQvZvE660C8ZtRJHGhvwyLIW3Kc5M=
+        b=PU3hxsYT1ApP8Y/he6kkcy7oSBpXZLGxG1jSVnysIYtsbWB2p8oeZF5RnB/AeBtAL
+         bxQXc1BEDquYhNSqdc29CA7pHRFDwsHGQDt6t4sC3darRt3913MbLhO9Df9LeLpHTP
+         UBNhHEqQfND/BhG1p+zy9q4XH4LpoQRxwXxwm5ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hyunchul Lee <hyc.lee@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ross Zwisler <zwisler@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 70/79] ksmbd: fix incorrect handling of iterate_dir
-Date:   Thu, 27 Oct 2022 18:56:08 +0200
-Message-Id: <20221027165057.250429245@linuxfoundation.org>
+Subject: [PATCH 5.10 59/79] tracing: Do not free snapshot if tracer is on cmdline
+Date:   Thu, 27 Oct 2022 18:56:09 +0200
+Message-Id: <20221027165056.308236951@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
-References: <20221027165054.917467648@linuxfoundation.org>
+In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
+References: <20221027165054.270676357@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,80 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit 88541cb414b7a2450c45fc9c131b37b5753b7679 ]
+[ Upstream commit a541a9559bb0a8ecc434de01d3e4826c32e8bb53 ]
 
-if iterate_dir() returns non-negative value, caller has to treat it
-as normal and check there is any error while populating dentry
-information. ksmbd doesn't have to do anything because ksmbd already
-checks too small OutputBufferLength to store one file information.
+The ftrace_boot_snapshot and alloc_snapshot cmdline options allocate the
+snapshot buffer at boot up for use later. The ftrace_boot_snapshot in
+particular requires the snapshot to be allocated because it will take a
+snapshot at the end of boot up allowing to see the traces that happened
+during boot so that it's not lost when user space takes over.
 
-And because ctx->pos is set to file->f_pos when iterative_dir is called,
-remove restart_ctx(). And if iterate_dir() return -EIO, which mean
-directory entry is corrupted, return STATUS_FILE_CORRUPT_ERROR error
-response.
+When a tracer is registered (started) there's a path that checks if it
+requires the snapshot buffer or not, and if it does not and it was
+allocated it will do a synchronization and free the snapshot buffer.
 
-This patch fixes some failure of SMB2_QUERY_DIRECTORY, which happens when
-ntfs3 is local filesystem.
+This is only required if the previous tracer was using it for "max
+latency" snapshots, as it needs to make sure all max snapshots are
+complete before freeing. But this is only needed if the previous tracer
+was using the snapshot buffer for latency (like irqoff tracer and
+friends). But it does not make sense to free it, if the previous tracer
+was not using it, and the snapshot was allocated by the cmdline
+parameters. This basically takes away the point of allocating it in the
+first place!
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
+Note, the allocated snapshot worked fine for just trace events, but fails
+when a tracer is enabled on the cmdline.
+
+Further investigation, this goes back even further and it does not require
+a tracer on the cmdline to fail. Simply enable snapshots and then enable a
+tracer, and it will remove the snapshot.
+
+Link: https://lkml.kernel.org/r/20221005113757.041df7fe@gandalf.local.home
+
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 45ad21ca5530 ("tracing: Have trace_array keep track if snapshot buffer is allocated")
+Reported-by: Ross Zwisler <zwisler@kernel.org>
+Tested-by: Ross Zwisler <zwisler@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/smb2pdu.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ kernel/trace/trace.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index ef0aef78eba6..65c85ca71ebe 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -3803,11 +3803,6 @@ static int __query_dir(struct dir_context *ctx, const char *name, int namlen,
- 	return 0;
- }
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 870033f9c198..b7cb9147f0c5 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -6008,12 +6008,12 @@ int tracing_set_tracer(struct trace_array *tr, const char *buf)
+ 	if (tr->current_trace->reset)
+ 		tr->current_trace->reset(tr);
  
--static void restart_ctx(struct dir_context *ctx)
--{
--	ctx->pos = 0;
--}
++#ifdef CONFIG_TRACER_MAX_TRACE
++	had_max_tr = tr->current_trace->use_max_tr;
++
+ 	/* Current trace needs to be nop_trace before synchronize_rcu */
+ 	tr->current_trace = &nop_trace;
+ 
+-#ifdef CONFIG_TRACER_MAX_TRACE
+-	had_max_tr = tr->allocated_snapshot;
 -
- static int verify_info_level(int info_level)
- {
- 	switch (info_level) {
-@@ -3921,7 +3916,6 @@ int smb2_query_dir(struct ksmbd_work *work)
- 	if (srch_flag & SMB2_REOPEN || srch_flag & SMB2_RESTART_SCANS) {
- 		ksmbd_debug(SMB, "Restart directory scan\n");
- 		generic_file_llseek(dir_fp->filp, 0, SEEK_SET);
--		restart_ctx(&dir_fp->readdir_data.ctx);
+ 	if (had_max_tr && !t->use_max_tr) {
+ 		/*
+ 		 * We need to make sure that the update_max_tr sees that
+@@ -6026,11 +6026,13 @@ int tracing_set_tracer(struct trace_array *tr, const char *buf)
+ 		free_snapshot(tr);
  	}
  
- 	memset(&d_info, 0, sizeof(struct ksmbd_dir_info));
-@@ -3968,11 +3962,9 @@ int smb2_query_dir(struct ksmbd_work *work)
- 	 */
- 	if (!d_info.out_buf_len && !d_info.num_entry)
- 		goto no_buf_len;
--	if (rc == 0)
--		restart_ctx(&dir_fp->readdir_data.ctx);
--	if (rc == -ENOSPC)
-+	if (rc > 0 || rc == -ENOSPC)
- 		rc = 0;
--	if (rc)
-+	else if (rc)
- 		goto err_out;
+-	if (t->use_max_tr && !had_max_tr) {
++	if (t->use_max_tr && !tr->allocated_snapshot) {
+ 		ret = tracing_alloc_snapshot_instance(tr);
+ 		if (ret < 0)
+ 			goto out;
+ 	}
++#else
++	tr->current_trace = &nop_trace;
+ #endif
  
- 	d_info.wptr = d_info.rptr;
-@@ -4029,6 +4021,8 @@ int smb2_query_dir(struct ksmbd_work *work)
- 		rsp->hdr.Status = STATUS_NO_MEMORY;
- 	else if (rc == -EFAULT)
- 		rsp->hdr.Status = STATUS_INVALID_INFO_CLASS;
-+	else if (rc == -EIO)
-+		rsp->hdr.Status = STATUS_FILE_CORRUPT_ERROR;
- 	if (!rsp->hdr.Status)
- 		rsp->hdr.Status = STATUS_UNEXPECTED_IO_ERROR;
- 
+ 	if (t->init) {
 -- 
 2.35.1
 
