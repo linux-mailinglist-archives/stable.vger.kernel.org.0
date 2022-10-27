@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA63060FDDB
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F38760FE73
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:05:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236794AbiJ0Q7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 12:59:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47280 "EHLO
+        id S236951AbiJ0RFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:05:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236798AbiJ0Q7o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:59:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712A3AE46
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:59:43 -0700 (PDT)
+        with ESMTP id S236966AbiJ0RFT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:05:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3532D8E472
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:05:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6B1CB82716
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:59:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D371C433B5;
-        Thu, 27 Oct 2022 16:59:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB11E62369
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:05:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D248DC433C1;
+        Thu, 27 Oct 2022 17:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666889980;
-        bh=L+L7DKFBTs4WzsdcVIj/6n9M+x+AORuu7uofg6c0OpU=;
+        s=korg; t=1666890317;
+        bh=9ZlPMfJASMiQJq4bw6fDmysyb5zFiE74LCLOyeMiftw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dhkyPDGZhDTLK/L+nK4yTYbl/bPIf4Oh9zyOXEbqm4UK4wSezPzqcYFL2FDF9Ytf5
-         t0kHIY1PU1BjjTwt0HA1xMEk8Mj80QVGSoPZWJVYN6E6Dj9OMIGOhxc72vdfHGWCoI
-         bjosysttAzc8plBhE5EUWM/UKWxqC5XbU6JL9LVg=
+        b=mSVkGHgHBbYv0Ua0XMCqLcK6JzLJ29xdlT/aRInCR2AuThOTPsfpmIJzVFkJrakyx
+         EbaKVYQpwg3/R1EPkf/BaL84miOChjMT7XewwbQ574IhfpaG13ATBeTqkJQYOJRT9s
+         IORB6LvuWBLJAWAEwfttmP20aMOp2DBuHjFZZkL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 72/94] nvme-hwmon: kmalloc the NVME SMART log buffer
-Date:   Thu, 27 Oct 2022 18:55:14 +0200
-Message-Id: <20221027165100.096296588@linuxfoundation.org>
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.10 05/79] i2c: qcom-cci: Fix ordering of pm_runtime_xx and i2c_add_adapter
+Date:   Thu, 27 Oct 2022 18:55:15 +0200
+Message-Id: <20221027165054.484420932@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
-References: <20221027165057.208202132@linuxfoundation.org>
+In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
+References: <20221027165054.270676357@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,144 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit c94b7f9bab22ac504f9153767676e659988575ad ]
+commit 61775d54d674ff8ec3658495e0dbc537227dc5c1 upstream.
 
-Recent commit 52fde2c07da6 ("nvme: set dma alignment to dword") has
-caused a regression on our platform.
+When we compile-in the CCI along with the imx412 driver and run on the RB5
+we see that i2c_add_adapter() causes the probe of the imx412 driver to
+happen.
 
-It turned out that the nvme_get_log() method invocation caused the
-nvme_hwmon_data structure instance corruption.  In particular the
-nvme_hwmon_data.ctrl pointer was overwritten either with zeros or with
-garbage.  After some research we discovered that the problem happened
-even before the actual NVME DMA execution, but during the buffer mapping.
-Since our platform is DMA-noncoherent, the mapping implied the cache-line
-invalidations or write-backs depending on the DMA-direction parameter.
-In case of the NVME SMART log getting the DMA was performed
-from-device-to-memory, thus the cache-invalidation was activated during
-the buffer mapping.  Since the log-buffer isn't cache-line aligned, the
-cache-invalidation caused the neighbour data to be discarded.  The
-neighbouring data turned to be the data surrounding the buffer in the
-framework of the nvme_hwmon_data structure.
+This probe tries to perform an i2c xfer() and the xfer() in i2c-qcom-cci.c
+fails on pm_runtime_get() because the i2c-qcom-cci.c::probe() function has
+not completed to pm_runtime_enable(dev).
 
-In order to fix that we need to make sure that the whole log-buffer is
-defined within the cache-line-aligned memory region so the
-cache-invalidation procedure wouldn't involve the adjacent data. One of
-the option to guarantee that is to kmalloc the DMA-buffer [1]. Seeing the
-rest of the NVME core driver prefer that method it has been chosen to fix
-this problem too.
+Fix this sequence by ensuring pm_runtime_xxx() calls happen prior to adding
+the i2c adapter.
 
-Note after a deeper researches we found out that the denoted commit wasn't
-a root cause of the problem. It just revealed the invalidity by activating
-the DMA-based NVME SMART log getting performed in the framework of the
-NVME hwmon driver. The problem was here since the initial commit of the
-driver.
-
-[1] Documentation/core-api/dma-api-howto.rst
-
-Fixes: 400b6a7b13a3 ("nvme: Add hardware monitoring support")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e517526195de ("i2c: Add Qualcomm CCI I2C driver")
+Reported-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Tested-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/hwmon.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-qcom-cci.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/nvme/host/hwmon.c b/drivers/nvme/host/hwmon.c
-index 23918bb7bdca..9e6e56c20ec9 100644
---- a/drivers/nvme/host/hwmon.c
-+++ b/drivers/nvme/host/hwmon.c
-@@ -12,7 +12,7 @@
+--- a/drivers/i2c/busses/i2c-qcom-cci.c
++++ b/drivers/i2c/busses/i2c-qcom-cci.c
+@@ -638,6 +638,11 @@ static int cci_probe(struct platform_dev
+ 	if (ret < 0)
+ 		goto error;
  
- struct nvme_hwmon_data {
- 	struct nvme_ctrl *ctrl;
--	struct nvme_smart_log log;
-+	struct nvme_smart_log *log;
- 	struct mutex read_lock;
- };
- 
-@@ -60,14 +60,14 @@ static int nvme_set_temp_thresh(struct nvme_ctrl *ctrl, int sensor, bool under,
- static int nvme_hwmon_get_smart_log(struct nvme_hwmon_data *data)
- {
- 	return nvme_get_log(data->ctrl, NVME_NSID_ALL, NVME_LOG_SMART, 0,
--			   NVME_CSI_NVM, &data->log, sizeof(data->log), 0);
-+			   NVME_CSI_NVM, data->log, sizeof(*data->log), 0);
- }
- 
- static int nvme_hwmon_read(struct device *dev, enum hwmon_sensor_types type,
- 			   u32 attr, int channel, long *val)
- {
- 	struct nvme_hwmon_data *data = dev_get_drvdata(dev);
--	struct nvme_smart_log *log = &data->log;
-+	struct nvme_smart_log *log = data->log;
- 	int temp;
- 	int err;
- 
-@@ -163,7 +163,7 @@ static umode_t nvme_hwmon_is_visible(const void *_data,
- 	case hwmon_temp_max:
- 	case hwmon_temp_min:
- 		if ((!channel && data->ctrl->wctemp) ||
--		    (channel && data->log.temp_sensor[channel - 1])) {
-+		    (channel && data->log->temp_sensor[channel - 1])) {
- 			if (data->ctrl->quirks &
- 			    NVME_QUIRK_NO_TEMP_THRESH_CHANGE)
- 				return 0444;
-@@ -176,7 +176,7 @@ static umode_t nvme_hwmon_is_visible(const void *_data,
- 		break;
- 	case hwmon_temp_input:
- 	case hwmon_temp_label:
--		if (!channel || data->log.temp_sensor[channel - 1])
-+		if (!channel || data->log->temp_sensor[channel - 1])
- 			return 0444;
- 		break;
- 	default:
-@@ -232,13 +232,19 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
- 	if (!data)
- 		return -ENOMEM;
- 
-+	data->log = kzalloc(sizeof(*data->log), GFP_KERNEL);
-+	if (!data->log) {
-+		err = -ENOMEM;
-+		goto err_free_data;
-+	}
++	pm_runtime_set_autosuspend_delay(dev, MSEC_PER_SEC);
++	pm_runtime_use_autosuspend(dev);
++	pm_runtime_set_active(dev);
++	pm_runtime_enable(dev);
 +
- 	data->ctrl = ctrl;
- 	mutex_init(&data->read_lock);
- 
- 	err = nvme_hwmon_get_smart_log(data);
- 	if (err) {
- 		dev_warn(dev, "Failed to read smart log (error %d)\n", err);
--		goto err_free_data;
-+		goto err_free_log;
+ 	for (i = 0; i < cci->data->num_masters; i++) {
+ 		if (!cci->master[i].cci)
+ 			continue;
+@@ -649,14 +654,12 @@ static int cci_probe(struct platform_dev
+ 		}
  	}
  
- 	hwmon = hwmon_device_register_with_info(dev, "nvme",
-@@ -247,11 +253,13 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
- 	if (IS_ERR(hwmon)) {
- 		dev_warn(dev, "Failed to instantiate hwmon device\n");
- 		err = PTR_ERR(hwmon);
--		goto err_free_data;
-+		goto err_free_log;
- 	}
- 	ctrl->hwmon_device = hwmon;
+-	pm_runtime_set_autosuspend_delay(dev, MSEC_PER_SEC);
+-	pm_runtime_use_autosuspend(dev);
+-	pm_runtime_set_active(dev);
+-	pm_runtime_enable(dev);
+-
  	return 0;
  
-+err_free_log:
-+	kfree(data->log);
- err_free_data:
- 	kfree(data);
- 	return err;
-@@ -265,6 +273,7 @@ void nvme_hwmon_exit(struct nvme_ctrl *ctrl)
- 
- 		hwmon_device_unregister(ctrl->hwmon_device);
- 		ctrl->hwmon_device = NULL;
-+		kfree(data->log);
- 		kfree(data);
- 	}
- }
--- 
-2.35.1
-
+ error_i2c:
++	pm_runtime_disable(dev);
++	pm_runtime_dont_use_autosuspend(dev);
++
+ 	for (--i ; i >= 0; i--) {
+ 		if (cci->master[i].cci) {
+ 			i2c_del_adapter(&cci->master[i].adap);
 
 
