@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA2FB60FEB4
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:07:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BAB360FEBA
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236996AbiJ0RHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:07:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39710 "EHLO
+        id S237038AbiJ0RHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:07:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237038AbiJ0RHa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:07:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B11B12FFAB
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:07:29 -0700 (PDT)
+        with ESMTP id S237031AbiJ0RHr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:07:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8540119C064
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:07:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9595610AB
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:07:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E83FAC433D6;
-        Thu, 27 Oct 2022 17:07:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3FC3BB824DB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:07:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98330C433C1;
+        Thu, 27 Oct 2022 17:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890448;
-        bh=jZXGAkwd7VFfGUca+0FTgWO3YBj+HEjiJeERgt8jA6A=;
+        s=korg; t=1666890464;
+        bh=EV1gBDJx/SfFybx7k+PKSktofkEVrXBTiVUpaG/OleA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d7wGD8cfomk71XWVW5GTGhAnK36XH2XyjOCRvWJ8J1Wl9jp9JFPlPVYQM1bSWHX5h
-         apeu4kjJvYtyNvQ9+zaYiuVddH5B4pFBKeZdolcrjLM4nPttQFmYxaTQgcpcVjmK38
-         4G0f7blDH0aR15PzMCLSHJrTSNQ9c4hdgRiDlM9o=
+        b=nywNZMcjqo7TDWDX8MDPv7YebwkFX2mLl31i5t96b1AFM+M0S+WdpQOSHSoAXCy1n
+         dM7IzkRR1XOfMmvLHV9ib8Jwj9zpXxawXAvqXJqcamd4MSIqLsAPzywwe6JLaIv8+W
+         g6K28j/BYJSMAyHXNHtSnhqnxlipe32PPLlC8ZPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 57/79] dmaengine: mxs: use platform_driver_register
-Date:   Thu, 27 Oct 2022 18:56:07 +0200
-Message-Id: <20221027165056.237522630@linuxfoundation.org>
+        patches@lists.linux.dev, sunliming <sunliming@kylinos.cn>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 58/79] tracing: Simplify conditional compilation code in tracing_set_tracer()
+Date:   Thu, 27 Oct 2022 18:56:08 +0200
+Message-Id: <20221027165056.266103266@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
 References: <20221027165054.270676357@linuxfoundation.org>
@@ -55,73 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+From: sunliming <sunliming@kylinos.cn>
 
-[ Upstream commit 26696d4657167112a1079f86cba1739765c1360e ]
+[ Upstream commit f4b0d318097e45cbac5e14976f8bb56aa2cef504 ]
 
-Driver registration fails on SOC imx8mn as its supplier, the clock
-control module, is probed later than subsys initcall level. This driver
-uses platform_driver_probe which is not compatible with deferred probing
-and won't be probed again later if probe function fails due to clock not
-being available at that time.
+Two conditional compilation directives "#ifdef CONFIG_TRACER_MAX_TRACE"
+are used consecutively, and no other code in between. Simplify conditional
+the compilation code and only use one "#ifdef CONFIG_TRACER_MAX_TRACE".
 
-This patch replaces the use of platform_driver_probe with
-platform_driver_register which will allow probing the driver later again
-when the clock control module will be available.
+Link: https://lkml.kernel.org/r/20220602140613.545069-1-sunliming@kylinos.cn
 
-The __init annotation has been dropped because it is not compatible with
-deferred probing. The code is not executed once and its memory cannot be
-freed.
-
-Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
-Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: stable@vger.kernel.org
-
-Link: https://lore.kernel.org/r/20220921170556.1055962-1-dario.binacchi@amarulasolutions.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: sunliming <sunliming@kylinos.cn>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Stable-dep-of: a541a9559bb0 ("tracing: Do not free snapshot if tracer is on cmdline")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/mxs-dma.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ kernel/trace/trace.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
-index 994fc4d2aca4..dc147cc2436e 100644
---- a/drivers/dma/mxs-dma.c
-+++ b/drivers/dma/mxs-dma.c
-@@ -670,7 +670,7 @@ static enum dma_status mxs_dma_tx_status(struct dma_chan *chan,
- 	return mxs_chan->status;
- }
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index a5245362ce7a..870033f9c198 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -6025,9 +6025,7 @@ int tracing_set_tracer(struct trace_array *tr, const char *buf)
+ 		synchronize_rcu();
+ 		free_snapshot(tr);
+ 	}
+-#endif
  
--static int __init mxs_dma_init(struct mxs_dma_engine *mxs_dma)
-+static int mxs_dma_init(struct mxs_dma_engine *mxs_dma)
- {
- 	int ret;
- 
-@@ -741,7 +741,7 @@ static struct dma_chan *mxs_dma_xlate(struct of_phandle_args *dma_spec,
- 				     ofdma->of_node);
- }
- 
--static int __init mxs_dma_probe(struct platform_device *pdev)
-+static int mxs_dma_probe(struct platform_device *pdev)
- {
- 	struct device_node *np = pdev->dev.of_node;
- 	const struct mxs_dma_type *dma_type;
-@@ -839,10 +839,7 @@ static struct platform_driver mxs_dma_driver = {
- 		.name	= "mxs-dma",
- 		.of_match_table = mxs_dma_dt_ids,
- 	},
-+	.probe = mxs_dma_probe,
- };
- 
--static int __init mxs_dma_module_init(void)
--{
--	return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
--}
--subsys_initcall(mxs_dma_module_init);
-+builtin_platform_driver(mxs_dma_driver);
+-#ifdef CONFIG_TRACER_MAX_TRACE
+ 	if (t->use_max_tr && !had_max_tr) {
+ 		ret = tracing_alloc_snapshot_instance(tr);
+ 		if (ret < 0)
 -- 
 2.35.1
 
