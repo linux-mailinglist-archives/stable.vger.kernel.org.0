@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC6860FEC4
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:08:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B31460FE54
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:04:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237046AbiJ0RIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:08:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40840 "EHLO
+        id S236911AbiJ0REY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:04:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237047AbiJ0RIL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:08:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F01A1A16D7
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:08:11 -0700 (PDT)
+        with ESMTP id S236906AbiJ0REX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBFD21974C6
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7E9562369
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:08:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEB04C433D7;
-        Thu, 27 Oct 2022 17:08:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89327623D8
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F005C433D7;
+        Thu, 27 Oct 2022 17:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890490;
-        bh=/1/fHHHyTCPbazGczitn/5P21xY/nMcHsq2AoX3DCKc=;
+        s=korg; t=1666890262;
+        bh=58LD/FfMevj1IRYPosVRSV5Yaxz8cGIdZ9nmBy902rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gPvHvq+v8AwFYICmQE2W4pPErS8AhosRw7AMbEAFD6R5wjXLALFzjhz2dHzUmNiiX
-         DH50KVd43PsMfTOjmWyvZNfwPZGZQPalHn0wUXBeeAgmPAvVRuxWH2A5yzG14hmUsV
-         fuFj80fd8R2Zln4iL0qhNEa2iuLId2QH/XW05ec4=
+        b=ti6eBpFNl7Cpnne29qrsS64nLzzFdkNERgt8Vw06VMJsDvt1MVNhEVtVYWdiBrQj+
+         XHm3kWCN8vu5tQEo8+frMSIPTZFxLxSDnPVdRESJZOFOVCzjuf7N+0+aqVI64EEzqA
+         /tvJMjg9vojLohqvB+R7P5oMKldyMRPd02vz2r+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pavel Reichl <preichl@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 11/53] xfs: remove the xfs_dq_logitem_t typedef
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Sergey Ryazanov <ryazanov.s.a@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 61/79] wwan_hwsim: fix possible memory leak in wwan_hwsim_dev_new()
 Date:   Thu, 27 Oct 2022 18:55:59 +0200
-Message-Id: <20221027165050.242411710@linuxfoundation.org>
+Message-Id: <20221027165056.947960638@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
-References: <20221027165049.817124510@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Reichl <preichl@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit fd8b81dbbb23d4a3508cfac83256b4f5e770941c upstream.
+[ Upstream commit 258ad2fe5ede773625adfda88b173f4123e59f45 ]
 
-Signed-off-by: Pavel Reichl <preichl@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Inject fault while probing module, if device_register() fails,
+but the refcount of kobject is not decreased to 0, the name
+allocated in dev_set_name() is leaked. Fix this by calling
+put_device(), so that name can be freed in callback function
+kobject_cleanup().
+
+unreferenced object 0xffff88810152ad20 (size 8):
+  comm "modprobe", pid 252, jiffies 4294849206 (age 22.713s)
+  hex dump (first 8 bytes):
+    68 77 73 69 6d 30 00 ff                          hwsim0..
+  backtrace:
+    [<000000009c3504ed>] __kmalloc_node_track_caller+0x44/0x1b0
+    [<00000000c0228a5e>] kvasprintf+0xb5/0x140
+    [<00000000cff8c21f>] kvasprintf_const+0x55/0x180
+    [<0000000055a1e073>] kobject_set_name_vargs+0x56/0x150
+    [<000000000a80b139>] dev_set_name+0xab/0xe0
+
+Fixes: f36a111a74e7 ("wwan_hwsim: WWAN device simulator")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Acked-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Link: https://lore.kernel.org/r/20221018131607.1901641-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_dquot.c      |    2 +-
- fs/xfs/xfs_dquot.h      |    2 +-
- fs/xfs/xfs_dquot_item.h |   10 +++++-----
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/wwan/wwan_hwsim.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/xfs/xfs_dquot.c
-+++ b/fs/xfs/xfs_dquot.c
-@@ -1018,7 +1018,7 @@ xfs_qm_dqflush_done(
- 	struct xfs_buf		*bp,
- 	struct xfs_log_item	*lip)
- {
--	xfs_dq_logitem_t	*qip = (struct xfs_dq_logitem *)lip;
-+	struct xfs_dq_logitem	*qip = (struct xfs_dq_logitem *)lip;
- 	struct xfs_dquot	*dqp = qip->qli_dquot;
- 	struct xfs_ail		*ailp = lip->li_ailp;
+diff --git a/drivers/net/wwan/wwan_hwsim.c b/drivers/net/wwan/wwan_hwsim.c
+index 5b62cf3b3c42..a4230a7376df 100644
+--- a/drivers/net/wwan/wwan_hwsim.c
++++ b/drivers/net/wwan/wwan_hwsim.c
+@@ -310,7 +310,7 @@ static struct wwan_hwsim_dev *wwan_hwsim_dev_new(void)
+ 	return ERR_PTR(err);
  
---- a/fs/xfs/xfs_dquot.h
-+++ b/fs/xfs/xfs_dquot.h
-@@ -40,7 +40,7 @@ struct xfs_dquot {
- 	xfs_fileoff_t		q_fileoffset;
+ err_free_dev:
+-	kfree(dev);
++	put_device(&dev->dev);
  
- 	struct xfs_disk_dquot	q_core;
--	xfs_dq_logitem_t	q_logitem;
-+	struct xfs_dq_logitem	q_logitem;
- 	/* total regular nblks used+reserved */
- 	xfs_qcnt_t		q_res_bcount;
- 	/* total inos allocd+reserved */
---- a/fs/xfs/xfs_dquot_item.h
-+++ b/fs/xfs/xfs_dquot_item.h
-@@ -11,11 +11,11 @@ struct xfs_trans;
- struct xfs_mount;
- struct xfs_qoff_logitem;
- 
--typedef struct xfs_dq_logitem {
--	struct xfs_log_item	 qli_item;	   /* common portion */
--	struct xfs_dquot	*qli_dquot;	   /* dquot ptr */
--	xfs_lsn_t		 qli_flush_lsn;	   /* lsn at last flush */
--} xfs_dq_logitem_t;
-+struct xfs_dq_logitem {
-+	struct xfs_log_item	 qli_item;	/* common portion */
-+	struct xfs_dquot	*qli_dquot;	/* dquot ptr */
-+	xfs_lsn_t		 qli_flush_lsn;	/* lsn at last flush */
-+};
- 
- typedef struct xfs_qoff_logitem {
- 	struct xfs_log_item	 qql_item;	/* common portion */
+ 	return ERR_PTR(err);
+ }
+-- 
+2.35.1
+
 
 
