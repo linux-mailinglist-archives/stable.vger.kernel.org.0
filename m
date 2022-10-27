@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EBD460FDBA
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:58:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C779960FDC6
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:59:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235132AbiJ0Q61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 12:58:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45522 "EHLO
+        id S236646AbiJ0Q7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 12:59:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236558AbiJ0Q60 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:58:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 701ED17E216
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:58:25 -0700 (PDT)
+        with ESMTP id S236634AbiJ0Q65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:58:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5110717536F
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:58:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CEE2623EC
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:58:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22A14C433D6;
-        Thu, 27 Oct 2022 16:58:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04672B82710
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:58:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43DB4C433D6;
+        Thu, 27 Oct 2022 16:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666889904;
-        bh=suR+d0Q/QGyUkrj6UHhd1WGcCQjcje5D9XyNM6et5wg=;
+        s=korg; t=1666889933;
+        bh=FKcj+BgVyDm84cshr1z6fAoMZQlqYkM1ICvRymYjvYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RIGmTgRD8G9Z3RNxYWsUg/dB5t2A9T/qwJkhpwAw/cxvnfS29TjkYqpT9sI9YnW5I
-         2rwNp3hR7jZbzvaziX/jR0mzVX/8NSVihyYELIGqbs/jWceS40AjB9wTEIn2tg23Up
-         2m6S4LtZ6/+oCf/yKYydX7U59z1zphIbOjFuA+cU=
+        b=bx953+s3aeP9gVcBkPMtt2ZHrj4yFHHgpy4rKjqYINMruH7N3FGbjRw08uc0brXwj
+         H/ZmaEaQtXyZ9h6cA/pvsIPpOONwwP7uSJ2crm+LrFleObEesNj/If87W/DSvGdidw
+         ptwHED+yOaza7c7glUvl5ehPZ7OCa+QTB+ITagas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Borislav Petkov <bp@suse.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 6.0 25/94] x86/Kconfig: Drop check for -mabi=ms for CONFIG_EFI_STUB
-Date:   Thu, 27 Oct 2022 18:54:27 +0200
-Message-Id: <20221027165058.078376077@linuxfoundation.org>
+        patches@lists.linux.dev, Len Brown <len.brown@intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 6.0 26/94] x86/topology: Fix multiple packages shown on a single-package system
+Date:   Thu, 27 Oct 2022 18:54:28 +0200
+Message-Id: <20221027165058.128488675@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
 References: <20221027165057.208202132@linuxfoundation.org>
@@ -54,53 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Zhang Rui <rui.zhang@intel.com>
 
-commit 33806e7cb8d50379f55c3e8f335e91e1b359dc7b upstream.
+commit 2b12a7a126d62bdbd81f4923c21bf6e9a7fbd069 upstream.
 
-A recent change in LLVM made CONFIG_EFI_STUB unselectable because it no
-longer pretends to support -mabi=ms, breaking the dependency in
-Kconfig. Lack of CONFIG_EFI_STUB can prevent kernels from booting via
-EFI in certain circumstances.
+CPUID.1F/B does not enumerate Package level explicitly, instead, all the
+APIC-ID bits above the enumerated levels are assumed to be package ID
+bits.
 
-This check was added by
+Current code gets package ID by shifting out all the APIC-ID bits that
+Linux supports, rather than shifting out all the APIC-ID bits that
+CPUID.1F enumerates. This introduces problems when CPUID.1F enumerates a
+level that Linux does not support.
 
-  8f24f8c2fc82 ("efi/libstub: Annotate firmware routines as __efiapi")
+For example, on a single package AlderLake-N, there are 2 Ecore Modules
+with 4 atom cores in each module.  Linux does not support the Module
+level and interprets the Module ID bits as package ID and erroneously
+reports a multi module system as a multi-package system.
 
-to ensure that __attribute__((ms_abi)) was available, as -mabi=ms is
-not actually used in any cflags.
+Fix this by using APIC-ID bits above all the CPUID.1F enumerated levels
+as package ID.
 
-According to the GCC documentation, this attribute has been supported
-since GCC 4.4.7. The kernel currently requires GCC 5.1 so this check is
-not necessary; even when that change landed in 5.6, the kernel required
-GCC 4.9 so it was unnecessary then as well.
+[ dhansen: spelling fix ]
 
-Clang supports __attribute__((ms_abi)) for all versions that are
-supported for building the kernel so no additional check is needed.
-Remove the 'depends on' line altogether to allow CONFIG_EFI_STUB to be
-selected when CONFIG_EFI is enabled, regardless of compiler.
-
-Fixes: 8f24f8c2fc82 ("efi/libstub: Annotate firmware routines as __efiapi")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 7745f03eb395 ("x86/topology: Add CPUID.1F multi-die/package support")
+Suggested-by: Len Brown <len.brown@intel.com>
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Len Brown <len.brown@intel.com>
 Cc: stable@vger.kernel.org
-Link: https://github.com/llvm/llvm-project/commit/d1ad006a8f64bdc17f618deffa9e7c91d82c444d
+Link: https://lkml.kernel.org/r/20221014090147.1836-4-rui.zhang@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/Kconfig |    1 -
- 1 file changed, 1 deletion(-)
+ arch/x86/kernel/cpu/topology.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -1961,7 +1961,6 @@ config EFI
- config EFI_STUB
- 	bool "EFI stub support"
- 	depends on EFI
--	depends on $(cc-option,-mabi=ms) || X86_32
- 	select RELOCATABLE
- 	help
- 	  This kernel feature allows a bzImage to be loaded directly
+--- a/arch/x86/kernel/cpu/topology.c
++++ b/arch/x86/kernel/cpu/topology.c
+@@ -96,6 +96,7 @@ int detect_extended_topology(struct cpui
+ 	unsigned int ht_mask_width, core_plus_mask_width, die_plus_mask_width;
+ 	unsigned int core_select_mask, core_level_siblings;
+ 	unsigned int die_select_mask, die_level_siblings;
++	unsigned int pkg_mask_width;
+ 	bool die_level_present = false;
+ 	int leaf;
+ 
+@@ -111,10 +112,10 @@ int detect_extended_topology(struct cpui
+ 	core_level_siblings = smp_num_siblings = LEVEL_MAX_SIBLINGS(ebx);
+ 	core_plus_mask_width = ht_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+ 	die_level_siblings = LEVEL_MAX_SIBLINGS(ebx);
+-	die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
++	pkg_mask_width = die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+ 
+ 	sub_index = 1;
+-	do {
++	while (true) {
+ 		cpuid_count(leaf, sub_index, &eax, &ebx, &ecx, &edx);
+ 
+ 		/*
+@@ -132,8 +133,13 @@ int detect_extended_topology(struct cpui
+ 			die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+ 		}
+ 
++		if (LEAFB_SUBTYPE(ecx) != INVALID_TYPE)
++			pkg_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
++		else
++			break;
++
+ 		sub_index++;
+-	} while (LEAFB_SUBTYPE(ecx) != INVALID_TYPE);
++	}
+ 
+ 	core_select_mask = (~(-1 << core_plus_mask_width)) >> ht_mask_width;
+ 	die_select_mask = (~(-1 << die_plus_mask_width)) >>
+@@ -148,7 +154,7 @@ int detect_extended_topology(struct cpui
+ 	}
+ 
+ 	c->phys_proc_id = apic->phys_pkg_id(c->initial_apicid,
+-				die_plus_mask_width);
++				pkg_mask_width);
+ 	/*
+ 	 * Reinit the apicid, now that we have extended initial_apicid.
+ 	 */
 
 
