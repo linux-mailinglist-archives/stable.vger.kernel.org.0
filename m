@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDF7F60FDB2
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:58:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C942D60FDB3
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236371AbiJ0Q6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 12:58:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44970 "EHLO
+        id S235938AbiJ0Q6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 12:58:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236153AbiJ0Q6C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:58:02 -0400
+        with ESMTP id S236571AbiJ0Q6F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:58:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDDF117EF1E
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:58:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58EDA17536F
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:58:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 52603623ED
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:58:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64278C433D6;
-        Thu, 27 Oct 2022 16:58:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9B82623E8
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:58:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08F64C433D6;
+        Thu, 27 Oct 2022 16:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666889880;
-        bh=Ov4AyNc6DGU/isc+7CaCnVX4fnKqO2U7FUJBaUhTHD0=;
+        s=korg; t=1666889883;
+        bh=aQEOGOeSG9pDrO/z98RtjS8y+rmEz2ejtkDJMRZlChY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jrafUW3Cj4gjgaV7yAa+l7W9G9glZ2gibIgv2YTxzJlFCOiik7qOPauuFuOhIFWia
-         +jM1hzNrPsS6GInKzVwgb9eW6KWyXMN5yv1AhK1fN6RsBTNGKxtfRl0RdBeBybb8B+
-         DGOhlu/WqLQg0DtU4w33I3etr9Xgt7xd/WYWy7kM=
+        b=mduaHNpEG+42FtmVhkkUEJKWR9RQBuwV8u0epij7G/LgkgrilFgAC/mFQh9A3+FFw
+         5iP1V02JX/W7ckJqfg6Ik4tdFQw8dFq/qSQUojFshLgd03gO9OxXK1z7VLtD2Fm2VF
+         FstS2QV1YPvyWZIfeM4cGEXSeQTNkKa/vduTG2FA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tony Luck <tony.luck@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev,
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 34/94] ACPI: extlog: Handle multiple records
-Date:   Thu, 27 Oct 2022 18:54:36 +0200
-Message-Id: <20221027165058.486028220@linuxfoundation.org>
+Subject: [PATCH 6.0 35/94] tipc: Fix recognition of trial period
+Date:   Thu, 27 Oct 2022 18:54:37 +0200
+Message-Id: <20221027165058.517908257@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
 References: <20221027165057.208202132@linuxfoundation.org>
@@ -53,91 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-[ Upstream commit f6ec01da40e4139b41179f046044ee7c4f6370dc ]
+[ Upstream commit 28be7ca4fcfd69a2d52aaa331adbf9dbe91f9e6e ]
 
-If there is no user space consumer of extlog_mem trace records, then
-Linux properly handles multiple error records in an ELOG block
+The trial period exists until jiffies is after addr_trial_end. But as
+jiffies will eventually overflow, just using time_after will eventually
+give incorrect results. As the node address is set once the trial period
+ends, this can be used to know that we are not in the trial period.
 
-	extlog_print()
-	  print_extlog_rcd()
-	    __print_extlog_rcd()
-	      cper_estatus_print()
-		apei_estatus_for_each_section()
-
-But the other code path hard codes looking for a single record to
-output a trace record.
-
-Fix by using the same apei_estatus_for_each_section() iterator
-to step over all records.
-
-Fixes: 2dfb7d51a61d ("trace, RAS: Add eMCA trace event interface")
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: e415577f57f4 ("tipc: correct discovery message handling during address trial period")
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_extlog.c | 33 ++++++++++++++++++++-------------
- 1 file changed, 20 insertions(+), 13 deletions(-)
+ net/tipc/discover.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpi_extlog.c b/drivers/acpi/acpi_extlog.c
-index 72f1fb77abcd..e648158368a7 100644
---- a/drivers/acpi/acpi_extlog.c
-+++ b/drivers/acpi/acpi_extlog.c
-@@ -12,6 +12,7 @@
- #include <linux/ratelimit.h>
- #include <linux/edac.h>
- #include <linux/ras.h>
-+#include <acpi/ghes.h>
- #include <asm/cpu.h>
- #include <asm/mce.h>
+diff --git a/net/tipc/discover.c b/net/tipc/discover.c
+index da69e1abf68f..e8630707901e 100644
+--- a/net/tipc/discover.c
++++ b/net/tipc/discover.c
+@@ -148,8 +148,8 @@ static bool tipc_disc_addr_trial_msg(struct tipc_discoverer *d,
+ {
+ 	struct net *net = d->net;
+ 	struct tipc_net *tn = tipc_net(net);
+-	bool trial = time_before(jiffies, tn->addr_trial_end);
+ 	u32 self = tipc_own_addr(net);
++	bool trial = time_before(jiffies, tn->addr_trial_end) && !self;
  
-@@ -138,8 +139,8 @@ static int extlog_print(struct notifier_block *nb, unsigned long val,
- 	int	cpu = mce->extcpu;
- 	struct acpi_hest_generic_status *estatus, *tmp;
- 	struct acpi_hest_generic_data *gdata;
--	const guid_t *fru_id = &guid_null;
--	char *fru_text = "";
-+	const guid_t *fru_id;
-+	char *fru_text;
- 	guid_t *sec_type;
- 	static u32 err_seq;
- 
-@@ -160,17 +161,23 @@ static int extlog_print(struct notifier_block *nb, unsigned long val,
- 
- 	/* log event via trace */
- 	err_seq++;
--	gdata = (struct acpi_hest_generic_data *)(tmp + 1);
--	if (gdata->validation_bits & CPER_SEC_VALID_FRU_ID)
--		fru_id = (guid_t *)gdata->fru_id;
--	if (gdata->validation_bits & CPER_SEC_VALID_FRU_TEXT)
--		fru_text = gdata->fru_text;
--	sec_type = (guid_t *)gdata->section_type;
--	if (guid_equal(sec_type, &CPER_SEC_PLATFORM_MEM)) {
--		struct cper_sec_mem_err *mem = (void *)(gdata + 1);
--		if (gdata->error_data_length >= sizeof(*mem))
--			trace_extlog_mem_event(mem, err_seq, fru_id, fru_text,
--					       (u8)gdata->error_severity);
-+	apei_estatus_for_each_section(tmp, gdata) {
-+		if (gdata->validation_bits & CPER_SEC_VALID_FRU_ID)
-+			fru_id = (guid_t *)gdata->fru_id;
-+		else
-+			fru_id = &guid_null;
-+		if (gdata->validation_bits & CPER_SEC_VALID_FRU_TEXT)
-+			fru_text = gdata->fru_text;
-+		else
-+			fru_text = "";
-+		sec_type = (guid_t *)gdata->section_type;
-+		if (guid_equal(sec_type, &CPER_SEC_PLATFORM_MEM)) {
-+			struct cper_sec_mem_err *mem = (void *)(gdata + 1);
-+
-+			if (gdata->error_data_length >= sizeof(*mem))
-+				trace_extlog_mem_event(mem, err_seq, fru_id, fru_text,
-+						       (u8)gdata->error_severity);
-+		}
- 	}
- 
- out:
+ 	if (mtyp == DSC_TRIAL_FAIL_MSG) {
+ 		if (!trial)
 -- 
 2.35.1
 
