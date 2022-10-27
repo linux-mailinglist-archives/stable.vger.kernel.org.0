@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85FB260FDA2
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:57:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 099AC60FDA3
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:57:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234425AbiJ0Q5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235817AbiJ0Q5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 27 Oct 2022 12:57:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44440 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235817AbiJ0Q5Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:57:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C46B74B4B6
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:57:22 -0700 (PDT)
+        with ESMTP id S236002AbiJ0Q5Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:57:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8B93B87A2
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:57:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 845AAB826F9
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:57:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4964C433D6;
-        Thu, 27 Oct 2022 16:57:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88450623D2
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:57:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A6E7C433C1;
+        Thu, 27 Oct 2022 16:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666889840;
-        bh=pnhewlUE49unS6t46dItS3mSkT/TJGEE1dnkq/OnMaQ=;
+        s=korg; t=1666889843;
+        bh=lBD0BYU/aq/uaAIISqshs4Bf0wlTvKuWqpd+J1Fxcjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S49/yAnLTo1Q3S/jB+dapTkp5tWyv197UVYaiKLwM/RaqtjKXwNZJevREhKky2D+b
-         whAlTrlOXl6JZf0CINiqvAJanBjfzm8uM6g5dGo1TrKBB0m8+X5GcjpHLawa7BXn6d
-         CgbIdoG8WpRS1d8mYmbZbpfjZdh7Dz0oV4NyhRpU=
+        b=dCSa4NeryfzT4wO7Ad0YQdaFLaPXs0ejQPAokv/cIZH4oEJpq8nf8TyaCY/w6hhPN
+         g6G28Az2t+TkSpHCeiVv2eVsSwDB5AnRAH5QPRBHF05dCQ6/a+wZL86mT5rWWYpMug
+         +2lJbJ5Zcm21PFFaiyvEMPGSYYeOQriAEM7i5sXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Andrew Randrianasulu <randrianasulu@gmail.com>,
-        Alexander Graf <graf@amazon.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.0 19/94] KVM: x86: Add compat handler for KVM_X86_SET_MSR_FILTER
-Date:   Thu, 27 Oct 2022 18:54:21 +0200
-Message-Id: <20221027165057.838956112@linuxfoundation.org>
+        patches@lists.linux.dev, Eric Auger <eric.auger@redhat.com>,
+        Eric Ren <renzhengeek@gmail.com>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 6.0 20/94] KVM: arm64: vgic: Fix exit condition in scan_its_table()
+Date:   Thu, 27 Oct 2022 18:54:22 +0200
+Message-Id: <20221027165057.871684634@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
 References: <20221027165057.208202132@linuxfoundation.org>
@@ -54,94 +52,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Graf <graf@amazon.com>
+From: Eric Ren <renzhengeek@gmail.com>
 
-commit 1739c7017fb1d759965dcbab925ff5980a5318cb upstream.
+commit c000a2607145d28b06c697f968491372ea56c23a upstream.
 
-The KVM_X86_SET_MSR_FILTER ioctls contains a pointer in the passed in
-struct which means it has a different struct size depending on whether
-it gets called from 32bit or 64bit code.
+With some PCIe topologies, restoring a guest fails while
+parsing the ITS device tables.
 
-This patch introduces compat code that converts from the 32bit struct to
-its 64bit counterpart which then gets used going forward internally.
-With this applied, 32bit QEMU can successfully set MSR bitmaps when
-running on 64bit kernels.
+Reproducer hints:
+1. Create ARM virt VM with pxb-pcie bus which adds
+   extra host bridges, with qemu command like:
 
-Reported-by: Andrew Randrianasulu <randrianasulu@gmail.com>
-Fixes: 1a155254ff937 ("KVM: x86: Introduce MSR filtering")
-Signed-off-by: Alexander Graf <graf@amazon.com>
-Message-Id: <20221017184541.2658-4-graf@amazon.com>
+```
+  -device pxb-pcie,bus_nr=8,id=pci.x,numa_node=0,bus=pcie.0 \
+  -device pcie-root-port,..,bus=pci.x \
+  ...
+  -device pxb-pcie,bus_nr=37,id=pci.y,numa_node=1,bus=pcie.0 \
+  -device pcie-root-port,..,bus=pci.y \
+  ...
+
+```
+2. Ensure the guest uses 2-level device table
+3. Perform VM migration which calls save/restore device tables
+
+In that setup, we get a big "offset" between 2 device_ids,
+which makes unsigned "len" round up a big positive number,
+causing the scan loop to continue with a bad GPA. For example:
+
+1. L1 table has 2 entries;
+2. and we are now scanning at L2 table entry index 2075 (pointed
+   to by L1 first entry)
+3. if next device id is 9472, we will get a big offset: 7397;
+4. with unsigned 'len', 'len -= offset * esz', len will underflow to a
+   positive number, mistakenly into next iteration with a bad GPA;
+   (It should break out of the current L2 table scanning, and jump
+   into the next L1 table entry)
+5. that bad GPA fails the guest read.
+
+Fix it by stopping the L2 table scan when the next device id is
+outside of the current table, allowing the scan to continue from
+the next L1 table entry.
+
+Thanks to Eric Auger for the fix suggestion.
+
+Fixes: 920a7a8fa92a ("KVM: arm64: vgic-its: Add infrastructure for tableookup")
+Suggested-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Eric Ren <renzhengeek@gmail.com>
+[maz: commit message tidy-up]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/r/d9c3a564af9e2c5bf63f48a7dcbf08cd593c5c0b.1665802985.git.renzhengeek@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |   56 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
+ arch/arm64/kvm/vgic/vgic-its.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -6453,6 +6453,62 @@ static int kvm_vm_ioctl_set_msr_filter(s
- 	return 0;
- }
+--- a/arch/arm64/kvm/vgic/vgic-its.c
++++ b/arch/arm64/kvm/vgic/vgic-its.c
+@@ -2149,7 +2149,7 @@ static int scan_its_table(struct vgic_it
  
-+#ifdef CONFIG_KVM_COMPAT
-+/* for KVM_X86_SET_MSR_FILTER */
-+struct kvm_msr_filter_range_compat {
-+	__u32 flags;
-+	__u32 nmsrs;
-+	__u32 base;
-+	__u32 bitmap;
-+};
+ 	memset(entry, 0, esz);
+ 
+-	while (len > 0) {
++	while (true) {
+ 		int next_offset;
+ 		size_t byte_offset;
+ 
+@@ -2162,6 +2162,9 @@ static int scan_its_table(struct vgic_it
+ 			return next_offset;
+ 
+ 		byte_offset = next_offset * esz;
++		if (byte_offset >= len)
++			break;
 +
-+struct kvm_msr_filter_compat {
-+	__u32 flags;
-+	struct kvm_msr_filter_range_compat ranges[KVM_MSR_FILTER_MAX_RANGES];
-+};
-+
-+#define KVM_X86_SET_MSR_FILTER_COMPAT _IOW(KVMIO, 0xc6, struct kvm_msr_filter_compat)
-+
-+long kvm_arch_vm_compat_ioctl(struct file *filp, unsigned int ioctl,
-+			      unsigned long arg)
-+{
-+	void __user *argp = (void __user *)arg;
-+	struct kvm *kvm = filp->private_data;
-+	long r = -ENOTTY;
-+
-+	switch (ioctl) {
-+	case KVM_X86_SET_MSR_FILTER_COMPAT: {
-+		struct kvm_msr_filter __user *user_msr_filter = argp;
-+		struct kvm_msr_filter_compat filter_compat;
-+		struct kvm_msr_filter filter;
-+		int i;
-+
-+		if (copy_from_user(&filter_compat, user_msr_filter,
-+				   sizeof(filter_compat)))
-+			return -EFAULT;
-+
-+		filter.flags = filter_compat.flags;
-+		for (i = 0; i < ARRAY_SIZE(filter.ranges); i++) {
-+			struct kvm_msr_filter_range_compat *cr;
-+
-+			cr = &filter_compat.ranges[i];
-+			filter.ranges[i] = (struct kvm_msr_filter_range) {
-+				.flags = cr->flags,
-+				.nmsrs = cr->nmsrs,
-+				.base = cr->base,
-+				.bitmap = (__u8 *)(ulong)cr->bitmap,
-+			};
-+		}
-+
-+		r = kvm_vm_ioctl_set_msr_filter(kvm, &filter);
-+		break;
-+	}
-+	}
-+
-+	return r;
-+}
-+#endif
-+
- #ifdef CONFIG_HAVE_KVM_PM_NOTIFIER
- static int kvm_arch_suspend_notifier(struct kvm *kvm)
- {
+ 		id += next_offset;
+ 		gpa += byte_offset;
+ 		len -= byte_offset;
 
 
