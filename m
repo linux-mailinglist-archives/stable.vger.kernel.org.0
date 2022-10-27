@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0719A60FEE3
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:09:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA2FB60FEB4
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237087AbiJ0RJX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:09:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42128 "EHLO
+        id S236996AbiJ0RHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:07:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237085AbiJ0RJU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:09:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A6CA1A2097
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:09:19 -0700 (PDT)
+        with ESMTP id S237038AbiJ0RHa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:07:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B11B12FFAB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:07:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A0B962402
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:09:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BA5C433D6;
-        Thu, 27 Oct 2022 17:09:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9595610AB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:07:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E83FAC433D6;
+        Thu, 27 Oct 2022 17:07:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890558;
-        bh=108BECBLVqzBMV+FtJE3RX1wtbE8kXUb0eA97tY+xoU=;
+        s=korg; t=1666890448;
+        bh=jZXGAkwd7VFfGUca+0FTgWO3YBj+HEjiJeERgt8jA6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJ/Xa288jVSmR+vIKrEx3dR13sPp9Cf1Qj0B0i8FD7mImYA3G9SuycnqM6U7QbWro
-         CfzrX8cVXr6GaV3GkYPY+Tuw01VtzOe/na1Pt3nOAjEdOCLb4z+h0jFVRt3zh8Qoof
-         In4EU4RUnB8m1eGaOhVSvSwoJwz13QN5HE9ZMFF4=
+        b=d7wGD8cfomk71XWVW5GTGhAnK36XH2XyjOCRvWJ8J1Wl9jp9JFPlPVYQM1bSWHX5h
+         apeu4kjJvYtyNvQ9+zaYiuVddH5B4pFBKeZdolcrjLM4nPttQFmYxaTQgcpcVjmK38
+         4G0f7blDH0aR15PzMCLSHJrTSNQ9c4hdgRiDlM9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Allison Collins <allison.henderson@oracle.com>,
-        Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 19/53] xfs: factor common AIL item deletion code
+        patches@lists.linux.dev,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 57/79] dmaengine: mxs: use platform_driver_register
 Date:   Thu, 27 Oct 2022 18:56:07 +0200
-Message-Id: <20221027165050.553015391@linuxfoundation.org>
+Message-Id: <20221027165056.237522630@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
-References: <20221027165049.817124510@linuxfoundation.org>
+In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
+References: <20221027165054.270676357@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,144 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
 
-commit 4165994ac9672d91134675caa6de3645a9ace6c8 upstream.
+[ Upstream commit 26696d4657167112a1079f86cba1739765c1360e ]
 
-Factor the common AIL deletion code that does all the wakeups into a
-helper so we only have one copy of this somewhat tricky code to
-interface with all the wakeups necessary when the LSN of the log
-tail changes.
+Driver registration fails on SOC imx8mn as its supplier, the clock
+control module, is probed later than subsys initcall level. This driver
+uses platform_driver_probe which is not compatible with deferred probing
+and won't be probed again later if probe function fails due to clock not
+being available at that time.
 
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Allison Collins <allison.henderson@oracle.com>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch replaces the use of platform_driver_probe with
+platform_driver_register which will allow probing the driver later again
+when the clock control module will be available.
+
+The __init annotation has been dropped because it is not compatible with
+deferred probing. The code is not executed once and its memory cannot be
+freed.
+
+Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
+Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: stable@vger.kernel.org
+
+Link: https://lore.kernel.org/r/20220921170556.1055962-1-dario.binacchi@amarulasolutions.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_inode_item.c |   12 +-----------
- fs/xfs/xfs_trans_ail.c  |   48 ++++++++++++++++++++++++++----------------------
- fs/xfs/xfs_trans_priv.h |    4 +++-
- 3 files changed, 30 insertions(+), 34 deletions(-)
+ drivers/dma/mxs-dma.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/fs/xfs/xfs_inode_item.c
-+++ b/fs/xfs/xfs_inode_item.c
-@@ -744,17 +744,7 @@ xfs_iflush_done(
- 				xfs_clear_li_failed(blip);
- 			}
- 		}
--
--		if (mlip_changed) {
--			if (!XFS_FORCED_SHUTDOWN(ailp->ail_mount))
--				xlog_assign_tail_lsn_locked(ailp->ail_mount);
--			if (list_empty(&ailp->ail_head))
--				wake_up_all(&ailp->ail_empty);
--		}
--		spin_unlock(&ailp->ail_lock);
--
--		if (mlip_changed)
--			xfs_log_space_wake(ailp->ail_mount);
-+		xfs_ail_update_finish(ailp, mlip_changed);
- 	}
- 
- 	/*
---- a/fs/xfs/xfs_trans_ail.c
-+++ b/fs/xfs/xfs_trans_ail.c
-@@ -680,6 +680,27 @@ xfs_ail_push_all_sync(
- 	finish_wait(&ailp->ail_empty, &wait);
+diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
+index 994fc4d2aca4..dc147cc2436e 100644
+--- a/drivers/dma/mxs-dma.c
++++ b/drivers/dma/mxs-dma.c
+@@ -670,7 +670,7 @@ static enum dma_status mxs_dma_tx_status(struct dma_chan *chan,
+ 	return mxs_chan->status;
  }
  
-+void
-+xfs_ail_update_finish(
-+	struct xfs_ail		*ailp,
-+	bool			do_tail_update) __releases(ailp->ail_lock)
-+{
-+	struct xfs_mount	*mp = ailp->ail_mount;
-+
-+	if (!do_tail_update) {
-+		spin_unlock(&ailp->ail_lock);
-+		return;
-+	}
-+
-+	if (!XFS_FORCED_SHUTDOWN(mp))
-+		xlog_assign_tail_lsn_locked(mp);
-+
-+	if (list_empty(&ailp->ail_head))
-+		wake_up_all(&ailp->ail_empty);
-+	spin_unlock(&ailp->ail_lock);
-+	xfs_log_space_wake(mp);
-+}
-+
- /*
-  * xfs_trans_ail_update - bulk AIL insertion operation.
-  *
-@@ -739,15 +760,7 @@ xfs_trans_ail_update_bulk(
- 	if (!list_empty(&tmp))
- 		xfs_ail_splice(ailp, cur, &tmp, lsn);
- 
--	if (mlip_changed) {
--		if (!XFS_FORCED_SHUTDOWN(ailp->ail_mount))
--			xlog_assign_tail_lsn_locked(ailp->ail_mount);
--		spin_unlock(&ailp->ail_lock);
--
--		xfs_log_space_wake(ailp->ail_mount);
--	} else {
--		spin_unlock(&ailp->ail_lock);
--	}
-+	xfs_ail_update_finish(ailp, mlip_changed);
- }
- 
- bool
-@@ -791,10 +804,10 @@ void
- xfs_trans_ail_delete(
- 	struct xfs_ail		*ailp,
- 	struct xfs_log_item	*lip,
--	int			shutdown_type) __releases(ailp->ail_lock)
-+	int			shutdown_type)
+-static int __init mxs_dma_init(struct mxs_dma_engine *mxs_dma)
++static int mxs_dma_init(struct mxs_dma_engine *mxs_dma)
  {
- 	struct xfs_mount	*mp = ailp->ail_mount;
--	bool			mlip_changed;
-+	bool			need_update;
+ 	int ret;
  
- 	if (!test_bit(XFS_LI_IN_AIL, &lip->li_flags)) {
- 		spin_unlock(&ailp->ail_lock);
-@@ -807,17 +820,8 @@ xfs_trans_ail_delete(
- 		return;
- 	}
- 
--	mlip_changed = xfs_ail_delete_one(ailp, lip);
--	if (mlip_changed) {
--		if (!XFS_FORCED_SHUTDOWN(mp))
--			xlog_assign_tail_lsn_locked(mp);
--		if (list_empty(&ailp->ail_head))
--			wake_up_all(&ailp->ail_empty);
--	}
--
--	spin_unlock(&ailp->ail_lock);
--	if (mlip_changed)
--		xfs_log_space_wake(ailp->ail_mount);
-+	need_update = xfs_ail_delete_one(ailp, lip);
-+	xfs_ail_update_finish(ailp, need_update);
+@@ -741,7 +741,7 @@ static struct dma_chan *mxs_dma_xlate(struct of_phandle_args *dma_spec,
+ 				     ofdma->of_node);
  }
  
- int
---- a/fs/xfs/xfs_trans_priv.h
-+++ b/fs/xfs/xfs_trans_priv.h
-@@ -92,8 +92,10 @@ xfs_trans_ail_update(
- }
+-static int __init mxs_dma_probe(struct platform_device *pdev)
++static int mxs_dma_probe(struct platform_device *pdev)
+ {
+ 	struct device_node *np = pdev->dev.of_node;
+ 	const struct mxs_dma_type *dma_type;
+@@ -839,10 +839,7 @@ static struct platform_driver mxs_dma_driver = {
+ 		.name	= "mxs-dma",
+ 		.of_match_table = mxs_dma_dt_ids,
+ 	},
++	.probe = mxs_dma_probe,
+ };
  
- bool xfs_ail_delete_one(struct xfs_ail *ailp, struct xfs_log_item *lip);
-+void xfs_ail_update_finish(struct xfs_ail *ailp, bool do_tail_update)
-+			__releases(ailp->ail_lock);
- void xfs_trans_ail_delete(struct xfs_ail *ailp, struct xfs_log_item *lip,
--		int shutdown_type) __releases(ailp->ail_lock);
-+		int shutdown_type);
- 
- static inline void
- xfs_trans_ail_remove(
+-static int __init mxs_dma_module_init(void)
+-{
+-	return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
+-}
+-subsys_initcall(mxs_dma_module_init);
++builtin_platform_driver(mxs_dma_driver);
+-- 
+2.35.1
+
 
 
