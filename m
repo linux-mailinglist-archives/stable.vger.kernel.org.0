@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2F6960FDFE
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 191B560FE97
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236259AbiJ0RBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:01:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53786 "EHLO
+        id S236994AbiJ0RGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:06:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236452AbiJ0RBB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:01:01 -0400
+        with ESMTP id S236991AbiJ0RGf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:06:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A33916698A
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:00:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CDAC198449
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:06:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A70E9B82714
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:00:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0345EC433C1;
-        Thu, 27 Oct 2022 17:00:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F137EB824DB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:06:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CE75C433D6;
+        Thu, 27 Oct 2022 17:06:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890056;
-        bh=GjxjWRHrY6m3+A65RDA5JLxImpRO/uiyZXRBv3YgMPo=;
+        s=korg; t=1666890390;
+        bh=kKN8nzZSBY8wS+0J+Z6z6ArqxhBnh1K2frDEpTCjOHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/DUrgw1JP/GRtDTPmKw0lw9WutBbdYdBNqOIMdJz7X1/+D5eXVLbCibeABavoJ4y
-         fcBacOMcj6UJG/nY+XoMh7tjyNm0HqbHh/deoUG/QpfYMYL6KrvVVObwpfcseiVWY8
-         6P04R914baeIPJiUz/LHATtXBgAW63kWhbve2Zsc=
+        b=z9K3/zHVXLASXn36eC6BzVI4OEGFpIqwZfAtHet4isVbxXuHW1d1wTgWWRfgL2F4j
+         tsS6gREPlL5bAMF1RaoSwDbhYMO9jrZpQZ/DPzOUJoiy8UHFnguG5B/eHReb3cfkwd
+         5lnf6CjeaIAC36h3+RiFldoxX2zgabXwE6tR6FFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Werner Sembach <wse@tuxedocomputers.com>
-Subject: [PATCH 6.0 93/94] [PATCH v3] ACPI: video: Force backlight native for more TongFang devices
+        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 25/79] btrfs: fix processing of delayed data refs during backref walking
 Date:   Thu, 27 Oct 2022 18:55:35 +0200
-Message-Id: <20221027165100.953931164@linuxfoundation.org>
+Message-Id: <20221027165055.240745273@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
-References: <20221027165057.208202132@linuxfoundation.org>
+In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
+References: <20221027165054.270676357@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,115 +53,249 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 3dbc80a3e4c55c4a5b89ef207bed7b7de36157b4 upstream.
+[ Upstream commit 4fc7b57228243d09c0d878873bf24fa64a90fa01 ]
 
-This commit is very different from the upstream commit! It fixes the same
-issue by adding more quirks, rather then the general fix from the 6.1
-kernel, because the general fix from the 6.1 kernel is part of a larger
-refactoring of the backlight code which is not suitable for the stable
-series.
+When processing delayed data references during backref walking and we are
+using a share context (we are being called through fiemap), whenever we
+find a delayed data reference for an inode different from the one we are
+interested in, then we immediately exit and consider the data extent as
+shared. This is wrong, because:
 
-As described in "ACPI: video: Drop NL5x?U, PF4NU1F and PF5?U??
-acpi_backlight=native quirks" (10212754a0d2) the upstream commit "ACPI:
-video: Make backlight class device registration a separate step (v2)"
-(3dbc80a3e4c5) makes these quirks unnecessary. However as mentioned in this
-bugtracker ticket https://bugzilla.kernel.org/show_bug.cgi?id=215683#c17
-the upstream fix is part of a larger patchset that is overall too complex
-for stable.
+1) This might be a DROP reference that will cancel out a reference in the
+   extent tree;
 
-The TongFang GKxNRxx, GMxNGxx, GMxZGxx, and GMxRGxx / TUXEDO
-Stellaris/Polaris Gen 1-4, have the same problem as the Clevo NL5xRU and
-NL5xNU / TUXEDO Aura 15 Gen1 and Gen2:
-They have a working native and video interface for screen backlight.
-However the default detection mechanism first registers the video interface
-before unregistering it again and switching to the native interface during
-boot. This results in a dangling SBIOS request for backlight change for
-some reason, causing the backlight to switch to ~2% once per boot on the
-first power cord connect or disconnect event. Setting the native interface
-explicitly circumvents this buggy behaviour by avoiding the unregistering
-process.
+2) Even if it's an ADD reference, it may be followed by a DROP reference
+   that cancels it out.
 
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In either case we should not exit immediately.
+
+Fix this by never exiting when we find a delayed data reference for
+another inode - instead add the reference and if it does not cancel out
+other delayed reference, we will exit early when we call
+extent_is_shared() after processing all delayed references. If we find
+a drop reference, then signal the code that processes references from
+the extent tree (add_inline_refs() and add_keyed_refs()) to not exit
+immediately if it finds there a reference for another inode, since we
+have delayed drop references that may cancel it out. In this later case
+we exit once we don't have references in the rb trees that cancel out
+each other and have two references for different inodes.
+
+Example reproducer for case 1):
+
+   $ cat test-1.sh
+   #!/bin/bash
+
+   DEV=/dev/sdj
+   MNT=/mnt/sdj
+
+   mkfs.btrfs -f $DEV
+   mount $DEV $MNT
+
+   xfs_io -f -c "pwrite 0 64K" $MNT/foo
+   cp --reflink=always $MNT/foo $MNT/bar
+
+   echo
+   echo "fiemap after cloning:"
+   xfs_io -c "fiemap -v" $MNT/foo
+
+   rm -f $MNT/bar
+   echo
+   echo "fiemap after removing file bar:"
+   xfs_io -c "fiemap -v" $MNT/foo
+
+   umount $MNT
+
+Running it before this patch, the extent is still listed as shared, it has
+the flag 0x2000 (FIEMAP_EXTENT_SHARED) set:
+
+   $ ./test-1.sh
+   fiemap after cloning:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128 0x2001
+
+   fiemap after removing file bar:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128 0x2001
+
+Example reproducer for case 2):
+
+   $ cat test-2.sh
+   #!/bin/bash
+
+   DEV=/dev/sdj
+   MNT=/mnt/sdj
+
+   mkfs.btrfs -f $DEV
+   mount $DEV $MNT
+
+   xfs_io -f -c "pwrite 0 64K" $MNT/foo
+   cp --reflink=always $MNT/foo $MNT/bar
+
+   # Flush delayed references to the extent tree and commit current
+   # transaction.
+   sync
+
+   echo
+   echo "fiemap after cloning:"
+   xfs_io -c "fiemap -v" $MNT/foo
+
+   rm -f $MNT/bar
+   echo
+   echo "fiemap after removing file bar:"
+   xfs_io -c "fiemap -v" $MNT/foo
+
+   umount $MNT
+
+Running it before this patch, the extent is still listed as shared, it has
+the flag 0x2000 (FIEMAP_EXTENT_SHARED) set:
+
+   $ ./test-2.sh
+   fiemap after cloning:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128 0x2001
+
+   fiemap after removing file bar:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128 0x2001
+
+After this patch, after deleting bar in both tests, the extent is not
+reported with the 0x2000 flag anymore, it gets only the flag 0x1
+(which is FIEMAP_EXTENT_LAST):
+
+   $ ./test-1.sh
+   fiemap after cloning:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128 0x2001
+
+   fiemap after removing file bar:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128   0x1
+
+   $ ./test-2.sh
+   fiemap after cloning:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128 0x2001
+
+   fiemap after removing file bar:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128   0x1
+
+These tests will later be converted to a test case for fstests.
+
+Fixes: dc046b10c8b7d4 ("Btrfs: make fiemap not blow when you have lots of snapshots")
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/video_detect.c |   64 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 64 insertions(+)
+ fs/btrfs/backref.c | 33 ++++++++++++++++++++++++---------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -515,6 +515,70 @@ static const struct dmi_system_id video_
- 		},
- 	},
- 	/*
-+	 * More Tongfang devices with the same issue as the Clevo NL5xRU and
-+	 * NL5xNU/TUXEDO Aura 15 Gen1 and Gen2. See the description above.
-+	 */
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GKxNRxx",
-+	.matches = {
-+		DMI_MATCH(DMI_BOARD_NAME, "GKxNRxx"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GKxNRxx",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1501A1650TI"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GKxNRxx",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1501A2060"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GKxNRxx",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1701A1650TI"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GKxNRxx",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1701A2060"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GMxNGxx",
-+	.matches = {
-+		DMI_MATCH(DMI_BOARD_NAME, "GMxNGxx"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GMxZGxx",
-+	.matches = {
-+		DMI_MATCH(DMI_BOARD_NAME, "GMxZGxx"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GMxRGxx",
-+	.matches = {
-+		DMI_MATCH(DMI_BOARD_NAME, "GMxRGxx"),
-+		},
-+	},
-+	/*
- 	 * Desktops which falsely report a backlight and which our heuristics
- 	 * for this do not catch.
- 	 */
+diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
+index baff31a147e7..7e8fac12f3f8 100644
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -137,6 +137,7 @@ struct share_check {
+ 	u64 root_objectid;
+ 	u64 inum;
+ 	int share_count;
++	bool have_delayed_delete_refs;
+ };
+ 
+ static inline int extent_is_shared(struct share_check *sc)
+@@ -881,13 +882,22 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
+ 			key.offset = ref->offset;
+ 
+ 			/*
+-			 * Found a inum that doesn't match our known inum, we
+-			 * know it's shared.
++			 * If we have a share check context and a reference for
++			 * another inode, we can't exit immediately. This is
++			 * because even if this is a BTRFS_ADD_DELAYED_REF
++			 * reference we may find next a BTRFS_DROP_DELAYED_REF
++			 * which cancels out this ADD reference.
++			 *
++			 * If this is a DROP reference and there was no previous
++			 * ADD reference, then we need to signal that when we
++			 * process references from the extent tree (through
++			 * add_inline_refs() and add_keyed_refs()), we should
++			 * not exit early if we find a reference for another
++			 * inode, because one of the delayed DROP references
++			 * may cancel that reference in the extent tree.
+ 			 */
+-			if (sc && sc->inum && ref->objectid != sc->inum) {
+-				ret = BACKREF_FOUND_SHARED;
+-				goto out;
+-			}
++			if (sc && count < 0)
++				sc->have_delayed_delete_refs = true;
+ 
+ 			ret = add_indirect_ref(fs_info, preftrees, ref->root,
+ 					       &key, 0, node->bytenr, count, sc,
+@@ -917,7 +927,7 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
+ 	}
+ 	if (!ret)
+ 		ret = extent_is_shared(sc);
+-out:
++
+ 	spin_unlock(&head->lock);
+ 	return ret;
+ }
+@@ -1020,7 +1030,8 @@ static int add_inline_refs(const struct btrfs_fs_info *fs_info,
+ 			key.type = BTRFS_EXTENT_DATA_KEY;
+ 			key.offset = btrfs_extent_data_ref_offset(leaf, dref);
+ 
+-			if (sc && sc->inum && key.objectid != sc->inum) {
++			if (sc && sc->inum && key.objectid != sc->inum &&
++			    !sc->have_delayed_delete_refs) {
+ 				ret = BACKREF_FOUND_SHARED;
+ 				break;
+ 			}
+@@ -1030,6 +1041,7 @@ static int add_inline_refs(const struct btrfs_fs_info *fs_info,
+ 			ret = add_indirect_ref(fs_info, preftrees, root,
+ 					       &key, 0, bytenr, count,
+ 					       sc, GFP_NOFS);
++
+ 			break;
+ 		}
+ 		default:
+@@ -1119,7 +1131,8 @@ static int add_keyed_refs(struct btrfs_fs_info *fs_info,
+ 			key.type = BTRFS_EXTENT_DATA_KEY;
+ 			key.offset = btrfs_extent_data_ref_offset(leaf, dref);
+ 
+-			if (sc && sc->inum && key.objectid != sc->inum) {
++			if (sc && sc->inum && key.objectid != sc->inum &&
++			    !sc->have_delayed_delete_refs) {
+ 				ret = BACKREF_FOUND_SHARED;
+ 				break;
+ 			}
+@@ -1542,6 +1555,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr,
+ 		.root_objectid = root->root_key.objectid,
+ 		.inum = inum,
+ 		.share_count = 0,
++		.have_delayed_delete_refs = false,
+ 	};
+ 
+ 	ulist_init(roots);
+@@ -1576,6 +1590,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr,
+ 			break;
+ 		bytenr = node->val;
+ 		shared.share_count = 0;
++		shared.have_delayed_delete_refs = false;
+ 		cond_resched();
+ 	}
+ 
+-- 
+2.35.1
+
 
 
