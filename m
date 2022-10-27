@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D60A760FEDE
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:09:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E55260FEE0
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:09:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237074AbiJ0RJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:09:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41940 "EHLO
+        id S237091AbiJ0RJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:09:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237075AbiJ0RJJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:09:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D33E1A1B1D
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:09:08 -0700 (PDT)
+        with ESMTP id S237082AbiJ0RJO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:09:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B70C1A20A4
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:09:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C14762402
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:09:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CB59C433C1;
-        Thu, 27 Oct 2022 17:09:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA11CB826F9
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:09:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 394B0C433D7;
+        Thu, 27 Oct 2022 17:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890548;
-        bh=6eo66c8Cc9BNFIdP+7GafCSOAaQjbUWlftKZ9FiQAPg=;
+        s=korg; t=1666890550;
+        bh=EbCiTuQ2kgS/ngrVR/F1f1YiMTe3QWDwlKGz5QUR6uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Amp2hDZAg8U8UGYhHhkNLd5ca46nO4FfLUxVCvgRWtSRMcGftvq/GlHWlZcpe4QfO
-         5bAfOIkn43tOwCkBzaFZUGOoIlSv5UikIZVEg6eJul1iYB0gosEtoED8rP0+8SM3zi
-         IGMv9s5SzZrUo7LhXXUD+wdqBHEYHt1JGIBXyIM4=
+        b=JLBtJpJKkhw2ICfB0nv4qkdLQ6NK8+nD8+UIhrxplJ9DiDDBlD99y/CGcdC7z9wdx
+         Jdb0dMMSb6KXRcpy4xpySPiBusa48kiTaiqNvqSs4k7BihwG0GoBajnCrEQ3O2hjxA
+         y7HaibrJQMaRo9UKKIt49LBM6Fgc7ZnzajqMYZQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Auger <eric.auger@redhat.com>,
-        Eric Ren <renzhengeek@gmail.com>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 33/53] KVM: arm64: vgic: Fix exit condition in scan_its_table()
-Date:   Thu, 27 Oct 2022 18:56:21 +0200
-Message-Id: <20221027165051.059383045@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.4 34/53] media: venus: dec: Handle the case where find_format fails
+Date:   Thu, 27 Oct 2022 18:56:22 +0200
+Message-Id: <20221027165051.099101579@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
 References: <20221027165049.817124510@linuxfoundation.org>
@@ -52,81 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Ren <renzhengeek@gmail.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit c000a2607145d28b06c697f968491372ea56c23a upstream.
+commit 06a2da340f762addc5935bf851d95b14d4692db2 upstream.
 
-With some PCIe topologies, restoring a guest fails while
-parsing the ITS device tables.
+Debugging the decoder on msm8916 I noticed the vdec probe was crashing if
+the fmt pointer was NULL.
 
-Reproducer hints:
-1. Create ARM virt VM with pxb-pcie bus which adds
-   extra host bridges, with qemu command like:
+A similar fix from Colin Ian King found by Coverity was implemented for the
+encoder. Implement the same fix on the decoder.
 
-```
-  -device pxb-pcie,bus_nr=8,id=pci.x,numa_node=0,bus=pcie.0 \
-  -device pcie-root-port,..,bus=pci.x \
-  ...
-  -device pxb-pcie,bus_nr=37,id=pci.y,numa_node=1,bus=pcie.0 \
-  -device pcie-root-port,..,bus=pci.y \
-  ...
-
-```
-2. Ensure the guest uses 2-level device table
-3. Perform VM migration which calls save/restore device tables
-
-In that setup, we get a big "offset" between 2 device_ids,
-which makes unsigned "len" round up a big positive number,
-causing the scan loop to continue with a bad GPA. For example:
-
-1. L1 table has 2 entries;
-2. and we are now scanning at L2 table entry index 2075 (pointed
-   to by L1 first entry)
-3. if next device id is 9472, we will get a big offset: 7397;
-4. with unsigned 'len', 'len -= offset * esz', len will underflow to a
-   positive number, mistakenly into next iteration with a bad GPA;
-   (It should break out of the current L2 table scanning, and jump
-   into the next L1 table entry)
-5. that bad GPA fails the guest read.
-
-Fix it by stopping the L2 table scan when the next device id is
-outside of the current table, allowing the scan to continue from
-the next L1 table entry.
-
-Thanks to Eric Auger for the fix suggestion.
-
-Fixes: 920a7a8fa92a ("KVM: arm64: vgic-its: Add infrastructure for tableookup")
-Suggested-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Eric Ren <renzhengeek@gmail.com>
-[maz: commit message tidy-up]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/d9c3a564af9e2c5bf63f48a7dcbf08cd593c5c0b.1665802985.git.renzhengeek@gmail.com
+Fixes: 7472c1c69138 ("[media] media: venus: vdec: add video decoder files")
+Cc: stable@vger.kernel.org  # v4.13+
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/arm/vgic/vgic-its.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/platform/qcom/venus/vdec.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/virt/kvm/arm/vgic/vgic-its.c
-+++ b/virt/kvm/arm/vgic/vgic-its.c
-@@ -2095,7 +2095,7 @@ static int scan_its_table(struct vgic_it
+--- a/drivers/media/platform/qcom/venus/vdec.c
++++ b/drivers/media/platform/qcom/venus/vdec.c
+@@ -157,6 +157,8 @@ vdec_try_fmt_common(struct venus_inst *i
+ 		else
+ 			return NULL;
+ 		fmt = find_format(inst, pixmp->pixelformat, f->type);
++		if (!fmt)
++			return NULL;
+ 	}
  
- 	memset(entry, 0, esz);
- 
--	while (len > 0) {
-+	while (true) {
- 		int next_offset;
- 		size_t byte_offset;
- 
-@@ -2108,6 +2108,9 @@ static int scan_its_table(struct vgic_it
- 			return next_offset;
- 
- 		byte_offset = next_offset * esz;
-+		if (byte_offset >= len)
-+			break;
-+
- 		id += next_offset;
- 		gpa += byte_offset;
- 		len -= byte_offset;
+ 	pixmp->width = clamp(pixmp->width, frame_width_min(inst),
 
 
