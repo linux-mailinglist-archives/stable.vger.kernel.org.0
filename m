@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C42C760FDE8
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:00:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E037C60FE38
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:03:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236790AbiJ0RAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:00:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51080 "EHLO
+        id S236880AbiJ0RDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:03:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236768AbiJ0RAT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:00:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4026A53029
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:00:17 -0700 (PDT)
+        with ESMTP id S236879AbiJ0RDS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:03:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CFA01946D2
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:03:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED4F3B82714
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:00:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E3C5C433C1;
-        Thu, 27 Oct 2022 17:00:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBC8B623EB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:03:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEA26C433C1;
+        Thu, 27 Oct 2022 17:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890014;
-        bh=ReqxKpjcJIP3mp6xJGfkWapq31FM37BsiH3/+pqB1nY=;
+        s=korg; t=1666890196;
+        bh=ei+uedMaTOIPuxjpu6diHqgY1TRnnG9bfnjO2qXCiQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dmLzPM81k2UOAlQrkExTj3mWAICEa0GiiEOyJoFXoIokSd6hDQsDrLiwoekg0NbYf
-         LcEfhTzy6U5Q94Z+ONDR02mARSQi7g3mANAMVsz/1rbW7NqdMwh5FsRyZpk7ReXYK/
-         X/fcnyLcEmo85zfnp4aTOVKDl2pPvFYIQIAp46j0=
+        b=hWP/ErOs3CptMwN7dF7ElweMfM0MfoNy/LePsbUbE/3g1R2hAc7opE4KLCy8Ynl4d
+         csB1osrTNNRwB52y82Hvx0I+hvy4tkgMZ+CAbeO9+Z2jOZdBAmOmyDGGfL8Iwvj+g2
+         uQTbxpmzFzh1NO7Yt92CrFOVycIoSXl0CL63G8H0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>,
-        Joel Colledge <joel.colledge@linbit.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 84/94] drbd: only clone bio if we have a backing device
+        patches@lists.linux.dev, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.15 28/79] media: mceusb: set timeout to at least timeout provided
 Date:   Thu, 27 Oct 2022 18:55:26 +0200
-Message-Id: <20221027165100.586052846@linuxfoundation.org>
+Message-Id: <20221027165055.881880670@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
-References: <20221027165057.208202132@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 6d42ddf7f27b6723549ee6d4c8b1b418b59bf6b5 ]
+commit 20b794ddce475ed012deb365000527c17b3e93e6 upstream.
 
-Commit c347a787e34cb (drbd: set ->bi_bdev in drbd_req_new) moved a
-bio_set_dev call (which has since been removed) to "earlier", from
-drbd_request_prepare to drbd_req_new.
+By rounding down, the actual timeout can be lower than requested. As a
+result, long spaces just below the requested timeout can be incorrectly
+reported as timeout and truncated.
 
-The problem is that this accesses device->ldev->backing_bdev, which is
-not NULL-checked at this point. When we don't have an ldev (i.e. when
-the DRBD device is diskless), this leads to a null pointer deref.
-
-So, only allocate the private_bio if we actually have a disk. This is
-also a small optimization, since we don't clone the bio to only to
-immediately free it again in the diskless case.
-
-Fixes: c347a787e34cb ("drbd: set ->bi_bdev in drbd_req_new")
-Co-developed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Signed-off-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Co-developed-by: Joel Colledge <joel.colledge@linbit.com>
-Signed-off-by: Joel Colledge <joel.colledge@linbit.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20221020085205.129090-1-christoph.boehmwalder@linbit.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 877f1a7cee3f ("media: rc: mceusb: allow the timeout to be configurable")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/drbd/drbd_req.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/media/rc/mceusb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/drbd/drbd_req.c b/drivers/block/drbd/drbd_req.c
-index 8f7f144e54f3..7f9bcc82fc9c 100644
---- a/drivers/block/drbd/drbd_req.c
-+++ b/drivers/block/drbd/drbd_req.c
-@@ -30,11 +30,6 @@ static struct drbd_request *drbd_req_new(struct drbd_device *device, struct bio
- 		return NULL;
- 	memset(req, 0, sizeof(*req));
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -1077,7 +1077,7 @@ static int mceusb_set_timeout(struct rc_
+ 	struct mceusb_dev *ir = dev->priv;
+ 	unsigned int units;
  
--	req->private_bio = bio_alloc_clone(device->ldev->backing_bdev, bio_src,
--					   GFP_NOIO, &drbd_io_bio_set);
--	req->private_bio->bi_private = req;
--	req->private_bio->bi_end_io = drbd_request_endio;
--
- 	req->rq_state = (bio_data_dir(bio_src) == WRITE ? RQ_WRITE : 0)
- 		      | (bio_op(bio_src) == REQ_OP_WRITE_ZEROES ? RQ_ZEROES : 0)
- 		      | (bio_op(bio_src) == REQ_OP_DISCARD ? RQ_UNMAP : 0);
-@@ -1219,9 +1214,12 @@ drbd_request_prepare(struct drbd_device *device, struct bio *bio)
- 	/* Update disk stats */
- 	req->start_jif = bio_start_io_acct(req->master_bio);
+-	units = DIV_ROUND_CLOSEST(timeout, MCE_TIME_UNIT);
++	units = DIV_ROUND_UP(timeout, MCE_TIME_UNIT);
  
--	if (!get_ldev(device)) {
--		bio_put(req->private_bio);
--		req->private_bio = NULL;
-+	if (get_ldev(device)) {
-+		req->private_bio = bio_alloc_clone(device->ldev->backing_bdev,
-+						   bio, GFP_NOIO,
-+						   &drbd_io_bio_set);
-+		req->private_bio->bi_private = req;
-+		req->private_bio->bi_end_io = drbd_request_endio;
- 	}
- 
- 	/* process discards always from our submitter thread */
--- 
-2.35.1
-
+ 	cmdbuf[2] = units >> 8;
+ 	cmdbuf[3] = units;
 
 
