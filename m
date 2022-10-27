@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E93160FEB6
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:07:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AB9A60FEE5
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:09:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237033AbiJ0RHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:07:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39932 "EHLO
+        id S237085AbiJ0RJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:09:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237035AbiJ0RHh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:07:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3318198989
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:07:36 -0700 (PDT)
+        with ESMTP id S237077AbiJ0RJb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:09:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF14A1A2097
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:09:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8A54B825F3
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:07:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B6B6C433C1;
-        Thu, 27 Oct 2022 17:07:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BDC062369
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:09:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7255BC433C1;
+        Thu, 27 Oct 2022 17:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890453;
-        bh=FKKvkqNRc7pYspgvaaCwQhYHDiVriFgsESp9i+j7g5w=;
+        s=korg; t=1666890563;
+        bh=HjVu9VIoZV51VSifoURsyz1CdxM9ujWYfT6v5R5lvMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gv00+Tz4neQ5dqYTqvqJmwjJkyq5IBSI7G5lHI+fqo+RPylS8kqaOIb+X36ECmebz
-         91z4OGsp+g/db9oRyJBT1piEfpdwXY8z245Y+MiCBFx7UNI7dMrNuC8plqslvGjV6A
-         nQJ/eXsUOBYhWZEUKpw1bx6nQgQNrX/cUxl5MhBA=
+        b=y/zLeibQuaKyhTkIQL6I+PPWVEAYRo77ZrnZmei1EKfFaczyVcp3G8r4hjRAufpCt
+         0/a6r2GnsL7lOfiPxhXO9SkQxBXJXh2WY9iJUvQnecq/paTSx8k+XpA1fFk8OJd+cD
+         HaW4kpuhFu1u1rVeyh5BkuvpmOQ4SYut9lPsrovI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.10 76/79] Makefile.debug: re-enable debug info for .S files
+        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 38/53] btrfs: fix processing of delayed tree block refs during backref walking
 Date:   Thu, 27 Oct 2022 18:56:26 +0200
-Message-Id: <20221027165056.896260482@linuxfoundation.org>
+Message-Id: <20221027165051.268505509@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
+References: <20221027165049.817124510@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,41 +53,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-This is _not_ an upstream commit and just for 5.10.y only. It is based
-on commit 32ef9e5054ec0321b9336058c58ec749e9c6b0fe upstream.
+[ Upstream commit 943553ef9b51db303ab2b955c1025261abfdf6fb ]
 
-Alexey reported that the fraction of unknown filename instances in
-kallsyms grew from ~0.3% to ~10% recently; Bill and Greg tracked it down
-to assembler defined symbols, which regressed as a result of:
+During backref walking, when processing a delayed reference with a type of
+BTRFS_TREE_BLOCK_REF_KEY, we have two bugs there:
 
-commit b8a9092330da ("Kbuild: do not emit debug info for assembly with LLVM_IAS=1")
+1) We are accessing the delayed references extent_op, and its key, without
+   the protection of the delayed ref head's lock;
 
-In that commit, I allude to restoring debug info for assembler defined
-symbols in a follow up patch, but it seems I forgot to do so in
+2) If there's no extent op for the delayed ref head, we end up with an
+   uninitialized key in the stack, variable 'tmp_op_key', and then pass
+   it to add_indirect_ref(), which adds the reference to the indirect
+   refs rb tree.
 
-commit a66049e2cf0e ("Kbuild: make DWARF version a choice")
+   This is wrong, because indirect references should have a NULL key
+   when we don't have access to the key, and in that case they should be
+   added to the indirect_missing_keys rb tree and not to the indirect rb
+   tree.
 
-Fixes: b8a9092330da ("Kbuild: do not emit debug info for assembly with LLVM_IAS=1")
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+   This means that if have BTRFS_TREE_BLOCK_REF_KEY delayed ref resulting
+   from freeing an extent buffer, therefore with a count of -1, it will
+   not cancel out the corresponding reference we have in the extent tree
+   (with a count of 1), since both references end up in different rb
+   trees.
+
+   When using fiemap, where we often need to check if extents are shared
+   through shared subtrees resulting from snapshots, it means we can
+   incorrectly report an extent as shared when it's no longer shared.
+   However this is temporary because after the transaction is committed
+   the extent is no longer reported as shared, as running the delayed
+   reference results in deleting the tree block reference from the extent
+   tree.
+
+   Outside the fiemap context, the result is unpredictable, as the key was
+   not initialized but it's used when navigating the rb trees to insert
+   and search for references (prelim_ref_compare()), and we expect all
+   references in the indirect rb tree to have valid keys.
+
+The following reproducer triggers the second bug:
+
+   $ cat test.sh
+   #!/bin/bash
+
+   DEV=/dev/sdj
+   MNT=/mnt/sdj
+
+   mkfs.btrfs -f $DEV
+   mount -o compress $DEV $MNT
+
+   # With a compressed 128M file we get a tree height of 2 (level 1 root).
+   xfs_io -f -c "pwrite -b 1M 0 128M" $MNT/foo
+
+   btrfs subvolume snapshot $MNT $MNT/snap
+
+   # Fiemap should output 0x2008 in the flags column.
+   # 0x2000 means shared extent
+   # 0x8 means encoded extent (because it's compressed)
+   echo
+   echo "fiemap after snapshot, range [120M, 120M + 128K):"
+   xfs_io -c "fiemap -v 120M 128K" $MNT/foo
+   echo
+
+   # Overwrite one extent and fsync to flush delalloc and COW a new path
+   # in the snapshot's tree.
+   #
+   # After this we have a BTRFS_DROP_DELAYED_REF delayed ref of type
+   # BTRFS_TREE_BLOCK_REF_KEY with a count of -1 for every COWed extent
+   # buffer in the path.
+   #
+   # In the extent tree we have inline references of type
+   # BTRFS_TREE_BLOCK_REF_KEY, with a count of 1, for the same extent
+   # buffers, so they should cancel each other, and the extent buffers in
+   # the fs tree should no longer be considered as shared.
+   #
+   echo "Overwriting file range [120M, 120M + 128K)..."
+   xfs_io -c "pwrite -b 128K 120M 128K" $MNT/snap/foo
+   xfs_io -c "fsync" $MNT/snap/foo
+
+   # Fiemap should output 0x8 in the flags column. The extent in the range
+   # [120M, 120M + 128K) is no longer shared, it's now exclusive to the fs
+   # tree.
+   echo
+   echo "fiemap after overwrite range [120M, 120M + 128K):"
+   xfs_io -c "fiemap -v 120M 128K" $MNT/foo
+   echo
+
+   umount $MNT
+
+Running it before this patch:
+
+   $ ./test.sh
+   (...)
+   wrote 134217728/134217728 bytes at offset 0
+   128 MiB, 128 ops; 0.1152 sec (1.085 GiB/sec and 1110.5809 ops/sec)
+   Create a snapshot of '/mnt/sdj' in '/mnt/sdj/snap'
+
+   fiemap after snapshot, range [120M, 120M + 128K):
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [245760..246015]: 34304..34559       256 0x2008
+
+   Overwriting file range [120M, 120M + 128K)...
+   wrote 131072/131072 bytes at offset 125829120
+   128 KiB, 1 ops; 0.0001 sec (683.060 MiB/sec and 5464.4809 ops/sec)
+
+   fiemap after overwrite range [120M, 120M + 128K):
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [245760..246015]: 34304..34559       256 0x2008
+
+The extent in the range [120M, 120M + 128K) is still reported as shared
+(0x2000 bit set) after overwriting that range and flushing delalloc, which
+is not correct - an entire path was COWed in the snapshot's tree and the
+extent is now only referenced by the original fs tree.
+
+Running it after this patch:
+
+   $ ./test.sh
+   (...)
+   wrote 134217728/134217728 bytes at offset 0
+   128 MiB, 128 ops; 0.1198 sec (1.043 GiB/sec and 1068.2067 ops/sec)
+   Create a snapshot of '/mnt/sdj' in '/mnt/sdj/snap'
+
+   fiemap after snapshot, range [120M, 120M + 128K):
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [245760..246015]: 34304..34559       256 0x2008
+
+   Overwriting file range [120M, 120M + 128K)...
+   wrote 131072/131072 bytes at offset 125829120
+   128 KiB, 1 ops; 0.0001 sec (694.444 MiB/sec and 5555.5556 ops/sec)
+
+   fiemap after overwrite range [120M, 120M + 128K):
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [245760..246015]: 34304..34559       256   0x8
+
+Now the extent is not reported as shared anymore.
+
+So fix this by passing a NULL key pointer to add_indirect_ref() when
+processing a delayed reference for a tree block if there's no extent op
+for our delayed ref head with a defined key. Also access the extent op
+only after locking the delayed ref head's lock.
+
+The reproducer will be converted later to a test case for fstests.
+
+Fixes: 86d5f994425252 ("btrfs: convert prelimary reference tracking to use rbtrees")
+Fixes: a6dbceafb915e8 ("btrfs: Remove unused op_key var from add_delayed_refs")
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/btrfs/backref.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -842,7 +842,9 @@ else
- DEBUG_CFLAGS	+= -g
- endif
+diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
+index 9c969b90aec4..7147bb66a482 100644
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -813,16 +813,11 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
+ 			    struct preftrees *preftrees, struct share_check *sc)
+ {
+ 	struct btrfs_delayed_ref_node *node;
+-	struct btrfs_delayed_extent_op *extent_op = head->extent_op;
+ 	struct btrfs_key key;
+-	struct btrfs_key tmp_op_key;
+ 	struct rb_node *n;
+ 	int count;
+ 	int ret = 0;
  
--ifneq ($(LLVM_IAS),1)
-+ifeq ($(LLVM_IAS),1)
-+KBUILD_AFLAGS	+= -g
-+else
- KBUILD_AFLAGS	+= -Wa,-gdwarf-2
- endif
+-	if (extent_op && extent_op->update_key)
+-		btrfs_disk_key_to_cpu(&tmp_op_key, &extent_op->key);
+-
+ 	spin_lock(&head->lock);
+ 	for (n = rb_first_cached(&head->ref_tree); n; n = rb_next(n)) {
+ 		node = rb_entry(n, struct btrfs_delayed_ref_node,
+@@ -848,10 +843,16 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
+ 		case BTRFS_TREE_BLOCK_REF_KEY: {
+ 			/* NORMAL INDIRECT METADATA backref */
+ 			struct btrfs_delayed_tree_ref *ref;
++			struct btrfs_key *key_ptr = NULL;
++
++			if (head->extent_op && head->extent_op->update_key) {
++				btrfs_disk_key_to_cpu(&key, &head->extent_op->key);
++				key_ptr = &key;
++			}
  
+ 			ref = btrfs_delayed_node_to_tree_ref(node);
+ 			ret = add_indirect_ref(fs_info, preftrees, ref->root,
+-					       &tmp_op_key, ref->level + 1,
++					       key_ptr, ref->level + 1,
+ 					       node->bytenr, count, sc,
+ 					       GFP_ATOMIC);
+ 			break;
+-- 
+2.35.1
+
 
 
