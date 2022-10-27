@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E00AA60F681
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 13:49:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F8860F684
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 13:50:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234755AbiJ0Ltd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 07:49:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41974 "EHLO
+        id S235380AbiJ0Lug (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 07:50:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234111AbiJ0Ltc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 07:49:32 -0400
+        with ESMTP id S235384AbiJ0Lue (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 07:50:34 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C880112C
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 04:49:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49F226B159
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 04:50:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666871367;
+        s=mimecast20190719; t=1666871431;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=BkAATQ1Pn+eykXmwEHs1aO8eFUMBv+H3at9ox2xeh98=;
-        b=eb6fxZ18iaRE2Zr1WT/9lgzrRQKVUNaoXjUkP29bWhYiqXPtoJUM7DhH5f/cvs320kpIlt
-        Aq0Tot7oMReTFiWdXNEHLFD0/+ReUfUEykMkLZbZUqYacJuFCaOkSqsvT7pMQ2nVOeX1NT
-        5a3MljJGxQGkyWw0tmJX3erdJgpoFrM=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=uyUdeLKEldqM7xC+WLt1y/67Cj/yO/ql25Rf1AOsrm0=;
+        b=UKoE19nig58q5ypcNR1rNEWYQt6t074KPj48iCnAQ3pTxW0rNUx3Dsipi2XUu17e9KtxjL
+        F5zcGG7k1bbExvamiaxt727SrpfZb0io0Wp4Y6zG2bkydQ6tzBrmW/NzcdvSIgXE0JE7GA
+        AaN6zCCcO2gLeINhtKaRWQsaPQEJv+M=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-255-iu7gezQQOjm6wN3rNMvGoA-1; Thu, 27 Oct 2022 07:49:25 -0400
-X-MC-Unique: iu7gezQQOjm6wN3rNMvGoA-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+ us-mta-453-L5vaxVE_MvWomNhS-x-iYA-1; Thu, 27 Oct 2022 07:50:27 -0400
+X-MC-Unique: L5vaxVE_MvWomNhS-x-iYA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 631CA3C0F444;
-        Thu, 27 Oct 2022 11:49:25 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2A19D101A528;
+        Thu, 27 Oct 2022 11:50:27 +0000 (UTC)
 Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5E58C1121315;
-        Thu, 27 Oct 2022 11:49:25 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2594A2024CBB;
+        Thu, 27 Oct 2022 11:50:27 +0000 (UTC)
 Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 29RBnPbb016350;
-        Thu, 27 Oct 2022 07:49:25 -0400
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 29RBoR6C017614;
+        Thu, 27 Oct 2022 07:50:27 -0400
 Received: from localhost (mpatocka@localhost)
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 29RBnPR7016340;
-        Thu, 27 Oct 2022 07:49:25 -0400
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 29RBoRAg017610;
+        Thu, 27 Oct 2022 07:50:27 -0400
 X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
-Date:   Thu, 27 Oct 2022 07:49:25 -0400 (EDT)
+Date:   Thu, 27 Oct 2022 07:50:27 -0400 (EDT)
 From:   Mikulas Patocka <mpatocka@redhat.com>
 X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
 To:     Greg KH <gregkh@linuxfoundation.org>
 cc:     stable@vger.kernel.org
-Subject: [PATCH 5.4] wait_on_bit: add an acquire memory barrier
-Message-ID: <alpine.LRH.2.21.2210270748530.3240@file01.intranet.prod.int.rdu2.redhat.com>
+Subject: [PATCH 4.19] wait_on_bit: add an acquire memory barrier
+Message-ID: <alpine.LRH.2.21.2210270749280.3240@file01.intranet.prod.int.rdu2.redhat.com>
 User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
 X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
@@ -81,27 +81,26 @@ Cc: stable@vger.kernel.org
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
 ---
- arch/alpha/include/asm/bitops.h           |    7 +++++++
- arch/arc/include/asm/bitops.h             |    7 +++++++
- arch/h8300/include/asm/bitops.h           |    3 ++-
- arch/hexagon/include/asm/bitops.h         |   15 +++++++++++++++
- arch/ia64/include/asm/bitops.h            |    7 +++++++
- arch/m68k/include/asm/bitops.h            |    6 ++++++
- arch/s390/include/asm/bitops.h            |    7 +++++++
- arch/sh/include/asm/bitops-op32.h         |    7 +++++++
- arch/x86/include/asm/bitops.h             |   21 +++++++++++++++++++++
- include/asm-generic/bitops-instrumented.h |    6 ++++++
- include/asm-generic/bitops/non-atomic.h   |   14 ++++++++++++++
- include/linux/buffer_head.h               |    2 +-
- include/linux/wait_bit.h                  |    8 ++++----
- kernel/sched/wait_bit.c                   |    2 +-
- 14 files changed, 105 insertions(+), 7 deletions(-)
+ arch/alpha/include/asm/bitops.h         |    7 +++++++
+ arch/arc/include/asm/bitops.h           |    7 +++++++
+ arch/h8300/include/asm/bitops.h         |    3 ++-
+ arch/hexagon/include/asm/bitops.h       |   15 +++++++++++++++
+ arch/ia64/include/asm/bitops.h          |    7 +++++++
+ arch/m68k/include/asm/bitops.h          |    6 ++++++
+ arch/s390/include/asm/bitops.h          |    7 +++++++
+ arch/sh/include/asm/bitops-op32.h       |    7 +++++++
+ arch/x86/include/asm/bitops.h           |   21 +++++++++++++++++++++
+ include/asm-generic/bitops/non-atomic.h |   14 ++++++++++++++
+ include/linux/buffer_head.h             |    2 +-
+ include/linux/wait_bit.h                |    8 ++++----
+ kernel/sched/wait_bit.c                 |    2 +-
+ 13 files changed, 99 insertions(+), 7 deletions(-)
 
 Index: linux-stable/arch/x86/include/asm/bitops.h
 ===================================================================
---- linux-stable.orig/arch/x86/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/arch/x86/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
-@@ -207,6 +207,20 @@ static __always_inline bool constant_tes
+--- linux-stable.orig/arch/x86/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/arch/x86/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
+@@ -317,6 +317,20 @@ static __always_inline bool constant_tes
  		(addr[nr >> _BITOPS_LONG_SHIFT])) != 0;
  }
  
@@ -122,12 +121,12 @@ Index: linux-stable/arch/x86/include/asm/bitops.h
  static __always_inline bool variable_test_bit(long nr, volatile const unsigned long *addr)
  {
  	bool oldbit;
-@@ -224,6 +238,13 @@ static __always_inline bool variable_tes
+@@ -343,6 +357,13 @@ static bool test_bit(int nr, const volat
  	 ? constant_test_bit((nr), (addr))	\
  	 : variable_test_bit((nr), (addr)))
  
 +static __always_inline bool
-+arch_test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
 +{
 +	return __builtin_constant_p(nr) ? constant_test_bit_acquire(nr, addr) :
 +					  variable_test_bit(nr, addr);
@@ -138,8 +137,8 @@ Index: linux-stable/arch/x86/include/asm/bitops.h
   * @word: The word to search
 Index: linux-stable/include/asm-generic/bitops/non-atomic.h
 ===================================================================
---- linux-stable.orig/include/asm-generic/bitops/non-atomic.h	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/include/asm-generic/bitops/non-atomic.h	2022-10-17 19:50:18.000000000 +0200
+--- linux-stable.orig/include/asm-generic/bitops/non-atomic.h	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/include/asm-generic/bitops/non-atomic.h	2022-10-17 20:04:40.000000000 +0200
 @@ -3,6 +3,7 @@
  #define _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
  
@@ -168,8 +167,8 @@ Index: linux-stable/include/asm-generic/bitops/non-atomic.h
  #endif /* _ASM_GENERIC_BITOPS_NON_ATOMIC_H_ */
 Index: linux-stable/include/linux/buffer_head.h
 ===================================================================
---- linux-stable.orig/include/linux/buffer_head.h	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/include/linux/buffer_head.h	2022-10-17 19:50:18.000000000 +0200
+--- linux-stable.orig/include/linux/buffer_head.h	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/include/linux/buffer_head.h	2022-10-17 20:04:40.000000000 +0200
 @@ -166,7 +166,7 @@ static __always_inline int buffer_uptoda
  	 * make it consistent with folio_test_uptodate
  	 * pairs with smp_mb__before_atomic in set_buffer_uptodate
@@ -181,8 +180,8 @@ Index: linux-stable/include/linux/buffer_head.h
  #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
 Index: linux-stable/include/linux/wait_bit.h
 ===================================================================
---- linux-stable.orig/include/linux/wait_bit.h	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/include/linux/wait_bit.h	2022-10-17 19:50:18.000000000 +0200
+--- linux-stable.orig/include/linux/wait_bit.h	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/include/linux/wait_bit.h	2022-10-17 20:04:40.000000000 +0200
 @@ -71,7 +71,7 @@ static inline int
  wait_on_bit(unsigned long *word, int bit, unsigned mode)
  {
@@ -221,9 +220,9 @@ Index: linux-stable/include/linux/wait_bit.h
  }
 Index: linux-stable/kernel/sched/wait_bit.c
 ===================================================================
---- linux-stable.orig/kernel/sched/wait_bit.c	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/kernel/sched/wait_bit.c	2022-10-17 19:50:18.000000000 +0200
-@@ -47,7 +47,7 @@ __wait_on_bit(struct wait_queue_head *wq
+--- linux-stable.orig/kernel/sched/wait_bit.c	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/kernel/sched/wait_bit.c	2022-10-17 20:04:40.000000000 +0200
+@@ -46,7 +46,7 @@ __wait_on_bit(struct wait_queue_head *wq
  		prepare_to_wait(wq_head, &wbq_entry->wq_entry, mode);
  		if (test_bit(wbq_entry->key.bit_nr, wbq_entry->key.flags))
  			ret = (*action)(&wbq_entry->key, mode);
@@ -232,27 +231,10 @@ Index: linux-stable/kernel/sched/wait_bit.c
  
  	finish_wait(wq_head, &wbq_entry->wq_entry);
  
-Index: linux-stable/include/asm-generic/bitops-instrumented.h
-===================================================================
---- linux-stable.orig/include/asm-generic/bitops-instrumented.h	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/include/asm-generic/bitops-instrumented.h	2022-10-17 19:50:18.000000000 +0200
-@@ -238,6 +238,12 @@ static inline bool test_bit(long nr, con
- 	return arch_test_bit(nr, addr);
- }
- 
-+static inline bool test_bit_acquire(long nr, const volatile unsigned long *addr)
-+{
-+	kasan_check_read(addr + BIT_WORD(nr), sizeof(long));
-+	return arch_test_bit_acquire(nr, addr);
-+}
-+
- #if defined(arch_clear_bit_unlock_is_negative_byte)
- /**
-  * clear_bit_unlock_is_negative_byte - Clear a bit in memory and test if bottom
 Index: linux-stable/arch/alpha/include/asm/bitops.h
 ===================================================================
---- linux-stable.orig/arch/alpha/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/arch/alpha/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
+--- linux-stable.orig/arch/alpha/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/arch/alpha/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
 @@ -289,6 +289,13 @@ test_bit(int nr, const volatile void * a
  	return (1UL & (((const int *) addr)[nr >> 5] >> (nr & 31))) != 0UL;
  }
@@ -269,9 +251,9 @@ Index: linux-stable/arch/alpha/include/asm/bitops.h
   * so code should check against ~0UL first..
 Index: linux-stable/arch/hexagon/include/asm/bitops.h
 ===================================================================
---- linux-stable.orig/arch/hexagon/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/arch/hexagon/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
-@@ -172,7 +172,22 @@ static inline int __test_bit(int nr, con
+--- linux-stable.orig/arch/hexagon/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/arch/hexagon/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
+@@ -186,7 +186,22 @@ static inline int __test_bit(int nr, con
  	return retval;
  }
  
@@ -296,8 +278,8 @@ Index: linux-stable/arch/hexagon/include/asm/bitops.h
   * ffz - find first zero in word.
 Index: linux-stable/arch/ia64/include/asm/bitops.h
 ===================================================================
---- linux-stable.orig/arch/ia64/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/arch/ia64/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
+--- linux-stable.orig/arch/ia64/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/arch/ia64/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
 @@ -337,6 +337,13 @@ test_bit (int nr, const volatile void *a
  	return 1 & (((const volatile __u32 *) addr)[nr >> 5] >> (nr & 31));
  }
@@ -314,8 +296,8 @@ Index: linux-stable/arch/ia64/include/asm/bitops.h
   * @x: The long word to find the bit in
 Index: linux-stable/arch/m68k/include/asm/bitops.h
 ===================================================================
---- linux-stable.orig/arch/m68k/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/arch/m68k/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
+--- linux-stable.orig/arch/m68k/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/arch/m68k/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
 @@ -153,6 +153,12 @@ static inline int test_bit(int nr, const
  	return (vaddr[nr >> 5] & (1UL << (nr & 31))) != 0;
  }
@@ -331,26 +313,26 @@ Index: linux-stable/arch/m68k/include/asm/bitops.h
  					    volatile unsigned long *vaddr)
 Index: linux-stable/arch/s390/include/asm/bitops.h
 ===================================================================
---- linux-stable.orig/arch/s390/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/arch/s390/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
-@@ -219,6 +219,13 @@ static inline bool arch_test_bit(unsigne
+--- linux-stable.orig/arch/s390/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/arch/s390/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
+@@ -215,6 +215,13 @@ static inline int test_bit(unsigned long
  	return (*addr >> (nr & 7)) & 1;
  }
  
 +static __always_inline bool
-+arch_test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
 +{
 +	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
 +	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
 +}
 +
- static inline bool arch_test_and_set_bit_lock(unsigned long nr,
- 					      volatile unsigned long *ptr)
+ static inline int test_and_set_bit_lock(unsigned long nr,
+ 					volatile unsigned long *ptr)
  {
 Index: linux-stable/arch/sh/include/asm/bitops-op32.h
 ===================================================================
---- linux-stable.orig/arch/sh/include/asm/bitops-op32.h	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/arch/sh/include/asm/bitops-op32.h	2022-10-17 19:50:18.000000000 +0200
+--- linux-stable.orig/arch/sh/include/asm/bitops-op32.h	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/arch/sh/include/asm/bitops-op32.h	2022-10-17 20:04:40.000000000 +0200
 @@ -140,4 +140,11 @@ static inline int test_bit(int nr, const
  	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
  }
@@ -365,9 +347,9 @@ Index: linux-stable/arch/sh/include/asm/bitops-op32.h
  #endif /* __ASM_SH_BITOPS_OP32_H */
 Index: linux-stable/arch/arc/include/asm/bitops.h
 ===================================================================
---- linux-stable.orig/arch/arc/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
-+++ linux-stable/arch/arc/include/asm/bitops.h	2022-10-17 19:50:18.000000000 +0200
-@@ -251,6 +251,13 @@ test_bit(unsigned int nr, const volatile
+--- linux-stable.orig/arch/arc/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/arch/arc/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
+@@ -254,6 +254,13 @@ test_bit(unsigned int nr, const volatile
  	return ((mask & *addr) != 0);
  }
  
@@ -383,9 +365,9 @@ Index: linux-stable/arch/arc/include/asm/bitops.h
  /*
 Index: linux-stable/arch/h8300/include/asm/bitops.h
 ===================================================================
---- linux-stable.orig/arch/h8300/include/asm/bitops.h	2022-10-17 19:46:50.000000000 +0200
-+++ linux-stable/arch/h8300/include/asm/bitops.h	2022-10-17 19:54:41.000000000 +0200
-@@ -83,7 +83,8 @@ static inline int test_bit(int nr, const
+--- linux-stable.orig/arch/h8300/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
++++ linux-stable/arch/h8300/include/asm/bitops.h	2022-10-17 20:04:40.000000000 +0200
+@@ -89,7 +89,8 @@ static inline int test_bit(int nr, const
  	return ret;
  }
  
