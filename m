@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 030C860FDB6
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 892C460FDB7
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:58:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236153AbiJ0Q6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 12:58:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45278 "EHLO
+        id S236520AbiJ0Q6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 12:58:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236520AbiJ0Q6O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:58:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB913B87A2
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:58:13 -0700 (PDT)
+        with ESMTP id S235132AbiJ0Q6Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:58:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F4DD17C55F
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:58:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1442B826F9
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:58:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 068A4C433B5;
-        Thu, 27 Oct 2022 16:58:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91177623EC
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:58:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EC54C433C1;
+        Thu, 27 Oct 2022 16:58:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666889891;
-        bh=7ZN4BYVLANYc4gosrRkji40C8G4JL6ej9L3YFGk2wak=;
+        s=korg; t=1666889894;
+        bh=2cB6NAyzS/DUmFJ8jnVuR83W9sj4uNLqVyZfuV6yWxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d3LidTIpBvxsdyKG6Hwlgnu4//p1z4EJZWKbRwlYo7uIOSBz2sVCHP7xuBVgKGw03
-         QbwXn/vjC0YsYwYANU/eZH7UVRjU2wt9YBr7NmPFbNlPq9Jaibos2Kclwm14iZRRIT
-         1r+VPGBA/nIcT2eXP+QttojbiRvdHa5ZjzX6nCPc=
+        b=pLBdAIGXWUTCv+VbSB5kEzATk0SvLzT91B9Y4iMpyMvAgKTk7ktujhAuPCL5niS6b
+         Yyf2ud7BYyZkbf3cVxdOz7HUb0CnJYWRiz2a7XlvM0qiZhxdvTG/wxpB0/K56F330U
+         BH7efGhPf7etwDsaFIq7Zm9C9dNrVWb+ualZ0bIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pawel Dembicki <paweldembicki@gmail.com>,
-        Lech Perczak <lech.perczak@gmail.com>,
-        Christian Marangi <ansuelsmth@gmail.com>,
+        patches@lists.linux.dev, Jan Sokolowski <jan.sokolowski@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 38/94] net: dsa: qca8k: fix ethtool autocast mib for big-endian systems
-Date:   Thu, 27 Oct 2022 18:54:40 +0200
-Message-Id: <20221027165058.651273563@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        Chandan <chandanx.rout@intel.com>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 6.0 39/94] i40e: Fix DMA mappings leak
+Date:   Thu, 27 Oct 2022 18:54:41 +0200
+Message-Id: <20221027165058.691407933@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
 References: <20221027165057.208202132@linuxfoundation.org>
@@ -55,90 +57,321 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Marangi <ansuelsmth@gmail.com>
+From: Jan Sokolowski <jan.sokolowski@intel.com>
 
-[ Upstream commit 0d4636f7d72df3179b20a2d32b647881917a5e2a ]
+[ Upstream commit aae425efdfd1b1d8452260a3cb49344ebf20b1f5 ]
 
-The switch sends autocast mib in little-endian. This is problematic for
-big-endian system as the values needs to be converted.
+During reallocation of RX buffers, new DMA mappings are created for
+those buffers.
 
-Fix this by converting each mib value to cpu byte order.
+steps for reproduction:
+while :
+do
+for ((i=0; i<=8160; i=i+32))
+do
+ethtool -G enp130s0f0 rx $i tx $i
+sleep 0.5
+ethtool -g enp130s0f0
+done
+done
 
-Fixes: 5c957c7ca78c ("net: dsa: qca8k: add support for mib autocast in Ethernet packet")
-Tested-by: Pawel Dembicki <paweldembicki@gmail.com>
-Tested-by: Lech Perczak <lech.perczak@gmail.com>
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+This resulted in crash:
+i40e 0000:01:00.1: Unable to allocate memory for the Rx descriptor ring, size=65536
+Driver BUG
+WARNING: CPU: 0 PID: 4300 at net/core/xdp.c:141 xdp_rxq_info_unreg+0x43/0x50
+Call Trace:
+i40e_free_rx_resources+0x70/0x80 [i40e]
+i40e_set_ringparam+0x27c/0x800 [i40e]
+ethnl_set_rings+0x1b2/0x290
+genl_family_rcv_msg_doit.isra.15+0x10f/0x150
+genl_family_rcv_msg+0xb3/0x160
+? rings_fill_reply+0x1a0/0x1a0
+genl_rcv_msg+0x47/0x90
+? genl_family_rcv_msg+0x160/0x160
+netlink_rcv_skb+0x4c/0x120
+genl_rcv+0x24/0x40
+netlink_unicast+0x196/0x230
+netlink_sendmsg+0x204/0x3d0
+sock_sendmsg+0x4c/0x50
+__sys_sendto+0xee/0x160
+? handle_mm_fault+0xbe/0x1e0
+? syscall_trace_enter+0x1d3/0x2c0
+__x64_sys_sendto+0x24/0x30
+do_syscall_64+0x5b/0x1a0
+entry_SYSCALL_64_after_hwframe+0x65/0xca
+RIP: 0033:0x7f5eac8b035b
+Missing register, driver bug
+WARNING: CPU: 0 PID: 4300 at net/core/xdp.c:119 xdp_rxq_info_unreg_mem_model+0x69/0x140
+Call Trace:
+xdp_rxq_info_unreg+0x1e/0x50
+i40e_free_rx_resources+0x70/0x80 [i40e]
+i40e_set_ringparam+0x27c/0x800 [i40e]
+ethnl_set_rings+0x1b2/0x290
+genl_family_rcv_msg_doit.isra.15+0x10f/0x150
+genl_family_rcv_msg+0xb3/0x160
+? rings_fill_reply+0x1a0/0x1a0
+genl_rcv_msg+0x47/0x90
+? genl_family_rcv_msg+0x160/0x160
+netlink_rcv_skb+0x4c/0x120
+genl_rcv+0x24/0x40
+netlink_unicast+0x196/0x230
+netlink_sendmsg+0x204/0x3d0
+sock_sendmsg+0x4c/0x50
+__sys_sendto+0xee/0x160
+? handle_mm_fault+0xbe/0x1e0
+? syscall_trace_enter+0x1d3/0x2c0
+__x64_sys_sendto+0x24/0x30
+do_syscall_64+0x5b/0x1a0
+entry_SYSCALL_64_after_hwframe+0x65/0xca
+RIP: 0033:0x7f5eac8b035b
+
+This was caused because of new buffers with different RX ring count should
+substitute older ones, but those buffers were freed in
+i40e_configure_rx_ring and reallocated again with i40e_alloc_rx_bi,
+thus kfree on rx_bi caused leak of already mapped DMA.
+
+Fix this by reallocating ZC with rx_bi_zc struct when BPF program loads. Additionally
+reallocate back to rx_bi when BPF program unloads.
+
+If BPF program is loaded/unloaded and XSK pools are created, reallocate
+RX queues accordingly in XSP_SETUP_XSK_POOL handler.
+
+Fixes: be1222b585fd ("i40e: Separate kernel allocated rx_bi rings from AF_XDP rings")
+Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Chandan <chandanx.rout@intel.com> (A Contingent Worker at Intel)
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/qca/qca8k-8xxx.c | 20 ++++++++------------
- include/linux/dsa/tag_qca.h      |  2 +-
- 2 files changed, 9 insertions(+), 13 deletions(-)
+ .../net/ethernet/intel/i40e/i40e_ethtool.c    |  3 -
+ drivers/net/ethernet/intel/i40e/i40e_main.c   | 16 +++--
+ drivers/net/ethernet/intel/i40e/i40e_txrx.c   | 13 ++--
+ drivers/net/ethernet/intel/i40e/i40e_txrx.h   |  1 -
+ drivers/net/ethernet/intel/i40e/i40e_xsk.c    | 67 ++++++++++++++++---
+ drivers/net/ethernet/intel/i40e/i40e_xsk.h    |  2 +-
+ 6 files changed, 74 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/net/dsa/qca/qca8k-8xxx.c b/drivers/net/dsa/qca/qca8k-8xxx.c
-index c11d68185e7d..300c9345ee2b 100644
---- a/drivers/net/dsa/qca/qca8k-8xxx.c
-+++ b/drivers/net/dsa/qca/qca8k-8xxx.c
-@@ -1518,9 +1518,9 @@ static void qca8k_mib_autocast_handler(struct dsa_switch *ds, struct sk_buff *sk
- 	struct qca8k_priv *priv = ds->priv;
- 	const struct qca8k_mib_desc *mib;
- 	struct mib_ethhdr *mib_ethhdr;
--	int i, mib_len, offset = 0;
--	u64 *data;
-+	__le32 *data2;
- 	u8 port;
-+	int i;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index e9cd0fa6a0d2..af5fe84db596 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -2181,9 +2181,6 @@ static int i40e_set_ringparam(struct net_device *netdev,
+ 			 */
+ 			rx_rings[i].tail = hw->hw_addr + I40E_PRTGEN_STATUS;
+ 			err = i40e_setup_rx_descriptors(&rx_rings[i]);
+-			if (err)
+-				goto rx_unwind;
+-			err = i40e_alloc_rx_bi(&rx_rings[i]);
+ 			if (err)
+ 				goto rx_unwind;
  
- 	mib_ethhdr = (struct mib_ethhdr *)skb_mac_header(skb);
- 	mib_eth_data = &priv->mib_eth_data;
-@@ -1532,28 +1532,24 @@ static void qca8k_mib_autocast_handler(struct dsa_switch *ds, struct sk_buff *sk
- 	if (port != mib_eth_data->req_port)
- 		goto exit;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index e3d9804aeb25..b3336d31f8a9 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -3565,12 +3565,8 @@ static int i40e_configure_rx_ring(struct i40e_ring *ring)
+ 	if (ring->vsi->type == I40E_VSI_MAIN)
+ 		xdp_rxq_info_unreg_mem_model(&ring->xdp_rxq);
  
--	data = mib_eth_data->data;
-+	data2 = (__le32 *)skb->data;
+-	kfree(ring->rx_bi);
+ 	ring->xsk_pool = i40e_xsk_pool(ring);
+ 	if (ring->xsk_pool) {
+-		ret = i40e_alloc_rx_bi_zc(ring);
+-		if (ret)
+-			return ret;
+ 		ring->rx_buf_len =
+ 		  xsk_pool_get_rx_frame_size(ring->xsk_pool);
+ 		/* For AF_XDP ZC, we disallow packets to span on
+@@ -3588,9 +3584,6 @@ static int i40e_configure_rx_ring(struct i40e_ring *ring)
+ 			 ring->queue_index);
  
- 	for (i = 0; i < priv->info->mib_count; i++) {
- 		mib = &ar8327_mib[i];
- 
- 		/* First 3 mib are present in the skb head */
- 		if (i < 3) {
--			data[i] = mib_ethhdr->data[i];
-+			mib_eth_data->data[i] = get_unaligned_le32(mib_ethhdr->data + i);
- 			continue;
- 		}
- 
--		mib_len = sizeof(uint32_t);
--
- 		/* Some mib are 64 bit wide */
- 		if (mib->size == 2)
--			mib_len = sizeof(uint64_t);
--
--		/* Copy the mib value from packet to the */
--		memcpy(data + i, skb->data + offset, mib_len);
-+			mib_eth_data->data[i] = get_unaligned_le64((__le64 *)data2);
-+		else
-+			mib_eth_data->data[i] = get_unaligned_le32(data2);
- 
--		/* Set the offset for the next mib */
--		offset += mib_len;
-+		data2 += mib->size;
+ 	} else {
+-		ret = i40e_alloc_rx_bi(ring);
+-		if (ret)
+-			return ret;
+ 		ring->rx_buf_len = vsi->rx_buf_len;
+ 		if (ring->vsi->type == I40E_VSI_MAIN) {
+ 			ret = xdp_rxq_info_reg_mem_model(&ring->xdp_rxq,
+@@ -13304,6 +13297,14 @@ static int i40e_xdp_setup(struct i40e_vsi *vsi, struct bpf_prog *prog,
+ 		i40e_reset_and_rebuild(pf, true, true);
  	}
  
- exit:
-diff --git a/include/linux/dsa/tag_qca.h b/include/linux/dsa/tag_qca.h
-index 0e176da1e43f..b1b5720d89a5 100644
---- a/include/linux/dsa/tag_qca.h
-+++ b/include/linux/dsa/tag_qca.h
-@@ -73,7 +73,7 @@ enum mdio_cmd {
- };
++	if (!i40e_enabled_xdp_vsi(vsi) && prog) {
++		if (i40e_realloc_rx_bi_zc(vsi, true))
++			return -ENOMEM;
++	} else if (i40e_enabled_xdp_vsi(vsi) && !prog) {
++		if (i40e_realloc_rx_bi_zc(vsi, false))
++			return -ENOMEM;
++	}
++
+ 	for (i = 0; i < vsi->num_queue_pairs; i++)
+ 		WRITE_ONCE(vsi->rx_rings[i]->xdp_prog, vsi->xdp_prog);
  
- struct mib_ethhdr {
--	u32 data[3];		/* first 3 mib counter */
-+	__le32 data[3];		/* first 3 mib counter */
- 	__be16 hdr;		/* qca hdr */
- } __packed;
+@@ -13536,6 +13537,7 @@ int i40e_queue_pair_disable(struct i40e_vsi *vsi, int queue_pair)
  
+ 	i40e_queue_pair_disable_irq(vsi, queue_pair);
+ 	err = i40e_queue_pair_toggle_rings(vsi, queue_pair, false /* off */);
++	i40e_clean_rx_ring(vsi->rx_rings[queue_pair]);
+ 	i40e_queue_pair_toggle_napi(vsi, queue_pair, false /* off */);
+ 	i40e_queue_pair_clean_rings(vsi, queue_pair);
+ 	i40e_queue_pair_reset_stats(vsi, queue_pair);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_txrx.c b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+index 69e67eb6aea7..b97c95f89fa0 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_txrx.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+@@ -1457,14 +1457,6 @@ int i40e_setup_tx_descriptors(struct i40e_ring *tx_ring)
+ 	return -ENOMEM;
+ }
+ 
+-int i40e_alloc_rx_bi(struct i40e_ring *rx_ring)
+-{
+-	unsigned long sz = sizeof(*rx_ring->rx_bi) * rx_ring->count;
+-
+-	rx_ring->rx_bi = kzalloc(sz, GFP_KERNEL);
+-	return rx_ring->rx_bi ? 0 : -ENOMEM;
+-}
+-
+ static void i40e_clear_rx_bi(struct i40e_ring *rx_ring)
+ {
+ 	memset(rx_ring->rx_bi, 0, sizeof(*rx_ring->rx_bi) * rx_ring->count);
+@@ -1593,6 +1585,11 @@ int i40e_setup_rx_descriptors(struct i40e_ring *rx_ring)
+ 
+ 	rx_ring->xdp_prog = rx_ring->vsi->xdp_prog;
+ 
++	rx_ring->rx_bi =
++		kcalloc(rx_ring->count, sizeof(*rx_ring->rx_bi), GFP_KERNEL);
++	if (!rx_ring->rx_bi)
++		return -ENOMEM;
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_txrx.h b/drivers/net/ethernet/intel/i40e/i40e_txrx.h
+index 41f86e9535a0..768290dc6f48 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_txrx.h
++++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.h
+@@ -469,7 +469,6 @@ int __i40e_maybe_stop_tx(struct i40e_ring *tx_ring, int size);
+ bool __i40e_chk_linearize(struct sk_buff *skb);
+ int i40e_xdp_xmit(struct net_device *dev, int n, struct xdp_frame **frames,
+ 		  u32 flags);
+-int i40e_alloc_rx_bi(struct i40e_ring *rx_ring);
+ 
+ /**
+  * i40e_get_head - Retrieve head from head writeback
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_xsk.c b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
+index 6d4009e0cbd6..cd7b52fb6b46 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_xsk.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
+@@ -10,14 +10,6 @@
+ #include "i40e_txrx_common.h"
+ #include "i40e_xsk.h"
+ 
+-int i40e_alloc_rx_bi_zc(struct i40e_ring *rx_ring)
+-{
+-	unsigned long sz = sizeof(*rx_ring->rx_bi_zc) * rx_ring->count;
+-
+-	rx_ring->rx_bi_zc = kzalloc(sz, GFP_KERNEL);
+-	return rx_ring->rx_bi_zc ? 0 : -ENOMEM;
+-}
+-
+ void i40e_clear_rx_bi_zc(struct i40e_ring *rx_ring)
+ {
+ 	memset(rx_ring->rx_bi_zc, 0,
+@@ -29,6 +21,58 @@ static struct xdp_buff **i40e_rx_bi(struct i40e_ring *rx_ring, u32 idx)
+ 	return &rx_ring->rx_bi_zc[idx];
+ }
+ 
++/**
++ * i40e_realloc_rx_xdp_bi - reallocate SW ring for either XSK or normal buffer
++ * @rx_ring: Current rx ring
++ * @pool_present: is pool for XSK present
++ *
++ * Try allocating memory and return ENOMEM, if failed to allocate.
++ * If allocation was successful, substitute buffer with allocated one.
++ * Returns 0 on success, negative on failure
++ */
++static int i40e_realloc_rx_xdp_bi(struct i40e_ring *rx_ring, bool pool_present)
++{
++	size_t elem_size = pool_present ? sizeof(*rx_ring->rx_bi_zc) :
++					  sizeof(*rx_ring->rx_bi);
++	void *sw_ring = kcalloc(rx_ring->count, elem_size, GFP_KERNEL);
++
++	if (!sw_ring)
++		return -ENOMEM;
++
++	if (pool_present) {
++		kfree(rx_ring->rx_bi);
++		rx_ring->rx_bi = NULL;
++		rx_ring->rx_bi_zc = sw_ring;
++	} else {
++		kfree(rx_ring->rx_bi_zc);
++		rx_ring->rx_bi_zc = NULL;
++		rx_ring->rx_bi = sw_ring;
++	}
++	return 0;
++}
++
++/**
++ * i40e_realloc_rx_bi_zc - reallocate rx SW rings
++ * @vsi: Current VSI
++ * @zc: is zero copy set
++ *
++ * Reallocate buffer for rx_rings that might be used by XSK.
++ * XDP requires more memory, than rx_buf provides.
++ * Returns 0 on success, negative on failure
++ */
++int i40e_realloc_rx_bi_zc(struct i40e_vsi *vsi, bool zc)
++{
++	struct i40e_ring *rx_ring;
++	unsigned long q;
++
++	for_each_set_bit(q, vsi->af_xdp_zc_qps, vsi->alloc_queue_pairs) {
++		rx_ring = vsi->rx_rings[q];
++		if (i40e_realloc_rx_xdp_bi(rx_ring, zc))
++			return -ENOMEM;
++	}
++	return 0;
++}
++
+ /**
+  * i40e_xsk_pool_enable - Enable/associate an AF_XDP buffer pool to a
+  * certain ring/qid
+@@ -69,6 +113,10 @@ static int i40e_xsk_pool_enable(struct i40e_vsi *vsi,
+ 		if (err)
+ 			return err;
+ 
++		err = i40e_realloc_rx_xdp_bi(vsi->rx_rings[qid], true);
++		if (err)
++			return err;
++
+ 		err = i40e_queue_pair_enable(vsi, qid);
+ 		if (err)
+ 			return err;
+@@ -113,6 +161,9 @@ static int i40e_xsk_pool_disable(struct i40e_vsi *vsi, u16 qid)
+ 	xsk_pool_dma_unmap(pool, I40E_RX_DMA_ATTR);
+ 
+ 	if (if_running) {
++		err = i40e_realloc_rx_xdp_bi(vsi->rx_rings[qid], false);
++		if (err)
++			return err;
+ 		err = i40e_queue_pair_enable(vsi, qid);
+ 		if (err)
+ 			return err;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_xsk.h b/drivers/net/ethernet/intel/i40e/i40e_xsk.h
+index bb962987f300..821df248f8be 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_xsk.h
++++ b/drivers/net/ethernet/intel/i40e/i40e_xsk.h
+@@ -32,7 +32,7 @@ int i40e_clean_rx_irq_zc(struct i40e_ring *rx_ring, int budget);
+ 
+ bool i40e_clean_xdp_tx_irq(struct i40e_vsi *vsi, struct i40e_ring *tx_ring);
+ int i40e_xsk_wakeup(struct net_device *dev, u32 queue_id, u32 flags);
+-int i40e_alloc_rx_bi_zc(struct i40e_ring *rx_ring);
++int i40e_realloc_rx_bi_zc(struct i40e_vsi *vsi, bool zc);
+ void i40e_clear_rx_bi_zc(struct i40e_ring *rx_ring);
+ 
+ #endif /* _I40E_XSK_H_ */
 -- 
 2.35.1
 
