@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF98860FE63
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:04:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C42C760FDE8
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:00:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236940AbiJ0RE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:04:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60090 "EHLO
+        id S236790AbiJ0RAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:00:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236954AbiJ0REw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6EE1836FE
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:51 -0700 (PDT)
+        with ESMTP id S236768AbiJ0RAT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:00:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4026A53029
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:00:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62C50623D8
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A574C433C1;
-        Thu, 27 Oct 2022 17:04:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED4F3B82714
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:00:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E3C5C433C1;
+        Thu, 27 Oct 2022 17:00:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890290;
-        bh=dB+hDIDqyTXkhgxJzKHaYP0HMFYnopuQiVsFovqBxCc=;
+        s=korg; t=1666890014;
+        bh=ReqxKpjcJIP3mp6xJGfkWapq31FM37BsiH3/+pqB1nY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PYz1Q+YY6Yno1lCu85bpnVOv57q+q0chyBFOpKpbdhZmmCcrcbJMIRmXpJoVO62XI
-         U1Uya/hSxXIgWCTrUH3Wx8BM2T8U2YucU2rScF0p+r1bQ7xQMBduGNxaIfeYvQpdRp
-         2v1jRZK8VD1lplYXdXeC2FJ+KMungbinhw4Q29/w=
+        b=dmLzPM81k2UOAlQrkExTj3mWAICEa0GiiEOyJoFXoIokSd6hDQsDrLiwoekg0NbYf
+         LcEfhTzy6U5Q94Z+ONDR02mARSQi7g3mANAMVsz/1rbW7NqdMwh5FsRyZpk7ReXYK/
+         X/fcnyLcEmo85zfnp4aTOVKDl2pPvFYIQIAp46j0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.10 15/79] media: venus: dec: Handle the case where find_format fails
-Date:   Thu, 27 Oct 2022 18:55:25 +0200
-Message-Id: <20221027165054.868486849@linuxfoundation.org>
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>,
+        Joel Colledge <joel.colledge@linbit.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 84/94] drbd: only clone bio if we have a backing device
+Date:   Thu, 27 Oct 2022 18:55:26 +0200
+Message-Id: <20221027165100.586052846@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
+References: <20221027165057.208202132@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
 
-commit 06a2da340f762addc5935bf851d95b14d4692db2 upstream.
+[ Upstream commit 6d42ddf7f27b6723549ee6d4c8b1b418b59bf6b5 ]
 
-Debugging the decoder on msm8916 I noticed the vdec probe was crashing if
-the fmt pointer was NULL.
+Commit c347a787e34cb (drbd: set ->bi_bdev in drbd_req_new) moved a
+bio_set_dev call (which has since been removed) to "earlier", from
+drbd_request_prepare to drbd_req_new.
 
-A similar fix from Colin Ian King found by Coverity was implemented for the
-encoder. Implement the same fix on the decoder.
+The problem is that this accesses device->ldev->backing_bdev, which is
+not NULL-checked at this point. When we don't have an ldev (i.e. when
+the DRBD device is diskless), this leads to a null pointer deref.
 
-Fixes: 7472c1c69138 ("[media] media: venus: vdec: add video decoder files")
-Cc: stable@vger.kernel.org  # v4.13+
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So, only allocate the private_bio if we actually have a disk. This is
+also a small optimization, since we don't clone the bio to only to
+immediately free it again in the diskless case.
+
+Fixes: c347a787e34cb ("drbd: set ->bi_bdev in drbd_req_new")
+Co-developed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Signed-off-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Co-developed-by: Joel Colledge <joel.colledge@linbit.com>
+Signed-off-by: Joel Colledge <joel.colledge@linbit.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20221020085205.129090-1-christoph.boehmwalder@linbit.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/vdec.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/block/drbd/drbd_req.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/drivers/media/platform/qcom/venus/vdec.c
-+++ b/drivers/media/platform/qcom/venus/vdec.c
-@@ -158,6 +158,8 @@ vdec_try_fmt_common(struct venus_inst *i
- 		else
- 			return NULL;
- 		fmt = find_format(inst, pixmp->pixelformat, f->type);
-+		if (!fmt)
-+			return NULL;
+diff --git a/drivers/block/drbd/drbd_req.c b/drivers/block/drbd/drbd_req.c
+index 8f7f144e54f3..7f9bcc82fc9c 100644
+--- a/drivers/block/drbd/drbd_req.c
++++ b/drivers/block/drbd/drbd_req.c
+@@ -30,11 +30,6 @@ static struct drbd_request *drbd_req_new(struct drbd_device *device, struct bio
+ 		return NULL;
+ 	memset(req, 0, sizeof(*req));
+ 
+-	req->private_bio = bio_alloc_clone(device->ldev->backing_bdev, bio_src,
+-					   GFP_NOIO, &drbd_io_bio_set);
+-	req->private_bio->bi_private = req;
+-	req->private_bio->bi_end_io = drbd_request_endio;
+-
+ 	req->rq_state = (bio_data_dir(bio_src) == WRITE ? RQ_WRITE : 0)
+ 		      | (bio_op(bio_src) == REQ_OP_WRITE_ZEROES ? RQ_ZEROES : 0)
+ 		      | (bio_op(bio_src) == REQ_OP_DISCARD ? RQ_UNMAP : 0);
+@@ -1219,9 +1214,12 @@ drbd_request_prepare(struct drbd_device *device, struct bio *bio)
+ 	/* Update disk stats */
+ 	req->start_jif = bio_start_io_acct(req->master_bio);
+ 
+-	if (!get_ldev(device)) {
+-		bio_put(req->private_bio);
+-		req->private_bio = NULL;
++	if (get_ldev(device)) {
++		req->private_bio = bio_alloc_clone(device->ldev->backing_bdev,
++						   bio, GFP_NOIO,
++						   &drbd_io_bio_set);
++		req->private_bio->bi_private = req;
++		req->private_bio->bi_end_io = drbd_request_endio;
  	}
  
- 	pixmp->width = clamp(pixmp->width, frame_width_min(inst),
+ 	/* process discards always from our submitter thread */
+-- 
+2.35.1
+
 
 
