@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85FD960FDB4
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13B9B60FDB5
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:58:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236571AbiJ0Q6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 12:58:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45186 "EHLO
+        id S236311AbiJ0Q6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 12:58:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236520AbiJ0Q6J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:58:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92EA117536F
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:58:08 -0700 (PDT)
+        with ESMTP id S235132AbiJ0Q6K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:58:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB87F158D67
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:58:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 448DEB82710
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:58:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C0CCC433C1;
-        Thu, 27 Oct 2022 16:58:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57EB1623F1
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:58:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E99DC433D6;
+        Thu, 27 Oct 2022 16:58:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666889886;
-        bh=bpaj02ZLP1WeSVt89RynW5Z1Ue0rzJ37VZo+O8d3qXo=;
+        s=korg; t=1666889888;
+        bh=Hu0Oi0y0GkM2j6CQGY4IuV17nKXhXprBWVNqOsK/s4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfjKe2Hjg243pLduwGe6fM7Es+DqBnvEswFonME3IhayANlgWSpZPnIdinUHCiBcM
-         V2ndnTPbtWbG6sv4/TtHRArGiUkb0o2BIaN5j/3hdVaDvWmfWEtyFwcIlmoQQL6Y2M
-         2N4FhNUW/FpVTc7hKLM+YimcUS9fhassBU9kH1YI=
+        b=rENICUMqx4s9PtLjRc2CLSIf/wjFbhUTtHwf+0KSruFcay9rUOv4jlKLkrcgIMFt+
+         ZRS6YsBzfjoWHr274RkA8jcBkTMmOsQFoRemhbpvq6V7yXfOz6BEdO1TowPKOD/qPO
+         li+fLw6PnAUPAdg9PEMu5RE2FFyfpJjVgEScgpkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexander Potapenko <glider@google.com>,
+        patches@lists.linux.dev, Pawel Dembicki <paweldembicki@gmail.com>,
+        Lech Perczak <lech.perczak@gmail.com>,
+        Christian Marangi <ansuelsmth@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 36/94] tipc: fix an information leak in tipc_topsrv_kern_subscr
-Date:   Thu, 27 Oct 2022 18:54:38 +0200
-Message-Id: <20221027165058.555036743@linuxfoundation.org>
+Subject: [PATCH 6.0 37/94] net: dsa: qca8k: fix inband mgmt for big-endian systems
+Date:   Thu, 27 Oct 2022 18:54:39 +0200
+Message-Id: <20221027165058.602853581@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
 References: <20221027165057.208202132@linuxfoundation.org>
@@ -53,85 +55,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Christian Marangi <ansuelsmth@gmail.com>
 
-[ Upstream commit 777ecaabd614d47c482a5c9031579e66da13989a ]
+[ Upstream commit a2550d3ce53c68f54042bc5e468c4d07491ffe0e ]
 
-Use a 8-byte write to initialize sub.usr_handle in
-tipc_topsrv_kern_subscr(), otherwise four bytes remain uninitialized
-when issuing setsockopt(..., SOL_TIPC, ...).
-This resulted in an infoleak reported by KMSAN when the packet was
-received:
+The header and the data of the skb for the inband mgmt requires
+to be in little-endian. This is problematic for big-endian system
+as the mgmt header is written in the cpu byte order.
 
-  =====================================================
-  BUG: KMSAN: kernel-infoleak in copyout+0xbc/0x100 lib/iov_iter.c:169
-   instrument_copy_to_user ./include/linux/instrumented.h:121
-   copyout+0xbc/0x100 lib/iov_iter.c:169
-   _copy_to_iter+0x5c0/0x20a0 lib/iov_iter.c:527
-   copy_to_iter ./include/linux/uio.h:176
-   simple_copy_to_iter+0x64/0xa0 net/core/datagram.c:513
-   __skb_datagram_iter+0x123/0xdc0 net/core/datagram.c:419
-   skb_copy_datagram_iter+0x58/0x200 net/core/datagram.c:527
-   skb_copy_datagram_msg ./include/linux/skbuff.h:3903
-   packet_recvmsg+0x521/0x1e70 net/packet/af_packet.c:3469
-   ____sys_recvmsg+0x2c4/0x810 net/socket.c:?
-   ___sys_recvmsg+0x217/0x840 net/socket.c:2743
-   __sys_recvmsg net/socket.c:2773
-   __do_sys_recvmsg net/socket.c:2783
-   __se_sys_recvmsg net/socket.c:2780
-   __x64_sys_recvmsg+0x364/0x540 net/socket.c:2780
-   do_syscall_x64 arch/x86/entry/common.c:50
-   do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd arch/x86/entry/entry_64.S:120
+Fix this by converting each value for the mgmt header and data to
+little-endian, and convert to cpu byte order the mgmt header and
+data sent by the switch.
 
-  ...
-
-  Uninit was stored to memory at:
-   tipc_sub_subscribe+0x42d/0xb50 net/tipc/subscr.c:156
-   tipc_conn_rcv_sub+0x246/0x620 net/tipc/topsrv.c:375
-   tipc_topsrv_kern_subscr+0x2e8/0x400 net/tipc/topsrv.c:579
-   tipc_group_create+0x4e7/0x7d0 net/tipc/group.c:190
-   tipc_sk_join+0x2a8/0x770 net/tipc/socket.c:3084
-   tipc_setsockopt+0xae5/0xe40 net/tipc/socket.c:3201
-   __sys_setsockopt+0x87f/0xdc0 net/socket.c:2252
-   __do_sys_setsockopt net/socket.c:2263
-   __se_sys_setsockopt net/socket.c:2260
-   __x64_sys_setsockopt+0xe0/0x160 net/socket.c:2260
-   do_syscall_x64 arch/x86/entry/common.c:50
-   do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd arch/x86/entry/entry_64.S:120
-
-  Local variable sub created at:
-   tipc_topsrv_kern_subscr+0x57/0x400 net/tipc/topsrv.c:562
-   tipc_group_create+0x4e7/0x7d0 net/tipc/group.c:190
-
-  Bytes 84-87 of 88 are uninitialized
-  Memory access of size 88 starts at ffff88801ed57cd0
-  Data copied to user address 0000000020000400
-  ...
-  =====================================================
-
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Fixes: 026321c6d056a5 ("tipc: rename tipc_server to tipc_topsrv")
+Fixes: 5950c7c0a68c ("net: dsa: qca8k: add support for mgmt read/write in Ethernet packet")
+Tested-by: Pawel Dembicki <paweldembicki@gmail.com>
+Tested-by: Lech Perczak <lech.perczak@gmail.com>
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Reviewed-by: Lech Perczak <lech.perczak@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/topsrv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/qca/qca8k-8xxx.c | 63 ++++++++++++++++++++++++--------
+ include/linux/dsa/tag_qca.h      |  6 +--
+ 2 files changed, 50 insertions(+), 19 deletions(-)
 
-diff --git a/net/tipc/topsrv.c b/net/tipc/topsrv.c
-index 5522865deae9..14fd05fd6107 100644
---- a/net/tipc/topsrv.c
-+++ b/net/tipc/topsrv.c
-@@ -568,7 +568,7 @@ bool tipc_topsrv_kern_subscr(struct net *net, u32 port, u32 type, u32 lower,
- 	sub.seq.upper = upper;
- 	sub.timeout = TIPC_WAIT_FOREVER;
- 	sub.filter = filter;
--	*(u32 *)&sub.usr_handle = port;
-+	*(u64 *)&sub.usr_handle = (u64)port;
+diff --git a/drivers/net/dsa/qca/qca8k-8xxx.c b/drivers/net/dsa/qca/qca8k-8xxx.c
+index c181346388a4..c11d68185e7d 100644
+--- a/drivers/net/dsa/qca/qca8k-8xxx.c
++++ b/drivers/net/dsa/qca/qca8k-8xxx.c
+@@ -137,27 +137,42 @@ static void qca8k_rw_reg_ack_handler(struct dsa_switch *ds, struct sk_buff *skb)
+ 	struct qca8k_mgmt_eth_data *mgmt_eth_data;
+ 	struct qca8k_priv *priv = ds->priv;
+ 	struct qca_mgmt_ethhdr *mgmt_ethhdr;
++	u32 command;
+ 	u8 len, cmd;
++	int i;
  
- 	con = tipc_conn_alloc(tipc_topsrv(net));
- 	if (IS_ERR(con))
+ 	mgmt_ethhdr = (struct qca_mgmt_ethhdr *)skb_mac_header(skb);
+ 	mgmt_eth_data = &priv->mgmt_eth_data;
+ 
+-	cmd = FIELD_GET(QCA_HDR_MGMT_CMD, mgmt_ethhdr->command);
+-	len = FIELD_GET(QCA_HDR_MGMT_LENGTH, mgmt_ethhdr->command);
++	command = get_unaligned_le32(&mgmt_ethhdr->command);
++	cmd = FIELD_GET(QCA_HDR_MGMT_CMD, command);
++	len = FIELD_GET(QCA_HDR_MGMT_LENGTH, command);
+ 
+ 	/* Make sure the seq match the requested packet */
+-	if (mgmt_ethhdr->seq == mgmt_eth_data->seq)
++	if (get_unaligned_le32(&mgmt_ethhdr->seq) == mgmt_eth_data->seq)
+ 		mgmt_eth_data->ack = true;
+ 
+ 	if (cmd == MDIO_READ) {
+-		mgmt_eth_data->data[0] = mgmt_ethhdr->mdio_data;
++		u32 *val = mgmt_eth_data->data;
++
++		*val = get_unaligned_le32(&mgmt_ethhdr->mdio_data);
+ 
+ 		/* Get the rest of the 12 byte of data.
+ 		 * The read/write function will extract the requested data.
+ 		 */
+-		if (len > QCA_HDR_MGMT_DATA1_LEN)
+-			memcpy(mgmt_eth_data->data + 1, skb->data,
+-			       QCA_HDR_MGMT_DATA2_LEN);
++		if (len > QCA_HDR_MGMT_DATA1_LEN) {
++			__le32 *data2 = (__le32 *)skb->data;
++			int data_len = min_t(int, QCA_HDR_MGMT_DATA2_LEN,
++					     len - QCA_HDR_MGMT_DATA1_LEN);
++
++			val++;
++
++			for (i = sizeof(u32); i <= data_len; i += sizeof(u32)) {
++				*val = get_unaligned_le32(data2);
++				val++;
++				data2++;
++			}
++		}
+ 	}
+ 
+ 	complete(&mgmt_eth_data->rw_done);
+@@ -169,8 +184,10 @@ static struct sk_buff *qca8k_alloc_mdio_header(enum mdio_cmd cmd, u32 reg, u32 *
+ 	struct qca_mgmt_ethhdr *mgmt_ethhdr;
+ 	unsigned int real_len;
+ 	struct sk_buff *skb;
+-	u32 *data2;
++	__le32 *data2;
++	u32 command;
+ 	u16 hdr;
++	int i;
+ 
+ 	skb = dev_alloc_skb(QCA_HDR_MGMT_PKT_LEN);
+ 	if (!skb)
+@@ -199,20 +216,32 @@ static struct sk_buff *qca8k_alloc_mdio_header(enum mdio_cmd cmd, u32 reg, u32 *
+ 	hdr |= FIELD_PREP(QCA_HDR_XMIT_DP_BIT, BIT(0));
+ 	hdr |= FIELD_PREP(QCA_HDR_XMIT_CONTROL, QCA_HDR_XMIT_TYPE_RW_REG);
+ 
+-	mgmt_ethhdr->command = FIELD_PREP(QCA_HDR_MGMT_ADDR, reg);
+-	mgmt_ethhdr->command |= FIELD_PREP(QCA_HDR_MGMT_LENGTH, real_len);
+-	mgmt_ethhdr->command |= FIELD_PREP(QCA_HDR_MGMT_CMD, cmd);
+-	mgmt_ethhdr->command |= FIELD_PREP(QCA_HDR_MGMT_CHECK_CODE,
++	command = FIELD_PREP(QCA_HDR_MGMT_ADDR, reg);
++	command |= FIELD_PREP(QCA_HDR_MGMT_LENGTH, real_len);
++	command |= FIELD_PREP(QCA_HDR_MGMT_CMD, cmd);
++	command |= FIELD_PREP(QCA_HDR_MGMT_CHECK_CODE,
+ 					   QCA_HDR_MGMT_CHECK_CODE_VAL);
+ 
++	put_unaligned_le32(command, &mgmt_ethhdr->command);
++
+ 	if (cmd == MDIO_WRITE)
+-		mgmt_ethhdr->mdio_data = *val;
++		put_unaligned_le32(*val, &mgmt_ethhdr->mdio_data);
+ 
+ 	mgmt_ethhdr->hdr = htons(hdr);
+ 
+ 	data2 = skb_put_zero(skb, QCA_HDR_MGMT_DATA2_LEN + QCA_HDR_MGMT_PADDING_LEN);
+-	if (cmd == MDIO_WRITE && len > QCA_HDR_MGMT_DATA1_LEN)
+-		memcpy(data2, val + 1, len - QCA_HDR_MGMT_DATA1_LEN);
++	if (cmd == MDIO_WRITE && len > QCA_HDR_MGMT_DATA1_LEN) {
++		int data_len = min_t(int, QCA_HDR_MGMT_DATA2_LEN,
++				     len - QCA_HDR_MGMT_DATA1_LEN);
++
++		val++;
++
++		for (i = sizeof(u32); i <= data_len; i += sizeof(u32)) {
++			put_unaligned_le32(*val, data2);
++			data2++;
++			val++;
++		}
++	}
+ 
+ 	return skb;
+ }
+@@ -220,9 +249,11 @@ static struct sk_buff *qca8k_alloc_mdio_header(enum mdio_cmd cmd, u32 reg, u32 *
+ static void qca8k_mdio_header_fill_seq_num(struct sk_buff *skb, u32 seq_num)
+ {
+ 	struct qca_mgmt_ethhdr *mgmt_ethhdr;
++	u32 seq;
+ 
++	seq = FIELD_PREP(QCA_HDR_MGMT_SEQ_NUM, seq_num);
+ 	mgmt_ethhdr = (struct qca_mgmt_ethhdr *)skb->data;
+-	mgmt_ethhdr->seq = FIELD_PREP(QCA_HDR_MGMT_SEQ_NUM, seq_num);
++	put_unaligned_le32(seq, &mgmt_ethhdr->seq);
+ }
+ 
+ static int qca8k_read_eth(struct qca8k_priv *priv, u32 reg, u32 *val, int len)
+diff --git a/include/linux/dsa/tag_qca.h b/include/linux/dsa/tag_qca.h
+index 50be7cbd93a5..0e176da1e43f 100644
+--- a/include/linux/dsa/tag_qca.h
++++ b/include/linux/dsa/tag_qca.h
+@@ -61,9 +61,9 @@ struct sk_buff;
+ 
+ /* Special struct emulating a Ethernet header */
+ struct qca_mgmt_ethhdr {
+-	u32 command;		/* command bit 31:0 */
+-	u32 seq;		/* seq 63:32 */
+-	u32 mdio_data;		/* first 4byte mdio */
++	__le32 command;		/* command bit 31:0 */
++	__le32 seq;		/* seq 63:32 */
++	__le32 mdio_data;		/* first 4byte mdio */
+ 	__be16 hdr;		/* qca hdr */
+ } __packed;
+ 
 -- 
 2.35.1
 
