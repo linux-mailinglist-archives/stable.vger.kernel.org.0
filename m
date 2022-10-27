@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32B1360FE8C
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:06:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4481D60FED3
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:08:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236963AbiJ0RGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:06:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36976 "EHLO
+        id S236786AbiJ0RIq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:08:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236965AbiJ0RGQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:06:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D41718A538
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:06:15 -0700 (PDT)
+        with ESMTP id S237062AbiJ0RIn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:08:43 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD91E19C06E
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:08:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB1E3B825F3
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:06:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D244C433D6;
-        Thu, 27 Oct 2022 17:06:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3C24CCE27B1
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:08:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B033C433D6;
+        Thu, 27 Oct 2022 17:08:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890372;
-        bh=L+L7DKFBTs4WzsdcVIj/6n9M+x+AORuu7uofg6c0OpU=;
+        s=korg; t=1666890519;
+        bh=uGYPfYYkc1TtEswX7nRZimrzhucPIs5kIr4u7uUOjyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbACmTJgZ3wJZIW/M+dC8x1Jrp6d7mZncO9CRaqPz7qB3fdZo0WJVw9U1jtwDB39O
-         ZfK3h7mUd72JqGrD6wtcNZWlC783grcjxlm97s1JHfDOoDgAXGZblbTCMrSNpSGcLU
-         Ndr1q7l5KV1H7N/uaREW/i3zAiCBf2HjYeew9iIA=
+        b=QF+LEqb4wibJMnSrVw9TWbhkmQG4zhQpTaBhVyaP0z1O+fB039ury3ZbKRobZjdUh
+         d6r/MReOyYDlIwVg9Boh9lJ4EC+cxvAOc/hd35zQ7jOajYuUYTbBkGLKqKs93kRvXa
+         bJvrXrAhjTT35bcog6X3UuDINU0M/rXn5/VzTNjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 45/79] nvme-hwmon: kmalloc the NVME SMART log buffer
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Chandan Babu R <chandan.babu@oracle.com>
+Subject: [PATCH 5.4 07/53] xfs: check owner of dir3 data blocks
 Date:   Thu, 27 Oct 2022 18:55:55 +0200
-Message-Id: <20221027165055.881830221@linuxfoundation.org>
+Message-Id: <20221027165050.094729532@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
+References: <20221027165049.817124510@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,144 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit c94b7f9bab22ac504f9153767676e659988575ad ]
+commit a10c21ed5d5241d11cf1d5a4556730840572900b upstream.
 
-Recent commit 52fde2c07da6 ("nvme: set dma alignment to dword") has
-caused a regression on our platform.
+[Slightly edit xfs_dir3_data_read() to work with existing mapped_bno argument instead
+of flag values introduced in later kernels]
 
-It turned out that the nvme_get_log() method invocation caused the
-nvme_hwmon_data structure instance corruption.  In particular the
-nvme_hwmon_data.ctrl pointer was overwritten either with zeros or with
-garbage.  After some research we discovered that the problem happened
-even before the actual NVME DMA execution, but during the buffer mapping.
-Since our platform is DMA-noncoherent, the mapping implied the cache-line
-invalidations or write-backs depending on the DMA-direction parameter.
-In case of the NVME SMART log getting the DMA was performed
-from-device-to-memory, thus the cache-invalidation was activated during
-the buffer mapping.  Since the log-buffer isn't cache-line aligned, the
-cache-invalidation caused the neighbour data to be discarded.  The
-neighbouring data turned to be the data surrounding the buffer in the
-framework of the nvme_hwmon_data structure.
+Check the owner field of dir3 data block headers.  If it's corrupt,
+release the buffer and return EFSCORRUPTED.  All callers handle this
+properly.
 
-In order to fix that we need to make sure that the whole log-buffer is
-defined within the cache-line-aligned memory region so the
-cache-invalidation procedure wouldn't involve the adjacent data. One of
-the option to guarantee that is to kmalloc the DMA-buffer [1]. Seeing the
-rest of the NVME core driver prefer that method it has been chosen to fix
-this problem too.
-
-Note after a deeper researches we found out that the denoted commit wasn't
-a root cause of the problem. It just revealed the invalidity by activating
-the DMA-based NVME SMART log getting performed in the framework of the
-NVME hwmon driver. The problem was here since the initial commit of the
-driver.
-
-[1] Documentation/core-api/dma-api-howto.rst
-
-Fixes: 400b6a7b13a3 ("nvme: Add hardware monitoring support")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/hwmon.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ fs/xfs/libxfs/xfs_dir2_data.c |   32 ++++++++++++++++++++++++++++++--
+ 1 file changed, 30 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/hwmon.c b/drivers/nvme/host/hwmon.c
-index 23918bb7bdca..9e6e56c20ec9 100644
---- a/drivers/nvme/host/hwmon.c
-+++ b/drivers/nvme/host/hwmon.c
-@@ -12,7 +12,7 @@
- 
- struct nvme_hwmon_data {
- 	struct nvme_ctrl *ctrl;
--	struct nvme_smart_log log;
-+	struct nvme_smart_log *log;
- 	struct mutex read_lock;
+--- a/fs/xfs/libxfs/xfs_dir2_data.c
++++ b/fs/xfs/libxfs/xfs_dir2_data.c
+@@ -348,6 +348,22 @@ static const struct xfs_buf_ops xfs_dir3
+ 	.verify_write = xfs_dir3_data_write_verify,
  };
  
-@@ -60,14 +60,14 @@ static int nvme_set_temp_thresh(struct nvme_ctrl *ctrl, int sensor, bool under,
- static int nvme_hwmon_get_smart_log(struct nvme_hwmon_data *data)
- {
- 	return nvme_get_log(data->ctrl, NVME_NSID_ALL, NVME_LOG_SMART, 0,
--			   NVME_CSI_NVM, &data->log, sizeof(data->log), 0);
-+			   NVME_CSI_NVM, data->log, sizeof(*data->log), 0);
- }
- 
- static int nvme_hwmon_read(struct device *dev, enum hwmon_sensor_types type,
- 			   u32 attr, int channel, long *val)
- {
- 	struct nvme_hwmon_data *data = dev_get_drvdata(dev);
--	struct nvme_smart_log *log = &data->log;
-+	struct nvme_smart_log *log = data->log;
- 	int temp;
- 	int err;
- 
-@@ -163,7 +163,7 @@ static umode_t nvme_hwmon_is_visible(const void *_data,
- 	case hwmon_temp_max:
- 	case hwmon_temp_min:
- 		if ((!channel && data->ctrl->wctemp) ||
--		    (channel && data->log.temp_sensor[channel - 1])) {
-+		    (channel && data->log->temp_sensor[channel - 1])) {
- 			if (data->ctrl->quirks &
- 			    NVME_QUIRK_NO_TEMP_THRESH_CHANGE)
- 				return 0444;
-@@ -176,7 +176,7 @@ static umode_t nvme_hwmon_is_visible(const void *_data,
- 		break;
- 	case hwmon_temp_input:
- 	case hwmon_temp_label:
--		if (!channel || data->log.temp_sensor[channel - 1])
-+		if (!channel || data->log->temp_sensor[channel - 1])
- 			return 0444;
- 		break;
- 	default:
-@@ -232,13 +232,19 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
- 	if (!data)
- 		return -ENOMEM;
- 
-+	data->log = kzalloc(sizeof(*data->log), GFP_KERNEL);
-+	if (!data->log) {
-+		err = -ENOMEM;
-+		goto err_free_data;
++static xfs_failaddr_t
++xfs_dir3_data_header_check(
++	struct xfs_inode	*dp,
++	struct xfs_buf		*bp)
++{
++	struct xfs_mount	*mp = dp->i_mount;
++
++	if (xfs_sb_version_hascrc(&mp->m_sb)) {
++		struct xfs_dir3_data_hdr *hdr3 = bp->b_addr;
++
++		if (be64_to_cpu(hdr3->hdr.owner) != dp->i_ino)
++			return __this_address;
 +	}
 +
- 	data->ctrl = ctrl;
- 	mutex_init(&data->read_lock);
++	return NULL;
++}
  
- 	err = nvme_hwmon_get_smart_log(data);
- 	if (err) {
- 		dev_warn(dev, "Failed to read smart log (error %d)\n", err);
--		goto err_free_data;
-+		goto err_free_log;
- 	}
+ int
+ xfs_dir3_data_read(
+@@ -357,12 +373,24 @@ xfs_dir3_data_read(
+ 	xfs_daddr_t		mapped_bno,
+ 	struct xfs_buf		**bpp)
+ {
++	xfs_failaddr_t		fa;
+ 	int			err;
  
- 	hwmon = hwmon_device_register_with_info(dev, "nvme",
-@@ -247,11 +253,13 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
- 	if (IS_ERR(hwmon)) {
- 		dev_warn(dev, "Failed to instantiate hwmon device\n");
- 		err = PTR_ERR(hwmon);
--		goto err_free_data;
-+		goto err_free_log;
- 	}
- 	ctrl->hwmon_device = hwmon;
- 	return 0;
- 
-+err_free_log:
-+	kfree(data->log);
- err_free_data:
- 	kfree(data);
+ 	err = xfs_da_read_buf(tp, dp, bno, mapped_bno, bpp,
+ 				XFS_DATA_FORK, &xfs_dir3_data_buf_ops);
+-	if (!err && tp && *bpp)
+-		xfs_trans_buf_set_type(tp, *bpp, XFS_BLFT_DIR_DATA_BUF);
++	if (err || !*bpp)
++		return err;
++
++	/* Check things that we can't do in the verifier. */
++	fa = xfs_dir3_data_header_check(dp, *bpp);
++	if (fa) {
++		__xfs_buf_mark_corrupt(*bpp, fa);
++		xfs_trans_brelse(tp, *bpp);
++		*bpp = NULL;
++		return -EFSCORRUPTED;
++	}
++
++	xfs_trans_buf_set_type(tp, *bpp, XFS_BLFT_DIR_DATA_BUF);
  	return err;
-@@ -265,6 +273,7 @@ void nvme_hwmon_exit(struct nvme_ctrl *ctrl)
- 
- 		hwmon_device_unregister(ctrl->hwmon_device);
- 		ctrl->hwmon_device = NULL;
-+		kfree(data->log);
- 		kfree(data);
- 	}
  }
--- 
-2.35.1
-
+ 
 
 
