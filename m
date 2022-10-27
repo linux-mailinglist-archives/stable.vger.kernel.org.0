@@ -2,84 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB16C60ED4B
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 03:13:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E32A60ED96
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 03:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233610AbiJ0BM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Oct 2022 21:12:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43672 "EHLO
+        id S233553AbiJ0Bso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Oct 2022 21:48:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbiJ0BM6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 21:12:58 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44B051004A0
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 18:12:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666833176;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=7LHEwZt6NE9p0O2o9rqZG9ZD7dBOAwFNfTboGZKKsJo=;
-        b=LZHdtqgQahgccevnRYGeUkVU0k0aHcz/KBOZz1k3m/9yhE9aIRva0Q3K/gVEAjGDzUSFU0
-        vG+E7NVKGcVqzCFzfp2PloalRJ20Et93exyGfePJiHm5LWpbeUJn3U2iXHazGh8GRtHj+m
-        o6bgvB2KD7BFUbmKf7U8z7xkuJT305Q=
-Received: from mail-il1-f197.google.com (mail-il1-f197.google.com
- [209.85.166.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-483-hM7pKHb_O-i5lsWkdZ5SOw-1; Wed, 26 Oct 2022 21:12:54 -0400
-X-MC-Unique: hM7pKHb_O-i5lsWkdZ5SOw-1
-Received: by mail-il1-f197.google.com with SMTP id h8-20020a056e021b8800b002f9c2e31750so247367ili.1
-        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 18:12:54 -0700 (PDT)
+        with ESMTP id S232946AbiJ0Bsm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Oct 2022 21:48:42 -0400
+Received: from mail-qv1-xf32.google.com (mail-qv1-xf32.google.com [IPv6:2607:f8b0:4864:20::f32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3110132E9B
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 18:48:41 -0700 (PDT)
+Received: by mail-qv1-xf32.google.com with SMTP id n18so8858qvt.11
+        for <stable@vger.kernel.org>; Wed, 26 Oct 2022 18:48:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=LjF5WJ/5nIJrcaTZzzLDZvM3WvamyAQiIifVrONITDo=;
+        b=cH6Eb4I0yW3Gc/F4bwQrIPB5+QCmkFlNfzebKe7e/DqPSu6m2LCghXWsFVMIh54PJd
+         QnlxoaeEQj78BiwCsPZ5snf9vLD/mfi+d7OJJCRE16zWQ/VJ7LkYz8wB7+ijOklFm9mk
+         jy9FIzWXdZbtBOvu3xLtHQooXARYtoJdosi0q3KrDUVKgFZzcMypg7Oi595h4kb1zboK
+         s49nb+J60kgdgfi+mh7+cEf0PfzGyHx7OOCpA9+I6MBaArkBiVkC2LAqgEM8BKZJPNfs
+         5e+6xEEQuBUPYbsflG52682zaqgIyzlEtW/OdPOQzgPlDxHvo6FElt8EIJZzlf+ffeRd
+         WtGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7LHEwZt6NE9p0O2o9rqZG9ZD7dBOAwFNfTboGZKKsJo=;
-        b=mHBopOk8U2jo8GdiWyjVMvj3vSFImVAA8pntDHDhuNMoO6VMMflAKsoYgAxFQ7Zdj9
-         rG7Zqh0ZwfQPAy7hMV3OuTfanDUX24U+39ZjQsXpjqwsD/t8tTK4Kb6oXq684AfXAAay
-         raK8qanDb+33ORaP39Nagw7mAt2FnDcXjybuwk5Mp4jf8PMS8jQW8dZnTkklJYTzg/NQ
-         /sa7gBSZBByQghtavr+y2RVmTxcGTFEx0T8kRIiC/UqmmkYxMcsOvXGl/IWiVRGg3J++
-         7kh3VJ/3NXEKpt3oUVmPL09IbP1ahm504+is6vrL7KU2Kni+nxtipofJAuF3NdOEYYJX
-         Ad9Q==
-X-Gm-Message-State: ACrzQf1uZ7mnHzXKcCRk6V6OvSeLb5gIWwGfTDt6ZLrkgDs3F3NrQ25Q
-        BeuelExXJxQ+HYYFjQ0RtekwITW4+0q1Oilc3lcB4KysLz3r+gPIqA+GzNd4Vk9tDjCXpyozynS
-        /SXaj/445qzx2OHls
-X-Received: by 2002:a05:6638:258b:b0:375:1760:601a with SMTP id s11-20020a056638258b00b003751760601amr3609710jat.306.1666833174053;
-        Wed, 26 Oct 2022 18:12:54 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM77oRkrGA5POPQJaFtphITuaickTFdK+V8/HWV7o8VWC5zaUNiIgRNb8IfOubF1U5Yj1+5fCA==
-X-Received: by 2002:a05:6638:258b:b0:375:1760:601a with SMTP id s11-20020a056638258b00b003751760601amr3609666jat.306.1666833173584;
-        Wed, 26 Oct 2022 18:12:53 -0700 (PDT)
-Received: from x1n (bras-base-aurron9127w-grc-46-70-31-27-79.dsl.bell.ca. [70.31.27.79])
-        by smtp.gmail.com with ESMTPSA id cn11-20020a0566383a0b00b00349e1922573sm43680jab.170.2022.10.26.18.12.51
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=LjF5WJ/5nIJrcaTZzzLDZvM3WvamyAQiIifVrONITDo=;
+        b=OwxZZUi4vOt27dXHvjzQwvqx6iaExRuf+ph3A7RAw9Bg6wgKeLznyom1lmHfVe21o9
+         4JG2BRz0EdrfBooFRuXqVaMjayFYVMq+DWPQNkPF3qgBlfgTEjtiPaYwM4g41cGzwDFA
+         c0/Kwc9sKRjetytkCXBvpRQXDclHgU0XFS5TwEMdhUzFdxVyhVTOXChZV7ufFtum8d/D
+         GCVXB6VjIB9TZzxB7Qh/DEIahMler5zK1+HRXsR9QhjoHi3HHsLBokwPqFE/tAFbtr7f
+         NQ96VkNgDBW6E49RoCrS1izfwWXOY4+VNJccUnwX1cE+PFNRY2y7e4iVhKIv68XE8scd
+         ksIw==
+X-Gm-Message-State: ACrzQf3f4efQHBw773CzgkqQiDJFo7lGqfDDS4cHeFoXmbvIfDsZitvK
+        sIgiZU6MeFo4q/YjiDjfOmAZsA==
+X-Google-Smtp-Source: AMsMyM63cNcG81thh/X0xFu3/9/+XsQCc882T+opMeVuLK+zUp02aEARqHGYACht81XLZQbT41q66Q==
+X-Received: by 2002:ad4:5fc5:0:b0:4bb:6360:e80 with SMTP id jq5-20020ad45fc5000000b004bb63600e80mr19480596qvb.63.1666835320786;
+        Wed, 26 Oct 2022 18:48:40 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id fy21-20020a05622a5a1500b0039c72bb51f3sm105211qtb.86.2022.10.26.18.48.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Oct 2022 18:12:52 -0700 (PDT)
-Date:   Wed, 26 Oct 2022 21:12:50 -0400
-From:   Peter Xu <peterx@redhat.com>
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Naoya Horiguchi <naoya.horiguchi@linux.dev>,
-        David Hildenbrand <david@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Mina Almasry <almasrymina@google.com>,
-        Rik van Riel <riel@surriel.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Wei Chen <harperchen1110@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] hugetlb: don't delete vma_lock in hugetlb
- MADV_DONTNEED processing
-Message-ID: <Y1nbErXmHkyrzt8F@x1n>
-References: <20221023025047.470646-1-mike.kravetz@oracle.com>
- <Y1mpwKpwsiN6u6r7@x1n>
- <Y1nImUVseAOpXwPv@monkey>
+        Wed, 26 Oct 2022 18:48:39 -0700 (PDT)
+Date:   Wed, 26 Oct 2022 18:48:29 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     Peter Xu <peterx@redhat.com>
+cc:     Hugh Dickins <hughd@google.com>,
+        Yuanzheng Song <songyuanzheng@huawei.com>,
+        akpm@linux-foundation.org, gregkh@linuxfoundation.org,
+        david@redhat.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH STABLE 5.10] mm/memory: add non-anonymous page check in
+ the copy_present_page()
+In-Reply-To: <Y1nRiJ1LYB62uInn@x1n>
+Message-ID: <fffefe4-adce-a7d-23e0-9f8afc7ce6cf@google.com>
+References: <20221024094911.3054769-1-songyuanzheng@huawei.com> <3823471f-6dda-256e-e082-718879c05449@google.com> <Y1nRiJ1LYB62uInn@x1n>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="YVsPJK3aT2ohvMA8"
-Content-Disposition: inline
-In-Reply-To: <Y1nImUVseAOpXwPv@monkey>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -87,279 +74,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, 26 Oct 2022, Peter Xu wrote:
 
---YVsPJK3aT2ohvMA8
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-
-On Wed, Oct 26, 2022 at 04:54:01PM -0700, Mike Kravetz wrote:
-> On 10/26/22 17:42, Peter Xu wrote:
-> > Hi, Mike,
-> > 
-> > On Sat, Oct 22, 2022 at 07:50:47PM -0700, Mike Kravetz wrote:
-> > 
-> > [...]
-> > 
-> > > -void __unmap_hugepage_range_final(struct mmu_gather *tlb,
-> > > +static void __unmap_hugepage_range_locking(struct mmu_gather *tlb,
-> > >  			  struct vm_area_struct *vma, unsigned long start,
-> > >  			  unsigned long end, struct page *ref_page,
-> > > -			  zap_flags_t zap_flags)
-> > > +			  zap_flags_t zap_flags, bool final)
-> > >  {
-> > >  	hugetlb_vma_lock_write(vma);
-> > >  	i_mmap_lock_write(vma->vm_file->f_mapping);
-> > >  
-> > >  	__unmap_hugepage_range(tlb, vma, start, end, ref_page, zap_flags);
-> > >  
-> > > -	/*
-> > > -	 * Unlock and free the vma lock before releasing i_mmap_rwsem.  When
-> > > -	 * the vma_lock is freed, this makes the vma ineligible for pmd
-> > > -	 * sharing.  And, i_mmap_rwsem is required to set up pmd sharing.
-> > > -	 * This is important as page tables for this unmapped range will
-> > > -	 * be asynchrously deleted.  If the page tables are shared, there
-> > > -	 * will be issues when accessed by someone else.
-> > > -	 */
-> > > -	__hugetlb_vma_unlock_write_free(vma);
-> > > +	if (final) {
-> > > +		/*
-> > > +		 * Unlock and free the vma lock before releasing i_mmap_rwsem.
-> > > +		 * When the vma_lock is freed, this makes the vma ineligible
-> > > +		 * for pmd sharing.  And, i_mmap_rwsem is required to set up
-> > > +		 * pmd sharing.  This is important as page tables for this
-> > > +		 * unmapped range will be asynchrously deleted.  If the page
-> > > +		 * tables are shared, there will be issues when accessed by
-> > > +		 * someone else.
-> > > +		 */
-> > > +		__hugetlb_vma_unlock_write_free(vma);
-> > > +		i_mmap_unlock_write(vma->vm_file->f_mapping);
-> > 
-> > Pure question: can we rely on hugetlb_vm_op_close() to destroy the hugetlb
-> > vma lock?
-> > 
-> > I read the comment above, it seems we are trying to avoid racing with pmd
-> > sharing, but I don't see how that could ever happen, since iiuc there
-> > should only be two places that unmaps the vma (final==true):
-> > 
-> >   (1) munmap: we're holding write lock, so no page fault possible
-> >   (2) exit_mmap: we've already reset current->mm so no page fault possible
-> > 
+> Hi, Yuanzheng,
 > 
-> Thanks for taking a look Peter!
-> 
-> The possible sharing we are trying to stop would be initiated by a fault
-> in a different process on the same underlying mapping object (inode).  The
-> specific vma in exit processing is still linked into the mapping interval
-> tree.  So, even though we call huge_pmd_unshare in the unmap processing (in
-> __unmap_hugepage_range) the sharing could later be initiated by another
-> process.
-> 
-> Hope that makes sense.  That is also the reason the routine
-> page_table_shareable contains this check:
-> 
-> 	/*
-> 	 * match the virtual addresses, permission and the alignment of the
-> 	 * page table page.
-> 	 *
-> 	 * Also, vma_lock (vm_private_data) is required for sharing.
-> 	 */
-> 	if (pmd_index(addr) != pmd_index(saddr) ||
-> 	    vm_flags != svm_flags ||
-> 	    !range_in_vma(svma, sbase, s_end) ||
-> 	    !svma->vm_private_data)
-> 		return 0;
-
-Ah, makes sense.  Hmm, then I'm wondering whether hugetlb_vma_lock_free()
-would ever be useful at all?  Because remove_vma() (or say, the close()
-hook) seems to always be called after an precedent unmap_vmas().
-
-> 
-> FYI - The 'flags' check also prevents a non-uffd mapping from initiating
-> sharing with a uffd mapping.
-> 
-> > > +	} else {
-> > > +		i_mmap_unlock_write(vma->vm_file->f_mapping);
-> > > +		hugetlb_vma_unlock_write(vma);
-> > > +	}
-> > > +}
-> > >  
-> > > -	i_mmap_unlock_write(vma->vm_file->f_mapping);
-> > > +void __unmap_hugepage_range_final(struct mmu_gather *tlb,
-> > > +			  struct vm_area_struct *vma, unsigned long start,
-> > > +			  unsigned long end, struct page *ref_page,
-> > > +			  zap_flags_t zap_flags)
-> > > +{
-> > > +	__unmap_hugepage_range_locking(tlb, vma, start, end, ref_page,
-> > > +					zap_flags, true);
-> > >  }
-> > >  
-> > > +#ifdef CONFIG_ADVISE_SYSCALLS
-> > > +/*
-> > > + * Similar setup as in zap_page_range().  madvise(MADV_DONTNEED) can not call
-> > > + * zap_page_range for hugetlb vmas as __unmap_hugepage_range_final will delete
-> > > + * the associated vma_lock.
-> > > + */
-> > > +void clear_hugetlb_page_range(struct vm_area_struct *vma, unsigned long start,
-> > > +				unsigned long end)
-> > > +{
-> > > +	struct mmu_notifier_range range;
-> > > +	struct mmu_gather tlb;
-> > > +
-> > > +	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
-> > > +				start, end);
+> On Wed, Oct 26, 2022 at 02:51:16PM -0700, Hugh Dickins wrote:
+> > On Mon, 24 Oct 2022, Yuanzheng Song wrote:
 > > 
-> > Is mmu_notifier_invalidate_range_start() missing here?
+> > > The vma->anon_vma of the child process may be NULL because
+> > > the entire vma does not contain anonymous pages. In this
+> > > case, a BUG will occur when the copy_present_page() passes
+> > > a copy of a non-anonymous page of that vma to the
+> > > page_add_new_anon_rmap() to set up new anonymous rmap.
+> > > 
+> > > ------------[ cut here ]------------
+> > > kernel BUG at mm/rmap.c:1044!
+> > > Internal error: Oops - BUG: 0 [#1] SMP
+> > > Modules linked in:
+> > > CPU: 2 PID: 3617 Comm: test Not tainted 5.10.149 #1
+> > > Hardware name: linux,dummy-virt (DT)
+> > > pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
+> > > pc : __page_set_anon_rmap+0xbc/0xf8
+> > > lr : __page_set_anon_rmap+0xbc/0xf8
+> > > sp : ffff800014c1b870
+> > > x29: ffff800014c1b870 x28: 0000000000000001
+> > > x27: 0000000010100073 x26: ffff1d65c517baa8
+> > > x25: ffff1d65cab0f000 x24: ffff1d65c416d800
+> > > x23: ffff1d65cab5f248 x22: 0000000020000000
+> > > x21: 0000000000000001 x20: 0000000000000000
+> > > x19: fffffe75970023c0 x18: 0000000000000000
+> > > x17: 0000000000000000 x16: 0000000000000000
+> > > x15: 0000000000000000 x14: 0000000000000000
+> > > x13: 0000000000000000 x12: 0000000000000000
+> > > x11: 0000000000000000 x10: 0000000000000000
+> > > x9 : ffffc3096d5fb858 x8 : 0000000000000000
+> > > x7 : 0000000000000011 x6 : ffff5a5c9089c000
+> > > x5 : 0000000000020000 x4 : ffff5a5c9089c000
+> > > x3 : ffffc3096d200000 x2 : ffffc3096e8d0000
+> > > x1 : ffff1d65ca3da740 x0 : 0000000000000000
+> > > Call trace:
+> > >  __page_set_anon_rmap+0xbc/0xf8
+> > >  page_add_new_anon_rmap+0x1e0/0x390
+> > >  copy_pte_range+0xd00/0x1248
+> > >  copy_page_range+0x39c/0x620
+> > >  dup_mmap+0x2e0/0x5a8
+> > >  dup_mm+0x78/0x140
+> > >  copy_process+0x918/0x1a20
+> > >  kernel_clone+0xac/0x638
+> > >  __do_sys_clone+0x78/0xb0
+> > >  __arm64_sys_clone+0x30/0x40
+> > >  el0_svc_common.constprop.0+0xb0/0x308
+> > >  do_el0_svc+0x48/0xb8
+> > >  el0_svc+0x24/0x38
+> > >  el0_sync_handler+0x160/0x168
+> > >  el0_sync+0x180/0x1c0
+> > > Code: 97f8ff85 f9400294 17ffffeb 97f8ff82 (d4210000)
+> > > ---[ end trace a972347688dc9bd4 ]---
+> > > Kernel panic - not syncing: Oops - BUG: Fatal exception
+> > > SMP: stopping secondary CPUs
+> > > Kernel Offset: 0x43095d200000 from 0xffff800010000000
+> > > PHYS_OFFSET: 0xffffe29a80000000
+> > > CPU features: 0x08200022,61806082
+> > > Memory Limit: none
+> > > ---[ end Kernel panic - not syncing: Oops - BUG: Fatal exception ]---
+> > > 
+> > > This problem has been fixed by the fb3d824d1a46
+> > > ("mm/rmap: split page_dup_rmap() into page_dup_file_rmap() and page_try_dup_anon_rmap()"),
+> > > but still exists in the linux-5.10.y branch.
+> > > 
+> > > This patch is not applicable to this version because
+> > > of the large version differences. Therefore, fix it by
+> > > adding non-anonymous page check in the copy_present_page().
+> > > 
+> > > Fixes: 70e806e4e645 ("mm: Do early cow for pinned pages during fork() for ptes")
+> > > Signed-off-by: Yuanzheng Song <songyuanzheng@huawei.com>
 > > 
+> > It's a good point, but this patch should not go into any stable release
+> > without an explicit Ack from either Peter Xu or David Hildenbrand.
+> > 
+> > To my eye, it's simply avoiding the issue, rather than fixing
+> > it properly; and even if the issue is so rare, and fixing properly
+> > too difficult or inefficent (a cached anon_vma?), that a workaround
+> > is good enough, it still looks like the wrong workaround (checking
+> > dst_vma->anon_vma instead of PageAnon seems more to the point, and
+> > less lenient).
 > 
-> It certainly does look like it.  When I created this routine, I was trying to
-> mimic what was done in the current calling path zap_page_range to
-> __unmap_hugepage_range_final.  Now when I look at that, I am not seeing
-> a mmu_notifier_invalidate_range_start/end.  Am I missing something, or
-> are these missing today?
-
-I'm not sure whether we're looking at the same code base; here it's in
-zap_page_range() itself.
-
-	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
-				start, start + size);
-	tlb_gather_mmu(&tlb, vma->vm_mm);
-	update_hiwater_rss(vma->vm_mm);
-	mmu_notifier_invalidate_range_start(&range);
-	do {
-		unmap_single_vma(&tlb, vma, start, range.end, NULL);
-	} while ((vma = mas_find(&mas, end - 1)) != NULL);
-	mmu_notifier_invalidate_range_end(&range);
-
-> Do note that we do MMU_NOTIFY_UNMAP in __unmap_hugepage_range.
-
-Hmm, I think we may want CLEAR for zap-only and UNMAP only for unmap.
-
- * @MMU_NOTIFY_UNMAP: either munmap() that unmap the range or a mremap() that
- * move the range
- * @MMU_NOTIFY_CLEAR: clear page table entry (many reasons for this like
- * madvise() or replacing a page by another one, ...).
-
-The other thing is that unmap_vmas() also notifies (same to
-zap_page_range), it looks a duplicated notification if any of them calls
-__unmap_hugepage_range() at last.
-
+> Sorry to have missed this patch. I agree with Hugh that this patch may not
+> really fix the issue.
 > 
-> > > +	tlb_gather_mmu(&tlb, vma->vm_mm);
-> > > +	update_hiwater_rss(vma->vm_mm);
-> > > +
-> > > +	__unmap_hugepage_range_locking(&tlb, vma, start, end, NULL, 0, false);
-> > > +
-> > > +	mmu_notifier_invalidate_range_end(&range);
-> > > +	tlb_finish_mmu(&tlb);
-> > > +}
-> > > +#endif
-> > > +
-> > >  void unmap_hugepage_range(struct vm_area_struct *vma, unsigned long start,
-> > >  			  unsigned long end, struct page *ref_page,
-> > >  			  zap_flags_t zap_flags)
-> > > diff --git a/mm/madvise.c b/mm/madvise.c
-> > > index 2baa93ca2310..90577a669635 100644
-> > > --- a/mm/madvise.c
-> > > +++ b/mm/madvise.c
-> > > @@ -790,7 +790,10 @@ static int madvise_free_single_vma(struct vm_area_struct *vma,
-> > >  static long madvise_dontneed_single_vma(struct vm_area_struct *vma,
-> > >  					unsigned long start, unsigned long end)
-> > >  {
-> > > -	zap_page_range(vma, start, end - start);
-> > > +	if (!is_vm_hugetlb_page(vma))
-> > > +		zap_page_range(vma, start, end - start);
-> > > +	else
-> > > +		clear_hugetlb_page_range(vma, start, end);
-> > >  	return 0;
-> > >  }
-> > 
-> > This does look a bit unfortunate - zap_page_range() contains yet another
-> > is_vm_hugetlb_page() check (further down in unmap_single_vma), it can be
-> > very confusing on which code path is really handling hugetlb.
-> > 
-> > The other mm_users check in v3 doesn't need this change, but was a bit
-> > hackish to me, because IIUC we're clear on the call paths to trigger this
-> > (unmap_vmas), so it seems clean to me to pass that info from the upper
-> > stack.
-> > 
-> > Maybe we can have a new zap_flags passed into unmap_single_vma() showing
-> > that it's destroying the vma?
+> IIUC it's the case where the vma is privately mapping a file.  Some shared
+> pages got pinned, and here we're trying to trigger the CoW assuming it's
+> anonymous page but it's not.
 > 
-> I thought about that.  However, we would need to start passing the flag
-> here into zap_page_range as this is the beginning of that call down into
-> the hugetlb code where we do not want to remove zap_page_rangethe
-> vma_lock.
+> The pin should be RO - if it was a write pin, CoW should have happened on
+> the page cache and there should be an anonymous page, and anon_vma should
+> be there, no issue should happen.  Only if with RO pin, we won't trigger
+> CoW, we won't have any anonymous page, we won't have anon_vma, hence the
+> panic.
+> 
+> The thing is if the page is RO pinned, skip copying it (as what was done in
+> this patch) is not correct either, because e.g. a follow up write after
+> fork() from the parent will trigger CoW and the dma RO page that was pinned
+> will be inconsistent to the page in pgtable anymore, I think.
+> 
+> IIUC the correct fix is what David worked on with unshare - when RO pin the
+> page cache we should have triggered CoR already before fork().  But as you
+> mentioned, that's too much change for stable.
+> 
+> So besides this workaround which seems feasible to at least not panic the
+> system (Hugh: I can't quickly tell what'll be the difference here to check
+> dst anon_vma or PageAnon, they all seem to work?  I could have missed
 
-Right.  I was thinking just attach the new flag in unmap_vmas().  A pesudo
-(not compiled) code attached.
+Thanks for all the helpful elucidation above.
 
-Thanks,
+My thought here, in favour of checking dst anon_vma rather than PageAnon,
+was that a common case would be that the private file vma does already
+have an anon_vma attached (from earlier CoW on some other page), and
+in that case there is no justification for taking this short cut to
+avoid the BUG in __page_set_anon_rmap() on every !PageAnon in the vma.
 
--- 
-Peter Xu
+And I imagined that the correct fix (short of going forward with David's
+full changes) would be to back out to a context where one could add an
+anon_vma_prepare(), then retry after that - involves dropping pt lock,
+maybe gets nasty (tedious, anyway).
 
---YVsPJK3aT2ohvMA8
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: attachment; filename=patch
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 978c17df053e..37091f8a6a12 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -3463,5 +3463,6 @@ madvise_set_anon_name(struct mm_struct *mm, unsigned long start,
-  * default, the flag is not set.
-  */
- #define  ZAP_FLAG_DROP_MARKER        ((__force zap_flags_t) BIT(0))
-+#define  ZAP_FLAG_UNMAP              ((__force zap_flags_t) BIT(1))
- 
- #endif /* _LINUX_MM_H */
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 4a8c8456555e..245954d85553 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5201,8 +5201,10 @@ static void __unmap_hugepage_range(struct mmu_gather *tlb, struct vm_area_struct
- static void __unmap_hugepage_range_locking(struct mmu_gather *tlb,
- 			  struct vm_area_struct *vma, unsigned long start,
- 			  unsigned long end, struct page *ref_page,
--			  zap_flags_t zap_flags, bool final)
-+			  zap_flags_t zap_flags)
- {
-+	bool final = zap_flags & ZAP_FLAG_UNMAP;
-+
- 	hugetlb_vma_lock_write(vma);
- 	i_mmap_lock_write(vma->vm_file->f_mapping);
- 
-@@ -5232,7 +5234,7 @@ void __unmap_hugepage_range_final(struct mmu_gather *tlb,
- 			  zap_flags_t zap_flags)
- {
- 	__unmap_hugepage_range_locking(tlb, vma, start, end, ref_page,
--					zap_flags, true);
-+				       zap_flags);
- }
- 
- #ifdef CONFIG_ADVISE_SYSCALLS
-@@ -5252,7 +5254,7 @@ void clear_hugetlb_page_range(struct vm_area_struct *vma, unsigned long start,
- 	tlb_gather_mmu(&tlb, vma->vm_mm);
- 	update_hiwater_rss(vma->vm_mm);
- 
--	__unmap_hugepage_range_locking(&tlb, vma, start, end, NULL, 0, false);
-+	__unmap_hugepage_range_locking(&tlb, vma, start, end, NULL, 0);
- 
- 	mmu_notifier_invalidate_range_end(&range);
- 	tlb_finish_mmu(&tlb);
-diff --git a/mm/memory.c b/mm/memory.c
-index c5599a9279b1..679b702af4ce 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1671,7 +1671,7 @@ void unmap_vmas(struct mmu_gather *tlb, struct maple_tree *mt,
- {
- 	struct mmu_notifier_range range;
- 	struct zap_details details = {
--		.zap_flags = ZAP_FLAG_DROP_MARKER,
-+		.zap_flags = ZAP_FLAG_DROP_MARKER | ZAP_FLAG_UNMAP,
- 		/* Careful - we need to zap private pages too! */
- 		.even_cows = true,
- 	};
-
---YVsPJK3aT2ohvMA8--
-
+> something for sure..), the other workaround is teach the user app to switch
+> to use RW pin for any DMA pages even if RO, so that it'll always guarantee
+> page coherence even with the old kernel, and afaict that's what RDMA relied
+> on for years.  I don't know an easy way to make old kernel work with RO pin
+> solidly if without the unsharing logic.
+> 
+> Thanks,
+> 
+> -- 
+> Peter Xu
