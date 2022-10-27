@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B813860FE66
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:05:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF17760FDE9
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236945AbiJ0RFA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:05:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59978 "EHLO
+        id S236808AbiJ0RAW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:00:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236930AbiJ0REz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6913B86F88
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:54 -0700 (PDT)
+        with ESMTP id S236768AbiJ0RAT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:00:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC6059247
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:00:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04B3D623D8
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1716CC43470;
-        Thu, 27 Oct 2022 17:04:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC463623EC
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:00:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED204C433D7;
+        Thu, 27 Oct 2022 17:00:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890293;
-        bh=et6v1zJ8Tvk9ustQSoPolK6YzHko4XzTLOBxqydmKiQ=;
+        s=korg; t=1666890017;
+        bh=IelhFjdo+Nbb+ZaaSKU7P1Dwd1+KS+fy+R7cjWKzj+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mpKL+jFa0rka/fQ9YzFw2E+DnADcgsNfiKvlfAlLiadlRO/iyd9vAicEVA0tGQhzl
-         Z1pmEeKcp+4C+hF2jHJrdQfVCEYOzpWvt+xZH7oKU4wDcQTcb9fgjyUA8P2lDy9HEm
-         iDsm5M7yAx+4pJxOclpvJDDMj8Pw9jDRNVFKvNkQ=
+        b=AQrKfpxZPcGXq2KYAD09JRTblT1h7RYXwMzvrBeP2q+q2bn77V+LDoQ4lfhF9UhbN
+         RD78mhqE/SUaBteuwHSoy6Y2HwUBMaFcmQbQBNOG1s5Ck7yZ5wJfiQ1QDdGCZs3FBx
+         Q93N6acrcg68Ab7+TsQ6QVqlkqDdXa9AH0LN+mug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Jiri Olsa <jolsa@kernel.org>
-Subject: [PATCH 5.10 16/79] bpf: Generate BTF_KIND_FLOAT when linking vmlinux
-Date:   Thu, 27 Oct 2022 18:55:26 +0200
-Message-Id: <20221027165054.899070789@linuxfoundation.org>
+        patches@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>,
+        kernel test robot <lkp@intel.com>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 85/94] rv/dot2c: Make automaton definition static
+Date:   Thu, 27 Oct 2022 18:55:27 +0200
+Message-Id: <20221027165100.615336065@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
+References: <20221027165057.208202132@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Daniel Bristot de Oliveira <bristot@kernel.org>
 
-commit db16c1fe92d7ba7d39061faef897842baee2c887  upstream.
+[ Upstream commit 21a1994b6492b12e55dbf39d15271430ef6839f0 ]
 
-[backported for dependency only extra_paholeopt variable setup and
-usage, we don't want floats generated in 5.10]
+Monitor's automata definition is only used locally, so make dot2c generate
+a static definition.
 
-pahole v1.21 supports the --btf_gen_floats flag, which makes it
-generate the information about the floating-point types [1].
+Link: https://lore.kernel.org/all/202208210332.gtHXje45-lkp@intel.com
+Link: https://lore.kernel.org/all/202208210358.6HH3OrVs-lkp@intel.com
+Link: https://lkml.kernel.org/r/ffbb92010f643307766c9307fd42f416e5b85fa0.1661266564.git.bristot@kernel.org
 
-Adjust link-vmlinux.sh to pass this flag to pahole in case it's
-supported, which is determined using a simple version check.
-
-[1] https://lore.kernel.org/dwarves/YHRiXNX1JUF2Az0A@kernel.org/
-
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210413190043.21918-1-iii@linux.ibm.com
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Fixes: e3c9fc78f096 ("tools/rv: Add dot2c")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/link-vmlinux.sh |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/verification/dot2/dot2c.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/scripts/link-vmlinux.sh
-+++ b/scripts/link-vmlinux.sh
-@@ -146,6 +146,7 @@ vmlinux_link()
- gen_btf()
- {
- 	local pahole_ver
-+	local extra_paholeopt=
+diff --git a/tools/verification/dot2/dot2c.py b/tools/verification/dot2/dot2c.py
+index fa73353f7e56..be8a364a469b 100644
+--- a/tools/verification/dot2/dot2c.py
++++ b/tools/verification/dot2/dot2c.py
+@@ -111,7 +111,7 @@ class Dot2c(Automata):
  
- 	if ! [ -x "$(command -v ${PAHOLE})" ]; then
- 		echo >&2 "BTF: ${1}: pahole (${PAHOLE}) is not available"
-@@ -161,7 +162,7 @@ gen_btf()
- 	vmlinux_link ${1}
+     def format_aut_init_header(self):
+         buff = []
+-        buff.append("struct %s %s = {" % (self.struct_automaton_def, self.var_automaton_def))
++        buff.append("static struct %s %s = {" % (self.struct_automaton_def, self.var_automaton_def))
+         return buff
  
- 	info "BTF" ${2}
--	LLVM_OBJCOPY=${OBJCOPY} ${PAHOLE} -J ${1}
-+	LLVM_OBJCOPY=${OBJCOPY} ${PAHOLE} -J ${extra_paholeopt} ${1}
- 
- 	# Create ${2} which contains just .BTF section but no symbols. Add
- 	# SHF_ALLOC because .BTF will be part of the vmlinux image. --strip-all
+     def __get_string_vector_per_line_content(self, buff):
+-- 
+2.35.1
+
 
 
