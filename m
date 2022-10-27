@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7036660FEF8
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:10:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18BCE60FE64
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:05:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236981AbiJ0RKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:10:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46068 "EHLO
+        id S236944AbiJ0RFA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:05:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237107AbiJ0RKK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:10:10 -0400
+        with ESMTP id S236915AbiJ0REC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 362234AD56
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:10:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00DF6197F8A
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C776362369
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:10:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCBD1C433C1;
-        Thu, 27 Oct 2022 17:10:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90A7C623EB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7DE4C433C1;
+        Thu, 27 Oct 2022 17:04:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890608;
-        bh=F2UJkgs05Ppl/TINGlI7KTsm0sSTdQ+1Cf5x1RGfonU=;
+        s=korg; t=1666890241;
+        bh=aZRmJFPk/qOTFbBThxUj4+zil2ckc29xlW5UzclKIo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4Uqw1mKRtxAiQ0D1pm6JNEtX0leKZMP/IK8LwNLdFXXtyKMg58TiMtOhih60v3Iy
-         pHoitN8nrwDnNCMBoEKu4VTFYK5YdFFOybvogBsZY4KtCM5H7XpQXQwTlzQHqh/DMd
-         qsUOZBEd7zhJBrNGWPsnZQOGj6YE/w1zcV1C613c=
+        b=wlVg2KY9zYGAPOOUwvVFV0S3V3yDFEFd8JG4IlUZ0ReijVUpAF/t9+D7UACkmcb4B
+         kWZij0fLAGpl8Che1DBG5TMUuQs+sebiTBawQNSx5+OkyRqcX4Gp1OHfZdOIAtoN3O
+         auxGrw4ZSvVwkOT9bWqyYpblTMbtxTyNgZ2E6MX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 25/53] xfs: move inode flush to the sync workqueue
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Werner Sembach <wse@tuxedocomputers.com>
+Subject: [PATCH 5.15 75/79] [PATCH v3] ACPI: video: Force backlight native for more TongFang devices
 Date:   Thu, 27 Oct 2022 18:56:13 +0200
-Message-Id: <20221027165050.776938434@linuxfoundation.org>
+Message-Id: <20221027165057.419700175@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
-References: <20221027165049.817124510@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +52,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-commit f0f7a674d4df1510d8ca050a669e1420cf7d7fab upstream.
+commit 3dbc80a3e4c55c4a5b89ef207bed7b7de36157b4 upstream.
 
-[ Modify fs/xfs/xfs_super.c to include the changes at locations suitable for
- 5.4-lts kernel ]
+This commit is very different from the upstream commit! It fixes the same
+issue by adding more quirks, rather then the general fix from the 6.1
+kernel, because the general fix from the 6.1 kernel is part of a larger
+refactoring of the backlight code which is not suitable for the stable
+series.
 
-Move the inode dirty data flushing to a workqueue so that multiple
-threads can take advantage of a single thread's flushing work.  The
-ratelimiting technique used in bdd4ee4 was not successful, because
-threads that skipped the inode flush scan due to ratelimiting would
-ENOSPC early, which caused occasional (but noticeable) changes in
-behavior and sporadic fstest regressions.
+As described in "ACPI: video: Drop NL5x?U, PF4NU1F and PF5?U??
+acpi_backlight=native quirks" (10212754a0d2) the upstream commit "ACPI:
+video: Make backlight class device registration a separate step (v2)"
+(3dbc80a3e4c5) makes these quirks unnecessary. However as mentioned in this
+bugtracker ticket https://bugzilla.kernel.org/show_bug.cgi?id=215683#c17
+the upstream fix is part of a larger patchset that is overall too complex
+for stable.
 
-Therefore, make all the writer threads wait on a single inode flush,
-which eliminates both the stampeding hordes of flushers and the small
-window in which a write could fail with ENOSPC because it lost the
-ratelimit race after even another thread freed space.
+The TongFang GKxNRxx, GMxNGxx, GMxZGxx, and GMxRGxx / TUXEDO
+Stellaris/Polaris Gen 1-4, have the same problem as the Clevo NL5xRU and
+NL5xNU / TUXEDO Aura 15 Gen1 and Gen2:
+They have a working native and video interface for screen backlight.
+However the default detection mechanism first registers the video interface
+before unregistering it again and switching to the native interface during
+boot. This results in a dangling SBIOS request for backlight change for
+some reason, causing the backlight to switch to ~2% once per boot on the
+first power cord connect or disconnect event. Setting the native interface
+explicitly circumvents this buggy behaviour by avoiding the unregistering
+process.
 
-Fixes: c6425702f21e ("xfs: ratelimit inode flush on buffered write ENOSPC")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_mount.h |    5 +++++
- fs/xfs/xfs_super.c |   28 +++++++++++++++++++++++-----
- 2 files changed, 28 insertions(+), 5 deletions(-)
+ drivers/acpi/video_detect.c |   64 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 64 insertions(+)
 
---- a/fs/xfs/xfs_mount.h
-+++ b/fs/xfs/xfs_mount.h
-@@ -179,6 +179,11 @@ typedef struct xfs_mount {
- 	struct xfs_error_cfg	m_error_cfg[XFS_ERR_CLASS_MAX][XFS_ERR_ERRNO_MAX];
- 	struct xstats		m_stats;	/* per-fs stats */
- 
-+	/*
-+	 * Workqueue item so that we can coalesce multiple inode flush attempts
-+	 * into a single flush.
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -501,6 +501,70 @@ static const struct dmi_system_id video_
+ 		},
+ 	},
+ 	/*
++	 * More Tongfang devices with the same issue as the Clevo NL5xRU and
++	 * NL5xNU/TUXEDO Aura 15 Gen1 and Gen2. See the description above.
 +	 */
-+	struct work_struct	m_flush_inodes_work;
- 	struct workqueue_struct *m_buf_workqueue;
- 	struct workqueue_struct	*m_unwritten_workqueue;
- 	struct workqueue_struct	*m_cil_workqueue;
---- a/fs/xfs/xfs_super.c
-+++ b/fs/xfs/xfs_super.c
-@@ -840,6 +840,20 @@ xfs_destroy_mount_workqueues(
- 	destroy_workqueue(mp->m_buf_workqueue);
- }
- 
-+static void
-+xfs_flush_inodes_worker(
-+	struct work_struct	*work)
-+{
-+	struct xfs_mount	*mp = container_of(work, struct xfs_mount,
-+						   m_flush_inodes_work);
-+	struct super_block	*sb = mp->m_super;
-+
-+	if (down_read_trylock(&sb->s_umount)) {
-+		sync_inodes_sb(sb);
-+		up_read(&sb->s_umount);
-+	}
-+}
-+
- /*
-  * Flush all dirty data to disk. Must not be called while holding an XFS_ILOCK
-  * or a page lock. We use sync_inodes_sb() here to ensure we block while waiting
-@@ -850,12 +864,15 @@ void
- xfs_flush_inodes(
- 	struct xfs_mount	*mp)
- {
--	struct super_block	*sb = mp->m_super;
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "GKxNRxx"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1501A1650TI"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1501A2060"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1701A1650TI"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1701A2060"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GMxNGxx",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "GMxNGxx"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GMxZGxx",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "GMxZGxx"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GMxRGxx",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "GMxRGxx"),
++		},
++	},
 +	/*
-+	 * If flush_work() returns true then that means we waited for a flush
-+	 * which was already in progress.  Don't bother running another scan.
-+	 */
-+	if (flush_work(&mp->m_flush_inodes_work))
-+		return;
- 
--	if (down_read_trylock(&sb->s_umount)) {
--		sync_inodes_sb(sb);
--		up_read(&sb->s_umount);
--	}
-+	queue_work(mp->m_sync_workqueue, &mp->m_flush_inodes_work);
-+	flush_work(&mp->m_flush_inodes_work);
- }
- 
- /* Catch misguided souls that try to use this interface on XFS */
-@@ -1532,6 +1549,7 @@ xfs_mount_alloc(
- 	spin_lock_init(&mp->m_perag_lock);
- 	mutex_init(&mp->m_growlock);
- 	atomic_set(&mp->m_active_trans, 0);
-+	INIT_WORK(&mp->m_flush_inodes_work, xfs_flush_inodes_worker);
- 	INIT_DELAYED_WORK(&mp->m_reclaim_work, xfs_reclaim_worker);
- 	INIT_DELAYED_WORK(&mp->m_eofblocks_work, xfs_eofblocks_worker);
- 	INIT_DELAYED_WORK(&mp->m_cowblocks_work, xfs_cowblocks_worker);
+ 	 * Desktops which falsely report a backlight and which our heuristics
+ 	 * for this do not catch.
+ 	 */
 
 
