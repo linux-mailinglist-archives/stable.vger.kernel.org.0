@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 141A560FEF9
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:10:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A50C960FE4D
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:04:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237105AbiJ0RKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:10:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46532 "EHLO
+        id S236899AbiJ0REH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:04:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237100AbiJ0RKP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:10:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8684D59EBE
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:10:13 -0700 (PDT)
+        with ESMTP id S235551AbiJ0REG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3819D196EE9
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 312B0B82726
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:10:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82DA5C433D6;
-        Thu, 27 Oct 2022 17:10:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE682B826FC
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52528C433C1;
+        Thu, 27 Oct 2022 17:04:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890610;
-        bh=xln4DHWQXBhBLOhW/WVbWQqWSUoD3kc3OstLhpm8xCg=;
+        s=korg; t=1666890243;
+        bh=115JJ5mPNHbauTuLouCrmk3GJmMX9Of6Im0KP+KwNo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGPgb0pF4Eyg4dfUWtbCN2UOCDPHi9f33EkgdFYDqPgrnVJrwJS0a35dq91LzsQj3
-         T2U6yzOLaWlp0U9pu7XQrT72IpQsf/TLC6/Y3BkZJGY642ed8cxC+LGdPlEtUIdUjB
-         lVPVoJwDVSZ/8UnGCLzYjGo1uLJgVatL21YDmbpY=
+        b=UXw4SkNOZSWa3bQbqx4mUTvtiIiU2DxGK6F+kDf9huEVXq/o+E8Zcpg6ZH+chKxkM
+         9uHKXHQeZvqUPjO9f7ZqVaP1udmOCT37MUOK/Za6eMRXzNE/P4+wYXG23w/QvtvT7j
+         jvIuSbCjMggULkGYWO1Mf+B70umlrUCWxbFpWaBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 26/53] xfs: fix use-after-free on CIL context on shutdown
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Borislav Petkov <bp@suse.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.15 76/79] x86/Kconfig: Drop check for -mabi=ms for CONFIG_EFI_STUB
 Date:   Thu, 27 Oct 2022 18:56:14 +0200
-Message-Id: <20221027165050.807448572@linuxfoundation.org>
+Message-Id: <20221027165057.449148253@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
-References: <20221027165049.817124510@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,119 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit c7f87f3984cfa1e6d32806a715f35c5947ad9c09 upstream.
+commit 33806e7cb8d50379f55c3e8f335e91e1b359dc7b upstream.
 
-xlog_wait() on the CIL context can reference a freed context if the
-waiter doesn't get scheduled before the CIL context is freed. This
-can happen when a task is on the hard throttle and the CIL push
-aborts due to a shutdown. This was detected by generic/019:
+A recent change in LLVM made CONFIG_EFI_STUB unselectable because it no
+longer pretends to support -mabi=ms, breaking the dependency in
+Kconfig. Lack of CONFIG_EFI_STUB can prevent kernels from booting via
+EFI in certain circumstances.
 
-thread 1			thread 2
+This check was added by
 
-__xfs_trans_commit
- xfs_log_commit_cil
-  <CIL size over hard throttle limit>
-  xlog_wait
-   schedule
-				xlog_cil_push_work
-				wake_up_all
-				<shutdown aborts commit>
-				xlog_cil_committed
-				kmem_free
+  8f24f8c2fc82 ("efi/libstub: Annotate firmware routines as __efiapi")
 
-   remove_wait_queue
-    spin_lock_irqsave --> UAF
+to ensure that __attribute__((ms_abi)) was available, as -mabi=ms is
+not actually used in any cflags.
 
-Fix it by moving the wait queue to the CIL rather than keeping it in
-in the CIL context that gets freed on push completion. Because the
-wait queue is now independent of the CIL context and we might have
-multiple contexts in flight at once, only wake the waiters on the
-push throttle when the context we are pushing is over the hard
-throttle size threshold.
+According to the GCC documentation, this attribute has been supported
+since GCC 4.4.7. The kernel currently requires GCC 5.1 so this check is
+not necessary; even when that change landed in 5.6, the kernel required
+GCC 4.9 so it was unnecessary then as well.
 
-Fixes: 0e7ab7efe7745 ("xfs: Throttle commits on delayed background CIL push")
-Reported-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Clang supports __attribute__((ms_abi)) for all versions that are
+supported for building the kernel so no additional check is needed.
+Remove the 'depends on' line altogether to allow CONFIG_EFI_STUB to be
+selected when CONFIG_EFI is enabled, regardless of compiler.
+
+Fixes: 8f24f8c2fc82 ("efi/libstub: Annotate firmware routines as __efiapi")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://github.com/llvm/llvm-project/commit/d1ad006a8f64bdc17f618deffa9e7c91d82c444d
+[nathan: Fix conflict due to lack of c6dbd3e5e69c in older trees]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_log_cil.c  |   10 +++++-----
- fs/xfs/xfs_log_priv.h |    2 +-
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/xfs/xfs_log_cil.c
-+++ b/fs/xfs/xfs_log_cil.c
-@@ -673,7 +673,8 @@ xlog_cil_push(
- 	/*
- 	 * Wake up any background push waiters now this context is being pushed.
- 	 */
--	wake_up_all(&ctx->push_wait);
-+	if (ctx->space_used >= XLOG_CIL_BLOCKING_SPACE_LIMIT(log))
-+		wake_up_all(&cil->xc_push_wait);
- 
- 	/*
- 	 * Check if we've anything to push. If there is nothing, then we don't
-@@ -745,13 +746,12 @@ xlog_cil_push(
- 
- 	/*
- 	 * initialise the new context and attach it to the CIL. Then attach
--	 * the current context to the CIL committing lsit so it can be found
-+	 * the current context to the CIL committing list so it can be found
- 	 * during log forces to extract the commit lsn of the sequence that
- 	 * needs to be forced.
- 	 */
- 	INIT_LIST_HEAD(&new_ctx->committing);
- 	INIT_LIST_HEAD(&new_ctx->busy_extents);
--	init_waitqueue_head(&new_ctx->push_wait);
- 	new_ctx->sequence = ctx->sequence + 1;
- 	new_ctx->cil = cil;
- 	cil->xc_ctx = new_ctx;
-@@ -946,7 +946,7 @@ xlog_cil_push_background(
- 	if (cil->xc_ctx->space_used >= XLOG_CIL_BLOCKING_SPACE_LIMIT(log)) {
- 		trace_xfs_log_cil_wait(log, cil->xc_ctx->ticket);
- 		ASSERT(cil->xc_ctx->space_used < log->l_logsize);
--		xlog_wait(&cil->xc_ctx->push_wait, &cil->xc_push_lock);
-+		xlog_wait(&cil->xc_push_wait, &cil->xc_push_lock);
- 		return;
- 	}
- 
-@@ -1222,12 +1222,12 @@ xlog_cil_init(
- 	INIT_LIST_HEAD(&cil->xc_committing);
- 	spin_lock_init(&cil->xc_cil_lock);
- 	spin_lock_init(&cil->xc_push_lock);
-+	init_waitqueue_head(&cil->xc_push_wait);
- 	init_rwsem(&cil->xc_ctx_lock);
- 	init_waitqueue_head(&cil->xc_commit_wait);
- 
- 	INIT_LIST_HEAD(&ctx->committing);
- 	INIT_LIST_HEAD(&ctx->busy_extents);
--	init_waitqueue_head(&ctx->push_wait);
- 	ctx->sequence = 1;
- 	ctx->cil = cil;
- 	cil->xc_ctx = ctx;
---- a/fs/xfs/xfs_log_priv.h
-+++ b/fs/xfs/xfs_log_priv.h
-@@ -247,7 +247,6 @@ struct xfs_cil_ctx {
- 	struct xfs_log_vec	*lv_chain;	/* logvecs being pushed */
- 	struct list_head	iclog_entry;
- 	struct list_head	committing;	/* ctx committing list */
--	wait_queue_head_t	push_wait;	/* background push throttle */
- 	struct work_struct	discard_endio_work;
- };
- 
-@@ -281,6 +280,7 @@ struct xfs_cil {
- 	wait_queue_head_t	xc_commit_wait;
- 	xfs_lsn_t		xc_current_sequence;
- 	struct work_struct	xc_push_work;
-+	wait_queue_head_t	xc_push_wait;	/* background push throttle */
- } ____cacheline_aligned_in_smp;
- 
- /*
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1926,7 +1926,6 @@ config EFI
+ config EFI_STUB
+ 	bool "EFI stub support"
+ 	depends on EFI && !X86_USE_3DNOW
+-	depends on $(cc-option,-mabi=ms) || X86_32
+ 	select RELOCATABLE
+ 	help
+ 	  This kernel feature allows a bzImage to be loaded directly
 
 
