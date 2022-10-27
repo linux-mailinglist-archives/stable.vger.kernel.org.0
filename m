@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 781B260FE1A
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69DCF60FE6F
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:05:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236837AbiJ0RCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:02:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55240 "EHLO
+        id S236959AbiJ0RFS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:05:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236829AbiJ0RCG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:02:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194E519045F
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:02:06 -0700 (PDT)
+        with ESMTP id S236953AbiJ0RFN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:05:13 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0F27DFC0F
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:05:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D4D0610AB
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:02:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4FE0C433D7;
-        Thu, 27 Oct 2022 17:02:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3CB2BCE278E
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:05:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D454C433C1;
+        Thu, 27 Oct 2022 17:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890125;
-        bh=VmQvknu98eC1+9wEeOW5pHVdCpOOG+pw9Oog7wFGZkQ=;
+        s=korg; t=1666890306;
+        bh=zfE/Ce8C7SeXkMoyhG3k3l1Xp0JNa1AVl0wry40Duik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NJPTNko6GgDsqLgvx82GeuqffgoRQdyBqyIEgH/gKsvtCd9IHTQJ0vqckHhpoCKcF
-         TlTUDxNM62kQ3vJUQKYs2Anp/05SKvI/k2u1gsLFSWCIoBykeECjaVICjFzj+H+T7s
-         bDinUIg90FCDsVeVC/Qv3CPC9FbMVHtSB0FEK19Q=
+        b=fi8rXIFtiBJhwExie8pyACOqToPFjViQOJgYPvOzOFGQ/RlI207ZL2MfZLr3zjXTf
+         P1hQHCxMtnkySasmfAswGOje4LC2ewcTeZa78iy5agpEsPdC14jmm2/UIHLU16BSY5
+         +LZgkWi6xskhJ01JQdmEUWtgZGtftJ5oXxebvWy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 32/79] btrfs: fix processing of delayed data refs during backref walking
+        patches@lists.linux.dev,
+        Martin Rodriguez Reboredo <yakoyoku@gmail.com>,
+        Jiri Olsa <jolsa@kernel.org>
+Subject: [PATCH 5.10 20/79] kbuild: Add skip_encoding_btf_enum64 option to pahole
 Date:   Thu, 27 Oct 2022 18:55:30 +0200
-Message-Id: <20221027165056.017065071@linuxfoundation.org>
+Message-Id: <20221027165055.072218417@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
-References: <20221027165054.917467648@linuxfoundation.org>
+In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
+References: <20221027165054.270676357@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,249 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Martin Rodriguez Reboredo <yakoyoku@gmail.com>
 
-[ Upstream commit 4fc7b57228243d09c0d878873bf24fa64a90fa01 ]
+New pahole (version 1.24) generates by default new BTF_KIND_ENUM64 BTF tag,
+which is not supported by stable kernel.
 
-When processing delayed data references during backref walking and we are
-using a share context (we are being called through fiemap), whenever we
-find a delayed data reference for an inode different from the one we are
-interested in, then we immediately exit and consider the data extent as
-shared. This is wrong, because:
+As a result the kernel with CONFIG_DEBUG_INFO_BTF option will fail to
+compile with following error:
 
-1) This might be a DROP reference that will cancel out a reference in the
-   extent tree;
+  BTFIDS  vmlinux
+FAILED: load BTF from vmlinux: Invalid argument
 
-2) Even if it's an ADD reference, it may be followed by a DROP reference
-   that cancels it out.
+New pahole provides --skip_encoding_btf_enum64 option to skip BTF_KIND_ENUM64
+generation and produce BTF supported by stable kernel.
 
-In either case we should not exit immediately.
+Adding this option to scripts/pahole-flags.sh.
 
-Fix this by never exiting when we find a delayed data reference for
-another inode - instead add the reference and if it does not cancel out
-other delayed reference, we will exit early when we call
-extent_is_shared() after processing all delayed references. If we find
-a drop reference, then signal the code that processes references from
-the extent tree (add_inline_refs() and add_keyed_refs()) to not exit
-immediately if it finds there a reference for another inode, since we
-have delayed drop references that may cancel it out. In this later case
-we exit once we don't have references in the rb trees that cancel out
-each other and have two references for different inodes.
+This change does not have equivalent commit in linus tree, because linus tree
+has support for BTF_KIND_ENUM64 tag, so it does not need to be disabled.
 
-Example reproducer for case 1):
-
-   $ cat test-1.sh
-   #!/bin/bash
-
-   DEV=/dev/sdj
-   MNT=/mnt/sdj
-
-   mkfs.btrfs -f $DEV
-   mount $DEV $MNT
-
-   xfs_io -f -c "pwrite 0 64K" $MNT/foo
-   cp --reflink=always $MNT/foo $MNT/bar
-
-   echo
-   echo "fiemap after cloning:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   rm -f $MNT/bar
-   echo
-   echo "fiemap after removing file bar:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   umount $MNT
-
-Running it before this patch, the extent is still listed as shared, it has
-the flag 0x2000 (FIEMAP_EXTENT_SHARED) set:
-
-   $ ./test-1.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-Example reproducer for case 2):
-
-   $ cat test-2.sh
-   #!/bin/bash
-
-   DEV=/dev/sdj
-   MNT=/mnt/sdj
-
-   mkfs.btrfs -f $DEV
-   mount $DEV $MNT
-
-   xfs_io -f -c "pwrite 0 64K" $MNT/foo
-   cp --reflink=always $MNT/foo $MNT/bar
-
-   # Flush delayed references to the extent tree and commit current
-   # transaction.
-   sync
-
-   echo
-   echo "fiemap after cloning:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   rm -f $MNT/bar
-   echo
-   echo "fiemap after removing file bar:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   umount $MNT
-
-Running it before this patch, the extent is still listed as shared, it has
-the flag 0x2000 (FIEMAP_EXTENT_SHARED) set:
-
-   $ ./test-2.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-After this patch, after deleting bar in both tests, the extent is not
-reported with the 0x2000 flag anymore, it gets only the flag 0x1
-(which is FIEMAP_EXTENT_LAST):
-
-   $ ./test-1.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128   0x1
-
-   $ ./test-2.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128   0x1
-
-These tests will later be converted to a test case for fstests.
-
-Fixes: dc046b10c8b7d4 ("Btrfs: make fiemap not blow when you have lots of snapshots")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Martin Rodriguez Reboredo <yakoyoku@gmail.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/backref.c | 33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ scripts/pahole-flags.sh |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 8b090c40daf7..f33bad9f5e29 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -138,6 +138,7 @@ struct share_check {
- 	u64 root_objectid;
- 	u64 inum;
- 	int share_count;
-+	bool have_delayed_delete_refs;
- };
+--- a/scripts/pahole-flags.sh
++++ b/scripts/pahole-flags.sh
+@@ -14,4 +14,8 @@ if [ "${pahole_ver}" -ge "118" ] && [ "$
+ 	extra_paholeopt="${extra_paholeopt} --skip_encoding_btf_vars"
+ fi
  
- static inline int extent_is_shared(struct share_check *sc)
-@@ -882,13 +883,22 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
- 			key.offset = ref->offset;
- 
- 			/*
--			 * Found a inum that doesn't match our known inum, we
--			 * know it's shared.
-+			 * If we have a share check context and a reference for
-+			 * another inode, we can't exit immediately. This is
-+			 * because even if this is a BTRFS_ADD_DELAYED_REF
-+			 * reference we may find next a BTRFS_DROP_DELAYED_REF
-+			 * which cancels out this ADD reference.
-+			 *
-+			 * If this is a DROP reference and there was no previous
-+			 * ADD reference, then we need to signal that when we
-+			 * process references from the extent tree (through
-+			 * add_inline_refs() and add_keyed_refs()), we should
-+			 * not exit early if we find a reference for another
-+			 * inode, because one of the delayed DROP references
-+			 * may cancel that reference in the extent tree.
- 			 */
--			if (sc && sc->inum && ref->objectid != sc->inum) {
--				ret = BACKREF_FOUND_SHARED;
--				goto out;
--			}
-+			if (sc && count < 0)
-+				sc->have_delayed_delete_refs = true;
- 
- 			ret = add_indirect_ref(fs_info, preftrees, ref->root,
- 					       &key, 0, node->bytenr, count, sc,
-@@ -918,7 +928,7 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
- 	}
- 	if (!ret)
- 		ret = extent_is_shared(sc);
--out:
++if [ "${pahole_ver}" -ge "124" ]; then
++	extra_paholeopt="${extra_paholeopt} --skip_encoding_btf_enum64"
++fi
 +
- 	spin_unlock(&head->lock);
- 	return ret;
- }
-@@ -1021,7 +1031,8 @@ static int add_inline_refs(const struct btrfs_fs_info *fs_info,
- 			key.type = BTRFS_EXTENT_DATA_KEY;
- 			key.offset = btrfs_extent_data_ref_offset(leaf, dref);
- 
--			if (sc && sc->inum && key.objectid != sc->inum) {
-+			if (sc && sc->inum && key.objectid != sc->inum &&
-+			    !sc->have_delayed_delete_refs) {
- 				ret = BACKREF_FOUND_SHARED;
- 				break;
- 			}
-@@ -1031,6 +1042,7 @@ static int add_inline_refs(const struct btrfs_fs_info *fs_info,
- 			ret = add_indirect_ref(fs_info, preftrees, root,
- 					       &key, 0, bytenr, count,
- 					       sc, GFP_NOFS);
-+
- 			break;
- 		}
- 		default:
-@@ -1120,7 +1132,8 @@ static int add_keyed_refs(struct btrfs_fs_info *fs_info,
- 			key.type = BTRFS_EXTENT_DATA_KEY;
- 			key.offset = btrfs_extent_data_ref_offset(leaf, dref);
- 
--			if (sc && sc->inum && key.objectid != sc->inum) {
-+			if (sc && sc->inum && key.objectid != sc->inum &&
-+			    !sc->have_delayed_delete_refs) {
- 				ret = BACKREF_FOUND_SHARED;
- 				break;
- 			}
-@@ -1547,6 +1560,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr,
- 		.root_objectid = root->root_key.objectid,
- 		.inum = inum,
- 		.share_count = 0,
-+		.have_delayed_delete_refs = false,
- 	};
- 
- 	ulist_init(roots);
-@@ -1581,6 +1595,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr,
- 			break;
- 		bytenr = node->val;
- 		shared.share_count = 0;
-+		shared.have_delayed_delete_refs = false;
- 		cond_resched();
- 	}
- 
--- 
-2.35.1
-
+ echo ${extra_paholeopt}
 
 
