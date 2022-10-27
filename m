@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F60B60FEC0
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:08:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8290460FE4E
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:04:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237036AbiJ0RID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:08:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40606 "EHLO
+        id S235551AbiJ0REI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:04:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237043AbiJ0RID (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:08:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CD8B19847C
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:08:02 -0700 (PDT)
+        with ESMTP id S236902AbiJ0REH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D327196EE9
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9CDDB824DB
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:08:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39135C433C1;
-        Thu, 27 Oct 2022 17:07:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCDB662369
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1BAFC433D6;
+        Thu, 27 Oct 2022 17:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890479;
-        bh=5lg8zGz9Oa+LVtfdkFdBU0V0zAwOBzGlWIu/mZ3zvTI=;
+        s=korg; t=1666890246;
+        bh=bxwq80yO4EgoUffJzvLd5UmO9hLoDkeJ3Y9Ae9NJPFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FYb6/94Xw6mZuc1ncOV9vKTwelF/1Q3sae9n2nifZrzd4OBYbAHexodl9XdqwFavW
-         4i0HZYFuWr5H9K4lTHO++982VAbVOESvqnnQ3Qm1PPSXf+PP0xQDMeX/qr2Zb3Q1WI
-         xsUCgTvXZD4GgzCcSxLS9R/iHQWUbjtWWrPYFf+k=
+        b=UcJEBqjndc+3BPj9brcQGE1SWOKvnB5FGVz5VHr2qAmkca/5y1SL4HujJ86rtb65z
+         RQWOigS8hWCG5NsayIL2yWDXwqc7nro8ESaxi+rn/FAFwm6fq5KmRPOsdDkpkL0f5E
+         gkDB4qrkmmmPPCLZLZjIj6PDcbNDbfekt85JV0Z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenting Zhang <zephray@outlook.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 64/79] riscv: always honor the CONFIG_CMDLINE_FORCE when parsing dtb
-Date:   Thu, 27 Oct 2022 18:56:14 +0200
-Message-Id: <20221027165056.481607427@linuxfoundation.org>
+        patches@lists.linux.dev, Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 5.15 77/79] Makefile.debug: re-enable debug info for .S files
+Date:   Thu, 27 Oct 2022 18:56:15 +0200
+Message-Id: <20221027165057.492843944@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +51,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenting Zhang <zephray@outlook.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 10f6913c548b32ecb73801a16b120e761c6957ea ]
+This is _not_ an upstream commit and just for 5.15.y only. It is based
+on commit 32ef9e5054ec0321b9336058c58ec749e9c6b0fe upstream.
 
-When CONFIG_CMDLINE_FORCE is enabled, cmdline provided by
-CONFIG_CMDLINE are always used. This allows CONFIG_CMDLINE to be
-used regardless of the result of device tree scanning.
+Alexey reported that the fraction of unknown filename instances in
+kallsyms grew from ~0.3% to ~10% recently; Bill and Greg tracked it down
+to assembler defined symbols, which regressed as a result of:
 
-This especially fixes the case where a device tree without the
-chosen node is supplied to the kernel. In such cases,
-early_init_dt_scan would return true. But inside
-early_init_dt_scan_chosen, the cmdline won't be updated as there
-is no chosen node in the device tree. As a result, CONFIG_CMDLINE
-is not copied into boot_command_line even if CONFIG_CMDLINE_FORCE
-is enabled. This commit allows properly update boot_command_line
-in this situation.
+commit b8a9092330da ("Kbuild: do not emit debug info for assembly with LLVM_IAS=1")
 
-Fixes: 8fd6e05c7463 ("arch: riscv: support kernel command line forcing when no DTB passed")
-Signed-off-by: Wenting Zhang <zephray@outlook.com>
-Reviewed-by: Björn Töpel <bjorn@kernel.org>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/PSBPR04MB399135DFC54928AB958D0638B1829@PSBPR04MB3991.apcprd04.prod.outlook.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In that commit, I allude to restoring debug info for assembler defined
+symbols in a follow up patch, but it seems I forgot to do so in
+
+commit a66049e2cf0e ("Kbuild: make DWARF version a choice")
+
+Fixes: b8a9092330da ("Kbuild: do not emit debug info for assembly with LLVM_IAS=1")
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/setup.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Makefile |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
-index 5d17d3ce36fd..cc85858f7fe8 100644
---- a/arch/riscv/kernel/setup.c
-+++ b/arch/riscv/kernel/setup.c
-@@ -61,10 +61,10 @@ static void __init parse_dtb(void)
- 			pr_info("Machine model: %s\n", name);
- 			dump_stack_set_arch_desc("%s (DT)", name);
- 		}
--		return;
-+	} else {
-+		pr_err("No DTB passed to the kernel\n");
- 	}
+--- a/Makefile
++++ b/Makefile
+@@ -870,7 +870,9 @@ else
+ DEBUG_CFLAGS	+= -g
+ endif
  
--	pr_err("No DTB passed to the kernel\n");
- #ifdef CONFIG_CMDLINE_FORCE
- 	strlcpy(boot_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
- 	pr_info("Forcing kernel command line to: %s\n", boot_command_line);
--- 
-2.35.1
-
+-ifndef CONFIG_AS_IS_LLVM
++ifdef CONFIG_AS_IS_LLVM
++KBUILD_AFLAGS	+= -g
++else
+ KBUILD_AFLAGS	+= -Wa,-gdwarf-2
+ endif
+ 
 
 
