@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 047C460FE70
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:05:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 574CE60FDFF
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236918AbiJ0RFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33374 "EHLO
+        id S236683AbiJ0RBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:01:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236962AbiJ0RFN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:05:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34A4FF018E
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:05:10 -0700 (PDT)
+        with ESMTP id S236815AbiJ0RBF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:01:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8441F17F9B0
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:01:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0ED0623F7
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:05:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7F13C433D6;
-        Thu, 27 Oct 2022 17:05:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1376AB8271A
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:01:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39A1BC433D6;
+        Thu, 27 Oct 2022 17:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890309;
-        bh=rTHBVnBpcW68aeZKtLNTfyrFKp+Sym6n6PggK+rcHmU=;
+        s=korg; t=1666890061;
+        bh=K8ctrGC/2rnvPC2wI5eQVwd2ftM7YFb4dG0rdLFr49I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5mDpsckEjJ/+vzubuZgznwPVpswwfD4ylwsgVpJRiM0DRhv4JstGSPI63T0KMynW
-         7R/owwGkzG4M0i6dSaGjy0Uaqwx82ZHSTO2a/Yv46rERDPUhSvMWHSqXrSTCF94qzg
-         JYcSlpiG8c/rBXytSemWvN9snVBfMPavqAvgfiFE=
+        b=rMOpH3eaAyMPiXZtBuLDkRyXaBjl37QA9LFpDfQa5jLI0QvQqakbYvkdXnJ9IzIuV
+         j8g+afVCxx/tAX7czOeA/6FioCYx5IFF59em3iXmR3vj34bMrPrngP03ESM7S3SI2J
+         yBbJCj7/YTY04++A7M/Dj6uokXPsDzIk62Ml5MPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lei Chen <lennychen@tencent.com>,
-        Jens Axboe <axboe@kernel.dk>, Yu Kuai <yukuai3@huawei.com>
-Subject: [PATCH 5.10 21/79] block: wbt: Remove unnecessary invoking of wbt_update_limits in wbt_init
+        patches@lists.linux.dev,
+        Christiano Haesbaert <haesbaert@haesbaert.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 89/94] io_uring: dont gate task_work run on TIF_NOTIFY_SIGNAL
 Date:   Thu, 27 Oct 2022 18:55:31 +0200
-Message-Id: <20221027165055.112564156@linuxfoundation.org>
+Message-Id: <20221027165100.778267077@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
+References: <20221027165057.208202132@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,30 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lei Chen <lennychen@tencent.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 5a20d073ec54a72d9a732fa44bfe14954eb6332f upstream.
+[ Upstream commit 46a525e199e4037516f7e498c18f065b09df32ac ]
 
-It's unnecessary to call wbt_update_limits explicitly within wbt_init,
-because it will be called in the following function wbt_queue_depth_changed.
+This isn't a reliable mechanism to tell if we have task_work pending, we
+really should be looking at whether we have any items queued. This is
+problematic if forward progress is gated on running said task_work. One
+such example is reading from a pipe, where the write side has been closed
+right before the read is started. The fput() of the file queues TWA_RESUME
+task_work, and we need that task_work to be run before ->release() is
+called for the pipe. If ->release() isn't called, then the read will sit
+forever waiting on data that will never arise.
 
-Signed-off-by: Lei Chen <lennychen@tencent.com>
+Fix this by io_run_task_work() so it checks if we have task_work pending
+rather than rely on TIF_NOTIFY_SIGNAL for that. The latter obviously
+doesn't work for task_work that is queued without TWA_SIGNAL.
+
+Reported-by: Christiano Haesbaert <haesbaert@haesbaert.org>
+Cc: stable@vger.kernel.org
+Link: https://github.com/axboe/liburing/issues/665
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-wbt.c |    1 -
- 1 file changed, 1 deletion(-)
+ io_uring/io_uring.h | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/block/blk-wbt.c
-+++ b/block/blk-wbt.c
-@@ -840,7 +840,6 @@ int wbt_init(struct request_queue *q)
- 	rwb->enable_state = WBT_STATE_ON_DEFAULT;
- 	rwb->wc = 1;
- 	rwb->rq_depth.default_depth = RWB_DEF_DEPTH;
--	wbt_update_limits(rwb);
+diff --git a/io_uring/io_uring.h b/io_uring/io_uring.h
+index 45809ae6f64e..5121b20a9193 100644
+--- a/io_uring/io_uring.h
++++ b/io_uring/io_uring.h
+@@ -229,12 +229,12 @@ static inline unsigned int io_sqring_entries(struct io_ring_ctx *ctx)
  
- 	/*
- 	 * Assign rwb and add the stats callback.
+ static inline bool io_run_task_work(void)
+ {
+-	if (test_thread_flag(TIF_NOTIFY_SIGNAL)) {
++	if (task_work_pending(current)) {
++		if (test_thread_flag(TIF_NOTIFY_SIGNAL))
++			clear_notify_signal();
+ 		__set_current_state(TASK_RUNNING);
+-		clear_notify_signal();
+-		if (task_work_pending(current))
+-			task_work_run();
+-		return true;
++		task_work_run();
++		return 1;
+ 	}
+ 
+ 	return false;
+-- 
+2.35.1
+
 
 
