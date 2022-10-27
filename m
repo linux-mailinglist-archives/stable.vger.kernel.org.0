@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF17760FDE9
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E96AB60FE39
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:03:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236808AbiJ0RAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:00:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51098 "EHLO
+        id S236881AbiJ0RDV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:03:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236768AbiJ0RAT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:00:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC6059247
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:00:18 -0700 (PDT)
+        with ESMTP id S236879AbiJ0RDU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:03:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC2D118F271
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:03:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC463623EC
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:00:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED204C433D7;
-        Thu, 27 Oct 2022 17:00:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BC46623ED
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:03:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC53C433D6;
+        Thu, 27 Oct 2022 17:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890017;
-        bh=IelhFjdo+Nbb+ZaaSKU7P1Dwd1+KS+fy+R7cjWKzj+k=;
+        s=korg; t=1666890198;
+        bh=dB+hDIDqyTXkhgxJzKHaYP0HMFYnopuQiVsFovqBxCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQrKfpxZPcGXq2KYAD09JRTblT1h7RYXwMzvrBeP2q+q2bn77V+LDoQ4lfhF9UhbN
-         RD78mhqE/SUaBteuwHSoy6Y2HwUBMaFcmQbQBNOG1s5Ck7yZ5wJfiQ1QDdGCZs3FBx
-         Q93N6acrcg68Ab7+TsQ6QVqlkqDdXa9AH0LN+mug=
+        b=RHJ9Tk2wrvyYK8a37vAL+j5ZjOGHp9iynXZ3nTr3qHhD1zcq+d9rx5wvrAKLohHOU
+         XZzM/SHuMg0j9uT5xwgr6xRZNZtheaGMeB9i1X3hTXLWRDKZeK7Gxvd+AOUHSF0DWs
+         /9vvSDgmGeJs2lWoK70P6WqmgChH1u1EF16JDOCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>,
-        kernel test robot <lkp@intel.com>,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 85/94] rv/dot2c: Make automaton definition static
+        patches@lists.linux.dev,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.15 29/79] media: venus: dec: Handle the case where find_format fails
 Date:   Thu, 27 Oct 2022 18:55:27 +0200
-Message-Id: <20221027165100.615336065@linuxfoundation.org>
+Message-Id: <20221027165055.919503221@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
-References: <20221027165057.208202132@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Bristot de Oliveira <bristot@kernel.org>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit 21a1994b6492b12e55dbf39d15271430ef6839f0 ]
+commit 06a2da340f762addc5935bf851d95b14d4692db2 upstream.
 
-Monitor's automata definition is only used locally, so make dot2c generate
-a static definition.
+Debugging the decoder on msm8916 I noticed the vdec probe was crashing if
+the fmt pointer was NULL.
 
-Link: https://lore.kernel.org/all/202208210332.gtHXje45-lkp@intel.com
-Link: https://lore.kernel.org/all/202208210358.6HH3OrVs-lkp@intel.com
-Link: https://lkml.kernel.org/r/ffbb92010f643307766c9307fd42f416e5b85fa0.1661266564.git.bristot@kernel.org
+A similar fix from Colin Ian King found by Coverity was implemented for the
+encoder. Implement the same fix on the decoder.
 
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Fixes: e3c9fc78f096 ("tools/rv: Add dot2c")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7472c1c69138 ("[media] media: venus: vdec: add video decoder files")
+Cc: stable@vger.kernel.org  # v4.13+
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/verification/dot2/dot2c.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/qcom/venus/vdec.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/verification/dot2/dot2c.py b/tools/verification/dot2/dot2c.py
-index fa73353f7e56..be8a364a469b 100644
---- a/tools/verification/dot2/dot2c.py
-+++ b/tools/verification/dot2/dot2c.py
-@@ -111,7 +111,7 @@ class Dot2c(Automata):
+--- a/drivers/media/platform/qcom/venus/vdec.c
++++ b/drivers/media/platform/qcom/venus/vdec.c
+@@ -158,6 +158,8 @@ vdec_try_fmt_common(struct venus_inst *i
+ 		else
+ 			return NULL;
+ 		fmt = find_format(inst, pixmp->pixelformat, f->type);
++		if (!fmt)
++			return NULL;
+ 	}
  
-     def format_aut_init_header(self):
-         buff = []
--        buff.append("struct %s %s = {" % (self.struct_automaton_def, self.var_automaton_def))
-+        buff.append("static struct %s %s = {" % (self.struct_automaton_def, self.var_automaton_def))
-         return buff
- 
-     def __get_string_vector_per_line_content(self, buff):
--- 
-2.35.1
-
+ 	pixmp->width = clamp(pixmp->width, frame_width_min(inst),
 
 
