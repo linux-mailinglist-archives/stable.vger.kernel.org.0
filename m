@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6DA660FEEC
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:09:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF3E760FEEB
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:09:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237089AbiJ0RJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:09:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43290 "EHLO
+        id S237032AbiJ0RJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:09:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237099AbiJ0RJo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:09:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F259211A12
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:09:41 -0700 (PDT)
+        with ESMTP id S237101AbiJ0RJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:09:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F307626CB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:09:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4E79B826F9
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:09:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C67DC433C1;
-        Thu, 27 Oct 2022 17:09:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91EA9623EE
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:09:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2269C433D7;
+        Thu, 27 Oct 2022 17:09:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890579;
-        bh=odNQak+kr3UYGREJZjQ7SCURtnsgJ7Dt/EQQ0AW+WNE=;
+        s=korg; t=1666890582;
+        bh=5yXhmI7VAaQGT5P9GY/SwufidOaLgBOvYDrhwUzw1PE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ox6+0IRvwteqAyE+jGr7c/hBbQjlBtShVICiJHpbvdUMVCOSfZjKDj3vPVH3U4wRs
-         B+/eW4/IWsXvWPy924BVBgJGcbxgmn5zWyuYYzp+aPGK/ydGR+bVSJecfEcB1vkmLj
-         bvxm05ySlRXkB/lJw9nmaya4Uon3Izw//mZB5TEQ=
+        b=Zvnmb6oiW3bvSYod91FdJNn/LBr+ZpBsE1Ls36L+Q6TeK43+5LfH4M47Z5KaA6uDy
+         oRCyqc63+401mu9lX3pw33bJm+ETh2j0UcoFtWOE8Ot1dI8AuaCDG5ny+uszBNx2U1
+         wxXgAcJ8a0Z5BOx4v+5+4bmZsHMPvwr+gvvkYtZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Harini Katakam <harini.katakam@amd.com>,
-        Andrew Lunn <andrew@lunn.ch>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 44/53] net: phy: dp83867: Extend RX strap quirk for SGMII mode
-Date:   Thu, 27 Oct 2022 18:56:32 +0200
-Message-Id: <20221027165051.512321727@linuxfoundation.org>
+Subject: [PATCH 5.4 45/53] net: sched: cake: fix null pointer access issue when cake_init() fails
+Date:   Thu, 27 Oct 2022 18:56:33 +0200
+Message-Id: <20221027165051.551273288@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
 References: <20221027165049.817124510@linuxfoundation.org>
@@ -54,42 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harini Katakam <harini.katakam@amd.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 0c9efbd5c50c64ead434960a404c9c9a097b0403 ]
+[ Upstream commit 51f9a8921ceacd7bf0d3f47fa867a64988ba1dcb ]
 
-When RX strap in HW is not set to MODE 3 or 4, bit 7 and 8 in CF4
-register should be set. The former is already handled in
-dp83867_config_init; add the latter in SGMII specific initialization.
+When the default qdisc is cake, if the qdisc of dev_queue fails to be
+inited during mqprio_init(), cake_reset() is invoked to clear
+resources. In this case, the tins is NULL, and it will cause gpf issue.
 
-Fixes: 2a10154abcb7 ("net: phy: dp83867: Add TI dp83867 phy")
-Signed-off-by: Harini Katakam <harini.katakam@amd.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+The process is as follows:
+qdisc_create_dflt()
+	cake_init()
+		q->tins = kvcalloc(...)        --->failed, q->tins is NULL
+	...
+	qdisc_put()
+		...
+		cake_reset()
+			...
+			cake_dequeue_one()
+				b = &q->tins[...]   --->q->tins is NULL
+
+The following is the Call Trace information:
+general protection fault, probably for non-canonical address
+0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+RIP: 0010:cake_dequeue_one+0xc9/0x3c0
+Call Trace:
+<TASK>
+cake_reset+0xb1/0x140
+qdisc_reset+0xed/0x6f0
+qdisc_destroy+0x82/0x4c0
+qdisc_put+0x9e/0xb0
+qdisc_create_dflt+0x2c3/0x4a0
+mqprio_init+0xa71/0x1760
+qdisc_create+0x3eb/0x1000
+tc_modify_qdisc+0x408/0x1720
+rtnetlink_rcv_msg+0x38e/0xac0
+netlink_rcv_skb+0x12d/0x3a0
+netlink_unicast+0x4a2/0x740
+netlink_sendmsg+0x826/0xcc0
+sock_sendmsg+0xc5/0x100
+____sys_sendmsg+0x583/0x690
+___sys_sendmsg+0xe8/0x160
+__sys_sendmsg+0xbf/0x160
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+RIP: 0033:0x7f89e5122d04
+</TASK>
+
+Fixes: 046f6fd5daef ("sched: Add Common Applications Kept Enhanced (cake) qdisc")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83867.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/sched/sch_cake.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index 87c0cdbf262a..c7d91415a436 100644
---- a/drivers/net/phy/dp83867.c
-+++ b/drivers/net/phy/dp83867.c
-@@ -432,6 +432,14 @@ static int dp83867_config_init(struct phy_device *phydev)
- 		else
- 			val &= ~DP83867_SGMII_TYPE;
- 		phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_SGMIICTL, val);
-+
-+		/* This is a SW workaround for link instability if RX_CTRL is
-+		 * not strapped to mode 3 or 4 in HW. This is required for SGMII
-+		 * in addition to clearing bit 7, handled above.
-+		 */
-+		if (dp83867->rxctrl_strap_quirk)
-+			phy_set_bits_mmd(phydev, DP83867_DEVADDR, DP83867_CFG4,
-+					 BIT(8));
- 	}
+diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
+index 0eb4d4a568f7..9e5e7fda0f4a 100644
+--- a/net/sched/sch_cake.c
++++ b/net/sched/sch_cake.c
+@@ -2190,8 +2190,12 @@ static struct sk_buff *cake_dequeue(struct Qdisc *sch)
  
- 	val = phy_read(phydev, DP83867_CFG3);
+ static void cake_reset(struct Qdisc *sch)
+ {
++	struct cake_sched_data *q = qdisc_priv(sch);
+ 	u32 c;
+ 
++	if (!q->tins)
++		return;
++
+ 	for (c = 0; c < CAKE_MAX_TINS; c++)
+ 		cake_clear_tin(sch, c);
+ }
 -- 
 2.35.1
 
