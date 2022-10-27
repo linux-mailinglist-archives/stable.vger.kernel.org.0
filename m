@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 191B560FE97
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:06:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E65360FE21
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:02:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236994AbiJ0RGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:06:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37668 "EHLO
+        id S236847AbiJ0RCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:02:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236991AbiJ0RGf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:06:35 -0400
+        with ESMTP id S236859AbiJ0RCV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:02:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CDAC198449
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:06:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B732418A003
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:02:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F137EB824DB
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:06:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CE75C433D6;
-        Thu, 27 Oct 2022 17:06:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69A4CB82717
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:02:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8509C433D6;
+        Thu, 27 Oct 2022 17:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890390;
-        bh=kKN8nzZSBY8wS+0J+Z6z6ArqxhBnh1K2frDEpTCjOHg=;
+        s=korg; t=1666890138;
+        bh=bpaj02ZLP1WeSVt89RynW5Z1Ue0rzJ37VZo+O8d3qXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z9K3/zHVXLASXn36eC6BzVI4OEGFpIqwZfAtHet4isVbxXuHW1d1wTgWWRfgL2F4j
-         tsS6gREPlL5bAMF1RaoSwDbhYMO9jrZpQZ/DPzOUJoiy8UHFnguG5B/eHReb3cfkwd
-         5lnf6CjeaIAC36h3+RiFldoxX2zgabXwE6tR6FFw=
+        b=YTPde1bd3+NNyO/I6JmFKGifpUcWOe2sYEbQZU4mGXnBG2hMBVSYx8DQRi6/rRmHC
+         CTs6sWy0WwY6IPX2UCKeuzhwv+hY+s2EwaO9nxnagMyZu8v1cfkHkH9kGeKf0qiqiS
+         pizxrR4b52YYhYGh/QIVcu2Y+pKO5J+9EbY6FmBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Alexander Potapenko <glider@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 25/79] btrfs: fix processing of delayed data refs during backref walking
+Subject: [PATCH 5.15 37/79] tipc: fix an information leak in tipc_topsrv_kern_subscr
 Date:   Thu, 27 Oct 2022 18:55:35 +0200
-Message-Id: <20221027165055.240745273@linuxfoundation.org>
+Message-Id: <20221027165056.159188324@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,247 +53,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Alexander Potapenko <glider@google.com>
 
-[ Upstream commit 4fc7b57228243d09c0d878873bf24fa64a90fa01 ]
+[ Upstream commit 777ecaabd614d47c482a5c9031579e66da13989a ]
 
-When processing delayed data references during backref walking and we are
-using a share context (we are being called through fiemap), whenever we
-find a delayed data reference for an inode different from the one we are
-interested in, then we immediately exit and consider the data extent as
-shared. This is wrong, because:
+Use a 8-byte write to initialize sub.usr_handle in
+tipc_topsrv_kern_subscr(), otherwise four bytes remain uninitialized
+when issuing setsockopt(..., SOL_TIPC, ...).
+This resulted in an infoleak reported by KMSAN when the packet was
+received:
 
-1) This might be a DROP reference that will cancel out a reference in the
-   extent tree;
+  =====================================================
+  BUG: KMSAN: kernel-infoleak in copyout+0xbc/0x100 lib/iov_iter.c:169
+   instrument_copy_to_user ./include/linux/instrumented.h:121
+   copyout+0xbc/0x100 lib/iov_iter.c:169
+   _copy_to_iter+0x5c0/0x20a0 lib/iov_iter.c:527
+   copy_to_iter ./include/linux/uio.h:176
+   simple_copy_to_iter+0x64/0xa0 net/core/datagram.c:513
+   __skb_datagram_iter+0x123/0xdc0 net/core/datagram.c:419
+   skb_copy_datagram_iter+0x58/0x200 net/core/datagram.c:527
+   skb_copy_datagram_msg ./include/linux/skbuff.h:3903
+   packet_recvmsg+0x521/0x1e70 net/packet/af_packet.c:3469
+   ____sys_recvmsg+0x2c4/0x810 net/socket.c:?
+   ___sys_recvmsg+0x217/0x840 net/socket.c:2743
+   __sys_recvmsg net/socket.c:2773
+   __do_sys_recvmsg net/socket.c:2783
+   __se_sys_recvmsg net/socket.c:2780
+   __x64_sys_recvmsg+0x364/0x540 net/socket.c:2780
+   do_syscall_x64 arch/x86/entry/common.c:50
+   do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+   entry_SYSCALL_64_after_hwframe+0x63/0xcd arch/x86/entry/entry_64.S:120
 
-2) Even if it's an ADD reference, it may be followed by a DROP reference
-   that cancels it out.
+  ...
 
-In either case we should not exit immediately.
+  Uninit was stored to memory at:
+   tipc_sub_subscribe+0x42d/0xb50 net/tipc/subscr.c:156
+   tipc_conn_rcv_sub+0x246/0x620 net/tipc/topsrv.c:375
+   tipc_topsrv_kern_subscr+0x2e8/0x400 net/tipc/topsrv.c:579
+   tipc_group_create+0x4e7/0x7d0 net/tipc/group.c:190
+   tipc_sk_join+0x2a8/0x770 net/tipc/socket.c:3084
+   tipc_setsockopt+0xae5/0xe40 net/tipc/socket.c:3201
+   __sys_setsockopt+0x87f/0xdc0 net/socket.c:2252
+   __do_sys_setsockopt net/socket.c:2263
+   __se_sys_setsockopt net/socket.c:2260
+   __x64_sys_setsockopt+0xe0/0x160 net/socket.c:2260
+   do_syscall_x64 arch/x86/entry/common.c:50
+   do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+   entry_SYSCALL_64_after_hwframe+0x63/0xcd arch/x86/entry/entry_64.S:120
 
-Fix this by never exiting when we find a delayed data reference for
-another inode - instead add the reference and if it does not cancel out
-other delayed reference, we will exit early when we call
-extent_is_shared() after processing all delayed references. If we find
-a drop reference, then signal the code that processes references from
-the extent tree (add_inline_refs() and add_keyed_refs()) to not exit
-immediately if it finds there a reference for another inode, since we
-have delayed drop references that may cancel it out. In this later case
-we exit once we don't have references in the rb trees that cancel out
-each other and have two references for different inodes.
+  Local variable sub created at:
+   tipc_topsrv_kern_subscr+0x57/0x400 net/tipc/topsrv.c:562
+   tipc_group_create+0x4e7/0x7d0 net/tipc/group.c:190
 
-Example reproducer for case 1):
+  Bytes 84-87 of 88 are uninitialized
+  Memory access of size 88 starts at ffff88801ed57cd0
+  Data copied to user address 0000000020000400
+  ...
+  =====================================================
 
-   $ cat test-1.sh
-   #!/bin/bash
-
-   DEV=/dev/sdj
-   MNT=/mnt/sdj
-
-   mkfs.btrfs -f $DEV
-   mount $DEV $MNT
-
-   xfs_io -f -c "pwrite 0 64K" $MNT/foo
-   cp --reflink=always $MNT/foo $MNT/bar
-
-   echo
-   echo "fiemap after cloning:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   rm -f $MNT/bar
-   echo
-   echo "fiemap after removing file bar:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   umount $MNT
-
-Running it before this patch, the extent is still listed as shared, it has
-the flag 0x2000 (FIEMAP_EXTENT_SHARED) set:
-
-   $ ./test-1.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-Example reproducer for case 2):
-
-   $ cat test-2.sh
-   #!/bin/bash
-
-   DEV=/dev/sdj
-   MNT=/mnt/sdj
-
-   mkfs.btrfs -f $DEV
-   mount $DEV $MNT
-
-   xfs_io -f -c "pwrite 0 64K" $MNT/foo
-   cp --reflink=always $MNT/foo $MNT/bar
-
-   # Flush delayed references to the extent tree and commit current
-   # transaction.
-   sync
-
-   echo
-   echo "fiemap after cloning:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   rm -f $MNT/bar
-   echo
-   echo "fiemap after removing file bar:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   umount $MNT
-
-Running it before this patch, the extent is still listed as shared, it has
-the flag 0x2000 (FIEMAP_EXTENT_SHARED) set:
-
-   $ ./test-2.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-After this patch, after deleting bar in both tests, the extent is not
-reported with the 0x2000 flag anymore, it gets only the flag 0x1
-(which is FIEMAP_EXTENT_LAST):
-
-   $ ./test-1.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128   0x1
-
-   $ ./test-2.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128   0x1
-
-These tests will later be converted to a test case for fstests.
-
-Fixes: dc046b10c8b7d4 ("Btrfs: make fiemap not blow when you have lots of snapshots")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Fixes: 026321c6d056a5 ("tipc: rename tipc_server to tipc_topsrv")
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c | 33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ net/tipc/topsrv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index baff31a147e7..7e8fac12f3f8 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -137,6 +137,7 @@ struct share_check {
- 	u64 root_objectid;
- 	u64 inum;
- 	int share_count;
-+	bool have_delayed_delete_refs;
- };
+diff --git a/net/tipc/topsrv.c b/net/tipc/topsrv.c
+index 5522865deae9..14fd05fd6107 100644
+--- a/net/tipc/topsrv.c
++++ b/net/tipc/topsrv.c
+@@ -568,7 +568,7 @@ bool tipc_topsrv_kern_subscr(struct net *net, u32 port, u32 type, u32 lower,
+ 	sub.seq.upper = upper;
+ 	sub.timeout = TIPC_WAIT_FOREVER;
+ 	sub.filter = filter;
+-	*(u32 *)&sub.usr_handle = port;
++	*(u64 *)&sub.usr_handle = (u64)port;
  
- static inline int extent_is_shared(struct share_check *sc)
-@@ -881,13 +882,22 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
- 			key.offset = ref->offset;
- 
- 			/*
--			 * Found a inum that doesn't match our known inum, we
--			 * know it's shared.
-+			 * If we have a share check context and a reference for
-+			 * another inode, we can't exit immediately. This is
-+			 * because even if this is a BTRFS_ADD_DELAYED_REF
-+			 * reference we may find next a BTRFS_DROP_DELAYED_REF
-+			 * which cancels out this ADD reference.
-+			 *
-+			 * If this is a DROP reference and there was no previous
-+			 * ADD reference, then we need to signal that when we
-+			 * process references from the extent tree (through
-+			 * add_inline_refs() and add_keyed_refs()), we should
-+			 * not exit early if we find a reference for another
-+			 * inode, because one of the delayed DROP references
-+			 * may cancel that reference in the extent tree.
- 			 */
--			if (sc && sc->inum && ref->objectid != sc->inum) {
--				ret = BACKREF_FOUND_SHARED;
--				goto out;
--			}
-+			if (sc && count < 0)
-+				sc->have_delayed_delete_refs = true;
- 
- 			ret = add_indirect_ref(fs_info, preftrees, ref->root,
- 					       &key, 0, node->bytenr, count, sc,
-@@ -917,7 +927,7 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
- 	}
- 	if (!ret)
- 		ret = extent_is_shared(sc);
--out:
-+
- 	spin_unlock(&head->lock);
- 	return ret;
- }
-@@ -1020,7 +1030,8 @@ static int add_inline_refs(const struct btrfs_fs_info *fs_info,
- 			key.type = BTRFS_EXTENT_DATA_KEY;
- 			key.offset = btrfs_extent_data_ref_offset(leaf, dref);
- 
--			if (sc && sc->inum && key.objectid != sc->inum) {
-+			if (sc && sc->inum && key.objectid != sc->inum &&
-+			    !sc->have_delayed_delete_refs) {
- 				ret = BACKREF_FOUND_SHARED;
- 				break;
- 			}
-@@ -1030,6 +1041,7 @@ static int add_inline_refs(const struct btrfs_fs_info *fs_info,
- 			ret = add_indirect_ref(fs_info, preftrees, root,
- 					       &key, 0, bytenr, count,
- 					       sc, GFP_NOFS);
-+
- 			break;
- 		}
- 		default:
-@@ -1119,7 +1131,8 @@ static int add_keyed_refs(struct btrfs_fs_info *fs_info,
- 			key.type = BTRFS_EXTENT_DATA_KEY;
- 			key.offset = btrfs_extent_data_ref_offset(leaf, dref);
- 
--			if (sc && sc->inum && key.objectid != sc->inum) {
-+			if (sc && sc->inum && key.objectid != sc->inum &&
-+			    !sc->have_delayed_delete_refs) {
- 				ret = BACKREF_FOUND_SHARED;
- 				break;
- 			}
-@@ -1542,6 +1555,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr,
- 		.root_objectid = root->root_key.objectid,
- 		.inum = inum,
- 		.share_count = 0,
-+		.have_delayed_delete_refs = false,
- 	};
- 
- 	ulist_init(roots);
-@@ -1576,6 +1590,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr,
- 			break;
- 		bytenr = node->val;
- 		shared.share_count = 0;
-+		shared.have_delayed_delete_refs = false;
- 		cond_resched();
- 	}
- 
+ 	con = tipc_conn_alloc(tipc_topsrv(net));
+ 	if (IS_ERR(con))
 -- 
 2.35.1
 
