@@ -2,565 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FA0560F695
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 13:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C08960F6AD
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 14:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235416AbiJ0LzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 07:55:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55916 "EHLO
+        id S235472AbiJ0MCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 08:02:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235429AbiJ0LzO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 07:55:14 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CFE0349BC;
-        Thu, 27 Oct 2022 04:55:11 -0700 (PDT)
-Received: from dggpeml500026.china.huawei.com (unknown [172.30.72.56])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4MykY96Y1XzpSsv;
-        Thu, 27 Oct 2022 19:51:41 +0800 (CST)
-Received: from [10.174.179.110] (10.174.179.110) by
- dggpeml500026.china.huawei.com (7.185.36.106) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Thu, 27 Oct 2022 19:55:08 +0800
-Message-ID: <adb3d212-c648-f397-d9de-6a6f9d75471f@huawei.com>
-Date:   Thu, 27 Oct 2022 19:55:08 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.1
-Subject: Re: [PATCH STABLE 5.10] mm/memory: add non-anonymous page check in
- the copy_present_page()
-Content-Language: en-US
-To:     Hugh Dickins <hughd@google.com>
-CC:     <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-References: <20221024094911.3054769-1-songyuanzheng@huawei.com>
- <3823471f-6dda-256e-e082-718879c05449@google.com>
-From:   songyuanzheng <songyuanzheng@huawei.com>
-In-Reply-To: <3823471f-6dda-256e-e082-718879c05449@google.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.179.110]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpeml500026.china.huawei.com (7.185.36.106)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S235271AbiJ0MCL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 08:02:11 -0400
+Received: from nautica.notk.org (nautica.notk.org [91.121.71.147])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20F3B796A3
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 05:02:09 -0700 (PDT)
+Received: by nautica.notk.org (Postfix, from userid 108)
+        id 10205C01C; Thu, 27 Oct 2022 14:02:10 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
+        t=1666872130; bh=ynRHLt5yzfOlOzAy8yCedvQPXFbHdN9GJoW25QuTFuU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JizftHLxadjP68EUikrmT0rRt7BHUMEBjgN9Qm/beepw/Z28hGMV3e3Da4h/ItYBr
+         KhL0m7DAKUr6FaTnGg/r2qkuL4k+m83aWTAXsv4sQD70HKxwTt97ezOq2lxDldyLhg
+         RbmhbxKPgPaeq1EUp3ZHI6JR7HQyE3uUL1B5hIl/A2jwUe8hedHNdWTJsFCS0bvK7t
+         do6hORfu1mvTghWFdpsR4wGNSqH5dYS1HDuSuZpuKiliF8pvS/mGycQVULia85RhE/
+         VnA8SeAwOz9kdsGUHGv1XSrDKPx7aW04eYvkFRCuRJD2xeEHykAI2cEpHimrxorRCO
+         c2bqYkAKxTRUg==
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
+Received: from odin.codewreck.org (localhost [127.0.0.1])
+        by nautica.notk.org (Postfix) with ESMTPS id 73A54C009;
+        Thu, 27 Oct 2022 14:02:07 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
+        t=1666872129; bh=ynRHLt5yzfOlOzAy8yCedvQPXFbHdN9GJoW25QuTFuU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=1H3bIL67dFDt0tC/SPLOuGMxIs4cRfAF6+5KzEJmdr3vjITZGcI8sntKMV81syCig
+         qzRp989gWWc7a5tKv7miROB6q252CGnWUko7DXOV/eDSUuk9m80nLkDQUX/95QR3FI
+         2aAdI+EqHkhb/jUi/yMKO/w+lta0hNsUe6eJ3assfoIUhRmuKaDbk3zwHyKBoybelL
+         2mIfS582VxOXDG4wSKN1eUdwKk2GYbNPU27ux8tcdzpq3RfYHUHekDyneVwEcupR4M
+         vjRwBOFsqHH7FVhL3J0MdFIOJ0pdfrgVVaNk5BkEreOQ90Ac9ZkvRNgd6rTyTbQr+k
+         HMhCmEWn3j74g==
+Received: from localhost (odin.codewreck.org [local])
+        by odin.codewreck.org (OpenSMTPD) with ESMTPA id bbdb16f6;
+        Thu, 27 Oct 2022 12:02:01 +0000 (UTC)
+From:   Dominique Martinet <asmadeus@codewreck.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     Dominique Martinet <asmadeus@codewreck.org>,
+        Martin Rodriguez Reboredo <yakoyoku@gmail.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>
+Subject: [PATCH 5.10] kbuild: fix BTF build with pahole 1.24
+Date:   Thu, 27 Oct 2022 21:01:58 +0900
+Message-Id: <20221027120158.2791406-1-asmadeus@codewreck.org>
+X-Mailer: git-send-email 2.37.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Hugh,
+pahole 1.24 broke builds on kernel <6.0 which do not have the
+new BTF_KIND_ENUM64 BTF tag.
+The 5.15 branch fixed this in commit b775fbf532dc01ae53a6fc56168fd30cb4b0c658
+("kbuild: Add skip_encoding_btf_enum64 option to pahole"), which
+we cannot use directly for 5.10 because 5.10 does not have the
+pahole-flags.sh script, itself introduced in upstream commit
+0baced0e0938f2895ceba54038eaf15ed91032e7 ("kbuild: Unify options
+for BTF generation for vmlinux and modules")
 
-On 2022/10/27 5:51, Hugh Dickins wrote:
-> On Mon, 24 Oct 2022, Yuanzheng Song wrote:
-> 
->> The vma->anon_vma of the child process may be NULL because
->> the entire vma does not contain anonymous pages. In this
->> case, a BUG will occur when the copy_present_page() passes
->> a copy of a non-anonymous page of that vma to the
->> page_add_new_anon_rmap() to set up new anonymous rmap.
->>
->> ------------[ cut here ]------------
->> kernel BUG at mm/rmap.c:1044!
->> Internal error: Oops - BUG: 0 [#1] SMP
->> Modules linked in:
->> CPU: 2 PID: 3617 Comm: test Not tainted 5.10.149 #1
->> Hardware name: linux,dummy-virt (DT)
->> pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
->> pc : __page_set_anon_rmap+0xbc/0xf8
->> lr : __page_set_anon_rmap+0xbc/0xf8
->> sp : ffff800014c1b870
->> x29: ffff800014c1b870 x28: 0000000000000001
->> x27: 0000000010100073 x26: ffff1d65c517baa8
->> x25: ffff1d65cab0f000 x24: ffff1d65c416d800
->> x23: ffff1d65cab5f248 x22: 0000000020000000
->> x21: 0000000000000001 x20: 0000000000000000
->> x19: fffffe75970023c0 x18: 0000000000000000
->> x17: 0000000000000000 x16: 0000000000000000
->> x15: 0000000000000000 x14: 0000000000000000
->> x13: 0000000000000000 x12: 0000000000000000
->> x11: 0000000000000000 x10: 0000000000000000
->> x9 : ffffc3096d5fb858 x8 : 0000000000000000
->> x7 : 0000000000000011 x6 : ffff5a5c9089c000
->> x5 : 0000000000020000 x4 : ffff5a5c9089c000
->> x3 : ffffc3096d200000 x2 : ffffc3096e8d0000
->> x1 : ffff1d65ca3da740 x0 : 0000000000000000
->> Call trace:
->>   __page_set_anon_rmap+0xbc/0xf8
->>   page_add_new_anon_rmap+0x1e0/0x390
->>   copy_pte_range+0xd00/0x1248
->>   copy_page_range+0x39c/0x620
->>   dup_mmap+0x2e0/0x5a8
->>   dup_mm+0x78/0x140
->>   copy_process+0x918/0x1a20
->>   kernel_clone+0xac/0x638
->>   __do_sys_clone+0x78/0xb0
->>   __arm64_sys_clone+0x30/0x40
->>   el0_svc_common.constprop.0+0xb0/0x308
->>   do_el0_svc+0x48/0xb8
->>   el0_svc+0x24/0x38
->>   el0_sync_handler+0x160/0x168
->>   el0_sync+0x180/0x1c0
->> Code: 97f8ff85 f9400294 17ffffeb 97f8ff82 (d4210000)
->> ---[ end trace a972347688dc9bd4 ]---
->> Kernel panic - not syncing: Oops - BUG: Fatal exception
->> SMP: stopping secondary CPUs
->> Kernel Offset: 0x43095d200000 from 0xffff800010000000
->> PHYS_OFFSET: 0xffffe29a80000000
->> CPU features: 0x08200022,61806082
->> Memory Limit: none
->> ---[ end Kernel panic - not syncing: Oops - BUG: Fatal exception ]---
->>
->> This problem has been fixed by the fb3d824d1a46
->> ("mm/rmap: split page_dup_rmap() into page_dup_file_rmap() and page_try_dup_anon_rmap()"),
->> but still exists in the linux-5.10.y branch.
->>
->> This patch is not applicable to this version because
->> of the large version differences. Therefore, fix it by
->> adding non-anonymous page check in the copy_present_page().
->>
->> Fixes: 70e806e4e645 ("mm: Do early cow for pinned pages during fork() for ptes")
->> Signed-off-by: Yuanzheng Song <songyuanzheng@huawei.com>
-> 
-> It's a good point, but this patch should not go into any stable release
-> without an explicit Ack from either Peter Xu or David Hildenbrand.
-> 
-> To my eye, it's simply avoiding the issue, rather than fixing
-> it properly; and even if the issue is so rare, and fixing properly
-> too difficult or inefficent (a cached anon_vma?), that a workaround
-> is good enough, it still looks like the wrong workaround (checking
-> dst_vma->anon_vma instead of PageAnon seems more to the point, and
-> less lenient).
-For an anonymous page that belongs to a vma, the vma->anon_vma is
-definitely not NULL, which is why I use PageAnon() instead of directly
-judging that dst_vma->anon_vma is not NULL.
+that last commit is difficult to backport as 5.10 does not have BTF
+for modules support: work around the problem by just copying the
+pahole-flags.sh script and calling it directly in link-vmlinux.sh,
+which is hopefully acceptable as the flags are not shared in this tree.
 
-You are right. Maybe I didn't really solve the problem. Instead, I
-simply avoided the issue. You can use the following test case to
-reproduce the problem and find a better solution to the problem.
-If you find the right solution, please inform me. Thanks.
+Note that compared to 5.15 the flags script does not have
+--btf_gen_floats as linux 5.10 did not have that BTF tag yet;
+but any new flag added to 5.15 will not be able to be added to 5.10 in
+an identical way for any future breakage.
 
----------------------------------------------------------------
-#define _GNU_SOURCE
+Cc: Martin Rodriguez Reboredo <yakoyoku@gmail.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+CC: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+---
 
-#include <dirent.h>
-#include <endian.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <pthread.h>
-#include <signal.h>
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/prctl.h>
-#include <sys/stat.h>
-#include <sys/syscall.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <time.h>
-#include <unistd.h>
+This came up after updating nixpkgs to pahole 1.24.
+https://github.com/NixOS/nixpkgs/pull/194551
+Their 5.15's kernel built just fine as it already got some special
+handling added, but since that handling was not added to other stable
+kernels it started breaking builds after merging...
 
-#include <linux/futex.h>
+This shouldn't break anything, and should also as a byproduct fix some
+builds with pahole 1.18 through 1.21 although I'm not sure if it never
+has been backported to 5.10 because it's not a problem there or because
+nobody cared (I probably only started caring after the 1.22 release)
 
-#ifndef __NR_clone
-#define __NR_clone 220
-#endif
-#ifndef __NR_exit
-#define __NR_exit 93
-#endif
-#ifndef __NR_gettid
-#define __NR_gettid 178
-#endif
-#ifndef __NR_mmap
-#define __NR_mmap 222
-#endif
-#ifndef __NR_process_vm_readv
-#define __NR_process_vm_readv 270
-#endif
-#ifndef __NR_setsockopt
-#define __NR_setsockopt 208
-#endif
-#ifndef __NR_socket
-#define __NR_socket 198
-#endif
+Anyway, if more can be shared I think it'll make things simpler for
+everyone going forward :)
 
-static unsigned long long procid;
 
-static void sleep_ms(uint64_t ms)
-{
-	usleep(ms * 1000);
-}
+ scripts/link-vmlinux.sh |  2 +-
+ scripts/pahole-flags.sh | 21 +++++++++++++++++++++
+ 2 files changed, 22 insertions(+), 1 deletion(-)
+ create mode 100755 scripts/pahole-flags.sh
 
-static uint64_t current_time_ms(void)
-{
-	struct timespec ts;
-	if (clock_gettime(CLOCK_MONOTONIC, &ts))
-	exit(1);
-	return (uint64_t)ts.tv_sec * 1000 + (uint64_t)ts.tv_nsec / 1000000;
-}
+diff --git a/scripts/link-vmlinux.sh b/scripts/link-vmlinux.sh
+index d0b44bee9286..c24da7b68619 100755
+--- a/scripts/link-vmlinux.sh
++++ b/scripts/link-vmlinux.sh
+@@ -161,7 +161,7 @@ gen_btf()
+ 	vmlinux_link ${1}
+ 
+ 	info "BTF" ${2}
+-	LLVM_OBJCOPY=${OBJCOPY} ${PAHOLE} -J ${1}
++	LLVM_OBJCOPY="${OBJCOPY}" ${PAHOLE} -J $("${srctree}/scripts/pahole_flags.sh") ${1}
+ 
+ 	# Create ${2} which contains just .BTF section but no symbols. Add
+ 	# SHF_ALLOC because .BTF will be part of the vmlinux image. --strip-all
+diff --git a/scripts/pahole-flags.sh b/scripts/pahole-flags.sh
+new file mode 100755
+index 000000000000..8c82173e42e5
+--- /dev/null
++++ b/scripts/pahole-flags.sh
+@@ -0,0 +1,21 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0
++
++extra_paholeopt=
++
++if ! [ -x "$(command -v ${PAHOLE})" ]; then
++	exit 0
++fi
++
++pahole_ver=$(${PAHOLE} --version | sed -E 's/v([0-9]+)\.([0-9]+)/\1\2/')
++
++if [ "${pahole_ver}" -ge "118" ] && [ "${pahole_ver}" -le "121" ]; then
++	# pahole 1.18 through 1.21 can't handle zero-sized per-CPU vars
++	extra_paholeopt="${extra_paholeopt} --skip_encoding_btf_vars"
++fi
++
++if [ "${pahole_ver}" -ge "124" ]; then
++	extra_paholeopt="${extra_paholeopt} --skip_encoding_btf_enum64"
++fi
++
++echo ${extra_paholeopt}
+-- 
+2.37.3
 
-static void thread_start(void* (*fn)(void*), void* arg)
-{
-	pthread_t th;
-	pthread_attr_t attr;
-	pthread_attr_init(&attr);
-	pthread_attr_setstacksize(&attr, 128 << 10);
-	int i = 0;
-	for (; i < 100; i++) {
-		if (pthread_create(&th, &attr, fn, arg) == 0) {
-			pthread_attr_destroy(&attr);
-			return;
-		}
-		if (errno == EAGAIN) {
-			usleep(50);
-			continue;
-		}
-		break;
-	}
-	exit(1);
-}
-
-typedef struct {
-	int state;
-} event_t;
-
-static void event_init(event_t* ev)
-{
-	ev->state = 0;
-}
-
-static void event_reset(event_t* ev)
-{
-	ev->state = 0;
-}
-
-static void event_set(event_t* ev)
-{
-	if (ev->state)
-	exit(1);
-	__atomic_store_n(&ev->state, 1, __ATOMIC_RELEASE);
-	syscall(SYS_futex, &ev->state, FUTEX_WAKE | FUTEX_PRIVATE_FLAG, 1000000);
-}
-
-static void event_wait(event_t* ev)
-{
-	while (!__atomic_load_n(&ev->state, __ATOMIC_ACQUIRE))
-		syscall(SYS_futex, &ev->state, FUTEX_WAIT | FUTEX_PRIVATE_FLAG, 0, 0);
-}
-
-static int event_isset(event_t* ev)
-{
-	return __atomic_load_n(&ev->state, __ATOMIC_ACQUIRE);
-}
-
-static int event_timedwait(event_t* ev, uint64_t timeout)
-{
-	uint64_t start = current_time_ms();
-	uint64_t now = start;
-	for (;;) {
-		uint64_t remain = timeout - (now - start);
-		struct timespec ts;
-		ts.tv_sec = remain / 1000;
-		ts.tv_nsec = (remain % 1000) * 1000 * 1000;
-		syscall(SYS_futex, &ev->state, FUTEX_WAIT | FUTEX_PRIVATE_FLAG, 0, &ts);
-		if (__atomic_load_n(&ev->state, __ATOMIC_ACQUIRE))
-			return 1;
-		now = current_time_ms();
-		if (now - start > timeout)
-			return 0;
-	}
-}
-
-static bool write_file(const char* file, const char* what, ...)
-{
-	char buf[1024];
-	va_list args;
-	va_start(args, what);
-	vsnprintf(buf, sizeof(buf), what, args);
-	va_end(args);
-	buf[sizeof(buf) - 1] = 0;
-	int len = strlen(buf);
-	int fd = open(file, O_WRONLY | O_CLOEXEC);
-	if (fd == -1)
-		return false;
-	if (write(fd, buf, len) != len) {
-		int err = errno;
-		close(fd);
-		errno = err;
-		return false;
-	}
-	close(fd);
-	return true;
-}
-
-static void kill_and_wait(int pid, int* status)
-{
-	kill(-pid, SIGKILL);
-	kill(pid, SIGKILL);
-	for (int i = 0; i < 100; i++) {
-		if (waitpid(-1, status, WNOHANG | __WALL) == pid)
-			return;
-		usleep(1000);
-	}
-	DIR* dir = opendir("/sys/fs/fuse/connections");
-	if (dir) {
-		for (;;) {
-			struct dirent* ent = readdir(dir);
-			if (!ent)
-				break;
-			if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
-				continue;
-			char abort[300];
-			snprintf(abort, sizeof(abort), "/sys/fs/fuse/connections/%s/abort", 
-ent->d_name);
-			int fd = open(abort, O_WRONLY);
-			if (fd == -1) {
-				continue;
-			}
-			if (write(fd, abort, 1) < 0) {
-			}
-			close(fd);
-		}
-		closedir(dir);
-	} else {
-	}
-	while (waitpid(-1, status, __WALL) != pid) {
-	}
-}
-
-static void setup_test()
-{
-	prctl(PR_SET_PDEATHSIG, SIGKILL, 0, 0, 0);
-	setpgrp();
-	write_file("/proc/self/oom_score_adj", "1000");
-}
-
-#define USLEEP_FORKED_CHILD (3 * 50 *1000)
-
-static long handle_clone_ret(long ret)
-{
-	if (ret != 0) {
-		return ret;
-	}
-	usleep(USLEEP_FORKED_CHILD);
-	syscall(__NR_exit, 0);
-	while (1) {
-	}
-}
-
-static long syz_clone(volatile long flags, volatile long stack, volatile 
-long stack_len,
-		      volatile long ptid, volatile long ctid, volatile long tls)
-{
-	long sp = (stack + stack_len) & ~15;
-	long ret = (long)syscall(__NR_clone, flags & ~CLONE_VM, sp, ptid, ctid, 
-tls);
-	return handle_clone_ret(ret);
-}
-
-struct thread_t {
-	int created, call;
-	event_t ready, done;
-};
-
-static struct thread_t threads[16];
-static void execute_call(int call);
-static int running;
-
-static void* thr(void* arg)
-{
-	struct thread_t* th = (struct thread_t*)arg;
-	for (;;) {
-		event_wait(&th->ready);
-		event_reset(&th->ready);
-		execute_call(th->call);
-		__atomic_fetch_sub(&running, 1, __ATOMIC_RELAXED);
-		event_set(&th->done);
-	}
-	return 0;
-}
-
-static void execute_one(void)
-{
-	int i, call, thread;
-	for (call = 0; call < 6; call++) {
-		for (thread = 0; thread < (int)(sizeof(threads) / sizeof(threads[0])); 
-thread++) {
-			struct thread_t* th = &threads[thread];
-			if (!th->created) {
-				th->created = 1;
-				event_init(&th->ready);
-				event_init(&th->done);
-				event_set(&th->done);
-				thread_start(thr, th);
-			}
-			if (!event_isset(&th->done))
-				continue;
-			event_reset(&th->done);
-			th->call = call;
-			__atomic_fetch_add(&running, 1, __ATOMIC_RELAXED);
-			event_set(&th->ready);
-			if (call == 3 || call == 4)
-				break;
-			event_timedwait(&th->done, 50);
-			break;
-		}
-	}
-	for (i = 0; i < 100 && __atomic_load_n(&running, __ATOMIC_RELAXED); i++)
-		sleep_ms(1);
-}
-
-static void execute_one(void);
-
-#define WAIT_FLAGS __WALL
-
-static void loop(void)
-{
-	int iter = 0;
-	for (;; iter++) {
-		int pid = fork();
-		if (pid < 0)
-	exit(1);
-		if (pid == 0) {
-			setup_test();
-			execute_one();
-			exit(0);
-		}
-		int status = 0;
-		uint64_t start = current_time_ms();
-		for (;;) {
-			if (waitpid(-1, &status, WNOHANG | WAIT_FLAGS) == pid)
-				break;
-			sleep_ms(1);
-			if (current_time_ms() - start < 5000)
-				continue;
-			kill_and_wait(pid, &status);
-			break;
-		}
-	}
-}
-
-uint64_t r[2] = {0xffffffffffffffff, 0x0};
-
-void execute_call(int call)
-{
-		intptr_t res = 0;
-	switch (call) {
-	case 0:
-		res = syscall(__NR_socket, 0x11ul, 3ul, 0x300);
-		if (res != -1)
-				r[0] = res;
-		break;
-	case 1:
-*(uint32_t*)0x20000100 = 0x10000;
-*(uint32_t*)0x20000104 = 7;
-*(uint32_t*)0x20000108 = 0x1f0;
-*(uint32_t*)0x2000010c = 0x39c;
-*(uint32_t*)0x20000110 = 0;
-*(uint32_t*)0x20000114 = 0;
-*(uint32_t*)0x20000118 = 0;
-		syscall(__NR_setsockopt, r[0], 0x107, 0xd, 0x20000100ul, 0x1cul);
-		break;
-	case 2:
-		res = syscall(__NR_gettid);
-		if (res != -1)
-				r[1] = res;
-		break;
-	case 3:
-		syscall(__NR_mmap, 0x20000000ul, 0x70000ul, 0x13ul, 0x12ul, r[0], 0ul);
-		break;
-	case 4:
-syz_clone(0, 0, 0, 0, 0, 0);
-		break;
-	case 5:
-*(uint64_t*)0x20000440 = 0x20000000;
-*(uint64_t*)0x20000448 = 0xf1;
-*(uint64_t*)0x20000450 = 0;
-*(uint64_t*)0x20000458 = 0;
-*(uint64_t*)0x20000460 = 0;
-*(uint64_t*)0x20000468 = 0;
-*(uint64_t*)0x20000470 = 0;
-*(uint64_t*)0x20000478 = 0;
-*(uint64_t*)0x20000480 = 0;
-*(uint64_t*)0x20000488 = 0;
-*(uint64_t*)0x20000490 = 0;
-*(uint64_t*)0x20000498 = 0;
-*(uint64_t*)0x200004a0 = 0;
-*(uint64_t*)0x200004a8 = 0;
-*(uint64_t*)0x200004b0 = 0;
-*(uint64_t*)0x200004b8 = 0;
-*(uint64_t*)0x200004c0 = 0;
-*(uint64_t*)0x200004c8 = 0;
-*(uint64_t*)0x20001700 = 0x20000500;
-*(uint64_t*)0x20001708 = 0x15;
-*(uint64_t*)0x20001710 = 0;
-*(uint64_t*)0x20001718 = 0;
-*(uint64_t*)0x20001720 = 0;
-*(uint64_t*)0x20001728 = 0;
-*(uint64_t*)0x20001730 = 0;
-*(uint64_t*)0x20001738 = 0;
-*(uint64_t*)0x20001740 = 0;
-*(uint64_t*)0x20001748 = 0;
-		syscall(__NR_process_vm_readv, r[1], 0x20000440ul, 9ul, 0x20001700ul, 
-5ul, 0ul);
-		break;
-	}
-
-}
-int main(void)
-{
-		syscall(__NR_mmap, 0x1ffff000ul, 0x1000ul, 0ul, 0x32ul, -1, 0ul);
-	syscall(__NR_mmap, 0x20000000ul, 0x1000000ul, 7ul, 0x32ul, -1, 0ul);
-	syscall(__NR_mmap, 0x21000000ul, 0x1000ul, 0ul, 0x32ul, -1, 0ul);
-	for (procid = 0; procid < 4; procid++) {
-		if (fork() == 0) {
-			loop();
-		}
-	}
-	sleep(1000000);
-	return 0;
-}
----------------------------------------------------------------
-> But my eye on COW is very poor nowadays, and I may be plain wrong.
-> 
-> Hugh
-> 
->> ---
->>   mm/memory.c | 11 +++++++++++
->>   1 file changed, 11 insertions(+)
->>
->> diff --git a/mm/memory.c b/mm/memory.c
->> index cc50fa0f4590..45973fd97be8 100644
->> --- a/mm/memory.c
->> +++ b/mm/memory.c
->> @@ -823,6 +823,17 @@ copy_present_page(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma
->>   	if (likely(!page_maybe_dma_pinned(page)))
->>   		return 1;
->>   
->> +	/*
->> +	 * The vma->anon_vma of the child process may be NULL
->> +	 * because the entire vma does not contain anonymous pages.
->> +	 * A BUG will occur when the copy_present_page() passes
->> +	 * a copy of a non-anonymous page of that vma to the
->> +	 * page_add_new_anon_rmap() to set up new anonymous rmap.
->> +	 * Return 1 if the page is not an anonymous page.
->> +	*/
->> +	if (!PageAnon(page))
->> +		return 1;
->> +
->>   	new_page = *prealloc;
->>   	if (!new_page)
->>   		return -EAGAIN;
->> -- 
->> 2.25.1
-> .
-> 
-Thanks,
-
-Yuanzheng
-.
