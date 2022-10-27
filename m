@@ -2,235 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01A5960F4EB
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 12:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5C4B60F4AD
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 12:15:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233598AbiJ0K0k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 06:26:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56050 "EHLO
+        id S235412AbiJ0KPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 06:15:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233264AbiJ0K0j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 06:26:39 -0400
-Received: from mail.marcansoft.com (marcansoft.com [212.63.210.85])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BFF01DF11;
-        Thu, 27 Oct 2022 03:26:38 -0700 (PDT)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: hector@marcansoft.com)
-        by mail.marcansoft.com (Postfix) with ESMTPSA id B08D43FA55;
-        Thu, 27 Oct 2022 10:26:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=marcan.st; s=default;
-        t=1666866396; bh=KKrxP2gQfugnbdgrFfsdnmfgpdRdNRhYEj4LkB4xA3c=;
-        h=From:To:Cc:Subject:Date;
-        b=R3WNOOr5ZcSvaDxSk9IpeLlVjRQk2xLV/qR1/fVX1IDmzJsGbyIJ72u8P6E97GyfN
-         14G2BKbUuoEYiZbWCyadCMv80/yD18SzSZbPtsXTxE6JrtWAAPZp1/NiO43vVIFv55
-         Gbpp2ep1pAB1z9YgYnr016WN8zvTJDWSi5SZDM9LWmqGsRX/7TpkYAmdT4fk43NUj/
-         4QM3J7RygdtpeTVuzWphXklNqfd2TZI3iZt16cNUYptT9gf5as5rxdcy5DKSNQRc9S
-         htZa2G9kQDuAy7CWHK+F6kGGX5wR7mQc8JA1Q2p8PoEvwkPGLJj8ix6vITzPXb/kRC
-         pGGVUHdwofEeQ==
-From:   Hector Martin <marcan@marcan.st>
-To:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Javier Martinez Canillas <javierm@redhat.com>
-Cc:     Pekka Paalanen <pekka.paalanen@collabora.com>,
-        dri-devel@lists.freedesktop.org, asahi@lists.linux.dev,
-        linux-kernel@vger.kernel.org, Hector Martin <marcan@marcan.st>,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/simpledrm: Only advertise formats that are supported
-Date:   Thu, 27 Oct 2022 19:13:27 +0900
-Message-Id: <20221027101327.16678-1-marcan@marcan.st>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S235418AbiJ0KPI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 06:15:08 -0400
+Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF5C34982;
+        Thu, 27 Oct 2022 03:15:06 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 497A63200914;
+        Thu, 27 Oct 2022 06:15:05 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Thu, 27 Oct 2022 06:15:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; t=1666865704; x=1666952104; bh=Io5M/Xszrh
+        TyWKbj+blqnBvyG4ioe9zy9Uf7n+jDrD0=; b=VXI/zgi3opSdNeP3/cd8VcMHl8
+        HEDOEOBE+sj2DCLIEklhWLqn3yL/MVFPtwPIB+LnQg2jDvkrU4cF/y9TOMQhTO3u
+        z32lQoFUfwPu1U+EKW0pHs5NB3OsmlgADxZgd2yj/AIGzcobONTr+gGM37wxGf4r
+        0ojNgjZFONT9tQ0pq7feVoYux3+BhVQPISwXud1Lg1FPv0/9VKxP/2GsmjqTRLpf
+        icMFHcoF8l5LmS/BP2MdfpvJ4Ocxospt8KxPF/wjCJsKVvAVi3ITJ7TRUAt92tQr
+        TDP+AoUf9F8DkrjjhmM3wcn9xGuJ7wGhiD00O0j4JEhlCt5ZxpT2WNmjqrLQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm3; t=1666865704; x=1666952104; bh=Io5M/XszrhTyWKbj+blqnBvyG4io
+        e9zy9Uf7n+jDrD0=; b=Cp7CTknIY6LJISGerh9K95KA0aXhO9BJF/2K1Y/S2BAy
+        gCO09+OObw7lsCkE3ZHOb5I4xIiJd/wR3rSCKI6FWcSvrdkAKN7ZIqu68WpJ5Cuq
+        c1goHS3iuHr+WXU7yVQdEFTSNxH6gVVoAmyzfTo3rbnMyIuEIjfC8XPx1vw+38Wf
+        BMyFEnkW8Zf/bZX3HIusHJTEXGgTFx0JXjuT7u5pDRUcqdcjAA3UpIt+5PuxrPIS
+        ogIZ2Yf8yX5LS+XY28Ck5eOchHaQcCbAYp4rmdPPA4o80duR34TdspMeNESAm1Tc
+        DfgEUdeIK1nHH19up0ll75ggo21m+qjAW2Qhyi2HmQ==
+X-ME-Sender: <xms:KFpaYyqzdNTe9bB-YxDEr1CsWseyqCpIqYA8xLU_P3uVNEFO27NCUg>
+    <xme:KFpaYwohVi1MVcuz6MZgeTMePaoITQhxGHssrfjnUQ2XnC3xxCP2sRo84OSRjzEI4
+    gKKwQD0ILJCEQ>
+X-ME-Received: <xmr:KFpaY3Nl88foVlgPBPIaW3fGWJIIioE8ckmBlPDCEuPXuleki04IFIalHA7CxBRvhQy-G5Gpne5-ZDpJ6xUTEuG0E5n0f0OM>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrtdeggddvfecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeegheeuhe
+    fgtdeluddtleekfeegjeetgeeikeehfeduieffvddufeefleevtddtvdenucffohhmrghi
+    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:KFpaYx7wrlTijNs4k7F9vnf-c-sN6KjCBsy6234gaNZ7p-eZGBQDrg>
+    <xmx:KFpaYx71ItYmEytSy1sQKjIZOgecWXs_ZYN8Lpgfbl4m41NQ4ly2Hg>
+    <xmx:KFpaYxjuqRGERhrEdBWyE8X-CZ9Kk1ag4syYLT8VtUHlm-5J_9mUrg>
+    <xmx:KFpaYwTxKf25LfFQAiP8m-z39ofdqrjDO6hpdEVctDw3CMaILr7ayg>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 27 Oct 2022 06:15:04 -0400 (EDT)
+Date:   Thu, 27 Oct 2022 12:14:50 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Stephen Boyd <swboyd@chromium.org>
+Cc:     stable@vger.kernel.org, Sibi Sankar <sibis@codeaurora.org>,
+        linux-kernel@vger.kernel.org, patches@lists.linux.dev,
+        Evan Green <evgreen@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Alex Elder <elder@linaro.org>
+Subject: Re: [PATCH] arm64: dts: qcom: sc7180-trogdor: Fixup modem memory
+ region
+Message-ID: <Y1paGsh1o1Y3gAR4@kroah.com>
+References: <20221017182241.1086545-1-swboyd@chromium.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221017182241.1086545-1-swboyd@chromium.org>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Until now, simpledrm unconditionally advertised all formats that can be
-supported natively as conversions. However, we don't actually have a
-full conversion matrix of helpers. Although the list is arguably
-provided to userspace in precedence order, userspace can pick something
-out-of-order (and thus break when it shouldn't), or simply only support
-a format that is unsupported (and thus think it can work, which results
-in the appearance of a hang as FB blits fail later on, instead of the
-initialization error you'd expect in this case).
+On Mon, Oct 17, 2022 at 11:22:41AM -0700, Stephen Boyd wrote:
+> From: Sibi Sankar <sibis@codeaurora.org>
+> 
+> commit ef9a5d188d663753e73a3c8e8910ceab8e9305c4 upstream.
+> 
+> The modem firmware memory requirements vary between 32M/140M on
+> no-lte/lte skus respectively, so fixup the modem memory region
+> to reflect the requirements.
+> 
+> Reviewed-by: Evan Green <evgreen@chromium.org>
+> Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+> Link: https://lore.kernel.org/r/1602786476-27833-1-git-send-email-sibis@codeaurora.org
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> Acked-by: Alex Elder <elder@linaro.org>
+> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+> ---
+> 
+> This fixes boot of the modem on trogdor boards with the DTS from 5.10.y
+> stable tree. Without this patch I run into memory assignment errors and
+> then the modem fails to boot.
 
-Split up the format table into separate ones for each required subset,
-and then pick one based on the native format. Also remove the
-native<->conversion overlap check from the helper (which doesn't make
-sense any more, since the native format is advertised anyway and this
-way RGB565/RGB888 can share a format table), and instead print the same
-message in simpledrm when the native format is not one for which we have
-conversions at all.
+Now queued up, thanks.
 
-This fixes a real user regression where the ?RGB2101010 support commit
-started advertising it unconditionally where not supported, and KWin
-decided to start to use it over the native format, but also the fixes
-the spurious RGB565/RGB888 formats which have been wrongly
-unconditionally advertised since the dawn of simpledrm.
-
-Note: this patch is merged because splitting it into two patches, one
-for the helper and one for simpledrm, would regress at the midpoint
-regardless of the order. If simpledrm is changed first, that would break
-working conversions to RGB565/RGB888 (since those share a table that
-does not include the native formats). If the helper is changed first, it
-would start spuriously advertising all conversion formats when the
-native format doesn't have any supported conversions at all.
-
-Acked-by: Pekka Paalanen <pekka.paalanen@collabora.com>
-Fixes: 6ea966fca084 ("drm/simpledrm: Add [AX]RGB2101010 formats")
-Fixes: 11e8f5fd223b ("drm: Add simpledrm driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hector Martin <marcan@marcan.st>
----
- drivers/gpu/drm/drm_format_helper.c | 15 -------
- drivers/gpu/drm/tiny/simpledrm.c    | 62 +++++++++++++++++++++++++----
- 2 files changed, 55 insertions(+), 22 deletions(-)
-
-diff --git a/drivers/gpu/drm/drm_format_helper.c b/drivers/gpu/drm/drm_format_helper.c
-index e2f76621453c..c60c13f3a872 100644
---- a/drivers/gpu/drm/drm_format_helper.c
-+++ b/drivers/gpu/drm/drm_format_helper.c
-@@ -864,20 +864,6 @@ size_t drm_fb_build_fourcc_list(struct drm_device *dev,
- 		++fourccs;
- 	}
- 
--	/*
--	 * The plane's atomic_update helper converts the framebuffer's color format
--	 * to a native format when copying to device memory.
--	 *
--	 * If there is not a single format supported by both, device and
--	 * driver, the native formats are likely not supported by the conversion
--	 * helpers. Therefore *only* support the native formats and add a
--	 * conversion helper ASAP.
--	 */
--	if (!found_native) {
--		drm_warn(dev, "Format conversion helpers required to add extra formats.\n");
--		goto out;
--	}
--
- 	/*
- 	 * The extra formats, emulated by the driver, go second.
- 	 */
-@@ -898,7 +884,6 @@ size_t drm_fb_build_fourcc_list(struct drm_device *dev,
- 		++fourccs;
- 	}
- 
--out:
- 	return fourccs - fourccs_out;
- }
- EXPORT_SYMBOL(drm_fb_build_fourcc_list);
-diff --git a/drivers/gpu/drm/tiny/simpledrm.c b/drivers/gpu/drm/tiny/simpledrm.c
-index 18489779fb8a..1257411f3d44 100644
---- a/drivers/gpu/drm/tiny/simpledrm.c
-+++ b/drivers/gpu/drm/tiny/simpledrm.c
-@@ -446,22 +446,48 @@ static int simpledrm_device_init_regulators(struct simpledrm_device *sdev)
-  */
- 
- /*
-- * Support all formats of simplefb and maybe more; in order
-- * of preference. The display's update function will do any
-+ * Support the subset of formats that we have conversion helpers for,
-+ * in order of preference. The display's update function will do any
-  * conversion necessary.
-  *
-  * TODO: Add blit helpers for remaining formats and uncomment
-  *       constants.
-  */
--static const uint32_t simpledrm_primary_plane_formats[] = {
-+
-+/*
-+ * Supported conversions to RGB565 and RGB888:
-+ *   from [AX]RGB8888
-+ */
-+static const uint32_t simpledrm_primary_plane_formats_base[] = {
-+	DRM_FORMAT_XRGB8888,
-+	DRM_FORMAT_ARGB8888,
-+};
-+
-+/*
-+ * Supported conversions to [AX]RGB8888:
-+ *   A/X variants (no-op)
-+ *   from RGB565
-+ *   from RGB888
-+ */
-+static const uint32_t simpledrm_primary_plane_formats_xrgb8888[] = {
- 	DRM_FORMAT_XRGB8888,
- 	DRM_FORMAT_ARGB8888,
-+	DRM_FORMAT_RGB888,
- 	DRM_FORMAT_RGB565,
- 	//DRM_FORMAT_XRGB1555,
- 	//DRM_FORMAT_ARGB1555,
--	DRM_FORMAT_RGB888,
-+};
-+
-+/*
-+ * Supported conversions to [AX]RGB2101010:
-+ *   A/X variants (no-op)
-+ *   from [AX]RGB8888
-+ */
-+static const uint32_t simpledrm_primary_plane_formats_xrgb2101010[] = {
- 	DRM_FORMAT_XRGB2101010,
- 	DRM_FORMAT_ARGB2101010,
-+	DRM_FORMAT_XRGB8888,
-+	DRM_FORMAT_ARGB8888,
- };
- 
- static const uint64_t simpledrm_primary_plane_format_modifiers[] = {
-@@ -642,7 +668,8 @@ static struct simpledrm_device *simpledrm_device_create(struct drm_driver *drv,
- 	struct drm_encoder *encoder;
- 	struct drm_connector *connector;
- 	unsigned long max_width, max_height;
--	size_t nformats;
-+	const uint32_t *conv_formats;
-+	size_t conv_nformats, nformats;
- 	int ret;
- 
- 	sdev = devm_drm_dev_alloc(&pdev->dev, drv, struct simpledrm_device, dev);
-@@ -755,10 +782,31 @@ static struct simpledrm_device *simpledrm_device_create(struct drm_driver *drv,
- 	dev->mode_config.funcs = &simpledrm_mode_config_funcs;
- 
- 	/* Primary plane */
-+	switch (format->format) {
-+	case DRM_FORMAT_RGB565:
-+	case DRM_FORMAT_RGB888:
-+		conv_formats = simpledrm_primary_plane_formats_base;
-+		conv_nformats = ARRAY_SIZE(simpledrm_primary_plane_formats_base);
-+		break;
-+	case DRM_FORMAT_XRGB8888:
-+	case DRM_FORMAT_ARGB8888:
-+		conv_formats = simpledrm_primary_plane_formats_xrgb8888;
-+		conv_nformats = ARRAY_SIZE(simpledrm_primary_plane_formats_xrgb8888);
-+		break;
-+	case DRM_FORMAT_XRGB2101010:
-+	case DRM_FORMAT_ARGB2101010:
-+		conv_formats = simpledrm_primary_plane_formats_xrgb2101010;
-+		conv_nformats = ARRAY_SIZE(simpledrm_primary_plane_formats_xrgb2101010);
-+		break;
-+	default:
-+		conv_formats = NULL;
-+		conv_nformats = 0;
-+		drm_warn(dev, "Format conversion helpers required to add extra formats.\n");
-+		break;
-+	}
- 
- 	nformats = drm_fb_build_fourcc_list(dev, &format->format, 1,
--					    simpledrm_primary_plane_formats,
--					    ARRAY_SIZE(simpledrm_primary_plane_formats),
-+					    conv_formats, conv_nformats,
- 					    sdev->formats, ARRAY_SIZE(sdev->formats));
- 
- 	primary_plane = &sdev->primary_plane;
--- 
-2.35.1
-
+greg k-h
