@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 522FA60FDD9
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:59:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD17D60FE72
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236760AbiJ0Q7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 12:59:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47310 "EHLO
+        id S236934AbiJ0RFV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:05:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236728AbiJ0Q7k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:59:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C5A3659E
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:59:38 -0700 (PDT)
+        with ESMTP id S236964AbiJ0RFQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:05:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76EA61358B7
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:05:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B464BB82714
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:59:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1445FC433D6;
-        Thu, 27 Oct 2022 16:59:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 656DCCE279A
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:05:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7321DC433C1;
+        Thu, 27 Oct 2022 17:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666889975;
-        bh=F6Pd/si6fN0gWfSPA/tJq+cHEqqdmcT6Xlm67Uv0ESs=;
+        s=korg; t=1666890311;
+        bh=Q5ot/Wyj7o/rmkQOaFcpbdB7JEysf9GXn2sQlz2bfIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4kATu/4Jlc7S9auWkLx4biCKb0Qqn3r+bIc4p4hUsQKo0K6/kuB5pU+ZE809c2zw
-         6L8U1aCwn6B/n1UEWAmU6wO54QQYaO/+lDIbDpVV3Apev8+7WQEjOaeY3aMSACkoSL
-         MOOamsCkplEEm4xEDmi0WUmy4FEvTq8wo1yno5dk=
+        b=JI0nQa+uqoMIKGPzR2+a+5tHbSarhdc3ADwjndVIJ/bfhP249W608AhVvVgbYVmk0
+         YqECfETcxJlIQLDWHayhQ16JAU8/PSe91rVIvif8Ob7ESrwQ4BS38h1ZFsNrkLLqDi
+         j8g9XK7koAz6SRAjqsqtd+qZPg2ZNJLPpRSXTjCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 70/94] netfilter: nf_tables: relax NFTA_SET_ELEM_KEY_END set flags requirements
-Date:   Thu, 27 Oct 2022 18:55:12 +0200
-Message-Id: <20221027165100.018359737@linuxfoundation.org>
+        patches@lists.linux.dev, Tan Ninghao <tanninghao1@huawei.com>,
+        "GONG, Ruiqi" <gongruiqi1@huawei.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>, GONG@vger.kernel.org
+Subject: [PATCH 5.10 03/79] selinux: enable use of both GFP_KERNEL and GFP_ATOMIC in convert_context()
+Date:   Thu, 27 Oct 2022 18:55:13 +0200
+Message-Id: <20221027165054.412916090@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
-References: <20221027165057.208202132@linuxfoundation.org>
+In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
+References: <20221027165054.270676357@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,43 +54,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: GONG, Ruiqi <gongruiqi1@huawei.com>
 
-[ Upstream commit 96df8360dbb435cc69f7c3c8db44bf8b1c24cd7b ]
+commit abe3c631447dcd1ba7af972fe6f054bee6f136fa upstream.
 
-Otherwise EINVAL is bogusly reported to userspace when deleting a set
-element. NFTA_SET_ELEM_KEY_END does not need to be set in case of:
+The following warning was triggered on a hardware environment:
 
-- insertion: if not present, start key is used as end key.
-- deletion: only start key needs to be specified, end key is ignored.
+  SELinux: Converting 162 SID table entries...
+  BUG: sleeping function called from invalid context at
+       __might_sleep+0x60/0x74 0x0
+  in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 5943, name: tar
+  CPU: 7 PID: 5943 Comm: tar Tainted: P O 5.10.0 #1
+  Call trace:
+   dump_backtrace+0x0/0x1c8
+   show_stack+0x18/0x28
+   dump_stack+0xe8/0x15c
+   ___might_sleep+0x168/0x17c
+   __might_sleep+0x60/0x74
+   __kmalloc_track_caller+0xa0/0x7dc
+   kstrdup+0x54/0xac
+   convert_context+0x48/0x2e4
+   sidtab_context_to_sid+0x1c4/0x36c
+   security_context_to_sid_core+0x168/0x238
+   security_context_to_sid_default+0x14/0x24
+   inode_doinit_use_xattr+0x164/0x1e4
+   inode_doinit_with_dentry+0x1c0/0x488
+   selinux_d_instantiate+0x20/0x34
+   security_d_instantiate+0x70/0xbc
+   d_splice_alias+0x4c/0x3c0
+   ext4_lookup+0x1d8/0x200 [ext4]
+   __lookup_slow+0x12c/0x1e4
+   walk_component+0x100/0x200
+   path_lookupat+0x88/0x118
+   filename_lookup+0x98/0x130
+   user_path_at_empty+0x48/0x60
+   vfs_statx+0x84/0x140
+   vfs_fstatat+0x20/0x30
+   __se_sys_newfstatat+0x30/0x74
+   __arm64_sys_newfstatat+0x1c/0x2c
+   el0_svc_common.constprop.0+0x100/0x184
+   do_el0_svc+0x1c/0x2c
+   el0_svc+0x20/0x34
+   el0_sync_handler+0x80/0x17c
+   el0_sync+0x13c/0x140
+  SELinux: Context system_u:object_r:pssp_rsyslog_log_t:s0:c0 is
+           not valid (left unmapped).
 
-Hence, relax the sanity check.
+It was found that within a critical section of spin_lock_irqsave in
+sidtab_context_to_sid(), convert_context() (hooked by
+sidtab_convert_params.func) might cause the process to sleep via
+allocating memory with GFP_KERNEL, which is problematic.
 
-Fixes: 88cccd908d51 ("netfilter: nf_tables: NFTA_SET_ELEM_KEY_END requires concat and interval flags")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As Ondrej pointed out [1], convert_context()/sidtab_convert_params.func
+has another caller sidtab_convert_tree(), which is okay with GFP_KERNEL.
+Therefore, fix this problem by adding a gfp_t argument for
+convert_context()/sidtab_convert_params.func and pass GFP_KERNEL/_ATOMIC
+properly in individual callers.
+
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/all/20221018120111.1474581-1-gongruiqi1@huawei.com/ [1]
+Reported-by: Tan Ninghao <tanninghao1@huawei.com>
+Fixes: ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve performance")
+Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
+Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
+[PM: wrap long BUG() output lines, tweak subject line]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ security/selinux/ss/services.c |    5 +++--
+ security/selinux/ss/sidtab.c   |    4 ++--
+ security/selinux/ss/sidtab.h   |    2 +-
+ 3 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 63c70141b3e5..5897afd12466 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -5865,8 +5865,9 @@ static bool nft_setelem_valid_key_end(const struct nft_set *set,
- 			  (NFT_SET_CONCAT | NFT_SET_INTERVAL)) {
- 		if (flags & NFT_SET_ELEM_INTERVAL_END)
- 			return false;
--		if (!nla[NFTA_SET_ELEM_KEY_END] &&
--		    !(flags & NFT_SET_ELEM_CATCHALL))
-+
-+		if (nla[NFTA_SET_ELEM_KEY_END] &&
-+		    flags & NFT_SET_ELEM_CATCHALL)
- 			return false;
- 	} else {
- 		if (nla[NFTA_SET_ELEM_KEY_END])
--- 
-2.35.1
-
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2011,7 +2011,8 @@ static inline int convert_context_handle
+  * in `newc'.  Verify that the context is valid
+  * under the new policy.
+  */
+-static int convert_context(struct context *oldc, struct context *newc, void *p)
++static int convert_context(struct context *oldc, struct context *newc, void *p,
++			   gfp_t gfp_flags)
+ {
+ 	struct convert_context_args *args;
+ 	struct ocontext *oc;
+@@ -2025,7 +2026,7 @@ static int convert_context(struct contex
+ 	args = p;
+ 
+ 	if (oldc->str) {
+-		s = kstrdup(oldc->str, GFP_KERNEL);
++		s = kstrdup(oldc->str, gfp_flags);
+ 		if (!s)
+ 			return -ENOMEM;
+ 
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -325,7 +325,7 @@ int sidtab_context_to_sid(struct sidtab
+ 		}
+ 
+ 		rc = convert->func(context, &dst_convert->context,
+-				   convert->args);
++				   convert->args, GFP_ATOMIC);
+ 		if (rc) {
+ 			context_destroy(&dst->context);
+ 			goto out_unlock;
+@@ -404,7 +404,7 @@ static int sidtab_convert_tree(union sid
+ 		while (i < SIDTAB_LEAF_ENTRIES && *pos < count) {
+ 			rc = convert->func(&esrc->ptr_leaf->entries[i].context,
+ 					   &edst->ptr_leaf->entries[i].context,
+-					   convert->args);
++					   convert->args, GFP_KERNEL);
+ 			if (rc)
+ 				return rc;
+ 			(*pos)++;
+--- a/security/selinux/ss/sidtab.h
++++ b/security/selinux/ss/sidtab.h
+@@ -65,7 +65,7 @@ struct sidtab_isid_entry {
+ };
+ 
+ struct sidtab_convert_params {
+-	int (*func)(struct context *oldc, struct context *newc, void *args);
++	int (*func)(struct context *oldc, struct context *newc, void *args, gfp_t gfp_flags);
+ 	void *args;
+ 	struct sidtab *target;
+ };
 
 
