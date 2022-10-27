@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25BBC60FDDE
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:59:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2D4F60FE0C
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:01:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236748AbiJ0Q74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 12:59:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48446 "EHLO
+        id S236826AbiJ0RBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:01:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236765AbiJ0Q7y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:59:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1898B1B1F4
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:59:50 -0700 (PDT)
+        with ESMTP id S236832AbiJ0RBk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:01:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D34D1905E9
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:01:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 868FBB82718
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:59:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1F69C433C1;
-        Thu, 27 Oct 2022 16:59:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8462E623EC
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:01:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97881C433C1;
+        Thu, 27 Oct 2022 17:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666889988;
-        bh=yCTz5/Gi6ykWWIlqwHVK3AD+uNl9O7id+7aBlh4MYyA=;
+        s=korg; t=1666890095;
+        bh=bQ9rkRll7Msz84sMpNNPDVGTvFwwf5mZz3qudqVNpqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JUClMjBKTyDRRMNsQAMVZvHrB3u0plv5O4DU+DrsFXngP/Lyu1vPLqGJsziXfns7W
-         qB+Z2zTDbHvmcLAff8eH4bVlerQiH2dchIbUUV4e6zn82ptobk7IcdKsSn0iEI688U
-         iF4JTfcDK3/xO3VsSmz3pPtI218VWcFTB5lMZcqQ=
+        b=FebUelqv0MH1aH+tJylERjWPFJjJs0BryWwV8+6taE0EFCMeX4tJjZtaFE2lcB+0m
+         pJpwu6PbEhzf4sG/IZ5q8/8L+j30K3DF7Ev0VzzgfivLmUIV8xiSFPe2eClxLdIGG8
+         vf3DNxXZQA268+c3Bxw0zauCNG5wGEWFArrCTzg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 75/94] net: sched: delete duplicate cleanup of backlog and qlen
-Date:   Thu, 27 Oct 2022 18:55:17 +0200
-Message-Id: <20221027165100.228235523@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 5.15 20/79] ata: ahci: Match EM_MAX_SLOTS with SATA_PMP_MAX_PORTS
+Date:   Thu, 27 Oct 2022 18:55:18 +0200
+Message-Id: <20221027165055.625310306@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
-References: <20221027165057.208202132@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,316 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit c19d893fbf3f2f8fa864ae39652c7fee939edde2 ]
+commit 1e41e693f458eef2d5728207dbd327cd3b16580a upstream.
 
-qdisc_reset() is clearing qdisc->q.qlen and qdisc->qstats.backlog
-_after_ calling qdisc->ops->reset. There is no need to clear them
-again in the specific reset function.
+UBSAN complains about array-index-out-of-bounds:
+[ 1.980703] kernel: UBSAN: array-index-out-of-bounds in /build/linux-9H675w/linux-5.15.0/drivers/ata/libahci.c:968:41
+[ 1.980709] kernel: index 15 is out of range for type 'ahci_em_priv [8]'
+[ 1.980713] kernel: CPU: 0 PID: 209 Comm: scsi_eh_8 Not tainted 5.15.0-25-generic #25-Ubuntu
+[ 1.980716] kernel: Hardware name: System manufacturer System Product Name/P5Q3, BIOS 1102 06/11/2010
+[ 1.980718] kernel: Call Trace:
+[ 1.980721] kernel: <TASK>
+[ 1.980723] kernel: show_stack+0x52/0x58
+[ 1.980729] kernel: dump_stack_lvl+0x4a/0x5f
+[ 1.980734] kernel: dump_stack+0x10/0x12
+[ 1.980736] kernel: ubsan_epilogue+0x9/0x45
+[ 1.980739] kernel: __ubsan_handle_out_of_bounds.cold+0x44/0x49
+[ 1.980742] kernel: ahci_qc_issue+0x166/0x170 [libahci]
+[ 1.980748] kernel: ata_qc_issue+0x135/0x240
+[ 1.980752] kernel: ata_exec_internal_sg+0x2c4/0x580
+[ 1.980754] kernel: ? vprintk_default+0x1d/0x20
+[ 1.980759] kernel: ata_exec_internal+0x67/0xa0
+[ 1.980762] kernel: sata_pmp_read+0x8d/0xc0
+[ 1.980765] kernel: sata_pmp_read_gscr+0x3c/0x90
+[ 1.980768] kernel: sata_pmp_attach+0x8b/0x310
+[ 1.980771] kernel: ata_eh_revalidate_and_attach+0x28c/0x4b0
+[ 1.980775] kernel: ata_eh_recover+0x6b6/0xb30
+[ 1.980778] kernel: ? ahci_do_hardreset+0x180/0x180 [libahci]
+[ 1.980783] kernel: ? ahci_stop_engine+0xb0/0xb0 [libahci]
+[ 1.980787] kernel: ? ahci_do_softreset+0x290/0x290 [libahci]
+[ 1.980792] kernel: ? trace_event_raw_event_ata_eh_link_autopsy_qc+0xe0/0xe0
+[ 1.980795] kernel: sata_pmp_eh_recover.isra.0+0x214/0x560
+[ 1.980799] kernel: sata_pmp_error_handler+0x23/0x40
+[ 1.980802] kernel: ahci_error_handler+0x43/0x80 [libahci]
+[ 1.980806] kernel: ata_scsi_port_error_handler+0x2b1/0x600
+[ 1.980810] kernel: ata_scsi_error+0x9c/0xd0
+[ 1.980813] kernel: scsi_error_handler+0xa1/0x180
+[ 1.980817] kernel: ? scsi_unjam_host+0x1c0/0x1c0
+[ 1.980820] kernel: kthread+0x12a/0x150
+[ 1.980823] kernel: ? set_kthread_struct+0x50/0x50
+[ 1.980826] kernel: ret_from_fork+0x22/0x30
+[ 1.980831] kernel: </TASK>
 
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20220824005231.345727-1-shaozhengchao@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Stable-dep-of: 2a3fc78210b9 ("net: sched: sfb: fix null pointer access issue when sfb_init() fails")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This happens because sata_pmp_init_links() initialize link->pmp up to
+SATA_PMP_MAX_PORTS while em_priv is declared as 8 elements array.
+
+I can't find the maximum Enclosure Management ports specified in AHCI
+spec v1.3.1, but "12.2.1 LED message type" states that "Port Multiplier
+Information" can utilize 4 bits, which implies it can support up to 16
+ports. Hence, use SATA_PMP_MAX_PORTS as EM_MAX_SLOTS to resolve the
+issue.
+
+BugLink: https://bugs.launchpad.net/bugs/1970074
+Cc: stable@vger.kernel.org
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/sch_generic.h | 1 -
- net/sched/sch_atm.c       | 1 -
- net/sched/sch_cbq.c       | 1 -
- net/sched/sch_choke.c     | 2 --
- net/sched/sch_drr.c       | 2 --
- net/sched/sch_dsmark.c    | 2 --
- net/sched/sch_etf.c       | 3 ---
- net/sched/sch_ets.c       | 2 --
- net/sched/sch_fq_codel.c  | 2 --
- net/sched/sch_fq_pie.c    | 3 ---
- net/sched/sch_hfsc.c      | 2 --
- net/sched/sch_htb.c       | 2 --
- net/sched/sch_multiq.c    | 1 -
- net/sched/sch_prio.c      | 2 --
- net/sched/sch_qfq.c       | 2 --
- net/sched/sch_red.c       | 2 --
- net/sched/sch_sfb.c       | 2 --
- net/sched/sch_skbprio.c   | 3 ---
- net/sched/sch_taprio.c    | 2 --
- net/sched/sch_tbf.c       | 2 --
- net/sched/sch_teql.c      | 1 -
- 21 files changed, 40 deletions(-)
+ drivers/ata/ahci.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index ec693fe7c553..f2958fb5ae08 100644
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -1137,7 +1137,6 @@ static inline void __qdisc_reset_queue(struct qdisc_skb_head *qh)
- static inline void qdisc_reset_queue(struct Qdisc *sch)
- {
- 	__qdisc_reset_queue(&sch->q);
--	sch->qstats.backlog = 0;
- }
+--- a/drivers/ata/ahci.h
++++ b/drivers/ata/ahci.h
+@@ -254,7 +254,7 @@ enum {
+ 	PCS_7				= 0x94, /* 7+ port PCS (Denverton) */
  
- static inline struct Qdisc *qdisc_replace(struct Qdisc *sch, struct Qdisc *new,
-diff --git a/net/sched/sch_atm.c b/net/sched/sch_atm.c
-index 4c8e994cf0a5..816fd0d7ba38 100644
---- a/net/sched/sch_atm.c
-+++ b/net/sched/sch_atm.c
-@@ -577,7 +577,6 @@ static void atm_tc_reset(struct Qdisc *sch)
- 	pr_debug("atm_tc_reset(sch %p,[qdisc %p])\n", sch, p);
- 	list_for_each_entry(flow, &p->flows, list)
- 		qdisc_reset(flow->q);
--	sch->q.qlen = 0;
- }
+ 	/* em constants */
+-	EM_MAX_SLOTS			= 8,
++	EM_MAX_SLOTS			= SATA_PMP_MAX_PORTS,
+ 	EM_MAX_RETRY			= 5,
  
- static void atm_tc_destroy(struct Qdisc *sch)
-diff --git a/net/sched/sch_cbq.c b/net/sched/sch_cbq.c
-index 91a0dc463c48..ba99ce05cd52 100644
---- a/net/sched/sch_cbq.c
-+++ b/net/sched/sch_cbq.c
-@@ -975,7 +975,6 @@ cbq_reset(struct Qdisc *sch)
- 			cl->cpriority = cl->priority;
- 		}
- 	}
--	sch->q.qlen = 0;
- }
- 
- 
-diff --git a/net/sched/sch_choke.c b/net/sched/sch_choke.c
-index 2adbd945bf15..25d2daaa8122 100644
---- a/net/sched/sch_choke.c
-+++ b/net/sched/sch_choke.c
-@@ -315,8 +315,6 @@ static void choke_reset(struct Qdisc *sch)
- 		rtnl_qdisc_drop(skb, sch);
- 	}
- 
--	sch->q.qlen = 0;
--	sch->qstats.backlog = 0;
- 	if (q->tab)
- 		memset(q->tab, 0, (q->tab_mask + 1) * sizeof(struct sk_buff *));
- 	q->head = q->tail = 0;
-diff --git a/net/sched/sch_drr.c b/net/sched/sch_drr.c
-index 18e4f7a0b291..4e5b1cf11b85 100644
---- a/net/sched/sch_drr.c
-+++ b/net/sched/sch_drr.c
-@@ -441,8 +441,6 @@ static void drr_reset_qdisc(struct Qdisc *sch)
- 			qdisc_reset(cl->qdisc);
- 		}
- 	}
--	sch->qstats.backlog = 0;
--	sch->q.qlen = 0;
- }
- 
- static void drr_destroy_qdisc(struct Qdisc *sch)
-diff --git a/net/sched/sch_dsmark.c b/net/sched/sch_dsmark.c
-index 4c100d105269..7da6dc38a382 100644
---- a/net/sched/sch_dsmark.c
-+++ b/net/sched/sch_dsmark.c
-@@ -409,8 +409,6 @@ static void dsmark_reset(struct Qdisc *sch)
- 	pr_debug("%s(sch %p,[qdisc %p])\n", __func__, sch, p);
- 	if (p->q)
- 		qdisc_reset(p->q);
--	sch->qstats.backlog = 0;
--	sch->q.qlen = 0;
- }
- 
- static void dsmark_destroy(struct Qdisc *sch)
-diff --git a/net/sched/sch_etf.c b/net/sched/sch_etf.c
-index c48f91075b5c..d96103b0e2bf 100644
---- a/net/sched/sch_etf.c
-+++ b/net/sched/sch_etf.c
-@@ -445,9 +445,6 @@ static void etf_reset(struct Qdisc *sch)
- 	timesortedlist_clear(sch);
- 	__qdisc_reset_queue(&sch->q);
- 
--	sch->qstats.backlog = 0;
--	sch->q.qlen = 0;
--
- 	q->last = 0;
- }
- 
-diff --git a/net/sched/sch_ets.c b/net/sched/sch_ets.c
-index d73393493553..8de4365886e8 100644
---- a/net/sched/sch_ets.c
-+++ b/net/sched/sch_ets.c
-@@ -727,8 +727,6 @@ static void ets_qdisc_reset(struct Qdisc *sch)
- 	}
- 	for (band = 0; band < q->nbands; band++)
- 		qdisc_reset(q->classes[band].qdisc);
--	sch->qstats.backlog = 0;
--	sch->q.qlen = 0;
- }
- 
- static void ets_qdisc_destroy(struct Qdisc *sch)
-diff --git a/net/sched/sch_fq_codel.c b/net/sched/sch_fq_codel.c
-index 839e1235db05..23a042adb74d 100644
---- a/net/sched/sch_fq_codel.c
-+++ b/net/sched/sch_fq_codel.c
-@@ -347,8 +347,6 @@ static void fq_codel_reset(struct Qdisc *sch)
- 		codel_vars_init(&flow->cvars);
- 	}
- 	memset(q->backlogs, 0, q->flows_cnt * sizeof(u32));
--	sch->q.qlen = 0;
--	sch->qstats.backlog = 0;
- 	q->memory_usage = 0;
- }
- 
-diff --git a/net/sched/sch_fq_pie.c b/net/sched/sch_fq_pie.c
-index d6aba6edd16e..35c35465226b 100644
---- a/net/sched/sch_fq_pie.c
-+++ b/net/sched/sch_fq_pie.c
-@@ -521,9 +521,6 @@ static void fq_pie_reset(struct Qdisc *sch)
- 		INIT_LIST_HEAD(&flow->flowchain);
- 		pie_vars_init(&flow->vars);
- 	}
--
--	sch->q.qlen = 0;
--	sch->qstats.backlog = 0;
- }
- 
- static void fq_pie_destroy(struct Qdisc *sch)
-diff --git a/net/sched/sch_hfsc.c b/net/sched/sch_hfsc.c
-index d3979a6000e7..03efc40e42fc 100644
---- a/net/sched/sch_hfsc.c
-+++ b/net/sched/sch_hfsc.c
-@@ -1484,8 +1484,6 @@ hfsc_reset_qdisc(struct Qdisc *sch)
- 	}
- 	q->eligible = RB_ROOT;
- 	qdisc_watchdog_cancel(&q->watchdog);
--	sch->qstats.backlog = 0;
--	sch->q.qlen = 0;
- }
- 
- static void
-diff --git a/net/sched/sch_htb.c b/net/sched/sch_htb.c
-index 23a9d6242429..cb5872d22ecf 100644
---- a/net/sched/sch_htb.c
-+++ b/net/sched/sch_htb.c
-@@ -1008,8 +1008,6 @@ static void htb_reset(struct Qdisc *sch)
- 	}
- 	qdisc_watchdog_cancel(&q->watchdog);
- 	__qdisc_reset_queue(&q->direct_queue);
--	sch->q.qlen = 0;
--	sch->qstats.backlog = 0;
- 	memset(q->hlevel, 0, sizeof(q->hlevel));
- 	memset(q->row_mask, 0, sizeof(q->row_mask));
- }
-diff --git a/net/sched/sch_multiq.c b/net/sched/sch_multiq.c
-index cd8ab90c4765..f28050c7f12d 100644
---- a/net/sched/sch_multiq.c
-+++ b/net/sched/sch_multiq.c
-@@ -152,7 +152,6 @@ multiq_reset(struct Qdisc *sch)
- 
- 	for (band = 0; band < q->bands; band++)
- 		qdisc_reset(q->queues[band]);
--	sch->q.qlen = 0;
- 	q->curband = 0;
- }
- 
-diff --git a/net/sched/sch_prio.c b/net/sched/sch_prio.c
-index 3b8d7197c06b..c03a11dd990f 100644
---- a/net/sched/sch_prio.c
-+++ b/net/sched/sch_prio.c
-@@ -135,8 +135,6 @@ prio_reset(struct Qdisc *sch)
- 
- 	for (prio = 0; prio < q->bands; prio++)
- 		qdisc_reset(q->queues[prio]);
--	sch->qstats.backlog = 0;
--	sch->q.qlen = 0;
- }
- 
- static int prio_offload(struct Qdisc *sch, struct tc_prio_qopt *qopt)
-diff --git a/net/sched/sch_qfq.c b/net/sched/sch_qfq.c
-index d4ce58c90f9f..13246a9dc5c1 100644
---- a/net/sched/sch_qfq.c
-+++ b/net/sched/sch_qfq.c
-@@ -1458,8 +1458,6 @@ static void qfq_reset_qdisc(struct Qdisc *sch)
- 			qdisc_reset(cl->qdisc);
- 		}
- 	}
--	sch->qstats.backlog = 0;
--	sch->q.qlen = 0;
- }
- 
- static void qfq_destroy_qdisc(struct Qdisc *sch)
-diff --git a/net/sched/sch_red.c b/net/sched/sch_red.c
-index 40adf1f07a82..f1e013e3f04a 100644
---- a/net/sched/sch_red.c
-+++ b/net/sched/sch_red.c
-@@ -176,8 +176,6 @@ static void red_reset(struct Qdisc *sch)
- 	struct red_sched_data *q = qdisc_priv(sch);
- 
- 	qdisc_reset(q->qdisc);
--	sch->qstats.backlog = 0;
--	sch->q.qlen = 0;
- 	red_restart(&q->vars);
- }
- 
-diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
-index 2829455211f8..1be8d04d69dc 100644
---- a/net/sched/sch_sfb.c
-+++ b/net/sched/sch_sfb.c
-@@ -456,8 +456,6 @@ static void sfb_reset(struct Qdisc *sch)
- 	struct sfb_sched_data *q = qdisc_priv(sch);
- 
- 	qdisc_reset(q->qdisc);
--	sch->qstats.backlog = 0;
--	sch->q.qlen = 0;
- 	q->slot = 0;
- 	q->double_buffering = false;
- 	sfb_zero_all_buckets(q);
-diff --git a/net/sched/sch_skbprio.c b/net/sched/sch_skbprio.c
-index 7a5e4c454715..df72fb83d9c7 100644
---- a/net/sched/sch_skbprio.c
-+++ b/net/sched/sch_skbprio.c
-@@ -213,9 +213,6 @@ static void skbprio_reset(struct Qdisc *sch)
- 	struct skbprio_sched_data *q = qdisc_priv(sch);
- 	int prio;
- 
--	sch->qstats.backlog = 0;
--	sch->q.qlen = 0;
--
- 	for (prio = 0; prio < SKBPRIO_MAX_PRIORITY; prio++)
- 		__skb_queue_purge(&q->qdiscs[prio]);
- 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index 86675a79da1e..5bffc37022e0 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1638,8 +1638,6 @@ static void taprio_reset(struct Qdisc *sch)
- 			if (q->qdiscs[i])
- 				qdisc_reset(q->qdiscs[i]);
- 	}
--	sch->qstats.backlog = 0;
--	sch->q.qlen = 0;
- }
- 
- static void taprio_destroy(struct Qdisc *sch)
-diff --git a/net/sched/sch_tbf.c b/net/sched/sch_tbf.c
-index 36079fdde2cb..e031c1a41ea6 100644
---- a/net/sched/sch_tbf.c
-+++ b/net/sched/sch_tbf.c
-@@ -330,8 +330,6 @@ static void tbf_reset(struct Qdisc *sch)
- 	struct tbf_sched_data *q = qdisc_priv(sch);
- 
- 	qdisc_reset(q->qdisc);
--	sch->qstats.backlog = 0;
--	sch->q.qlen = 0;
- 	q->t_c = ktime_get_ns();
- 	q->tokens = q->buffer;
- 	q->ptokens = q->mtu;
-diff --git a/net/sched/sch_teql.c b/net/sched/sch_teql.c
-index 6af6b95bdb67..79aaab51cbf5 100644
---- a/net/sched/sch_teql.c
-+++ b/net/sched/sch_teql.c
-@@ -124,7 +124,6 @@ teql_reset(struct Qdisc *sch)
- 	struct teql_sched_data *dat = qdisc_priv(sch);
- 
- 	skb_queue_purge(&dat->q);
--	sch->q.qlen = 0;
- }
- 
- static void
--- 
-2.35.1
-
+ 	/* em_ctl bits */
 
 
