@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 178A160FE56
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:04:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3CA260FE95
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:06:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236904AbiJ0REc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:04:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59080 "EHLO
+        id S236993AbiJ0RGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:06:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236906AbiJ0REb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7261A280
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:28 -0700 (PDT)
+        with ESMTP id S237002AbiJ0RGd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:06:33 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEBFC9A283
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:06:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF51D623F4
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE938C433D6;
-        Thu, 27 Oct 2022 17:04:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D4158CE279C
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:06:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B04A8C433C1;
+        Thu, 27 Oct 2022 17:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890267;
-        bh=dHgCOqQac2k6VqVlQ8ZVgvRsI/ShrLW//b/vFXFfhCU=;
+        s=korg; t=1666890388;
+        bh=lyVNjbGGbw8Mc+Ex9aAWO1Gqk+se1lMN0mqwKWEzix4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LvQwE6VML5HVH7KdZMcnipe5GLNJquPzaW/CzS/CqOx5OXLYK/L28dGgHhbTRLuOM
-         pzQuh0Sxp7bvKxaEHSFBGEW48ccb4LoKkqglLMADgTK0RrU3FhP9rdOglhjlC2tREg
-         42gVdrZHf5FDydrCrw4MvYHtib6Snm2iRRHd55t0=
+        b=fcqQF9vZipbEjmikSSEhM5jXkPiWZtxCSo8AsryoZsKPvVd0Cw4zS0UKBEJH519T9
+         U1x3uQIKRlxTdD2siNh8ReV/2Fg1BgoEWaeFdMvQKyyuBYWjMUXwDERGc93n8DhfPF
+         9M2UHyk9unU6YoK660j8uHFD3CLD/o/9qJq7sBi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,19 +36,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         Dmitry Vyukov <dvyukov@google.com>
-Subject: [PATCH 5.15 63/79] net: sched: fix race condition in qdisc_graft()
+Subject: [PATCH 5.10 51/79] net: sched: fix race condition in qdisc_graft()
 Date:   Thu, 27 Oct 2022 18:56:01 +0200
-Message-Id: <20221027165057.013212882@linuxfoundation.org>
+Message-Id: <20221027165056.064357953@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
-References: <20221027165054.917467648@linuxfoundation.org>
+In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
+References: <20221027165054.270676357@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -293,7 +294,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
-index 0fb387c9d706..5ab20c764aa5 100644
+index 6e18aa417782..d8ffe4114385 100644
 --- a/net/sched/sch_api.c
 +++ b/net/sched/sch_api.c
 @@ -1081,12 +1081,13 @@ static int qdisc_graft(struct net_device *dev, struct Qdisc *parent,
