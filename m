@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC1560FEB3
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:07:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9C5D60FEE2
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:09:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237040AbiJ0RHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:07:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39646 "EHLO
+        id S237084AbiJ0RJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:09:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237033AbiJ0RH3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:07:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E2119B651
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:07:28 -0700 (PDT)
+        with ESMTP id S237077AbiJ0RJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:09:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8E101A1B1E
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:09:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECB06B825F3
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:07:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58031C433D6;
-        Thu, 27 Oct 2022 17:07:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 590ED62401
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:09:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DAE6C433D6;
+        Thu, 27 Oct 2022 17:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890445;
-        bh=aZRmJFPk/qOTFbBThxUj4+zil2ckc29xlW5UzclKIo0=;
+        s=korg; t=1666890555;
+        bh=xZnQqsZqBGELzOyDRwvxIqgdsMm43RBlybNEonWmITE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IuzQfN3D+U7HHIGDdmpzZ5oODDNI8GDVWrvWwNZglt0qdOjviOwS1NQa3JfwKZ9Or
-         aIVkWXtyFZ3LOr+/3jwQzMHz9HosT8yqNkepyI9gFBki6hNHNlGzRQhJboHKnKFJQ3
-         Wu9O86vAJVVN9m4KwO5GYMhHZ3YQI+ORurN4+rc0=
+        b=kBN7LH0tF0tTIuEY93JJo9YRq6iguUetW6pqBsVe3FWxn7xSjvuZRdXqD4Jow+dr8
+         iRusZXoxIHIYqSeYXvjToM/KrvIT6WJkVBJVrsT/tHH4p1kLnAs2vRVk/8ZKaHD0/Y
+         mpE9YOlJhdRdEdHRJRu+LCFE6BUGbrH6UTcq4rY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Werner Sembach <wse@tuxedocomputers.com>
-Subject: [PATCH 5.10 74/79] [PATCH v3] ACPI: video: Force backlight native for more TongFang devices
+        patches@lists.linux.dev,
+        Jean-Francois Le Fillatre <jflf_kernel@gmx.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 36/53] r8152: add PID for the Lenovo OneLink+ Dock
 Date:   Thu, 27 Oct 2022 18:56:24 +0200
-Message-Id: <20221027165056.832755194@linuxfoundation.org>
+Message-Id: <20221027165051.185317391@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
+References: <20221027165049.817124510@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,115 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
 
-commit 3dbc80a3e4c55c4a5b89ef207bed7b7de36157b4 upstream.
+commit 1bd3a383075c64d638e65d263c9267b08ee7733c upstream.
 
-This commit is very different from the upstream commit! It fixes the same
-issue by adding more quirks, rather then the general fix from the 6.1
-kernel, because the general fix from the 6.1 kernel is part of a larger
-refactoring of the backlight code which is not suitable for the stable
-series.
+The Lenovo OneLink+ Dock contains an RTL8153 controller that behaves as
+a broken CDC device by default. Add the custom Lenovo PID to the r8152
+driver to support it properly.
 
-As described in "ACPI: video: Drop NL5x?U, PF4NU1F and PF5?U??
-acpi_backlight=native quirks" (10212754a0d2) the upstream commit "ACPI:
-video: Make backlight class device registration a separate step (v2)"
-(3dbc80a3e4c5) makes these quirks unnecessary. However as mentioned in this
-bugtracker ticket https://bugzilla.kernel.org/show_bug.cgi?id=215683#c17
-the upstream fix is part of a larger patchset that is overall too complex
-for stable.
+Also, systems compatible with this dock provide a BIOS option to enable
+MAC address passthrough (as per Lenovo document "ThinkPad Docking
+Solutions 2017"). Add the custom PID to the MAC passthrough list too.
 
-The TongFang GKxNRxx, GMxNGxx, GMxZGxx, and GMxRGxx / TUXEDO
-Stellaris/Polaris Gen 1-4, have the same problem as the Clevo NL5xRU and
-NL5xNU / TUXEDO Aura 15 Gen1 and Gen2:
-They have a working native and video interface for screen backlight.
-However the default detection mechanism first registers the video interface
-before unregistering it again and switching to the native interface during
-boot. This results in a dangling SBIOS request for backlight change for
-some reason, causing the backlight to switch to ~2% once per boot on the
-first power cord connect or disconnect event. Setting the native interface
-explicitly circumvents this buggy behaviour by avoiding the unregistering
-process.
+Tested on a ThinkPad 13 1st gen with the expected results:
 
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+passthrough disabled: Invalid header when reading pass-thru MAC addr
+passthrough enabled:  Using pass-thru MAC addr XX:XX:XX:XX:XX:XX
+
+Signed-off-by: Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/video_detect.c |   64 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 64 insertions(+)
+ drivers/net/usb/cdc_ether.c |    7 +++++++
+ drivers/net/usb/r8152.c     |    1 +
+ 2 files changed, 8 insertions(+)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -501,6 +501,70 @@ static const struct dmi_system_id video_
- 		},
- 	},
- 	/*
-+	 * More Tongfang devices with the same issue as the Clevo NL5xRU and
-+	 * NL5xNU/TUXEDO Aura 15 Gen1 and Gen2. See the description above.
-+	 */
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GKxNRxx",
-+	.matches = {
-+		DMI_MATCH(DMI_BOARD_NAME, "GKxNRxx"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GKxNRxx",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1501A1650TI"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GKxNRxx",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1501A2060"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GKxNRxx",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1701A1650TI"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GKxNRxx",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
-+		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1701A2060"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GMxNGxx",
-+	.matches = {
-+		DMI_MATCH(DMI_BOARD_NAME, "GMxNGxx"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GMxZGxx",
-+	.matches = {
-+		DMI_MATCH(DMI_BOARD_NAME, "GMxZGxx"),
-+		},
-+	},
-+	{
-+	.callback = video_detect_force_native,
-+	.ident = "TongFang GMxRGxx",
-+	.matches = {
-+		DMI_MATCH(DMI_BOARD_NAME, "GMxRGxx"),
-+		},
-+	},
-+	/*
- 	 * Desktops which falsely report a backlight and which our heuristics
- 	 * for this do not catch.
- 	 */
+--- a/drivers/net/usb/cdc_ether.c
++++ b/drivers/net/usb/cdc_ether.c
+@@ -764,6 +764,13 @@ static const struct usb_device_id	produc
+ },
+ #endif
+ 
++/* Lenovo ThinkPad OneLink+ Dock (based on Realtek RTL8153) */
++{
++	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0x3054, USB_CLASS_COMM,
++			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
++	.driver_info = 0,
++},
++
+ /* ThinkPad USB-C Dock (based on Realtek RTL8153) */
+ {
+ 	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0x3062, USB_CLASS_COMM,
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -5823,6 +5823,7 @@ static const struct usb_device_id rtl815
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x0927)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_SAMSUNG, 0xa101)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x304f)},
++	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x3054)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x3062)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x3069)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7205)},
 
 
