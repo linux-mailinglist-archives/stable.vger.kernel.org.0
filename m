@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2231A60FED8
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:09:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 791A360FE50
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:04:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237062AbiJ0RJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:09:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41592 "EHLO
+        id S236902AbiJ0REP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:04:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237072AbiJ0RI4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:08:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F8BC1A16F1
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:08:55 -0700 (PDT)
+        with ESMTP id S236904AbiJ0REO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F1C1196EE5
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D9DA62409
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:08:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27FD2C433C1;
-        Thu, 27 Oct 2022 17:08:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B71F2B825F3
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A103C433D6;
+        Thu, 27 Oct 2022 17:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890534;
-        bh=DllUdzXawUNWnoE6MmxjSukaoatZExZ2qvyaE7a+IMI=;
+        s=korg; t=1666890251;
+        bh=MVTfmYX0QFFFdyRPGQIPSNDoeBUAKnJl2pU2L0JmCa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mW/noB+teLAzkjswdHqhIQnQQO2Qmx0yGavnUcTOh7/FRNbmd9bBu5xmra4DeVl3t
-         Ep4FgybkPytmIE7ZdLu5WlxU0ZCoDXz5FH/tSuM09atb8riU+8kAVXNji1Wbc+F2RH
-         seBs4GZeEFBbDSAFI0YYnPHGmZk2E5Ho3FroqM0c=
+        b=o7AhvZ14XYO9KwfCps3A83epoEcOeTU5gLfMAWUuHkVPY8AHTonm4rHgkEDwiU/ZT
+         4IRBOegppj0oZLAImr/VFttXNnQeb1lSb8t1bPjTA82grk2pLirmW79NKWut1lKHdp
+         dJNGjxZ5FCfXUmt/Tz0THxP4ohrQXmPMYPzEC7pY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Yan Wang <wangyan122@huawei.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 28/53] ocfs2: fix BUG when iput after ocfs2_mknod fails
-Date:   Thu, 27 Oct 2022 18:56:16 +0200
-Message-Id: <20221027165050.868804329@linuxfoundation.org>
+        patches@lists.linux.dev, Seth Jenkins <sethjenkins@google.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>
+Subject: [PATCH 5.15 79/79] mm: /proc/pid/smaps_rollup: fix no vmas null-deref
+Date:   Thu, 27 Oct 2022 18:56:17 +0200
+Message-Id: <20221027165057.551168756@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
-References: <20221027165049.817124510@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,60 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
+From: Seth Jenkins <sethjenkins@google.com>
 
-commit 759a7c6126eef5635506453e9b9d55a6a3ac2084 upstream.
+Commit 258f669e7e88 ("mm: /proc/pid/smaps_rollup: convert to single value
+seq_file") introduced a null-deref if there are no vma's in the task in
+show_smaps_rollup.
 
-Commit b1529a41f777 "ocfs2: should reclaim the inode if
-'__ocfs2_mknod_locked' returns an error" tried to reclaim the claimed
-inode if __ocfs2_mknod_locked() fails later.  But this introduce a race,
-the freed bit may be reused immediately by another thread, which will
-update dinode, e.g.  i_generation.  Then iput this inode will lead to BUG:
-inode->i_generation != le32_to_cpu(fe->i_generation)
-
-We could make this inode as bad, but we did want to do operations like
-wipe in some cases.  Since the claimed inode bit can only affect that an
-dinode is missing and will return back after fsck, it seems not a big
-problem.  So just leave it as is by revert the reclaim logic.
-
-Link: https://lkml.kernel.org/r/20221017130227.234480-1-joseph.qi@linux.alibaba.com
-Fixes: b1529a41f777 ("ocfs2: should reclaim the inode if '__ocfs2_mknod_locked' returns an error")
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reported-by: Yan Wang <wangyan122@huawei.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 258f669e7e88 ("mm: /proc/pid/smaps_rollup: convert to single value seq_file")
+Signed-off-by: Seth Jenkins <sethjenkins@google.com>
+Reviewed-by: Alexey Dobriyan <adobriyan@gmail.com>
+Tested-by: Alexey Dobriyan <adobriyan@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/namei.c |   11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ fs/proc/task_mmu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ocfs2/namei.c
-+++ b/fs/ocfs2/namei.c
-@@ -630,18 +630,9 @@ static int ocfs2_mknod_locked(struct ocf
- 		return status;
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -951,7 +951,7 @@ static int show_smaps_rollup(struct seq_
+ 		vma = vma->vm_next;
  	}
  
--	status = __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
-+	return __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
- 				    parent_fe_bh, handle, inode_ac,
- 				    fe_blkno, suballoc_loc, suballoc_bit);
--	if (status < 0) {
--		u64 bg_blkno = ocfs2_which_suballoc_group(fe_blkno, suballoc_bit);
--		int tmp = ocfs2_free_suballoc_bits(handle, inode_ac->ac_inode,
--				inode_ac->ac_bh, suballoc_bit, bg_blkno, 1);
--		if (tmp)
--			mlog_errno(tmp);
--	}
--
--	return status;
- }
- 
- static int ocfs2_mkdir(struct inode *dir,
+-	show_vma_header_prefix(m, priv->mm->mmap->vm_start,
++	show_vma_header_prefix(m, priv->mm->mmap ? priv->mm->mmap->vm_start : 0,
+ 			       last_vma_end, 0, 0, 0, 0);
+ 	seq_pad(m, ' ');
+ 	seq_puts(m, "[rollup]\n");
 
 
