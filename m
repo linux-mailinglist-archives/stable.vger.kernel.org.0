@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D570760FDAB
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:57:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8319C60FDAC
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236194AbiJ0Q5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 12:57:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44800 "EHLO
+        id S236472AbiJ0Q5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 12:57:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236297AbiJ0Q5q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:57:46 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F151717A020
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:57:44 -0700 (PDT)
+        with ESMTP id S236571AbiJ0Q5s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:57:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F01C117E216
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:57:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6472ECE2795
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:57:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57471C433D6;
-        Thu, 27 Oct 2022 16:57:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D42BB82713
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:57:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F11B2C433C1;
+        Thu, 27 Oct 2022 16:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666889861;
-        bh=ctDoaIsOP2rYWd7Q262kfo6iRd/FhECtNZO7tuejpps=;
+        s=korg; t=1666889864;
+        bh=ywL33qZItllB0cMnef9dhGze3pM9dYzaYuQO0eR+CS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7OBORW3oMxfEOFzdro8R0yE9YgCRj8gugDCjCzYeuK+x2RjDz1SJP4/D6ZP+5N3X
-         +ivkHyQeiTyaCLjZabwMJR5fq2jkNfu1qVCkimA0BJK7RcJQshUjZX9pxSi2cDJZft
-         udQ3eKI2PLnN+luO8Sk1BP1ixTsiQg6kN5w5mbuo=
+        b=Wq9UZ/FwBxm15sBn+/F/tNmzDG862G4+jGyNc/xsnPvDa+iaMoGX3UDaJ9JxXJkHB
+         QMx7+YSdKmnsD32YU+H3Gyb/TRtZ09hHH9lH/hq65lEXZEYloUOWaVDhJTdeudIGRx
+         inEaxHi8PtqJmlscZFhZ45hWN6RACf+7EfnZpgJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 6.0 12/94] ata: ahci: Match EM_MAX_SLOTS with SATA_PMP_MAX_PORTS
-Date:   Thu, 27 Oct 2022 18:54:14 +0200
-Message-Id: <20221027165057.617800899@linuxfoundation.org>
+        patches@lists.linux.dev, Stephane Eranian <eranian@google.com>,
+        Babu Moger <babu.moger@amd.com>, Borislav Petkov <bp@suse.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>
+Subject: [PATCH 6.0 13/94] x86/resctrl: Fix min_cbm_bits for AMD
+Date:   Thu, 27 Oct 2022 18:54:15 +0200
+Message-Id: <20221027165057.646857289@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
 References: <20221027165057.208202132@linuxfoundation.org>
@@ -53,76 +56,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Babu Moger <babu.moger@amd.com>
 
-commit 1e41e693f458eef2d5728207dbd327cd3b16580a upstream.
+commit 67bf6493449b09590f9f71d7df29efb392b12d25 upstream.
 
-UBSAN complains about array-index-out-of-bounds:
-[ 1.980703] kernel: UBSAN: array-index-out-of-bounds in /build/linux-9H675w/linux-5.15.0/drivers/ata/libahci.c:968:41
-[ 1.980709] kernel: index 15 is out of range for type 'ahci_em_priv [8]'
-[ 1.980713] kernel: CPU: 0 PID: 209 Comm: scsi_eh_8 Not tainted 5.15.0-25-generic #25-Ubuntu
-[ 1.980716] kernel: Hardware name: System manufacturer System Product Name/P5Q3, BIOS 1102 06/11/2010
-[ 1.980718] kernel: Call Trace:
-[ 1.980721] kernel: <TASK>
-[ 1.980723] kernel: show_stack+0x52/0x58
-[ 1.980729] kernel: dump_stack_lvl+0x4a/0x5f
-[ 1.980734] kernel: dump_stack+0x10/0x12
-[ 1.980736] kernel: ubsan_epilogue+0x9/0x45
-[ 1.980739] kernel: __ubsan_handle_out_of_bounds.cold+0x44/0x49
-[ 1.980742] kernel: ahci_qc_issue+0x166/0x170 [libahci]
-[ 1.980748] kernel: ata_qc_issue+0x135/0x240
-[ 1.980752] kernel: ata_exec_internal_sg+0x2c4/0x580
-[ 1.980754] kernel: ? vprintk_default+0x1d/0x20
-[ 1.980759] kernel: ata_exec_internal+0x67/0xa0
-[ 1.980762] kernel: sata_pmp_read+0x8d/0xc0
-[ 1.980765] kernel: sata_pmp_read_gscr+0x3c/0x90
-[ 1.980768] kernel: sata_pmp_attach+0x8b/0x310
-[ 1.980771] kernel: ata_eh_revalidate_and_attach+0x28c/0x4b0
-[ 1.980775] kernel: ata_eh_recover+0x6b6/0xb30
-[ 1.980778] kernel: ? ahci_do_hardreset+0x180/0x180 [libahci]
-[ 1.980783] kernel: ? ahci_stop_engine+0xb0/0xb0 [libahci]
-[ 1.980787] kernel: ? ahci_do_softreset+0x290/0x290 [libahci]
-[ 1.980792] kernel: ? trace_event_raw_event_ata_eh_link_autopsy_qc+0xe0/0xe0
-[ 1.980795] kernel: sata_pmp_eh_recover.isra.0+0x214/0x560
-[ 1.980799] kernel: sata_pmp_error_handler+0x23/0x40
-[ 1.980802] kernel: ahci_error_handler+0x43/0x80 [libahci]
-[ 1.980806] kernel: ata_scsi_port_error_handler+0x2b1/0x600
-[ 1.980810] kernel: ata_scsi_error+0x9c/0xd0
-[ 1.980813] kernel: scsi_error_handler+0xa1/0x180
-[ 1.980817] kernel: ? scsi_unjam_host+0x1c0/0x1c0
-[ 1.980820] kernel: kthread+0x12a/0x150
-[ 1.980823] kernel: ? set_kthread_struct+0x50/0x50
-[ 1.980826] kernel: ret_from_fork+0x22/0x30
-[ 1.980831] kernel: </TASK>
+AMD systems support zero CBM (capacity bit mask) for cache allocation.
+That is reflected in rdt_init_res_defs_amd() by:
 
-This happens because sata_pmp_init_links() initialize link->pmp up to
-SATA_PMP_MAX_PORTS while em_priv is declared as 8 elements array.
+  r->cache.arch_has_empty_bitmaps = true;
 
-I can't find the maximum Enclosure Management ports specified in AHCI
-spec v1.3.1, but "12.2.1 LED message type" states that "Port Multiplier
-Information" can utilize 4 bits, which implies it can support up to 16
-ports. Hence, use SATA_PMP_MAX_PORTS as EM_MAX_SLOTS to resolve the
-issue.
+However given the unified code in cbm_validate(), checking for:
 
-BugLink: https://bugs.launchpad.net/bugs/1970074
-Cc: stable@vger.kernel.org
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+  val == 0 && !arch_has_empty_bitmaps
+
+is not enough because of another check in cbm_validate():
+
+  if ((zero_bit - first_bit) < r->cache.min_cbm_bits)
+
+The default value of r->cache.min_cbm_bits = 1.
+
+Leading to:
+
+  $ cd /sys/fs/resctrl
+  $ mkdir foo
+  $ cd foo
+  $ echo L3:0=0 > schemata
+    -bash: echo: write error: Invalid argument
+  $ cat /sys/fs/resctrl/info/last_cmd_status
+    Need at least 1 bits in the mask
+
+Initialize the min_cbm_bits to 0 for AMD. Also, remove the default
+setting of min_cbm_bits and initialize it separately.
+
+After the fix:
+
+  $ cd /sys/fs/resctrl
+  $ mkdir foo
+  $ cd foo
+  $ echo L3:0=0 > schemata
+  $ cat /sys/fs/resctrl/info/last_cmd_status
+    ok
+
+Fixes: 316e7f901f5a ("x86/resctrl: Add struct rdt_cache::arch_has_{sparse, empty}_bitmaps")
+Co-developed-by: Stephane Eranian <eranian@google.com>
+Signed-off-by: Stephane Eranian <eranian@google.com>
+Signed-off-by: Babu Moger <babu.moger@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: James Morse <james.morse@arm.com>
+Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
+Reviewed-by: Fenghua Yu <fenghua.yu@intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/lkml/20220517001234.3137157-1-eranian@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/ahci.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/resctrl/core.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/ata/ahci.h
-+++ b/drivers/ata/ahci.h
-@@ -252,7 +252,7 @@ enum {
- 	PCS_7				= 0x94, /* 7+ port PCS (Denverton) */
- 
- 	/* em constants */
--	EM_MAX_SLOTS			= 8,
-+	EM_MAX_SLOTS			= SATA_PMP_MAX_PORTS,
- 	EM_MAX_RETRY			= 5,
- 
- 	/* em_ctl bits */
+--- a/arch/x86/kernel/cpu/resctrl/core.c
++++ b/arch/x86/kernel/cpu/resctrl/core.c
+@@ -66,9 +66,6 @@ struct rdt_hw_resource rdt_resources_all
+ 			.rid			= RDT_RESOURCE_L3,
+ 			.name			= "L3",
+ 			.cache_level		= 3,
+-			.cache = {
+-				.min_cbm_bits	= 1,
+-			},
+ 			.domains		= domain_init(RDT_RESOURCE_L3),
+ 			.parse_ctrlval		= parse_cbm,
+ 			.format_str		= "%d=%0*x",
+@@ -83,9 +80,6 @@ struct rdt_hw_resource rdt_resources_all
+ 			.rid			= RDT_RESOURCE_L2,
+ 			.name			= "L2",
+ 			.cache_level		= 2,
+-			.cache = {
+-				.min_cbm_bits	= 1,
+-			},
+ 			.domains		= domain_init(RDT_RESOURCE_L2),
+ 			.parse_ctrlval		= parse_cbm,
+ 			.format_str		= "%d=%0*x",
+@@ -877,6 +871,7 @@ static __init void rdt_init_res_defs_int
+ 			r->cache.arch_has_sparse_bitmaps = false;
+ 			r->cache.arch_has_empty_bitmaps = false;
+ 			r->cache.arch_has_per_cpu_cfg = false;
++			r->cache.min_cbm_bits = 1;
+ 		} else if (r->rid == RDT_RESOURCE_MBA) {
+ 			hw_res->msr_base = MSR_IA32_MBA_THRTL_BASE;
+ 			hw_res->msr_update = mba_wrmsr_intel;
+@@ -897,6 +892,7 @@ static __init void rdt_init_res_defs_amd
+ 			r->cache.arch_has_sparse_bitmaps = true;
+ 			r->cache.arch_has_empty_bitmaps = true;
+ 			r->cache.arch_has_per_cpu_cfg = true;
++			r->cache.min_cbm_bits = 0;
+ 		} else if (r->rid == RDT_RESOURCE_MBA) {
+ 			hw_res->msr_base = MSR_IA32_MBA_BW_BASE;
+ 			hw_res->msr_update = mba_wrmsr_amd;
 
 
