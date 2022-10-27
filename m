@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C07F160FDF2
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:00:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BC0A60FE14
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236804AbiJ0RAp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:00:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52732 "EHLO
+        id S236839AbiJ0RCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:02:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236806AbiJ0RAo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:00:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A4B5A2852
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:00:43 -0700 (PDT)
+        with ESMTP id S236865AbiJ0RCA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:02:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9FF418A003
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:01:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E893BB82717
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:00:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49554C433C1;
-        Thu, 27 Oct 2022 17:00:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FC9EB82716
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:01:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF755C433C1;
+        Thu, 27 Oct 2022 17:01:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890040;
-        bh=iBeqD2U8u/o1LFBzNgl8bPntYvGiDIAVwfGxdmaDc8Q=;
+        s=korg; t=1666890117;
+        bh=MRrnJxislD4gy6filXLju1grSmj1JhPrt+Kdn7cyN1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sgGT5NCVRRRu0A6qzD1GKBx04tbGnH0Q06E671pnB1AN+Nt2ZDf0KXSE0FoAnrirQ
-         D7jSYh9QoVfRAOARciBFalc/hOG2x+Hn5aFayU0L/qd2Q8SXkp49tBFPxgZjZ353+B
-         ElvFEUca/hd+RvQ3nznJMf5FugSlwHMVLf0ZObZQ=
+        b=K1xAfb3zq+EKRQPyD4XzOjet7IOj5PEWOz/eY4x+XuJNgethhttIJ/RrZio18E4Ol
+         al2c9r7Lxt/8HEMiqp95XwLDkRKHL214H/uA6nlUvT91tMYNkFrbyY7Gpcg7YMBbDz
+         ZhiUY3ax7TWCKXlrImLZ8bzRHHIIvda0EBwKxHNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        =?UTF-8?q?=C5=81ukasz=20Bartosik?= <ukaszb@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 64/94] drm/amd/display: Increase frame size limit for display_mode_vba_util_32.o
-Date:   Thu, 27 Oct 2022 18:55:06 +0200
-Message-Id: <20221027165059.744651675@linuxfoundation.org>
+        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.15 09/79] perf/x86/intel/pt: Relax address filter validation
+Date:   Thu, 27 Oct 2022 18:55:07 +0200
+Message-Id: <20221027165055.266034106@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
-References: <20221027165057.208202132@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +52,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 8a70b2d89ea3f2dc1449f0634ca6befb41472f24 ]
+commit c243cecb58e3905baeace8827201c14df8481e2a upstream.
 
-Building 32-bit images may fail with the following error.
+The requirement for 64-bit address filters is that they are canonical
+addresses. In other respects any address range is allowed which would
+include user space addresses.
 
-drivers/gpu/drm/amd/amdgpu/../display/dc/dml/dcn32/display_mode_vba_util_32.c:
-	In function ‘dml32_UseMinimumDCFCLK’:
-drivers/gpu/drm/amd/amdgpu/../display/dc/dml/dcn32/display_mode_vba_util_32.c:3142:1:
-	error: the frame size of 1096 bytes is larger than 1024 bytes
+That can be useful for tracing virtual machine guests because address
+filtering can be used to advantage in place of current privilege level
+(CPL) filtering.
 
-This is seen when building i386:allmodconfig with any of the following
-compilers.
-
-	gcc (Debian 12.2.0-3) 12.2.0
-	gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
-
-The problem is not seen if the compiler supports GCC_PLUGIN_LATENT_ENTROPY
-because in that case CONFIG_FRAME_WARN is already set to 2048 even for
-32-bit builds.
-
-dml32_UseMinimumDCFCLK() was introduced with commit dda4fb85e433
-("drm/amd/display: DML changes for DCN32/321"). It declares a large
-number of local variables. Increase the frame size for the affected
-file to 2048, similar to other files in the same directory, to enable
-32-bit build tests with affected compilers.
-
-Fixes: dda4fb85e433 ("drm/amd/display: DML changes for DCN32/321")
-Cc: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Reported-by: Łukasz Bartosik <ukaszb@google.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220131072453.2839535-2-adrian.hunter@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/intel/pt.c |   63 +++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 50 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/Makefile b/drivers/gpu/drm/amd/display/dc/dml/Makefile
-index cb81ed2fbd53..d0c6cf61c676 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/Makefile
-+++ b/drivers/gpu/drm/amd/display/dc/dml/Makefile
-@@ -77,7 +77,7 @@ CFLAGS_$(AMDDALPATH)/dc/dml/dcn30/dcn30_fpu.o := $(dml_ccflags)
- CFLAGS_$(AMDDALPATH)/dc/dml/dcn32/dcn32_fpu.o := $(dml_ccflags)
- CFLAGS_$(AMDDALPATH)/dc/dml/dcn32/display_mode_vba_32.o := $(dml_ccflags) $(frame_warn_flag)
- CFLAGS_$(AMDDALPATH)/dc/dml/dcn32/display_rq_dlg_calc_32.o := $(dml_ccflags)
--CFLAGS_$(AMDDALPATH)/dc/dml/dcn32/display_mode_vba_util_32.o := $(dml_ccflags)
-+CFLAGS_$(AMDDALPATH)/dc/dml/dcn32/display_mode_vba_util_32.o := $(dml_ccflags) $(frame_warn_flag)
- CFLAGS_$(AMDDALPATH)/dc/dml/dcn321/dcn321_fpu.o := $(dml_ccflags)
- CFLAGS_$(AMDDALPATH)/dc/dml/dcn31/dcn31_fpu.o := $(dml_ccflags)
- CFLAGS_$(AMDDALPATH)/dc/dml/dcn301/dcn301_fpu.o := $(dml_ccflags)
--- 
-2.35.1
-
+--- a/arch/x86/events/intel/pt.c
++++ b/arch/x86/events/intel/pt.c
+@@ -13,6 +13,8 @@
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
+ #include <linux/types.h>
++#include <linux/bits.h>
++#include <linux/limits.h>
+ #include <linux/slab.h>
+ #include <linux/device.h>
+ 
+@@ -1348,11 +1350,37 @@ static void pt_addr_filters_fini(struct
+ 	event->hw.addr_filters = NULL;
+ }
+ 
+-static inline bool valid_kernel_ip(unsigned long ip)
++#ifdef CONFIG_X86_64
++static u64 canonical_address(u64 vaddr, u8 vaddr_bits)
+ {
+-	return virt_addr_valid(ip) && kernel_ip(ip);
++	return ((s64)vaddr << (64 - vaddr_bits)) >> (64 - vaddr_bits);
+ }
+ 
++static u64 is_canonical_address(u64 vaddr, u8 vaddr_bits)
++{
++	return canonical_address(vaddr, vaddr_bits) == vaddr;
++}
++
++/* Clamp to a canonical address greater-than-or-equal-to the address given */
++static u64 clamp_to_ge_canonical_addr(u64 vaddr, u8 vaddr_bits)
++{
++	return is_canonical_address(vaddr, vaddr_bits) ?
++	       vaddr :
++	       -BIT_ULL(vaddr_bits - 1);
++}
++
++/* Clamp to a canonical address less-than-or-equal-to the address given */
++static u64 clamp_to_le_canonical_addr(u64 vaddr, u8 vaddr_bits)
++{
++	return is_canonical_address(vaddr, vaddr_bits) ?
++	       vaddr :
++	       BIT_ULL(vaddr_bits - 1) - 1;
++}
++#else
++#define clamp_to_ge_canonical_addr(x, y) (x)
++#define clamp_to_le_canonical_addr(x, y) (x)
++#endif
++
+ static int pt_event_addr_filters_validate(struct list_head *filters)
+ {
+ 	struct perf_addr_filter *filter;
+@@ -1367,14 +1395,6 @@ static int pt_event_addr_filters_validat
+ 		    filter->action == PERF_ADDR_FILTER_ACTION_START)
+ 			return -EOPNOTSUPP;
+ 
+-		if (!filter->path.dentry) {
+-			if (!valid_kernel_ip(filter->offset))
+-				return -EINVAL;
+-
+-			if (!valid_kernel_ip(filter->offset + filter->size))
+-				return -EINVAL;
+-		}
+-
+ 		if (++range > intel_pt_validate_hw_cap(PT_CAP_num_address_ranges))
+ 			return -EOPNOTSUPP;
+ 	}
+@@ -1398,9 +1418,26 @@ static void pt_event_addr_filters_sync(s
+ 		if (filter->path.dentry && !fr[range].start) {
+ 			msr_a = msr_b = 0;
+ 		} else {
+-			/* apply the offset */
+-			msr_a = fr[range].start;
+-			msr_b = msr_a + fr[range].size - 1;
++			unsigned long n = fr[range].size - 1;
++			unsigned long a = fr[range].start;
++			unsigned long b;
++
++			if (a > ULONG_MAX - n)
++				b = ULONG_MAX;
++			else
++				b = a + n;
++			/*
++			 * Apply the offset. 64-bit addresses written to the
++			 * MSRs must be canonical, but the range can encompass
++			 * non-canonical addresses. Since software cannot
++			 * execute at non-canonical addresses, adjusting to
++			 * canonical addresses does not affect the result of the
++			 * address filter.
++			 */
++			msr_a = clamp_to_ge_canonical_addr(a, boot_cpu_data.x86_virt_bits);
++			msr_b = clamp_to_le_canonical_addr(b, boot_cpu_data.x86_virt_bits);
++			if (msr_b < msr_a)
++				msr_a = msr_b = 0;
+ 		}
+ 
+ 		filters->filter[range].msr_a  = msr_a;
 
 
