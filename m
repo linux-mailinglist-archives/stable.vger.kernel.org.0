@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AC0E60FDEA
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8065260FE0F
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:01:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236800AbiJ0RAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:00:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51364 "EHLO
+        id S236807AbiJ0RBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:01:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236807AbiJ0RAV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:00:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D36E3537C3
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:00:20 -0700 (PDT)
+        with ESMTP id S236832AbiJ0RBp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:01:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BC3F18A003
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:01:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EE18623EB
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:00:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F3C3C433D6;
-        Thu, 27 Oct 2022 17:00:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF3D1B824DB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:01:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B88CC433D6;
+        Thu, 27 Oct 2022 17:01:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890019;
-        bh=a1jIbIzqo+w3hh9k+/KBw+rZONWwf5XhxMOVe+waEO4=;
+        s=korg; t=1666890101;
+        bh=KrRYlPGQynvcoD19wUnsGywiM7M3EFf5vrk88XWMTZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L05TwE6IMg3LzUj/9sPXSmUZwxjkfWPlgbjebBqJ19ygYqOdZCO9syqggW9yyThOw
-         K+8MHwJwoSTwOthbY9Qexfdx7id+t7Yig+pzLNlBKoxsTUUJjNjjqYQNrZvbK/RAM4
-         xqvm+8ZIAutaUTSaVdjBjW8fsqolUxsKSHZ2XX5k=
+        b=apyIRBrX+OVvqCxfN2QvIY8lfAYalrkPxklIBNngbnh0ysR7REzB0PkynOCT7bL/c
+         OiWdMWOzcACHCjVCWA1gpNZo79s2bPoOpC6qe2Z9n4XHtDCCyO0ixACNOhY1OkPUaB
+         +xS8Nf0PdkxEE4W9wjIrRUGYWEbigVhk7GtF9tEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 59/94] cifs: Fix xid leak in cifs_copy_file_range()
+        patches@lists.linux.dev, Paul Elder <paul.elder@ideasonboard.com>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Dan Vacura <w36195@motorola.com>
+Subject: [PATCH 5.15 03/79] usb: gadget: uvc: consistently use define for headerlen
 Date:   Thu, 27 Oct 2022 18:55:01 +0200
-Message-Id: <20221027165059.553542434@linuxfoundation.org>
+Message-Id: <20221027165055.038620713@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
-References: <20221027165057.208202132@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-[ Upstream commit 9a97df404a402fe1174d2d1119f87ff2a0ca2fe9 ]
+commit 859c675d84d488e2f9b515c713ea890c9f045f0c upstream.
 
-If the file is used by swap, before return -EOPNOTSUPP, should
-free the xid, otherwise, the xid will be leaked.
+The uvc request headerlen of 2 was defined as UVCG_REQUEST_HEADER_LEN
+in commit e81e7f9a0eb9 ("usb: gadget: uvc: add scatter gather support").
+We missed to use it consistently. This patch fixes that.
 
-Fixes: 4e8aea30f775 ("smb3: enable swap on SMB3 mounts")
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Link: https://lore.kernel.org/r/20211018072059.11465-1-m.grzeschik@pengutronix.de
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Dan Vacura <w36195@motorola.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/cifsfs.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/uvc.h       |    4 +++-
+ drivers/usb/gadget/function/uvc_video.c |    6 +++---
+ drivers/usb/gadget/function/uvc_video.h |    2 --
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-index 8042d7280dec..6bc8be9ed2a5 100644
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -1297,8 +1297,11 @@ static ssize_t cifs_copy_file_range(struct file *src_file, loff_t off,
- 	ssize_t rc;
- 	struct cifsFileInfo *cfile = dst_file->private_data;
+--- a/drivers/usb/gadget/function/uvc.h
++++ b/drivers/usb/gadget/function/uvc.h
+@@ -69,6 +69,8 @@ extern unsigned int uvc_gadget_trace_par
+ #define UVC_MAX_REQUEST_SIZE			64
+ #define UVC_MAX_EVENTS				4
  
--	if (cfile->swapfile)
--		return -EOPNOTSUPP;
-+	if (cfile->swapfile) {
-+		rc = -EOPNOTSUPP;
-+		free_xid(xid);
-+		return rc;
-+	}
++#define UVCG_REQUEST_HEADER_LEN			2
++
+ /* ------------------------------------------------------------------------
+  * Structures
+  */
+@@ -77,7 +79,7 @@ struct uvc_request {
+ 	u8 *req_buffer;
+ 	struct uvc_video *video;
+ 	struct sg_table sgt;
+-	u8 header[2];
++	u8 header[UVCG_REQUEST_HEADER_LEN];
+ };
  
- 	rc = cifs_file_copychunk_range(xid, src_file, off, dst_file, destoff,
- 					len, flags);
--- 
-2.35.1
-
+ struct uvc_video {
+--- a/drivers/usb/gadget/function/uvc_video.c
++++ b/drivers/usb/gadget/function/uvc_video.c
+@@ -33,7 +33,7 @@ uvc_video_encode_header(struct uvc_video
+ 	if (buf->bytesused - video->queue.buf_used <= len - UVCG_REQUEST_HEADER_LEN)
+ 		data[1] |= UVC_STREAM_EOF;
+ 
+-	return 2;
++	return UVCG_REQUEST_HEADER_LEN;
+ }
+ 
+ static int
+@@ -302,8 +302,8 @@ uvc_video_alloc_requests(struct uvc_vide
+ 		list_add_tail(&video->ureq[i].req->list, &video->req_free);
+ 		/* req_size/PAGE_SIZE + 1 for overruns and + 1 for header */
+ 		sg_alloc_table(&video->ureq[i].sgt,
+-			       DIV_ROUND_UP(req_size - 2, PAGE_SIZE) + 2,
+-			       GFP_KERNEL);
++			       DIV_ROUND_UP(req_size - UVCG_REQUEST_HEADER_LEN,
++					    PAGE_SIZE) + 2, GFP_KERNEL);
+ 	}
+ 
+ 	video->req_size = req_size;
+--- a/drivers/usb/gadget/function/uvc_video.h
++++ b/drivers/usb/gadget/function/uvc_video.h
+@@ -12,8 +12,6 @@
+ #ifndef __UVC_VIDEO_H__
+ #define __UVC_VIDEO_H__
+ 
+-#define UVCG_REQUEST_HEADER_LEN			2
+-
+ struct uvc_video;
+ 
+ int uvcg_video_enable(struct uvc_video *video, int enable);
 
 
