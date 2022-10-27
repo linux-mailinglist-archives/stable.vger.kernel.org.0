@@ -2,154 +2,13886 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA69C60F6DA
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 14:10:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB7660F6EF
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 14:16:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234790AbiJ0MKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 08:10:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36960 "EHLO
+        id S229379AbiJ0MP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 08:15:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233971AbiJ0MKi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 08:10:38 -0400
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C246B97ED7;
-        Thu, 27 Oct 2022 05:10:37 -0700 (PDT)
-Received: from linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net (linux.microsoft.com [13.77.154.182])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 7839720F06A3;
-        Thu, 27 Oct 2022 05:10:37 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 7839720F06A3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1666872637;
-        bh=oPoYxf92pQI9GMHdlC4nr330p9SHzntFV3KDZDy4k70=;
-        h=From:To:Cc:Subject:Date:From;
-        b=LaPEmaiUSUuVpRwykG6hnRCDPSesIpnUZIipLIkDS7c+mkGhgS6p1Czx3jcDdph4X
-         ul54US2nLM/MWwz0ZtFBwdwawx6Iof+G64tJNm1hhpzBDEZnhUjoTQ75eQfuiFLpZ+
-         BVr557m+MJLiAxiZoqohyGhdo8VqI7Oz5M6FSGtM=
-From:   Gaurav Kohli <gauravkohli@linux.microsoft.com>
-To:     stable@vger.kernel.org, gauravkohli@linux.microsoft.com
-Cc:     gregkh@linuxfoundation.org, haiyangz@microsoft.com,
-        davem@davemloft.net, linux-hyperv@vger.kernel.org
-Subject: [PATCH 5.4] hv_netvsc: Fix race between VF offering and VF association message from host
-Date:   Thu, 27 Oct 2022 05:10:32 -0700
-Message-Id: <1666872632-8476-1-git-send-email-gauravkohli@linux.microsoft.com>
-X-Mailer: git-send-email 1.8.3.1
-X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
-X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
-        lindbergh.monkeyblade.net
+        with ESMTP id S234698AbiJ0MP6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 08:15:58 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C81B0D8F51
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 05:15:57 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id d24so1259063pls.4
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 05:15:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=zWzuBpyZ2BQ0Qviad7bhaXnvt+XSa/aFA2kHLoUpCJU=;
+        b=Yx0WZ5POnOtgkTPYvA4ckCCecbpFddNqdc3g2+YifZ6oxvIdLlU7lsDPa6h2pxXQhN
+         htOJiZnGY+KPm3nvTR5HZkY0lQfMXvNRpJHW6S5JdRdorcdBdvzYaPkSkfYQM/CpppCJ
+         lQ+IANJtUPGWmW5Jf2dvGKZU+fb1fAK3I6iP6LwZJLjSKnmTjM2MSoSXn3vE4FjOkjNQ
+         NFSjCvAOZEtQB1DkI+V/j+trS8uMjYeg6fKzHc3Qsh/6Sk/UdUnUzsNHgXr/d4267Vkd
+         F3eTsv0yMfSbL7qI8xtUcjfsXOhwf/femYm1YZ1GFqg+a0JI8VVoUIVsJuS8LcymJYC1
+         qo9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zWzuBpyZ2BQ0Qviad7bhaXnvt+XSa/aFA2kHLoUpCJU=;
+        b=dml1/VrY8xhhKQ4lZvEXsLxWQQbbPvHaTUC8aRhKPwdATBAOGSsGiqXEBrV4AELCsD
+         Num4AsfC/1Fxow4BnAyZ1rxQJP96XN+Ga/f9dsxNcycbUG9mvvmJsqiDwHX5x6rE0XsN
+         uu7b+NoA7YDq6Kvve+5uycmY7jzTzxxXVR87B8YQFCFzQ9RacdHsIaLJraD/obXl4+pd
+         08RiqJh4sNHfpcekjQpmh+sfTqi/jFBfAUYxTIyhLT3lySK7iQgBZw54pzD7iT/ItPWC
+         zH8pM5X9i5baOYiQrMuO4qNhflAcGtAodkjshtQ7ZkKLZ5VeSHG2FDjUkf7WCoK8Z2u9
+         bhwg==
+X-Gm-Message-State: ACrzQf0mhlsD9MGTn63RlkgbAIU1h462XV0SGkyAfou8oGlE7k30Henf
+        aVRDtGl9yb7bZcri0T348oQmo37n2Raz9w1N
+X-Google-Smtp-Source: AMsMyM63DvyHg5yoTsBqO5c+sjMxzWjXnzRp9wS7uzQZdKlCrXwwU09GR8rEs/EG3GtwtGwJ49So4w==
+X-Received: by 2002:a17:90b:4a09:b0:20c:316d:e58b with SMTP id kk9-20020a17090b4a0900b0020c316de58bmr9946115pjb.217.1666872955309;
+        Thu, 27 Oct 2022 05:15:55 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d4-20020a63fd04000000b00442c70b659esm931624pgh.91.2022.10.27.05.15.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Oct 2022 05:15:54 -0700 (PDT)
+Message-ID: <635a767a.630a0220.c39e6.1614@mx.google.com>
+Date:   Thu, 27 Oct 2022 05:15:54 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v5.10.150-76-g7abacb629ab9
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.10 build: 185 builds: 3 failed, 182 passed,
+ 12187 errors, 9 warnings (v5.10.150-76-g7abacb629ab9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 365e1ececb2905f94cc10a5817c5b644a32a3ae2 ]
+stable-rc/queue/5.10 build: 185 builds: 3 failed, 182 passed, 12187 errors,=
+ 9 warnings (v5.10.150-76-g7abacb629ab9)
 
-During vm boot, there might be possibility that vf registration
-call comes before the vf association from host to vm.
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+0/kernel/v5.10.150-76-g7abacb629ab9/
 
-And this might break netvsc vf path, To prevent the same block
-vf registration until vf bind message comes from host.
+Tree: stable-rc
+Branch: queue/5.10
+Git Describe: v5.10.150-76-g7abacb629ab9
+Git Commit: 7abacb629ab9f636118ca3d35cfc37c974c3cbde
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
-Cc: stable@vger.kernel.org
-Fixes: 00d7ddba11436 ("hv_netvsc: pair VF based on serial number")
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Gaurav Kohli <gauravkohli@linux.microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Build Failures Detected:
+
+arm:
+    rpc_defconfig: (gcc-10) FAIL
+
+mips:
+    ip27_defconfig: (gcc-10) FAIL
+    ip28_defconfig: (gcc-10) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+    allnoconfig (gcc-10): 36 errors
+    axs103_defconfig (gcc-10): 70 errors
+    axs103_smp_defconfig (gcc-10): 70 errors
+    haps_hs_defconfig (gcc-10): 68 errors
+    haps_hs_smp_defconfig (gcc-10): 68 errors
+    hsdk_defconfig (gcc-10): 70 errors
+    nsimosci_hs_defconfig (gcc-10): 68 errors
+    nsimosci_hs_smp_defconfig (gcc-10): 68 errors
+    tinyconfig (gcc-10): 36 errors
+    vdk_hs38_defconfig (gcc-10): 33 errors
+    vdk_hs38_smp_defconfig (gcc-10): 33 errors
+
+arm64:
+    defconfig (gcc-10): 65 errors
+    defconfig+arm64-chromebook (gcc-10): 69 errors
+
+arm:
+    am200epdkit_defconfig (gcc-10): 72 errors
+    aspeed_g4_defconfig (gcc-10): 33 errors
+    aspeed_g5_defconfig (gcc-10): 33 errors
+    assabet_defconfig (gcc-10): 70 errors
+    at91_dt_defconfig (gcc-10): 70 errors
+    axm55xx_defconfig (gcc-10): 70 errors
+    badge4_defconfig (gcc-10): 74 errors
+    bcm2835_defconfig (gcc-10): 72 errors
+    cerfcube_defconfig (gcc-10): 70 errors
+    cm_x300_defconfig (gcc-10): 72 errors
+    colibri_pxa270_defconfig (gcc-10): 72 errors
+    colibri_pxa300_defconfig (gcc-10): 72 errors
+    collie_defconfig (gcc-10): 33 errors
+    corgi_defconfig (gcc-10): 74 errors
+    davinci_all_defconfig (gcc-10): 70 errors
+    dove_defconfig (gcc-10): 72 errors
+    ebsa110_defconfig (gcc-10): 70 errors
+    efm32_defconfig (gcc-10): 36 errors
+    ep93xx_defconfig (gcc-10): 74 errors
+    eseries_pxa_defconfig (gcc-10): 72 errors
+    exynos_defconfig (gcc-10): 70 errors
+    ezx_defconfig (gcc-10): 72 errors
+    footbridge_defconfig (gcc-10): 70 errors
+    gemini_defconfig (gcc-10): 33 errors
+    h3600_defconfig (gcc-10): 70 errors
+    h5000_defconfig (gcc-10): 72 errors
+    hackkit_defconfig (gcc-10): 70 errors
+    hisi_defconfig (gcc-10): 33 errors
+    imote2_defconfig (gcc-10): 72 errors
+    imx_v4_v5_defconfig (gcc-10): 72 errors
+    imx_v6_v7_defconfig (gcc-10): 70 errors
+    integrator_defconfig (gcc-10): 72 errors
+    iop32x_defconfig (gcc-10): 70 errors
+    ixp4xx_defconfig (gcc-10): 70 errors
+    jornada720_defconfig (gcc-10): 70 errors
+    keystone_defconfig (gcc-10): 72 errors
+    lart_defconfig (gcc-10): 70 errors
+    lpc18xx_defconfig (gcc-10): 37 errors
+    lpc32xx_defconfig (gcc-10): 74 errors
+    lpd270_defconfig (gcc-10): 72 errors
+    lubbock_defconfig (gcc-10): 72 errors
+    magician_defconfig (gcc-10): 72 errors
+    mainstone_defconfig (gcc-10): 72 errors
+    milbeaut_m10v_defconfig (gcc-10): 70 errors
+    mini2440_defconfig (gcc-10): 70 errors
+    mmp2_defconfig (gcc-10): 72 errors
+    moxart_defconfig (gcc-10): 37 errors
+    mps2_defconfig (gcc-10): 37 errors
+    multi_v4t_defconfig (gcc-10): 38 errors
+    multi_v5_defconfig (gcc-10): 86 errors
+    multi_v7_defconfig (gcc-10): 140 errors
+    mvebu_v5_defconfig (gcc-10): 76 errors
+    mvebu_v7_defconfig (gcc-10): 72 errors
+    mxs_defconfig (gcc-10): 70 errors
+    neponset_defconfig (gcc-10): 70 errors
+    netwinder_defconfig (gcc-10): 33 errors
+    nhk8815_defconfig (gcc-10): 70 errors
+    omap1_defconfig (gcc-10): 74 errors
+    omap2plus_defconfig (gcc-10): 74 errors
+    orion5x_defconfig (gcc-10): 74 errors
+    oxnas_v6_defconfig (gcc-10): 70 errors
+    palmz72_defconfig (gcc-10): 72 errors
+    pcm027_defconfig (gcc-10): 72 errors
+    pleb_defconfig (gcc-10): 70 errors
+    prima2_defconfig (gcc-10): 70 errors
+    pxa168_defconfig (gcc-10): 72 errors
+    pxa255-idp_defconfig (gcc-10): 72 errors
+    pxa3xx_defconfig (gcc-10): 72 errors
+    pxa910_defconfig (gcc-10): 72 errors
+    pxa_defconfig (gcc-10): 74 errors
+    qcom_defconfig (gcc-10): 72 errors
+    realview_defconfig (gcc-10): 72 errors
+    rpc_defconfig (gcc-10): 16 errors
+    s3c2410_defconfig (gcc-10): 70 errors
+    s3c6400_defconfig (gcc-10): 70 errors
+    s5pv210_defconfig (gcc-10): 70 errors
+    sama5_defconfig (gcc-10): 70 errors
+    shannon_defconfig (gcc-10): 70 errors
+    shmobile_defconfig (gcc-10): 33 errors
+    simpad_defconfig (gcc-10): 70 errors
+    socfpga_defconfig (gcc-10): 72 errors
+    spear13xx_defconfig (gcc-10): 70 errors
+    spear3xx_defconfig (gcc-10): 70 errors
+    spear6xx_defconfig (gcc-10): 70 errors
+    spitz_defconfig (gcc-10): 74 errors
+    stm32_defconfig (gcc-10): 36 errors
+    sunxi_defconfig (gcc-10): 70 errors
+    tango4_defconfig (gcc-10): 70 errors
+    tct_hammer_defconfig (gcc-10): 70 errors
+    tegra_defconfig (gcc-10): 70 errors
+    trizeps4_defconfig (gcc-10): 72 errors
+    u300_defconfig (gcc-10): 70 errors
+    u8500_defconfig (gcc-10): 70 errors
+    versatile_defconfig (gcc-10): 72 errors
+    vexpress_defconfig (gcc-10): 74 errors
+    vf610m4_defconfig (gcc-10): 32 errors
+    viper_defconfig (gcc-10): 72 errors
+    vt8500_v6_v7_defconfig (gcc-10): 33 errors
+    xcep_defconfig (gcc-10): 76 errors
+    zeus_defconfig (gcc-10): 72 errors
+    zx_defconfig (gcc-10): 33 errors
+
+i386:
+    allnoconfig (gcc-10): 35 errors
+    i386_defconfig (gcc-10): 73 errors
+    tinyconfig (gcc-10): 35 errors
+
+mips:
+    32r2el_defconfig (gcc-10): 85 errors, 1 warning
+    ar7_defconfig (gcc-10): 77 errors
+    ath25_defconfig (gcc-10): 77 errors
+    ath79_defconfig (gcc-10): 75 errors
+    bcm47xx_defconfig (gcc-10): 77 errors
+    bcm63xx_defconfig (gcc-10): 37 errors
+    bigsur_defconfig (gcc-10): 84 errors
+    bmips_be_defconfig (gcc-10): 36 errors
+    bmips_stb_defconfig (gcc-10): 36 errors
+    capcella_defconfig (gcc-10): 79 errors
+    cavium_octeon_defconfig (gcc-10): 86 errors
+    ci20_defconfig (gcc-10): 75 errors
+    cobalt_defconfig (gcc-10): 79 errors
+    cu1000-neo_defconfig (gcc-10): 35 errors
+    cu1830-neo_defconfig (gcc-10): 35 errors
+    db1xxx_defconfig (gcc-10): 37 errors
+    decstation_64_defconfig (gcc-10): 84 errors, 1 warning
+    decstation_defconfig (gcc-10): 81 errors, 1 warning
+    decstation_r4k_defconfig (gcc-10): 81 errors, 1 warning
+    e55_defconfig (gcc-10): 77 errors
+    fuloong2e_defconfig (gcc-10): 84 errors
+    gcw0_defconfig (gcc-10): 77 errors
+    gpr_defconfig (gcc-10): 79 errors
+    ip22_defconfig (gcc-10): 79 errors
+    ip32_defconfig (gcc-10): 86 errors
+    jazz_defconfig (gcc-10): 79 errors
+    jmr3927_defconfig (gcc-10): 37 errors
+    lemote2f_defconfig (gcc-10): 84 errors
+    loongson1b_defconfig (gcc-10): 75 errors
+    loongson1c_defconfig (gcc-10): 75 errors
+    loongson3_defconfig (gcc-10): 82 errors
+    malta_defconfig (gcc-10): 77 errors
+    malta_kvm_defconfig (gcc-10): 77 errors
+    malta_kvm_guest_defconfig (gcc-10): 79 errors
+    malta_qemu_32r6_defconfig (gcc-10): 79 errors
+    maltaaprp_defconfig (gcc-10): 77 errors
+    maltasmvp_defconfig (gcc-10): 79 errors
+    maltasmvp_eva_defconfig (gcc-10): 79 errors
+    maltaup_defconfig (gcc-10): 77 errors
+    maltaup_xpa_defconfig (gcc-10): 77 errors
+    mpc30x_defconfig (gcc-10): 79 errors
+    mtx1_defconfig (gcc-10): 81 errors
+    nlm_xlp_defconfig (gcc-10): 82 errors
+    nlm_xlr_defconfig (gcc-10): 79 errors
+    omega2p_defconfig (gcc-10): 39 errors
+    pic32mzda_defconfig (gcc-10): 75 errors
+    pistachio_defconfig (gcc-10): 77 errors
+    qi_lb60_defconfig (gcc-10): 77 errors
+    rb532_defconfig (gcc-10): 79 errors
+    rbtx49xx_defconfig (gcc-10): 79 errors
+    rm200_defconfig (gcc-10): 81 errors, 1 warning
+    rs90_defconfig (gcc-10): 37 errors
+    rt305x_defconfig (gcc-10): 75 errors
+    sb1250_swarm_defconfig (gcc-10): 84 errors
+    tb0219_defconfig (gcc-10): 79 errors
+    tb0226_defconfig (gcc-10): 79 errors
+    tb0287_defconfig (gcc-10): 79 errors
+    vocore2_defconfig (gcc-10): 39 errors
+    workpad_defconfig (gcc-10): 77 errors
+
+riscv:
+    defconfig (gcc-10): 67 errors
+    nommu_k210_defconfig (gcc-10): 34 errors
+    rv32_defconfig (gcc-10): 67 errors, 4 warnings
+
+x86_64:
+    allnoconfig (gcc-10): 36 errors
+    tinyconfig (gcc-10): 36 errors
+    x86_64_defconfig (gcc-10): 75 errors
+    x86_64_defconfig+x86-chromebook (gcc-10): 79 errors
+
+Errors summary:
+
+    12162  /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+h=3D=E2=80=99
+    1    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  WRAP   =
+ arch/mips/include/generated/asm/qspinlock.h
+    1    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  WRAP   =
+ arch/arm/include/generated/uapi/asm/termbits.h
+    1    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  WRAP   =
+ arch/arm/include/generated/uapi/asm/shmbuf.h
+    1    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  WRAP   =
+ arch/arm/include/generated/uapi/asm/msgbuf.h
+    1    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  WRAP   =
+ arch/arm/include/generated/asm/compat.h
+    1    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  UPD    =
+ include/generated/compile.h
+    1    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  SYSTBL =
+ arch/mips/include/generated/asm/syscall_table_64_n32.h
+    1    /bin/sh: 1:   WRAP    arch/riscv/include/generated/uapi/asm/types.h
+    1    /bin/sh: 1:   WRAP    arch/riscv/include/generated/uapi/asm/resour=
+ce.h
+    1    /bin/sh: 1:   WRAP    arch/mips/include/generated/asm/word-at-a-ti=
+me.h
+    1    /bin/sh: 1:   WRAP    arch/mips/include/generated/asm/parport.h
+    1    /bin/sh: 1:   WRAP    arch/arm/include/generated/uapi/asm/sockios.h
+    1    /bin/sh: 1:   WRAP    arch/arm/include/generated/uapi/asm/param.h
+    1    /bin/sh: 1:   WRAP    arch/arm/include/generated/uapi/asm/ipcbuf.h
+    1    /bin/sh: 1:   WRAP    arch/arc/include/generated/uapi/asm/posix_ty=
+pes.h
+    1    /bin/sh: 1:   UPD     include/generated/utsrelease.h
+    1    /bin/sh: 1:   UPD     include/config/kernel.release
+    1    /bin/sh: 1:   SYSTBL  arch/mips/include/generated/asm/syscall_tabl=
+e_64_n32.h
+    1    /bin/sh: 1:   SYSTBL  arch/mips/include/generated/asm/syscall_tabl=
+e_32_o32.h
+    1    /bin/sh: 1:   SYSHDR  arch/mips/include/generated/uapi/asm/unistd_=
+n64.h
+    1    /bin/sh: 1:   AS      arch/arm/lib/ashrdi3.o
+
+Warnings summary:
+
+    3    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_g=
+p_kthread=E2=80=99 defined but not used [-Wunused-function]
+    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
+    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    1    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved sy=
+mbol check will be entirely skipped.
+
+Section mismatches summary:
+
+    1    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): S=
+ection mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to=
+ the function .init.text:ixp4xx_irq_init()
+    1    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0):=
+ Section mismatch in reference from the variable __ksymtab_prom_init_numa_m=
+emory to the function .init.text:prom_init_numa_memory()
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 85 errors, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+Warnings:
+    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved symbol =
+check will be entirely skipped.
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 35 errors, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 36 errors, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 36 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, =
+0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   WRAP    arch/arm/include/generated/uapi/asm/ipcbuf.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 33 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 33 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 75 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 74 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 37 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 84 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 36 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 36 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 86 errors, 0 warning=
+s, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 75 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warning=
+s, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warning=
+s, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 33 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 74 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 35 errors, 0 warnings, =
+0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 35 errors, 0 warnings, =
+0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, =
+0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 37 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 PASS, 84 errors, 1 warning=
+, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   SYSTBL  arch/mips/include/generated/asm/syscall_table_32_=
+o32.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+Warnings:
+    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
+read=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 81 errors, 1 warning, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+Warnings:
+    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
+read=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 81 errors, 1 warnin=
+g, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+Warnings:
+    kernel/rcu/tasks.h:710:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
+read=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 67 errors, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 65 errors, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 69 errors, 0 war=
+nings, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 36 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 74 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, =
+0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 84 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 33 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   SYSTBL  arch/mips/include/generated/asm/syscall_table_64_=
+n32.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   WRAP    arch/mips/include/generated/asm/parport.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 68 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 68 errors, 0 warnings, =
+0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 33 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   AS      arch/arm/lib/ashrdi3.o
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 73 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  WRAP    arch=
+/arm/include/generated/asm/compat.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 86 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab_gpl+ixp4xx_irq_init+0x0): Sectio=
+n mismatch in reference from the variable __ksymtab_ixp4xx_irq_init to the =
+function .init.text:ixp4xx_irq_init()
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 37 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  UPD     incl=
+ude/generated/compile.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 84 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 75 errors, 0 warnings, =
+0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 75 errors, 0 warnings, =
+0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   WRAP    arch/mips/include/generated/asm/word-at-a-time.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 82 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+Section mismatches:
+    WARNING: modpost: vmlinux.o(___ksymtab+prom_init_numa_memory+0x0): Sect=
+ion mismatch in reference from the variable __ksymtab_prom_init_numa_memory=
+ to the function .init.text:prom_init_numa_memory()
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 37 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  WRAP    arch=
+/arm/include/generated/uapi/asm/shmbuf.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 74 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warni=
+ngs, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warni=
+ngs, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warning=
+s, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings=
+, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 37 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 37 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 81 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 38 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 86 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 140 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 76 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 33 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   WRAP    arch/arm/include/generated/uapi/asm/sockios.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 82 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   SYSHDR  arch/mips/include/generated/uapi/asm/unistd_n64.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 34 errors, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 68 errors, 0 warnings, =
+0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   WRAP    arch/arc/include/generated/uapi/asm/posix_types.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 68 errors, 0 warnin=
+gs, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 74 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 74 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 39 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 74 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 75 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   WRAP    arch/arm/include/generated/uapi/asm/param.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 74 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 81 errors, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+Warnings:
+    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 16 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 37 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 75 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 67 errors, 4 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   WRAP    arch/riscv/include/generated/uapi/asm/resource.h
+    /bin/sh: 1:   WRAP    arch/riscv/include/generated/uapi/asm/types.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+Warnings:
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 84 errors, 0 warnings=
+, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  SYSTBL  arch=
+/mips/include/generated/asm/syscall_table_64_n32.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 33 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  WRAP    arch=
+/arm/include/generated/uapi/asm/msgbuf.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   UPD     include/generated/utsrelease.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  WRAP    arch=
+/arm/include/generated/uapi/asm/termbits.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 74 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 36 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 79 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied  WRAP    arch=
+/mips/include/generated/asm/qspinlock.h
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0=
+ section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 36 errors, 0 warnings, 0 section m=
+ismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 36 errors, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 35 errors, 0 warnings, 0 section =
+mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 70 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 33 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 33 errors, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1:   UPD     include/config/kernel.release
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 74 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 32 errors, 0 warnings, 0 se=
+ction mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 39 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 33 errors, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 77 errors, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 75 errors, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 79 errors,=
+ 0 warnings, 0 section mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 76 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 72 errors, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 33 errors, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+    /bin/sh: 1: ../scripts/pahole-flags.sh: Permission denied
+
 ---
- drivers/net/hyperv/hyperv_net.h |  3 +++
- drivers/net/hyperv/netvsc.c     |  4 ++++
- drivers/net/hyperv/netvsc_drv.c | 20 ++++++++++++++++++++
- 3 files changed, 27 insertions(+)
-
-diff --git a/drivers/net/hyperv/hyperv_net.h b/drivers/net/hyperv/hyperv_net.h
-index fb547f37af1e..8fc14aac0ec8 100644
---- a/drivers/net/hyperv/hyperv_net.h
-+++ b/drivers/net/hyperv/hyperv_net.h
-@@ -953,6 +953,9 @@ struct net_device_context {
- 	u32 vf_alloc;
- 	/* Serial number of the VF to team with */
- 	u32 vf_serial;
-+
-+	/* completion variable to confirm vf association */
-+	struct completion vf_add;
- };
- 
- /* Per channel data */
-diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
-index eab83e71567a..021b57261170 100644
---- a/drivers/net/hyperv/netvsc.c
-+++ b/drivers/net/hyperv/netvsc.c
-@@ -1223,6 +1223,10 @@ static void netvsc_send_vf(struct net_device *ndev,
- 
- 	net_device_ctx->vf_alloc = nvmsg->msg.v4_msg.vf_assoc.allocated;
- 	net_device_ctx->vf_serial = nvmsg->msg.v4_msg.vf_assoc.serial;
-+
-+	if (net_device_ctx->vf_alloc)
-+		complete(&net_device_ctx->vf_add);
-+
- 	netdev_info(ndev, "VF slot %u %s\n",
- 		    net_device_ctx->vf_serial,
- 		    net_device_ctx->vf_alloc ? "added" : "removed");
-diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
-index 963509add611..0dae4dce6654 100644
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -2129,6 +2129,7 @@ static struct net_device *get_netvsc_byslot(const struct net_device *vf_netdev)
- {
- 	struct device *parent = vf_netdev->dev.parent;
- 	struct net_device_context *ndev_ctx;
-+	struct net_device *ndev;
- 	struct pci_dev *pdev;
- 	u32 serial;
- 
-@@ -2155,6 +2156,18 @@ static struct net_device *get_netvsc_byslot(const struct net_device *vf_netdev)
- 			return hv_get_drvdata(ndev_ctx->device_ctx);
- 	}
- 
-+	/* Fallback path to check synthetic vf with
-+	 * help of mac addr
-+	 */
-+	list_for_each_entry(ndev_ctx, &netvsc_dev_list, list) {
-+		ndev = hv_get_drvdata(ndev_ctx->device_ctx);
-+		if (ether_addr_equal(vf_netdev->perm_addr, ndev->perm_addr)) {
-+			netdev_notice(vf_netdev,
-+				      "falling back to mac addr based matching\n");
-+			return ndev;
-+		}
-+	}
-+
- 	netdev_notice(vf_netdev,
- 		      "no netdev found for vf serial:%u\n", serial);
- 	return NULL;
-@@ -2228,6 +2241,11 @@ static int netvsc_vf_changed(struct net_device *vf_netdev)
- 	if (!netvsc_dev)
- 		return NOTIFY_DONE;
- 
-+	if (vf_is_up && !net_device_ctx->vf_alloc) {
-+		netdev_info(ndev, "Waiting for the VF association from host\n");
-+		wait_for_completion(&net_device_ctx->vf_add);
-+	}
-+
- 	netvsc_switch_datapath(ndev, vf_is_up);
- 	netdev_info(ndev, "Data path switched %s VF: %s\n",
- 		    vf_is_up ? "to" : "from", vf_netdev->name);
-@@ -2249,6 +2267,7 @@ static int netvsc_unregister_vf(struct net_device *vf_netdev)
- 
- 	netdev_info(ndev, "VF unregistering: %s\n", vf_netdev->name);
- 
-+	reinit_completion(&net_device_ctx->vf_add);
- 	netdev_rx_handler_unregister(vf_netdev);
- 	netdev_upper_dev_unlink(vf_netdev, ndev);
- 	RCU_INIT_POINTER(net_device_ctx->vf_netdev, NULL);
-@@ -2286,6 +2305,7 @@ static int netvsc_probe(struct hv_device *dev,
- 
- 	INIT_DELAYED_WORK(&net_device_ctx->dwork, netvsc_link_change);
- 
-+	init_completion(&net_device_ctx->vf_add);
- 	spin_lock_init(&net_device_ctx->lock);
- 	INIT_LIST_HEAD(&net_device_ctx->reconfig_events);
- 	INIT_DELAYED_WORK(&net_device_ctx->vf_takeover, netvsc_vf_setup);
--- 
-2.25.1
-
+For more info write to <info@kernelci.org>
