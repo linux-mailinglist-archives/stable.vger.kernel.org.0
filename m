@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4444460FE9C
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:06:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B064760FE24
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:02:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236925AbiJ0RGw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:06:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38216 "EHLO
+        id S236859AbiJ0RCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:02:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236995AbiJ0RGu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:06:50 -0400
+        with ESMTP id S236857AbiJ0RC3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:02:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CA40198989
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:06:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0B6019045F
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:02:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07717B824DB
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:06:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C4BCC433D6;
-        Thu, 27 Oct 2022 17:06:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EDC8B82717
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:02:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0E4BC433D6;
+        Thu, 27 Oct 2022 17:02:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890406;
-        bh=yCVUPlFb9eOLdQPkEjgCEVBE1snfYheSL+9eN/PUsrk=;
+        s=korg; t=1666890146;
+        bh=521Ns61hEMsA5Ul7v8xmRsimfK90csHiP0YsDjLE9J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d4l95gcGSnpP2x7ksqZMp5uEEg/64fv2Pl/hpNGapdRnban/YTqXWtX+5zkEB7eaX
-         jOZEYhKV5YTHl0NiPC2SskFoWaI4yDEzyrxBEINwkmX6HLjBP7peVLUzbqWSCJWaN+
-         s3rKd4DYklGoAPtVzCF3oK3cL7gXfOw9jAVnfeNg=
+        b=HA4ZClMIMfb8RvIk/mAJ69LfWdEUQVKIvh6JdUAC03pAvk4fcrXcN1x5MenZUYBzR
+         xwdIa9frCHznJ58kfHtLe7ItFYGcdSTdg5IqUry+DxU/N3SZK8u1bDKmlxGzuKPrmt
+         GXNjpYCUTM2GPvhiv6/D9UHocbo5uolFc9pr0BdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        Jonathan Cooper <jonathan.s.cooper@amd.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        Edward Cree <ecree.xilinx@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 28/79] tipc: Fix recognition of trial period
+Subject: [PATCH 5.15 40/79] sfc: Change VF mac via PF as first preference if available.
 Date:   Thu, 27 Oct 2022 18:55:38 +0200
-Message-Id: <20221027165055.346767333@linuxfoundation.org>
+Message-Id: <20221027165056.251355377@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +56,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+From: Jonathan Cooper <jonathan.s.cooper@amd.com>
 
-[ Upstream commit 28be7ca4fcfd69a2d52aaa331adbf9dbe91f9e6e ]
+[ Upstream commit a8aed7b35becfd21f22a77c7014029ea837b018f ]
 
-The trial period exists until jiffies is after addr_trial_end. But as
-jiffies will eventually overflow, just using time_after will eventually
-give incorrect results. As the node address is set once the trial period
-ends, this can be used to know that we are not in the trial period.
+Changing a VF's mac address through the VF (rather than via the PF)
+fails with EPERM because the latter part of efx_ef10_set_mac_address
+attempts to change the vport mac address list as the VF.
+Even with this fixed it still fails with EBUSY because the vadaptor
+is still assigned on the VF - the vadaptor reassignment must be within
+a section where the VF has torn down its state.
 
-Fixes: e415577f57f4 ("tipc: correct discovery message handling during address trial period")
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+A major reason this has broken is because we have two functions that
+ostensibly do the same thing - have a PF and VF cooperate to change a
+VF mac address. Rather than do this, if we are changing the mac of a VF
+that has a link to the PF in the same VM then simply call
+sriov_set_vf_mac instead, which is a proven working function that does
+that.
+
+If there is no PF available, or that fails non-fatally, then attempt to
+change the VF's mac address as we would a PF, without updating the PF's
+data.
+
+Test case:
+Create a VF:
+  echo 1 > /sys/class/net/<if>/device/sriov_numvfs
+Set the mac address of the VF directly:
+  ip link set <vf> addr 00:11:22:33:44:55
+Set the MAC address of the VF via the PF:
+  ip link set <pf> vf 0 mac 00:11:22:33:44:66
+Without this patch the last command will fail with ENOENT.
+
+Signed-off-by: Jonathan Cooper <jonathan.s.cooper@amd.com>
+Reported-by: Íñigo Huguet <ihuguet@redhat.com>
+Fixes: 910c8789a777 ("set the MAC address using MC_CMD_VADAPTOR_SET_MAC")
+Acked-by: Edward Cree <ecree.xilinx@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/discover.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/sfc/ef10.c | 58 ++++++++++++++-------------------
+ 1 file changed, 24 insertions(+), 34 deletions(-)
 
-diff --git a/net/tipc/discover.c b/net/tipc/discover.c
-index 14bc20604051..2ae268b67465 100644
---- a/net/tipc/discover.c
-+++ b/net/tipc/discover.c
-@@ -147,8 +147,8 @@ static bool tipc_disc_addr_trial_msg(struct tipc_discoverer *d,
- {
- 	struct net *net = d->net;
- 	struct tipc_net *tn = tipc_net(net);
--	bool trial = time_before(jiffies, tn->addr_trial_end);
- 	u32 self = tipc_own_addr(net);
-+	bool trial = time_before(jiffies, tn->addr_trial_end) && !self;
+diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
+index 056c24ec1249..c316a9eb5be3 100644
+--- a/drivers/net/ethernet/sfc/ef10.c
++++ b/drivers/net/ethernet/sfc/ef10.c
+@@ -3271,6 +3271,30 @@ static int efx_ef10_set_mac_address(struct efx_nic *efx)
+ 	bool was_enabled = efx->port_enabled;
+ 	int rc;
  
- 	if (mtyp == DSC_TRIAL_FAIL_MSG) {
- 		if (!trial)
++#ifdef CONFIG_SFC_SRIOV
++	/* If this function is a VF and we have access to the parent PF,
++	 * then use the PF control path to attempt to change the VF MAC address.
++	 */
++	if (efx->pci_dev->is_virtfn && efx->pci_dev->physfn) {
++		struct efx_nic *efx_pf = pci_get_drvdata(efx->pci_dev->physfn);
++		struct efx_ef10_nic_data *nic_data = efx->nic_data;
++		u8 mac[ETH_ALEN];
++
++		/* net_dev->dev_addr can be zeroed by efx_net_stop in
++		 * efx_ef10_sriov_set_vf_mac, so pass in a copy.
++		 */
++		ether_addr_copy(mac, efx->net_dev->dev_addr);
++
++		rc = efx_ef10_sriov_set_vf_mac(efx_pf, nic_data->vf_index, mac);
++		if (!rc)
++			return 0;
++
++		netif_dbg(efx, drv, efx->net_dev,
++			  "Updating VF mac via PF failed (%d), setting directly\n",
++			  rc);
++	}
++#endif
++
+ 	efx_device_detach_sync(efx);
+ 	efx_net_stop(efx->net_dev);
+ 
+@@ -3293,40 +3317,6 @@ static int efx_ef10_set_mac_address(struct efx_nic *efx)
+ 		efx_net_open(efx->net_dev);
+ 	efx_device_attach_if_not_resetting(efx);
+ 
+-#ifdef CONFIG_SFC_SRIOV
+-	if (efx->pci_dev->is_virtfn && efx->pci_dev->physfn) {
+-		struct efx_ef10_nic_data *nic_data = efx->nic_data;
+-		struct pci_dev *pci_dev_pf = efx->pci_dev->physfn;
+-
+-		if (rc == -EPERM) {
+-			struct efx_nic *efx_pf;
+-
+-			/* Switch to PF and change MAC address on vport */
+-			efx_pf = pci_get_drvdata(pci_dev_pf);
+-
+-			rc = efx_ef10_sriov_set_vf_mac(efx_pf,
+-						       nic_data->vf_index,
+-						       efx->net_dev->dev_addr);
+-		} else if (!rc) {
+-			struct efx_nic *efx_pf = pci_get_drvdata(pci_dev_pf);
+-			struct efx_ef10_nic_data *nic_data = efx_pf->nic_data;
+-			unsigned int i;
+-
+-			/* MAC address successfully changed by VF (with MAC
+-			 * spoofing) so update the parent PF if possible.
+-			 */
+-			for (i = 0; i < efx_pf->vf_count; ++i) {
+-				struct ef10_vf *vf = nic_data->vf + i;
+-
+-				if (vf->efx == efx) {
+-					ether_addr_copy(vf->mac,
+-							efx->net_dev->dev_addr);
+-					return 0;
+-				}
+-			}
+-		}
+-	} else
+-#endif
+ 	if (rc == -EPERM) {
+ 		netif_err(efx, drv, efx->net_dev,
+ 			  "Cannot change MAC address; use sfboot to enable"
 -- 
 2.35.1
 
