@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 562D960FDE0
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:00:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F8DE60FDE1
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236798AbiJ0Q76 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 12:59:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47676 "EHLO
+        id S236284AbiJ0RAA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:00:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236284AbiJ0Q7z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:59:55 -0400
+        with ESMTP id S236797AbiJ0Q76 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:59:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EB2824BCE
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:59:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 306B32CC9F
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:59:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B12F623F0
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:59:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BDBDC433D6;
-        Thu, 27 Oct 2022 16:59:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C4F0D623EB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:59:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7606C433D6;
+        Thu, 27 Oct 2022 16:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666889993;
-        bh=NxCP5BEJq2MlcfDPOQlC1FC2jxFi5AFFMPnBTZqJkec=;
+        s=korg; t=1666889996;
+        bh=uIN+5Ab9o8I14Q9lYB2aekxVXznqiPM/59cd4hdefLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5ozIjFYaFAwl8gGLkEw4PAI+2ml3ZICl06rfOhtpUMYal7LJt/YKOJ6unhema5lf
-         PcpnJY3tkR2cUvC/shiLiwKIr7mrsGkrBAD1NFpZRVh+zCnn2u72mfU8o3BpqgdKzz
-         9jwdFUBizc72CMeyPjzHhr8bgYzg5XrqsavRxg1M=
+        b=JLu667cva7so0IM7Kf7i7Ban0rSifkCqu6AwTMhllbNmWUj444xRXZ98XUqY0n6Fi
+         7vl8PMxxrRWQrxJrSUi4BWDbPfJL+KDz+MJt4+/jq40JndQN2oM/8kuBQhtq9jQvIa
+         Hva0QQM++1C5y//BKN4qvriKsQ3ekfB9wv086IOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        patches@lists.linux.dev, Paul Blakey <paulb@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 76/94] net: sched: sfb: fix null pointer access issue when sfb_init() fails
-Date:   Thu, 27 Oct 2022 18:55:18 +0200
-Message-Id: <20221027165100.264598146@linuxfoundation.org>
+Subject: [PATCH 6.0 77/94] net: Fix return value of qdisc ingress handling on success
+Date:   Thu, 27 Oct 2022 18:55:19 +0200
+Message-Id: <20221027165100.305403960@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
 References: <20221027165057.208202132@linuxfoundation.org>
@@ -53,75 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Paul Blakey <paulb@nvidia.com>
 
-[ Upstream commit 2a3fc78210b9f0e85372a2435368962009f480fc ]
+[ Upstream commit 672e97ef689a38cb20c2cc6a1814298fea34461e ]
 
-When the default qdisc is sfb, if the qdisc of dev_queue fails to be
-inited during mqprio_init(), sfb_reset() is invoked to clear resources.
-In this case, the q->qdisc is NULL, and it will cause gpf issue.
+Currently qdisc ingress handling (sch_handle_ingress()) doesn't
+set a return value and it is left to the old return value of
+the caller (__netif_receive_skb_core()) which is RX drop, so if
+the packet is consumed, caller will stop and return this value
+as if the packet was dropped.
 
-The process is as follows:
-qdisc_create_dflt()
-	sfb_init()
-		tcf_block_get()          --->failed, q->qdisc is NULL
-	...
-	qdisc_put()
-		...
-		sfb_reset()
-			qdisc_reset(q->qdisc)    --->q->qdisc is NULL
-				ops = qdisc->ops
+This causes a problem in the kernel tcp stack when having a
+egress tc rule forwarding to a ingress tc rule.
+The tcp stack sending packets on the device having the egress rule
+will see the packets as not successfully transmitted (although they
+actually were), will not advance it's internal state of sent data,
+and packets returning on such tcp stream will be dropped by the tcp
+stack with reason ack-of-unsent-data. See reproduction in [0] below.
 
-The following is the Call Trace information:
-general protection fault, probably for non-canonical address
-0xdffffc0000000003: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000018-0x000000000000001f]
-RIP: 0010:qdisc_reset+0x2b/0x6f0
-Call Trace:
-<TASK>
-sfb_reset+0x37/0xd0
-qdisc_reset+0xed/0x6f0
-qdisc_destroy+0x82/0x4c0
-qdisc_put+0x9e/0xb0
-qdisc_create_dflt+0x2c3/0x4a0
-mqprio_init+0xa71/0x1760
-qdisc_create+0x3eb/0x1000
-tc_modify_qdisc+0x408/0x1720
-rtnetlink_rcv_msg+0x38e/0xac0
-netlink_rcv_skb+0x12d/0x3a0
-netlink_unicast+0x4a2/0x740
-netlink_sendmsg+0x826/0xcc0
-sock_sendmsg+0xc5/0x100
-____sys_sendmsg+0x583/0x690
-___sys_sendmsg+0xe8/0x160
-__sys_sendmsg+0xbf/0x160
-do_syscall_64+0x35/0x80
-entry_SYSCALL_64_after_hwframe+0x46/0xb0
-RIP: 0033:0x7f2164122d04
-</TASK>
+Fix that by setting the return value to RX success if
+the packet was handled successfully.
 
-Fixes: e13e02a3c68d ("net_sched: SFB flow scheduler")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+[0] Reproduction steps:
+ $ ip link add veth1 type veth peer name peer1
+ $ ip link add veth2 type veth peer name peer2
+ $ ifconfig peer1 5.5.5.6/24 up
+ $ ip netns add ns0
+ $ ip link set dev peer2 netns ns0
+ $ ip netns exec ns0 ifconfig peer2 5.5.5.5/24 up
+ $ ifconfig veth2 0 up
+ $ ifconfig veth1 0 up
+
+ #ingress forwarding veth1 <-> veth2
+ $ tc qdisc add dev veth2 ingress
+ $ tc qdisc add dev veth1 ingress
+ $ tc filter add dev veth2 ingress prio 1 proto all flower \
+   action mirred egress redirect dev veth1
+ $ tc filter add dev veth1 ingress prio 1 proto all flower \
+   action mirred egress redirect dev veth2
+
+ #steal packet from peer1 egress to veth2 ingress, bypassing the veth pipe
+ $ tc qdisc add dev peer1 clsact
+ $ tc filter add dev peer1 egress prio 20 proto ip flower \
+   action mirred ingress redirect dev veth1
+
+ #run iperf and see connection not running
+ $ iperf3 -s&
+ $ ip netns exec ns0 iperf3 -c 5.5.5.6 -i 1
+
+ #delete egress rule, and run again, now should work
+ $ tc filter del dev peer1 egress
+ $ ip netns exec ns0 iperf3 -c 5.5.5.6 -i 1
+
+Fixes: f697c3e8b35c ("[NET]: Avoid unnecessary cloning for ingress filtering")
+Signed-off-by: Paul Blakey <paulb@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_sfb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/core/dev.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
-index 1be8d04d69dc..0490eb5b98de 100644
---- a/net/sched/sch_sfb.c
-+++ b/net/sched/sch_sfb.c
-@@ -455,7 +455,8 @@ static void sfb_reset(struct Qdisc *sch)
- {
- 	struct sfb_sched_data *q = qdisc_priv(sch);
- 
--	qdisc_reset(q->qdisc);
-+	if (likely(q->qdisc))
-+		qdisc_reset(q->qdisc);
- 	q->slot = 0;
- 	q->double_buffering = false;
- 	sfb_zero_all_buckets(q);
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 56c8b0921c9f..2c14f48d2457 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5136,11 +5136,13 @@ sch_handle_ingress(struct sk_buff *skb, struct packet_type **pt_prev, int *ret,
+ 	case TC_ACT_SHOT:
+ 		mini_qdisc_qstats_cpu_drop(miniq);
+ 		kfree_skb_reason(skb, SKB_DROP_REASON_TC_INGRESS);
++		*ret = NET_RX_DROP;
+ 		return NULL;
+ 	case TC_ACT_STOLEN:
+ 	case TC_ACT_QUEUED:
+ 	case TC_ACT_TRAP:
+ 		consume_skb(skb);
++		*ret = NET_RX_SUCCESS;
+ 		return NULL;
+ 	case TC_ACT_REDIRECT:
+ 		/* skb_mac_header check was done by cls/act_bpf, so
+@@ -5153,8 +5155,10 @@ sch_handle_ingress(struct sk_buff *skb, struct packet_type **pt_prev, int *ret,
+ 			*another = true;
+ 			break;
+ 		}
++		*ret = NET_RX_SUCCESS;
+ 		return NULL;
+ 	case TC_ACT_CONSUMED:
++		*ret = NET_RX_SUCCESS;
+ 		return NULL;
+ 	default:
+ 		break;
 -- 
 2.35.1
 
