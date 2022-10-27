@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C093160FDCE
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 881C160FDCF
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 18:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236736AbiJ0Q7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 12:59:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46308 "EHLO
+        id S236723AbiJ0Q70 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 12:59:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236834AbiJ0Q7Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:59:16 -0400
+        with ESMTP id S236847AbiJ0Q7S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 12:59:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72A0E17F2BF
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:59:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B3EF17F658
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 09:59:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11DE8610AB
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:59:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2435BC433C1;
-        Thu, 27 Oct 2022 16:59:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F108623E8
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 16:59:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3A2BC433C1;
+        Thu, 27 Oct 2022 16:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666889954;
-        bh=lRGUgMpQvzsJFwuTwF8eCz147hmmFEpmHk2EC7+9Ctc=;
+        s=korg; t=1666889957;
+        bh=9Q2BxoC9xi7BZB0hAPPy7aueUeTaepaqWecV801aMbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENYT/ZAe9J7TYmZp/8S7HOsOpAB0CnW2QXMz+rJuijgLzN1F2jZRsamEadfyyWYNf
-         YS3lyB4kgDSf+U+ty8Olp7WVzyCRC2miuZMdG9W00+N2eN3Fh0/U6pa7KqhMKyqE8s
-         AnsgM9Lu0wmYOxTDJwSyxuejRTFQvvPReHs4VumE=
+        b=diL1Gb/mfZMYr4+9hZHA7/x57FLspgJWlO1CGJ7xLfBjYyY8+L6tg8DwEwXw5LifR
+         ZCHxQGKplHl+8bvQKYyU62fbNRVnKtiWPQUTEGed+0X3dWFE9yZl3luFq4b8a8JURL
+         0i75gLFS8vTMszm4I78id889DOHeu43phvkc0KHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 31/94] btrfs: fix processing of delayed tree block refs during backref walking
-Date:   Thu, 27 Oct 2022 18:54:33 +0200
-Message-Id: <20221027165058.351310806@linuxfoundation.org>
+Subject: [PATCH 6.0 32/94] drm/vc4: Add module dependency on hdmi-codec
+Date:   Thu, 27 Oct 2022 18:54:34 +0200
+Message-Id: <20221027165058.399279812@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
 References: <20221027165057.208202132@linuxfoundation.org>
@@ -53,201 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 943553ef9b51db303ab2b955c1025261abfdf6fb ]
+[ Upstream commit d1c0b7de4dfa5505cf7a1d6220aa72aace4435d0 ]
 
-During backref walking, when processing a delayed reference with a type of
-BTRFS_TREE_BLOCK_REF_KEY, we have two bugs there:
+The VC4 HDMI controller driver relies on the HDMI codec ASoC driver. In
+order to set it up properly, in vc4_hdmi_audio_init(), our HDMI driver
+will register a device matching the HDMI codec driver, and then register
+an ASoC card using that codec.
 
-1) We are accessing the delayed references extent_op, and its key, without
-   the protection of the delayed ref head's lock;
+However, if vc4 is compiled as a module, chances are that the hdmi-codec
+driver will be too. In such a case, the module loader will have a very
+narrow window to load the module between the device registration and the
+card registration.
 
-2) If there's no extent op for the delayed ref head, we end up with an
-   uninitialized key in the stack, variable 'tmp_op_key', and then pass
-   it to add_indirect_ref(), which adds the reference to the indirect
-   refs rb tree.
+If it fails to load the module in time, the card registration will fail
+with EPROBE_DEFER, and we'll abort the audio initialisation,
+unregistering the HDMI codec device in the process.
 
-   This is wrong, because indirect references should have a NULL key
-   when we don't have access to the key, and in that case they should be
-   added to the indirect_missing_keys rb tree and not to the indirect rb
-   tree.
+The next time the bind callback will be run, it's likely that we end up
+missing that window again, effectively preventing vc4 to probe entirely.
 
-   This means that if have BTRFS_TREE_BLOCK_REF_KEY delayed ref resulting
-   from freeing an extent buffer, therefore with a count of -1, it will
-   not cancel out the corresponding reference we have in the extent tree
-   (with a count of 1), since both references end up in different rb
-   trees.
+In order to prevent this, we can create a soft dependency of the vc4
+driver on the HDMI codec one so that we're sure the HDMI codec will be
+loaded before the VC4 module is, and thus we'll never end up in the
+previous situation.
 
-   When using fiemap, where we often need to check if extents are shared
-   through shared subtrees resulting from snapshots, it means we can
-   incorrectly report an extent as shared when it's no longer shared.
-   However this is temporary because after the transaction is committed
-   the extent is no longer reported as shared, as running the delayed
-   reference results in deleting the tree block reference from the extent
-   tree.
-
-   Outside the fiemap context, the result is unpredictable, as the key was
-   not initialized but it's used when navigating the rb trees to insert
-   and search for references (prelim_ref_compare()), and we expect all
-   references in the indirect rb tree to have valid keys.
-
-The following reproducer triggers the second bug:
-
-   $ cat test.sh
-   #!/bin/bash
-
-   DEV=/dev/sdj
-   MNT=/mnt/sdj
-
-   mkfs.btrfs -f $DEV
-   mount -o compress $DEV $MNT
-
-   # With a compressed 128M file we get a tree height of 2 (level 1 root).
-   xfs_io -f -c "pwrite -b 1M 0 128M" $MNT/foo
-
-   btrfs subvolume snapshot $MNT $MNT/snap
-
-   # Fiemap should output 0x2008 in the flags column.
-   # 0x2000 means shared extent
-   # 0x8 means encoded extent (because it's compressed)
-   echo
-   echo "fiemap after snapshot, range [120M, 120M + 128K):"
-   xfs_io -c "fiemap -v 120M 128K" $MNT/foo
-   echo
-
-   # Overwrite one extent and fsync to flush delalloc and COW a new path
-   # in the snapshot's tree.
-   #
-   # After this we have a BTRFS_DROP_DELAYED_REF delayed ref of type
-   # BTRFS_TREE_BLOCK_REF_KEY with a count of -1 for every COWed extent
-   # buffer in the path.
-   #
-   # In the extent tree we have inline references of type
-   # BTRFS_TREE_BLOCK_REF_KEY, with a count of 1, for the same extent
-   # buffers, so they should cancel each other, and the extent buffers in
-   # the fs tree should no longer be considered as shared.
-   #
-   echo "Overwriting file range [120M, 120M + 128K)..."
-   xfs_io -c "pwrite -b 128K 120M 128K" $MNT/snap/foo
-   xfs_io -c "fsync" $MNT/snap/foo
-
-   # Fiemap should output 0x8 in the flags column. The extent in the range
-   # [120M, 120M + 128K) is no longer shared, it's now exclusive to the fs
-   # tree.
-   echo
-   echo "fiemap after overwrite range [120M, 120M + 128K):"
-   xfs_io -c "fiemap -v 120M 128K" $MNT/foo
-   echo
-
-   umount $MNT
-
-Running it before this patch:
-
-   $ ./test.sh
-   (...)
-   wrote 134217728/134217728 bytes at offset 0
-   128 MiB, 128 ops; 0.1152 sec (1.085 GiB/sec and 1110.5809 ops/sec)
-   Create a snapshot of '/mnt/sdj' in '/mnt/sdj/snap'
-
-   fiemap after snapshot, range [120M, 120M + 128K):
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [245760..246015]: 34304..34559       256 0x2008
-
-   Overwriting file range [120M, 120M + 128K)...
-   wrote 131072/131072 bytes at offset 125829120
-   128 KiB, 1 ops; 0.0001 sec (683.060 MiB/sec and 5464.4809 ops/sec)
-
-   fiemap after overwrite range [120M, 120M + 128K):
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [245760..246015]: 34304..34559       256 0x2008
-
-The extent in the range [120M, 120M + 128K) is still reported as shared
-(0x2000 bit set) after overwriting that range and flushing delalloc, which
-is not correct - an entire path was COWed in the snapshot's tree and the
-extent is now only referenced by the original fs tree.
-
-Running it after this patch:
-
-   $ ./test.sh
-   (...)
-   wrote 134217728/134217728 bytes at offset 0
-   128 MiB, 128 ops; 0.1198 sec (1.043 GiB/sec and 1068.2067 ops/sec)
-   Create a snapshot of '/mnt/sdj' in '/mnt/sdj/snap'
-
-   fiemap after snapshot, range [120M, 120M + 128K):
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [245760..246015]: 34304..34559       256 0x2008
-
-   Overwriting file range [120M, 120M + 128K)...
-   wrote 131072/131072 bytes at offset 125829120
-   128 KiB, 1 ops; 0.0001 sec (694.444 MiB/sec and 5555.5556 ops/sec)
-
-   fiemap after overwrite range [120M, 120M + 128K):
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [245760..246015]: 34304..34559       256   0x8
-
-Now the extent is not reported as shared anymore.
-
-So fix this by passing a NULL key pointer to add_indirect_ref() when
-processing a delayed reference for a tree block if there's no extent op
-for our delayed ref head with a defined key. Also access the extent op
-only after locking the delayed ref head's lock.
-
-The reproducer will be converted later to a test case for fstests.
-
-Fixes: 86d5f994425252 ("btrfs: convert prelimary reference tracking to use rbtrees")
-Fixes: a6dbceafb915e8 ("btrfs: Remove unused op_key var from add_delayed_refs")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 91e99e113929 ("drm/vc4: hdmi: Register HDMI codec")
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220902144111.3424560-1-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/vc4/vc4_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 2aa9f58f4436..ccc818b40977 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -821,16 +821,11 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
- 			    struct preftrees *preftrees, struct share_check *sc)
- {
- 	struct btrfs_delayed_ref_node *node;
--	struct btrfs_delayed_extent_op *extent_op = head->extent_op;
- 	struct btrfs_key key;
--	struct btrfs_key tmp_op_key;
- 	struct rb_node *n;
- 	int count;
- 	int ret = 0;
+diff --git a/drivers/gpu/drm/vc4/vc4_drv.c b/drivers/gpu/drm/vc4/vc4_drv.c
+index 6b8dfa1e7650..c186ace7f83b 100644
+--- a/drivers/gpu/drm/vc4/vc4_drv.c
++++ b/drivers/gpu/drm/vc4/vc4_drv.c
+@@ -490,6 +490,7 @@ module_init(vc4_drm_register);
+ module_exit(vc4_drm_unregister);
  
--	if (extent_op && extent_op->update_key)
--		btrfs_disk_key_to_cpu(&tmp_op_key, &extent_op->key);
--
- 	spin_lock(&head->lock);
- 	for (n = rb_first_cached(&head->ref_tree); n; n = rb_next(n)) {
- 		node = rb_entry(n, struct btrfs_delayed_ref_node,
-@@ -856,10 +851,16 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
- 		case BTRFS_TREE_BLOCK_REF_KEY: {
- 			/* NORMAL INDIRECT METADATA backref */
- 			struct btrfs_delayed_tree_ref *ref;
-+			struct btrfs_key *key_ptr = NULL;
-+
-+			if (head->extent_op && head->extent_op->update_key) {
-+				btrfs_disk_key_to_cpu(&key, &head->extent_op->key);
-+				key_ptr = &key;
-+			}
- 
- 			ref = btrfs_delayed_node_to_tree_ref(node);
- 			ret = add_indirect_ref(fs_info, preftrees, ref->root,
--					       &tmp_op_key, ref->level + 1,
-+					       key_ptr, ref->level + 1,
- 					       node->bytenr, count, sc,
- 					       GFP_ATOMIC);
- 			break;
+ MODULE_ALIAS("platform:vc4-drm");
++MODULE_SOFTDEP("pre: snd-soc-hdmi-codec");
+ MODULE_DESCRIPTION("Broadcom VC4 DRM Driver");
+ MODULE_AUTHOR("Eric Anholt <eric@anholt.net>");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.35.1
 
