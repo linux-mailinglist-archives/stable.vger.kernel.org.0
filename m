@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D9A60FE55
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:04:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C0B860FEC5
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:08:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236913AbiJ0REb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:04:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58868 "EHLO
+        id S237047AbiJ0RIR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:08:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236910AbiJ0RE2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8479E1D7
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:25 -0700 (PDT)
+        with ESMTP id S237008AbiJ0RIQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:08:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7145B19DDAD
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:08:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 23AEC623D8
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38A11C433D7;
-        Thu, 27 Oct 2022 17:04:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2940DB825F3
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:08:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 766D1C433D6;
+        Thu, 27 Oct 2022 17:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890264;
-        bh=027BP/7fywPWtdlNB7x17qJFKRv4BfoIleyg2digxe8=;
+        s=korg; t=1666890492;
+        bh=VMBeEHSatxdLoyFgvxFNMBjhacFQCa+69pmgWbOiiD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o2KE+WVy/EMEb1Wl98cN8sIWlQNiyjv/f/DprtaQu8kEYmHwAK+5NImVQLL9cX0X+
-         KsSvDH1apmg56kWvMf/aifmMXT377kJYSggWlh7h2PYZGpMqOm/hKtZiduCZVawtTA
-         expkdeWSvfvvVyMAUQoxwrENl/4Vkd13dPlgpW9g=
+        b=MIY7tyMaZuMeOZ2Onzy6Bo++Kg9c8JvfmBwOwrBQAfTLlGjxCxjrSq9rYORiErljX
+         k4b6yL1UvuQE2UoZcvX455AjaUofAF5jumnZ0YlKe2O7gBE18D8S58+aGHDlCgtZSp
+         /7eQMbxHNAABTzmLAix5c4uNLbcXSxTTyJKfh1Cg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 62/79] net: hns: fix possible memory leak in hnae_ae_register()
+        patches@lists.linux.dev, Pavel Reichl <preichl@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Chandan Babu R <chandan.babu@oracle.com>
+Subject: [PATCH 5.4 12/53] xfs: remove the xfs_qoff_logitem_t typedef
 Date:   Thu, 27 Oct 2022 18:56:00 +0200
-Message-Id: <20221027165056.983680795@linuxfoundation.org>
+Message-Id: <20221027165050.282194393@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
-References: <20221027165054.917467648@linuxfoundation.org>
+In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
+References: <20221027165049.817124510@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +54,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Pavel Reichl <preichl@redhat.com>
 
-[ Upstream commit ff2f5ec5d009844ec28f171123f9e58750cef4bf ]
+commit d0bdfb106907e4a3ef4f25f6d27e392abf41f3a0 upstream.
 
-Inject fault while probing module, if device_register() fails,
-but the refcount of kobject is not decreased to 0, the name
-allocated in dev_set_name() is leaked. Fix this by calling
-put_device(), so that name can be freed in callback function
-kobject_cleanup().
-
-unreferenced object 0xffff00c01aba2100 (size 128):
-  comm "systemd-udevd", pid 1259, jiffies 4294903284 (age 294.152s)
-  hex dump (first 32 bytes):
-    68 6e 61 65 30 00 00 00 18 21 ba 1a c0 00 ff ff  hnae0....!......
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000034783f26>] slab_post_alloc_hook+0xa0/0x3e0
-    [<00000000748188f2>] __kmem_cache_alloc_node+0x164/0x2b0
-    [<00000000ab0743e8>] __kmalloc_node_track_caller+0x6c/0x390
-    [<000000006c0ffb13>] kvasprintf+0x8c/0x118
-    [<00000000fa27bfe1>] kvasprintf_const+0x60/0xc8
-    [<0000000083e10ed7>] kobject_set_name_vargs+0x3c/0xc0
-    [<000000000b87affc>] dev_set_name+0x7c/0xa0
-    [<000000003fd8fe26>] hnae_ae_register+0xcc/0x190 [hnae]
-    [<00000000fe97edc9>] hns_dsaf_ae_init+0x9c/0x108 [hns_dsaf]
-    [<00000000c36ff1eb>] hns_dsaf_probe+0x548/0x748 [hns_dsaf]
-
-Fixes: 6fe6611ff275 ("net: add Hisilicon Network Subsystem hnae framework support")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20221018122451.1749171-1-yangyingliang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Pavel Reichl <preichl@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+[darrick: fix a comment]
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns/hnae.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/xfs/libxfs/xfs_trans_resv.c |    4 ++--
+ fs/xfs/xfs_dquot_item.h        |   28 +++++++++++++++-------------
+ fs/xfs/xfs_qm_syscalls.c       |   29 ++++++++++++++++-------------
+ fs/xfs/xfs_trans_dquot.c       |   12 ++++++------
+ 4 files changed, 39 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hnae.c b/drivers/net/ethernet/hisilicon/hns/hnae.c
-index 00fafc0f8512..430eccea8e5e 100644
---- a/drivers/net/ethernet/hisilicon/hns/hnae.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hnae.c
-@@ -419,8 +419,10 @@ int hnae_ae_register(struct hnae_ae_dev *hdev, struct module *owner)
- 	hdev->cls_dev.release = hnae_release;
- 	(void)dev_set_name(&hdev->cls_dev, "hnae%d", hdev->id);
- 	ret = device_register(&hdev->cls_dev);
--	if (ret)
-+	if (ret) {
-+		put_device(&hdev->cls_dev);
- 		return ret;
-+	}
+--- a/fs/xfs/libxfs/xfs_trans_resv.c
++++ b/fs/xfs/libxfs/xfs_trans_resv.c
+@@ -800,7 +800,7 @@ xfs_calc_qm_dqalloc_reservation(
  
- 	__module_get(THIS_MODULE);
+ /*
+  * Turning off quotas.
+- *    the xfs_qoff_logitem_t: sizeof(struct xfs_qoff_logitem) * 2
++ *    the quota off logitems: sizeof(struct xfs_qoff_logitem) * 2
+  *    the superblock for the quota flags: sector size
+  */
+ STATIC uint
+@@ -813,7 +813,7 @@ xfs_calc_qm_quotaoff_reservation(
  
--- 
-2.35.1
-
+ /*
+  * End of turning off quotas.
+- *    the xfs_qoff_logitem_t: sizeof(struct xfs_qoff_logitem) * 2
++ *    the quota off logitems: sizeof(struct xfs_qoff_logitem) * 2
+  */
+ STATIC uint
+ xfs_calc_qm_quotaoff_end_reservation(void)
+--- a/fs/xfs/xfs_dquot_item.h
++++ b/fs/xfs/xfs_dquot_item.h
+@@ -12,24 +12,26 @@ struct xfs_mount;
+ struct xfs_qoff_logitem;
+ 
+ struct xfs_dq_logitem {
+-	struct xfs_log_item	 qli_item;	/* common portion */
++	struct xfs_log_item	qli_item;	/* common portion */
+ 	struct xfs_dquot	*qli_dquot;	/* dquot ptr */
+-	xfs_lsn_t		 qli_flush_lsn;	/* lsn at last flush */
++	xfs_lsn_t		qli_flush_lsn;	/* lsn at last flush */
+ };
+ 
+-typedef struct xfs_qoff_logitem {
+-	struct xfs_log_item	 qql_item;	/* common portion */
+-	struct xfs_qoff_logitem *qql_start_lip; /* qoff-start logitem, if any */
++struct xfs_qoff_logitem {
++	struct xfs_log_item	qql_item;	/* common portion */
++	struct xfs_qoff_logitem *qql_start_lip;	/* qoff-start logitem, if any */
+ 	unsigned int		qql_flags;
+-} xfs_qoff_logitem_t;
++};
+ 
+ 
+-extern void		   xfs_qm_dquot_logitem_init(struct xfs_dquot *);
+-extern xfs_qoff_logitem_t *xfs_qm_qoff_logitem_init(struct xfs_mount *,
+-					struct xfs_qoff_logitem *, uint);
+-extern xfs_qoff_logitem_t *xfs_trans_get_qoff_item(struct xfs_trans *,
+-					struct xfs_qoff_logitem *, uint);
+-extern void		   xfs_trans_log_quotaoff_item(struct xfs_trans *,
+-					struct xfs_qoff_logitem *);
++void xfs_qm_dquot_logitem_init(struct xfs_dquot *dqp);
++struct xfs_qoff_logitem	*xfs_qm_qoff_logitem_init(struct xfs_mount *mp,
++		struct xfs_qoff_logitem *start,
++		uint flags);
++struct xfs_qoff_logitem	*xfs_trans_get_qoff_item(struct xfs_trans *tp,
++		struct xfs_qoff_logitem *startqoff,
++		uint flags);
++void xfs_trans_log_quotaoff_item(struct xfs_trans *tp,
++		struct xfs_qoff_logitem *qlp);
+ 
+ #endif	/* __XFS_DQUOT_ITEM_H__ */
+--- a/fs/xfs/xfs_qm_syscalls.c
++++ b/fs/xfs/xfs_qm_syscalls.c
+@@ -19,9 +19,12 @@
+ #include "xfs_qm.h"
+ #include "xfs_icache.h"
+ 
+-STATIC int	xfs_qm_log_quotaoff(xfs_mount_t *, xfs_qoff_logitem_t **, uint);
+-STATIC int	xfs_qm_log_quotaoff_end(xfs_mount_t *, xfs_qoff_logitem_t *,
+-					uint);
++STATIC int xfs_qm_log_quotaoff(struct xfs_mount *mp,
++					struct xfs_qoff_logitem **qoffstartp,
++					uint flags);
++STATIC int xfs_qm_log_quotaoff_end(struct xfs_mount *mp,
++					struct xfs_qoff_logitem *startqoff,
++					uint flags);
+ 
+ /*
+  * Turn off quota accounting and/or enforcement for all udquots and/or
+@@ -40,7 +43,7 @@ xfs_qm_scall_quotaoff(
+ 	uint			dqtype;
+ 	int			error;
+ 	uint			inactivate_flags;
+-	xfs_qoff_logitem_t	*qoffstart;
++	struct xfs_qoff_logitem	*qoffstart;
+ 
+ 	/*
+ 	 * No file system can have quotas enabled on disk but not in core.
+@@ -540,13 +543,13 @@ out_unlock:
+ 
+ STATIC int
+ xfs_qm_log_quotaoff_end(
+-	xfs_mount_t		*mp,
+-	xfs_qoff_logitem_t	*startqoff,
++	struct xfs_mount	*mp,
++	struct xfs_qoff_logitem	*startqoff,
+ 	uint			flags)
+ {
+-	xfs_trans_t		*tp;
++	struct xfs_trans	*tp;
+ 	int			error;
+-	xfs_qoff_logitem_t	*qoffi;
++	struct xfs_qoff_logitem	*qoffi;
+ 
+ 	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_qm_equotaoff, 0, 0, 0, &tp);
+ 	if (error)
+@@ -568,13 +571,13 @@ xfs_qm_log_quotaoff_end(
+ 
+ STATIC int
+ xfs_qm_log_quotaoff(
+-	xfs_mount_t	       *mp,
+-	xfs_qoff_logitem_t     **qoffstartp,
+-	uint		       flags)
++	struct xfs_mount	*mp,
++	struct xfs_qoff_logitem	**qoffstartp,
++	uint			flags)
+ {
+-	xfs_trans_t	       *tp;
++	struct xfs_trans	*tp;
+ 	int			error;
+-	xfs_qoff_logitem_t     *qoffi;
++	struct xfs_qoff_logitem	*qoffi;
+ 
+ 	*qoffstartp = NULL;
+ 
+--- a/fs/xfs/xfs_trans_dquot.c
++++ b/fs/xfs/xfs_trans_dquot.c
+@@ -824,13 +824,13 @@ xfs_trans_reserve_quota_nblks(
+ /*
+  * This routine is called to allocate a quotaoff log item.
+  */
+-xfs_qoff_logitem_t *
++struct xfs_qoff_logitem *
+ xfs_trans_get_qoff_item(
+-	xfs_trans_t		*tp,
+-	xfs_qoff_logitem_t	*startqoff,
++	struct xfs_trans	*tp,
++	struct xfs_qoff_logitem	*startqoff,
+ 	uint			flags)
+ {
+-	xfs_qoff_logitem_t	*q;
++	struct xfs_qoff_logitem	*q;
+ 
+ 	ASSERT(tp != NULL);
+ 
+@@ -852,8 +852,8 @@ xfs_trans_get_qoff_item(
+  */
+ void
+ xfs_trans_log_quotaoff_item(
+-	xfs_trans_t		*tp,
+-	xfs_qoff_logitem_t	*qlp)
++	struct xfs_trans	*tp,
++	struct xfs_qoff_logitem	*qlp)
+ {
+ 	tp->t_flags |= XFS_TRANS_DIRTY;
+ 	set_bit(XFS_LI_DIRTY, &qlp->qql_item.li_flags);
 
 
