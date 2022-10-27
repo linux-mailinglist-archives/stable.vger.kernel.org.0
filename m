@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ACFC60FE1F
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:02:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 651FF60FDFA
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236858AbiJ0RCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:02:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55956 "EHLO
+        id S236670AbiJ0RAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:00:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236866AbiJ0RCS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:02:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AE33193745
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:02:15 -0700 (PDT)
+        with ESMTP id S236569AbiJ0RAx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:00:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A13615D0A7
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:00:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44512B82714
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:02:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EE55C433C1;
-        Thu, 27 Oct 2022 17:02:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEB2A610AB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:00:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C536EC433D6;
+        Thu, 27 Oct 2022 17:00:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890132;
-        bh=Ov4AyNc6DGU/isc+7CaCnVX4fnKqO2U7FUJBaUhTHD0=;
+        s=korg; t=1666890051;
+        bh=SCal8jdHTWPzIePVIq/LMT5kii3c4zI7QPaCqNljOXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bPd2Gu62TxSD+ePFnXQ8HzzbnuBrd7O8BvQpoH5nM+YDXIPW4EEfozQnI5QBV2a2B
-         pvXNffUXtRtefY/QRTQAeuIOZwuHYHoa1nMQcSEMD1JjL600YP1iFczh712V3drl7k
-         1RPgIxhBEjXOvUheS8AoC6qnDEoMs7AUqtTwv+90=
+        b=hEKRLWNLeLrMiNUvO65Ekehri/lHI85IRubItFeWgTi3PD1wTDJCTmcut4loTav52
+         H0Auwa6bvpgVbLhTYcp2ZqmG1mc0atxRubt6ksUrKr/lo6umuzOMzr7p3vqD3JfdrZ
+         s4bV0IPsoz+TkSZeJ2HHBbnxzd+zgBt1qcy0ZsH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tony Luck <tony.luck@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 35/79] ACPI: extlog: Handle multiple records
+        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 91/94] ext4: factor out ext4_fc_get_tl()
 Date:   Thu, 27 Oct 2022 18:55:33 +0200
-Message-Id: <20221027165056.102043833@linuxfoundation.org>
+Message-Id: <20221027165100.859744028@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
-References: <20221027165054.917467648@linuxfoundation.org>
+In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
+References: <20221027165057.208202132@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +52,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit f6ec01da40e4139b41179f046044ee7c4f6370dc ]
+[ Upstream commit dcc5827484d6e53ccda12334f8bbfafcc593ceda ]
 
-If there is no user space consumer of extlog_mem trace records, then
-Linux properly handles multiple error records in an ELOG block
+Factor out ext4_fc_get_tl() to fill 'tl' with host byte order.
 
-	extlog_print()
-	  print_extlog_rcd()
-	    __print_extlog_rcd()
-	      cper_estatus_print()
-		apei_estatus_for_each_section()
-
-But the other code path hard codes looking for a single record to
-output a trace record.
-
-Fix by using the same apei_estatus_for_each_section() iterator
-to step over all records.
-
-Fixes: 2dfb7d51a61d ("trace, RAS: Add eMCA trace event interface")
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20220924075233.2315259-3-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Stable-dep-of: 1b45cc5c7b92 ("ext4: fix potential out of bound read in ext4_fc_replay_scan()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_extlog.c | 33 ++++++++++++++++++++-------------
- 1 file changed, 20 insertions(+), 13 deletions(-)
+ fs/ext4/fast_commit.c | 46 +++++++++++++++++++++++--------------------
+ 1 file changed, 25 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/acpi/acpi_extlog.c b/drivers/acpi/acpi_extlog.c
-index 72f1fb77abcd..e648158368a7 100644
---- a/drivers/acpi/acpi_extlog.c
-+++ b/drivers/acpi/acpi_extlog.c
-@@ -12,6 +12,7 @@
- #include <linux/ratelimit.h>
- #include <linux/edac.h>
- #include <linux/ras.h>
-+#include <acpi/ghes.h>
- #include <asm/cpu.h>
- #include <asm/mce.h>
+diff --git a/fs/ext4/fast_commit.c b/fs/ext4/fast_commit.c
+index 6c8b78ad0ff2..f518c6585a63 100644
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -1346,7 +1346,7 @@ struct dentry_info_args {
+ };
  
-@@ -138,8 +139,8 @@ static int extlog_print(struct notifier_block *nb, unsigned long val,
- 	int	cpu = mce->extcpu;
- 	struct acpi_hest_generic_status *estatus, *tmp;
- 	struct acpi_hest_generic_data *gdata;
--	const guid_t *fru_id = &guid_null;
--	char *fru_text = "";
-+	const guid_t *fru_id;
-+	char *fru_text;
- 	guid_t *sec_type;
- 	static u32 err_seq;
+ static inline void tl_to_darg(struct dentry_info_args *darg,
+-			      struct  ext4_fc_tl *tl, u8 *val)
++			      struct ext4_fc_tl *tl, u8 *val)
+ {
+ 	struct ext4_fc_dentry_info fcd;
  
-@@ -160,17 +161,23 @@ static int extlog_print(struct notifier_block *nb, unsigned long val,
- 
- 	/* log event via trace */
- 	err_seq++;
--	gdata = (struct acpi_hest_generic_data *)(tmp + 1);
--	if (gdata->validation_bits & CPER_SEC_VALID_FRU_ID)
--		fru_id = (guid_t *)gdata->fru_id;
--	if (gdata->validation_bits & CPER_SEC_VALID_FRU_TEXT)
--		fru_text = gdata->fru_text;
--	sec_type = (guid_t *)gdata->section_type;
--	if (guid_equal(sec_type, &CPER_SEC_PLATFORM_MEM)) {
--		struct cper_sec_mem_err *mem = (void *)(gdata + 1);
--		if (gdata->error_data_length >= sizeof(*mem))
--			trace_extlog_mem_event(mem, err_seq, fru_id, fru_text,
--					       (u8)gdata->error_severity);
-+	apei_estatus_for_each_section(tmp, gdata) {
-+		if (gdata->validation_bits & CPER_SEC_VALID_FRU_ID)
-+			fru_id = (guid_t *)gdata->fru_id;
-+		else
-+			fru_id = &guid_null;
-+		if (gdata->validation_bits & CPER_SEC_VALID_FRU_TEXT)
-+			fru_text = gdata->fru_text;
-+		else
-+			fru_text = "";
-+		sec_type = (guid_t *)gdata->section_type;
-+		if (guid_equal(sec_type, &CPER_SEC_PLATFORM_MEM)) {
-+			struct cper_sec_mem_err *mem = (void *)(gdata + 1);
+@@ -1355,8 +1355,14 @@ static inline void tl_to_darg(struct dentry_info_args *darg,
+ 	darg->parent_ino = le32_to_cpu(fcd.fc_parent_ino);
+ 	darg->ino = le32_to_cpu(fcd.fc_ino);
+ 	darg->dname = val + offsetof(struct ext4_fc_dentry_info, fc_dname);
+-	darg->dname_len = le16_to_cpu(tl->fc_len) -
+-		sizeof(struct ext4_fc_dentry_info);
++	darg->dname_len = tl->fc_len - sizeof(struct ext4_fc_dentry_info);
++}
 +
-+			if (gdata->error_data_length >= sizeof(*mem))
-+				trace_extlog_mem_event(mem, err_seq, fru_id, fru_text,
-+						       (u8)gdata->error_severity);
-+		}
- 	}
++static inline void ext4_fc_get_tl(struct ext4_fc_tl *tl, u8 *val)
++{
++	memcpy(tl, val, EXT4_FC_TAG_BASE_LEN);
++	tl->fc_len = le16_to_cpu(tl->fc_len);
++	tl->fc_tag = le16_to_cpu(tl->fc_tag);
+ }
  
- out:
+ /* Unlink replay function */
+@@ -1521,7 +1527,7 @@ static int ext4_fc_replay_inode(struct super_block *sb, struct ext4_fc_tl *tl,
+ 	struct ext4_inode *raw_fc_inode;
+ 	struct inode *inode = NULL;
+ 	struct ext4_iloc iloc;
+-	int inode_len, ino, ret, tag = le16_to_cpu(tl->fc_tag);
++	int inode_len, ino, ret, tag = tl->fc_tag;
+ 	struct ext4_extent_header *eh;
+ 
+ 	memcpy(&fc_inode, val, sizeof(fc_inode));
+@@ -1546,7 +1552,7 @@ static int ext4_fc_replay_inode(struct super_block *sb, struct ext4_fc_tl *tl,
+ 	if (ret)
+ 		goto out;
+ 
+-	inode_len = le16_to_cpu(tl->fc_len) - sizeof(struct ext4_fc_inode);
++	inode_len = tl->fc_len - sizeof(struct ext4_fc_inode);
+ 	raw_inode = ext4_raw_inode(&iloc);
+ 
+ 	memcpy(raw_inode, raw_fc_inode, offsetof(struct ext4_inode, i_block));
+@@ -2037,12 +2043,12 @@ static int ext4_fc_replay_scan(journal_t *journal,
+ 
+ 	state->fc_replay_expected_off++;
+ 	for (cur = start; cur < end;
+-	     cur = cur + EXT4_FC_TAG_BASE_LEN + le16_to_cpu(tl.fc_len)) {
+-		memcpy(&tl, cur, EXT4_FC_TAG_BASE_LEN);
++	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
++		ext4_fc_get_tl(&tl, cur);
+ 		val = cur + EXT4_FC_TAG_BASE_LEN;
+ 		ext4_debug("Scan phase, tag:%s, blk %lld\n",
+-			  tag2str(le16_to_cpu(tl.fc_tag)), bh->b_blocknr);
+-		switch (le16_to_cpu(tl.fc_tag)) {
++			   tag2str(tl.fc_tag), bh->b_blocknr);
++		switch (tl.fc_tag) {
+ 		case EXT4_FC_TAG_ADD_RANGE:
+ 			memcpy(&ext, val, sizeof(ext));
+ 			ex = (struct ext4_extent *)&ext.fc_ex;
+@@ -2062,7 +2068,7 @@ static int ext4_fc_replay_scan(journal_t *journal,
+ 		case EXT4_FC_TAG_PAD:
+ 			state->fc_cur_tag++;
+ 			state->fc_crc = ext4_chksum(sbi, state->fc_crc, cur,
+-				EXT4_FC_TAG_BASE_LEN + le16_to_cpu(tl.fc_len));
++				EXT4_FC_TAG_BASE_LEN + tl.fc_len);
+ 			break;
+ 		case EXT4_FC_TAG_TAIL:
+ 			state->fc_cur_tag++;
+@@ -2095,7 +2101,7 @@ static int ext4_fc_replay_scan(journal_t *journal,
+ 			}
+ 			state->fc_cur_tag++;
+ 			state->fc_crc = ext4_chksum(sbi, state->fc_crc, cur,
+-				EXT4_FC_TAG_BASE_LEN + le16_to_cpu(tl.fc_len));
++				EXT4_FC_TAG_BASE_LEN + tl.fc_len);
+ 			break;
+ 		default:
+ 			ret = state->fc_replay_num_tags ?
+@@ -2151,8 +2157,8 @@ static int ext4_fc_replay(journal_t *journal, struct buffer_head *bh,
+ 	end = (__u8 *)bh->b_data + journal->j_blocksize - 1;
+ 
+ 	for (cur = start; cur < end;
+-	     cur = cur + EXT4_FC_TAG_BASE_LEN + le16_to_cpu(tl.fc_len)) {
+-		memcpy(&tl, cur, EXT4_FC_TAG_BASE_LEN);
++	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
++		ext4_fc_get_tl(&tl, cur);
+ 		val = cur + EXT4_FC_TAG_BASE_LEN;
+ 
+ 		if (state->fc_replay_num_tags == 0) {
+@@ -2160,10 +2166,9 @@ static int ext4_fc_replay(journal_t *journal, struct buffer_head *bh,
+ 			ext4_fc_set_bitmaps_and_counters(sb);
+ 			break;
+ 		}
+-		ext4_debug("Replay phase, tag:%s\n",
+-				tag2str(le16_to_cpu(tl.fc_tag)));
++		ext4_debug("Replay phase, tag:%s\n", tag2str(tl.fc_tag));
+ 		state->fc_replay_num_tags--;
+-		switch (le16_to_cpu(tl.fc_tag)) {
++		switch (tl.fc_tag) {
+ 		case EXT4_FC_TAG_LINK:
+ 			ret = ext4_fc_replay_link(sb, &tl, val);
+ 			break;
+@@ -2184,19 +2189,18 @@ static int ext4_fc_replay(journal_t *journal, struct buffer_head *bh,
+ 			break;
+ 		case EXT4_FC_TAG_PAD:
+ 			trace_ext4_fc_replay(sb, EXT4_FC_TAG_PAD, 0,
+-					     le16_to_cpu(tl.fc_len), 0);
++					     tl.fc_len, 0);
+ 			break;
+ 		case EXT4_FC_TAG_TAIL:
+-			trace_ext4_fc_replay(sb, EXT4_FC_TAG_TAIL, 0,
+-					     le16_to_cpu(tl.fc_len), 0);
++			trace_ext4_fc_replay(sb, EXT4_FC_TAG_TAIL,
++					     0, tl.fc_len, 0);
+ 			memcpy(&tail, val, sizeof(tail));
+ 			WARN_ON(le32_to_cpu(tail.fc_tid) != expected_tid);
+ 			break;
+ 		case EXT4_FC_TAG_HEAD:
+ 			break;
+ 		default:
+-			trace_ext4_fc_replay(sb, le16_to_cpu(tl.fc_tag), 0,
+-					     le16_to_cpu(tl.fc_len), 0);
++			trace_ext4_fc_replay(sb, tl.fc_tag, 0, tl.fc_len, 0);
+ 			ret = -ECANCELED;
+ 			break;
+ 		}
 -- 
 2.35.1
 
