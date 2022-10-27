@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2D4F60FE0C
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:01:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9918A60FE76
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:05:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236826AbiJ0RBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:01:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54686 "EHLO
+        id S236953AbiJ0RF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:05:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236832AbiJ0RBk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:01:40 -0400
+        with ESMTP id S236935AbiJ0RF1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:05:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D34D1905E9
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:01:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E948180ADE
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:05:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8462E623EC
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:01:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97881C433C1;
-        Thu, 27 Oct 2022 17:01:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DFE6623F4
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:05:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF000C433D6;
+        Thu, 27 Oct 2022 17:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890095;
-        bh=bQ9rkRll7Msz84sMpNNPDVGTvFwwf5mZz3qudqVNpqc=;
+        s=korg; t=1666890325;
+        bh=LC8ZIEadYfOhNc8WcsWJ+gdRIVqtru+wfUxY390rcLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FebUelqv0MH1aH+tJylERjWPFJjJs0BryWwV8+6taE0EFCMeX4tJjZtaFE2lcB+0m
-         pJpwu6PbEhzf4sG/IZ5q8/8L+j30K3DF7Ev0VzzgfivLmUIV8xiSFPe2eClxLdIGG8
-         vf3DNxXZQA268+c3Bxw0zauCNG5wGEWFArrCTzg8=
+        b=B8UXDzxyEv7dG+mSD1jYoGqFLV+6f9lHx51nxk0lz/yzINeZIGW0RDjC1QcEMsCzx
+         fOPPxK54jGtwlBpfNY4NOFpji8l36mJkM4aGDGLB1vdPs7aNCnuLLNsXKePjp8ZwHI
+         MWelUlTbXuAwCfuvKR//Ffs8l2cX1P8ImpPufPRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.15 20/79] ata: ahci: Match EM_MAX_SLOTS with SATA_PMP_MAX_PORTS
+        patches@lists.linux.dev, Zhang Rui <rui.zhang@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Len Brown <len.brown@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.10 08/79] hwmon/coretemp: Handle large core ID value
 Date:   Thu, 27 Oct 2022 18:55:18 +0200
-Message-Id: <20221027165055.625310306@linuxfoundation.org>
+Message-Id: <20221027165054.591746162@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
-References: <20221027165054.917467648@linuxfoundation.org>
+In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
+References: <20221027165054.270676357@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +54,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Zhang Rui <rui.zhang@intel.com>
 
-commit 1e41e693f458eef2d5728207dbd327cd3b16580a upstream.
+commit 7108b80a542b9d65e44b36d64a700a83658c0b73 upstream.
 
-UBSAN complains about array-index-out-of-bounds:
-[ 1.980703] kernel: UBSAN: array-index-out-of-bounds in /build/linux-9H675w/linux-5.15.0/drivers/ata/libahci.c:968:41
-[ 1.980709] kernel: index 15 is out of range for type 'ahci_em_priv [8]'
-[ 1.980713] kernel: CPU: 0 PID: 209 Comm: scsi_eh_8 Not tainted 5.15.0-25-generic #25-Ubuntu
-[ 1.980716] kernel: Hardware name: System manufacturer System Product Name/P5Q3, BIOS 1102 06/11/2010
-[ 1.980718] kernel: Call Trace:
-[ 1.980721] kernel: <TASK>
-[ 1.980723] kernel: show_stack+0x52/0x58
-[ 1.980729] kernel: dump_stack_lvl+0x4a/0x5f
-[ 1.980734] kernel: dump_stack+0x10/0x12
-[ 1.980736] kernel: ubsan_epilogue+0x9/0x45
-[ 1.980739] kernel: __ubsan_handle_out_of_bounds.cold+0x44/0x49
-[ 1.980742] kernel: ahci_qc_issue+0x166/0x170 [libahci]
-[ 1.980748] kernel: ata_qc_issue+0x135/0x240
-[ 1.980752] kernel: ata_exec_internal_sg+0x2c4/0x580
-[ 1.980754] kernel: ? vprintk_default+0x1d/0x20
-[ 1.980759] kernel: ata_exec_internal+0x67/0xa0
-[ 1.980762] kernel: sata_pmp_read+0x8d/0xc0
-[ 1.980765] kernel: sata_pmp_read_gscr+0x3c/0x90
-[ 1.980768] kernel: sata_pmp_attach+0x8b/0x310
-[ 1.980771] kernel: ata_eh_revalidate_and_attach+0x28c/0x4b0
-[ 1.980775] kernel: ata_eh_recover+0x6b6/0xb30
-[ 1.980778] kernel: ? ahci_do_hardreset+0x180/0x180 [libahci]
-[ 1.980783] kernel: ? ahci_stop_engine+0xb0/0xb0 [libahci]
-[ 1.980787] kernel: ? ahci_do_softreset+0x290/0x290 [libahci]
-[ 1.980792] kernel: ? trace_event_raw_event_ata_eh_link_autopsy_qc+0xe0/0xe0
-[ 1.980795] kernel: sata_pmp_eh_recover.isra.0+0x214/0x560
-[ 1.980799] kernel: sata_pmp_error_handler+0x23/0x40
-[ 1.980802] kernel: ahci_error_handler+0x43/0x80 [libahci]
-[ 1.980806] kernel: ata_scsi_port_error_handler+0x2b1/0x600
-[ 1.980810] kernel: ata_scsi_error+0x9c/0xd0
-[ 1.980813] kernel: scsi_error_handler+0xa1/0x180
-[ 1.980817] kernel: ? scsi_unjam_host+0x1c0/0x1c0
-[ 1.980820] kernel: kthread+0x12a/0x150
-[ 1.980823] kernel: ? set_kthread_struct+0x50/0x50
-[ 1.980826] kernel: ret_from_fork+0x22/0x30
-[ 1.980831] kernel: </TASK>
+The coretemp driver supports up to a hard-coded limit of 128 cores.
 
-This happens because sata_pmp_init_links() initialize link->pmp up to
-SATA_PMP_MAX_PORTS while em_priv is declared as 8 elements array.
+Today, the driver can not support a core with an ID above that limit.
+Yet, the encoding of core ID's is arbitrary (BIOS APIC-ID) and so they
+may be sparse and they may be large.
 
-I can't find the maximum Enclosure Management ports specified in AHCI
-spec v1.3.1, but "12.2.1 LED message type" states that "Port Multiplier
-Information" can utilize 4 bits, which implies it can support up to 16
-ports. Hence, use SATA_PMP_MAX_PORTS as EM_MAX_SLOTS to resolve the
-issue.
+Update the driver to map arbitrary core ID numbers into appropriate
+array indexes so that 128 cores can be supported, no matter the encoding
+of core ID's.
 
-BugLink: https://bugs.launchpad.net/bugs/1970074
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Acked-by: Len Brown <len.brown@intel.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 Cc: stable@vger.kernel.org
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Link: https://lkml.kernel.org/r/20221014090147.1836-3-rui.zhang@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/ahci.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/coretemp.c |   56 ++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 41 insertions(+), 15 deletions(-)
 
---- a/drivers/ata/ahci.h
-+++ b/drivers/ata/ahci.h
-@@ -254,7 +254,7 @@ enum {
- 	PCS_7				= 0x94, /* 7+ port PCS (Denverton) */
+--- a/drivers/hwmon/coretemp.c
++++ b/drivers/hwmon/coretemp.c
+@@ -46,9 +46,6 @@ MODULE_PARM_DESC(tjmax, "TjMax value in
+ #define TOTAL_ATTRS		(MAX_CORE_ATTRS + 1)
+ #define MAX_CORE_DATA		(NUM_REAL_CORES + BASE_SYSFS_ATTR_NO)
  
- 	/* em constants */
--	EM_MAX_SLOTS			= 8,
-+	EM_MAX_SLOTS			= SATA_PMP_MAX_PORTS,
- 	EM_MAX_RETRY			= 5,
+-#define TO_CORE_ID(cpu)		(cpu_data(cpu).cpu_core_id)
+-#define TO_ATTR_NO(cpu)		(TO_CORE_ID(cpu) + BASE_SYSFS_ATTR_NO)
+-
+ #ifdef CONFIG_SMP
+ #define for_each_sibling(i, cpu) \
+ 	for_each_cpu(i, topology_sibling_cpumask(cpu))
+@@ -91,6 +88,8 @@ struct temp_data {
+ struct platform_data {
+ 	struct device		*hwmon_dev;
+ 	u16			pkg_id;
++	u16			cpu_map[NUM_REAL_CORES];
++	struct ida		ida;
+ 	struct cpumask		cpumask;
+ 	struct temp_data	*core_data[MAX_CORE_DATA];
+ 	struct device_attribute name_attr;
+@@ -441,7 +440,7 @@ static struct temp_data *init_temp_data(
+ 							MSR_IA32_THERM_STATUS;
+ 	tdata->is_pkg_data = pkg_flag;
+ 	tdata->cpu = cpu;
+-	tdata->cpu_core_id = TO_CORE_ID(cpu);
++	tdata->cpu_core_id = topology_core_id(cpu);
+ 	tdata->attr_size = MAX_CORE_ATTRS;
+ 	mutex_init(&tdata->update_lock);
+ 	return tdata;
+@@ -454,7 +453,7 @@ static int create_core_data(struct platf
+ 	struct platform_data *pdata = platform_get_drvdata(pdev);
+ 	struct cpuinfo_x86 *c = &cpu_data(cpu);
+ 	u32 eax, edx;
+-	int err, attr_no;
++	int err, index, attr_no;
  
- 	/* em_ctl bits */
+ 	/*
+ 	 * Find attr number for sysfs:
+@@ -462,14 +461,26 @@ static int create_core_data(struct platf
+ 	 * The attr number is always core id + 2
+ 	 * The Pkgtemp will always show up as temp1_*, if available
+ 	 */
+-	attr_no = pkg_flag ? PKG_SYSFS_ATTR_NO : TO_ATTR_NO(cpu);
++	if (pkg_flag) {
++		attr_no = PKG_SYSFS_ATTR_NO;
++	} else {
++		index = ida_alloc(&pdata->ida, GFP_KERNEL);
++		if (index < 0)
++			return index;
++		pdata->cpu_map[index] = topology_core_id(cpu);
++		attr_no = index + BASE_SYSFS_ATTR_NO;
++	}
+ 
+-	if (attr_no > MAX_CORE_DATA - 1)
+-		return -ERANGE;
++	if (attr_no > MAX_CORE_DATA - 1) {
++		err = -ERANGE;
++		goto ida_free;
++	}
+ 
+ 	tdata = init_temp_data(cpu, pkg_flag);
+-	if (!tdata)
+-		return -ENOMEM;
++	if (!tdata) {
++		err = -ENOMEM;
++		goto ida_free;
++	}
+ 
+ 	/* Test if we can access the status register */
+ 	err = rdmsr_safe_on_cpu(cpu, tdata->status_reg, &eax, &edx);
+@@ -505,6 +516,9 @@ static int create_core_data(struct platf
+ exit_free:
+ 	pdata->core_data[attr_no] = NULL;
+ 	kfree(tdata);
++ida_free:
++	if (!pkg_flag)
++		ida_free(&pdata->ida, index);
+ 	return err;
+ }
+ 
+@@ -524,6 +538,9 @@ static void coretemp_remove_core(struct
+ 
+ 	kfree(pdata->core_data[indx]);
+ 	pdata->core_data[indx] = NULL;
++
++	if (indx >= BASE_SYSFS_ATTR_NO)
++		ida_free(&pdata->ida, indx - BASE_SYSFS_ATTR_NO);
+ }
+ 
+ static int coretemp_probe(struct platform_device *pdev)
+@@ -537,6 +554,7 @@ static int coretemp_probe(struct platfor
+ 		return -ENOMEM;
+ 
+ 	pdata->pkg_id = pdev->id;
++	ida_init(&pdata->ida);
+ 	platform_set_drvdata(pdev, pdata);
+ 
+ 	pdata->hwmon_dev = devm_hwmon_device_register_with_groups(dev, DRVNAME,
+@@ -553,6 +571,7 @@ static int coretemp_remove(struct platfo
+ 		if (pdata->core_data[i])
+ 			coretemp_remove_core(pdata, i);
+ 
++	ida_destroy(&pdata->ida);
+ 	return 0;
+ }
+ 
+@@ -647,7 +666,7 @@ static int coretemp_cpu_offline(unsigned
+ 	struct platform_device *pdev = coretemp_get_pdev(cpu);
+ 	struct platform_data *pd;
+ 	struct temp_data *tdata;
+-	int indx, target;
++	int i, indx = -1, target;
+ 
+ 	/*
+ 	 * Don't execute this on suspend as the device remove locks
+@@ -660,12 +679,19 @@ static int coretemp_cpu_offline(unsigned
+ 	if (!pdev)
+ 		return 0;
+ 
+-	/* The core id is too big, just return */
+-	indx = TO_ATTR_NO(cpu);
+-	if (indx > MAX_CORE_DATA - 1)
++	pd = platform_get_drvdata(pdev);
++
++	for (i = 0; i < NUM_REAL_CORES; i++) {
++		if (pd->cpu_map[i] == topology_core_id(cpu)) {
++			indx = i + BASE_SYSFS_ATTR_NO;
++			break;
++		}
++	}
++
++	/* Too many cores and this core is not populated, just return */
++	if (indx < 0)
+ 		return 0;
+ 
+-	pd = platform_get_drvdata(pdev);
+ 	tdata = pd->core_data[indx];
+ 
+ 	cpumask_clear_cpu(cpu, &pd->cpumask);
 
 
