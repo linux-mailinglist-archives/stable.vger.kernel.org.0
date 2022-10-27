@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 791A360FE50
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:04:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B907460FEDA
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236902AbiJ0REP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:04:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58472 "EHLO
+        id S237076AbiJ0RJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:09:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236904AbiJ0REO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:14 -0400
+        with ESMTP id S237091AbiJ0RJA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:09:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F1C1196EE5
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDA121A1B15
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:08:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B71F2B825F3
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A103C433D6;
-        Thu, 27 Oct 2022 17:04:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8DF31B82723
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:08:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3EA2C433C1;
+        Thu, 27 Oct 2022 17:08:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890251;
-        bh=MVTfmYX0QFFFdyRPGQIPSNDoeBUAKnJl2pU2L0JmCa4=;
+        s=korg; t=1666890537;
+        bh=sL3uA0vIfzCwFggOy1MGxMSWIBjwymVUOWgvUHstnQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o7AhvZ14XYO9KwfCps3A83epoEcOeTU5gLfMAWUuHkVPY8AHTonm4rHgkEDwiU/ZT
-         4IRBOegppj0oZLAImr/VFttXNnQeb1lSb8t1bPjTA82grk2pLirmW79NKWut1lKHdp
-         dJNGjxZ5FCfXUmt/Tz0THxP4ohrQXmPMYPzEC7pY=
+        b=hlMoGFSFaNHg4mb/C0899kFRUgA7IuIr0rXUaJTcZlNgdJf1FzaXpzKR3LLXlgMdH
+         xMvesg6uDkYLjMrGLmI6GqDPoICenP2bllAnuTDB9pA/XyxzMfxDh1KX2QjxItuT5U
+         9Q3bKmsLVnbww8M3gmoJhQEPS3RyFV4Uw/AxNQQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Seth Jenkins <sethjenkins@google.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH 5.15 79/79] mm: /proc/pid/smaps_rollup: fix no vmas null-deref
+        patches@lists.linux.dev,
+        =?UTF-8?q?=C8=98tefan=20Talpalaru?= <stefantalpalaru@yahoo.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.4 29/53] x86/microcode/AMD: Apply the patch early on every logical thread
 Date:   Thu, 27 Oct 2022 18:56:17 +0200
-Message-Id: <20221027165057.551168756@linuxfoundation.org>
+Message-Id: <20221027165050.906621959@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
-References: <20221027165054.917467648@linuxfoundation.org>
+In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
+References: <20221027165049.817124510@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,31 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seth Jenkins <sethjenkins@google.com>
+From: Borislav Petkov <bp@suse.de>
 
-Commit 258f669e7e88 ("mm: /proc/pid/smaps_rollup: convert to single value
-seq_file") introduced a null-deref if there are no vma's in the task in
-show_smaps_rollup.
+commit e7ad18d1169c62e6c78c01ff693fd362d9d65278 upstream.
 
-Fixes: 258f669e7e88 ("mm: /proc/pid/smaps_rollup: convert to single value seq_file")
-Signed-off-by: Seth Jenkins <sethjenkins@google.com>
-Reviewed-by: Alexey Dobriyan <adobriyan@gmail.com>
-Tested-by: Alexey Dobriyan <adobriyan@gmail.com>
+Currently, the patch application logic checks whether the revision
+needs to be applied on each logical CPU (SMT thread). Therefore, on SMT
+designs where the microcode engine is shared between the two threads,
+the application happens only on one of them as that is enough to update
+the shared microcode engine.
+
+However, there are microcode patches which do per-thread modification,
+see Link tag below.
+
+Therefore, drop the revision check and try applying on each thread. This
+is what the BIOS does too so this method is very much tested.
+
+Btw, change only the early paths. On the late loading paths, there's no
+point in doing per-thread modification because if is it some case like
+in the bugzilla below - removing a CPUID flag - the kernel cannot go and
+un-use features it has detected are there early. For that, one should
+use early loading anyway.
+
+  [ bp: Fixes does not contain the oldest commit which did check for
+    equality but that is good enough. ]
+
+Fixes: 8801b3fcb574 ("x86/microcode/AMD: Rework container parsing")
+Reported-by:  Ștefan Talpalaru <stefantalpalaru@yahoo.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by:  Ștefan Talpalaru <stefantalpalaru@yahoo.com>
+Cc: <stable@vger.kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216211
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/proc/task_mmu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/microcode/amd.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -951,7 +951,7 @@ static int show_smaps_rollup(struct seq_
- 		vma = vma->vm_next;
- 	}
+--- a/arch/x86/kernel/cpu/microcode/amd.c
++++ b/arch/x86/kernel/cpu/microcode/amd.c
+@@ -441,7 +441,13 @@ apply_microcode_early_amd(u32 cpuid_1_ea
+ 		return ret;
  
--	show_vma_header_prefix(m, priv->mm->mmap->vm_start,
-+	show_vma_header_prefix(m, priv->mm->mmap ? priv->mm->mmap->vm_start : 0,
- 			       last_vma_end, 0, 0, 0, 0);
- 	seq_pad(m, ' ');
- 	seq_puts(m, "[rollup]\n");
+ 	native_rdmsr(MSR_AMD64_PATCH_LEVEL, rev, dummy);
+-	if (rev >= mc->hdr.patch_id)
++
++	/*
++	 * Allow application of the same revision to pick up SMT-specific
++	 * changes even if the revision of the other SMT thread is already
++	 * up-to-date.
++	 */
++	if (rev > mc->hdr.patch_id)
+ 		return ret;
+ 
+ 	if (!__apply_microcode_amd(mc)) {
+@@ -523,8 +529,12 @@ void load_ucode_amd_ap(unsigned int cpui
+ 
+ 	native_rdmsr(MSR_AMD64_PATCH_LEVEL, rev, dummy);
+ 
+-	/* Check whether we have saved a new patch already: */
+-	if (*new_rev && rev < mc->hdr.patch_id) {
++	/*
++	 * Check whether a new patch has been saved already. Also, allow application of
++	 * the same revision in order to pick up SMT-thread-specific configuration even
++	 * if the sibling SMT thread already has an up-to-date revision.
++	 */
++	if (*new_rev && rev <= mc->hdr.patch_id) {
+ 		if (!__apply_microcode_amd(mc)) {
+ 			*new_rev = mc->hdr.patch_id;
+ 			return;
 
 
