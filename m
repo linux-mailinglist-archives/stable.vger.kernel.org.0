@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 365CA60FE30
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:03:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F2360FE86
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:06:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236869AbiJ0RDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:03:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57042 "EHLO
+        id S236977AbiJ0RGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:06:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236874AbiJ0RC7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:02:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95AE618F271
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:02:58 -0700 (PDT)
+        with ESMTP id S236963AbiJ0RGA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:06:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B934193EE5
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:05:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 28F3D623ED
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:02:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C1FFC433C1;
-        Thu, 27 Oct 2022 17:02:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC6B0B824DB
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:05:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37A13C433D6;
+        Thu, 27 Oct 2022 17:05:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890177;
-        bh=+XjG504JdkjP4krfFO42UNnikq/pPquyqm0k8taLl9M=;
+        s=korg; t=1666890356;
+        bh=FoIWPUTl3vEK+owOoHDkpgyRijny409xAVylA7T2X5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUnKWTkKiF1cZemJtAePa5RGTTUAXca5fC1C58jyeQiYxUHi4hPLXMqODOcnYnJrU
-         JJ7ae5PmJXLWp8Kt89bd1IRyttL9ag0p+MbinlL8u/rkBKsB4sqMrNRVquyfn34PTN
-         bqK8gtL81B0qPlIRqMzA4IDZOnniQLH95GAGuJnQ=
+        b=EjpLqZz6Z5wHy9CdBcSKvSVgttfSkhsVX9Meg1S4AT9wUJJreQbqOMz5z4HzaUGaJ
+         Nr6fT8NKVcfK76CSSjt+bHYPLbv/3qMJg0fg/xwsPyBRANTvVgh6EVLIRrIr+ULTDD
+         IQGrUKCyMcOuOTf+Nf+Z3RYop8E2Rt7ccDXjvq7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 51/79] net: hsr: avoid possible NULL deref in skb_clone()
-Date:   Thu, 27 Oct 2022 18:55:49 +0200
-Message-Id: <20221027165056.602305516@linuxfoundation.org>
+Subject: [PATCH 5.10 40/79] net: hsr: avoid possible NULL deref in skb_clone()
+Date:   Thu, 27 Oct 2022 18:55:50 +0200
+Message-Id: <20221027165055.722346511@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
-References: <20221027165054.917467648@linuxfoundation.org>
+In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
+References: <20221027165054.270676357@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -118,7 +118,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/net/hsr/hsr_forward.c b/net/hsr/hsr_forward.c
-index ceb8afb2a62f..13f81c246f5f 100644
+index baf4765be6d7..908324b46328 100644
 --- a/net/hsr/hsr_forward.c
 +++ b/net/hsr/hsr_forward.c
 @@ -108,15 +108,15 @@ struct sk_buff *hsr_get_untagged_frame(struct hsr_frame_info *frame,
