@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1C3960FE27
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E17EF60FE28
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:02:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236853AbiJ0RCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:02:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56452 "EHLO
+        id S236862AbiJ0RCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:02:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236868AbiJ0RCf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:02:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D542818DD7E
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:02:34 -0700 (PDT)
+        with ESMTP id S236868AbiJ0RCi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:02:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FE1B192BAE
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:02:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72517623F0
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:02:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82B6DC433B5;
-        Thu, 27 Oct 2022 17:02:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DBE462369
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:02:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22B34C433D6;
+        Thu, 27 Oct 2022 17:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890153;
-        bh=723QCM8qTb6L6VHrN16jCsxgnQI3lgPy5nFs9FHm+IQ=;
+        s=korg; t=1666890156;
+        bh=VqPp1pwxfWZsk2m2ry/Ml8RjTc6+d0R1zpEFNZVaMAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dvu5z1EqXIePpjtRw3dz3m1rPj8eguxtqnDlCVha38MTXwc36sudDE9nIY4N4Q+tc
-         DdIQmm9F3/bIy2dx76irbPeDXm1xKBFbdT+mSMAIlzIxMUNaxSSs08YEOLFH34V+T9
-         Teog7E19svSLobTVGvV3ppFqb2KmEC2qnysXARZg=
+        b=U3KAsGLmyIh3fep5k7T8b93QlICFrymZFb6HsCK5QKmY16lZ7TBrZIFU8cl1Tx6/Q
+         PpkPrq67ZhJKU0St4V8zyIobDh5NMRv2B0YXdYuFnXqcb0puRpH/ZLtnyvNZwx0WST
+         d3bcMdy1jGlzXy8CJ9NpiVWSiSpvNp4cmrpBYDHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Harini Katakam <harini.katakam@amd.com>,
-        Andrew Lunn <andrew@lunn.ch>,
+        patches@lists.linux.dev, Shenwei Wang <shenwei.wang@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 42/79] net: phy: dp83867: Extend RX strap quirk for SGMII mode
-Date:   Thu, 27 Oct 2022 18:55:40 +0200
-Message-Id: <20221027165056.309185483@linuxfoundation.org>
+Subject: [PATCH 5.15 43/79] net: phylink: add mac_managed_pm in phylink_config structure
+Date:   Thu, 27 Oct 2022 18:55:41 +0200
+Message-Id: <20221027165056.345836802@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
 References: <20221027165054.917467648@linuxfoundation.org>
@@ -54,42 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harini Katakam <harini.katakam@amd.com>
+From: Shenwei Wang <shenwei.wang@nxp.com>
 
-[ Upstream commit 0c9efbd5c50c64ead434960a404c9c9a097b0403 ]
+[ Upstream commit 96de900ae78e7dbedc937fd91bafe2934579c65a ]
 
-When RX strap in HW is not set to MODE 3 or 4, bit 7 and 8 in CF4
-register should be set. The former is already handled in
-dp83867_config_init; add the latter in SGMII specific initialization.
+The recent commit
 
-Fixes: 2a10154abcb7 ("net: phy: dp83867: Add TI dp83867 phy")
-Signed-off-by: Harini Katakam <harini.katakam@amd.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+'commit 744d23c71af3 ("net: phy: Warn about incorrect
+mdio_bus_phy_resume() state")'
+
+requires the MAC driver explicitly tell the phy driver who is
+managing the PM, otherwise you will see warning during resume
+stage.
+
+Add a boolean property in the phylink_config structure so that
+the MAC driver can use it to tell the PHY driver if it wants to
+manage the PM.
+
+Fixes: 744d23c71af3 ("net: phy: Warn about incorrect mdio_bus_phy_resume() state")
+Signed-off-by: Shenwei Wang <shenwei.wang@nxp.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83867.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/phy/phylink.c | 3 +++
+ include/linux/phylink.h   | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
-index d097097c93c3..783e30451e30 100644
---- a/drivers/net/phy/dp83867.c
-+++ b/drivers/net/phy/dp83867.c
-@@ -791,6 +791,14 @@ static int dp83867_config_init(struct phy_device *phydev)
- 		else
- 			val &= ~DP83867_SGMII_TYPE;
- 		phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_SGMIICTL, val);
-+
-+		/* This is a SW workaround for link instability if RX_CTRL is
-+		 * not strapped to mode 3 or 4 in HW. This is required for SGMII
-+		 * in addition to clearing bit 7, handled above.
-+		 */
-+		if (dp83867->rxctrl_strap_quirk)
-+			phy_set_bits_mmd(phydev, DP83867_DEVADDR, DP83867_CFG4,
-+					 BIT(8));
- 	}
+diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
+index fef1416dcee4..7afcf6310d59 100644
+--- a/drivers/net/phy/phylink.c
++++ b/drivers/net/phy/phylink.c
+@@ -1050,6 +1050,9 @@ static int phylink_bringup_phy(struct phylink *pl, struct phy_device *phy,
+ 	if (phy_interrupt_is_valid(phy))
+ 		phy_request_interrupt(phy);
  
- 	val = phy_read(phydev, DP83867_CFG3);
++	if (pl->config->mac_managed_pm)
++		phy->mac_managed_pm = true;
++
+ 	return 0;
+ }
+ 
+diff --git a/include/linux/phylink.h b/include/linux/phylink.h
+index 237291196ce2..b306159c1fad 100644
+--- a/include/linux/phylink.h
++++ b/include/linux/phylink.h
+@@ -64,6 +64,7 @@ enum phylink_op_type {
+  * @pcs_poll: MAC PCS cannot provide link change interrupt
+  * @poll_fixed_state: if true, starts link_poll,
+  *		      if MAC link is at %MLO_AN_FIXED mode.
++ * @mac_managed_pm: if true, indicate the MAC driver is responsible for PHY PM.
+  * @ovr_an_inband: if true, override PCS to MLO_AN_INBAND
+  * @get_fixed_state: callback to execute to determine the fixed link state,
+  *		     if MAC link is at %MLO_AN_FIXED mode.
+@@ -73,6 +74,7 @@ struct phylink_config {
+ 	enum phylink_op_type type;
+ 	bool pcs_poll;
+ 	bool poll_fixed_state;
++	bool mac_managed_pm;
+ 	bool ovr_an_inband;
+ 	void (*get_fixed_state)(struct phylink_config *config,
+ 				struct phylink_link_state *state);
 -- 
 2.35.1
 
