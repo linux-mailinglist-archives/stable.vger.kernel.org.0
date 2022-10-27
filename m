@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E711C60FE53
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:04:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAC6860FEC4
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:08:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236903AbiJ0REW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:04:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58554 "EHLO
+        id S237046AbiJ0RIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:08:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236904AbiJ0REV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:04:21 -0400
+        with ESMTP id S237047AbiJ0RIL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:08:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 613D0196EE9
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:04:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F01A1A16D7
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:08:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F088A623F4
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:04:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC957C433D6;
-        Thu, 27 Oct 2022 17:04:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7E9562369
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:08:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEB04C433D7;
+        Thu, 27 Oct 2022 17:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890259;
-        bh=E/kWDtbz4qHqLhkFhBSVI/itl93fvhjhPIhk0lE22IE=;
+        s=korg; t=1666890490;
+        bh=/1/fHHHyTCPbazGczitn/5P21xY/nMcHsq2AoX3DCKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DLGlWumAC2riBsPxfDq0v2Xfrgy7596uTQ5S9aNO7cYLZW6nMCoFIZ0FR6ZoxuAGI
-         P0tcHU0ES6JNjPvs37bqzidXwIpZcIjh6RQfXakCZld89zkYXMUprEc2qN1/RKqUfQ
-         /l28zjlK6uZWB/+L8AfAs6rPXK1ZcY7Y7Gv3olzY=
+        b=gPvHvq+v8AwFYICmQE2W4pPErS8AhosRw7AMbEAFD6R5wjXLALFzjhz2dHzUmNiiX
+         DH50KVd43PsMfTOjmWyvZNfwPZGZQPalHn0wUXBeeAgmPAvVRuxWH2A5yzG14hmUsV
+         fuFj80fd8R2Zln4iL0qhNEa2iuLId2QH/XW05ec4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Edward Cree <ecree.xilinx@gmail.com>,
-        Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>,
-        Martin Habets <habetsm.xilinx@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 60/79] sfc: include vport_id in filter spec hash and equal()
-Date:   Thu, 27 Oct 2022 18:55:58 +0200
-Message-Id: <20221027165056.909810221@linuxfoundation.org>
+        patches@lists.linux.dev, Pavel Reichl <preichl@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Chandan Babu R <chandan.babu@oracle.com>
+Subject: [PATCH 5.4 11/53] xfs: remove the xfs_dq_logitem_t typedef
+Date:   Thu, 27 Oct 2022 18:55:59 +0200
+Message-Id: <20221027165050.242411710@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
-References: <20221027165054.917467648@linuxfoundation.org>
+In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
+References: <20221027165049.817124510@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>
+From: Pavel Reichl <preichl@redhat.com>
 
-[ Upstream commit c2bf23e4a5af37a4d77901d9ff14c50a269f143d ]
+commit fd8b81dbbb23d4a3508cfac83256b4f5e770941c upstream.
 
-Filters on different vports are qualified by different implicit MACs and/or
-VLANs, so shouldn't be considered equal even if their other match fields
-are identical.
-
-Fixes: 7c460d9be610 ("sfc: Extend and abstract efx_filter_spec to cover Huntington/EF10")
-Co-developed-by: Edward Cree <ecree.xilinx@gmail.com>
-Signed-off-by: Edward Cree <ecree.xilinx@gmail.com>
-Signed-off-by: Pieter Jansen van Vuuren <pieter.jansen-van-vuuren@amd.com>
-Reviewed-by: Martin Habets <habetsm.xilinx@gmail.com>
-Link: https://lore.kernel.org/r/20221018092841.32206-1-pieter.jansen-van-vuuren@amd.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Pavel Reichl <preichl@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sfc/filter.h    |  3 ++-
- drivers/net/ethernet/sfc/rx_common.c | 10 +++++-----
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ fs/xfs/xfs_dquot.c      |    2 +-
+ fs/xfs/xfs_dquot.h      |    2 +-
+ fs/xfs/xfs_dquot_item.h |   10 +++++-----
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/filter.h b/drivers/net/ethernet/sfc/filter.h
-index 40b2af8bfb81..2ac3c8f1b04b 100644
---- a/drivers/net/ethernet/sfc/filter.h
-+++ b/drivers/net/ethernet/sfc/filter.h
-@@ -157,7 +157,8 @@ struct efx_filter_spec {
- 	u32	flags:6;
- 	u32	dmaq_id:12;
- 	u32	rss_context;
--	__be16	outer_vid __aligned(4); /* allow jhash2() of match values */
-+	u32	vport_id;
-+	__be16	outer_vid;
- 	__be16	inner_vid;
- 	u8	loc_mac[ETH_ALEN];
- 	u8	rem_mac[ETH_ALEN];
-diff --git a/drivers/net/ethernet/sfc/rx_common.c b/drivers/net/ethernet/sfc/rx_common.c
-index b925de9b4302..a804c754cd7d 100644
---- a/drivers/net/ethernet/sfc/rx_common.c
-+++ b/drivers/net/ethernet/sfc/rx_common.c
-@@ -676,17 +676,17 @@ bool efx_filter_spec_equal(const struct efx_filter_spec *left,
- 	     (EFX_FILTER_FLAG_RX | EFX_FILTER_FLAG_TX)))
- 		return false;
- 
--	return memcmp(&left->outer_vid, &right->outer_vid,
-+	return memcmp(&left->vport_id, &right->vport_id,
- 		      sizeof(struct efx_filter_spec) -
--		      offsetof(struct efx_filter_spec, outer_vid)) == 0;
-+		      offsetof(struct efx_filter_spec, vport_id)) == 0;
- }
- 
- u32 efx_filter_spec_hash(const struct efx_filter_spec *spec)
+--- a/fs/xfs/xfs_dquot.c
++++ b/fs/xfs/xfs_dquot.c
+@@ -1018,7 +1018,7 @@ xfs_qm_dqflush_done(
+ 	struct xfs_buf		*bp,
+ 	struct xfs_log_item	*lip)
  {
--	BUILD_BUG_ON(offsetof(struct efx_filter_spec, outer_vid) & 3);
--	return jhash2((const u32 *)&spec->outer_vid,
-+	BUILD_BUG_ON(offsetof(struct efx_filter_spec, vport_id) & 3);
-+	return jhash2((const u32 *)&spec->vport_id,
- 		      (sizeof(struct efx_filter_spec) -
--		       offsetof(struct efx_filter_spec, outer_vid)) / 4,
-+		       offsetof(struct efx_filter_spec, vport_id)) / 4,
- 		      0);
- }
+-	xfs_dq_logitem_t	*qip = (struct xfs_dq_logitem *)lip;
++	struct xfs_dq_logitem	*qip = (struct xfs_dq_logitem *)lip;
+ 	struct xfs_dquot	*dqp = qip->qli_dquot;
+ 	struct xfs_ail		*ailp = lip->li_ailp;
  
--- 
-2.35.1
-
+--- a/fs/xfs/xfs_dquot.h
++++ b/fs/xfs/xfs_dquot.h
+@@ -40,7 +40,7 @@ struct xfs_dquot {
+ 	xfs_fileoff_t		q_fileoffset;
+ 
+ 	struct xfs_disk_dquot	q_core;
+-	xfs_dq_logitem_t	q_logitem;
++	struct xfs_dq_logitem	q_logitem;
+ 	/* total regular nblks used+reserved */
+ 	xfs_qcnt_t		q_res_bcount;
+ 	/* total inos allocd+reserved */
+--- a/fs/xfs/xfs_dquot_item.h
++++ b/fs/xfs/xfs_dquot_item.h
+@@ -11,11 +11,11 @@ struct xfs_trans;
+ struct xfs_mount;
+ struct xfs_qoff_logitem;
+ 
+-typedef struct xfs_dq_logitem {
+-	struct xfs_log_item	 qli_item;	   /* common portion */
+-	struct xfs_dquot	*qli_dquot;	   /* dquot ptr */
+-	xfs_lsn_t		 qli_flush_lsn;	   /* lsn at last flush */
+-} xfs_dq_logitem_t;
++struct xfs_dq_logitem {
++	struct xfs_log_item	 qli_item;	/* common portion */
++	struct xfs_dquot	*qli_dquot;	/* dquot ptr */
++	xfs_lsn_t		 qli_flush_lsn;	/* lsn at last flush */
++};
+ 
+ typedef struct xfs_qoff_logitem {
+ 	struct xfs_log_item	 qql_item;	/* common portion */
 
 
