@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC5560FE9B
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26E1660FE23
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 19:02:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236999AbiJ0RGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 13:06:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38066 "EHLO
+        id S236861AbiJ0RC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 13:02:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237017AbiJ0RGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:06:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82BB119ABD0
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:06:46 -0700 (PDT)
+        with ESMTP id S236857AbiJ0RC1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 13:02:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0714A18A003
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 10:02:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 384E2B82641
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:06:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89F93C433D6;
-        Thu, 27 Oct 2022 17:06:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD235B82717
+        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 17:02:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 112D1C433C1;
+        Thu, 27 Oct 2022 17:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666890403;
-        bh=Ov4AyNc6DGU/isc+7CaCnVX4fnKqO2U7FUJBaUhTHD0=;
+        s=korg; t=1666890143;
+        bh=xCnCQtBEwvk2KjbONCHrC/MoRtgfsSgkH9NQxpS6wVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T+nX5PjLobH6IIkvfr/759sYO+wHqEBSS1Onaa/tCei0YIZ9/nBupmIy1swiqQJb4
-         /licMaWgEhfMYPbFZ41kVeHYuaeTqjQZcBJlOOLc4lTFUOLKb83nod+S3b3JmhST5K
-         V+Vw1K1tCUGAcI2w47MULqMObhMN074LAxEfrw2M=
+        b=Dj7kPAwRStm1NIUY+/A/e3vjt9cyEdiQtyn6bvKY/aAdASlUx3FYycTlnV+E77gOh
+         vU+zKKasC9B9Ylj19Yhb9hOCNF6TI97UMsoW9yh00yDkL7kgOGjBSgTdR5NS6VoVzh
+         mjiV5Id9ZzsmGQHzDaAjITBodEV1HgIigjQZwP/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tony Luck <tony.luck@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Nulo <git@nulo.in>,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 27/79] ACPI: extlog: Handle multiple records
+Subject: [PATCH 5.15 39/79] HID: magicmouse: Do not set BTN_MOUSE on double report
 Date:   Thu, 27 Oct 2022 18:55:37 +0200
-Message-Id: <20221027165055.317423504@linuxfoundation.org>
+Message-Id: <20221027165056.221998658@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221027165054.270676357@linuxfoundation.org>
-References: <20221027165054.270676357@linuxfoundation.org>
+In-Reply-To: <20221027165054.917467648@linuxfoundation.org>
+References: <20221027165054.917467648@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit f6ec01da40e4139b41179f046044ee7c4f6370dc ]
+[ Upstream commit bb5f0c855dcfc893ae5ed90e4c646bde9e4498bf ]
 
-If there is no user space consumer of extlog_mem trace records, then
-Linux properly handles multiple error records in an ELOG block
+Under certain conditions the Magic Trackpad can group 2 reports in a
+single packet. The packet is split and the raw event function is
+invoked recursively for each part.
 
-	extlog_print()
-	  print_extlog_rcd()
-	    __print_extlog_rcd()
-	      cper_estatus_print()
-		apei_estatus_for_each_section()
+However, after processing each part, the BTN_MOUSE status is updated,
+sending multiple click events. [1]
 
-But the other code path hard codes looking for a single record to
-output a trace record.
+Return after processing double reports to avoid this issue.
 
-Fix by using the same apei_estatus_for_each_section() iterator
-to step over all records.
-
-Fixes: 2dfb7d51a61d ("trace, RAS: Add eMCA trace event interface")
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/811  # [1]
+Fixes: a462230e16ac ("HID: magicmouse: enable Magic Trackpad support")
+Reported-by: Nulo <git@nulo.in>
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20221009182747.90730-1-jose.exposito89@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_extlog.c | 33 ++++++++++++++++++++-------------
- 1 file changed, 20 insertions(+), 13 deletions(-)
+ drivers/hid/hid-magicmouse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpi_extlog.c b/drivers/acpi/acpi_extlog.c
-index 72f1fb77abcd..e648158368a7 100644
---- a/drivers/acpi/acpi_extlog.c
-+++ b/drivers/acpi/acpi_extlog.c
-@@ -12,6 +12,7 @@
- #include <linux/ratelimit.h>
- #include <linux/edac.h>
- #include <linux/ras.h>
-+#include <acpi/ghes.h>
- #include <asm/cpu.h>
- #include <asm/mce.h>
- 
-@@ -138,8 +139,8 @@ static int extlog_print(struct notifier_block *nb, unsigned long val,
- 	int	cpu = mce->extcpu;
- 	struct acpi_hest_generic_status *estatus, *tmp;
- 	struct acpi_hest_generic_data *gdata;
--	const guid_t *fru_id = &guid_null;
--	char *fru_text = "";
-+	const guid_t *fru_id;
-+	char *fru_text;
- 	guid_t *sec_type;
- 	static u32 err_seq;
- 
-@@ -160,17 +161,23 @@ static int extlog_print(struct notifier_block *nb, unsigned long val,
- 
- 	/* log event via trace */
- 	err_seq++;
--	gdata = (struct acpi_hest_generic_data *)(tmp + 1);
--	if (gdata->validation_bits & CPER_SEC_VALID_FRU_ID)
--		fru_id = (guid_t *)gdata->fru_id;
--	if (gdata->validation_bits & CPER_SEC_VALID_FRU_TEXT)
--		fru_text = gdata->fru_text;
--	sec_type = (guid_t *)gdata->section_type;
--	if (guid_equal(sec_type, &CPER_SEC_PLATFORM_MEM)) {
--		struct cper_sec_mem_err *mem = (void *)(gdata + 1);
--		if (gdata->error_data_length >= sizeof(*mem))
--			trace_extlog_mem_event(mem, err_seq, fru_id, fru_text,
--					       (u8)gdata->error_severity);
-+	apei_estatus_for_each_section(tmp, gdata) {
-+		if (gdata->validation_bits & CPER_SEC_VALID_FRU_ID)
-+			fru_id = (guid_t *)gdata->fru_id;
-+		else
-+			fru_id = &guid_null;
-+		if (gdata->validation_bits & CPER_SEC_VALID_FRU_TEXT)
-+			fru_text = gdata->fru_text;
-+		else
-+			fru_text = "";
-+		sec_type = (guid_t *)gdata->section_type;
-+		if (guid_equal(sec_type, &CPER_SEC_PLATFORM_MEM)) {
-+			struct cper_sec_mem_err *mem = (void *)(gdata + 1);
-+
-+			if (gdata->error_data_length >= sizeof(*mem))
-+				trace_extlog_mem_event(mem, err_seq, fru_id, fru_text,
-+						       (u8)gdata->error_severity);
-+		}
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index b8b08f0a8c54..c6b8da716002 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -478,7 +478,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+ 		magicmouse_raw_event(hdev, report, data + 2, data[1]);
+ 		magicmouse_raw_event(hdev, report, data + 2 + data[1],
+ 			size - 2 - data[1]);
+-		break;
++		return 0;
+ 	default:
+ 		return 0;
  	}
- 
- out:
 -- 
 2.35.1
 
