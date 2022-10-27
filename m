@@ -2,225 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BA0B60F7CC
-	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 14:45:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 589BC60F7CD
+	for <lists+stable@lfdr.de>; Thu, 27 Oct 2022 14:45:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235758AbiJ0Mpi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Oct 2022 08:45:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54896 "EHLO
+        id S234187AbiJ0Mpo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Oct 2022 08:45:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235800AbiJ0MpW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 08:45:22 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03AED25C5A
-        for <stable@vger.kernel.org>; Thu, 27 Oct 2022 05:45:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666874713;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=+VQPeCgjm0/qShf6ulpRLD6+n3BNO0RF9iqRGXV+5xI=;
-        b=PLWj9Es7JyWwHxDq1RmqJhzGyvokf/zZZLo1WoYpKoKTLf82dZE2kPJqEV8i5J2bUzgYMi
-        +Aq7EIqUs4hb2kkU8v4lJXztamwEtx+pt+3LK/67OxbJc7HEDjmDIoJhtr0MWJPUbsG1sL
-        6R/40jiiXGaRj5N41DoM1J1FfJYpuaE=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-610-KySoj4tqPuWdIBxJ45DMfg-1; Thu, 27 Oct 2022 08:45:10 -0400
-X-MC-Unique: KySoj4tqPuWdIBxJ45DMfg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S235387AbiJ0Mpd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Oct 2022 08:45:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CED4BD2A;
+        Thu, 27 Oct 2022 05:45:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 287521C0759B;
-        Thu, 27 Oct 2022 12:45:09 +0000 (UTC)
-Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 241C640C83C5;
-        Thu, 27 Oct 2022 12:45:09 +0000 (UTC)
-Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 29RCj90K022680;
-        Thu, 27 Oct 2022 08:45:09 -0400
-Received: from localhost (mpatocka@localhost)
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 29RCj9YV022676;
-        Thu, 27 Oct 2022 08:45:09 -0400
-X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
-Date:   Thu, 27 Oct 2022 08:45:09 -0400 (EDT)
-From:   Mikulas Patocka <mpatocka@redhat.com>
-X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
-To:     Greg KH <gregkh@linuxfoundation.org>
-cc:     stable@vger.kernel.org
-Subject: [PATCH 4.19 1/2] wait_on_bit: add an acquire memory barrier
-Message-ID: <alpine.LRH.2.21.2210270844390.22202@file01.intranet.prod.int.rdu2.redhat.com>
-User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC8766229C;
+        Thu, 27 Oct 2022 12:45:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13CF5C433C1;
+        Thu, 27 Oct 2022 12:45:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1666874731;
+        bh=VwK3xnv7tqr64wpARnMxEPqabn4IYyL5RaDxsRoawBs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GiogSBYXfJ0r9+KZxe55/GEemyJGjjCmHjQtUDgImzxG7bKDiuIoQwnwncIu5fRmA
+         Vdgw8qZtdKPbF7cVmPqsTiXrY1hNfQgyjzM7r1xCXqi9T5u2DURIO1fwD7KIXred9x
+         N8hwc7uVYVimOc+gQ3HgHg0JEboeKXr/FOtGSVvAUGmFFaU1BvWhiNYlH+QTtcRiuu
+         97ykirTvwKbSF9pN1tyHyQwAv0dJk14Swxl/jDkawtwEniTwdVK88tO2pNQ6MZ4E5t
+         nkqBtV8ZqTMxaqzwEIMBQ4A+zd4G9ShWctrswDE0x4DFzpj1y7p/8Ff39RjAaDj2MP
+         OGtFcy8N1TNEA==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1oo2G3-0007iP-Cb; Thu, 27 Oct 2022 14:45:16 +0200
+Date:   Thu, 27 Oct 2022 14:45:15 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Stefan Agner <stefan@agner.ch>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        stable <stable@kernel.org>, regressions@lists.linux.dev,
+        m.szyprowski@samsung.com, krzk@kernel.org
+Subject: Re: [PATCH stable-5.15 3/3] usb: dwc3: disable USB core PHY
+ management
+Message-ID: <Y1p9Wy9w5umMBC4V@hovoldconsulting.com>
+References: <20220906120702.19219-1-johan@kernel.org>
+ <20220906120702.19219-4-johan@kernel.org>
+ <808bdba846bb60456adf10a3016911ee@agner.ch>
+ <Y0+8dKESygFunXOu@hovoldconsulting.com>
+ <86c0f1ee8ffc94f9a53690dda6a83fbb@agner.ch>
+ <Y1JCIKT80P9IysKD@hovoldconsulting.com>
+ <b2a1e70bda64cb741efe81c5b7e56707@agner.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b2a1e70bda64cb741efe81c5b7e56707@agner.ch>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 8238b4579866b7c1bb99883cfe102a43db5506ff upstream.
+On Wed, Oct 26, 2022 at 03:11:00PM +0200, Stefan Agner wrote:
+> On 2022-10-21 08:54, Johan Hovold wrote:
+> > On Fri, Oct 21, 2022 at 12:06:12AM +0200, Stefan Agner wrote:
+> >> On 2022-10-19 10:59, Johan Hovold wrote:
+> >> > On Tue, Oct 18, 2022 at 05:27:24PM +0200, Stefan Agner wrote:
+> >> >> On 2022-09-06 14:07, Johan Hovold wrote:
+> >> >> > From: Johan Hovold <johan+linaro@kernel.org>
+> >> >> >
+> >> >> > commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea upstream.
+> >> >> >
+> >> >> > The dwc3 driver manages its PHYs itself so the USB core PHY management
+> >> >> > needs to be disabled.
+> >> >> >
+> >> >> > Use the struct xhci_plat_priv hack added by commits 46034a999c07 ("usb:
+> >> >> > host: xhci-plat: add platform data support") and f768e718911e ("usb:
+> >> >> > host: xhci-plat: add priv quirk for skip PHY initialization") to
+> >> >> > propagate the setting for now.
+> > 
+> >> >> For some reason, this commit seems to break detection of the USB to
+> >> >> S-ATA controller on ODROID-HC1 devices (Exynos 5422).
+> > 
+> >> > I think this may be related to the calibration calls added to dwc3 and
+> >> > later removed again by commits:
+> >> >
+> >> > 	d8c80bb3b55b ("phy: exynos5-usbdrd: Calibrate LOS levels for exynos5420/5800")
+> >> > 	a0a465569b45 ("usb: dwc3: remove generic PHY calibrate() calls")
+> >> >
+> >> > The removal explicitly mentions that the expectation is that USB core
+> >> > will do the PHY calibration.
+> >> >
+> >> > There could be other changes in the sequencing of events that this
+> >> > platform has been implicitly relying on, but as a start, could try
+> >> > adding the missing calibration calls (patch below) and see if that makes a
+> >> > difference?
+> >> 
+> >> The patch below did not apply to 5.15.74 directly, but I think I was
+> >> able to get the corrected patch applied (see below)
 
-There are several places in the kernel where wait_on_bit is not followed
-by a memory barrier (for example, in drivers/md/dm-bufio.c:new_read).
+> The user reports the S-ATA disk is *not* recognized with that patch
+> applied.
 
-On architectures with weak memory ordering, it may happen that memory
-accesses that follow wait_on_bit are reordered before wait_on_bit and
-they may return invalid data.
+I just noticed a mistake in the instrumentation patch I sent you. Could
+you try moving the calibrations calls after dwc3_host_init() (e.g. as in
+the second chunk in the diff below)?
 
-Fix this class of bugs by introducing a new function "test_bit_acquire"
-that works like test_bit, but has acquire memory ordering semantics.
+As mentioned in the commit message for a0a465569b45 ("usb: dwc3: remove
+generic PHY calibrate() calls"), this may not work if the xhci-plat
+driver is built as a module and there are some corner cases that it does
+not cover.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Acked-by: Will Deacon <will@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+It seems we should revert the offending commit and then try to find some
+time to untangle this mess, but please check if the below addresses the
+issue first so we know what the problem is.
 
----
- arch/x86/include/asm/bitops.h           |   21 +++++++++++++++++++++
- include/asm-generic/bitops/non-atomic.h |   14 ++++++++++++++
- include/linux/buffer_head.h             |    2 +-
- include/linux/wait_bit.h                |    8 ++++----
- kernel/sched/wait_bit.c                 |    2 +-
- 5 files changed, 41 insertions(+), 6 deletions(-)
+I'll prepare a revert in the meantime.
 
-Index: linux-stable/arch/x86/include/asm/bitops.h
-===================================================================
---- linux-stable.orig/arch/x86/include/asm/bitops.h	2022-10-27 14:23:32.000000000 +0200
-+++ linux-stable/arch/x86/include/asm/bitops.h	2022-10-27 14:23:32.000000000 +0200
-@@ -317,6 +317,20 @@ static __always_inline bool constant_tes
- 		(addr[nr >> _BITOPS_LONG_SHIFT])) != 0;
- }
- 
-+static __always_inline bool constant_test_bit_acquire(long nr, const volatile unsigned long *addr)
-+{
-+	bool oldbit;
+Johan
+
+
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index 31156d4dec9f..37d49a394912 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -197,6 +197,8 @@ static void __dwc3_set_mode(struct work_struct *work)
+                                otg_set_vbus(dwc->usb2_phy->otg, true);
+                        phy_set_mode(dwc->usb2_generic_phy, PHY_MODE_USB_HOST);
+                        phy_set_mode(dwc->usb3_generic_phy, PHY_MODE_USB_HOST);
++                       phy_calibrate(dwc->usb2_generic_phy);
++                       phy_calibrate(dwc->usb3_generic_phy);
+                        if (dwc->dis_split_quirk) {
+                                reg = dwc3_readl(dwc->regs, DWC3_GUCTL3);
+                                reg |= DWC3_GUCTL3_SPLITDISABLE;
+@@ -1391,6 +1393,9 @@ static int dwc3_core_init_mode(struct dwc3 *dwc)
+                ret = dwc3_host_init(dwc);
+                if (ret)
+                        return dev_err_probe(dev, ret, "failed to initialize host\n");
 +
-+	asm volatile("testb %2,%1"
-+		     CC_SET(nz)
-+		     : CC_OUT(nz) (oldbit)
-+		     : "m" (((unsigned char *)addr)[nr >> 3]),
-+		       "i" (1 << (nr & 7))
-+		     :"memory");
-+
-+	return oldbit;
-+}
-+
- static __always_inline bool variable_test_bit(long nr, volatile const unsigned long *addr)
- {
- 	bool oldbit;
-@@ -343,6 +357,13 @@ static bool test_bit(int nr, const volat
- 	 ? constant_test_bit((nr), (addr))	\
- 	 : variable_test_bit((nr), (addr)))
- 
-+static __always_inline bool
-+test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
-+{
-+	return __builtin_constant_p(nr) ? constant_test_bit_acquire(nr, addr) :
-+					  variable_test_bit(nr, addr);
-+}
-+
- /**
-  * __ffs - find first set bit in word
-  * @word: The word to search
-Index: linux-stable/include/asm-generic/bitops/non-atomic.h
-===================================================================
---- linux-stable.orig/include/asm-generic/bitops/non-atomic.h	2022-10-27 14:23:32.000000000 +0200
-+++ linux-stable/include/asm-generic/bitops/non-atomic.h	2022-10-27 14:23:32.000000000 +0200
-@@ -3,6 +3,7 @@
- #define _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
- 
- #include <asm/types.h>
-+#include <asm/barrier.h>
- 
- /**
-  * __set_bit - Set a bit in memory
-@@ -106,4 +107,17 @@ static inline int test_bit(int nr, const
- 	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
- }
- 
-+/**
-+ * arch_test_bit_acquire - Determine, with acquire semantics, whether a bit is set
-+ * @nr: bit number to test
-+ * @addr: Address to start counting from
-+ */
-+static __always_inline bool
-+arch_test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
-+{
-+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
-+	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
-+}
-+#define test_bit_acquire arch_test_bit_acquire
-+
- #endif /* _ASM_GENERIC_BITOPS_NON_ATOMIC_H_ */
-Index: linux-stable/include/linux/buffer_head.h
-===================================================================
---- linux-stable.orig/include/linux/buffer_head.h	2022-10-27 14:23:32.000000000 +0200
-+++ linux-stable/include/linux/buffer_head.h	2022-10-27 14:23:32.000000000 +0200
-@@ -166,7 +166,7 @@ static __always_inline int buffer_uptoda
- 	 * make it consistent with folio_test_uptodate
- 	 * pairs with smp_mb__before_atomic in set_buffer_uptodate
- 	 */
--	return (smp_load_acquire(&bh->b_state) & (1UL << BH_Uptodate)) != 0;
-+	return test_bit_acquire(BH_Uptodate, &bh->b_state);
- }
- 
- #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
-Index: linux-stable/include/linux/wait_bit.h
-===================================================================
---- linux-stable.orig/include/linux/wait_bit.h	2022-10-27 14:23:32.000000000 +0200
-+++ linux-stable/include/linux/wait_bit.h	2022-10-27 14:23:32.000000000 +0200
-@@ -71,7 +71,7 @@ static inline int
- wait_on_bit(unsigned long *word, int bit, unsigned mode)
- {
- 	might_sleep();
--	if (!test_bit(bit, word))
-+	if (!test_bit_acquire(bit, word))
- 		return 0;
- 	return out_of_line_wait_on_bit(word, bit,
- 				       bit_wait,
-@@ -96,7 +96,7 @@ static inline int
- wait_on_bit_io(unsigned long *word, int bit, unsigned mode)
- {
- 	might_sleep();
--	if (!test_bit(bit, word))
-+	if (!test_bit_acquire(bit, word))
- 		return 0;
- 	return out_of_line_wait_on_bit(word, bit,
- 				       bit_wait_io,
-@@ -123,7 +123,7 @@ wait_on_bit_timeout(unsigned long *word,
- 		    unsigned long timeout)
- {
- 	might_sleep();
--	if (!test_bit(bit, word))
-+	if (!test_bit_acquire(bit, word))
- 		return 0;
- 	return out_of_line_wait_on_bit_timeout(word, bit,
- 					       bit_wait_timeout,
-@@ -151,7 +151,7 @@ wait_on_bit_action(unsigned long *word,
- 		   unsigned mode)
- {
- 	might_sleep();
--	if (!test_bit(bit, word))
-+	if (!test_bit_acquire(bit, word))
- 		return 0;
- 	return out_of_line_wait_on_bit(word, bit, action, mode);
- }
-Index: linux-stable/kernel/sched/wait_bit.c
-===================================================================
---- linux-stable.orig/kernel/sched/wait_bit.c	2022-10-27 14:23:32.000000000 +0200
-+++ linux-stable/kernel/sched/wait_bit.c	2022-10-27 14:23:32.000000000 +0200
-@@ -46,7 +46,7 @@ __wait_on_bit(struct wait_queue_head *wq
- 		prepare_to_wait(wq_head, &wbq_entry->wq_entry, mode);
- 		if (test_bit(wbq_entry->key.bit_nr, wbq_entry->key.flags))
- 			ret = (*action)(&wbq_entry->key, mode);
--	} while (test_bit(wbq_entry->key.bit_nr, wbq_entry->key.flags) && !ret);
-+	} while (test_bit_acquire(wbq_entry->key.bit_nr, wbq_entry->key.flags) && !ret);
- 
- 	finish_wait(wq_head, &wbq_entry->wq_entry);
- 
-
++               phy_calibrate(dwc->usb2_generic_phy);
++               phy_calibrate(dwc->usb3_generic_phy);
+                break;
+        case USB_DR_MODE_OTG:
+                INIT_WORK(&dwc->drd_work, __dwc3_set_mode);
