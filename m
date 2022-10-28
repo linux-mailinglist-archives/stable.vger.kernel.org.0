@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B034C611065
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:05:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF214611066
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:05:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbiJ1MFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 08:05:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45358 "EHLO
+        id S229932AbiJ1MFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 08:05:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229932AbiJ1MFB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:05:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC1822AC62
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:04:59 -0700 (PDT)
+        with ESMTP id S229954AbiJ1MFG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:05:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2868F2A70E
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:05:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A1A962806
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:04:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E055C433C1;
-        Fri, 28 Oct 2022 12:04:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D20E2B829B9
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:05:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 025BEC433C1;
+        Fri, 28 Oct 2022 12:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958698;
-        bh=kKN8nzZSBY8wS+0J+Z6z6ArqxhBnh1K2frDEpTCjOHg=;
+        s=korg; t=1666958701;
+        bh=to4aaDWRVtP0YrzaiMJ1i4k290ti6zJ0rxijbLN07gM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1R5V2TUvOx8Pe7CzpgUzOCUqFgoj3mgEczKdva6CzYOWz2JnlnswTzDhsp3NjCpRz
-         i1iOnF5XQI/DVGsEWlMnguEXWQrg0bLbPpTCNzKDCRv23cGJorHbCpfq3wmF/nxK/7
-         TWtAhHBfyjxSBjGmSPh/6SgG2iupGur+nLqrulFw=
+        b=AonBP0dBX4kMcsUBv307Cw7PIR7vqAM5Nol5yLxSgENAg+rBs+ZTFh0fFQdWvYf3S
+         LzwXarnzSWQAapiAubuWGndK03dT8Odsd2SBcffzxYHXbH/AAuskpbQRNpkgxB2+qN
+         sfxIYzQsG1iFhaPZTYhg+4N1QeMetSrEGaivv9jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 19/73] btrfs: fix processing of delayed data refs during backref walking
-Date:   Fri, 28 Oct 2022 14:03:16 +0200
-Message-Id: <20221028120233.179683301@linuxfoundation.org>
+Subject: [PATCH 5.10 20/73] btrfs: fix processing of delayed tree block refs during backref walking
+Date:   Fri, 28 Oct 2022 14:03:17 +0200
+Message-Id: <20221028120233.217992417@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
@@ -55,245 +55,199 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 4fc7b57228243d09c0d878873bf24fa64a90fa01 ]
+[ Upstream commit 943553ef9b51db303ab2b955c1025261abfdf6fb ]
 
-When processing delayed data references during backref walking and we are
-using a share context (we are being called through fiemap), whenever we
-find a delayed data reference for an inode different from the one we are
-interested in, then we immediately exit and consider the data extent as
-shared. This is wrong, because:
+During backref walking, when processing a delayed reference with a type of
+BTRFS_TREE_BLOCK_REF_KEY, we have two bugs there:
 
-1) This might be a DROP reference that will cancel out a reference in the
-   extent tree;
+1) We are accessing the delayed references extent_op, and its key, without
+   the protection of the delayed ref head's lock;
 
-2) Even if it's an ADD reference, it may be followed by a DROP reference
-   that cancels it out.
+2) If there's no extent op for the delayed ref head, we end up with an
+   uninitialized key in the stack, variable 'tmp_op_key', and then pass
+   it to add_indirect_ref(), which adds the reference to the indirect
+   refs rb tree.
 
-In either case we should not exit immediately.
+   This is wrong, because indirect references should have a NULL key
+   when we don't have access to the key, and in that case they should be
+   added to the indirect_missing_keys rb tree and not to the indirect rb
+   tree.
 
-Fix this by never exiting when we find a delayed data reference for
-another inode - instead add the reference and if it does not cancel out
-other delayed reference, we will exit early when we call
-extent_is_shared() after processing all delayed references. If we find
-a drop reference, then signal the code that processes references from
-the extent tree (add_inline_refs() and add_keyed_refs()) to not exit
-immediately if it finds there a reference for another inode, since we
-have delayed drop references that may cancel it out. In this later case
-we exit once we don't have references in the rb trees that cancel out
-each other and have two references for different inodes.
+   This means that if have BTRFS_TREE_BLOCK_REF_KEY delayed ref resulting
+   from freeing an extent buffer, therefore with a count of -1, it will
+   not cancel out the corresponding reference we have in the extent tree
+   (with a count of 1), since both references end up in different rb
+   trees.
 
-Example reproducer for case 1):
+   When using fiemap, where we often need to check if extents are shared
+   through shared subtrees resulting from snapshots, it means we can
+   incorrectly report an extent as shared when it's no longer shared.
+   However this is temporary because after the transaction is committed
+   the extent is no longer reported as shared, as running the delayed
+   reference results in deleting the tree block reference from the extent
+   tree.
 
-   $ cat test-1.sh
+   Outside the fiemap context, the result is unpredictable, as the key was
+   not initialized but it's used when navigating the rb trees to insert
+   and search for references (prelim_ref_compare()), and we expect all
+   references in the indirect rb tree to have valid keys.
+
+The following reproducer triggers the second bug:
+
+   $ cat test.sh
    #!/bin/bash
 
    DEV=/dev/sdj
    MNT=/mnt/sdj
 
    mkfs.btrfs -f $DEV
-   mount $DEV $MNT
+   mount -o compress $DEV $MNT
 
-   xfs_io -f -c "pwrite 0 64K" $MNT/foo
-   cp --reflink=always $MNT/foo $MNT/bar
+   # With a compressed 128M file we get a tree height of 2 (level 1 root).
+   xfs_io -f -c "pwrite -b 1M 0 128M" $MNT/foo
 
+   btrfs subvolume snapshot $MNT $MNT/snap
+
+   # Fiemap should output 0x2008 in the flags column.
+   # 0x2000 means shared extent
+   # 0x8 means encoded extent (because it's compressed)
    echo
-   echo "fiemap after cloning:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   rm -f $MNT/bar
+   echo "fiemap after snapshot, range [120M, 120M + 128K):"
+   xfs_io -c "fiemap -v 120M 128K" $MNT/foo
    echo
-   echo "fiemap after removing file bar:"
-   xfs_io -c "fiemap -v" $MNT/foo
+
+   # Overwrite one extent and fsync to flush delalloc and COW a new path
+   # in the snapshot's tree.
+   #
+   # After this we have a BTRFS_DROP_DELAYED_REF delayed ref of type
+   # BTRFS_TREE_BLOCK_REF_KEY with a count of -1 for every COWed extent
+   # buffer in the path.
+   #
+   # In the extent tree we have inline references of type
+   # BTRFS_TREE_BLOCK_REF_KEY, with a count of 1, for the same extent
+   # buffers, so they should cancel each other, and the extent buffers in
+   # the fs tree should no longer be considered as shared.
+   #
+   echo "Overwriting file range [120M, 120M + 128K)..."
+   xfs_io -c "pwrite -b 128K 120M 128K" $MNT/snap/foo
+   xfs_io -c "fsync" $MNT/snap/foo
+
+   # Fiemap should output 0x8 in the flags column. The extent in the range
+   # [120M, 120M + 128K) is no longer shared, it's now exclusive to the fs
+   # tree.
+   echo
+   echo "fiemap after overwrite range [120M, 120M + 128K):"
+   xfs_io -c "fiemap -v 120M 128K" $MNT/foo
+   echo
 
    umount $MNT
 
-Running it before this patch, the extent is still listed as shared, it has
-the flag 0x2000 (FIEMAP_EXTENT_SHARED) set:
+Running it before this patch:
 
-   $ ./test-1.sh
-   fiemap after cloning:
+   $ ./test.sh
+   (...)
+   wrote 134217728/134217728 bytes at offset 0
+   128 MiB, 128 ops; 0.1152 sec (1.085 GiB/sec and 1110.5809 ops/sec)
+   Create a snapshot of '/mnt/sdj' in '/mnt/sdj/snap'
+
+   fiemap after snapshot, range [120M, 120M + 128K):
    /mnt/sdj/foo:
     EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
+      0: [245760..246015]: 34304..34559       256 0x2008
 
-   fiemap after removing file bar:
+   Overwriting file range [120M, 120M + 128K)...
+   wrote 131072/131072 bytes at offset 125829120
+   128 KiB, 1 ops; 0.0001 sec (683.060 MiB/sec and 5464.4809 ops/sec)
+
+   fiemap after overwrite range [120M, 120M + 128K):
    /mnt/sdj/foo:
     EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
+      0: [245760..246015]: 34304..34559       256 0x2008
 
-Example reproducer for case 2):
+The extent in the range [120M, 120M + 128K) is still reported as shared
+(0x2000 bit set) after overwriting that range and flushing delalloc, which
+is not correct - an entire path was COWed in the snapshot's tree and the
+extent is now only referenced by the original fs tree.
 
-   $ cat test-2.sh
-   #!/bin/bash
+Running it after this patch:
 
-   DEV=/dev/sdj
-   MNT=/mnt/sdj
+   $ ./test.sh
+   (...)
+   wrote 134217728/134217728 bytes at offset 0
+   128 MiB, 128 ops; 0.1198 sec (1.043 GiB/sec and 1068.2067 ops/sec)
+   Create a snapshot of '/mnt/sdj' in '/mnt/sdj/snap'
 
-   mkfs.btrfs -f $DEV
-   mount $DEV $MNT
-
-   xfs_io -f -c "pwrite 0 64K" $MNT/foo
-   cp --reflink=always $MNT/foo $MNT/bar
-
-   # Flush delayed references to the extent tree and commit current
-   # transaction.
-   sync
-
-   echo
-   echo "fiemap after cloning:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   rm -f $MNT/bar
-   echo
-   echo "fiemap after removing file bar:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   umount $MNT
-
-Running it before this patch, the extent is still listed as shared, it has
-the flag 0x2000 (FIEMAP_EXTENT_SHARED) set:
-
-   $ ./test-2.sh
-   fiemap after cloning:
+   fiemap after snapshot, range [120M, 120M + 128K):
    /mnt/sdj/foo:
     EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
+      0: [245760..246015]: 34304..34559       256 0x2008
 
-   fiemap after removing file bar:
+   Overwriting file range [120M, 120M + 128K)...
+   wrote 131072/131072 bytes at offset 125829120
+   128 KiB, 1 ops; 0.0001 sec (694.444 MiB/sec and 5555.5556 ops/sec)
+
+   fiemap after overwrite range [120M, 120M + 128K):
    /mnt/sdj/foo:
     EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
+      0: [245760..246015]: 34304..34559       256   0x8
 
-After this patch, after deleting bar in both tests, the extent is not
-reported with the 0x2000 flag anymore, it gets only the flag 0x1
-(which is FIEMAP_EXTENT_LAST):
+Now the extent is not reported as shared anymore.
 
-   $ ./test-1.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
+So fix this by passing a NULL key pointer to add_indirect_ref() when
+processing a delayed reference for a tree block if there's no extent op
+for our delayed ref head with a defined key. Also access the extent op
+only after locking the delayed ref head's lock.
 
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128   0x1
+The reproducer will be converted later to a test case for fstests.
 
-   $ ./test-2.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128   0x1
-
-These tests will later be converted to a test case for fstests.
-
-Fixes: dc046b10c8b7d4 ("Btrfs: make fiemap not blow when you have lots of snapshots")
+Fixes: 86d5f994425252 ("btrfs: convert prelimary reference tracking to use rbtrees")
+Fixes: a6dbceafb915e8 ("btrfs: Remove unused op_key var from add_delayed_refs")
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c | 33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ fs/btrfs/backref.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
 diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index baff31a147e7..7e8fac12f3f8 100644
+index 7e8fac12f3f8..92cb16c0e5ee 100644
 --- a/fs/btrfs/backref.c
 +++ b/fs/btrfs/backref.c
-@@ -137,6 +137,7 @@ struct share_check {
- 	u64 root_objectid;
- 	u64 inum;
- 	int share_count;
-+	bool have_delayed_delete_refs;
- };
+@@ -818,16 +818,11 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
+ 			    struct preftrees *preftrees, struct share_check *sc)
+ {
+ 	struct btrfs_delayed_ref_node *node;
+-	struct btrfs_delayed_extent_op *extent_op = head->extent_op;
+ 	struct btrfs_key key;
+-	struct btrfs_key tmp_op_key;
+ 	struct rb_node *n;
+ 	int count;
+ 	int ret = 0;
  
- static inline int extent_is_shared(struct share_check *sc)
-@@ -881,13 +882,22 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
- 			key.offset = ref->offset;
+-	if (extent_op && extent_op->update_key)
+-		btrfs_disk_key_to_cpu(&tmp_op_key, &extent_op->key);
+-
+ 	spin_lock(&head->lock);
+ 	for (n = rb_first_cached(&head->ref_tree); n; n = rb_next(n)) {
+ 		node = rb_entry(n, struct btrfs_delayed_ref_node,
+@@ -853,10 +848,16 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
+ 		case BTRFS_TREE_BLOCK_REF_KEY: {
+ 			/* NORMAL INDIRECT METADATA backref */
+ 			struct btrfs_delayed_tree_ref *ref;
++			struct btrfs_key *key_ptr = NULL;
++
++			if (head->extent_op && head->extent_op->update_key) {
++				btrfs_disk_key_to_cpu(&key, &head->extent_op->key);
++				key_ptr = &key;
++			}
  
- 			/*
--			 * Found a inum that doesn't match our known inum, we
--			 * know it's shared.
-+			 * If we have a share check context and a reference for
-+			 * another inode, we can't exit immediately. This is
-+			 * because even if this is a BTRFS_ADD_DELAYED_REF
-+			 * reference we may find next a BTRFS_DROP_DELAYED_REF
-+			 * which cancels out this ADD reference.
-+			 *
-+			 * If this is a DROP reference and there was no previous
-+			 * ADD reference, then we need to signal that when we
-+			 * process references from the extent tree (through
-+			 * add_inline_refs() and add_keyed_refs()), we should
-+			 * not exit early if we find a reference for another
-+			 * inode, because one of the delayed DROP references
-+			 * may cancel that reference in the extent tree.
- 			 */
--			if (sc && sc->inum && ref->objectid != sc->inum) {
--				ret = BACKREF_FOUND_SHARED;
--				goto out;
--			}
-+			if (sc && count < 0)
-+				sc->have_delayed_delete_refs = true;
- 
+ 			ref = btrfs_delayed_node_to_tree_ref(node);
  			ret = add_indirect_ref(fs_info, preftrees, ref->root,
- 					       &key, 0, node->bytenr, count, sc,
-@@ -917,7 +927,7 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
- 	}
- 	if (!ret)
- 		ret = extent_is_shared(sc);
--out:
-+
- 	spin_unlock(&head->lock);
- 	return ret;
- }
-@@ -1020,7 +1030,8 @@ static int add_inline_refs(const struct btrfs_fs_info *fs_info,
- 			key.type = BTRFS_EXTENT_DATA_KEY;
- 			key.offset = btrfs_extent_data_ref_offset(leaf, dref);
- 
--			if (sc && sc->inum && key.objectid != sc->inum) {
-+			if (sc && sc->inum && key.objectid != sc->inum &&
-+			    !sc->have_delayed_delete_refs) {
- 				ret = BACKREF_FOUND_SHARED;
- 				break;
- 			}
-@@ -1030,6 +1041,7 @@ static int add_inline_refs(const struct btrfs_fs_info *fs_info,
- 			ret = add_indirect_ref(fs_info, preftrees, root,
- 					       &key, 0, bytenr, count,
- 					       sc, GFP_NOFS);
-+
+-					       &tmp_op_key, ref->level + 1,
++					       key_ptr, ref->level + 1,
+ 					       node->bytenr, count, sc,
+ 					       GFP_ATOMIC);
  			break;
- 		}
- 		default:
-@@ -1119,7 +1131,8 @@ static int add_keyed_refs(struct btrfs_fs_info *fs_info,
- 			key.type = BTRFS_EXTENT_DATA_KEY;
- 			key.offset = btrfs_extent_data_ref_offset(leaf, dref);
- 
--			if (sc && sc->inum && key.objectid != sc->inum) {
-+			if (sc && sc->inum && key.objectid != sc->inum &&
-+			    !sc->have_delayed_delete_refs) {
- 				ret = BACKREF_FOUND_SHARED;
- 				break;
- 			}
-@@ -1542,6 +1555,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr,
- 		.root_objectid = root->root_key.objectid,
- 		.inum = inum,
- 		.share_count = 0,
-+		.have_delayed_delete_refs = false,
- 	};
- 
- 	ulist_init(roots);
-@@ -1576,6 +1590,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr,
- 			break;
- 		bytenr = node->val;
- 		shared.share_count = 0;
-+		shared.have_delayed_delete_refs = false;
- 		cond_resched();
- 	}
- 
 -- 
 2.35.1
 
