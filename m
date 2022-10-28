@@ -2,230 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E41A611C6F
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 23:34:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 534E0611C77
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 23:36:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229838AbiJ1VeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 17:34:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50440 "EHLO
+        id S229877AbiJ1Vg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 17:36:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229792AbiJ1VeC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 17:34:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EADD207511;
-        Fri, 28 Oct 2022 14:34:01 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FAEEB82AAC;
-        Fri, 28 Oct 2022 21:34:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A312CC433D6;
-        Fri, 28 Oct 2022 21:33:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1666992838;
-        bh=JN9ImaYcf6TZYOXQQyiXsxGJWdf6ovCHKdzKAKv+DRc=;
-        h=Date:To:From:Subject:From;
-        b=b3/fQlf5D77tCBY3n5gazEvqZxpm5bqR8gkTc4un4AQ+ons1mzlezDGNG4SbYhJsH
-         Yu2SY1f8wvYm0xo1cbcDK6OVG0hWKCJOGfL1C+1mlmTRhzvs5yweKmXub1SZBXkhUH
-         9Aq7t3XYXwuvJUxd+z6McYeu5s/bx58LfTAW3JDk=
-Date:   Fri, 28 Oct 2022 14:33:57 -0700
-To:     mm-commits@vger.kernel.org, willy@infradead.org, vbabka@suse.cz,
-        stable@vger.kernel.org, riel@surriel.com, peterx@redhat.com,
-        naoya.horiguchi@linux.dev, harperchen1110@gmail.com,
-        david@redhat.com, axelrasmussen@google.com, almasrymina@google.com,
-        mike.kravetz@oracle.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [to-be-updated] hugetlb-dont-delete-vma_lock-in-hugetlb-madv_dontneed-processing.patch removed from -mm tree
-Message-Id: <20221028213358.A312CC433D6@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229636AbiJ1Vg1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 17:36:27 -0400
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3C8A1CDCCE;
+        Fri, 28 Oct 2022 14:36:26 -0700 (PDT)
+Received: by mail-qv1-xf2d.google.com with SMTP id w10so4922109qvr.3;
+        Fri, 28 Oct 2022 14:36:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ptgKXNOvVB6PbV53scvMtsEClwOJGtunD6zgcLta/DE=;
+        b=XK0mKE5zxjsWxlXxLJ+D4Nz0OWg3zHauWAMaLwfwCMYfdWnx7FCs571SJGY8r3ZV8s
+         t8BrKHDe/sHIzgr2FtoPvjASTR00bJ0t/Y8m4w3KoahSmT3XNAup2J4u7yrJeZ6QJqik
+         VQhIFNPnYvAyFk6BraWPLCHpXKZaNVARPXEjcRaTPXuGIVMy711HI1wdnRd+AcVF3gjB
+         hiT9IG9ItEOMdKTstaTIR0KIxpPoeOOxMM+hR2HZEtekJNR6kC0Vp/RXoiqsDE6Btn3m
+         E8Ogx0F892+X3YNqzqQtYOfm7p+g39qgERSEhp4NNrJlTGN/EYzaDJZAqkmH2Hh7IHau
+         89bQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ptgKXNOvVB6PbV53scvMtsEClwOJGtunD6zgcLta/DE=;
+        b=A5RUa0EQItE/aiK8O768sJeGN2MCkIHPyo4sYznXjMyT08w6xq94tTcwafhUeDqT4v
+         CDoNcjYQq7E2p+ua4Sl5yHm4L2ZkKczUmkXgmCOalHDW1vVzjwHF15AOFiB6TVVmUuQh
+         wdo/if0TDpQJ2riXSFPoxd/SmyfSHysa08pmkuXfI4/t4zsSFcCqDaKsLdDptePF35sV
+         oLj0hMK1D994XzHEVP3qWzd9OtjjE5idW05v2k9y4F9ESrRVQ5ixNzVXpveJgAVg4jiz
+         ZCdkNWvzXbq/kJ4pfWqzwfHxN3rgIKz6YG0XAZxoYndPv7qTs0mDOG6wI5ecj9tpLkjr
+         aycA==
+X-Gm-Message-State: ACrzQf3kzI3j5jn5KFsAZtH1MwiyXvtPP8Jxw5lqINkAMJ9+0ijflcah
+        c5X7tSpR1WmueimSZN2XtNRlf1oH4CtcNg==
+X-Google-Smtp-Source: AMsMyM5ovq+HR5dxwlw797hJEH1SpQL2aktfFDkfQUfuthmvN4hAekR5L4CJy62/bZ/Q3AsaIBqVSw==
+X-Received: by 2002:a05:6214:212e:b0:4bb:9ad7:296b with SMTP id r14-20020a056214212e00b004bb9ad7296bmr1396366qvc.20.1666992985722;
+        Fri, 28 Oct 2022 14:36:25 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id dt5-20020a05620a478500b006f9f714cb6asm3534788qkb.50.2022.10.28.14.36.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 28 Oct 2022 14:36:24 -0700 (PDT)
+Message-ID: <d3c97307-04ca-6ec9-90a2-5a27e895c98f@gmail.com>
+Date:   Fri, 28 Oct 2022 14:36:18 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Subject: Re: [PATCH 5.15 00/78] 5.15.76-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
+References: <20221028120302.594918388@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20221028120302.594918388@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 10/28/22 05:04, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.76 release.
+> There are 78 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 30 Oct 2022 12:02:44 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.76-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-The quilt patch titled
-     Subject: hugetlb: don't delete vma_lock in hugetlb MADV_DONTNEED processing
-has been removed from the -mm tree.  Its filename was
-     hugetlb-dont-delete-vma_lock-in-hugetlb-madv_dontneed-processing.patch
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-This patch was dropped because an updated version will be merged
-
-------------------------------------------------------
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: hugetlb: don't delete vma_lock in hugetlb MADV_DONTNEED processing
-Date: Sat, 22 Oct 2022 19:50:47 -0700
-
-madvise(MADV_DONTNEED) ends up calling zap_page_range() to clear the page
-tables associated with the address range.  For hugetlb vmas,
-zap_page_range will call __unmap_hugepage_range_final.  However,
-__unmap_hugepage_range_final assumes the passed vma is about to be removed
-and deletes the vma_lock to prevent pmd sharing as the vma is on the way
-out.  In the case of madvise(MADV_DONTNEED) the vma remains, but the
-missing vma_lock prevents pmd sharing and could potentially lead to issues
-with truncation/fault races.
-
-This issue was originally reported here [1] as a BUG triggered in
-page_try_dup_anon_rmap.  Prior to the introduction of the hugetlb
-vma_lock, __unmap_hugepage_range_final cleared the VM_MAYSHARE flag to
-prevent pmd sharing.  Subsequent faults on this vma were confused as
-VM_MAYSHARE indicates a sharable vma, but was not set so page_mapping was
-not set in new pages added to the page table.  This resulted in pages that
-appeared anonymous in a VM_SHARED vma and triggered the BUG.
-
-Create a new routine clear_hugetlb_page_range() that can be called from
-madvise(MADV_DONTNEED) for hugetlb vmas.  It has the same setup as
-zap_page_range, but does not delete the vma_lock.
-
-[1] https://lore.kernel.org/lkml/CAO4mrfdLMXsao9RF4fUE8-Wfde8xmjsKrTNMNC9wjUb6JudD0g@mail.gmail.com/
-
-Link: https://lkml.kernel.org/r/20221023025047.470646-1-mike.kravetz@oracle.com
-Fixes: 90e7e7f5ef3f ("mm: enable MADV_DONTNEED for hugetlb mappings")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: Wei Chen <harperchen1110@gmail.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@linux.dev>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- include/linux/hugetlb.h |    7 ++++
- mm/hugetlb.c            |   62 ++++++++++++++++++++++++++++++--------
- mm/madvise.c            |    5 ++-
- 3 files changed, 61 insertions(+), 13 deletions(-)
-
---- a/include/linux/hugetlb.h~hugetlb-dont-delete-vma_lock-in-hugetlb-madv_dontneed-processing
-+++ a/include/linux/hugetlb.h
-@@ -156,6 +156,8 @@ long follow_hugetlb_page(struct mm_struc
- void unmap_hugepage_range(struct vm_area_struct *,
- 			  unsigned long, unsigned long, struct page *,
- 			  zap_flags_t);
-+void clear_hugetlb_page_range(struct vm_area_struct *vma,
-+			unsigned long start, unsigned long end);
- void __unmap_hugepage_range_final(struct mmu_gather *tlb,
- 			  struct vm_area_struct *vma,
- 			  unsigned long start, unsigned long end,
-@@ -460,6 +462,11 @@ static inline void __unmap_hugepage_rang
- 	BUG();
- }
- 
-+static void __maybe_unused clear_hugetlb_page_range(struct vm_area_struct *vma,
-+			unsigned long start, unsigned long end)
-+{
-+}
-+
- static inline vm_fault_t hugetlb_fault(struct mm_struct *mm,
- 			struct vm_area_struct *vma, unsigned long address,
- 			unsigned int flags)
---- a/mm/hugetlb.c~hugetlb-dont-delete-vma_lock-in-hugetlb-madv_dontneed-processing
-+++ a/mm/hugetlb.c
-@@ -5194,28 +5194,66 @@ static void __unmap_hugepage_range(struc
- 		tlb_flush_mmu_tlbonly(tlb);
- }
- 
--void __unmap_hugepage_range_final(struct mmu_gather *tlb,
-+static void __unmap_hugepage_range_locking(struct mmu_gather *tlb,
- 			  struct vm_area_struct *vma, unsigned long start,
- 			  unsigned long end, struct page *ref_page,
--			  zap_flags_t zap_flags)
-+			  zap_flags_t zap_flags, bool final)
- {
- 	hugetlb_vma_lock_write(vma);
- 	i_mmap_lock_write(vma->vm_file->f_mapping);
- 
- 	__unmap_hugepage_range(tlb, vma, start, end, ref_page, zap_flags);
- 
--	/*
--	 * Unlock and free the vma lock before releasing i_mmap_rwsem.  When
--	 * the vma_lock is freed, this makes the vma ineligible for pmd
--	 * sharing.  And, i_mmap_rwsem is required to set up pmd sharing.
--	 * This is important as page tables for this unmapped range will
--	 * be asynchrously deleted.  If the page tables are shared, there
--	 * will be issues when accessed by someone else.
--	 */
--	__hugetlb_vma_unlock_write_free(vma);
-+	if (final) {
-+		/*
-+		 * Unlock and free the vma lock before releasing i_mmap_rwsem.
-+		 * When the vma_lock is freed, this makes the vma ineligible
-+		 * for pmd sharing.  And, i_mmap_rwsem is required to set up
-+		 * pmd sharing.  This is important as page tables for this
-+		 * unmapped range will be asynchrously deleted.  If the page
-+		 * tables are shared, there will be issues when accessed by
-+		 * someone else.
-+		 */
-+		__hugetlb_vma_unlock_write_free(vma);
-+		i_mmap_unlock_write(vma->vm_file->f_mapping);
-+	} else {
-+		i_mmap_unlock_write(vma->vm_file->f_mapping);
-+		hugetlb_vma_unlock_write(vma);
-+	}
-+}
-+
-+void __unmap_hugepage_range_final(struct mmu_gather *tlb,
-+			  struct vm_area_struct *vma, unsigned long start,
-+			  unsigned long end, struct page *ref_page,
-+			  zap_flags_t zap_flags)
-+{
-+	__unmap_hugepage_range_locking(tlb, vma, start, end, ref_page,
-+					zap_flags, true);
-+}
-+
-+#ifdef CONFIG_ADVISE_SYSCALLS
-+/*
-+ * Similar setup as in zap_page_range().  madvise(MADV_DONTNEED) can not call
-+ * zap_page_range for hugetlb vmas as __unmap_hugepage_range_final will delete
-+ * the associated vma_lock.
-+ */
-+void clear_hugetlb_page_range(struct vm_area_struct *vma, unsigned long start,
-+				unsigned long end)
-+{
-+	struct mmu_notifier_range range;
-+	struct mmu_gather tlb;
-+
-+	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
-+				start, end);
-+	tlb_gather_mmu(&tlb, vma->vm_mm);
-+	update_hiwater_rss(vma->vm_mm);
-+
-+	__unmap_hugepage_range_locking(&tlb, vma, start, end, NULL, 0, false);
- 
--	i_mmap_unlock_write(vma->vm_file->f_mapping);
-+	mmu_notifier_invalidate_range_end(&range);
-+	tlb_finish_mmu(&tlb);
- }
-+#endif
- 
- void unmap_hugepage_range(struct vm_area_struct *vma, unsigned long start,
- 			  unsigned long end, struct page *ref_page,
---- a/mm/madvise.c~hugetlb-dont-delete-vma_lock-in-hugetlb-madv_dontneed-processing
-+++ a/mm/madvise.c
-@@ -790,7 +790,10 @@ static int madvise_free_single_vma(struc
- static long madvise_dontneed_single_vma(struct vm_area_struct *vma,
- 					unsigned long start, unsigned long end)
- {
--	zap_page_range(vma, start, end - start);
-+	if (!is_vm_hugetlb_page(vma))
-+		zap_page_range(vma, start, end - start);
-+	else
-+		clear_hugetlb_page_range(vma, start, end);
- 	return 0;
- }
- 
-_
-
-Patches currently in -mm which might be from mike.kravetz@oracle.com are
-
-hugetlb-simplify-hugetlb-handling-in-follow_page_mask.patch
-hugetlb-simplify-hugetlb-handling-in-follow_page_mask-v4.patch
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
 
