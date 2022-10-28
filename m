@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF05B6110A2
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:07:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A886110A3
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:07:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230156AbiJ1MHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 08:07:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52274 "EHLO
+        id S230202AbiJ1MHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 08:07:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230206AbiJ1MH1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:07:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00AB819376E
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:07:26 -0700 (PDT)
+        with ESMTP id S230222AbiJ1MHb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:07:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B7FC122766
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:07:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F3DCB828C2
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:07:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E76E5C433C1;
-        Fri, 28 Oct 2022 12:07:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26E7CB829B8
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:07:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86400C433C1;
+        Fri, 28 Oct 2022 12:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958844;
-        bh=MRrnJxislD4gy6filXLju1grSmj1JhPrt+Kdn7cyN1Q=;
+        s=korg; t=1666958846;
+        bh=6dSB42NeSEKta9WzwY6twSlu8JGyTx3VTU9iZLWlO8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bDPIeNuUEMkEPy0Xlod4V9DfvGloMIR+kyIAWegstFPD74+wNXH8wthR0WKZRxfKK
-         GyO2rqJmJYgzyVVkJTLCiJUBUYFoU44ceXjpC3QXIh0v1UY6XUwA50CATsLP9RLKJu
-         vanShfYH+MVhAwyMAY11xmMaqU7KOCkzPNqK5QiE=
+        b=Ujz7e1J8iDxZZcwO/SYaeTgQgFr0A0IxVcqyhU0YScxe1N0FgSQhUQRmtkXE2uJB/
+         FQ+hWe0Q2mezOFYNk1lMXA9GrMWCJTlzEdTIXHBi2yBIf96bFb+GIq/pbnOZ2PZcHQ
+         T+6UC9L91A9IugVScO7Znv80yYTJmFFfLhyT4vOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 66/73] perf/x86/intel/pt: Relax address filter validation
-Date:   Fri, 28 Oct 2022 14:04:03 +0200
-Message-Id: <20221028120235.239479962@linuxfoundation.org>
+        patches@lists.linux.dev, Haiyang Zhang <haiyangz@microsoft.com>,
+        Gaurav Kohli <gauravkohli@linux.microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 67/73] hv_netvsc: Fix race between VF offering and VF association message from host
+Date:   Fri, 28 Oct 2022 14:04:04 +0200
+Message-Id: <20221028120235.276563640@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
@@ -52,121 +53,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Gaurav Kohli <gauravkohli@linux.microsoft.com>
 
-commit c243cecb58e3905baeace8827201c14df8481e2a upstream.
+commit 365e1ececb2905f94cc10a5817c5b644a32a3ae2 upstream.
 
-The requirement for 64-bit address filters is that they are canonical
-addresses. In other respects any address range is allowed which would
-include user space addresses.
+During vm boot, there might be possibility that vf registration
+call comes before the vf association from host to vm.
 
-That can be useful for tracing virtual machine guests because address
-filtering can be used to advantage in place of current privilege level
-(CPL) filtering.
+And this might break netvsc vf path, To prevent the same block
+vf registration until vf bind message comes from host.
 
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220131072453.2839535-2-adrian.hunter@intel.com
+Cc: stable@vger.kernel.org
+Fixes: 00d7ddba11436 ("hv_netvsc: pair VF based on serial number")
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Gaurav Kohli <gauravkohli@linux.microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/pt.c |   63 +++++++++++++++++++++++++++++++++++----------
- 1 file changed, 50 insertions(+), 13 deletions(-)
+ drivers/net/hyperv/hyperv_net.h |    3 ++-
+ drivers/net/hyperv/netvsc.c     |    4 ++++
+ drivers/net/hyperv/netvsc_drv.c |   20 ++++++++++++++++++++
+ 3 files changed, 26 insertions(+), 1 deletion(-)
 
---- a/arch/x86/events/intel/pt.c
-+++ b/arch/x86/events/intel/pt.c
-@@ -13,6 +13,8 @@
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
- 
- #include <linux/types.h>
-+#include <linux/bits.h>
-+#include <linux/limits.h>
- #include <linux/slab.h>
- #include <linux/device.h>
- 
-@@ -1348,11 +1350,37 @@ static void pt_addr_filters_fini(struct
- 	event->hw.addr_filters = NULL;
- }
- 
--static inline bool valid_kernel_ip(unsigned long ip)
-+#ifdef CONFIG_X86_64
-+static u64 canonical_address(u64 vaddr, u8 vaddr_bits)
- {
--	return virt_addr_valid(ip) && kernel_ip(ip);
-+	return ((s64)vaddr << (64 - vaddr_bits)) >> (64 - vaddr_bits);
- }
- 
-+static u64 is_canonical_address(u64 vaddr, u8 vaddr_bits)
-+{
-+	return canonical_address(vaddr, vaddr_bits) == vaddr;
-+}
-+
-+/* Clamp to a canonical address greater-than-or-equal-to the address given */
-+static u64 clamp_to_ge_canonical_addr(u64 vaddr, u8 vaddr_bits)
-+{
-+	return is_canonical_address(vaddr, vaddr_bits) ?
-+	       vaddr :
-+	       -BIT_ULL(vaddr_bits - 1);
-+}
-+
-+/* Clamp to a canonical address less-than-or-equal-to the address given */
-+static u64 clamp_to_le_canonical_addr(u64 vaddr, u8 vaddr_bits)
-+{
-+	return is_canonical_address(vaddr, vaddr_bits) ?
-+	       vaddr :
-+	       BIT_ULL(vaddr_bits - 1) - 1;
-+}
-+#else
-+#define clamp_to_ge_canonical_addr(x, y) (x)
-+#define clamp_to_le_canonical_addr(x, y) (x)
-+#endif
-+
- static int pt_event_addr_filters_validate(struct list_head *filters)
- {
- 	struct perf_addr_filter *filter;
-@@ -1367,14 +1395,6 @@ static int pt_event_addr_filters_validat
- 		    filter->action == PERF_ADDR_FILTER_ACTION_START)
- 			return -EOPNOTSUPP;
- 
--		if (!filter->path.dentry) {
--			if (!valid_kernel_ip(filter->offset))
--				return -EINVAL;
+--- a/drivers/net/hyperv/hyperv_net.h
++++ b/drivers/net/hyperv/hyperv_net.h
+@@ -977,7 +977,8 @@ struct net_device_context {
+ 	u32 vf_alloc;
+ 	/* Serial number of the VF to team with */
+ 	u32 vf_serial;
 -
--			if (!valid_kernel_ip(filter->offset + filter->size))
--				return -EINVAL;
--		}
--
- 		if (++range > intel_pt_validate_hw_cap(PT_CAP_num_address_ranges))
- 			return -EOPNOTSUPP;
++	/* completion variable to confirm vf association */
++	struct completion vf_add;
+ 	/* Is the current data path through the VF NIC? */
+ 	bool  data_path_is_vf;
+ 
+--- a/drivers/net/hyperv/netvsc.c
++++ b/drivers/net/hyperv/netvsc.c
+@@ -1327,6 +1327,10 @@ static void netvsc_send_vf(struct net_de
+ 
+ 	net_device_ctx->vf_alloc = nvmsg->msg.v4_msg.vf_assoc.allocated;
+ 	net_device_ctx->vf_serial = nvmsg->msg.v4_msg.vf_assoc.serial;
++
++	if (net_device_ctx->vf_alloc)
++		complete(&net_device_ctx->vf_add);
++
+ 	netdev_info(ndev, "VF slot %u %s\n",
+ 		    net_device_ctx->vf_serial,
+ 		    net_device_ctx->vf_alloc ? "added" : "removed");
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -2290,6 +2290,7 @@ static struct net_device *get_netvsc_bys
+ {
+ 	struct device *parent = vf_netdev->dev.parent;
+ 	struct net_device_context *ndev_ctx;
++	struct net_device *ndev;
+ 	struct pci_dev *pdev;
+ 	u32 serial;
+ 
+@@ -2316,6 +2317,18 @@ static struct net_device *get_netvsc_bys
+ 			return hv_get_drvdata(ndev_ctx->device_ctx);
  	}
-@@ -1398,9 +1418,26 @@ static void pt_event_addr_filters_sync(s
- 		if (filter->path.dentry && !fr[range].start) {
- 			msr_a = msr_b = 0;
- 		} else {
--			/* apply the offset */
--			msr_a = fr[range].start;
--			msr_b = msr_a + fr[range].size - 1;
-+			unsigned long n = fr[range].size - 1;
-+			unsigned long a = fr[range].start;
-+			unsigned long b;
-+
-+			if (a > ULONG_MAX - n)
-+				b = ULONG_MAX;
-+			else
-+				b = a + n;
-+			/*
-+			 * Apply the offset. 64-bit addresses written to the
-+			 * MSRs must be canonical, but the range can encompass
-+			 * non-canonical addresses. Since software cannot
-+			 * execute at non-canonical addresses, adjusting to
-+			 * canonical addresses does not affect the result of the
-+			 * address filter.
-+			 */
-+			msr_a = clamp_to_ge_canonical_addr(a, boot_cpu_data.x86_virt_bits);
-+			msr_b = clamp_to_le_canonical_addr(b, boot_cpu_data.x86_virt_bits);
-+			if (msr_b < msr_a)
-+				msr_a = msr_b = 0;
- 		}
  
- 		filters->filter[range].msr_a  = msr_a;
++	/* Fallback path to check synthetic vf with
++	 * help of mac addr
++	 */
++	list_for_each_entry(ndev_ctx, &netvsc_dev_list, list) {
++		ndev = hv_get_drvdata(ndev_ctx->device_ctx);
++		if (ether_addr_equal(vf_netdev->perm_addr, ndev->perm_addr)) {
++			netdev_notice(vf_netdev,
++				      "falling back to mac addr based matching\n");
++			return ndev;
++		}
++	}
++
+ 	netdev_notice(vf_netdev,
+ 		      "no netdev found for vf serial:%u\n", serial);
+ 	return NULL;
+@@ -2406,6 +2419,11 @@ static int netvsc_vf_changed(struct net_
+ 		return NOTIFY_OK;
+ 	net_device_ctx->data_path_is_vf = vf_is_up;
+ 
++	if (vf_is_up && !net_device_ctx->vf_alloc) {
++		netdev_info(ndev, "Waiting for the VF association from host\n");
++		wait_for_completion(&net_device_ctx->vf_add);
++	}
++
+ 	netvsc_switch_datapath(ndev, vf_is_up);
+ 	netdev_info(ndev, "Data path switched %s VF: %s\n",
+ 		    vf_is_up ? "to" : "from", vf_netdev->name);
+@@ -2429,6 +2447,7 @@ static int netvsc_unregister_vf(struct n
+ 
+ 	netvsc_vf_setxdp(vf_netdev, NULL);
+ 
++	reinit_completion(&net_device_ctx->vf_add);
+ 	netdev_rx_handler_unregister(vf_netdev);
+ 	netdev_upper_dev_unlink(vf_netdev, ndev);
+ 	RCU_INIT_POINTER(net_device_ctx->vf_netdev, NULL);
+@@ -2466,6 +2485,7 @@ static int netvsc_probe(struct hv_device
+ 
+ 	INIT_DELAYED_WORK(&net_device_ctx->dwork, netvsc_link_change);
+ 
++	init_completion(&net_device_ctx->vf_add);
+ 	spin_lock_init(&net_device_ctx->lock);
+ 	INIT_LIST_HEAD(&net_device_ctx->reconfig_events);
+ 	INIT_DELAYED_WORK(&net_device_ctx->vf_takeover, netvsc_vf_setup);
 
 
