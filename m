@@ -2,236 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB5A56113DC
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 16:01:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D1F461142B
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 16:12:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230260AbiJ1OB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 10:01:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41008 "EHLO
+        id S229995AbiJ1OMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 10:12:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230225AbiJ1OBz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 10:01:55 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BDF7173FDA
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 07:01:51 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id v27so8049824eda.1
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 07:01:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=BqeNWIlBRkMmK1mslOPps+q6bAFky+VJHL/6+iGrBtw=;
-        b=qNMH5a1M+Yusizq5vVYKCJkc7615P73mvw7J3+JaYW9TJtpTCQNjAhHCQuhmoWn29U
-         6wf7kRfCsuHxjkf1sBu71O6h40lAn3piFnLNgdIHl9vL5L1NVPWC0QIQbmqw2azPrSDq
-         o70wM7InpV82lDGuQ5C4fKS9C+RS37XtnMKCYPOX3/h+OR7q0vc9orr1YWSd7r9A+SbK
-         ub/BmNgPOSHFmA3DY6obZOEX+p2WRbXKk8UijaG7o+BKlReq3dRWHW1aP5qq5eor50ac
-         +q4smWoHnA5dhY1NL962a12T9QNxCHEixkd3CBEvEh7/LgvjVFSsGpCwYvi34+TG3djQ
-         +kUA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=BqeNWIlBRkMmK1mslOPps+q6bAFky+VJHL/6+iGrBtw=;
-        b=u7WeGdnEPKoUlm+xGL7vpWDEC53In2P7CfUxcFctuS1pfbSYIfZQNkNf/m3eN9CY/P
-         rm6Zq1KKLCBf03brTMQlCPdLWApZeOXNYSYeC/u0hvmlhMcWkwcX8ydZ3rlG8EOX9bAf
-         r2nCl0Iv5aKSq/Yf1MOsVwkoS2b7gE6aLoH4I3pMXpvc1pnaFK6JSTK7C1iMKLHALqDe
-         WDCDdIECr3lokEEfeWoLwN9yGd2QLN7jz1N+wbGcy2xxRuZ6BXtDtpNtRR0hwobQWHOZ
-         rl7A1bCjx4Ghze4t2IXFXOYscLSmUGBUh9JBAVuQhQZ6ZVdwv/z5pXnky1JldCepJ+UB
-         dgDA==
-X-Gm-Message-State: ACrzQf0IIffN5G6mgaZJVyH5D1poDA+wKfnHxlV4Ql77TO5F2KbTBmvz
-        auZPx41cWY1HXp+Uz/Of8P2ltqUifwov4xQL/Ol5Fg==
-X-Google-Smtp-Source: AMsMyM51gqVjvddmfdrHA2Awi7ragYxdhTfpa1HK2izQMpQaT3xyPp8hoWc+aCUM2WWSktiGTWBV194dhzRc8s8qhZM=
-X-Received: by 2002:aa7:d996:0:b0:461:88b8:c581 with SMTP id
- u22-20020aa7d996000000b0046188b8c581mr30465868eds.111.1666965710354; Fri, 28
- Oct 2022 07:01:50 -0700 (PDT)
+        with ESMTP id S230183AbiJ1OMb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 10:12:31 -0400
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D9CA1C8406;
+        Fri, 28 Oct 2022 07:12:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1666966350; x=1698502350;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=q9Olp4YqLgqBAJYRL0jQZ9E01eAQBEhHXpcQaGWFd5k=;
+  b=V4Ye95J+B1DfRqorVBi7sn1QK+BTGZhUhrCD7aapn7PkY6koRPfI72Iz
+   L1/zjR0eNcP7suSVShYGabbU9wakm9WH3PuMR/+JZ7aopXardZ65zeCfX
+   zXCLYusKdPELZaqWhgbI6JfR0rutMVxsRp7icl4JIduoKMZZalQNpCV2k
+   xpJnOB/Gx+WJVJ6VMrbqdPAJHL+LltiSqxF4WHdMuDMrurlCaZKmn/m/L
+   Q+7JXbnNnC516qxM9Tghlp/Rcx6HKNG6I6MuU+V8hcFP+i8NL/jdcirBV
+   EdFkSz9Iti5JUUAOFdVoawlYTlnRqvE0eejAjIkpOImY1PrOPpEQ1S55F
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10513"; a="335142692"
+X-IronPort-AV: E=Sophos;i="5.95,221,1661842800"; 
+   d="scan'208";a="335142692"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Oct 2022 07:12:29 -0700
+X-IronPort-AV: E=McAfee;i="6500,9779,10513"; a="583936262"
+X-IronPort-AV: E=Sophos;i="5.95,221,1661842800"; 
+   d="scan'208";a="583936262"
+Received: from snehalde-mobl1.ger.corp.intel.com (HELO box.shutemov.name) ([10.252.46.229])
+  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Oct 2022 07:12:24 -0700
+Received: by box.shutemov.name (Postfix, from userid 1000)
+        id 1DFAF10828A; Fri, 28 Oct 2022 17:12:22 +0300 (+03)
+From:   "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+To:     tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@intel.com, luto@kernel.org, peterz@infradead.org
+Cc:     sathyanarayanan.kuppuswamy@linux.intel.com, ak@linux.intel.com,
+        dan.j.williams@intel.com, david@redhat.com, hpa@zytor.com,
+        seanjc@google.com, thomas.lendacky@amd.com,
+        elena.reshetova@intel.com, x86@kernel.org,
+        linux-kernel@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 2/2] x86/tdx: Do not allow #VE due to EPT violation on the private memory
+Date:   Fri, 28 Oct 2022 17:12:20 +0300
+Message-Id: <20221028141220.29217-3-kirill.shutemov@linux.intel.com>
+X-Mailer: git-send-email 2.38.0
+In-Reply-To: <20221028141220.29217-1-kirill.shutemov@linux.intel.com>
+References: <20221028141220.29217-1-kirill.shutemov@linux.intel.com>
 MIME-Version: 1.0
-References: <20221027165049.817124510@linuxfoundation.org>
-In-Reply-To: <20221027165049.817124510@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 28 Oct 2022 19:31:38 +0530
-Message-ID: <CA+G9fYsvTNAFG5qMcoq_6PtexE3mW_0KKLi-FAMcsD+naskziA@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/53] 5.4.221-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 27 Oct 2022 at 22:38, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.221 release.
-> There are 53 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 29 Oct 2022 16:50:35 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.221-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Virtualization Exceptions (#VE) are delivered to TDX guests due to
+specific guest actions such as using specific instructions or accessing
+a specific MSR.
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Notable reason for #VE is access to specific guest physical addresses.
+It requires special security considerations as it is not fully in
+control of the guest kernel. VMM can remove a page from EPT page table
+and trigger #VE on access.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+The primary use-case for #VE on a memory access is MMIO: VMM removes
+page from EPT to trigger exception in the guest which allows guest to
+emulate MMIO with hypercalls.
 
-## Build
-* kernel: 5.4.221-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.4.y
-* git commit: f98a212520a532dcf91de4a5784c6b29b0da8874
-* git describe: v5.4.220-54-gf98a212520a5
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.220-54-gf98a212520a5
+MMIO only happens on shared memory. All conventional kernel memory is
+private. This includes everything from kernel stacks to kernel text.
 
-## No Test Regressions (compared to v5.4.219-256-gf49f12b65484)
+Handling exceptions on arbitrary accesses to kernel memory is
+essentially impossible as handling #VE may require access to memory
+that also triggers the exception.
 
-## No Metric Regressions (compared to v5.4.219-256-gf49f12b65484)
+TDX module provides mechanism to disable #VE delivery on access to
+private memory. If SEPT_VE_DISABLE TD attribute is set, private EPT
+violation will not be reflected to the guest as #VE, but will trigger
+exit to VMM.
 
-## No Test Fixes (compared to v5.4.219-256-gf49f12b65484)
+Make sure the attribute is set by VMM. Panic otherwise.
 
-## No Metric Fixes (compared to v5.4.219-256-gf49f12b65484)
+There's small window during the boot before the check where kernel has
+early #VE handler. But the handler is only for port I/O and panic as
+soon as it sees any other #VE reason.
 
-## Test result summary
-total: 117476, pass: 99333, fail: 2165, skip: 15484, xfail: 494
+SEPT_VE_DISABLE makes SEPT violation unrecoverable and terminating the
+TD is the only option.
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 334 total, 334 passed, 0 failed
-* arm64: 64 total, 59 passed, 5 failed
-* i386: 31 total, 29 passed, 2 failed
-* mips: 56 total, 56 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 63 total, 63 passed, 0 failed
-* riscv: 27 total, 26 passed, 1 failed
-* s390: 15 total, 15 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 57 total, 55 passed, 2 failed
+Kernel has no legitimate use-cases for #VE on private memory. It is
+either a guest kernel bug (like access of unaccepted memory) or
+malicious/buggy VMM that removes guest page that is still in use.
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* perf
-* perf/Zstd-perf.data-compression
-* rcutorture
-* v4l2-compliance
-* vdso
+In both cases terminating TD is the right thing to do.
 
---
-Linaro LKFT
-https://lkft.linaro.org
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Fixes: 9a22bf6debbf ("x86/traps: Add #VE support for TDX guest")
+Cc: stable@vger.kernel.org # v5.19
+---
+ arch/x86/coco/tdx/tdx.c | 49 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
+
+diff --git a/arch/x86/coco/tdx/tdx.c b/arch/x86/coco/tdx/tdx.c
+index 343d60853b71..a376a0c3fddc 100644
+--- a/arch/x86/coco/tdx/tdx.c
++++ b/arch/x86/coco/tdx/tdx.c
+@@ -34,6 +34,9 @@
+ #define VE_GET_PORT_NUM(e)	((e) >> 16)
+ #define VE_IS_IO_STRING(e)	((e) & BIT(4))
+ 
++/* TD Attributes */
++#define ATTR_SEPT_VE_DISABLE	BIT(28)
++
+ /* Caches GPA width from TDG.VP.INFO TDCALL */
+ static unsigned int gpa_width __ro_after_init;
+ 
+@@ -770,6 +773,52 @@ void __init tdx_early_init(void)
+ 	 */
+ 	tdx_parse_tdinfo();
+ 
++	/*
++	 * Do not allow #VE due to EPT violation on the private memory
++	 *
++	 * Virtualization Exceptions (#VE) are delivered to TDX guests due to
++	 * specific guest actions such as using specific instructions or
++	 * accessing a specific MSR.
++	 *
++	 * Notable reason for #VE is access to specific guest physical
++	 * addresses. It requires special security considerations as it is not
++	 * fully in control of the guest kernel. VMM can remove a page from EPT
++	 * page table and trigger #VE on access.
++	 *
++	 * The primary use-case for #VE on a memory access is MMIO: VMM removes
++	 * page from EPT to trigger exception in the guest which allows guest to
++	 * emulate MMIO with hypercalls.
++	 *
++	 * MMIO only happens on shared memory. All conventional kernel memory is
++	 * private. This includes everything from kernel stacks to kernel text.
++	 *
++	 * Handling exceptions on arbitrary accesses to kernel memory is
++	 * essentially impossible as handling #VE may require access to memory
++	 * that also triggers the exception.
++	 *
++	 * TDX module provides mechanism to disable #VE delivery on access to
++	 * private memory. If SEPT_VE_DISABLE TD attribute is set, private EPT
++	 * violation will not be reflected to the guest as #VE, but will trigger
++	 * exit to VMM.
++	 *
++	 * Make sure the attribute is set by VMM. Panic otherwise.
++	 *
++	 * There's small window during the boot before the check where kernel has
++	 * early #VE handler. But the handler is only for port I/O and panic as
++	 * soon as it sees any other #VE reason.
++	 *
++	 * SEPT_VE_DISABLE makes SEPT violation unrecoverable and terminating
++	 * the TD is the only option.
++	 *
++	 * Kernel has no legitimate use-cases for #VE on private memory. It is
++	 * either a guest kernel bug (like access of unaccepted memory) or
++	 * malicious/buggy VMM that removes guest page that is still in use.
++	 *
++	 * In both cases terminating TD is the right thing to do.
++	 */
++	if (!(td_attr & ATTR_SEPT_VE_DISABLE))
++		panic("TD misconfiguration: SEPT_VE_DISABLE attibute must be set.\n");
++
+ 	setup_force_cpu_cap(X86_FEATURE_TDX_GUEST);
+ 
+ 	cc_set_vendor(CC_VENDOR_INTEL);
+-- 
+2.38.0
+
