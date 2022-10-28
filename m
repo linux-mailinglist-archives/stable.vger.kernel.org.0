@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B43C611086
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:06:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61CBF611092
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:06:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230116AbiJ1MG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 08:06:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50552 "EHLO
+        id S229574AbiJ1MG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 08:06:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230128AbiJ1MG0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:06:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DA99E6A1
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:06:24 -0700 (PDT)
+        with ESMTP id S230147AbiJ1MG4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:06:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72F3FD73FE
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:06:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 462CE62808
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:06:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AA3AC433C1;
-        Fri, 28 Oct 2022 12:06:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25256B828C2
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:06:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C7C4C433D7;
+        Fri, 28 Oct 2022 12:06:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958783;
-        bh=sW9IKrI9NVPD7ZPVxRBZWKXPK7U4cAFlLCbg7fXjIrA=;
+        s=korg; t=1666958812;
+        bh=FoIWPUTl3vEK+owOoHDkpgyRijny409xAVylA7T2X5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mFv9891aKVzkTqPvzTTnDX5/vDr31Ko5ing/Upe9FYQbO2LIKQ2FTZWrO8dvpXN67
-         1lHrof9ZwkcWPZX0qkDY5yOIReRdFI+7tTryNc93I57XUl4TzfCH1uXNZJMxBZPYnZ
-         +jfOeLpZLWyXI5a6xTqXMjZNF0UQ/fxDWJEEpD74=
+        b=vWZ7kBHsqbg7ouMmwrmH/1pMOEavMnPChg11zXDMSBoPpacbqrSE25INBo4BtfRih
+         4G8eApHyNiFUTOAjwIVWrqQaKk2oMrUPTwJDZrzqORp7FGKbeC2y4TDTPZSQ/H9GKW
+         TjVeLTVmKAUoNwIXjb0IRFdhkifGtQQcTmyJKuvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 33/73] cifs: Fix xid leak in cifs_ses_add_channel()
-Date:   Fri, 28 Oct 2022 14:03:30 +0200
-Message-Id: <20221028120233.812850198@linuxfoundation.org>
+Subject: [PATCH 5.10 34/73] net: hsr: avoid possible NULL deref in skb_clone()
+Date:   Fri, 28 Oct 2022 14:03:31 +0200
+Message-Id: <20221028120233.854113221@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
@@ -54,34 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit e909d054bdea75ef1ec48c18c5936affdaecbb2c ]
+[ Upstream commit d8b57135fd9ffe9a5b445350a686442a531c5339 ]
 
-Before return, should free the xid, otherwise, the
-xid will be leaked.
+syzbot got a crash [1] in skb_clone(), caused by a bug
+in hsr_get_untagged_frame().
 
-Fixes: d70e9fa55884 ("cifs: try opening channels after mounting")
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+When/if create_stripped_skb_hsr() returns NULL, we must
+not attempt to call skb_clone().
+
+While we are at it, replace a WARN_ONCE() by netdev_warn_once().
+
+[1]
+general protection fault, probably for non-canonical address 0xdffffc000000000f: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000078-0x000000000000007f]
+CPU: 1 PID: 754 Comm: syz-executor.0 Not tainted 6.0.0-syzkaller-02734-g0326074ff465 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
+RIP: 0010:skb_clone+0x108/0x3c0 net/core/skbuff.c:1641
+Code: 93 02 00 00 49 83 7c 24 28 00 0f 85 e9 00 00 00 e8 5d 4a 29 fa 4c 8d 75 7e 48 b8 00 00 00 00 00 fc ff df 4c 89 f2 48 c1 ea 03 <0f> b6 04 02 4c 89 f2 83 e2 07 38 d0 7f 08 84 c0 0f 85 9e 01 00 00
+RSP: 0018:ffffc90003ccf4e0 EFLAGS: 00010207
+
+RAX: dffffc0000000000 RBX: ffffc90003ccf5f8 RCX: ffffc9000c24b000
+RDX: 000000000000000f RSI: ffffffff8751cb13 RDI: 0000000000000000
+RBP: 0000000000000000 R08: 00000000000000f0 R09: 0000000000000140
+R10: fffffbfff181d972 R11: 0000000000000000 R12: ffff888161fc3640
+R13: 0000000000000a20 R14: 000000000000007e R15: ffffffff8dc5f620
+FS: 00007feb621e4700(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007feb621e3ff8 CR3: 00000001643a9000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<TASK>
+hsr_get_untagged_frame+0x4e/0x610 net/hsr/hsr_forward.c:164
+hsr_forward_do net/hsr/hsr_forward.c:461 [inline]
+hsr_forward_skb+0xcca/0x1d50 net/hsr/hsr_forward.c:623
+hsr_handle_frame+0x588/0x7c0 net/hsr/hsr_slave.c:69
+__netif_receive_skb_core+0x9fe/0x38f0 net/core/dev.c:5379
+__netif_receive_skb_one_core+0xae/0x180 net/core/dev.c:5483
+__netif_receive_skb+0x1f/0x1c0 net/core/dev.c:5599
+netif_receive_skb_internal net/core/dev.c:5685 [inline]
+netif_receive_skb+0x12f/0x8d0 net/core/dev.c:5744
+tun_rx_batched+0x4ab/0x7a0 drivers/net/tun.c:1544
+tun_get_user+0x2686/0x3a00 drivers/net/tun.c:1995
+tun_chr_write_iter+0xdb/0x200 drivers/net/tun.c:2025
+call_write_iter include/linux/fs.h:2187 [inline]
+new_sync_write fs/read_write.c:491 [inline]
+vfs_write+0x9e9/0xdd0 fs/read_write.c:584
+ksys_write+0x127/0x250 fs/read_write.c:637
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: f266a683a480 ("net/hsr: Better frame dispatch")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20221017165928.2150130-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/sess.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/hsr/hsr_forward.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fs/cifs/sess.c b/fs/cifs/sess.c
-index d58c5ffeca0d..cf6fd138d8d5 100644
---- a/fs/cifs/sess.c
-+++ b/fs/cifs/sess.c
-@@ -306,6 +306,7 @@ cifs_ses_add_channel(struct cifs_ses *ses, struct cifs_server_iface *iface)
- 		cifs_put_tcp_session(chan->server, 0);
- 	unload_nls(vol.local_nls);
+diff --git a/net/hsr/hsr_forward.c b/net/hsr/hsr_forward.c
+index baf4765be6d7..908324b46328 100644
+--- a/net/hsr/hsr_forward.c
++++ b/net/hsr/hsr_forward.c
+@@ -108,15 +108,15 @@ struct sk_buff *hsr_get_untagged_frame(struct hsr_frame_info *frame,
+ 				       struct hsr_port *port)
+ {
+ 	if (!frame->skb_std) {
+-		if (frame->skb_hsr) {
++		if (frame->skb_hsr)
+ 			frame->skb_std =
+ 				create_stripped_skb_hsr(frame->skb_hsr, frame);
+-		} else {
+-			/* Unexpected */
+-			WARN_ONCE(1, "%s:%d: Unexpected frame received (port_src %s)\n",
+-				  __FILE__, __LINE__, port->dev->name);
++		else
++			netdev_warn_once(port->dev,
++					 "Unexpected frame received in hsr_get_untagged_frame()\n");
++
++		if (!frame->skb_std)
+ 			return NULL;
+-		}
+ 	}
  
-+	free_xid(xid);
- 	return rc;
- }
- 
+ 	return skb_clone(frame->skb_std, GFP_ATOMIC);
 -- 
 2.35.1
 
