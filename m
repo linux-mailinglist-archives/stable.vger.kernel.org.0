@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4595D611085
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:06:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3EB9611084
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:06:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230113AbiJ1MG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230122AbiJ1MG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 28 Oct 2022 08:06:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50536 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230116AbiJ1MGZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:06:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3289D9C7D0
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:06:21 -0700 (PDT)
+        with ESMTP id S230113AbiJ1MGY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:06:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13CEC9DDAD
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:06:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF401B829BF
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:06:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2277CC433D6;
-        Fri, 28 Oct 2022 12:06:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A41F66280A
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:06:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B212DC433C1;
+        Fri, 28 Oct 2022 12:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958778;
-        bh=Fw8uxSB1Fg+ST5RDpcE3ajbLx88KQnXUiyQkxCzappo=;
+        s=korg; t=1666958781;
+        bh=usumVKRXMPZUsGMJcY0f1cVOhkLxyrcKJp9IFOALwIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=guM5JuKLHIBL2btspw2uW/fbVCJr/i3gyv0ZRFZSzN/0/gKqncvjRFIMBnnzfuU4D
-         wTKcPCRcdUKwgWyV8X1s0vi2zMef0fGla9Hx4JadMsZh1FryS2r8lW+XhiYuePIJg2
-         MBnSu82YR0pHzZyBHByHMPV8y6gnzqxtqbTqYJlY=
+        b=yCOV0N1RK/iAbhUm5XkMi0onz3pTpTUEhzU5UW2YiTYmecb7RXXOSTLf390/PNHJP
+         sreWz2QlrDPis4QPBMcqRpiNnvByVjmgU9yPBYwUwka4X7KZCMz1I/5y/OjWb2EU+Y
+         APU/dPEZ74d5M5CZXSqxSE/pxhiTSAezFqgvRxaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 49/73] drm/virtio: Use appropriate atomic state in virtio_gpu_plane_cleanup_fb()
-Date:   Fri, 28 Oct 2022 14:03:46 +0200
-Message-Id: <20221028120234.508089333@linuxfoundation.org>
+        patches@lists.linux.dev, Fabio Estevam <festevam@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 50/73] dmaengine: mxs-dma: Remove the unused .id_table
+Date:   Fri, 28 Oct 2022 14:03:47 +0200
+Message-Id: <20221028120234.554386917@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
@@ -54,48 +52,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 4656b3a26a9e9fe5f04bfd2ab55b066266ba7f4d ]
+[ Upstream commit cc2afb0d4c7cbba6743ed6d9564f0883cab6bae1 ]
 
-Make virtio_gpu_plane_cleanup_fb() to clean the state which DRM core
-wants to clean up and not the current plane's state. Normally the older
-atomic state is cleaned up, but the newer state could also be cleaned up
-in case of aborted commits.
+The mxs-dma driver is only used by DT platforms and the .id_table
+is unused.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220630200726.1884320-6-dmitry.osipenko@collabora.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Get rid of it to simplify the code.
+
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20201123193051.17285-1-festevam@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Stable-dep-of: 26696d465716 ("dmaengine: mxs: use platform_driver_register")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_plane.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/dma/mxs-dma.c |   37 +++++--------------------------------
+ 1 file changed, 5 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index 6a311cd93440..e6de62734269 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -213,14 +213,14 @@ static int virtio_gpu_cursor_prepare_fb(struct drm_plane *plane,
- }
+--- a/drivers/dma/mxs-dma.c
++++ b/drivers/dma/mxs-dma.c
+@@ -167,29 +167,11 @@ static struct mxs_dma_type mxs_dma_types
+ 	}
+ };
  
- static void virtio_gpu_cursor_cleanup_fb(struct drm_plane *plane,
--					 struct drm_plane_state *old_state)
-+					struct drm_plane_state *state)
+-static const struct platform_device_id mxs_dma_ids[] = {
+-	{
+-		.name = "imx23-dma-apbh",
+-		.driver_data = (kernel_ulong_t) &mxs_dma_types[0],
+-	}, {
+-		.name = "imx23-dma-apbx",
+-		.driver_data = (kernel_ulong_t) &mxs_dma_types[1],
+-	}, {
+-		.name = "imx28-dma-apbh",
+-		.driver_data = (kernel_ulong_t) &mxs_dma_types[2],
+-	}, {
+-		.name = "imx28-dma-apbx",
+-		.driver_data = (kernel_ulong_t) &mxs_dma_types[3],
+-	}, {
+-		/* end of list */
+-	}
+-};
+-
+ static const struct of_device_id mxs_dma_dt_ids[] = {
+-	{ .compatible = "fsl,imx23-dma-apbh", .data = &mxs_dma_ids[0], },
+-	{ .compatible = "fsl,imx23-dma-apbx", .data = &mxs_dma_ids[1], },
+-	{ .compatible = "fsl,imx28-dma-apbh", .data = &mxs_dma_ids[2], },
+-	{ .compatible = "fsl,imx28-dma-apbx", .data = &mxs_dma_ids[3], },
++	{ .compatible = "fsl,imx23-dma-apbh", .data = &mxs_dma_types[0], },
++	{ .compatible = "fsl,imx23-dma-apbx", .data = &mxs_dma_types[1], },
++	{ .compatible = "fsl,imx28-dma-apbh", .data = &mxs_dma_types[2], },
++	{ .compatible = "fsl,imx28-dma-apbx", .data = &mxs_dma_types[3], },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, mxs_dma_dt_ids);
+@@ -762,8 +744,6 @@ static struct dma_chan *mxs_dma_xlate(st
+ static int __init mxs_dma_probe(struct platform_device *pdev)
  {
- 	struct virtio_gpu_framebuffer *vgfb;
+ 	struct device_node *np = pdev->dev.of_node;
+-	const struct platform_device_id *id_entry;
+-	const struct of_device_id *of_id;
+ 	const struct mxs_dma_type *dma_type;
+ 	struct mxs_dma_engine *mxs_dma;
+ 	struct resource *iores;
+@@ -779,13 +759,7 @@ static int __init mxs_dma_probe(struct p
+ 		return ret;
+ 	}
  
--	if (!plane->state->fb)
-+	if (!state->fb)
- 		return;
+-	of_id = of_match_device(mxs_dma_dt_ids, &pdev->dev);
+-	if (of_id)
+-		id_entry = of_id->data;
+-	else
+-		id_entry = platform_get_device_id(pdev);
+-
+-	dma_type = (struct mxs_dma_type *)id_entry->driver_data;
++	dma_type = (struct mxs_dma_type *)of_device_get_match_data(&pdev->dev);
+ 	mxs_dma->type = dma_type->type;
+ 	mxs_dma->dev_id = dma_type->id;
  
--	vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
-+	vgfb = to_virtio_gpu_framebuffer(state->fb);
- 	if (vgfb->fence) {
- 		dma_fence_put(&vgfb->fence->f);
- 		vgfb->fence = NULL;
--- 
-2.35.1
-
+@@ -865,7 +839,6 @@ static struct platform_driver mxs_dma_dr
+ 		.name	= "mxs-dma",
+ 		.of_match_table = mxs_dma_dt_ids,
+ 	},
+-	.id_table	= mxs_dma_ids,
+ };
+ 
+ static int __init mxs_dma_module_init(void)
 
 
