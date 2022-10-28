@@ -2,88 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E2E7610E0D
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 12:04:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C58C610E3F
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 12:18:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229618AbiJ1KEU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 06:04:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39016 "EHLO
+        id S229587AbiJ1KSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 06:18:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229574AbiJ1KEU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 06:04:20 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8621E56BAA;
-        Fri, 28 Oct 2022 03:04:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1666951458; x=1698487458;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=hhsMbbxGYStohAh15fvX1DMTKWlhhSTK1Gfncm9ni3g=;
-  b=RIUM0epUNODLl2tp2Gdxg3lv6p3JpUQloT5b1a2M3MseV1MBgq1kJvWj
-   M75FM2UhwHUvnTYZuRXFgPg2eYrtD3wprnaVKZ761Od+jXT671T1KqY8B
-   hUI8VO9eSkAZh+OiPiC/+PGvF4p/U+b/VHeML4QyZAgICsxnMQ1U3Mq5w
-   g3fuGlp6eJR2WfhffCr/wAZ3LuQM1zXeM6snHgneHLxBOheYXSp+O/P7w
-   jMyLLNvXrsk6TVgWJfSMPyTVMwY7DxLFKHSqQoT9KO7b8dTecDGvTHTLx
-   nODA7Annn8L2yqUXcoa7S6kiF5F8ui5iiNhWxDzllftEeFa6wMa9Bagtl
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10513"; a="288852935"
-X-IronPort-AV: E=Sophos;i="5.95,220,1661842800"; 
-   d="scan'208";a="288852935"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Oct 2022 03:04:18 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10513"; a="627478453"
-X-IronPort-AV: E=Sophos;i="5.95,220,1661842800"; 
-   d="scan'208";a="627478453"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.191])
-  by orsmga007.jf.intel.com with SMTP; 28 Oct 2022 03:04:13 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Fri, 28 Oct 2022 13:04:11 +0300
-Date:   Fri, 28 Oct 2022 13:04:11 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Thomas Zimmermann <tzimmermann@suse.de>
-Cc:     Hector Martin <marcan@marcan.st>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        stable@vger.kernel.org,
-        Pekka Paalanen <pekka.paalanen@collabora.com>,
-        asahi@lists.linux.dev, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drm/simpledrm: Only advertise formats that are supported
-Message-ID: <Y1upGwtjWgtLUZ1k@intel.com>
-References: <20221027101327.16678-1-marcan@marcan.st>
- <fa4efcfd-91b6-dc76-2e5c-eed538bccff3@suse.de>
+        with ESMTP id S229912AbiJ1KSO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 06:18:14 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A47C1C20AB
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 03:18:11 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id io19so4460268plb.8
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 03:18:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=heitbaum.com; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=DSKJv1f/uVlp0hff+snMR0wsnevB65aMFxEQQizFBpA=;
+        b=Qv3qfdxLvWItvoVyHt2AVoKll3nKREI/ZG2asPBKUQPv2SRMcjQtGtUTs3+WFQo0O8
+         9HcNkQymRFA1X5r6hdlNRK725D4tZ8a3Wge4W3747Ck/ZlUPgtCd7PmnkzjXqZexAEFv
+         Hn4aajmyzXT0xc5THfW/EVLed5s3VzMW2xz80=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DSKJv1f/uVlp0hff+snMR0wsnevB65aMFxEQQizFBpA=;
+        b=XPIel4ecnPgUXCNrkUo9efOqyXODN3i7sJk6WsEVHm7nMx+/Z/0iwAP48/EUgLVQiQ
+         mAWvMOtRObvKS5OWBwxYXgDT3lSEbzxLmSgS8cIOVIsqww8RgLbsthFd5FUUnPNA61I9
+         Vepofb74+paWcpVnUyvbdJjVf4C5CKO7jrqyRkXasqBh5nXX7SLqxbQivPOEHCfwogb+
+         eiKLndN/xbHLgkpvJhASpnT8wlN1LbCPYgjQ+4leLxZ2FLKmTzrIKPOeSoahPGJ3phIC
+         NfKwZWKmoxuF707SAPhZieWVpsnPfnmJhd9aZNb3CRlssNhc1iexcPuI6n5mGeeFnKjZ
+         A7cA==
+X-Gm-Message-State: ACrzQf0hylF9q7JiyITLH+zduCo6p9SJne6lmk6tWcm5pwcocrzaHSTV
+        18v1DnpGEWPCg6W5UcsVush28w==
+X-Google-Smtp-Source: AMsMyM42VLGabApraSGNSPouVxxKriSgE7M0ZYJbOsPjhq0ZT8JFO8iTPEyhcjI2rjlhMo2Ky+1lGg==
+X-Received: by 2002:a17:902:8685:b0:186:cb66:d77b with SMTP id g5-20020a170902868500b00186cb66d77bmr17207873plo.39.1666952290879;
+        Fri, 28 Oct 2022 03:18:10 -0700 (PDT)
+Received: from 377995ad3d24 ([220.253.112.46])
+        by smtp.gmail.com with ESMTPSA id bt20-20020a17090af01400b001fb1de10a4dsm251163pjb.33.2022.10.28.03.18.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Oct 2022 03:18:10 -0700 (PDT)
+Date:   Fri, 28 Oct 2022 10:18:02 +0000
+From:   Rudi Heitbaum <rudi@heitbaum.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
+Subject: Re: [PATCH 6.0 00/94] 6.0.6-rc1 review
+Message-ID: <20221028101802.GA2440677@377995ad3d24>
+References: <20221027165057.208202132@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <fa4efcfd-91b6-dc76-2e5c-eed538bccff3@suse.de>
-X-Patchwork-Hint: comment
-X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20221027165057.208202132@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 27, 2022 at 01:08:24PM +0200, Thomas Zimmermann wrote:
-> I trust you when you say that <native>->XRGB8888 is not enough. But 
-> although I've read your replies, I still don't understand why this 
-> switch is necessary.
+On Thu, Oct 27, 2022 at 06:54:02PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.6 release.
+> There are 94 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Why don't we call drm_fb_build_fourcc_list() with the native 
-> format/formats and let it append a number of formats, such as adding 
-> XRGB888, adding ARGB8888 if necessary, adding ARGB2101010 if necessary. 
-> Each with a elaborate comment why and which userspace needs the format. (?)
+> Responses should be made by Sat, 29 Oct 2022 16:50:35 +0000.
+> Anything received after that time might be too late.
 
-Are you saying there is some real userspace that breaks without
-the alpha formats? That would already be broken on many devices.
+Hi Greg,
 
--- 
-Ville Syrjälä
-Intel
+6.0.6-rc1 tested.
+
+Run tested on:
+- Intel Alder Lake x86_64 (nuc12 i7-1260P)
+
+In addition - build tested for:
+- Allwinner A64
+- Allwinner H3
+- Allwinner H5
+- Allwinner H6
+- NXP iMX6
+- NXP iMX8
+- Qualcomm Dragonboard
+- Rockchip RK3288
+- Rockchip RK3328
+- Rockchip RK3399pro
+- Samsung Exynos5422
+
+Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
+--
+Rudi
