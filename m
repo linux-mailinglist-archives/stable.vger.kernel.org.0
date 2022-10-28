@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB76C611094
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:07:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 656B4611096
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230180AbiJ1MG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 08:06:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51410 "EHLO
+        id S230194AbiJ1MHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 08:07:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230147AbiJ1MG7 (ORCPT
+        with ESMTP id S230159AbiJ1MG7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:06:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10DC6D6BB4;
-        Fri, 28 Oct 2022 05:06:58 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FFA1D73D0
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:06:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA82AB829B8;
-        Fri, 28 Oct 2022 12:06:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7819C433D6;
-        Fri, 28 Oct 2022 12:06:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0BB562808
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:06:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B106BC433D6;
+        Fri, 28 Oct 2022 12:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958815;
-        bh=KnqdBqXpwjnoczNNin28/Qu7T5+d3J3wqw/aPVgwV5I=;
+        s=korg; t=1666958818;
+        bh=D7nBtAHOV5b4/7i/0zBdTkcZG7rogfJNxsoEPF5OTwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IE/vZsWZRUOQ2Vw4pgESvFMAaJEXn/0YCrZj+QFcp79NpOkUsm7MAu/bNYkgrDBR+
-         /g+VBuv5G40JPh7Hdm7R6L+gc/by/HeE8lijgv96lUE5WiCrq3IE3lzeiuelc+PMro
-         01M3gl+GnVkwa9WLS0CDFuy5sqYjk0dNTbfpTskA=
+        b=oHVwdGex30YCV9w5rKfV6yA0h2NY36CQEKpSYK8rliFFXyQbCNuZJwW09LZkJjgqz
+         M4HGRD++qqyM1+Mk6rMXGUMC+8iUkux+8WbyIwFi2avucrfnBaSUIZXpHs7mp7bo/I
+         Q0azHmX7keZAh+vdrgtfsLDi+j3H6vV61D5Y0ZoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Cyrill Gorcunov <gorcunov@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 61/73] fcntl: make F_GETOWN(EX) return 0 on dead owner task
-Date:   Fri, 28 Oct 2022 14:03:58 +0200
-Message-Id: <20221028120235.030794478@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+e6d5398a02c516ce5e70@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 62/73] fcntl: fix potential deadlocks for &fown_struct.lock
+Date:   Fri, 28 Oct 2022 14:03:59 +0200
+Message-Id: <20221028120235.069350663@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
@@ -58,77 +55,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit cc4a3f885e8f2bc3c86a265972e94fef32d68f67 ]
+[ Upstream commit f671a691e299f58835d4660d642582bf0e8f6fda ]
 
-Currently there is no way to differentiate the file with alive owner
-from the file with dead owner but pid of the owner reused. That's why
-CRIU can't actually know if it needs to restore file owner or not,
-because if it restores owner but actual owner was dead, this can
-introduce unexpected signals to the "false"-owner (which reused the
-pid).
+Syzbot reports a potential deadlock in do_fcntl:
 
-Let's change the api, so that F_GETOWN(EX) returns 0 in case actual
-owner is dead already. This comports with the POSIX spec, which
-states that a PID of 0 indicates that no signal will be sent.
+========================================================
+WARNING: possible irq lock inversion dependency detected
+5.12.0-syzkaller #0 Not tainted
+--------------------------------------------------------
+syz-executor132/8391 just changed the state of lock:
+ffff888015967bf8 (&f->f_owner.lock){.+..}-{2:2}, at: f_getown_ex fs/fcntl.c:211 [inline]
+ffff888015967bf8 (&f->f_owner.lock){.+..}-{2:2}, at: do_fcntl+0x8b4/0x1200 fs/fcntl.c:395
+but this lock was taken by another, HARDIRQ-safe lock in the past:
+ (&dev->event_lock){-...}-{2:2}
 
-Cc: Jeff Layton <jlayton@kernel.org>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: linux-fsdevel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Cyrill Gorcunov <gorcunov@gmail.com>
-Cc: Andrei Vagin <avagin@gmail.com>
-Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+and interrupts could create inverse lock ordering between them.
+
+other info that might help us debug this:
+Chain exists of:
+  &dev->event_lock --> &new->fa_lock --> &f->f_owner.lock
+
+ Possible interrupt unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(&f->f_owner.lock);
+                               local_irq_disable();
+                               lock(&dev->event_lock);
+                               lock(&new->fa_lock);
+  <Interrupt>
+    lock(&dev->event_lock);
+
+ *** DEADLOCK ***
+
+This happens because there is a lock hierarchy of
+&dev->event_lock --> &new->fa_lock --> &f->f_owner.lock
+from the following call chain:
+
+  input_inject_event():
+    spin_lock_irqsave(&dev->event_lock,...);
+    input_handle_event():
+      input_pass_values():
+        input_to_handler():
+          evdev_events():
+            evdev_pass_values():
+              spin_lock(&client->buffer_lock);
+              __pass_event():
+                kill_fasync():
+                  kill_fasync_rcu():
+                    read_lock(&fa->fa_lock);
+                    send_sigio():
+                      read_lock_irqsave(&fown->lock,...);
+
+However, since &dev->event_lock is HARDIRQ-safe, interrupts have to be
+disabled while grabbing &f->f_owner.lock, otherwise we invert the lock
+hierarchy.
+
+Hence, we replace calls to read_lock/read_unlock on &f->f_owner.lock,
+with read_lock_irq/read_unlock_irq.
+
+Reported-and-tested-by: syzbot+e6d5398a02c516ce5e70@syzkaller.appspotmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Stable-dep-of: f671a691e299 ("fcntl: fix potential deadlocks for &fown_struct.lock")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fcntl.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ fs/fcntl.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
 diff --git a/fs/fcntl.c b/fs/fcntl.c
-index 71b43538fa44..5a56351f1fc3 100644
+index 5a56351f1fc3..fcf34f83bf6a 100644
 --- a/fs/fcntl.c
 +++ b/fs/fcntl.c
-@@ -148,11 +148,15 @@ void f_delown(struct file *filp)
- 
+@@ -149,7 +149,8 @@ void f_delown(struct file *filp)
  pid_t f_getown(struct file *filp)
  {
--	pid_t pid;
-+	pid_t pid = 0;
- 	read_lock(&filp->f_owner.lock);
--	pid = pid_vnr(filp->f_owner.pid);
--	if (filp->f_owner.pid_type == PIDTYPE_PGID)
--		pid = -pid;
-+	rcu_read_lock();
-+	if (pid_task(filp->f_owner.pid, filp->f_owner.pid_type)) {
-+		pid = pid_vnr(filp->f_owner.pid);
-+		if (filp->f_owner.pid_type == PIDTYPE_PGID)
-+			pid = -pid;
-+	}
-+	rcu_read_unlock();
- 	read_unlock(&filp->f_owner.lock);
+ 	pid_t pid = 0;
+-	read_lock(&filp->f_owner.lock);
++
++	read_lock_irq(&filp->f_owner.lock);
+ 	rcu_read_lock();
+ 	if (pid_task(filp->f_owner.pid, filp->f_owner.pid_type)) {
+ 		pid = pid_vnr(filp->f_owner.pid);
+@@ -157,7 +158,7 @@ pid_t f_getown(struct file *filp)
+ 			pid = -pid;
+ 	}
+ 	rcu_read_unlock();
+-	read_unlock(&filp->f_owner.lock);
++	read_unlock_irq(&filp->f_owner.lock);
  	return pid;
  }
-@@ -200,11 +204,14 @@ static int f_setown_ex(struct file *filp, unsigned long arg)
- static int f_getown_ex(struct file *filp, unsigned long arg)
- {
- 	struct f_owner_ex __user *owner_p = (void __user *)arg;
--	struct f_owner_ex owner;
-+	struct f_owner_ex owner = {};
+ 
+@@ -207,7 +208,7 @@ static int f_getown_ex(struct file *filp, unsigned long arg)
+ 	struct f_owner_ex owner = {};
  	int ret = 0;
  
- 	read_lock(&filp->f_owner.lock);
--	owner.pid = pid_vnr(filp->f_owner.pid);
-+	rcu_read_lock();
-+	if (pid_task(filp->f_owner.pid, filp->f_owner.pid_type))
-+		owner.pid = pid_vnr(filp->f_owner.pid);
-+	rcu_read_unlock();
- 	switch (filp->f_owner.pid_type) {
- 	case PIDTYPE_PID:
- 		owner.type = F_OWNER_TID;
+-	read_lock(&filp->f_owner.lock);
++	read_lock_irq(&filp->f_owner.lock);
+ 	rcu_read_lock();
+ 	if (pid_task(filp->f_owner.pid, filp->f_owner.pid_type))
+ 		owner.pid = pid_vnr(filp->f_owner.pid);
+@@ -230,7 +231,7 @@ static int f_getown_ex(struct file *filp, unsigned long arg)
+ 		ret = -EINVAL;
+ 		break;
+ 	}
+-	read_unlock(&filp->f_owner.lock);
++	read_unlock_irq(&filp->f_owner.lock);
+ 
+ 	if (!ret) {
+ 		ret = copy_to_user(owner_p, &owner, sizeof(owner));
+@@ -248,10 +249,10 @@ static int f_getowner_uids(struct file *filp, unsigned long arg)
+ 	uid_t src[2];
+ 	int err;
+ 
+-	read_lock(&filp->f_owner.lock);
++	read_lock_irq(&filp->f_owner.lock);
+ 	src[0] = from_kuid(user_ns, filp->f_owner.uid);
+ 	src[1] = from_kuid(user_ns, filp->f_owner.euid);
+-	read_unlock(&filp->f_owner.lock);
++	read_unlock_irq(&filp->f_owner.lock);
+ 
+ 	err  = put_user(src[0], &dst[0]);
+ 	err |= put_user(src[1], &dst[1]);
 -- 
 2.35.1
 
