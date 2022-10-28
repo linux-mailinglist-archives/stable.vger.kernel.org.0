@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D870D611077
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:05:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 888EF611078
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:05:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229971AbiJ1MFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 08:05:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48854 "EHLO
+        id S229528AbiJ1MF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 08:05:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229602AbiJ1MFt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:05:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A39881120
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:05:48 -0700 (PDT)
+        with ESMTP id S230026AbiJ1MFy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:05:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5024B83049
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:05:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A9CD62806
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:05:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABE3EC433C1;
-        Fri, 28 Oct 2022 12:05:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EEF45B829BA
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:05:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 496C3C433D6;
+        Fri, 28 Oct 2022 12:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958747;
-        bh=Bqaco5Ixe3zPCJ9ke3/evfr1A+IAy7iaE/Y43bFqXWo=;
+        s=korg; t=1666958749;
+        bh=ei+uedMaTOIPuxjpu6diHqgY1TRnnG9bfnjO2qXCiQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kDrf/7eKrd1tyT8nrUIhdf9zMzhOk/lOQftMvSioUR5cWChFaBpZb/mhJ1jS7yLit
-         pB1lOUw5SjgWaq+CPmCcWsrT5WHlCDirig3whH9uIusbXaENtHIgQVTvUlL/CO8a6/
-         W9uCnUGD2oFA1K/uLGEDQLkI1R8O+S24RV23rfMM=
+        b=jSkrhgML1dr1SIIQLKj1PA/wVUYrTMqDoys6+d7BGyJfIHRPUEZeuYJPVixO0p+64
+         CwsiFWJ1mRbM48JPUeNzF9yj/nu4fJPFLN6ILMF9jdX9RBBeMyZmfxrt07uGdLS5AP
+         ELkLwyTMZWXu+E/fqjNlrnN36xHp0l7jKC/5BNk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Auger <eric.auger@redhat.com>,
-        Eric Ren <renzhengeek@gmail.com>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.10 12/73] KVM: arm64: vgic: Fix exit condition in scan_its_table()
-Date:   Fri, 28 Oct 2022 14:03:09 +0200
-Message-Id: <20221028120232.889352933@linuxfoundation.org>
+        patches@lists.linux.dev, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.10 13/73] media: mceusb: set timeout to at least timeout provided
+Date:   Fri, 28 Oct 2022 14:03:10 +0200
+Message-Id: <20221028120232.938992906@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
@@ -52,81 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Ren <renzhengeek@gmail.com>
+From: Sean Young <sean@mess.org>
 
-commit c000a2607145d28b06c697f968491372ea56c23a upstream.
+commit 20b794ddce475ed012deb365000527c17b3e93e6 upstream.
 
-With some PCIe topologies, restoring a guest fails while
-parsing the ITS device tables.
+By rounding down, the actual timeout can be lower than requested. As a
+result, long spaces just below the requested timeout can be incorrectly
+reported as timeout and truncated.
 
-Reproducer hints:
-1. Create ARM virt VM with pxb-pcie bus which adds
-   extra host bridges, with qemu command like:
-
-```
-  -device pxb-pcie,bus_nr=8,id=pci.x,numa_node=0,bus=pcie.0 \
-  -device pcie-root-port,..,bus=pci.x \
-  ...
-  -device pxb-pcie,bus_nr=37,id=pci.y,numa_node=1,bus=pcie.0 \
-  -device pcie-root-port,..,bus=pci.y \
-  ...
-
-```
-2. Ensure the guest uses 2-level device table
-3. Perform VM migration which calls save/restore device tables
-
-In that setup, we get a big "offset" between 2 device_ids,
-which makes unsigned "len" round up a big positive number,
-causing the scan loop to continue with a bad GPA. For example:
-
-1. L1 table has 2 entries;
-2. and we are now scanning at L2 table entry index 2075 (pointed
-   to by L1 first entry)
-3. if next device id is 9472, we will get a big offset: 7397;
-4. with unsigned 'len', 'len -= offset * esz', len will underflow to a
-   positive number, mistakenly into next iteration with a bad GPA;
-   (It should break out of the current L2 table scanning, and jump
-   into the next L1 table entry)
-5. that bad GPA fails the guest read.
-
-Fix it by stopping the L2 table scan when the next device id is
-outside of the current table, allowing the scan to continue from
-the next L1 table entry.
-
-Thanks to Eric Auger for the fix suggestion.
-
-Fixes: 920a7a8fa92a ("KVM: arm64: vgic-its: Add infrastructure for tableookup")
-Suggested-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Eric Ren <renzhengeek@gmail.com>
-[maz: commit message tidy-up]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Fixes: 877f1a7cee3f ("media: rc: mceusb: allow the timeout to be configurable")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/d9c3a564af9e2c5bf63f48a7dcbf08cd593c5c0b.1665802985.git.renzhengeek@gmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kvm/vgic/vgic-its.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/rc/mceusb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/kvm/vgic/vgic-its.c
-+++ b/arch/arm64/kvm/vgic/vgic-its.c
-@@ -2096,7 +2096,7 @@ static int scan_its_table(struct vgic_it
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -1077,7 +1077,7 @@ static int mceusb_set_timeout(struct rc_
+ 	struct mceusb_dev *ir = dev->priv;
+ 	unsigned int units;
  
- 	memset(entry, 0, esz);
+-	units = DIV_ROUND_CLOSEST(timeout, MCE_TIME_UNIT);
++	units = DIV_ROUND_UP(timeout, MCE_TIME_UNIT);
  
--	while (len > 0) {
-+	while (true) {
- 		int next_offset;
- 		size_t byte_offset;
- 
-@@ -2109,6 +2109,9 @@ static int scan_its_table(struct vgic_it
- 			return next_offset;
- 
- 		byte_offset = next_offset * esz;
-+		if (byte_offset >= len)
-+			break;
-+
- 		id += next_offset;
- 		gpa += byte_offset;
- 		len -= byte_offset;
+ 	cmdbuf[2] = units >> 8;
+ 	cmdbuf[3] = units;
 
 
