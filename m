@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D9A7611076
+	by mail.lfdr.de (Postfix) with ESMTP id D870D611077
 	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229981AbiJ1MFv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 08:05:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48852 "EHLO
+        id S229971AbiJ1MFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 08:05:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229528AbiJ1MFt (ORCPT
+        with ESMTP id S229602AbiJ1MFt (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:05:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E2FF844D5
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:05:47 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A39881120
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:05:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B51CFB829B8
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:05:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 141F1C433C1;
-        Fri, 28 Oct 2022 12:05:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A9CD62806
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:05:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABE3EC433C1;
+        Fri, 28 Oct 2022 12:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958744;
-        bh=yQF+60/nRttu+4F813ug7tbSCcUnkXqAAubIk4piuKQ=;
+        s=korg; t=1666958747;
+        bh=Bqaco5Ixe3zPCJ9ke3/evfr1A+IAy7iaE/Y43bFqXWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/E0U0/x2ELnFX41Uat7UIUa/r3WkEZDTbse+GkT+6WDnNspXphs6MZ5D9bTAttLZ
-         73bP0b+qVqkAccZq/tp95COn8d3/GTniYl/GXv4fRusiUdyCUQpiyVdhTDHc5kxL2E
-         bfJJwitz4LLsThj4aQ/0Ck9MCI14sM8Ls1kFpuz0=
+        b=kDrf/7eKrd1tyT8nrUIhdf9zMzhOk/lOQftMvSioUR5cWChFaBpZb/mhJ1jS7yLit
+         pB1lOUw5SjgWaq+CPmCcWsrT5WHlCDirig3whH9uIusbXaENtHIgQVTvUlL/CO8a6/
+         W9uCnUGD2oFA1K/uLGEDQLkI1R8O+S24RV23rfMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexander Graf <graf@amazon.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 11/73] kvm: Add support for arch compat vm ioctls
-Date:   Fri, 28 Oct 2022 14:03:08 +0200
-Message-Id: <20221028120232.838761674@linuxfoundation.org>
+        patches@lists.linux.dev, Eric Auger <eric.auger@redhat.com>,
+        Eric Ren <renzhengeek@gmail.com>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.10 12/73] KVM: arm64: vgic: Fix exit condition in scan_its_table()
+Date:   Fri, 28 Oct 2022 14:03:09 +0200
+Message-Id: <20221028120232.889352933@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
@@ -52,61 +52,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Graf <graf@amazon.com>
+From: Eric Ren <renzhengeek@gmail.com>
 
-commit ed51862f2f57cbce6fed2d4278cfe70a490899fd upstream.
+commit c000a2607145d28b06c697f968491372ea56c23a upstream.
 
-We will introduce the first architecture specific compat vm ioctl in the
-next patch. Add all necessary boilerplate to allow architectures to
-override compat vm ioctls when necessary.
+With some PCIe topologies, restoring a guest fails while
+parsing the ITS device tables.
 
-Signed-off-by: Alexander Graf <graf@amazon.com>
-Message-Id: <20221017184541.2658-2-graf@amazon.com>
+Reproducer hints:
+1. Create ARM virt VM with pxb-pcie bus which adds
+   extra host bridges, with qemu command like:
+
+```
+  -device pxb-pcie,bus_nr=8,id=pci.x,numa_node=0,bus=pcie.0 \
+  -device pcie-root-port,..,bus=pci.x \
+  ...
+  -device pxb-pcie,bus_nr=37,id=pci.y,numa_node=1,bus=pcie.0 \
+  -device pcie-root-port,..,bus=pci.y \
+  ...
+
+```
+2. Ensure the guest uses 2-level device table
+3. Perform VM migration which calls save/restore device tables
+
+In that setup, we get a big "offset" between 2 device_ids,
+which makes unsigned "len" round up a big positive number,
+causing the scan loop to continue with a bad GPA. For example:
+
+1. L1 table has 2 entries;
+2. and we are now scanning at L2 table entry index 2075 (pointed
+   to by L1 first entry)
+3. if next device id is 9472, we will get a big offset: 7397;
+4. with unsigned 'len', 'len -= offset * esz', len will underflow to a
+   positive number, mistakenly into next iteration with a bad GPA;
+   (It should break out of the current L2 table scanning, and jump
+   into the next L1 table entry)
+5. that bad GPA fails the guest read.
+
+Fix it by stopping the L2 table scan when the next device id is
+outside of the current table, allowing the scan to continue from
+the next L1 table entry.
+
+Thanks to Eric Auger for the fix suggestion.
+
+Fixes: 920a7a8fa92a ("KVM: arm64: vgic-its: Add infrastructure for tableookup")
+Suggested-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Eric Ren <renzhengeek@gmail.com>
+[maz: commit message tidy-up]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/r/d9c3a564af9e2c5bf63f48a7dcbf08cd593c5c0b.1665802985.git.renzhengeek@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/kvm_host.h |    2 ++
- virt/kvm/kvm_main.c      |   11 +++++++++++
- 2 files changed, 13 insertions(+)
+ arch/arm64/kvm/vgic/vgic-its.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -911,6 +911,8 @@ int kvm_vm_ioctl_enable_cap(struct kvm *
- 			    struct kvm_enable_cap *cap);
- long kvm_arch_vm_ioctl(struct file *filp,
- 		       unsigned int ioctl, unsigned long arg);
-+long kvm_arch_vm_compat_ioctl(struct file *filp, unsigned int ioctl,
-+			      unsigned long arg);
+--- a/arch/arm64/kvm/vgic/vgic-its.c
++++ b/arch/arm64/kvm/vgic/vgic-its.c
+@@ -2096,7 +2096,7 @@ static int scan_its_table(struct vgic_it
  
- int kvm_arch_vcpu_ioctl_get_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu);
- int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu);
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -3966,6 +3966,12 @@ struct compat_kvm_clear_dirty_log {
- 	};
- };
+ 	memset(entry, 0, esz);
  
-+long __weak kvm_arch_vm_compat_ioctl(struct file *filp, unsigned int ioctl,
-+				     unsigned long arg)
-+{
-+	return -ENOTTY;
-+}
-+
- static long kvm_vm_compat_ioctl(struct file *filp,
- 			   unsigned int ioctl, unsigned long arg)
- {
-@@ -3974,6 +3980,11 @@ static long kvm_vm_compat_ioctl(struct f
+-	while (len > 0) {
++	while (true) {
+ 		int next_offset;
+ 		size_t byte_offset;
  
- 	if (kvm->mm != current->mm || kvm->vm_bugged)
- 		return -EIO;
+@@ -2109,6 +2109,9 @@ static int scan_its_table(struct vgic_it
+ 			return next_offset;
+ 
+ 		byte_offset = next_offset * esz;
++		if (byte_offset >= len)
++			break;
 +
-+	r = kvm_arch_vm_compat_ioctl(filp, ioctl, arg);
-+	if (r != -ENOTTY)
-+		return r;
-+
- 	switch (ioctl) {
- #ifdef CONFIG_KVM_GENERIC_DIRTYLOG_READ_PROTECT
- 	case KVM_CLEAR_DIRTY_LOG: {
+ 		id += next_offset;
+ 		gpa += byte_offset;
+ 		len -= byte_offset;
 
 
