@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F582611079
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:05:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 307BF611060
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:04:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229602AbiJ1MF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 08:05:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49238 "EHLO
+        id S229882AbiJ1ME5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 08:04:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230035AbiJ1MF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:05:56 -0400
+        with ESMTP id S229954AbiJ1MEw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:04:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2CF2951E4
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:05:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF56418B28
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:04:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83AF0B829B8
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:05:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9342C433C1;
-        Fri, 28 Oct 2022 12:05:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9602DB829B8
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:04:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECAB6C433C1;
+        Fri, 28 Oct 2022 12:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958752;
-        bh=QuuSza65jqo4t82p5OwJsQaS4BBVh8/TeEiRr7ZKkqs=;
+        s=korg; t=1666958682;
+        bh=9ZlPMfJASMiQJq4bw6fDmysyb5zFiE74LCLOyeMiftw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lj7jq7IWecZ6NPWe0FOjDY55Au7m9djB/NGoTH3UGLT6jifu1G43XhArQr7QtMo0O
-         yvSkeVH7cKPE0X+XAuD1EktagF2vZOacuepXZeaiR3pmhXA+b0hpcXrvCTg7/es4vm
-         jnxRusozPtOs2k8swoqhBSTYFvr66lqHCXV0JWdU=
+        b=CyB6mj4MpMkne4tg132m0UZmDdjMxwU8wavT4MLrogJXJNQDwxDqq2/9EQH+7E8kc
+         HZ6C5Z/Ry8ytKeJ6asZoGPntmUuFKm2GU3qIjcm/TIzepHhUGUsoGM4mUJdcfTtnLm
+         8STzHlj10qDVSbGBxB2EgFQ3tpxRWlPqndzmKNEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fabien Parent <fabien.parent@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 5.10 04/73] cpufreq: qcom: fix writes in read-only memory region
-Date:   Fri, 28 Oct 2022 14:03:01 +0200
-Message-Id: <20221028120232.567484208@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.10 05/73] i2c: qcom-cci: Fix ordering of pm_runtime_xx and i2c_add_adapter
+Date:   Fri, 28 Oct 2022 14:03:02 +0200
+Message-Id: <20221028120232.609968180@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
@@ -52,65 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabien Parent <fabien.parent@linaro.org>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit 01039fb8e90c9cb684430414bff70cea9eb168c5 upstream.
+commit 61775d54d674ff8ec3658495e0dbc537227dc5c1 upstream.
 
-This commit fixes a kernel oops because of a write in some read-only memory:
+When we compile-in the CCI along with the imx412 driver and run on the RB5
+we see that i2c_add_adapter() causes the probe of the imx412 driver to
+happen.
 
-	[    9.068287] Unable to handle kernel write to read-only memory at virtual address ffff800009240ad8
-	..snip..
-	[    9.138790] Internal error: Oops: 9600004f [#1] PREEMPT SMP
-	..snip..
-	[    9.269161] Call trace:
-	[    9.276271]  __memcpy+0x5c/0x230
-	[    9.278531]  snprintf+0x58/0x80
-	[    9.282002]  qcom_cpufreq_msm8939_name_version+0xb4/0x190
-	[    9.284869]  qcom_cpufreq_probe+0xc8/0x39c
-	..snip..
+This probe tries to perform an i2c xfer() and the xfer() in i2c-qcom-cci.c
+fails on pm_runtime_get() because the i2c-qcom-cci.c::probe() function has
+not completed to pm_runtime_enable(dev).
 
-The following line defines a pointer that point to a char buffer stored
-in read-only memory:
+Fix this sequence by ensuring pm_runtime_xxx() calls happen prior to adding
+the i2c adapter.
 
-	char *pvs_name = "speedXX-pvsXX-vXX";
-
-This pointer is meant to hold a template "speedXX-pvsXX-vXX" where the
-XX values get overridden by the qcom_cpufreq_krait_name_version function. Since
-the template is actually stored in read-only memory, when the function
-executes the following call we get an oops:
-
-	snprintf(*pvs_name, sizeof("speedXX-pvsXX-vXX"), "speed%d-pvs%d-v%d",
-		 speed, pvs, pvs_ver);
-
-To fix this issue, we instead store the template name onto the stack by
-using the following syntax:
-
-	char pvs_name_buffer[] = "speedXX-pvsXX-vXX";
-
-Because the `pvs_name` needs to be able to be assigned to NULL, the
-template buffer is stored in the pvs_name_buffer and not under the
-pvs_name variable.
-
-Cc: v5.7+ <stable@vger.kernel.org> # v5.7+
-Fixes: a8811ec764f9 ("cpufreq: qcom: Add support for krait based socs")
-Signed-off-by: Fabien Parent <fabien.parent@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: e517526195de ("i2c: Add Qualcomm CCI I2C driver")
+Reported-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Tested-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/qcom-cpufreq-nvmem.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-qcom-cci.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/cpufreq/qcom-cpufreq-nvmem.c
-+++ b/drivers/cpufreq/qcom-cpufreq-nvmem.c
-@@ -264,7 +264,8 @@ static int qcom_cpufreq_probe(struct pla
- 	struct nvmem_cell *speedbin_nvmem;
- 	struct device_node *np;
- 	struct device *cpu_dev;
--	char *pvs_name = "speedXX-pvsXX-vXX";
-+	char pvs_name_buffer[] = "speedXX-pvsXX-vXX";
-+	char *pvs_name = pvs_name_buffer;
- 	unsigned cpu;
- 	const struct of_device_id *match;
- 	int ret;
+--- a/drivers/i2c/busses/i2c-qcom-cci.c
++++ b/drivers/i2c/busses/i2c-qcom-cci.c
+@@ -638,6 +638,11 @@ static int cci_probe(struct platform_dev
+ 	if (ret < 0)
+ 		goto error;
+ 
++	pm_runtime_set_autosuspend_delay(dev, MSEC_PER_SEC);
++	pm_runtime_use_autosuspend(dev);
++	pm_runtime_set_active(dev);
++	pm_runtime_enable(dev);
++
+ 	for (i = 0; i < cci->data->num_masters; i++) {
+ 		if (!cci->master[i].cci)
+ 			continue;
+@@ -649,14 +654,12 @@ static int cci_probe(struct platform_dev
+ 		}
+ 	}
+ 
+-	pm_runtime_set_autosuspend_delay(dev, MSEC_PER_SEC);
+-	pm_runtime_use_autosuspend(dev);
+-	pm_runtime_set_active(dev);
+-	pm_runtime_enable(dev);
+-
+ 	return 0;
+ 
+ error_i2c:
++	pm_runtime_disable(dev);
++	pm_runtime_dont_use_autosuspend(dev);
++
+ 	for (--i ; i >= 0; i--) {
+ 		if (cci->master[i].cci) {
+ 			i2c_del_adapter(&cci->master[i].adap);
 
 
