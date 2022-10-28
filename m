@@ -2,116 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B3EC611AFF
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 21:40:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CF76611B03
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 21:43:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229576AbiJ1Tki (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 15:40:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59004 "EHLO
+        id S229732AbiJ1TnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 15:43:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230017AbiJ1Tkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 15:40:37 -0400
-Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F5D23E99
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:40:36 -0700 (PDT)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 829AD320090B;
-        Fri, 28 Oct 2022 15:40:33 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Fri, 28 Oct 2022 15:40:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tyhicks.com; h=
-        cc:cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1666986033; x=1667072433; bh=s6kKhxevdI
-        uKGKi/k8jayFf+rAlgWMx0OyDh49ljuZw=; b=dj9dFtir7txv64MDV2sDX8CNva
-        LUtVdlhQripp4aTdFhHkLG6VnQL+wDljDZK+8Avdsqvs4GCBhEws83/m29XylSzb
-        vtZ9aEvB3FCAKErQBjg72chH1aZsQMCZpwEFUDwzEshgnzpOJG9psgsE/lo0s4jv
-        uXT12vDYiQ2UmPqHHUkCfKwZX8FNXQLTIxOu4c0DGxLQUXcL7QiMrin/LBAKW8Vu
-        CHyEe2o1T0WDIQ0MowfePYbYKIK2U+RBblfdgoC4yqqAZXp7Mg/b8ietLYSfbAV5
-        9BqRB6lkebgC452cc0xIHQMfxhZKQzcRG0pntW/ZPESn57ClWA9bIftD/wQQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; t=1666986033; x=1667072433; bh=s6kKhxevdIuKGKi/k8jayFf+rAlg
-        WMx0OyDh49ljuZw=; b=Te+mO16EzlkNtZHU5vb9QfT4gqjRwTmBDf3InKmSQCoK
-        ZO1dScaPl1iNMBCkyQldEokQtkOk7Q6IDFJ3vazd/3qKMknJZo1PHoCL0aJboEvC
-        BL8OsNTdkD3a8goIrKofY/EqLyXTZeYNxeDhDCgnfKpkxMaemqVZ1P0R4rroVOrW
-        bFI0XFui/XWCMQ1uVT1MpbREsRr76RqUzmdmzmJSEsMfycRVvyYICvh4eCeVnnqr
-        o55/rxdGV61hF2pwfdzg+C4Quohno7Ppt0HQIabK8bIL2GmQchSTpg4gBxBNYNGD
-        Kw9ErJwnDIBTX0JuRCNQlzXtP3vk+eP87YY24+8K1A==
-X-ME-Sender: <xms:MDBcY3KvCC0VwE8LHiFq1XEVeSugdJgksmjNodat6s8rpEkxgK-hHA>
-    <xme:MDBcY7I7Ydvv-41bYKhPdHzPJUzAmATEDX83SDhLgof4dH-cffPzSeRtwA3vUoRah
-    ykt7RjMTlkol2JIrVI>
-X-ME-Received: <xmr:MDBcY_uugB_5BdskYQX9aUc1EVNDiJXIFIw1uxy40_sbcKAWkfaDp5OEMaU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrtdeigddufeekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepfdfvhihl
-    vghrucfjihgtkhhsucdlofhitghrohhsohhfthdmfdcuoegtohguvgesthihhhhitghksh
-    drtghomheqnecuggftrfgrthhtvghrnhepveefvdeigedtudfhhedtgfelfeeuueekhefh
-    ueefgfdukeejvddtffejvdejtdffnecuffhomhgrihhnpehkrhhorghhrdgtohhmnecuve
-    hluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheptghouggvseht
-    hihhihgtkhhsrdgtohhm
-X-ME-Proxy: <xmx:MDBcYwZvR0UmKB7xTphlHObZbQGFCzF9wMmtpkbb1HFAWWVZ1JJ_Gw>
-    <xmx:MDBcY-Zt9XZKkrW6x_dEV068Lzj2L0SNo9Bue4_VTpXnByBz0SekLQ>
-    <xmx:MDBcY0ALK2yecfNWZ6niI5OnFW8LMiuRlKxNATfv-a-BxXR-Dc_yHw>
-    <xmx:MTBcY1yRyN9Is05QBvrYOYl_eIFbCzg5_cpZLTJEYLphDvuRIMEgpQ>
-Feedback-ID: i78e14604:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 28 Oct 2022 15:40:32 -0400 (EDT)
-Date:   Fri, 28 Oct 2022 14:40:19 -0500
-From:   "Tyler Hicks (Microsoft)" <code@tyhicks.com>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc:     Suleiman Souhlal <suleiman@google.com>, sashal@kernel.org,
-        Sangwhan Moon <sxm@google.com>, stable@vger.kernel.org,
-        Kelsey Steele <kelseysteele@linux.microsoft.com>,
-        Allen Pais <stable.kernel.dev@gmail.com>
-Subject: Re: LTS 5.15 EOL Date
-Message-ID: <20221028194019.vda2ei2nsqsysvby@sequoia>
-References: <CABCjUKBwLuTWE7A4PkNvRZx=6jeu3QjsFZq5iWZAKnmPYWKLog@mail.gmail.com>
- <Y1EGHnKcWzKv6t99@kroah.com>
+        with ESMTP id S229894AbiJ1TnM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 15:43:12 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36346226E69;
+        Fri, 28 Oct 2022 12:43:11 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id j15so7902354wrq.3;
+        Fri, 28 Oct 2022 12:43:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=80FlYR4ra67WxSs9hG7X4/v7MPicXs8P7V1IbHZmi6U=;
+        b=AFmoHX+zTSVWJ/FPNTT7aiVVklllmTVbnNvip/xTAVAd190pw8syBPclWFQiDITFdw
+         TJe+h+zO+eoxmhwihRk5RkKLlc6TuUVht9dRQQD205/7jtKrqx1/pVDveXOkq/l9JQm6
+         bEbrmj8UMIJDXJWkKLe46uTM+WQTw0SWbw1DoX4qMVLwDZJMIt4xinLZOgvmi5Vm02zP
+         mN6oeW7UwRc3UCvJS0w0xSl9gpsvjQLkLpbxoaWRphEwTqWmenOEBgom7a+od7MnGnbV
+         Nz17JAyI23+WOg9EYH6FHP9jHovk2Qzw7MRRA+TANLoGD+i0HiLRJsn5W7KlNQcy6W2E
+         O+8w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=80FlYR4ra67WxSs9hG7X4/v7MPicXs8P7V1IbHZmi6U=;
+        b=IEQHI5wAcS8zNQrJeMjuvDv4hVwpGanzznQx7YD2aFr384Gz7iBgfLjIW7K8pp3F5K
+         J2O9jS9/FDylrV1s1MpEG5LMMQ3BP+/r0BB5yaxrGS5/BvPD+E/biu+GLVl9DptA7O1R
+         BGQJ6qHarVs+tn7vfV0VHFc/BQ5PdMnnhSkU6C49n8Qr6y/1lm1f4ofKJ2ur17vZmFou
+         2uXmHebBnFc1g6UX7dQOfY09J7FpFFK3b2pS4G0LFL6fj/3Csyf6n8BcawQkWf0ikukd
+         2RZNKF0wNbaSgvsUgO+0T1yCRqyLAknugB0f1mZ5fmYjH7xidXAvQgaGr8vTMeCmrF9h
+         vOKQ==
+X-Gm-Message-State: ACrzQf1/5N7RqV24pR7kJDlfpfQpiTllAGrnEmhMRp7pPtm8J4CwsRYu
+        9k+L56YhJDrHRhgaJxuUgPaxtp7zfxM=
+X-Google-Smtp-Source: AMsMyM7M7lqjoiGpYhS7NRkp4swbbzyv8eD1Jxf0VfzmLRHUirEHIM0KthXXrmNmjjZYXpkcNgqsLQ==
+X-Received: by 2002:a5d:6488:0:b0:22b:3b0b:5e72 with SMTP id o8-20020a5d6488000000b0022b3b0b5e72mr567153wri.138.1666986189672;
+        Fri, 28 Oct 2022 12:43:09 -0700 (PDT)
+Received: from debian (host-78-150-37-98.as13285.net. [78.150.37.98])
+        by smtp.gmail.com with ESMTPSA id j21-20020a05600c42d500b003b492753826sm4779470wme.43.2022.10.28.12.43.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Oct 2022 12:43:09 -0700 (PDT)
+Date:   Fri, 28 Oct 2022 20:43:07 +0100
+From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net
+Subject: Re: [PATCH 5.15 00/78] 5.15.76-rc2 review
+Message-ID: <Y1wwyzl/2ZX7G4VD@debian>
+References: <20221028120302.594918388@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y1EGHnKcWzKv6t99@kroah.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20221028120302.594918388@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-10-20 10:26:06, gregkh@linuxfoundation.org wrote:
-> On Thu, Oct 20, 2022 at 08:25:35AM +0900, Suleiman Souhlal wrote:
-> > Hello,
-> > 
-> > I saw that the projected EOL of LTS 5.15 is Oct 2023.
-> > How likely is it that the date will be extended? I'm guessing it's
-> > pretty likely, given that Android uses it.
+Hi Greg,
+
+On Fri, Oct 28, 2022 at 02:04:05PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.76 release.
+> There are 78 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Android is the only user that has talked to me about this kernel
-> version so far.  Please see:
-> 	http://kroah.com/log/blog/2021/02/03/helping-out-with-lts-kernel-releases/
-> for what I require in order to keep an LTS kernel going longer than 2
-> years.
+> Responses should be made by Sun, 30 Oct 2022 12:02:44 +0000.
+> Anything received after that time might be too late.
 
-Microsoft is also interested in a longer lifetime for v5.15 LTS. An
-additional year should meet our needs.
+Build test (gcc version 12.2.1 20221016):
+mips: 62 configs -> no failure
+arm: 99 configs -> no failure
+arm64: 3 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+csky allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
 
-We are aware of your "Helping Out ..." blog post and have been making
-improvements to be of more assistance. Kelsey and Allen (Cc'ed) have
-been doing -rc testing of v5.15 -rc releases and reporting the results
-to the list, on behalf of Microsoft. Testing of the -rc releases is
-mostly manual at this point, so we don't get every release tested before
-the release happens, but we're working on improving our processes and
-having builds/tests kick off automatically so that you can rely on us
-even more. We should have a much better system in place to help with
-testing and reporting by the time Oct 2023 rolls around. :)
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
 
-Let us know if there's anything else that we can do to help.
+[1]. https://openqa.qa.codethink.co.uk/tests/2058
+[2]. https://openqa.qa.codethink.co.uk/tests/2061
 
-Tyler
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+-- 
+Regards
+Sudip
