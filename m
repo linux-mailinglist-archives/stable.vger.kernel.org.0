@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36738611089
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:06:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF45561108A
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230133AbiJ1MGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 08:06:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50812 "EHLO
+        id S230128AbiJ1MGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 08:06:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230147AbiJ1MGe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:06:34 -0400
+        with ESMTP id S230174AbiJ1MGh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:06:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C61129E6B5
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:06:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62AD3B8C2C
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:06:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 625FC62809
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:06:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73FA3C433D6;
-        Fri, 28 Oct 2022 12:06:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 000FB62807
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:06:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13B38C433C1;
+        Fri, 28 Oct 2022 12:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958791;
-        bh=d+kNiKLfb5aZ+Sqlj1aZseEsi7E2u6pyyKZKyhCk+Ag=;
+        s=korg; t=1666958794;
+        bh=e6Kwfj8b9VtoSQA1NKD3Sf47xiVDNYYBJjNUh04cwEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQ7NCYDgQIR8PzDsvmutDOIvR2TqvN56uqTvNR8cIw6ZEOuEgVc3jhsUBOrsU6juW
-         7GV47DiSUA0iI/SYU5O5Y0yAp49ddcB68VNkY8h7u/TWDbvUq4k84kgS5/eS8hbb7K
-         7ZDZqBd4u9lI9WoqynU1i0XAVEgAn+SlmFY3Tc/k=
+        b=pWXOMC0LyUSW8CBmQdohmVUUHNCS2lmlkxj86TDmffd/gvGX+dXAx53kXenes1amx
+         oakWDHwoCIUX/XcHGRyr/69dIH8Fjz3rmeKBd6QXRVSC8TMDDJZSqjHgWulE+mtITs
+         3HyJqx6XxHece3e87UcfjNPT4IDGC+1AboV55RVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ross Zwisler <zwisler@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 53/73] tracing: Do not free snapshot if tracer is on cmdline
-Date:   Fri, 28 Oct 2022 14:03:50 +0200
-Message-Id: <20221028120234.680609641@linuxfoundation.org>
+Subject: [PATCH 5.10 54/73] xen: assume XENFEAT_gnttab_map_avail_bits being set for pv guests
+Date:   Fri, 28 Oct 2022 14:03:51 +0200
+Message-Id: <20221028120234.723819100@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
@@ -55,85 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit a541a9559bb0a8ecc434de01d3e4826c32e8bb53 ]
+[ Upstream commit 30dcc56bba911db561c35d4131baf983a41023f8 ]
 
-The ftrace_boot_snapshot and alloc_snapshot cmdline options allocate the
-snapshot buffer at boot up for use later. The ftrace_boot_snapshot in
-particular requires the snapshot to be allocated because it will take a
-snapshot at the end of boot up allowing to see the traces that happened
-during boot so that it's not lost when user space takes over.
+XENFEAT_gnttab_map_avail_bits is always set in Xen 4.0 and newer.
+Remove coding assuming it might be zero.
 
-When a tracer is registered (started) there's a path that checks if it
-requires the snapshot buffer or not, and if it does not and it was
-allocated it will do a synchronization and free the snapshot buffer.
-
-This is only required if the previous tracer was using it for "max
-latency" snapshots, as it needs to make sure all max snapshots are
-complete before freeing. But this is only needed if the previous tracer
-was using the snapshot buffer for latency (like irqoff tracer and
-friends). But it does not make sense to free it, if the previous tracer
-was not using it, and the snapshot was allocated by the cmdline
-parameters. This basically takes away the point of allocating it in the
-first place!
-
-Note, the allocated snapshot worked fine for just trace events, but fails
-when a tracer is enabled on the cmdline.
-
-Further investigation, this goes back even further and it does not require
-a tracer on the cmdline to fail. Simply enable snapshots and then enable a
-tracer, and it will remove the snapshot.
-
-Link: https://lkml.kernel.org/r/20221005113757.041df7fe@gandalf.local.home
-
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: stable@vger.kernel.org
-Fixes: 45ad21ca5530 ("tracing: Have trace_array keep track if snapshot buffer is allocated")
-Reported-by: Ross Zwisler <zwisler@kernel.org>
-Tested-by: Ross Zwisler <zwisler@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20210730071804.4302-4-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Stable-dep-of: 5c13a4a0291b ("xen/gntdev: Accommodate VMA splitting")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/xen/gntdev.c | 36 ++----------------------------------
+ 1 file changed, 2 insertions(+), 34 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 870033f9c198..b7cb9147f0c5 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -6008,12 +6008,12 @@ int tracing_set_tracer(struct trace_array *tr, const char *buf)
- 	if (tr->current_trace->reset)
- 		tr->current_trace->reset(tr);
+diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
+index 54fee4087bf1..5dd9d1ac755e 100644
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -289,20 +289,13 @@ static int find_grant_ptes(pte_t *pte, unsigned long addr, void *data)
+ {
+ 	struct gntdev_grant_map *map = data;
+ 	unsigned int pgnr = (addr - map->vma->vm_start) >> PAGE_SHIFT;
+-	int flags = map->flags | GNTMAP_application_map | GNTMAP_contains_pte;
++	int flags = map->flags | GNTMAP_application_map | GNTMAP_contains_pte |
++		    (1 << _GNTMAP_guest_avail0);
+ 	u64 pte_maddr;
  
-+#ifdef CONFIG_TRACER_MAX_TRACE
-+	had_max_tr = tr->current_trace->use_max_tr;
-+
- 	/* Current trace needs to be nop_trace before synchronize_rcu */
- 	tr->current_trace = &nop_trace;
+ 	BUG_ON(pgnr >= map->count);
+ 	pte_maddr = arbitrary_virt_to_machine(pte).maddr;
  
--#ifdef CONFIG_TRACER_MAX_TRACE
--	had_max_tr = tr->allocated_snapshot;
+-	/*
+-	 * Set the PTE as special to force get_user_pages_fast() fall
+-	 * back to the slow path.  If this is not supported as part of
+-	 * the grant map, it will be done afterwards.
+-	 */
+-	if (xen_feature(XENFEAT_gnttab_map_avail_bits))
+-		flags |= (1 << _GNTMAP_guest_avail0);
 -
- 	if (had_max_tr && !t->use_max_tr) {
- 		/*
- 		 * We need to make sure that the update_max_tr sees that
-@@ -6026,11 +6026,13 @@ int tracing_set_tracer(struct trace_array *tr, const char *buf)
- 		free_snapshot(tr);
+ 	gnttab_set_map_op(&map->map_ops[pgnr], pte_maddr, flags,
+ 			  map->grants[pgnr].ref,
+ 			  map->grants[pgnr].domid);
+@@ -311,14 +304,6 @@ static int find_grant_ptes(pte_t *pte, unsigned long addr, void *data)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_X86
+-static int set_grant_ptes_as_special(pte_t *pte, unsigned long addr, void *data)
+-{
+-	set_pte_at(current->mm, addr, pte, pte_mkspecial(*pte));
+-	return 0;
+-}
+-#endif
+-
+ int gntdev_map_grant_pages(struct gntdev_grant_map *map)
+ {
+ 	size_t alloced = 0;
+@@ -1102,23 +1087,6 @@ static int gntdev_mmap(struct file *flip, struct vm_area_struct *vma)
+ 		err = vm_map_pages_zero(vma, map->pages, map->count);
+ 		if (err)
+ 			goto out_put_map;
+-	} else {
+-#ifdef CONFIG_X86
+-		/*
+-		 * If the PTEs were not made special by the grant map
+-		 * hypercall, do so here.
+-		 *
+-		 * This is racy since the mapping is already visible
+-		 * to userspace but userspace should be well-behaved
+-		 * enough to not touch it until the mmap() call
+-		 * returns.
+-		 */
+-		if (!xen_feature(XENFEAT_gnttab_map_avail_bits)) {
+-			apply_to_page_range(vma->vm_mm, vma->vm_start,
+-					    vma->vm_end - vma->vm_start,
+-					    set_grant_ptes_as_special, NULL);
+-		}
+-#endif
  	}
  
--	if (t->use_max_tr && !had_max_tr) {
-+	if (t->use_max_tr && !tr->allocated_snapshot) {
- 		ret = tracing_alloc_snapshot_instance(tr);
- 		if (ret < 0)
- 			goto out;
- 	}
-+#else
-+	tr->current_trace = &nop_trace;
- #endif
- 
- 	if (t->init) {
+ 	return 0;
 -- 
 2.35.1
 
