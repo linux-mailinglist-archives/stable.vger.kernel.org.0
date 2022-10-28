@@ -2,114 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6859F6114D0
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 16:41:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5970161153B
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 16:53:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229789AbiJ1OlK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 10:41:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47534 "EHLO
+        id S231209AbiJ1Oxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 10:53:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229501AbiJ1OlF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 10:41:05 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84F74BE1F
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 07:40:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666968003;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=D8u03zJ9W/9aPpgScCpedLnCuBIcs476DTocYuAgwTQ=;
-        b=JwkWoIxlhGP4oNyvlImUQOkHZeAMoj7GGbfDUPHbI8QNmBeuELFpWn+9v6wTIXEmmJkhPT
-        uJpzdOud4iP80YFwO85C/AUZ3fWV3dq41TpBIUyJY61FiCjYB8oxeT7bicC/kz2+eX3Z4T
-        42u1k1aRYYoK26X5BNP+cRfKKCGV4ko=
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
- [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-622-ZMKcXtZPPS-NMpoRJTBZrg-1; Fri, 28 Oct 2022 10:40:02 -0400
-X-MC-Unique: ZMKcXtZPPS-NMpoRJTBZrg-1
-Received: by mail-il1-f200.google.com with SMTP id j7-20020a056e02154700b003007885e7beso4673937ilu.20
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 07:40:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=D8u03zJ9W/9aPpgScCpedLnCuBIcs476DTocYuAgwTQ=;
-        b=45/+FaSod0FGr3FilGvR2wYuhDTR3TusmorZniMcApcC7TeELe0W4OpP/I4ClQBrTr
-         u4thyR3pHZnRfMZDdFUeCrAy6GBKnB6NHa7KqS9hcKtnYzwJ7D73tZDlZlH5nQeNVYAT
-         obnQts+VMO6UJJwtmx0SkhoepDZ/W+a441fSdivu3IyvcUaMvr0yTIITNH0wGQZ5j87W
-         nBRm5DJf0VhCF1//F+T2KCl+aaU6wl9honH611n9W0ZyguyPVY++4WQv9jbsV+RqkCH1
-         4RLfC69n1bt75Nr98lUvNUI+q0fWSuxYP+j4qXvKeKp/sxq/oN4supC0dTT2D74wyhNm
-         DEqw==
-X-Gm-Message-State: ACrzQf3Z29uwt4ZI2zHaBxo3wI5UTsUnfkCahhNbSoRpnZWGvhSlBmNb
-        HR52ttD0kpqX4KdJYuX+UvWhDboo1J7iu6o5b0rewZ7envTgcIQr0cuogjT7KE9BureudaTEl8x
-        G5PThAe9MaoNjqMHz
-X-Received: by 2002:a6b:3ed4:0:b0:6b6:9e4b:4c40 with SMTP id l203-20020a6b3ed4000000b006b69e4b4c40mr33778059ioa.11.1666968001860;
-        Fri, 28 Oct 2022 07:40:01 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7BP97wXNo6tvFx31on64A0evagjI1RVqWCRAz+6aF8sGPc1Byafy0wFnz/lBsANsOPjWzrUA==
-X-Received: by 2002:a6b:3ed4:0:b0:6b6:9e4b:4c40 with SMTP id l203-20020a6b3ed4000000b006b69e4b4c40mr33778040ioa.11.1666968001559;
-        Fri, 28 Oct 2022 07:40:01 -0700 (PDT)
-Received: from x1n (bras-base-aurron9127w-grc-46-70-31-27-79.dsl.bell.ca. [70.31.27.79])
-        by smtp.gmail.com with ESMTPSA id e18-20020a026d52000000b003740de9fb65sm1803968jaf.46.2022.10.28.07.40.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Oct 2022 07:40:00 -0700 (PDT)
-Date:   Fri, 28 Oct 2022 10:39:59 -0400
-From:   Peter Xu <peterx@redhat.com>
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Yuanzheng Song <songyuanzheng@huawei.com>,
-        akpm@linux-foundation.org, gregkh@linuxfoundation.org,
-        david@redhat.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH STABLE 5.10] mm/memory: add non-anonymous page check in
- the copy_present_page()
-Message-ID: <Y1vpvzaU322ENcEc@x1n>
-References: <20221024094911.3054769-1-songyuanzheng@huawei.com>
- <3823471f-6dda-256e-e082-718879c05449@google.com>
- <Y1nRiJ1LYB62uInn@x1n>
- <fffefe4-adce-a7d-23e0-9f8afc7ce6cf@google.com>
- <Y1qdY8oUlUvWl067@x1n>
- <8aad435-bdc6-816f-2fe4-efe53abd6e5@google.com>
- <Y1sMk30wS+1uH/hc@x1n>
- <432c4428-b6d4-f93-266-b920a854c3c@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <432c4428-b6d4-f93-266-b920a854c3c@google.com>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        with ESMTP id S231266AbiJ1Oxm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 10:53:42 -0400
+Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C7A0202708
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 07:53:39 -0700 (PDT)
+Received: from in02.mta.xmission.com ([166.70.13.52]:50772)
+        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <dominic@xmission.com>)
+        id 1ooQjq-00BuE4-5d; Fri, 28 Oct 2022 08:53:38 -0600
+Received: from 75-169-157-62.slkc.qwest.net ([75.169.157.62]:40194 helo=mail.xmission.com)
+        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <dominic@xmission.com>)
+        id 1ooQjp-00H7uo-AP; Fri, 28 Oct 2022 08:53:37 -0600
+Date:   Fri, 28 Oct 2022 14:51:43 +0000
+Message-ID: <379d4e6478c763dec8baaa6009b379f1.dominic@xmission.com>
+From:   Dominic Jones <jonesd@xmission.com>
+To:     stable@vger.kernel.org
+Cc:     regressions@lists.linux.dev
+Content-Type: text/plain
+X-XM-SPF: eid=1ooQjp-00H7uo-AP;;;mid=<379d4e6478c763dec8baaa6009b379f1.dominic@xmission.com>;;;hst=in02.mta.xmission.com;;;ip=75.169.157.62;;;frm=dominic@xmission.com;;;spf=softfail
+X-XM-AID: U2FsdGVkX19jWLaTNXRZtjNgaosfCt5Q
+X-SA-Exim-Connect-IP: 75.169.157.62
+X-SA-Exim-Mail-From: dominic@xmission.com
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Virus: No
+X-Spam-DCC: XMission; sa02 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: ***;stable@vger.kernel.org
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 359 ms - load_scoreonly_sql: 0.03 (0.0%),
+        signal_user_changed: 4.0 (1.1%), b_tie_ro: 2.8 (0.8%), parse: 0.53
+        (0.1%), extract_message_metadata: 8 (2.1%), get_uri_detail_list: 0.70
+        (0.2%), tests_pri_-1000: 11 (3.1%), tests_pri_-950: 1.09 (0.3%),
+        tests_pri_-900: 0.79 (0.2%), tests_pri_-90: 142 (39.5%), check_bayes:
+        140 (39.1%), b_tokenize: 3.4 (1.0%), b_tok_get_all: 5 (1.5%),
+        b_comp_prob: 1.39 (0.4%), b_tok_touch_all: 128 (35.5%), b_finish: 0.67
+        (0.2%), tests_pri_0: 182 (50.7%), check_dkim_signature: 0.32 (0.1%),
+        check_dkim_adsp: 2.4 (0.7%), poll_dns_idle: 0.94 (0.3%), tests_pri_10:
+        1.70 (0.5%), tests_pri_500: 6 (1.7%), rewrite_mail: 0.00 (0.0%)
+Subject: [REGRESSION] v6.0.x fails to boot after updating from v5.19.x
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 27, 2022 at 06:32:01PM -0700, Hugh Dickins wrote:
-> Sorry for leading everyone astray: my mistake was to suppose that
-> its !PageAnon check was simply to avoid the later BUG_ON(!anon_vma):
-> whereas David and Peter now agree that it actually corrects the
-> semantics for fork() on file pages.
+Updating the machine's kernel from v5.19.x to v6.0.x causes the machine to not
+successfully boot. The machine boots successfully (and exhibits stable operation)
+with version v5.19.17 and multiple earlier releases in the 5.19 line. Multiple releases
+from the 6.0 line (including 6.0.0, 6.0.3, and 6.0.5), with no other changes to the
+software environment, do not boot. Instead, the machine hangs after loading services
+but before presenting a display manager; the machine instead shows repetitive hard
+drive activity at this point and then no apparent activity.
 
-Thanks for raising this from the start, Hugh.  It's definitely worthwhile
-to discuss this topic which is not obvious at all at least to me, and merge
-even the same patch would be different before/after such a discussion,
-since we're clearer on the side effects.
+''uname'' output for the machine successfully running v5.19.17 is:
 
-> 
-> I lift my hold on Yuanzheng's patch: nobody actually said "Acked-by",
-> but I think the discussion and resolution have given better than that.
-> (No 3rd thoughts please!)
+    Linux [MACHINE_NAME] 5.19.17 #1 SMP PREEMPT_DYNAMIC Mon Oct 24 13:32:29 2022 i686 Intel(R) Atom(TM) CPU N270 @ 1.60GHz GenuineIntel GNU/Linux
 
-I've acked directly on v2, note that after this discussion IMHO the comment
-of !Anon check can be slightly improved (e.g. add some more information on
-why we decided to not copy the page even if anon_vma existed), but I don't
-want to be harsh on any stable backports that helps resolving problems
-already in correct ways.
+The machine is an OCZ Neutrino netbook, running a custom OS build largely similar to
+LFS development. The kernel update uses ''make olddefconfig''.
 
-Thanks,
+#regzbot introduced: v5.19..v6.0
 
--- 
-Peter Xu
 
+---
+Dominic Jones
+jonesd@xmission.com
