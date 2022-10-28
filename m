@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 656B4611096
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:07:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F19C611098
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:07:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230194AbiJ1MHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 08:07:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51396 "EHLO
+        id S230225AbiJ1MHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 08:07:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230159AbiJ1MG7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:06:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FFA1D73D0
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:06:59 -0700 (PDT)
+        with ESMTP id S230147AbiJ1MHC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:07:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B539D148FEA
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:07:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0BB562808
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:06:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B106BC433D6;
-        Fri, 28 Oct 2022 12:06:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E438627FF
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:07:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52A3DC433C1;
+        Fri, 28 Oct 2022 12:07:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958818;
-        bh=D7nBtAHOV5b4/7i/0zBdTkcZG7rogfJNxsoEPF5OTwY=;
+        s=korg; t=1666958820;
+        bh=PzNHI3g0Q55PYBrcSnOd02+jdbk95bvg3BuYXKvgvbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oHVwdGex30YCV9w5rKfV6yA0h2NY36CQEKpSYK8rliFFXyQbCNuZJwW09LZkJjgqz
-         M4HGRD++qqyM1+Mk6rMXGUMC+8iUkux+8WbyIwFi2avucrfnBaSUIZXpHs7mp7bo/I
-         Q0azHmX7keZAh+vdrgtfsLDi+j3H6vV61D5Y0ZoQ=
+        b=MdjohKn9gLzYmpZSP2mzkMWjhf92gjafS4gFd1j1SdR8S1jvxvT6zmuTTXaPx6ByA
+         UTeM1jEv1NmIfQIxx6ycBZIEQj/ONBaIASsZfb3nNUvXqXaSqo8KN8yjxjIXSL8O8Y
+         KF31y24ZduMOTPa/AkEkUbrY42YxWXO6SkhlwxZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+e6d5398a02c516ce5e70@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 62/73] fcntl: fix potential deadlocks for &fown_struct.lock
-Date:   Fri, 28 Oct 2022 14:03:59 +0200
-Message-Id: <20221028120235.069350663@linuxfoundation.org>
+        patches@lists.linux.dev, Evan Green <evgreen@chromium.org>,
+        Sibi Sankar <sibis@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Alex Elder <elder@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH 5.10 63/73] arm64: dts: qcom: sc7180-trogdor: Fixup modem memory region
+Date:   Fri, 28 Oct 2022 14:04:00 +0200
+Message-Id: <20221028120235.115155698@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
@@ -55,131 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Sibi Sankar <sibis@codeaurora.org>
 
-[ Upstream commit f671a691e299f58835d4660d642582bf0e8f6fda ]
+commit ef9a5d188d663753e73a3c8e8910ceab8e9305c4 upstream.
 
-Syzbot reports a potential deadlock in do_fcntl:
+The modem firmware memory requirements vary between 32M/140M on
+no-lte/lte skus respectively, so fixup the modem memory region
+to reflect the requirements.
 
-========================================================
-WARNING: possible irq lock inversion dependency detected
-5.12.0-syzkaller #0 Not tainted
---------------------------------------------------------
-syz-executor132/8391 just changed the state of lock:
-ffff888015967bf8 (&f->f_owner.lock){.+..}-{2:2}, at: f_getown_ex fs/fcntl.c:211 [inline]
-ffff888015967bf8 (&f->f_owner.lock){.+..}-{2:2}, at: do_fcntl+0x8b4/0x1200 fs/fcntl.c:395
-but this lock was taken by another, HARDIRQ-safe lock in the past:
- (&dev->event_lock){-...}-{2:2}
-
-and interrupts could create inverse lock ordering between them.
-
-other info that might help us debug this:
-Chain exists of:
-  &dev->event_lock --> &new->fa_lock --> &f->f_owner.lock
-
- Possible interrupt unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&f->f_owner.lock);
-                               local_irq_disable();
-                               lock(&dev->event_lock);
-                               lock(&new->fa_lock);
-  <Interrupt>
-    lock(&dev->event_lock);
-
- *** DEADLOCK ***
-
-This happens because there is a lock hierarchy of
-&dev->event_lock --> &new->fa_lock --> &f->f_owner.lock
-from the following call chain:
-
-  input_inject_event():
-    spin_lock_irqsave(&dev->event_lock,...);
-    input_handle_event():
-      input_pass_values():
-        input_to_handler():
-          evdev_events():
-            evdev_pass_values():
-              spin_lock(&client->buffer_lock);
-              __pass_event():
-                kill_fasync():
-                  kill_fasync_rcu():
-                    read_lock(&fa->fa_lock);
-                    send_sigio():
-                      read_lock_irqsave(&fown->lock,...);
-
-However, since &dev->event_lock is HARDIRQ-safe, interrupts have to be
-disabled while grabbing &f->f_owner.lock, otherwise we invert the lock
-hierarchy.
-
-Hence, we replace calls to read_lock/read_unlock on &f->f_owner.lock,
-with read_lock_irq/read_unlock_irq.
-
-Reported-and-tested-by: syzbot+e6d5398a02c516ce5e70@syzkaller.appspotmail.com
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Evan Green <evgreen@chromium.org>
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+Link: https://lore.kernel.org/r/1602786476-27833-1-git-send-email-sibis@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Acked-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fcntl.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi |    4 ++++
+ arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi         |    2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/fcntl.c b/fs/fcntl.c
-index 5a56351f1fc3..fcf34f83bf6a 100644
---- a/fs/fcntl.c
-+++ b/fs/fcntl.c
-@@ -149,7 +149,8 @@ void f_delown(struct file *filp)
- pid_t f_getown(struct file *filp)
- {
- 	pid_t pid = 0;
--	read_lock(&filp->f_owner.lock);
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lte-sku.dtsi
+@@ -9,6 +9,10 @@
+ 	label = "proximity-wifi-lte";
+ };
+ 
++&mpss_mem {
++	reg = <0x0 0x86000000 0x0 0x8c00000>;
++};
 +
-+	read_lock_irq(&filp->f_owner.lock);
- 	rcu_read_lock();
- 	if (pid_task(filp->f_owner.pid, filp->f_owner.pid_type)) {
- 		pid = pid_vnr(filp->f_owner.pid);
-@@ -157,7 +158,7 @@ pid_t f_getown(struct file *filp)
- 			pid = -pid;
- 	}
- 	rcu_read_unlock();
--	read_unlock(&filp->f_owner.lock);
-+	read_unlock_irq(&filp->f_owner.lock);
- 	return pid;
- }
+ &remoteproc_mpss {
+ 	firmware-name = "qcom/sc7180-trogdor/modem/mba.mbn",
+ 			"qcom/sc7180-trogdor/modem/qdsp6sw.mbn";
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
+@@ -39,7 +39,7 @@
+ 		};
  
-@@ -207,7 +208,7 @@ static int f_getown_ex(struct file *filp, unsigned long arg)
- 	struct f_owner_ex owner = {};
- 	int ret = 0;
+ 		mpss_mem: memory@86000000 {
+-			reg = <0x0 0x86000000 0x0 0x8c00000>;
++			reg = <0x0 0x86000000 0x0 0x2000000>;
+ 			no-map;
+ 		};
  
--	read_lock(&filp->f_owner.lock);
-+	read_lock_irq(&filp->f_owner.lock);
- 	rcu_read_lock();
- 	if (pid_task(filp->f_owner.pid, filp->f_owner.pid_type))
- 		owner.pid = pid_vnr(filp->f_owner.pid);
-@@ -230,7 +231,7 @@ static int f_getown_ex(struct file *filp, unsigned long arg)
- 		ret = -EINVAL;
- 		break;
- 	}
--	read_unlock(&filp->f_owner.lock);
-+	read_unlock_irq(&filp->f_owner.lock);
- 
- 	if (!ret) {
- 		ret = copy_to_user(owner_p, &owner, sizeof(owner));
-@@ -248,10 +249,10 @@ static int f_getowner_uids(struct file *filp, unsigned long arg)
- 	uid_t src[2];
- 	int err;
- 
--	read_lock(&filp->f_owner.lock);
-+	read_lock_irq(&filp->f_owner.lock);
- 	src[0] = from_kuid(user_ns, filp->f_owner.uid);
- 	src[1] = from_kuid(user_ns, filp->f_owner.euid);
--	read_unlock(&filp->f_owner.lock);
-+	read_unlock_irq(&filp->f_owner.lock);
- 
- 	err  = put_user(src[0], &dst[0]);
- 	err |= put_user(src[1], &dst[1]);
--- 
-2.35.1
-
 
 
