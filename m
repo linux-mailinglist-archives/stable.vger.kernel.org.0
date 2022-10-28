@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DA11611C2A
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 23:07:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3708C611C2E
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 23:08:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229828AbiJ1VHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 17:07:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52836 "EHLO
+        id S229920AbiJ1VHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 17:07:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229752AbiJ1VHS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 17:07:18 -0400
+        with ESMTP id S229887AbiJ1VHU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 17:07:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48DA9249892;
-        Fri, 28 Oct 2022 14:07:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7B0424A54F;
+        Fri, 28 Oct 2022 14:07:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 007ECB82B08;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C402B82CC0;
+        Fri, 28 Oct 2022 21:07:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 152BCC433C1;
         Fri, 28 Oct 2022 21:07:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8396EC433D7;
-        Fri, 28 Oct 2022 21:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1666991234;
-        bh=p1eDuQy8pEao9PsMpaBCq/3XI4cVhT1exy0JnVG5Q+M=;
+        s=korg; t=1666991236;
+        bh=sY70FcN0eCqMVQT80tlvLTJqH7xW9uNa7mImbILhJhU=;
         h=Date:To:From:Subject:From;
-        b=ap/gjQ4SGa2gUJV17keSx7VNn4Qkb1dUSf4AOjvr89cdRRlXpqVlHyg4uAtVwAKTm
-         HrAn5qDFpD/swKzQ/9RvBjLzBpIsi4S1iNF/TM9wS2x8LdToF8Mp/n2h9AZ2W5kJR5
-         FPQp/VeOuRhrBQ1b6pQqQzBh0TN/Z1xbc9FnCIU0=
-Date:   Fri, 28 Oct 2022 14:07:13 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        mike.kravetz@oracle.com, david@redhat.com, riel@surriel.com,
-        akpm@linux-foundation.org
+        b=R2dmzl+jfED8NCFYFJ5bm00rUAFEmNWuZvs8h1tAljn/S69lYT0wJ12+puo7Nlpw1
+         O771+SxoDW/N5Q4mdPHzKSCypn5iLFADpoZI1PHHtnCfWbunykEIRPvVOdLWm430ql
+         3FzZYOh83FqUrHvhDIecPTEkSlwpGmz+MXB6XYZE=
+Date:   Fri, 28 Oct 2022 14:07:15 -0700
+To:     mm-commits@vger.kernel.org, willy@infradead.org,
+        stable@vger.kernel.org, mgorman@techsingularity.net,
+        hughd@google.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mmmadvisehugetlb-fix-unexpected-data-loss-with-madv_dontneed-on-hugetlbfs.patch removed from -mm tree
-Message-Id: <20221028210714.8396EC433D7@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] mm-prep_compound_tail-clear-page-private.patch removed from -mm tree
+Message-Id: <20221028210716.152BCC433C1@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -46,81 +46,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm,madvise,hugetlb: fix unexpected data loss with MADV_DONTNEED on hugetlbfs
+     Subject: mm: prep_compound_tail() clear page->private
 has been removed from the -mm tree.  Its filename was
-     mmmadvisehugetlb-fix-unexpected-data-loss-with-madv_dontneed-on-hugetlbfs.patch
+     mm-prep_compound_tail-clear-page-private.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Rik van Riel <riel@surriel.com>
-Subject: mm,madvise,hugetlb: fix unexpected data loss with MADV_DONTNEED on hugetlbfs
-Date: Fri, 21 Oct 2022 19:28:05 -0400
+From: Hugh Dickins <hughd@google.com>
+Subject: mm: prep_compound_tail() clear page->private
+Date: Sat, 22 Oct 2022 00:51:06 -0700 (PDT)
 
-A common use case for hugetlbfs is for the application to create
-memory pools backed by huge pages, which then get handed over to
-some malloc library (eg. jemalloc) for further management.
+Although page allocation always clears page->private in the first page or
+head page of an allocation, it has never made a point of clearing
+page->private in the tails (though 0 is often what is already there).
 
-That malloc library may be doing MADV_DONTNEED calls on memory
-that is no longer needed, expecting those calls to happen on
-PAGE_SIZE boundaries.
+But now commit 71e2d666ef85 ("mm/huge_memory: do not clobber swp_entry_t
+during THP split") issues a warning when page_tail->private is found to be
+non-0 (unless it's swapcache).
 
-However, currently the MADV_DONTNEED code rounds up any such
-requests to HPAGE_PMD_SIZE boundaries. This leads to undesired
-outcomes when jemalloc expects a 4kB MADV_DONTNEED, but 2MB of
-memory get zeroed out, instead.
+Change that warning to dump page_tail (which also dumps head), instead of
+just the head: so far we have seen dead000000000122, dead000000000003,
+dead000000000001 or 0000000000000002 in the raw output for tail private.
 
-Use of pre-built shared libraries means that user code does not
-always know the page size of every memory arena in use.
+We could just delete the warning, but today's consensus appears to want
+page->private to be 0, unless there's a good reason for it to be set: so
+now clear it in prep_compound_tail() (more general than just for THP; but
+not for high order allocation, which makes no pass down the tails).
 
-Avoid unexpected data loss with MADV_DONTNEED by rounding up
-only to PAGE_SIZE (in do_madvise), and rounding down to huge
-page granularity.
-
-That way programs will only get as much memory zeroed out as
-they requested.
-
-Link: https://lkml.kernel.org/r/20221021192805.366ad573@imladris.surriel.com
-Fixes: 90e7e7f5ef3f ("mm: enable MADV_DONTNEED for hugetlb mappings")
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: David Hildenbrand <david@redhat.com>
+Link: https://lkml.kernel.org/r/1c4233bb-4e4d-5969-fbd4-96604268a285@google.com
+Fixes: 71e2d666ef85 ("mm/huge_memory: do not clobber swp_entry_t during THP split")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
 
---- a/mm/madvise.c~mmmadvisehugetlb-fix-unexpected-data-loss-with-madv_dontneed-on-hugetlbfs
-+++ a/mm/madvise.c
-@@ -813,7 +813,14 @@ static bool madvise_dontneed_free_valid_
- 	if (start & ~huge_page_mask(hstate_vma(vma)))
- 		return false;
+--- a/mm/huge_memory.c~mm-prep_compound_tail-clear-page-private
++++ a/mm/huge_memory.c
+@@ -2462,7 +2462,7 @@ static void __split_huge_page_tail(struc
+ 	 * Fix up and warn once if private is unexpectedly set.
+ 	 */
+ 	if (!folio_test_swapcache(page_folio(head))) {
+-		VM_WARN_ON_ONCE_PAGE(page_tail->private != 0, head);
++		VM_WARN_ON_ONCE_PAGE(page_tail->private != 0, page_tail);
+ 		page_tail->private = 0;
+ 	}
  
--	*end = ALIGN(*end, huge_page_size(hstate_vma(vma)));
-+	/*
-+	 * Madvise callers expect the length to be rounded up to PAGE_SIZE
-+	 * boundaries, and may be unaware that this VMA uses huge pages.
-+	 * Avoid unexpected data loss by rounding down the number of
-+	 * huge pages freed.
-+	 */
-+	*end = ALIGN_DOWN(*end, huge_page_size(hstate_vma(vma)));
-+
- 	return true;
+--- a/mm/page_alloc.c~mm-prep_compound_tail-clear-page-private
++++ a/mm/page_alloc.c
+@@ -807,6 +807,7 @@ static void prep_compound_tail(struct pa
+ 
+ 	p->mapping = TAIL_MAPPING;
+ 	set_compound_head(p, head);
++	set_page_private(p, 0);
  }
  
-@@ -828,6 +835,9 @@ static long madvise_dontneed_free(struct
- 	if (!madvise_dontneed_free_valid_vma(vma, start, &end, behavior))
- 		return -EINVAL;
- 
-+	if (start == end)
-+		return 0;
-+
- 	if (!userfaultfd_remove(vma, start, end)) {
- 		*prev = NULL; /* mmap_lock has been dropped, prev is stale */
- 
+ void prep_compound_page(struct page *page, unsigned int order)
 _
 
-Patches currently in -mm which might be from riel@surriel.com are
+Patches currently in -mm which might be from hughd@google.com are
 
 
