@@ -2,107 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0751F610B8D
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 09:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A60A0610BCC
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 10:07:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230229AbiJ1HtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 03:49:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37292 "EHLO
+        id S229681AbiJ1IHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 04:07:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229962AbiJ1HtQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 03:49:16 -0400
-Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E78419ABE7;
-        Fri, 28 Oct 2022 00:49:15 -0700 (PDT)
-Received: from booty.fritz.box (unknown [77.244.183.192])
-        (Authenticated sender: luca.ceresoli@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPA id E92141C0002;
-        Fri, 28 Oct 2022 07:49:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1666943353;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=m0oOZ7l6RvS8VTaNyT1SmYC8MhtuXGooOBg79bTfEm4=;
-        b=mdVRAKjAmqXAEtpaIwhfCi/rf7DHOZx/gC3jDRriH1FZY0O/hDmwlu+bQux9smX7b6AUm+
-        gOrFrbQPsVr0f5uwEPDH7ic7XQfK1SOJENmxclMb3XRhSs4Ngtj1ekQxQWp1p+RgjmDZMF
-        t/5t7V9yhHbfKGUViZnGmgQ+WsDvoiUDTswTdvnMSneIY5A9QaKoqIzBCAP0ZMKMDtEI3E
-        Cc66hEsNGMEwu7UHh49EEGNrroWaynC2/B2f+eFiXUrG7rIlEPD8H7lhXILaL4gW52z7O0
-        DDH5V5UoXFxKM3+oR7hryFXUVczlWTBXYAAFX4IsOHyeJBpuvNyZobLh0ik1Vg==
-From:   luca.ceresoli@bootlin.com
-To:     linux-tegra@vger.kernel.org
-Cc:     Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        Peter De Schrijver <pdeschrijver@nvidia.com>,
-        Prashant Gaikwad <pgaikwad@nvidia.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] clk: tegra: fix HOST1X clock divider on Tegra20 and Tegra30
-Date:   Fri, 28 Oct 2022 09:48:26 +0200
-Message-Id: <20221028074826.2317640-1-luca.ceresoli@bootlin.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S229457AbiJ1IHM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 04:07:12 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D0B414D1DE;
+        Fri, 28 Oct 2022 01:07:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
+        t=1666944413; bh=x/5w/cGYdibUL64Yl4ECGE+0k1q6HN5SEpULyLqnnTY=;
+        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=M07rrsMbhbuAELDz/7pjFJXp6LxO55xMMKZZzmTms1N3NFUoRV0FUYBa0FBEUMW+s
+         1/cLEsSXpsmeHZV77wIoA1FHjW1rI6Sf2BYSAkdueNh6c+3g2wEabdPczoMI9ZgNmv
+         YysqkBrPDZFP1rNy6frNCv5Sfn4dSDy8XeVhBcGlDDrGBmI6qAY7D4q5dGaAdupqoL
+         UCJZIqtsjamsUGaQCWcIsmutNpKzXSoM/14Uq+u9aRfoWbj3uSAMEXevNbxLUMs87b
+         e21/0EWHTKNm7ucaP58PJrWMfC9QXcuFz4CBAVCp5gXld8Yq7BxszvbdTT/BrH6bTj
+         28owU4M1GdCIQ==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from [192.168.2.83] ([84.162.5.241]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MqJm5-1pR0zm2vzP-00nN7V; Fri, 28
+ Oct 2022 10:06:53 +0200
+Message-ID: <4ff347e8-1ef4-e006-01db-3d420213f6e3@gmx.de>
+Date:   Fri, 28 Oct 2022 10:06:51 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Subject: Re: [PATCH 5.10 v2 1/2] serial: core: move RS485 configuration tasks
+ from drivers into core
+Content-Language: en-US
+To:     Dominique Martinet <dominique.martinet@atmark-techno.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Lukas Wunner <lukas@wunner.de>, stable@vger.kernel.org,
+        =?UTF-8?Q?Ilpo_J=c3=a4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Roosen Henri <Henri.Roosen@ginzinger.com>,
+        linux-serial@vger.kernel.org,
+        Daisuke Mizobuchi <mizo@atmark-techno.com>
+References: <20221017051737.51727-1-dominique.martinet@atmark-techno.com>
+ <Y1lmM7Qu1yscuaIU@kroah.com> <Y1nPFe6IaRI7j6fE@atmark-techno.com>
+From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
+In-Reply-To: <Y1nPFe6IaRI7j6fE@atmark-techno.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:7kcgS7x37TR5Kk8FR4wt1f1+cw/bPg19ZJA0AU6Ho4uaFKe1+l/
+ FDTK18fNl4Kv7ymaYJHwSgbkVF3+IRATd0eKFbnXy8H+14D7E/StIe8n4y0YUrljBA5ECp7
+ ZwWe+8QfODDsCBhrK+P/WjnbBv3M1J+ezPTqyz66m6oBFY46deM1KohhRWaIYPG7j8TWqxM
+ GiloMO0wK6mf2rrDLFsBA==
+UI-OutboundReport: notjunk:1;M01:P0:2yiIC+5nqmc=;FRIoq7hVgVvG/SWJ41HrD3u+pO6
+ rLfz/DJ8c4zrm95jodpW2/52f9Z/e8z1rZqSJBbhfItJBGLT6ZJ07ZCknxQZNqOR7SmOu7vnY
+ SWwXYjSdJrSoAE8n8pJioyBjNwDzK7zkUuGW8tAvWFqBJ9UZw12TaBq+iGPQBxaKlC77CmEzm
+ W7tlQ3dpXjypckBZYB1tr8xHZaqoF5yjcf0m5brJSLUXmNwgLMn9+ttb0SajJoCkwJ2Bd1L31
+ iKMaf33croNTyIMeV3uLvFww5W4K3jUA6jaavTdS8rfvc3Ii0eBjkFgnj23283iytcln1QK/v
+ VK7KA2MCGDGTMT0EW7SKHzTQWNltL1fdRIv3BiwHkiCZQ7kGk0D2EGO57c9560paZ7/ZSmp8j
+ ZyAVJFkUsQ60kJfwOWFdxZl1ARMNfGtURRorKWA6yN+8B4vQCscFFyqnPkGXJ9OOcQCZ7AmWl
+ DRcqXDo7GSqYcwqoNpdxB7I42jrF3NEV77DQib5rhDjK4M4m2jr5zo73ZqVbofply9MChPqzu
+ PJV7GfbB/qldkuKeb1j8D++rWaJt09vxOePQQuf84J7lEb6oCZpYTof035C9AB5RArvWp5zrW
+ XbZZVcoSFR2tOOI6pUo5IukjjsEd4bZRjcCA2VFnui9TJCCVL1GkyZ8CJ1rRrjU5/6lUpnpLU
+ 07TkwDxH2pdZIT1FICkqqRL285bY9ryk5Row4QZ9YAr9qgT0CEneaZOztu6LoP5+ILd46LawQ
+ /jQDtKZX0rVV9Qz03hM0Shq3RkLhJAbd4XIDeluJpC9GWUGzyQboExIhS13ydkgUb4RCHKjP3
+ 1PcPka9nX0AmORfQ3ul0nzo0HeVprRpos7+aBUJTgUXU3qaBq9JacDOmU3iEUr+y5Q1DrzWYw
+ CPQK38WfdNVIxQ6PmQ6vVaM1E/IwSGCkhvmq5Jc9pCIudq6SEAxSWCVAdApTephyswnIlHyb5
+ xS+7uQ==
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ceresoli <luca.ceresoli@bootlin.com>
 
-On Tegra20 and Tegra30 the HOST1X clock is a fractional clock divider with
-7 integer bits + 1 decimal bit. This has been verified on both
-documentation and real hardware for Tegra20 an on the documentation I was
-able to find for Tegra30.
 
-However in the kernel code this clock is declared as an integer divider. A
-consequence of this is that requesting 144 MHz for HOST1X which is fed by
-pll_p running at 216 MHz would result in 108 MHz (216 / 2) instead of 144
-MHz (216 / 1.5).
+On 27.10.22 02:21, Dominique Martinet wrote:
+> Greg Kroah-Hartman wrote on Wed, Oct 26, 2022 at 06:54:11PM +0200:
+>> On Mon, Oct 17, 2022 at 02:17:36PM +0900, Dominique Martinet wrote:
+>>> From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+>>>
+>>> Several drivers that support setting the RS485 configuration via users=
+pace
+>>> implement one or more of the following tasks:
+>>>
+>>> - in case of an invalid RTS configuration (both RTS after send and RTS=
+ on
+>>>   send set or both unset) fall back to enable RTS on send and disable =
+RTS
+>>>   after send
+>>>
+>>> - nullify the padding field of the returned serial_rs485 struct
+>>>
+>>> - copy the configuration into the uart port struct
+>>>
+>>> - limit RTS delays to 100 ms
+>>>
+>>> Move these tasks into the serial core to make them generic and to prov=
+ide
+>>> a consistent behaviour among all drivers.
+>>>
+>>> Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+>>> Link: https://lore.kernel.org/r/20220410104642.32195-2-LinoSanfilippo@=
+gmx.de
+>>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>> [ Upstream commit 0ed12afa5655512ee418047fb3546d229df20aa1 ]
+>>> Signed-off-by: Daisuke Mizobuchi <mizo@atmark-techno.com>
+>>> Signed-off-by: Dominique Martinet <dominique.martinet@atmark-techno.co=
+m>
+>>> ---
+>>> Follow-up of https://lkml.kernel.org/r/20221017013807.34614-1-dominiqu=
+e.martinet@atmark-techno.com
+>>
+>> I need a 5.15.y version of this series before I can take the 5.10.y
+>> version.
+>
+> Thanks for the probing, I did not know about this rule (but it makes
+> sense); I've just sent a 5.15 version:
+> https://lkml.kernel.org/r/20221027001943.637449-1-dominique.martinet@atm=
+ark-techno.com
+>
+> I'd really appreciate if Lino could take a look and confirm we didn't
+> botch this too much -- we've tested the 5.10 version and it looks ok,
+> but this is different enough from the original patch to warrant a check
+> from the author.
 
-Fix by replacing the INT() macro with the MUX() macro which, despite the
-name, defines a fractional divider. The only difference between the two
-macros is the former does not have the TEGRA_DIVIDER_INT flag.
+Concerning the part I authored (patch 1) I do not see any changes, so
 
-Also move the line together with the other MUX*() ones to keep the existing
-file organization.
+Acked-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
 
-Fixes: 76ebc134d45d ("clk: tegra: move periph clocks to common file")
-Cc: stable@vger.kernel.org
-Cc: Peter De Schrijver <pdeschrijver@nvidia.com>
-Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
----
- drivers/clk/tegra/clk-tegra-periph.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+However the part Lukas authored (patch 2) seems to be the one that has bee=
+n adjusted
+a lot, so maybe you rather/also want to have his ack?
 
-diff --git a/drivers/clk/tegra/clk-tegra-periph.c b/drivers/clk/tegra/clk-tegra-periph.c
-index 4dcf7f7cb8a0..806d835ca0d2 100644
---- a/drivers/clk/tegra/clk-tegra-periph.c
-+++ b/drivers/clk/tegra/clk-tegra-periph.c
-@@ -615,7 +615,6 @@ static struct tegra_periph_init_data periph_clks[] = {
- 	INT("vde", mux_pllp_pllc_pllm_clkm, CLK_SOURCE_VDE, 61, 0, tegra_clk_vde),
- 	INT("vi", mux_pllm_pllc_pllp_plla, CLK_SOURCE_VI, 20, 0, tegra_clk_vi),
- 	INT("epp", mux_pllm_pllc_pllp_plla, CLK_SOURCE_EPP, 19, 0, tegra_clk_epp),
--	INT("host1x", mux_pllm_pllc_pllp_plla, CLK_SOURCE_HOST1X, 28, 0, tegra_clk_host1x),
- 	INT("mpe", mux_pllm_pllc_pllp_plla, CLK_SOURCE_MPE, 60, 0, tegra_clk_mpe),
- 	INT("2d", mux_pllm_pllc_pllp_plla, CLK_SOURCE_2D, 21, 0, tegra_clk_gr2d),
- 	INT("3d", mux_pllm_pllc_pllp_plla, CLK_SOURCE_3D, 24, 0, tegra_clk_gr3d),
-@@ -664,6 +663,7 @@ static struct tegra_periph_init_data periph_clks[] = {
- 	MUX("owr", mux_pllp_pllc_clkm, CLK_SOURCE_OWR, 71, TEGRA_PERIPH_ON_APB, tegra_clk_owr_8),
- 	MUX("nor", mux_pllp_pllc_pllm_clkm, CLK_SOURCE_NOR, 42, 0, tegra_clk_nor),
- 	MUX("mipi", mux_pllp_pllc_pllm_clkm, CLK_SOURCE_MIPI, 50, TEGRA_PERIPH_ON_APB, tegra_clk_mipi),
-+	MUX("host1x", mux_pllm_pllc_pllp_plla, CLK_SOURCE_HOST1X, 28, 0, tegra_clk_host1x),
- 	MUX("vi_sensor", mux_pllm_pllc_pllp_plla, CLK_SOURCE_VI_SENSOR, 20, TEGRA_PERIPH_NO_RESET, tegra_clk_vi_sensor),
- 	MUX("vi_sensor", mux_pllc_pllp_plla, CLK_SOURCE_VI_SENSOR, 20, TEGRA_PERIPH_NO_RESET, tegra_clk_vi_sensor_9),
- 	MUX("cilab", mux_pllp_pllc_clkm, CLK_SOURCE_CILAB, 144, 0, tegra_clk_cilab),
--- 
-2.34.1
+Best Regards,
+Lino
+
+
 
