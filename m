@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCC1C61105A
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:04:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C57DD61105C
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:04:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229719AbiJ1MEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 08:04:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43724 "EHLO
+        id S229828AbiJ1MEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 08:04:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229940AbiJ1MEg (ORCPT
+        with ESMTP id S229882AbiJ1MEg (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:04:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62B2156B9C
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:04:29 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04505B45
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:04:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2B62627EB
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:04:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF8BAC433C1;
-        Fri, 28 Oct 2022 12:04:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8656B829A6
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:04:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0AFDC433D6;
+        Fri, 28 Oct 2022 12:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958668;
-        bh=oKj/oXU0MoN0t/0g4U5W9dGK3RaEh2aNrJWANmkqIHY=;
+        s=korg; t=1666958671;
+        bh=r+KS8rqtmSjB5OajPQGy7sYcPK6l46rCGGmiNG3tgRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l6wnIb8gPvFAo8Hs6L6HZIFqQv6X/VsA4zhoo8p0LaISNbdGc2fe09X+z++RkW9tJ
-         w71sChyr7aMAQcWEBgZfcbaf6CY86Dx0QpCSN3UnudBtHXdgffXBXtblLGLIkKJVth
-         xBa2gqsNHtnp0nK9kZ6HuUIFWJOu7LZC0uzrZP2Q=
+        b=2B0uQzKaN2EOFAdksM8ZI854/ttcdIRESP7CGdVmCJhzb17ufg1eZ+M7oCEK57ldG
+         8hqrq+bvcw0fhN34we55bxPwJwBkd3cxGrn9zwl/6N2rkzEKTijF/r7vJukQEE8IYS
+         +IRHVbOXIjip+CtebVOy7yTqGOjoAw2WTdVOrGgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -39,15 +39,13 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
         Jun Piao <piaojun@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 01/73] ocfs2: clear dinode links count in case of error
-Date:   Fri, 28 Oct 2022 14:02:58 +0200
-Message-Id: <20221028120232.421972390@linuxfoundation.org>
+Subject: [PATCH 5.10 02/73] ocfs2: fix BUG when iput after ocfs2_mknod fails
+Date:   Fri, 28 Oct 2022 14:02:59 +0200
+Message-Id: <20221028120232.472090320@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -62,17 +60,22 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Joseph Qi <joseph.qi@linux.alibaba.com>
 
-commit 28f4821b1b53e0649706912e810c6c232fc506f9 upstream.
+commit 759a7c6126eef5635506453e9b9d55a6a3ac2084 upstream.
 
-In ocfs2_mknod(), if error occurs after dinode successfully allocated,
-ocfs2 i_links_count will not be 0.
+Commit b1529a41f777 "ocfs2: should reclaim the inode if
+'__ocfs2_mknod_locked' returns an error" tried to reclaim the claimed
+inode if __ocfs2_mknod_locked() fails later.  But this introduce a race,
+the freed bit may be reused immediately by another thread, which will
+update dinode, e.g.  i_generation.  Then iput this inode will lead to BUG:
+inode->i_generation != le32_to_cpu(fe->i_generation)
 
-So even though we clear inode i_nlink before iput in error handling, it
-still won't wipe inode since we'll refresh inode from dinode during inode
-lock.  So just like clear inode i_nlink, we clear ocfs2 i_links_count as
-well.  Also do the same change for ocfs2_symlink().
+We could make this inode as bad, but we did want to do operations like
+wipe in some cases.  Since the claimed inode bit can only affect that an
+dinode is missing and will return back after fsck, it seems not a big
+problem.  So just leave it as is by revert the reclaim logic.
 
-Link: https://lkml.kernel.org/r/20221017130227.234480-2-joseph.qi@linux.alibaba.com
+Link: https://lkml.kernel.org/r/20221017130227.234480-1-joseph.qi@linux.alibaba.com
+Fixes: b1529a41f777 ("ocfs2: should reclaim the inode if '__ocfs2_mknod_locked' returns an error")
 Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
 Reported-by: Yan Wang <wangyan122@huawei.com>
 Cc: Mark Fasheh <mark@fasheh.com>
@@ -85,52 +88,30 @@ Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/namei.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ fs/ocfs2/namei.c |   11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
 --- a/fs/ocfs2/namei.c
 +++ b/fs/ocfs2/namei.c
-@@ -231,6 +231,7 @@ static int ocfs2_mknod(struct inode *dir
- 	handle_t *handle = NULL;
- 	struct ocfs2_super *osb;
- 	struct ocfs2_dinode *dirfe;
-+	struct ocfs2_dinode *fe = NULL;
- 	struct buffer_head *new_fe_bh = NULL;
- 	struct inode *inode = NULL;
- 	struct ocfs2_alloc_context *inode_ac = NULL;
-@@ -381,6 +382,7 @@ static int ocfs2_mknod(struct inode *dir
- 		goto leave;
+@@ -636,18 +636,9 @@ static int ocfs2_mknod_locked(struct ocf
+ 		return status;
  	}
  
-+	fe = (struct ocfs2_dinode *) new_fe_bh->b_data;
- 	if (S_ISDIR(mode)) {
- 		status = ocfs2_fill_new_dir(osb, handle, dir, inode,
- 					    new_fe_bh, data_ac, meta_ac);
-@@ -453,8 +455,11 @@ roll_back:
- leave:
- 	if (status < 0 && did_quota_inode)
- 		dquot_free_inode(inode);
--	if (handle)
-+	if (handle) {
-+		if (status < 0 && fe)
-+			ocfs2_set_links_count(fe, 0);
- 		ocfs2_commit_trans(osb, handle);
-+	}
+-	status = __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
++	return __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
+ 				    parent_fe_bh, handle, inode_ac,
+ 				    fe_blkno, suballoc_loc, suballoc_bit);
+-	if (status < 0) {
+-		u64 bg_blkno = ocfs2_which_suballoc_group(fe_blkno, suballoc_bit);
+-		int tmp = ocfs2_free_suballoc_bits(handle, inode_ac->ac_inode,
+-				inode_ac->ac_bh, suballoc_bit, bg_blkno, 1);
+-		if (tmp)
+-			mlog_errno(tmp);
+-	}
+-
+-	return status;
+ }
  
- 	ocfs2_inode_unlock(dir, 1);
- 	if (did_block_signals)
-@@ -2023,8 +2028,11 @@ bail:
- 					ocfs2_clusters_to_bytes(osb->sb, 1));
- 	if (status < 0 && did_quota_inode)
- 		dquot_free_inode(inode);
--	if (handle)
-+	if (handle) {
-+		if (status < 0 && fe)
-+			ocfs2_set_links_count(fe, 0);
- 		ocfs2_commit_trans(osb, handle);
-+	}
- 
- 	ocfs2_inode_unlock(dir, 1);
- 	if (did_block_signals)
+ static int ocfs2_mkdir(struct inode *dir,
 
 
