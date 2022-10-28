@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9867B61108F
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:06:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48123611091
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:06:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230137AbiJ1MGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 08:06:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51284 "EHLO
+        id S230149AbiJ1MGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 08:06:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230147AbiJ1MGt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:06:49 -0400
+        with ESMTP id S230147AbiJ1MGw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:06:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87FD0CABC2
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:06:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29EA8D2CC5
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:06:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2764762809
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:06:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BC02C433C1;
-        Fri, 28 Oct 2022 12:06:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE6A862809
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:06:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A69EAC433D6;
+        Fri, 28 Oct 2022 12:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958807;
-        bh=hqqrPyhcv5rwQUkHrvjHt1gA18NlL+WN0ilWmc3/K+k=;
+        s=korg; t=1666958810;
+        bh=D8tmYFUwURTmzNBZUNj9xhqDYKR5TByC+0OBkrbmtd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfmLguNggAQrStC32yMBwysUpVI3JfrvvS7B2cmZURFsfbl+mm49h4YVgWB586mwu
-         Y5FRByKzASYXFUJjFFjQUppHmDLoSFBdH9mIIaCFabUNei927oizca47NoBqwZP+FU
-         5d0x020ojhnMP8E6h/wN0DutOO44vxq1VdbvbWTw=
+        b=CGYnIEbXdrCwJ+9MVpIUiLR+nv+GHxx66Jqg0l9STH67asXCR8XoPZwUnLw5bB6US
+         njpXL3F4a54FnRsoaSZNrwggBEknwlX31LATtwjYTGI/N7wWp+cc/5RKjS+yAZXYJO
+         G5u7hX8Zea/LeFIGpdK8suff0WSSbjN0SSqK170s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
+        patches@lists.linux.dev, Namhyung Kim <namhyung@kernel.org>,
+        Rob Herring <robh@kernel.org>, Leo Yan <leo.yan@linaro.org>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        James Clark <james.clark@arm.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 59/73] perf pmu: Validate raw event with sysfs exported format bits
-Date:   Fri, 28 Oct 2022 14:03:56 +0200
-Message-Id: <20221028120234.946847717@linuxfoundation.org>
+Subject: [PATCH 5.10 60/73] perf: Skip and warn on unknown format configN attrs
+Date:   Fri, 28 Oct 2022 14:03:57 +0200
+Message-Id: <20221028120234.990363295@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
@@ -58,164 +60,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jin Yao <yao.jin@linux.intel.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit e40647762fb5881360874e08e03e972d58d63c42 ]
+[ Upstream commit e552b7be12ed62357df84392efa525ecb01910fb ]
 
-A raw PMU event (eventsel+umask) in the form of rNNN is supported
-by perf but lacks of checking for the validity of raw encoding.
+If the kernel exposes a new perf_event_attr field in a format attr, perf
+will return an error stating the specified PMU can't be found. For
+example, a format attr with 'config3:0-63' causes an error as config3 is
+unknown to perf. This causes a compatibility issue between a newer
+kernel with older perf tool.
 
-For example, bit 16 and bit 17 are not valid on KBL but perf doesn't
-report warning when encoding with these bits.
+Before this change with a kernel adding 'config3' I get:
 
-Before:
+  $ perf record -e arm_spe// -- true
+  event syntax error: 'arm_spe//'
+                       \___ Cannot find PMU `arm_spe'. Missing kernel support?
+  Run 'perf list' for a list of valid events
 
-  # ./perf stat -e cpu/r031234/ -a -- sleep 1
+   Usage: perf record [<options>] [<command>]
+      or: perf record [<options>] -- <command> [<options>]
 
-   Performance counter stats for 'system wide':
+      -e, --event <event>   event selector. use 'perf list' to list
+  available events
 
-                   0      cpu/r031234/
+After this change, I get:
 
-         1.003798924 seconds time elapsed
+  $ perf record -e arm_spe// -- true
+  WARNING: 'arm_spe_0' format 'inv_event_filter' requires 'perf_event_attr::config3' which is not supported by this version of perf!
+  [ perf record: Woken up 2 times to write data ]
+  [ perf record: Captured and wrote 0.091 MB perf.data ]
 
-It may silently measure the wrong event!
+To support unknown configN formats, rework the YACC implementation to
+pass any config[0-9]+ format to perf_pmu__new_format() to handle with a
+warning.
 
-The kernel supported bits have been exported through
-/sys/devices/<pmu>/format/. Perf collects the information to
-'struct perf_pmu_format' and links it to 'pmu->format' list.
-
-The 'struct perf_pmu_format' has a bitmap which records the
-valid bits for this format. For example,
-
-  root@kbl-ppc:/sys/devices/cpu/format# cat umask
-  config:8-15
-
-The valid bits (bit8-bit15) are recorded in bitmap of format 'umask'.
-
-We collect total valid bits of all formats, save to a local variable
-'masks' and reverse it. Now '~masks' represents total invalid bits.
-
-bits = config & ~masks;
-
-The set bits in 'bits' indicate the invalid bits used in config.
-Finally we use bitmap_scnprintf to report the invalid bits.
-
-Some architectures may not export supported bits through sysfs,
-so if masks is 0, perf_pmu__warn_invalid_config directly returns.
-
-After:
-
-Single event without name:
-
-  # ./perf stat -e cpu/r031234/ -a -- sleep 1
-  WARNING: event 'N/A' not valid (bits 16-17 of config '31234' not supported by kernel)!
-
-   Performance counter stats for 'system wide':
-
-                   0      cpu/r031234/
-
-         1.001597373 seconds time elapsed
-
-Multiple events with names:
-
-  # ./perf stat -e cpu/rf01234,name=aaa/,cpu/r031234,name=bbb/ -a -- sleep 1
-  WARNING: event 'aaa' not valid (bits 20,22 of config 'f01234' not supported by kernel)!
-  WARNING: event 'bbb' not valid (bits 16-17 of config '31234' not supported by kernel)!
-
-   Performance counter stats for 'system wide':
-
-                   0      aaa
-                   0      bbb
-
-         1.001573787 seconds time elapsed
-
-Warnings are reported for invalid bits.
-
-Co-developed-by: Jiri Olsa <jolsa@redhat.com>
-Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
-Reviewed-by: Jiri Olsa <jolsa@redhat.com>
+Reviewed-by: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Tested-by: Leo Yan <leo.yan@linaro.org>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jin Yao <yao.jin@intel.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: James Clark <james.clark@arm.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20210310051138.12154-1-yao.jin@linux.intel.com
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220914-arm-perf-tool-spe1-2-v2-v4-1-83c098e6212e@kernel.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Stable-dep-of: e552b7be12ed ("perf: Skip and warn on unknown format 'configN' attrs")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  tools/perf/util/parse-events.c |  3 +++
- tools/perf/util/pmu.c          | 33 +++++++++++++++++++++++++++++++++
- tools/perf/util/pmu.h          |  3 +++
- 3 files changed, 39 insertions(+)
+ tools/perf/util/pmu.c          | 17 +++++++++++++++++
+ tools/perf/util/pmu.h          |  2 ++
+ tools/perf/util/pmu.l          |  2 --
+ tools/perf/util/pmu.y          | 15 ++++-----------
+ 5 files changed, 26 insertions(+), 13 deletions(-)
 
 diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
-index 3a0a7930cd10..36969fc8f1fc 100644
+index 36969fc8f1fc..c56a4d9c3be9 100644
 --- a/tools/perf/util/parse-events.c
 +++ b/tools/perf/util/parse-events.c
 @@ -356,6 +356,9 @@ __add_event(struct list_head *list, int *idx,
  	struct perf_cpu_map *cpus = pmu ? perf_cpu_map__get(pmu->cpus) :
  			       cpu_list ? perf_cpu_map__new(cpu_list) : NULL;
  
-+	if (pmu && attr->type == PERF_TYPE_RAW)
-+		perf_pmu__warn_invalid_config(pmu, attr->config, name);
++	if (pmu)
++		perf_pmu__warn_invalid_formats(pmu);
 +
- 	if (init_attr)
- 		event_attr_init(attr);
+ 	if (pmu && attr->type == PERF_TYPE_RAW)
+ 		perf_pmu__warn_invalid_config(pmu, attr->config, name);
  
 diff --git a/tools/perf/util/pmu.c b/tools/perf/util/pmu.c
-index d41caeb35cf6..349012f7defb 100644
+index 349012f7defb..ac45da0302a7 100644
 --- a/tools/perf/util/pmu.c
 +++ b/tools/perf/util/pmu.c
-@@ -1716,3 +1716,36 @@ int perf_pmu__caps_parse(struct perf_pmu *pmu)
- 
- 	return nr_caps;
+@@ -862,6 +862,23 @@ static struct perf_pmu *pmu_lookup(const char *name)
+ 	return pmu;
  }
-+
-+void perf_pmu__warn_invalid_config(struct perf_pmu *pmu, __u64 config,
-+				   char *name)
+ 
++void perf_pmu__warn_invalid_formats(struct perf_pmu *pmu)
 +{
 +	struct perf_pmu_format *format;
-+	__u64 masks = 0, bits;
-+	char buf[100];
-+	unsigned int i;
 +
-+	list_for_each_entry(format, &pmu->format, list)	{
-+		if (format->value != PERF_PMU_FORMAT_VALUE_CONFIG)
-+			continue;
-+
-+		for_each_set_bit(i, format->bits, PERF_PMU_FORMAT_BITS)
-+			masks |= 1ULL << i;
-+	}
-+
-+	/*
-+	 * Kernel doesn't export any valid format bits.
-+	 */
-+	if (masks == 0)
++	/* fake pmu doesn't have format list */
++	if (pmu == &perf_pmu__fake)
 +		return;
 +
-+	bits = config & ~masks;
-+	if (bits == 0)
-+		return;
-+
-+	bitmap_scnprintf((unsigned long *)&bits, sizeof(bits) * 8, buf, sizeof(buf));
-+
-+	pr_warning("WARNING: event '%s' not valid (bits %s of config "
-+		   "'%llx' not supported by kernel)!\n",
-+		   name ?: "N/A", buf, config);
++	list_for_each_entry(format, &pmu->format, list)
++		if (format->value >= PERF_PMU_FORMAT_VALUE_CONFIG_END) {
++			pr_warning("WARNING: '%s' format '%s' requires 'perf_event_attr::config%d'"
++				   "which is not supported by this version of perf!\n",
++				   pmu->name, format->name, format->value);
++			return;
++		}
 +}
++
+ static struct perf_pmu *pmu_find(const char *name)
+ {
+ 	struct perf_pmu *pmu;
 diff --git a/tools/perf/util/pmu.h b/tools/perf/util/pmu.h
-index a64e9c9ce731..d9aa8c958d21 100644
+index d9aa8c958d21..7d208b850769 100644
 --- a/tools/perf/util/pmu.h
 +++ b/tools/perf/util/pmu.h
-@@ -120,4 +120,7 @@ int perf_pmu__convert_scale(const char *scale, char **end, double *sval);
+@@ -15,6 +15,7 @@ enum {
+ 	PERF_PMU_FORMAT_VALUE_CONFIG,
+ 	PERF_PMU_FORMAT_VALUE_CONFIG1,
+ 	PERF_PMU_FORMAT_VALUE_CONFIG2,
++	PERF_PMU_FORMAT_VALUE_CONFIG_END,
+ };
  
- int perf_pmu__caps_parse(struct perf_pmu *pmu);
+ #define PERF_PMU_FORMAT_BITS 64
+@@ -122,5 +123,6 @@ int perf_pmu__caps_parse(struct perf_pmu *pmu);
  
-+void perf_pmu__warn_invalid_config(struct perf_pmu *pmu, __u64 config,
-+				   char *name);
-+
+ void perf_pmu__warn_invalid_config(struct perf_pmu *pmu, __u64 config,
+ 				   char *name);
++void perf_pmu__warn_invalid_formats(struct perf_pmu *pmu);
+ 
  #endif /* __PMU_H */
+diff --git a/tools/perf/util/pmu.l b/tools/perf/util/pmu.l
+index a15d9fbd7c0e..58b4926cfaca 100644
+--- a/tools/perf/util/pmu.l
++++ b/tools/perf/util/pmu.l
+@@ -27,8 +27,6 @@ num_dec         [0-9]+
+ 
+ {num_dec}	{ return value(10); }
+ config		{ return PP_CONFIG; }
+-config1		{ return PP_CONFIG1; }
+-config2		{ return PP_CONFIG2; }
+ -		{ return '-'; }
+ :		{ return ':'; }
+ ,		{ return ','; }
+diff --git a/tools/perf/util/pmu.y b/tools/perf/util/pmu.y
+index bfd7e8509869..283efe059819 100644
+--- a/tools/perf/util/pmu.y
++++ b/tools/perf/util/pmu.y
+@@ -20,7 +20,7 @@ do { \
+ 
+ %}
+ 
+-%token PP_CONFIG PP_CONFIG1 PP_CONFIG2
++%token PP_CONFIG
+ %token PP_VALUE PP_ERROR
+ %type <num> PP_VALUE
+ %type <bits> bit_term
+@@ -47,18 +47,11 @@ PP_CONFIG ':' bits
+ 				      $3));
+ }
+ |
+-PP_CONFIG1 ':' bits
++PP_CONFIG PP_VALUE ':' bits
+ {
+ 	ABORT_ON(perf_pmu__new_format(format, name,
+-				      PERF_PMU_FORMAT_VALUE_CONFIG1,
+-				      $3));
+-}
+-|
+-PP_CONFIG2 ':' bits
+-{
+-	ABORT_ON(perf_pmu__new_format(format, name,
+-				      PERF_PMU_FORMAT_VALUE_CONFIG2,
+-				      $3));
++				      $2,
++				      $4));
+ }
+ 
+ bits:
 -- 
 2.35.1
 
