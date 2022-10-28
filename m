@@ -2,104 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB18C611C2D
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 23:08:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90310611C33
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 23:09:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229870AbiJ1VHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 17:07:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53012 "EHLO
+        id S229574AbiJ1VJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 17:09:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229915AbiJ1VH0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 17:07:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 239E8249D37;
-        Fri, 28 Oct 2022 14:07:22 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4884B82CC0;
-        Fri, 28 Oct 2022 21:07:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E1BCC433C1;
-        Fri, 28 Oct 2022 21:07:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1666991239;
-        bh=LxBt0XZI/2TIxFritiR7o6Peu+bQkpS2Ct500WBR+0k=;
-        h=Date:To:From:Subject:From;
-        b=tyU05Tvi07JnwvO1e1dZBUV2iKolHXFmR8Z/6exsb54E1TG7Ulux5VT6t1DrG8AZM
-         kqkNouMQL9ETrLF64SRzHJ6b1LQmZKOBUEe9oz/B6+Vi9mmYBKeSo1V8BRE1w0EkQs
-         m78vYxnO/0+MX7sfjjhs74xtK7sFufv9cVqj8teI=
-Date:   Fri, 28 Oct 2022 14:07:18 -0700
-To:     mm-commits@vger.kernel.org, ziy@nvidia.com, ying.huang@intel.com,
-        stable@vger.kernel.org, shy828301@gmail.com, david@redhat.com,
-        apopple@nvidia.com, baolin.wang@linux.alibaba.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-migrate-fix-return-value-if-all-subpages-of-thps-are-migrated-successfully.patch removed from -mm tree
-Message-Id: <20221028210719.5E1BCC433C1@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229955AbiJ1VI7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 17:08:59 -0400
+Received: from mail-qk1-x731.google.com (mail-qk1-x731.google.com [IPv6:2607:f8b0:4864:20::731])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F25C24A55F
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 14:08:58 -0700 (PDT)
+Received: by mail-qk1-x731.google.com with SMTP id a5so4276989qkl.6
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 14:08:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=OIZkQT7P7n2V0HK08GKYFXvjIeYfszWynbb2hBX1gaI=;
+        b=hxRbxjptcuYu5UA5kc+iEKzoCp0vc1QDdW0KaskVVkFwatB+ltFXMgwD6lKE0jQ+8l
+         QV+Mv4u8HMrk3hAy8Yv/cfAeq+Nm5K5CHURCVm5LmZ1Wn3yzxuN/6LNgjSi/29S1Bzz6
+         fkZbJcN6vC5xTjlui1Uvl+yeXfHp7IkriTLBNaqZKXys0oSO1+vN1i7S2MP9TDqVArbR
+         QHIocmpcweVBI1xEy2HhYz50T+C5CXW32WsRH2WO1xZDgwIEAOBo+n6rzHdIBQevpQkp
+         tuJhm6/+0vkYpt7aiGQl2/6BXejaSwUUUyfLYFaYJrEHHSzKNDZoSWic7XyN8bY1qHYE
+         QM+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=OIZkQT7P7n2V0HK08GKYFXvjIeYfszWynbb2hBX1gaI=;
+        b=OGBuGqXYcFPOG9zJ/tgIbQiLi7KnUfnBdfdW/XwWjUIaYibsKBniXTNqPbjftiCM2l
+         /P8Ztox6yhYX40sBlbvU7k0T6lqC1SHLMXDUMLkc2wwZkQqfruW+u9pCAIFEPTg0JkM3
+         2Pwq3aODA2JiXNI68zZpy8azxIUOQlr4BOD59T5Dzu0XV+2dIahWA6wCm0QnMC33LzZh
+         K2bCYnwkDWb1LewDESyJi/NHPuTkELgENOvYPrRCFnIPI6Wpd/5P8Qq1pcFcEHxvONBp
+         ckANsWgjIsaUe8XT8G0lx8sC9l4TwEXicPay5w8dXhFxdgpMogDVBTSUBhvh0YDMPoxk
+         oXew==
+X-Gm-Message-State: ACrzQf0Ee+JRi6MGV9//AysFj7IFuW2ZsmS7STS+8Xfrw+IfVAvOFMEF
+        76CdPh71KLlzfVEydbrsZ5BqQ5fChnA=
+X-Google-Smtp-Source: AMsMyM7w8+3J+Q1moYV9y9CsYOsaAKCPTvmOZ7X4FuHzB7crTvDUBQKwhKHNXqqiMOpNP6kCbHuC/w==
+X-Received: by 2002:a05:620a:408a:b0:6fa:b07:3552 with SMTP id f10-20020a05620a408a00b006fa0b073552mr974241qko.377.1666991337501;
+        Fri, 28 Oct 2022 14:08:57 -0700 (PDT)
+Received: from mail-lvn-it-01.broadcom.com ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id fu36-20020a05622a5da400b0035cf31005e2sm2906808qtb.73.2022.10.28.14.08.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Oct 2022 14:08:57 -0700 (PDT)
+From:   James Smart <jsmart2021@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     jsmart2021@gmail.com, justintee8345@gmail.com,
+        martin.petersen@oracle.com, gregkh@linuxfoundation.org
+Subject: [PATCH v2 0/6] lpfc: LTS 5.15 update to correct path split changes
+Date:   Fri, 28 Oct 2022 14:08:21 -0700
+Message-Id: <20221028210827.23149-1-jsmart2021@gmail.com>
+X-Mailer: git-send-email 2.35.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+An issue was identified with lpfc in the LTS 5.15 kernel. There is an
+FLOGI failure which prevents FC link bringup.
 
-The quilt patch titled
-     Subject: mm: migrate: fix return value if all subpages of THPs are migrated successfully
-has been removed from the -mm tree.  Its filename was
-     mm-migrate-fix-return-value-if-all-subpages-of-thps-are-migrated-successfully.patch
+In the past several kernel releases, we have been reworking areas of
+the driver to fix issues in the broader design rather than continuing
+to create a patchwork on an issue-by-issue basis. This means there are
+a lot of inter-related patches.
 
-This patch was dropped because it was merged into the mm-hotfixes-stable branch
-of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+In this case, it appears that a portion of the "path split" rework was
+pulled into 5.15, and the portion that wasn't picked up introduced
+the error.
 
-------------------------------------------------------
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
-Subject: mm: migrate: fix return value if all subpages of THPs are migrated successfully
-Date: Mon, 24 Oct 2022 16:34:21 +0800
+This patch set reverts the patches for the partial pull in.
 
-During THP migration, if THPs are not migrated but they are split and all
-subpages are migrated successfully, migrate_pages() will still return the
-number of THP pages that were not migrated.  This will confuse the callers
-of migrate_pages().  For example, the longterm pinning will failed though
-all pages are migrated successfully.
-
-Thus we should return 0 to indicate that all pages are migrated in this
-case
-
-Link: https://lkml.kernel.org/r/de386aa864be9158d2f3b344091419ea7c38b2f7.1666599848.git.baolin.wang@linux.alibaba.com
-Fixes: b5bade978e9b ("mm: migrate: fix the return value of migrate_pages()")
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Reviewed-by: Alistair Popple <apopple@nvidia.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: "Huang, Ying" <ying.huang@intel.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+-- james
 
 
---- a/mm/migrate.c~mm-migrate-fix-return-value-if-all-subpages-of-thps-are-migrated-successfully
-+++ a/mm/migrate.c
-@@ -1582,6 +1582,13 @@ out:
- 	 */
- 	list_splice(&ret_pages, from);
- 
-+	/*
-+	 * Return 0 in case all subpages of fail-to-migrate THPs are
-+	 * migrated successfully.
-+	 */
-+	if (list_empty(from))
-+		rc = 0;
-+
- 	count_vm_events(PGMIGRATE_SUCCESS, nr_succeeded);
- 	count_vm_events(PGMIGRATE_FAIL, nr_failed_pages);
- 	count_vm_events(THP_MIGRATION_SUCCESS, nr_thp_succeeded);
-_
+This patch set was created via the following:
 
-Patches currently in -mm which might be from baolin.wang@linux.alibaba.com are
+ # Revert prior partial "path split" patches
+git revert 17bf429b913b 6e99860de6f4 9a570069cdbb b4543dbea84c
+    c56cc7fefc31 1c5e670d6a5a
 
-mm-migrate-try-again-if-thp-split-is-failed-due-to-page-refcnt.patch
+ # Then manually correct of the revert of b4543dbea84c which
+   inserted a line in the revert process.
+
+
+James Smart (6):
+  Revert "scsi: lpfc: Resolve some cleanup issues following SLI path
+    refactoring"
+  Revert "scsi: lpfc: Fix element offset in
+    __lpfc_sli_release_iocbq_s4()"
+  Revert "scsi: lpfc: Fix locking for lpfc_sli_iocbq_lookup()"
+  Revert "scsi: lpfc: SLI path split: Refactor SCSI paths"
+  Revert "scsi: lpfc: SLI path split: Refactor fast and slow paths to
+    native SLI4"
+  Revert "scsi: lpfc: SLI path split: Refactor lpfc_iocbq"
+
+ drivers/scsi/lpfc/lpfc.h           |  40 --
+ drivers/scsi/lpfc/lpfc_bsg.c       |  50 +-
+ drivers/scsi/lpfc/lpfc_crtn.h      |   3 +-
+ drivers/scsi/lpfc/lpfc_ct.c        |   8 +-
+ drivers/scsi/lpfc/lpfc_els.c       | 139 ++---
+ drivers/scsi/lpfc/lpfc_hw4.h       |   7 -
+ drivers/scsi/lpfc/lpfc_init.c      |  13 +-
+ drivers/scsi/lpfc/lpfc_nportdisc.c |   4 +-
+ drivers/scsi/lpfc/lpfc_nvme.c      |  34 +-
+ drivers/scsi/lpfc/lpfc_nvme.h      |   6 +-
+ drivers/scsi/lpfc/lpfc_nvmet.c     |  83 ++-
+ drivers/scsi/lpfc/lpfc_scsi.c      | 441 ++++++++-------
+ drivers/scsi/lpfc/lpfc_sli.c       | 876 ++++++++++++++++-------------
+ drivers/scsi/lpfc/lpfc_sli.h       |  26 +-
+ 14 files changed, 906 insertions(+), 824 deletions(-)
+
+-- 
+2.35.3
 
