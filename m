@@ -2,142 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F93761187A
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 18:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C38936118E3
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 19:08:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229920AbiJ1Q7L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 12:59:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33254 "EHLO
+        id S230428AbiJ1RI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 13:08:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230413AbiJ1Q6y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 12:58:54 -0400
-Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23EFFDAC57;
-        Fri, 28 Oct 2022 09:58:51 -0700 (PDT)
-Received: from booty (unknown [77.244.183.192])
-        (Authenticated sender: luca.ceresoli@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id DD13EC0007;
-        Fri, 28 Oct 2022 16:58:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1666976330;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=LySexlPUtzLuiqijp03u4qPQFZvUnwDE7D7mZqts+BI=;
-        b=gBrCAOhUwLUGsvMweUyfoN8BdOVVq8XipO6tM3tckCusB3+p5Bb5QLW3LLvVzCNiHSq9iK
-        zfMsafSKiKtLbbDrm74Uw7IBCEysdFaqaltS/jDrWPTbYSjuByeNCsJDmiIjkxiBQjYPBa
-        uG+fCs7yBVYyCNQ+24ThievHvkpC/GthSm76c5IpWX4dRANvk2twPYVtw/CRZ+vTPL01d+
-        /FlbIoitf9IZCbBPfYAHeEtIa1xBOWtTJt1PMz2GwHA7OZHOx9IU+TtZ/O9tg8d5rpTf0n
-        8jAkD2X+SUt4BKERIBmBeagazD3niMfwFiNbuWWgfylEdYZltoEmfZHRllVlIQ==
-Date:   Fri, 28 Oct 2022 18:58:47 +0200
-From:   Luca Ceresoli <luca.ceresoli@bootlin.com>
-To:     Dan Carpenter <dan.carpenter@oracle.com>
-Cc:     Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        linux-media@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] staging: media: tegra-video: fix device_node use after
- free
-Message-ID: <20221028185847.5454a98d@booty>
-In-Reply-To: <Y1vMX/Zciz/XQ+4p@kadam>
-References: <20221028081926.2320663-1-luca.ceresoli@bootlin.com>
-        <Y1vMX/Zciz/XQ+4p@kadam>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+        with ESMTP id S231331AbiJ1RIM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 13:08:12 -0400
+Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8948B234792
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 10:06:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1666976773; x=1698512773;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=GVbpre3DLWQF9M/QQf+58FpujWq7O3tpeqmA1RriO/M=;
+  b=o6V+FhvDphMbPe5PHusaWSGIhzVVny5JHn62B9E2QYd9c8ePSzWyc9r8
+   dOnZ2lhBB/c8CvNRH0s17BbTSWm/j3bMv91AHmh+a43Hj4eywGjfEoxcz
+   M6lufGFgO8h4Q5ScjfE1vJNvjlg0/RD/FYYTAe3nRBTLsU9B1Mau4Wl+q
+   A=;
+X-IronPort-AV: E=Sophos;i="5.95,221,1661817600"; 
+   d="scan'208";a="274711127"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-pdx-2c-m6i4x-8c5b1df3.us-west-2.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Oct 2022 17:06:05 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
+        by email-inbound-relay-pdx-2c-m6i4x-8c5b1df3.us-west-2.amazon.com (Postfix) with ESMTPS id 1A96841849;
+        Fri, 28 Oct 2022 17:06:04 +0000 (UTC)
+Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.42; Fri, 28 Oct 2022 17:06:03 +0000
+Received: from 88665a182662.ant.amazon.com (10.43.162.178) by
+ EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.15;
+ Fri, 28 Oct 2022 17:06:00 +0000
+From:   Kuniyuki Iwashima <kuniyu@amazon.com>
+To:     <gregkh@linuxfoundation.org>
+CC:     <daniel@iogearbox.net>, <edumazet@google.com>, <kafai@fb.com>,
+        <kuniyu@amazon.co.jp>, <kuniyu@amazon.com>, <pabeni@redhat.com>,
+        <patches@lists.linux.dev>, <sashal@kernel.org>,
+        <stable@vger.kernel.org>
+Subject: Re: [PATCH 5.10 35/79] tcp: Add num_closed_socks to struct sock_reuseport.
+Date:   Fri, 28 Oct 2022 10:05:52 -0700
+Message-ID: <20221028170552.59120-1-kuniyu@amazon.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <Y1t0Br1mqkhqYP8U@kroah.com>
+References: <Y1t0Br1mqkhqYP8U@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.43.162.178]
+X-ClientProxiedBy: EX13D12UWC001.ant.amazon.com (10.43.162.78) To
+ EX19D004ANA001.ant.amazon.com (10.37.240.138)
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dan,
-
-On Fri, 28 Oct 2022 15:34:39 +0300
-Dan Carpenter <dan.carpenter@oracle.com> wrote:
-
-> On Fri, Oct 28, 2022 at 10:19:26AM +0200, luca.ceresoli@bootlin.com wrote:
-> > From: Luca Ceresoli <luca.ceresoli@bootlin.com>
+From:   Greg KH <gregkh@linuxfoundation.org>
+Date:   Fri, 28 Oct 2022 08:17:42 +0200
+> On Thu, Oct 27, 2022 at 12:53:49PM -0700, Kuniyuki Iwashima wrote:
+> > Hi Greg, Sasha,
 > > 
-> > At probe time this code path is followed:
+> > From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Date:   Thu, 27 Oct 2022 18:55:45 +0200
+> > > From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+> > > 
+> > > [ Upstream commit 5c040eaf5d1753aafe12989ca712175df0b9c436 ]
+> > > 
+> > > As noted in the following commit, a closed listener has to hold the
+> > > reference to the reuseport group for socket migration. This patch adds a
+> > > field (num_closed_socks) to struct sock_reuseport to manage closed sockets
+> > > within the same reuseport group. Moreover, this and the following commits
+> > > introduce some helper functions to split socks[] into two sections and keep
+> > > TCP_LISTEN and TCP_CLOSE sockets in each section. Like a double-ended
+> > > queue, we will place TCP_LISTEN sockets from the front and TCP_CLOSE
+> > > sockets from the end.
+> > > 
+> > >   TCP_LISTEN---------->       <-------TCP_CLOSE
+> > >   +---+---+  ---  +---+  ---  +---+  ---  +---+
+> > >   | 0 | 1 |  ...  | i |  ...  | j |  ...  | k |
+> > >   +---+---+  ---  +---+  ---  +---+  ---  +---+
+> > > 
+> > >   i = num_socks - 1
+> > >   j = max_socks - num_closed_socks
+> > >   k = max_socks - 1
+> > > 
+> > > This patch also extends reuseport_add_sock() and reuseport_grow() to
+> > > support num_closed_socks.
+> > > 
+> > > Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+> > > Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+> > > Reviewed-by: Eric Dumazet <edumazet@google.com>
+> > > Acked-by: Martin KaFai Lau <kafai@fb.com>
+> > > Link: https://lore.kernel.org/bpf/20210612123224.12525-3-kuniyu@amazon.co.jp
+> > > Stable-dep-of: 69421bf98482 ("udp: Update reuse->has_conns under reuseport_lock.")
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > > 
-> >  * tegra_csi_init
-> >    * tegra_csi_channels_alloc
-> >      * for_each_child_of_node(node, channel) -- iterates over channels
-> >        * automatically gets 'channel'
-> >          * tegra_csi_channel_alloc()
-> >            * saves into chan->of_node a pointer to the channel OF node
-> >        * automatically gets and puts 'channel'
-> >        * now the node saved in chan->of_node has refcount 0, can disappear
-> >    * tegra_csi_channels_init
-> >      * iterates over channels
-> >        * tegra_csi_channel_init -- uses chan->of_node
+> > I think this patch is backported due to a conflict with the cited commit
+> > 69421bf98482 ("udp: Update reuse->has_conns under reuseport_lock.").
 > > 
-> > After that, chan->of_node keeps storing the node until the device is
-> > removed.
+> > The following patch seems to conflicts with some functions which are
+> > introduced in this patch, but the cited commit does not depend on the
+> > functions.
 > > 
-> > of_node_get() the node and of_node_put() it during teardown to avoid any
-> > risk.
-> > 
-> > Fixes: 1ebaeb09830f ("media: tegra-video: Add support for external sensor capture")
-> > Cc: stable@vger.kernel.org
-> > Cc: Sowjanya Komatineni <skomatineni@nvidia.com>
-> > Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
-> > ---
-> >  drivers/staging/media/tegra-video/csi.c | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/staging/media/tegra-video/csi.c b/drivers/staging/media/tegra-video/csi.c
-> > index b26e44adb2be..1b05f620b476 100644
-> > --- a/drivers/staging/media/tegra-video/csi.c
-> > +++ b/drivers/staging/media/tegra-video/csi.c
-> > @@ -433,7 +433,7 @@ static int tegra_csi_channel_alloc(struct tegra_csi *csi,
-> >  	for (i = 0; i < chan->numgangports; i++)
-> >  		chan->csi_port_nums[i] = port_num + i * CSI_PORTS_PER_BRICK;
-> >  
-> > -	chan->of_node = node;
-> > +	chan->of_node = of_node_get(node);
-> >  	chan->numpads = num_pads;
-> >  	if (num_pads & 0x2) {
-> >  		chan->pads[0].flags = MEDIA_PAD_FL_SINK;
-> > @@ -640,6 +640,7 @@ static void tegra_csi_channels_cleanup(struct tegra_csi *csi)
-> >  			media_entity_cleanup(&subdev->entity);
-> >  		}
-> >  
-> > +		of_node_put(chan->of_node);
-> >  		list_del(&chan->list);
-> >  		kfree(chan);  
+> > So, we can just remove the functions in this patch and resolve the
+> > conflict in the next patch like below. (based on the v5.10.150 branch)
 > 
-> Not related to your patch, but this kind of "one function cleans up
-> everything" style is always buggy.  For example, here it should be:
-> 
-> -		if (chan->mipi)
-> +		if (!IS_ERR_OR_NULL(chan->mipi))
-> 			tegra_mipi_free(chan->mipi);
+> so drop this "dependent" patch and just take your backport instead?
 
-I sort of agree the code could be clearer here, but looking at the code
-in detail, this cannot happen. chan->mipi is set in one place only, and
-if it is an error the whole probe fails. So it can be either NULL or a
-valid pointer here.
+Yes, my backport patch replaces these patches in this series.
 
-Regarding my patch, do you think it is valid?
-
-Best regards.
--- 
-Luca Ceresoli, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+  [PATCH 5.10 35/79] tcp: Add num_closed_socks to struct sock_reuseport
+  [PATCH 5.10 36/79] udp: Update reuse->has_conns under reuseport_lock
