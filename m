@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C57DD61105C
-	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:04:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB0FA61105E
+	for <lists+stable@lfdr.de>; Fri, 28 Oct 2022 14:04:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229828AbiJ1MEk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 08:04:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44096 "EHLO
+        id S229927AbiJ1MEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 08:04:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229882AbiJ1MEg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:04:36 -0400
+        with ESMTP id S229932AbiJ1MEo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 08:04:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04505B45
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:04:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D24C13D10
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 05:04:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8656B829A6
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:04:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0AFDC433D6;
-        Fri, 28 Oct 2022 12:04:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16DA8B829A6
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 12:04:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 762CDC433C1;
+        Fri, 28 Oct 2022 12:04:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666958671;
-        bh=r+KS8rqtmSjB5OajPQGy7sYcPK6l46rCGGmiNG3tgRI=;
+        s=korg; t=1666958676;
+        bh=Q5ot/Wyj7o/rmkQOaFcpbdB7JEysf9GXn2sQlz2bfIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2B0uQzKaN2EOFAdksM8ZI854/ttcdIRESP7CGdVmCJhzb17ufg1eZ+M7oCEK57ldG
-         8hqrq+bvcw0fhN34we55bxPwJwBkd3cxGrn9zwl/6N2rkzEKTijF/r7vJukQEE8IYS
-         +IRHVbOXIjip+CtebVOy7yTqGOjoAw2WTdVOrGgE=
+        b=O2RQ0MotPzhKqNdqqrcGRh+RnPet6sLM7YQOW9C3sSwKZjO1evPIc6DMdCqjkR6DU
+         5cmmCCt9k2i8DbnqMphKBi0QZXz7otKEITqYs2G1YFb2E4l0YelMDj9oVSthln6Kts
+         zlF21F94BONCE9/SVkQ3DbcLnIxbI7eo80Rj7Yt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Yan Wang <wangyan122@huawei.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 02/73] ocfs2: fix BUG when iput after ocfs2_mknod fails
-Date:   Fri, 28 Oct 2022 14:02:59 +0200
-Message-Id: <20221028120232.472090320@linuxfoundation.org>
+        patches@lists.linux.dev, Tan Ninghao <tanninghao1@huawei.com>,
+        "GONG, Ruiqi" <gongruiqi1@huawei.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>, GONG@vger.kernel.org
+Subject: [PATCH 5.10 03/73] selinux: enable use of both GFP_KERNEL and GFP_ATOMIC in convert_context()
+Date:   Fri, 28 Oct 2022 14:03:00 +0200
+Message-Id: <20221028120232.517023698@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221028120232.344548477@linuxfoundation.org>
 References: <20221028120232.344548477@linuxfoundation.org>
@@ -58,60 +54,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
+From: GONG, Ruiqi <gongruiqi1@huawei.com>
 
-commit 759a7c6126eef5635506453e9b9d55a6a3ac2084 upstream.
+commit abe3c631447dcd1ba7af972fe6f054bee6f136fa upstream.
 
-Commit b1529a41f777 "ocfs2: should reclaim the inode if
-'__ocfs2_mknod_locked' returns an error" tried to reclaim the claimed
-inode if __ocfs2_mknod_locked() fails later.  But this introduce a race,
-the freed bit may be reused immediately by another thread, which will
-update dinode, e.g.  i_generation.  Then iput this inode will lead to BUG:
-inode->i_generation != le32_to_cpu(fe->i_generation)
+The following warning was triggered on a hardware environment:
 
-We could make this inode as bad, but we did want to do operations like
-wipe in some cases.  Since the claimed inode bit can only affect that an
-dinode is missing and will return back after fsck, it seems not a big
-problem.  So just leave it as is by revert the reclaim logic.
+  SELinux: Converting 162 SID table entries...
+  BUG: sleeping function called from invalid context at
+       __might_sleep+0x60/0x74 0x0
+  in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 5943, name: tar
+  CPU: 7 PID: 5943 Comm: tar Tainted: P O 5.10.0 #1
+  Call trace:
+   dump_backtrace+0x0/0x1c8
+   show_stack+0x18/0x28
+   dump_stack+0xe8/0x15c
+   ___might_sleep+0x168/0x17c
+   __might_sleep+0x60/0x74
+   __kmalloc_track_caller+0xa0/0x7dc
+   kstrdup+0x54/0xac
+   convert_context+0x48/0x2e4
+   sidtab_context_to_sid+0x1c4/0x36c
+   security_context_to_sid_core+0x168/0x238
+   security_context_to_sid_default+0x14/0x24
+   inode_doinit_use_xattr+0x164/0x1e4
+   inode_doinit_with_dentry+0x1c0/0x488
+   selinux_d_instantiate+0x20/0x34
+   security_d_instantiate+0x70/0xbc
+   d_splice_alias+0x4c/0x3c0
+   ext4_lookup+0x1d8/0x200 [ext4]
+   __lookup_slow+0x12c/0x1e4
+   walk_component+0x100/0x200
+   path_lookupat+0x88/0x118
+   filename_lookup+0x98/0x130
+   user_path_at_empty+0x48/0x60
+   vfs_statx+0x84/0x140
+   vfs_fstatat+0x20/0x30
+   __se_sys_newfstatat+0x30/0x74
+   __arm64_sys_newfstatat+0x1c/0x2c
+   el0_svc_common.constprop.0+0x100/0x184
+   do_el0_svc+0x1c/0x2c
+   el0_svc+0x20/0x34
+   el0_sync_handler+0x80/0x17c
+   el0_sync+0x13c/0x140
+  SELinux: Context system_u:object_r:pssp_rsyslog_log_t:s0:c0 is
+           not valid (left unmapped).
 
-Link: https://lkml.kernel.org/r/20221017130227.234480-1-joseph.qi@linux.alibaba.com
-Fixes: b1529a41f777 ("ocfs2: should reclaim the inode if '__ocfs2_mknod_locked' returns an error")
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reported-by: Yan Wang <wangyan122@huawei.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+It was found that within a critical section of spin_lock_irqsave in
+sidtab_context_to_sid(), convert_context() (hooked by
+sidtab_convert_params.func) might cause the process to sleep via
+allocating memory with GFP_KERNEL, which is problematic.
+
+As Ondrej pointed out [1], convert_context()/sidtab_convert_params.func
+has another caller sidtab_convert_tree(), which is okay with GFP_KERNEL.
+Therefore, fix this problem by adding a gfp_t argument for
+convert_context()/sidtab_convert_params.func and pass GFP_KERNEL/_ATOMIC
+properly in individual callers.
+
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/all/20221018120111.1474581-1-gongruiqi1@huawei.com/ [1]
+Reported-by: Tan Ninghao <tanninghao1@huawei.com>
+Fixes: ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve performance")
+Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
+Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
+[PM: wrap long BUG() output lines, tweak subject line]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/namei.c |   11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ security/selinux/ss/services.c |    5 +++--
+ security/selinux/ss/sidtab.c   |    4 ++--
+ security/selinux/ss/sidtab.h   |    2 +-
+ 3 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/fs/ocfs2/namei.c
-+++ b/fs/ocfs2/namei.c
-@@ -636,18 +636,9 @@ static int ocfs2_mknod_locked(struct ocf
- 		return status;
- 	}
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2011,7 +2011,8 @@ static inline int convert_context_handle
+  * in `newc'.  Verify that the context is valid
+  * under the new policy.
+  */
+-static int convert_context(struct context *oldc, struct context *newc, void *p)
++static int convert_context(struct context *oldc, struct context *newc, void *p,
++			   gfp_t gfp_flags)
+ {
+ 	struct convert_context_args *args;
+ 	struct ocontext *oc;
+@@ -2025,7 +2026,7 @@ static int convert_context(struct contex
+ 	args = p;
  
--	status = __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
-+	return __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
- 				    parent_fe_bh, handle, inode_ac,
- 				    fe_blkno, suballoc_loc, suballoc_bit);
--	if (status < 0) {
--		u64 bg_blkno = ocfs2_which_suballoc_group(fe_blkno, suballoc_bit);
--		int tmp = ocfs2_free_suballoc_bits(handle, inode_ac->ac_inode,
--				inode_ac->ac_bh, suballoc_bit, bg_blkno, 1);
--		if (tmp)
--			mlog_errno(tmp);
--	}
--
--	return status;
- }
+ 	if (oldc->str) {
+-		s = kstrdup(oldc->str, GFP_KERNEL);
++		s = kstrdup(oldc->str, gfp_flags);
+ 		if (!s)
+ 			return -ENOMEM;
  
- static int ocfs2_mkdir(struct inode *dir,
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -325,7 +325,7 @@ int sidtab_context_to_sid(struct sidtab
+ 		}
+ 
+ 		rc = convert->func(context, &dst_convert->context,
+-				   convert->args);
++				   convert->args, GFP_ATOMIC);
+ 		if (rc) {
+ 			context_destroy(&dst->context);
+ 			goto out_unlock;
+@@ -404,7 +404,7 @@ static int sidtab_convert_tree(union sid
+ 		while (i < SIDTAB_LEAF_ENTRIES && *pos < count) {
+ 			rc = convert->func(&esrc->ptr_leaf->entries[i].context,
+ 					   &edst->ptr_leaf->entries[i].context,
+-					   convert->args);
++					   convert->args, GFP_KERNEL);
+ 			if (rc)
+ 				return rc;
+ 			(*pos)++;
+--- a/security/selinux/ss/sidtab.h
++++ b/security/selinux/ss/sidtab.h
+@@ -65,7 +65,7 @@ struct sidtab_isid_entry {
+ };
+ 
+ struct sidtab_convert_params {
+-	int (*func)(struct context *oldc, struct context *newc, void *args);
++	int (*func)(struct context *oldc, struct context *newc, void *args, gfp_t gfp_flags);
+ 	void *args;
+ 	struct sidtab *target;
+ };
 
 
