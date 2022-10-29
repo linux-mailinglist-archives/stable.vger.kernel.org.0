@@ -2,112 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1DA9611F55
-	for <lists+stable@lfdr.de>; Sat, 29 Oct 2022 04:36:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9941611FC9
+	for <lists+stable@lfdr.de>; Sat, 29 Oct 2022 05:34:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229727AbiJ2Cgx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 22:36:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44168 "EHLO
+        id S229522AbiJ2Dex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 23:34:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229678AbiJ2Cgw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 22:36:52 -0400
-Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 259B91C114B;
-        Fri, 28 Oct 2022 19:36:50 -0700 (PDT)
-Received: from mail02.huawei.com (unknown [172.30.67.153])
-        by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4Mzk576889z6R5Gc;
-        Sat, 29 Oct 2022 10:34:19 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.175.127.227])
-        by APP4 (Coremail) with SMTP id gCh0CgCnA+a_kVxjAThyAQ--.49826S4;
-        Sat, 29 Oct 2022 10:36:48 +0800 (CST)
-From:   Yu Kuai <yukuai1@huaweicloud.com>
-To:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        jejb@linux.ibm.com, martin.petersen@oracle.com, hare@suse.com,
-        bvanassche@acm.org
-Cc:     linux-scsi@vger.kernel.org, yukuai3@huawei.com,
-        yukuai1@huaweicloud.com, yi.zhang@huawei.com
-Subject: [PATCH 5.10/5.15] scsi: sd: Revert "scsi: sd: Remove a local variable"
-Date:   Sat, 29 Oct 2022 10:58:37 +0800
-Message-Id: <20221029025837.1258377-1-yukuai1@huaweicloud.com>
-X-Mailer: git-send-email 2.31.1
+        with ESMTP id S229489AbiJ2Dew (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 23:34:52 -0400
+Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10F29B2D;
+        Fri, 28 Oct 2022 20:34:48 -0700 (PDT)
+Received: by mail-qt1-x834.google.com with SMTP id e15so748466qts.1;
+        Fri, 28 Oct 2022 20:34:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=547toOe5v9+fyrx4uLzHLZTvaSA7cu9z5ChcHjNwlSY=;
+        b=jKVeYVgA+JBAy0TADQTmkNxoKi/QFxOjs/ZUstcbr7p3KMeIXT34FE7Wu6so6pRwra
+         SBH4yQOM+lZ9e6zZmK3bqzc/LEDxHYOKvr+vVZCB6prrqd1ZmVoaeQN9b3JNREPCpmMi
+         RMBU3OXLlvtVRJH/peOEs+DJ/gKZBTKIVTakvxmXM9FF0pD5DJJUowVjjAlY72rHaotV
+         v+YwseRH27h0MT0QuFAW9mOGmVTbrKt0EAE0DN15KEF8QNepI/lM1bkiGNbj8AvtoiXz
+         ryB5JbhSUUzNv851WnAT5dpsH7z+31pW3iG4aG55HFmQq9Ikcvntp4ZXZKXB0LafbsGg
+         x9gQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=547toOe5v9+fyrx4uLzHLZTvaSA7cu9z5ChcHjNwlSY=;
+        b=Q9xXcfL8q3Gfa+e+W26RsZtAQDEND1YckNro3ZQrl1lqaqjAp0KolXR6IK3H45lCeP
+         cB+8/c+Hl21NFw3gRoYplxqx+7H5P7p7mauJq926XgwPJsUhqWttXvuRtYHzymk8i11g
+         xQXrjZh8QvFV/gvHREgSBwFspOuyn1FjMu7+HqS0pj4t1+g/CK7Jqhi0/857Rsalutdc
+         VD/U9wi+IegyivWh2BllSPvAzde1kyZlFzOCSOB4D93UNrJW116TahMWKysQDcbOzaGN
+         39L/H9cRtnle5BXhR0E47QgJyQanEalC8xo/Xh43kKOW4OVzMKdKo/hTRgddGKiX68iP
+         W7wA==
+X-Gm-Message-State: ACrzQf0W9agLFG1OxjXr2Ji7vADsbMBYsAC07mn2AX6eBVAxllXIkCD5
+        FSrBTioz5rmWpPhx/9d/9aQ=
+X-Google-Smtp-Source: AMsMyM72zL+lXJJBJaSilPjg6GPgKF+FiTC1Oeos7yOJR3Cwe8S1cCxZHoCL3cFFwr97FA+TwyErpQ==
+X-Received: by 2002:ac8:5c07:0:b0:39c:de84:64ad with SMTP id i7-20020ac85c07000000b0039cde8464admr2255306qti.336.1667014487137;
+        Fri, 28 Oct 2022 20:34:47 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id f11-20020a05620a280b00b006f8665f483fsm323213qkp.85.2022.10.28.20.34.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Oct 2022 20:34:46 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Fri, 28 Oct 2022 20:34:43 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Subject: Re: [PATCH 5.15 00/78] 5.15.76-rc2 review
+Message-ID: <20221029033443.GA53002@roeck-us.net>
+References: <20221028120302.594918388@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: gCh0CgCnA+a_kVxjAThyAQ--.49826S4
-X-Coremail-Antispam: 1UD129KBjvJXoW7tF1fZFyfuryfGw45ZrW5Wrg_yoW8Wry8pa
-        y8XayjyrW5JF40vwnrJF17Xas3KFW8Wry2gFW5ua45ZrW0kry5uF17KFZFva48uFZ3Jrs3
-        J3ZFqrZ5XF4DCrUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUv014x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-        rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-        1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
-        JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
-        CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
-        2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
-        W8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2
-        Y2ka0xkIwI1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4
-        xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43
-        MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I
-        0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v2
-        6r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7VUb
-        XdbUUUUUU==
-X-CM-SenderInfo: 51xn3trlr6x35dzhxuhorxvhhfrp/
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221028120302.594918388@linuxfoundation.org>
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+On Fri, Oct 28, 2022 at 02:04:05PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.76 release.
+> There are 78 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 30 Oct 2022 12:02:44 +0000.
+> Anything received after that time might be too late.
+> 
 
-This reverts commit 84f7a9de0602704bbec774a6c7f7c8c4994bee9c.
+Build results:
+	total: 156 pass: 156 fail: 0
+Qemu test results:
+	total: 489 pass: 489 fail: 0
 
-Because it introduces a problem that rq->__data_len is set to the wrong
-value.
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-before this patch:
-1) nr_bytes = rq->__data_len
-2) rq->__data_len = sdp->sector_size
-3) scsi_init_io()
-4) rq->__data_len = nr_bytes
-
-after this patch:
-1) rq->__data_len = sdp->sector_size
-2) scsi_init_io()
-3) rq->__data_len = rq->__data_len -> __data_len is wrong
-
-It will cause that io can only complete one segment each time, and the io
-will requeue in scsi_io_completion_action(), which will cause severe
-performance degradation.
-
-Fixes: 84f7a9de0602 ("scsi: sd: Remove a local variable")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
----
- drivers/scsi/sd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index de6640ad1943..1e887c11e83d 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -1072,6 +1072,7 @@ static blk_status_t sd_setup_write_same_cmnd(struct scsi_cmnd *cmd)
- 	struct bio *bio = rq->bio;
- 	u64 lba = sectors_to_logical(sdp, blk_rq_pos(rq));
- 	u32 nr_blocks = sectors_to_logical(sdp, blk_rq_sectors(rq));
-+	unsigned int nr_bytes = blk_rq_bytes(rq);
- 	blk_status_t ret;
- 
- 	if (sdkp->device->no_write_same)
-@@ -1108,7 +1109,7 @@ static blk_status_t sd_setup_write_same_cmnd(struct scsi_cmnd *cmd)
- 	 */
- 	rq->__data_len = sdp->sector_size;
- 	ret = scsi_alloc_sgtables(cmd);
--	rq->__data_len = blk_rq_bytes(rq);
-+	rq->__data_len = nr_bytes;
- 
- 	return ret;
- }
--- 
-2.31.1
-
+Guenter
