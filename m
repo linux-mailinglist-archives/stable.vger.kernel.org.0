@@ -2,65 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9EA0611EFB
-	for <lists+stable@lfdr.de>; Sat, 29 Oct 2022 03:18:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE621611F83
+	for <lists+stable@lfdr.de>; Sat, 29 Oct 2022 05:00:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229473AbiJ2BSv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 21:18:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47460 "EHLO
+        id S229871AbiJ2DAa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 23:00:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229510AbiJ2BSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 21:18:50 -0400
-Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61EB120FB15
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 18:18:49 -0700 (PDT)
-Received: by mail-yb1-xb2c.google.com with SMTP id i127so7906967ybc.11
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 18:18:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=slDZbTLn5r+CoQsZvxjlRQM4l7ZQz2W3wx+JfLaqr98=;
-        b=cIlLq6PAwkqiXXXn6c67z8whCKspaofSQ/9DWTDJQvK9tl5rsZ/BjJCsTbNWj0w5iP
-         odlwi1BYuuFhculoBCwUEQXqvn1i3jcwqNEyFdwQt6kukql6v0f3MXml9zinWlHV5h7h
-         8IgowAWu8xfEK6tc19cHWbymkcn1GswMfHHyVE6kjK0O9KIaq0FMjmCbO5vK1LxSwkyT
-         wWXoLSrpgHUZJIbKKsOxaZULSoq2cv4Yhn2nrOY/tKU9LRE3bP6RLhD/lnxaRewMSpqQ
-         xHuR2BgB3dHcbpvXj4v5mJz41KiejJ6gLOjX/YbgvQJXTuyIV22UtuaLgePvYWjOa3NS
-         OL7g==
+        with ESMTP id S229870AbiJ2DA3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 23:00:29 -0400
+Received: from mail-il1-f172.google.com (mail-il1-f172.google.com [209.85.166.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D116319E92A;
+        Fri, 28 Oct 2022 19:58:40 -0700 (PDT)
+Received: by mail-il1-f172.google.com with SMTP id g13so3896866ile.0;
+        Fri, 28 Oct 2022 19:58:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=slDZbTLn5r+CoQsZvxjlRQM4l7ZQz2W3wx+JfLaqr98=;
-        b=5ty3mEdMKuxSsQAccdLL+51FSGbS31LMjDyfExp8nUq35dEUKicDBCj3blMdpct+86
-         lWYq1c7BSmDdsWMeIc/DHe2mKjBlBC3G0kUwa2UX78MN0im9E7d63voSBfEQZWRGJHWG
-         fwo52U0c/tZPeHqvO3beKBCJTMvE79AHVFHuDiG5IbsScjJtXRdrS37JHxOuhWtO5FEO
-         5t5OhxAgkLt4Iswm4HF4Pb0XBZhJayZx5y5xHchDQAt84Y/uyWuXCJXpwJxt3K+Ya1r3
-         jOb1J0x+zHIpMOFEMTpao94Smh3Rujj0nMGk0l1TvVQowLEju16xkKSJdsCL0aMnQ5vm
-         zACw==
-X-Gm-Message-State: ACrzQf0NP2BFztbtdb4CrsgUUi+abUqVyyaB+/tQo6ErjmVNzU5/3Q7I
-        TCtGp5h5seA4apij5oV1kgexqWgAUETf4Su+GysaWA==
-X-Google-Smtp-Source: AMsMyM4My+8are69qRAY9S2gtxp8RO+EhLpWtO0plmEiR5VvpH6Qbugf5IG3Oz6ORHJlrHJl0CCrBjx6WpNavq9iVVg=
-X-Received: by 2002:a25:e207:0:b0:6ca:268b:10c3 with SMTP id
- h7-20020a25e207000000b006ca268b10c3mr1763060ybe.407.1667006328347; Fri, 28
- Oct 2022 18:18:48 -0700 (PDT)
+        h=mime-version:user-agent:date:cc:to:from:subject:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4gjKZuz9IffGjuGKpn3PW3u/OD19cZl3dQNkCioVIVE=;
+        b=XKzswANHM5Ef8hqs9iQ4TsPao6yww1T5iM1YCzlKxfDRSo4kdP4ggXSQ9qlXHYgqu4
+         rjYVNYbM6iItSU2ejrv4VIJmKv74PkvrJ2HuqHDXgqmAGWY0XEWsFxeVhdn0edic53mH
+         RH3e098qjmQ8N8yINSr7JonzFXmJlQd1MpRe2/JuQXUEN37EcbnlD9wY/ObrCjF7zDzx
+         kvQqR0MVFeacm5rHdwZhtfhu3NzW0NiyeuqrqiCZi3Jz6nUqPvWxay2TD2kYeGCBaEuE
+         tviqNEuDlS9jPs+kptVe1RRDxvmarkZj+BJfDf4I/UOPnE5zk4Mzvw2ImuqusMagR4O6
+         Ni1A==
+X-Gm-Message-State: ACrzQf0Pgr5T36yi/b7/70SS1gGjeiLqUYqnEPxiW+JmaDgik2uwTUCL
+        eoLOGkQFZWqkCcKUFHh7E4zfK9Wc7Q==
+X-Google-Smtp-Source: AMsMyM6QzmKR5UibNbPWHomyr47E0m7ZOKfqeBwoXMcNRs/oBZHNhxbOHCQDC95A0WRMuV5OvUWcUA==
+X-Received: by 2002:a05:6e02:19c9:b0:2fc:6475:510f with SMTP id r9-20020a056e0219c900b002fc6475510fmr1135728ill.44.1667012286677;
+        Fri, 28 Oct 2022 19:58:06 -0700 (PDT)
+Received: from [192.168.75.138] (50-36-85-28.alma.mi.frontiernet.net. [50.36.85.28])
+        by smtp.gmail.com with ESMTPSA id bg3-20020a0566383c4300b00375217ea9b6sm163292jab.45.2022.10.28.19.58.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Oct 2022 19:58:06 -0700 (PDT)
+Message-ID: <ed85737568bcecb5833130f10630c9fedbfa0336.camel@kernel.org>
+Subject: Stable patch for 5.15.x
+From:   Trond Myklebust <trondmy@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     linux-nfs@vger.kernel.org,
+        Anna Schumaker <Anna.Schumaker@netapp.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Scott Mayhew <smayhew@redhat.com>
+Date:   Fri, 28 Oct 2022 22:58:05 -0400
+Content-Type: multipart/mixed; boundary="=-cj1xZxAySvRZYL7FqNNp"
+User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
 MIME-Version: 1.0
-References: <20221024113005.376059449@linuxfoundation.org> <20221029011211.4049810-1-ovt@google.com>
-In-Reply-To: <20221029011211.4049810-1-ovt@google.com>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Fri, 28 Oct 2022 18:18:36 -0700
-Message-ID: <CANn89iLVb+zHBXhPrD7JAdawLwAAYP_Fc3Vt3YB1AAy1fj=F4w@mail.gmail.com>
-Subject: Re: [PATCH 5.4 086/255] once: add DO_ONCE_SLOW() for sleepable contexts
-To:     Oleksandr Tymoshenko <ovt@google.com>
-Cc:     gregkh@linuxfoundation.org, christophe.leroy@csgroup.eu,
-        davem@davemloft.net, linux-kernel@vger.kernel.org,
-        sashal@kernel.org, stable@vger.kernel.org, w@1wt.eu
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -68,55 +58,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 28, 2022 at 6:12 PM Oleksandr Tymoshenko <ovt@google.com> wrote:
->
-> Hello,
->
-> This commit causes the following panic in kernel built with clang
-> (GCC build is not affected):
->
-> [    8.320308] BUG: unable to handle page fault for address: ffffffff97216c6a                                        [26/4066]
-> [    8.330029] #PF: supervisor write access in kernel mode
-> [    8.337263] #PF: error_code(0x0003) - permissions violation
-> [    8.344816] PGD 12e816067 P4D 12e816067 PUD 12e817063 PMD 800000012e2001e1
-> [    8.354337] Oops: 0003 [#1] SMP PTI
-> [    8.359178] CPU: 2 PID: 437 Comm: curl Not tainted 5.4.220 #15
-> [    8.367241] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
-> [    8.378529] RIP: 0010:__do_once_slow_done+0xf/0xa0
-> [    8.384962] Code: 1b 84 db 74 0c 48 c7 c7 80 ce 8d 97 e8 fa e9 4a 00 84 db 0f 94 c0 5b 5d c3 66 90 55 48 89 e5 41 57 41 56
-> 53 49 89 d7 49 89 f6 <c6> 07 01 48 c7 c7 80 ce 8d 97 e8 d2 e9 4a 00 48 8b 3d 9b de c9 00
-> [    8.409066] RSP: 0018:ffffb764c02d3c90 EFLAGS: 00010246
-> [    8.415697] RAX: 4f51d3d06bc94000 RBX: d474b86ddf7162eb RCX: 000000007229b1d6
-> [    8.424805] RDX: 0000000000000000 RSI: ffffffff9791b4a0 RDI: ffffffff97216c6a
-> [    8.434108] RBP: ffffb764c02d3ca8 R08: 0e81c130f1159fc1 R09: 1d19d60ce0b52c77
-> [    8.443408] R10: 8ea59218e6892b1f R11: d5260237a3c1e35c R12: ffff9c3dadd42600
-> [    8.452468] R13: ffffffff97910f80 R14: ffffffff9791b4a0 R15: 0000000000000000
-> [    8.461416] FS:  00007eff855b40c0(0000) GS:ffff9c3db7a80000(0000) knlGS:0000000000000000
-> [    8.471632] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [    8.478763] CR2: ffffffff97216c6a CR3: 000000022ded0000 CR4: 00000000000006a0
-> [    8.487789] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> [    8.496684] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> [    8.505443] Call Trace:
-> [    8.508568]  __inet_hash_connect+0x523/0x530
-> [    8.513839]  ? inet_hash_connect+0x50/0x50
-> [    8.518818]  ? secure_ipv4_port_ephemeral+0x69/0xe0
-> [    8.525003]  tcp_v4_connect+0x2c5/0x410
-> [    8.529858]  __inet_stream_connect+0xd7/0x360
-> [    8.535329]  ? _raw_spin_unlock+0xe/0x10
-> ... skipped ...
->
->
-> The root cause is the difference in __section macro semantics between 5.4 and
-> later LTS releases. On 5.4 it stringifies the argument so the ___done
-> symbol is created in a bogus section ".data.once", with double quotes:
->
-> % readelf -S vmlinux | grep data.once
->   [ 5] ".data.once"      PROGBITS         ffffffff82216c6a  01416c6a
+--=-cj1xZxAySvRZYL7FqNNp
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Yes, this has been discovered earlier today.
+Hi Greg / Sasha,
 
-Look at Google-Bug-Id 256204637
+Can we please pull commit c3ed222745d9 ("NFSv4: Fix free of
+uninitialized nfs4_label on referral lookup.") into the 5.15.x tree? As
+far as I can tell, it should apply cleanly on top of v5.15.75.
 
-(include/linux/mmdebug.h has a similar issue)
+Unfortunately, that commit also contains a bug, which requires us to
+pull in commit 4f40a5b55446 ("NFSv4: Add an fattr allocation to
+_nfs4_discover_trunking()"), which does not apply cleanly. I've
+attached a backported version to this email.
 
-Thanks.
+I'm seeing the Oops that this commit fixes when I do a NFSv4.2 mount
+from a NFS client running a 5.15.75 kernel against a server that has
+referrals configured. The reason is that commit d755ad8dc752 ("NFS:
+Create a new nfs_alloc_fattr_with_label() function") got pulled into
+v5.15.46 apparently as part of a dependency.
+
+Thanks
+ Trond
+
+--=20
+Trond Myklebust
+Linux NFS client maintainer, Hammerspace
+trond.myklebust@hammerspace.com
+
+
+
+--=-cj1xZxAySvRZYL7FqNNp
+Content-Disposition: inline; filename="0001-NFSv4-Add-an-fattr-allocation-to-_nfs4_discover_trun.patch"
+Content-Type: text/x-patch; name="0001-NFSv4-Add-an-fattr-allocation-to-_nfs4_discover_trun.patch";
+	charset="UTF-8"
+Content-Transfer-Encoding: base64
+
+RnJvbSA4MGI5NzljMWJlYzIxYTc2OTEzYzA1NmFiMGEwMjRlNDFlYWIwODU3IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBTY290dCBNYXloZXcgPHNtYXloZXdAcmVkaGF0LmNvbT4KRGF0
+ZTogTW9uLCAyNyBKdW4gMjAyMiAxNzozMToyOSAtMDQwMApTdWJqZWN0OiBbUEFUQ0hdIE5GU3Y0
+OiBBZGQgYW4gZmF0dHIgYWxsb2NhdGlvbiB0byBfbmZzNF9kaXNjb3Zlcl90cnVua2luZygpCgpU
+aGlzIHdhcyBtaXNzZWQgaW4gYzNlZDIyMjc0NWQ5ICgiTkZTdjQ6IEZpeCBmcmVlIG9mIHVuaW5p
+dGlhbGl6ZWQKbmZzNF9sYWJlbCBvbiByZWZlcnJhbCBsb29rdXAuIikgYW5kIGNhdXNlcyBhIHBh
+bmljIHdoZW4gbW91bnRpbmcKd2l0aCAnLW8gdHJ1bmtkaXNjb3ZlcnknOgoKUElEOiAxNjA0ICAg
+VEFTSzogZmZmZjkzZGFjMzUyMDAwMCAgQ1BVOiAzICAgQ09NTUFORDogIm1vdW50Lm5mcyIKICMw
+IFtmZmZmYjc5MTQwZjczOGY4XSBtYWNoaW5lX2tleGVjIGF0IGZmZmZmZmZmYWVjNjRiZWUKICMx
+IFtmZmZmYjc5MTQwZjczOTUwXSBfX2NyYXNoX2tleGVjIGF0IGZmZmZmZmZmYWVkYTY3ZmQKICMy
+IFtmZmZmYjc5MTQwZjczYTE4XSBjcmFzaF9rZXhlYyBhdCBmZmZmZmZmZmFlZGE3NmVkCiAjMyBb
+ZmZmZmI3OTE0MGY3M2EzMF0gb29wc19lbmQgYXQgZmZmZmZmZmZhZWMyNjU4ZAogIzQgW2ZmZmZi
+NzkxNDBmNzNhNTBdIGdlbmVyYWxfcHJvdGVjdGlvbiBhdCBmZmZmZmZmZmFmNjAxMTFlCiAgICBb
+ZXhjZXB0aW9uIFJJUDogbmZzX2ZhdHRyX2luaXQrMHg1XQogICAgUklQOiBmZmZmZmZmZmMwYzE4
+MjY1ICBSU1A6IGZmZmZiNzkxNDBmNzNiMDggIFJGTEFHUzogMDAwMTAyNDYKICAgIFJBWDogMDAw
+MDAwMDAwMDAwMDAwMCAgUkJYOiBmZmZmOTNkYWMzMDRhODAwICBSQ1g6IDAwMDAwMDAwMDAwMDAw
+MDAKICAgIFJEWDogZmZmZmI3OTE0MGY3M2JiMCAgUlNJOiBmZmZmOTNkYWRjOGNiYjQwICBSREk6
+IGQwM2VlMTFjZmFmNmJkNTAKICAgIFJCUDogZmZmZmI3OTE0MGY3M2JlOCAgIFI4OiBmZmZmZmZm
+ZmMwNjkxNTYwICAgUjk6IDAwMDAwMDAwMDAwMDAwMDYKICAgIFIxMDogZmZmZjkzZGIzZmZkM2Rm
+OCAgUjExOiAwMDAwMDAwMDAwMDAwMDAwICBSMTI6IGZmZmY5M2RhYzQwNDAwMDAKICAgIFIxMzog
+ZmZmZjkzZGFjMjg0OGUwMCAgUjE0OiBmZmZmYjc5MTQwZjczYjYwICBSMTU6IGZmZmZiNzkxNDBm
+NzNiMzAKICAgIE9SSUdfUkFYOiBmZmZmZmZmZmZmZmZmZmZmICBDUzogMDAxMCAgU1M6IDAwMTgK
+ICM1IFtmZmZmYjc5MTQwZjczYjA4XSBfbmZzNDFfcHJvY19nZXRfbG9jYXRpb25zIGF0IGZmZmZm
+ZmZmYzBjNzNkNTMgW25mc3Y0XQogIzYgW2ZmZmZiNzkxNDBmNzNiZjBdIG5mczRfcHJvY19nZXRf
+bG9jYXRpb25zIGF0IGZmZmZmZmZmYzBjODNlOTAgW25mc3Y0XQogIzcgW2ZmZmZiNzkxNDBmNzNj
+NjBdIG5mczRfZGlzY292ZXJfdHJ1bmtpbmcgYXQgZmZmZmZmZmZjMGM4M2ZiNyBbbmZzdjRdCiAj
+OCBbZmZmZmI3OTE0MGY3M2NkOF0gbmZzX3Byb2JlX2ZzaW5mbyBhdCBmZmZmZmZmZmMwYzBmOTVm
+IFtuZnNdCiAjOSBbZmZmZmI3OTE0MGY3M2RhMF0gbmZzX3Byb2JlX3NlcnZlciBhdCBmZmZmZmZm
+ZmMwYzEwMjZhIFtuZnNdCiAgICBSSVA6IDAwMDA3ZjYyNTRmY2UyNmUgIFJTUDogMDAwMDdmZmM2
+OTQ5NmFjOCAgUkZMQUdTOiAwMDAwMDI0NgogICAgUkFYOiBmZmZmZmZmZmZmZmZmZmRhICBSQlg6
+IDAwMDAwMDAwMDAwMDAwMDAgIFJDWDogMDAwMDdmNjI1NGZjZTI2ZQogICAgUkRYOiAwMDAwNTYw
+MDIyMGE4MmEwICBSU0k6IDAwMDA1NjAwMjIwYTY0ZDAgIFJESTogMDAwMDU2MDAyMjBhNjUyMAog
+ICAgUkJQOiAwMDAwN2ZmYzY5NDk2YzUwICAgUjg6IDAwMDA1NjAwMjIwYTg3MTAgICBSOTogMDAz
+MDM1MzIyZTMyMzIzMQogICAgUjEwOiAwMDAwMDAwMDAwMDAwMDAwICBSMTE6IDAwMDAwMDAwMDAw
+MDAyNDYgIFIxMjogMDAwMDdmZmM2OTQ5NmM1MAogICAgUjEzOiAwMDAwNTYwMDIyMGE4NDQwICBS
+MTQ6IDAwMDAwMDAwMDAwMDAwMTAgIFIxNTogMDAwMDU2MDAyMDY1MGVmOQogICAgT1JJR19SQVg6
+IDAwMDAwMDAwMDAwMDAwYTUgIENTOiAwMDMzICBTUzogMDAyYgoKRml4ZXM6IGMzZWQyMjI3NDVk
+OSAoIk5GU3Y0OiBGaXggZnJlZSBvZiB1bmluaXRpYWxpemVkIG5mczRfbGFiZWwgb24gcmVmZXJy
+YWwgbG9va3VwLiIpClNpZ25lZC1vZmYtYnk6IFNjb3R0IE1heWhldyA8c21heWhld0ByZWRoYXQu
+Y29tPgpTaWduZWQtb2ZmLWJ5OiBBbm5hIFNjaHVtYWtlciA8QW5uYS5TY2h1bWFrZXJATmV0YXBw
+LmNvbT4KKGNoZXJyeSBwaWNrZWQgZnJvbSBjb21taXQgNGY0MGE1YjU1NDQ2MThiMDk2ZDE2MTFh
+MTgyMTlkZDkxZmQ1N2Y4MCkKU2lnbmVkLW9mZi1ieTogVHJvbmQgTXlrbGVidXN0IDx0cm9uZC5t
+eWtsZWJ1c3RAaGFtbWVyc3BhY2UuY29tPgotLS0KIGZzL25mcy9uZnM0cHJvYy5jIHwgMTkgKysr
+KysrKysrKysrLS0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDEyIGluc2VydGlvbnMoKyksIDcgZGVs
+ZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZnMvbmZzL25mczRwcm9jLmMgYi9mcy9uZnMvbmZzNHBy
+b2MuYwppbmRleCBjODZlZmQzNmRlYTguLmI0MmUzMzI3NzVmZSAxMDA2NDQKLS0tIGEvZnMvbmZz
+L25mczRwcm9jLmMKKysrIGIvZnMvbmZzL25mczRwcm9jLmMKQEAgLTM5ODEsMTggKzM5ODEsMjMg
+QEAgc3RhdGljIGludCBfbmZzNF9kaXNjb3Zlcl90cnVua2luZyhzdHJ1Y3QgbmZzX3NlcnZlciAq
+c2VydmVyLAogCX0KIAogCXBhZ2UgPSBhbGxvY19wYWdlKEdGUF9LRVJORUwpOworCWlmICghcGFn
+ZSkKKwkJcmV0dXJuIC1FTk9NRU07CiAJbG9jYXRpb25zID0ga21hbGxvYyhzaXplb2Yoc3RydWN0
+IG5mczRfZnNfbG9jYXRpb25zKSwgR0ZQX0tFUk5FTCk7Ci0JaWYgKHBhZ2UgPT0gTlVMTCB8fCBs
+b2NhdGlvbnMgPT0gTlVMTCkKLQkJZ290byBvdXQ7CisJaWYgKCFsb2NhdGlvbnMpCisJCWdvdG8g
+b3V0X2ZyZWU7CisJbG9jYXRpb25zLT5mYXR0ciA9IG5mc19hbGxvY19mYXR0cigpOworCWlmICgh
+bG9jYXRpb25zLT5mYXR0cikKKwkJZ290byBvdXRfZnJlZV8yOwogCiAJc3RhdHVzID0gbmZzNF9w
+cm9jX2dldF9sb2NhdGlvbnMoc2VydmVyLCBmaGFuZGxlLCBsb2NhdGlvbnMsIHBhZ2UsCiAJCQkJ
+CSBjcmVkKTsKLQlpZiAoc3RhdHVzKQotCQlnb3RvIG91dDsKLW91dDoKLQlpZiAocGFnZSkKLQkJ
+X19mcmVlX3BhZ2UocGFnZSk7CisKKwlrZnJlZShsb2NhdGlvbnMtPmZhdHRyKTsKK291dF9mcmVl
+XzI6CiAJa2ZyZWUobG9jYXRpb25zKTsKK291dF9mcmVlOgorCV9fZnJlZV9wYWdlKHBhZ2UpOwog
+CXJldHVybiBzdGF0dXM7CiB9CiAKLS0gCjIuMzcuMwoK
+
+
+
+--=-cj1xZxAySvRZYL7FqNNp--
