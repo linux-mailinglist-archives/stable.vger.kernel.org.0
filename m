@@ -2,88 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E7D5611E0D
-	for <lists+stable@lfdr.de>; Sat, 29 Oct 2022 01:21:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B61611EEB
+	for <lists+stable@lfdr.de>; Sat, 29 Oct 2022 03:12:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229536AbiJ1XVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 19:21:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35140 "EHLO
+        id S229742AbiJ2BMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Oct 2022 21:12:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229719AbiJ1XVq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 19:21:46 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43DBD15DB24
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 16:20:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666999245;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=oYIHvTeMwIb+K7W2HGaQbire9czNW42U37FGK9GoxFo=;
-        b=gzSO9j5QpoCYm4z4frElb5UaJw8BIjfNzYM5BKSK83GY2Mdy6Ami36ke5jAIGmAzkxxxxN
-        0hCwz1CynwkWJglzjhWtla83XAJBw8ebiRqWZiTsW/FAy10mI+dFOFrVrrufAXv+k8+o+n
-        /FMnRHuwcZzxTgcEEfGPv43bkrp4T20=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-544-H9TnJcdONSmFMVoNhqnDRg-1; Fri, 28 Oct 2022 19:20:43 -0400
-X-MC-Unique: H9TnJcdONSmFMVoNhqnDRg-1
-Received: by mail-qk1-f199.google.com with SMTP id v1-20020a05620a440100b006eee30cb799so4843643qkp.23
-        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 16:20:43 -0700 (PDT)
+        with ESMTP id S229721AbiJ2BMP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 21:12:15 -0400
+Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB0DB1D4406
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 18:12:14 -0700 (PDT)
+Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-36810cfa61fso56532557b3.6
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 18:12:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=VzirdpB8o7lNjReftiX3IOzTMZDA49bnUBUpRIMEVz0=;
+        b=C93TkHor9sG0YrHfYCanrmTbr1ODnssibkMka1CDdjSvu/Qja9+NGxHoPnFObXxZvE
+         GXBANvCg8hYyoao1XJVZQcDuYYKL3hCl8JXwsqfVxvL5RGQoQEjXofWQ+Phej/FE+w2e
+         LM1CCTLbcoxR07mSo8W16zyQ2RRKK5zYAr+dhHIi+eRCHCoJ0CHm8U1iRpIhtclDx4bb
+         8Bily9FTWUVI93SfVVaif881wa60XSf+Z01xAPviPLn3AadgiNLvr78hrkA8+50Uzft7
+         8bQ01D7IZ7MVtWs2x5HmKBUo5DugGQadbsn2wzjW4nzOsWY7RyFSH+2r9cffzygQ9G63
+         tZeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=oYIHvTeMwIb+K7W2HGaQbire9czNW42U37FGK9GoxFo=;
-        b=kMlwj2QL61fu69HVdGlLFGaPUKz7ivGW0adZleRnpRKRdoCdNmckO/hYdJXCqUNvX4
-         1vexkUeB/MRXsz74fr8tBIu0SOUdV2Q0B2nGFpluuPiTpGVfC2qA+GJykm7axhg8g79U
-         5pjjmGSnaWBVhz2drryAcFo0iswoXjjG2Usqrq+Z7uLcJW4uq0ZucDeB6SMTsL8rh6VR
-         PMsaZdZD3mCX6kYyMrh+uTLAtHChMFXYo6pEO2NQjs/VwJkNyWtNlQZZYk89sg1pTqUy
-         n2Qgfb6nhpILKYUOR/azTTCJQKlim1mh3a73YtN5nk+5ZnWKkYP7U2pgs5hG7O+vgQes
-         MLQg==
-X-Gm-Message-State: ACrzQf0R+p0RSNK5PQ6GEaxF7mB3pjM/sDSNj+X12MbaW9B4LG038ahG
-        j5Y6mH592LTsWIaq7vEqrCLh7I4XFbAeQf4/0u9uc1IZRC+F+DooUjhRhIJdeFhH/E8AcvAHRHM
-        vyrM/H4fy5KfpMAow
-X-Received: by 2002:a05:622a:58f:b0:39d:10f3:cae4 with SMTP id c15-20020a05622a058f00b0039d10f3cae4mr1688259qtb.604.1666999242965;
-        Fri, 28 Oct 2022 16:20:42 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM4ZhDbr+eJZH4OfX0v1B4vnH0cANm+KghIAOexsa39YQdBlxzfxxELs4LdzWu0JflpEcpuGsg==
-X-Received: by 2002:a05:622a:58f:b0:39d:10f3:cae4 with SMTP id c15-20020a05622a058f00b0039d10f3cae4mr1688238qtb.604.1666999242725;
-        Fri, 28 Oct 2022 16:20:42 -0700 (PDT)
-Received: from x1n (bras-base-aurron9127w-grc-46-70-31-27-79.dsl.bell.ca. [70.31.27.79])
-        by smtp.gmail.com with ESMTPSA id i22-20020ac871d6000000b003431446588fsm17123qtp.5.2022.10.28.16.20.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Oct 2022 16:20:42 -0700 (PDT)
-Date:   Fri, 28 Oct 2022 19:20:40 -0400
-From:   Peter Xu <peterx@redhat.com>
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Naoya Horiguchi <naoya.horiguchi@linux.dev>,
-        David Hildenbrand <david@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Mina Almasry <almasrymina@google.com>,
-        Rik van Riel <riel@surriel.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Wei Chen <harperchen1110@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] hugetlb: don't delete vma_lock in hugetlb
- MADV_DONTNEED processing
-Message-ID: <Y1xjyLWNCK7p0XSv@x1n>
-References: <20221023025047.470646-1-mike.kravetz@oracle.com>
- <Y1mpwKpwsiN6u6r7@x1n>
- <Y1nImUVseAOpXwPv@monkey>
- <Y1nbErXmHkyrzt8F@x1n>
- <Y1vz7VvQ5zg5KTxk@monkey>
- <Y1v/x5RRpRjU4b/W@x1n>
- <Y1xGzR/nHQTJxTCj@monkey>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Y1xGzR/nHQTJxTCj@monkey>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=VzirdpB8o7lNjReftiX3IOzTMZDA49bnUBUpRIMEVz0=;
+        b=jR8UwKMKw89o1q9MNi+11tvT8BsnQS8LW6VX/phTa790wTUvV4BFHJ39IdRjC91hne
+         24BLlAj3h0lGT0Zd9RbXaNgwYpAgAX57GX1emUXlTX2zlAbE8o7DawnbFyv3kAYxqb+7
+         sUxnFnzeBIBP5+2KicP0SGKEU1uTS4hzaTq/XrChaCGskoa3SJID5ZueMWPU9e6wdyOl
+         dS6ihbp+v5WhMQQV+poX9sJ7Oqxw2gk0v571xeGulxvFWHoO+nTeKX72mCn6mhC/VDP3
+         nqLi30z0fUGCLf3F+7AzhTSCJ81IWeCF7Z68jsRHRyu0qC4lBiywURTvurrYUtnzrpaC
+         6sXA==
+X-Gm-Message-State: ACrzQf3PVEu8LVs8kUsCdLhJoVwhSQDNHUhGATRjvK0LNHPdz78pPn5b
+        5HNbxUG9BVCFZId3ILYxMMBCd1w=
+X-Google-Smtp-Source: AMsMyM5RXioXywasRw0IgKj7UP/UyG6hzkhBW1Tx1dbhUjNNBTnBYoZ2bxTSGEieY+mK+qbB9WXTh5o=
+X-Received: from hmarynka.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:925])
+ (user=ovt job=sendgmr) by 2002:a05:6902:1608:b0:6cb:75a6:7656 with SMTP id
+ bw8-20020a056902160800b006cb75a67656mr1722714ybb.223.1667005934151; Fri, 28
+ Oct 2022 18:12:14 -0700 (PDT)
+Date:   Sat, 29 Oct 2022 01:12:11 +0000
+In-Reply-To: <20221024113005.376059449@linuxfoundation.org>
+Mime-Version: 1.0
+References: <20221024113005.376059449@linuxfoundation.org>
+X-Mailer: git-send-email 2.38.1.273.g43a17bfeac-goog
+Message-ID: <20221029011211.4049810-1-ovt@google.com>
+Subject: Re: [PATCH 5.4 086/255] once: add DO_ONCE_SLOW() for sleepable contexts
+From:   Oleksandr Tymoshenko <ovt@google.com>
+To:     gregkh@linuxfoundation.org
+Cc:     christophe.leroy@csgroup.eu, davem@davemloft.net,
+        edumazet@google.com, linux-kernel@vger.kernel.org,
+        sashal@kernel.org, stable@vger.kernel.org, w@1wt.eu
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -91,70 +68,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 28, 2022 at 02:17:01PM -0700, Mike Kravetz wrote:
-> On 10/28/22 12:13, Peter Xu wrote:
-> > On Fri, Oct 28, 2022 at 08:23:25AM -0700, Mike Kravetz wrote:
-> > > On 10/26/22 21:12, Peter Xu wrote:
-> > > > On Wed, Oct 26, 2022 at 04:54:01PM -0700, Mike Kravetz wrote:
-> > > > > On 10/26/22 17:42, Peter Xu wrote:
-> > > diff --git a/mm/madvise.c b/mm/madvise.c
-> > > index c7105ec6d08c..d8b4d7e56939 100644
-> > > --- a/mm/madvise.c
-> > > +++ b/mm/madvise.c
-> > > @@ -790,7 +790,10 @@ static int madvise_free_single_vma(struct vm_area_struct *vma,
-> > >  static long madvise_dontneed_single_vma(struct vm_area_struct *vma,
-> > >  					unsigned long start, unsigned long end)
-> > >  {
-> > > -	zap_page_range(vma, start, end - start);
-> > > +	if (!is_vm_hugetlb_page(vma))
-> > > +		zap_page_range(vma, start, end - start);
-> > > +	else
-> > > +		clear_hugetlb_page_range(vma, start, end);
-> > 
-> > With the new ZAP_FLAG_UNMAP flag, clear_hugetlb_page_range() can be dropped
-> > completely?  As zap_page_range() won't be with ZAP_FLAG_UNMAP so we can
-> > identify things?
-> > 
-> > IIUC that's the major reason why I thought the zap flag could be helpful..
-> 
-> Argh.  I went to drop clear_hugetlb_page_range() but there is one issue.
-> In zap_page_range() the MMU_NOTIFY_CLEAR notifier is certainly called.
-> However, we really need to have a 'adjust_range_if_pmd_sharing_possible'
-> call in there because the 'range' may be part of a shared pmd.  :(
-> 
-> I think we need to either have a separate routine like clear_hugetlb_page_range
-> that sets up the appropriate range, or special case hugetlb in zap_page_range.
-> What do you think?
-> I think clear_hugetlb_page_range is the least bad of the two options.
+Hello,
 
-How about special case hugetlb as you mentioned?  If I'm not wrong, it
-should be 3 lines change:
+This commit causes the following panic in kernel built with clang
+(GCC build is not affected): 
 
----8<---
-diff --git a/mm/memory.c b/mm/memory.c
-index c5599a9279b1..0a1632e44571 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1706,11 +1706,13 @@ void zap_page_range(struct vm_area_struct *vma, unsigned long start,
-        lru_add_drain();
-        mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
-                                start, start + size);
-+       if (is_vm_hugetlb_page(vma))
-+               adjust_range_if_pmd_sharing_possible(vma, &range.start, &range.end);
-        tlb_gather_mmu(&tlb, vma->vm_mm);
-        update_hiwater_rss(vma->vm_mm);
-        mmu_notifier_invalidate_range_start(&range);
-        do {
--               unmap_single_vma(&tlb, vma, start, range.end, NULL);
-+               unmap_single_vma(&tlb, vma, start, start + size, NULL);
-        } while ((vma = mas_find(&mas, end - 1)) != NULL);
-        mmu_notifier_invalidate_range_end(&range);
-        tlb_finish_mmu(&tlb);
----8<---
+[    8.320308] BUG: unable to handle page fault for address: ffffffff97216c6a                                        [26/4066]
+[    8.330029] #PF: supervisor write access in kernel mode                                                                    
+[    8.337263] #PF: error_code(0x0003) - permissions violation 
+[    8.344816] PGD 12e816067 P4D 12e816067 PUD 12e817063 PMD 800000012e2001e1                                                 
+[    8.354337] Oops: 0003 [#1] SMP PTI                
+[    8.359178] CPU: 2 PID: 437 Comm: curl Not tainted 5.4.220 #15                                                             
+[    8.367241] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015                                   
+[    8.378529] RIP: 0010:__do_once_slow_done+0xf/0xa0   
+[    8.384962] Code: 1b 84 db 74 0c 48 c7 c7 80 ce 8d 97 e8 fa e9 4a 00 84 db 0f 94 c0 5b 5d c3 66 90 55 48 89 e5 41 57 41 56 
+53 49 89 d7 49 89 f6 <c6> 07 01 48 c7 c7 80 ce 8d 97 e8 d2 e9 4a 00 48 8b 3d 9b de c9 00                                      
+[    8.409066] RSP: 0018:ffffb764c02d3c90 EFLAGS: 00010246
+[    8.415697] RAX: 4f51d3d06bc94000 RBX: d474b86ddf7162eb RCX: 000000007229b1d6                                              
+[    8.424805] RDX: 0000000000000000 RSI: ffffffff9791b4a0 RDI: ffffffff97216c6a                                              
+[    8.434108] RBP: ffffb764c02d3ca8 R08: 0e81c130f1159fc1 R09: 1d19d60ce0b52c77                                              
+[    8.443408] R10: 8ea59218e6892b1f R11: d5260237a3c1e35c R12: ffff9c3dadd42600                                              
+[    8.452468] R13: ffffffff97910f80 R14: ffffffff9791b4a0 R15: 0000000000000000                                            
+[    8.461416] FS:  00007eff855b40c0(0000) GS:ffff9c3db7a80000(0000) knlGS:0000000000000000                                   
+[    8.471632] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033                                                              
+[    8.478763] CR2: ffffffff97216c6a CR3: 000000022ded0000 CR4: 00000000000006a0                                              
+[    8.487789] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000                                              
+[    8.496684] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400                                              
+[    8.505443] Call Trace:                                                                                                    
+[    8.508568]  __inet_hash_connect+0x523/0x530                                                                               
+[    8.513839]  ? inet_hash_connect+0x50/0x50                                                                                 
+[    8.518818]  ? secure_ipv4_port_ephemeral+0x69/0xe0
+[    8.525003]  tcp_v4_connect+0x2c5/0x410
+[    8.529858]  __inet_stream_connect+0xd7/0x360
+[    8.535329]  ? _raw_spin_unlock+0xe/0x10
+... skipped ...
 
-As zap_page_range() is already vma-oriented anyway.  But maybe I missed
-something important?
 
--- 
-Peter Xu
+The root cause is the difference in __section macro semantics between 5.4 and
+later LTS releases. On 5.4 it stringifies the argument so the ___done
+symbol is created in a bogus section ".data.once", with double quotes:
 
+% readelf -S vmlinux | grep data.once
+  [ 5] ".data.once"      PROGBITS         ffffffff82216c6a  01416c6a
