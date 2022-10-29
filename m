@@ -2,91 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 780EB61265B
-	for <lists+stable@lfdr.de>; Sun, 30 Oct 2022 01:10:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85F9C61267A
+	for <lists+stable@lfdr.de>; Sun, 30 Oct 2022 01:22:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229544AbiJ2XKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Oct 2022 19:10:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60708 "EHLO
+        id S229576AbiJ2XWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Oct 2022 19:22:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbiJ2XKv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Oct 2022 19:10:51 -0400
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F4110286F4;
-        Sat, 29 Oct 2022 16:10:50 -0700 (PDT)
-Received: by mail-pg1-f181.google.com with SMTP id g129so7774541pgc.7;
-        Sat, 29 Oct 2022 16:10:50 -0700 (PDT)
+        with ESMTP id S229549AbiJ2XWK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Oct 2022 19:22:10 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D19E9267
+        for <stable@vger.kernel.org>; Sat, 29 Oct 2022 16:22:09 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id v130-20020a1cac88000000b003bcde03bd44so8666164wme.5
+        for <stable@vger.kernel.org>; Sat, 29 Oct 2022 16:22:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=rhDiK7dye7eamxJrrtP8YrQ7lGawI/KZdQpXRO8QsLU=;
+        b=gAmTOdKxDwAUpFmpFLHveCznZGdNV8MARmphHzegcYRqCHYxLWA2U1/4pcxAn5+iYa
+         6UpM/8bGIi6vSEzL6ohGWAG3A9UoXJ5LkaTD8k9L1jGZICuT8vplrsODlnHTs8O4l5Gl
+         zcXtVWic0EVUyXkc++EDE/1NpOftKm1fEzrKBrOvpcjhSvUIZE53ouwD/3Zlz0fB97Cv
+         QbRDk3sBULRkPYiHiLRPQLq3XHY48s13RjLkU8lbuVv8DcXYz32LglrjuaoGbp9j6XqD
+         NpEobpn+VsL2dATQSJ9BtAhz3gVQrNUlU1lK/rGrbz4Qg0T7YIm+UCvA0kSWJXTLPFgh
+         ZLpA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=RKuufKUacq98coDfbHylwf70NDNDwuBrz/1iKBZ4tBg=;
-        b=jyP03bu0TOomk862KxbPtI6eGbaGJ3lIOrXdX+bAo98vJR99S7Otl3YHwyfZ+OSfAf
-         sNRc2ntxjg9IoEFIuHoXGCI5dbcafS2LhrzWyuWq78jPXm58pdeLQ2AYr5D+aUK+XM3K
-         +y9yYbiPfljDsNY0kBOGOCQdwa3zJx80zbXci2HKNCzAUkzRioqIyciFiE0vJe21DPQT
-         E3LfnrN88JM+Y1HLj7T45AvSC28uiJ/5zdtCErdo9NwX89DdUqiUusOQNUv2/iN/bpK5
-         tiamL3Y/Z770WQVFeZ+D+5TlGhXUt/G69fymAD6Lfofrv8OgbwCGMGAFPM/P3gRhvClA
-         Ec0Q==
-X-Gm-Message-State: ACrzQf3YNM+hq2+wh/WLKI1yKJAawkpSvCztEOvT2xKkxZKR7F/0lL/x
-        4+KcEKpWfic0MdXkSfJIigk=
-X-Google-Smtp-Source: AMsMyM4BQlI8gWRRmy8uCysPtCtYvOyKN/QDcSsbqVJRiZrhNYIRDCdx7rdt+cLeWGvS52yER9LZXg==
-X-Received: by 2002:a63:e218:0:b0:448:5163:478f with SMTP id q24-20020a63e218000000b004485163478fmr5846451pgh.415.1667085050358;
-        Sat, 29 Oct 2022 16:10:50 -0700 (PDT)
-Received: from [192.168.3.219] ([98.51.102.78])
-        by smtp.gmail.com with ESMTPSA id n4-20020a170903110400b0017534ffd491sm1781654plh.163.2022.10.29.16.10.48
+        bh=rhDiK7dye7eamxJrrtP8YrQ7lGawI/KZdQpXRO8QsLU=;
+        b=8ER8Ik9HYb3YC/WiWujU2fC6fjQC9YwZ1JlfR6m3RspBPPFxQhck5WOw0AqHyQ5C3w
+         4zHlexB/hYxeClrvJTEAkG+lPmdSTZp10CLHBGFfihtibOTsyqytd3BXsWJGFi1UMwom
+         DfEvuHO516dL6JwTIE67IPmNxJzHbVkYlvPr77WflUcNK0R9B9u6qIe2Vh9OMjRWO6Wa
+         wOuG/ohN9m0bs6UUdP3ycRGs0a3fj7tcg5MpuH0OxECnxYAAwfFIz8aolfsjd16ytgUf
+         mPvauzCmd1/vFvkgUWE9TYZOLOEkACNaLr1iDK4l4O9T+qyX/a9L9j2pEPairPQPbmsq
+         zQ1A==
+X-Gm-Message-State: ACrzQf1PPjJH4ud24VooFVp/PZOpA37rc62iqaTs+AuzPxv/hESdZGIK
+        njIscCQt34L95ITnmjYW/dZDrg==
+X-Google-Smtp-Source: AMsMyM4GaZVwdX8Wr+Lr+kiwINE+wjQsl/HHdFQUrwrfT5IZOfjgFar3jV//xN2jNADpyKtDPmgWgw==
+X-Received: by 2002:a05:600c:154a:b0:3c9:f0df:1cc with SMTP id f10-20020a05600c154a00b003c9f0df01ccmr13635104wmg.200.1667085728382;
+        Sat, 29 Oct 2022 16:22:08 -0700 (PDT)
+Received: from [192.168.1.115] ([185.126.107.38])
+        by smtp.gmail.com with ESMTPSA id h5-20020adff185000000b00236863c02f5sm2568830wro.96.2022.10.29.16.22.06
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 29 Oct 2022 16:10:49 -0700 (PDT)
-Message-ID: <fb98be99-58e9-9f09-7179-cef70b45a8dc@acm.org>
-Date:   Sat, 29 Oct 2022 16:10:47 -0700
+        Sat, 29 Oct 2022 16:22:08 -0700 (PDT)
+Message-ID: <e0942c4b-8e81-5259-0c7c-97d09cc81669@linaro.org>
+Date:   Sun, 30 Oct 2022 01:22:05 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH 5.10/5.15] scsi: sd: Revert "scsi: sd: Remove a local
- variable"
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.4.0
+Subject: Re: [PATCH] MIPS: jump_label: Fix compat branch range check
 Content-Language: en-US
-To:     Yu Kuai <yukuai1@huaweicloud.com>, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, jejb@linux.ibm.com,
-        martin.petersen@oracle.com, hare@suse.com
-Cc:     linux-scsi@vger.kernel.org, yukuai3@huawei.com, yi.zhang@huawei.com
-References: <20221029025837.1258377-1-yukuai1@huaweicloud.com>
-From:   Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20221029025837.1258377-1-yukuai1@huaweicloud.com>
+To:     Jiaxun Yang <jiaxun.yang@flygoat.com>, linux-mips@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, tsbogend@alpha.franken.de,
+        ardb@kernel.org, rostedt@goodmis.org, stable@vger.kernel.org
+References: <20221029203535.940231-1-jiaxun.yang@flygoat.com>
+From:   =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <philmd@linaro.org>
+In-Reply-To: <20221029203535.940231-1-jiaxun.yang@flygoat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/28/22 19:58, Yu Kuai wrote:
-> This reverts commit 84f7a9de0602704bbec774a6c7f7c8c4994bee9c.
-> 
-> Because it introduces a problem that rq->__data_len is set to the wrong
-> value.
-> 
-> before this patch:
-> 1) nr_bytes = rq->__data_len
-> 2) rq->__data_len = sdp->sector_size
-> 3) scsi_init_io()
-> 4) rq->__data_len = nr_bytes
-> 
-> after this patch:
-> 1) rq->__data_len = sdp->sector_size
-> 2) scsi_init_io()
-> 3) rq->__data_len = rq->__data_len -> __data_len is wrong
-> 
-> It will cause that io can only complete one segment each time, and the io
-> will requeue in scsi_io_completion_action(), which will cause severe
-> performance degradation.
+On 29/10/22 22:35, Jiaxun Yang wrote:
+> Cast upper bound of branch range to long to do signed compare,
+> avoid negtive offset trigger this warning.
 
-It's probably worth mentioning that the code affected by this patch has 
-been removed from the master branch and hence that this patch is only 
-needed for stable kernels. Anyway:
+Typo "negative".
 
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+> Fixes: 9b6584e35f40 ("MIPS: jump_label: Use compact branches for >= r6")
+> Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+> Cc: stable@vger.kernel.org
+> ---
+>   arch/mips/kernel/jump_label.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/mips/kernel/jump_label.c b/arch/mips/kernel/jump_label.c
+> index 71a882c8c6eb..f7978d50a2ba 100644
+> --- a/arch/mips/kernel/jump_label.c
+> +++ b/arch/mips/kernel/jump_label.c
+> @@ -56,7 +56,7 @@ void arch_jump_label_transform(struct jump_entry *e,
+>   			 * The branch offset must fit in the instruction's 26
+>   			 * bit field.
+>   			 */
+> -			WARN_ON((offset >= BIT(25)) ||
+> +			WARN_ON((offset >= (long)BIT(25)) ||
+>   				(offset < -(long)BIT(25)));
+
+Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
+
