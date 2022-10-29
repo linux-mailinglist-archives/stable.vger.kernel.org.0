@@ -2,59 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64B0E6120D1
-	for <lists+stable@lfdr.de>; Sat, 29 Oct 2022 08:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 197F26120D4
+	for <lists+stable@lfdr.de>; Sat, 29 Oct 2022 08:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229473AbiJ2G6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Oct 2022 02:58:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51280 "EHLO
+        id S229562AbiJ2G7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Oct 2022 02:59:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbiJ2G6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Oct 2022 02:58:39 -0400
-Received: from mail.marcansoft.com (marcansoft.com [212.63.210.85])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B63A57B2A1;
-        Fri, 28 Oct 2022 23:58:38 -0700 (PDT)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (No client certificate requested)
-        (Authenticated sender: marcan@marcan.st)
-        by mail.marcansoft.com (Postfix) with ESMTPSA id 5355C41A36;
-        Sat, 29 Oct 2022 06:58:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=marcan.st; s=default;
-        t=1667026717; bh=F8W2GWWaQfsG1i1jYMpQNaDmIOB/dmx8gWHvOZLamdc=;
-        h=Date:To:Cc:References:From:Subject:In-Reply-To;
-        b=AksB0uuH3gEWDI/ed5if0ziJPS8CrX8nGUSWMd8o2xDWksLM7rbZdFYSk0yTm89jK
-         3uA3H9ZHNsW5kdAh/QE+j9vcC/wJq2dWsb4izlZRhUDF6WBvTp4anESeXscyL7pWBU
-         rCFKXJ7Sv8t5ib7CrtrDfya38OrwV20B9NMl2hkyB7YxFQTJtR1LiLiO9JVowWOjND
-         J4scjPNuY3x3Jx5VLme5/XYWuBcq9OTX3nq0uWzGyajFFr3bN/OPwtIwNVPlR1fOxr
-         Kor0w+n9AMkQkE4MC4L+4XSsZd6T8zIicHHmiH4NsoLekl5yyswS7WvQkF4fRnIAyy
-         RbZHrazED8fEA==
-Message-ID: <40cf9da8-ce1e-4261-30b8-38580238c2b3@marcan.st>
-Date:   Sat, 29 Oct 2022 15:58:32 +0900
+        with ESMTP id S229445AbiJ2G7M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Oct 2022 02:59:12 -0400
+Received: from gw.atmark-techno.com (gw.atmark-techno.com [13.115.124.170])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27993816A2
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 23:59:11 -0700 (PDT)
+Received: from gw.atmark-techno.com (localhost [127.0.0.1])
+        by gw.atmark-techno.com (Postfix) with ESMTP id B70066013E
+        for <stable@vger.kernel.org>; Sat, 29 Oct 2022 15:59:09 +0900 (JST)
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
+        by gw.atmark-techno.com (Postfix) with ESMTPS id 290346013C
+        for <stable@vger.kernel.org>; Sat, 29 Oct 2022 15:59:09 +0900 (JST)
+Received: by mail-pl1-f200.google.com with SMTP id q10-20020a170902f34a00b00186c5448b01so4603934ple.4
+        for <stable@vger.kernel.org>; Fri, 28 Oct 2022 23:59:09 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6F/e3an+HkL6s8uZYrMNfU7hm7ZeC4VHKbQWbFreALk=;
+        b=ptynBrOwGorB1wclKBZmt2zqOXJ6GFbi60NIuNu8mR+Z1jOFIb+QiwBgra7+AyVXf9
+         8yx9SCVImW6sq8wsa1hKGQi43V7My96LphLYtVw+xT97j8xcgZy7da3HEnq0mBGe6DIz
+         Z3Zm4iq/v8pfgbTeaLAWsy3hVJOw+21wOkICjqAIDMnGvoHtqKA1LNYAxEh46SabM9sZ
+         hdh+v2Y6xxks1Rx2t+WwKe2R0BRE3mMf7WjdISZXdT8U/C0WLNBfk3sZ8/SXwma6Xjew
+         jmgC2chmGGFyoAAbHthxuKlfuFwa0MSxgtn+vsDzwkyxQJZp/pPIFRMGvufChmN86Ln1
+         e7iw==
+X-Gm-Message-State: ACrzQf1lzquNtysws8aIzK4reqnWxtw2PIrVharppfaNtHFeNDwEa57s
+        Z2y1TEd3noj+vypPiKcVGUGm78RPP0RqBxyH10qGT9EZnvapqA0VRYiBnpLSU3cPramUk+eAr4H
+        WVoh0jiu/3kMi5jQnfnrF
+X-Received: by 2002:a17:90a:ce89:b0:213:167c:81e1 with SMTP id g9-20020a17090ace8900b00213167c81e1mr20705684pju.38.1667026748215;
+        Fri, 28 Oct 2022 23:59:08 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7YaSV9vrd5tee16XR/CS30ja/JOgXjwptpxXCf0g5s4Z5wS7VTmgf5FDPF3+eoOR1Q9ZBC4A==
+X-Received: by 2002:a17:90a:ce89:b0:213:167c:81e1 with SMTP id g9-20020a17090ace8900b00213167c81e1mr20705662pju.38.1667026747927;
+        Fri, 28 Oct 2022 23:59:07 -0700 (PDT)
+Received: from pc-zest.atmarktech (117.209.187.35.bc.googleusercontent.com. [35.187.209.117])
+        by smtp.gmail.com with ESMTPSA id d14-20020a170902cece00b00186b06963f9sm558705plg.180.2022.10.28.23.59.06
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 28 Oct 2022 23:59:07 -0700 (PDT)
+Received: from martinet by pc-zest.atmarktech with local (Exim 4.96)
+        (envelope-from <martinet@pc-zest>)
+        id 1oofo9-008u42-28;
+        Sat, 29 Oct 2022 15:59:05 +0900
+Date:   Sat, 29 Oct 2022 15:58:55 +0900
+From:   Dominique Martinet <dominique.martinet@atmark-techno.com>
+To:     Lino Sanfilippo <LinoSanfilippo@gmx.de>,
+        Lukas Wunner <lukas@wunner.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Roosen Henri <Henri.Roosen@ginzinger.com>,
+        linux-serial@vger.kernel.org,
+        Daisuke Mizobuchi <mizo@atmark-techno.com>
+Subject: Re: [PATCH 5.10 v2 1/2] serial: core: move RS485 configuration tasks
+ from drivers into core
+Message-ID: <Y1zPL0Y6bmqvvhMw@atmark-techno.com>
+References: <20221017051737.51727-1-dominique.martinet@atmark-techno.com>
+ <Y1lmM7Qu1yscuaIU@kroah.com>
+ <Y1nPFe6IaRI7j6fE@atmark-techno.com>
+ <4ff347e8-1ef4-e006-01db-3d420213f6e3@gmx.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Content-Language: en-US
-To:     Thomas Zimmermann <tzimmermann@suse.de>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Javier Martinez Canillas <javierm@redhat.com>
-Cc:     Pekka Paalanen <pekka.paalanen@collabora.com>,
-        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, asahi@lists.linux.dev
-References: <20221027135711.24425-1-marcan@marcan.st>
- <6102d131-fd3f-965b-cd52-d8d3286e0048@suse.de>
-From:   Hector Martin <marcan@marcan.st>
-Subject: Re: [PATCH v2] drm/format-helper: Only advertise supported formats
- for conversion
-In-Reply-To: <6102d131-fd3f-965b-cd52-d8d3286e0048@suse.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <4ff347e8-1ef4-e006-01db-3d420213f6e3@gmx.de>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -62,64 +80,22 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 28/10/2022 17.07, Thomas Zimmermann wrote:
-> In yesterday's discussion on IRC, it was said that several devices 
-> advertise ARGB framebuffers when the hardware actually uses XRGB? Is 
-> there hardware that supports transparent primary planes?
+Lino Sanfilippo wrote on Fri, Oct 28, 2022 at 10:06:51AM +0200:
+> > I'd really appreciate if Lino could take a look and confirm we didn't
+> > botch this too much -- we've tested the 5.10 version and it looks ok,
+> > but this is different enough from the original patch to warrant a check
+> > from the author.
+>
+> However the part Lukas authored (patch 2) seems to be the one that has been adjusted
+> a lot, so maybe you rather/also want to have his ack?
 
-ARGB hardware probably exists in the form of embedded systems with
-preconfigured blending. For example, one could imagine an OSD-type setup
-where there is a hardware video scaler controlled entirely outside of
-DRM/KMS (probably by a horrible vendor driver), and the overlay
-framebuffer is exposed via simpledrm as a dumb memory region, and
-expects ARGB to work. So ideally, we wouldn't expose XRGB8888 on
-ARGB8888 systems.
+Gah, sorry -- I'm juggling with too many things at once here and got the
+two patches mixed up.
 
-But there is this problem:
+Yes, I meant Lukas here for patch 2/2, sorry. Promoted him to To.
+And thank you Lino for having a look and pointing it out!
 
-arch/arm64/boot/dts/qcom/msm8998-oneplus-common.dtsi:
-   format = "a8r8g8b8";
-arch/arm64/boot/dts/qcom/sdm630-sony-xperia-nile.dtsi:
-   format = "a8r8g8b8";
-arch/arm64/boot/dts/qcom/sdm660-xiaomi-lavender.dts:
-   format = "a8r8g8b8";
-arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts:
-format = "a8r8g8b8";
-arch/arm64/boot/dts/qcom/sdm850-samsung-w737.dts:
-format = "a8r8g8b8";
-arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dts:
-           format = "a8r8g8b8";
-arch/arm64/boot/dts/qcom/sm6350-sony-xperia-lena-pdx213.dts:
-           format = "a8r8g8b8";
-arch/arm64/boot/dts/qcom/sm7225-fairphone-fp4.dts:
-format = "a8r8g8b8";
-arch/arm64/boot/dts/qcom/sm8150-sony-xperia-kumano.dtsi:
-   format = "a8r8g8b8";
-arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi:
-   format = "a8r8g8b8";
-arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami.dtsi:
-   format = "a8r8g8b8";
-arch/arm64/boot/dts/socionext/uniphier-ld20-akebi96.dts:
-format = "a8r8g8b8";
+-- 
+Dominique
 
-I'm pretty sure those phones don't have transparent screens, nor
-magically put video planes below the firmware framebuffer. If there are
-12 device trees for phones in mainline which lie about having alpha
-support, who knows how many more exist outside? If we stop advertising
-pretend-XRGB8888 on them, I suspect we're going to break a lot of
-software...
 
-Of course, there is one "correct" solution here: have an actual
-xrgb8888->argb8888 conversion helper that just clears the high byte.
-Then those platforms lying about having alpha and using xrgb8888 from
-userspace will take a performace hit, but they should arguably just fix
-their device tree in that case. Maybe this is the way to go in this
-case? Note that there would be no inverse conversion (no advertising
-argb8888 on xrgb8888 backends), so that one would be dropped vs. what we
-have today. This effectively keeps the "xrgb8888 helpers and nothing
-else" rule while actually supporting it for argb8888 backend
-framebuffers correctly. Any platforms actually wanting to use argb8888
-framebuffers with meaningful alpha should be configuring their userspace
-to preferentially render directly to argb8888 to avoid the perf hit anyway.
-
-- Hector
