@@ -2,111 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F271B611FE0
-	for <lists+stable@lfdr.de>; Sat, 29 Oct 2022 05:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAE34612086
+	for <lists+stable@lfdr.de>; Sat, 29 Oct 2022 07:23:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229494AbiJ2D6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Oct 2022 23:58:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43522 "EHLO
+        id S229446AbiJ2FX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Oct 2022 01:23:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbiJ2D6o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Oct 2022 23:58:44 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95A7F1E3F7;
-        Fri, 28 Oct 2022 20:58:43 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id u6so6432381plq.12;
-        Fri, 28 Oct 2022 20:58:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=A7c41syvrqLd1TaUkrLMYrwSJWuVCOYiGp5QPZ0BwAs=;
-        b=EX35N5btl+RPixEyb/OfCM8er35FHxyM4NBG1+rGmanBl3Oc2dfLV83LKM49hKIKEd
-         T0VaFiilf2kLa/5RyaWkWTvr0on5b97opn+8PQIg5Y7L+i7zedj7xP44/XlDk5mVQuj3
-         OKIIzILvxz7qB+CZu6GRlhKfDYpp58VvhP07tfKzAW4K1u1n7DQKL2zw0zzPX5yyYkLs
-         kiizxLlU+Da19hVkzp3W3JZIH4bP9O5tVLwt1LQXV0HaCnHrPzUrzpz9iaClvbiN2Ki9
-         1Jg412TXBIDB+qD3Sc0Gp6+oVY5co9tR6PJua22TV0QXxWFet5W98quqomi/qm2HrLWv
-         PgIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=A7c41syvrqLd1TaUkrLMYrwSJWuVCOYiGp5QPZ0BwAs=;
-        b=pHE5KrTFUP7+8Q1II+Smi5qJ29QZgtPQNmNVKN2Q5i4K2ilRcNivcTczlDtufO5Z+A
-         4VUNW0qwrTKHHHgZRPa0CoyyYRdcIkAobs8dmN1r+g1WkxsQ6FZZIdDZfxBsChK8Z3Bj
-         TZ+6ExYoM3GPrq8XpGz78Pr98kRAVivQxMy0szhmbCTjFS5WI12mImYPshiNToB9D+Em
-         NDNVkYm8GOxEqjXUPJNQyWhX4QSg3mBK1i04pmRIg4yFlsvLwrVy6euDLDalBzw/TEZ9
-         y47Kas0KvNCZLjkKAy8jB7PEGBIvRxvrEPQJtzuOR1HR8Yf0JZ780Dhx8bfi5Q0+wk+a
-         bT1A==
-X-Gm-Message-State: ACrzQf1DU6jQ79UVgkAoEj3jh4QZSx9Y7VbETGXV8Hqyqt/yT1LnS1Dn
-        RpSuEEcP1NEgpWiPsyOTjSo=
-X-Google-Smtp-Source: AMsMyM7+eJHdlt7ANQd6iczHetGfS/17ZERbO+1PQQhYnN8ZJCeVPhiysyYEnbphEwK6KlOSjKjHCA==
-X-Received: by 2002:a17:902:bc83:b0:187:85a:28b4 with SMTP id bb3-20020a170902bc8300b00187085a28b4mr356873plb.96.1667015923072;
-        Fri, 28 Oct 2022 20:58:43 -0700 (PDT)
-Received: from debian.me (subs02-180-214-232-66.three.co.id. [180.214.232.66])
-        by smtp.gmail.com with ESMTPSA id u1-20020a17090add4100b0020adab4ab37sm205457pjv.31.2022.10.28.20.58.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Oct 2022 20:58:42 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id 4F56B104035; Sat, 29 Oct 2022 10:58:39 +0700 (WIB)
-Date:   Sat, 29 Oct 2022 10:58:38 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-Subject: Re: [PATCH 5.15 00/78] 5.15.76-rc2 review
-Message-ID: <Y1yk7sz2aBHb9a1t@debian.me>
-References: <20221028120302.594918388@linuxfoundation.org>
+        with ESMTP id S229445AbiJ2FXZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Oct 2022 01:23:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B8FFBB386;
+        Fri, 28 Oct 2022 22:23:24 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DFD560B93;
+        Sat, 29 Oct 2022 05:23:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E8FBC433C1;
+        Sat, 29 Oct 2022 05:23:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1667021003;
+        bh=4BCMeazaAZuFmFSxNG5KKwwMNmP70F8DdbHA+Dmi6gc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=VKgL30F87gWo3NhI0xQxFwnKoQVwmLL2mTdCmPbAn6g7bAhgn3EFRPdN18svjPzd4
+         9n9oYWGPOe9v1W7nMZy10sGrr87ACHQr+6OxLc0KeJpWxzAhZzi1IIU4dua933LMhu
+         dMtjuUtb6zT0SEkcnM30UNQvFCtGJg0PHlqJEYqY=
+Date:   Sat, 29 Oct 2022 07:24:18 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Eric Dumazet <edumazet@google.com>
+Cc:     Oleksandr Tymoshenko <ovt@google.com>, christophe.leroy@csgroup.eu,
+        davem@davemloft.net, linux-kernel@vger.kernel.org,
+        sashal@kernel.org, stable@vger.kernel.org, w@1wt.eu
+Subject: Re: [PATCH 5.4 086/255] once: add DO_ONCE_SLOW() for sleepable
+ contexts
+Message-ID: <Y1y5Ao0c27JfTr8p@kroah.com>
+References: <20221024113005.376059449@linuxfoundation.org>
+ <20221029011211.4049810-1-ovt@google.com>
+ <CANn89iLVb+zHBXhPrD7JAdawLwAAYP_Fc3Vt3YB1AAy1fj=F4w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qssvbHuPXMPpCfaV"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221028120302.594918388@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <CANn89iLVb+zHBXhPrD7JAdawLwAAYP_Fc3Vt3YB1AAy1fj=F4w@mail.gmail.com>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Oct 28, 2022 at 06:18:36PM -0700, Eric Dumazet wrote:
+> On Fri, Oct 28, 2022 at 6:12 PM Oleksandr Tymoshenko <ovt@google.com> wrote:
+> >
+> > Hello,
+> >
+> > This commit causes the following panic in kernel built with clang
+> > (GCC build is not affected):
+> >
+> > [    8.320308] BUG: unable to handle page fault for address: ffffffff97216c6a                                        [26/4066]
+> > [    8.330029] #PF: supervisor write access in kernel mode
+> > [    8.337263] #PF: error_code(0x0003) - permissions violation
+> > [    8.344816] PGD 12e816067 P4D 12e816067 PUD 12e817063 PMD 800000012e2001e1
+> > [    8.354337] Oops: 0003 [#1] SMP PTI
+> > [    8.359178] CPU: 2 PID: 437 Comm: curl Not tainted 5.4.220 #15
+> > [    8.367241] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
+> > [    8.378529] RIP: 0010:__do_once_slow_done+0xf/0xa0
+> > [    8.384962] Code: 1b 84 db 74 0c 48 c7 c7 80 ce 8d 97 e8 fa e9 4a 00 84 db 0f 94 c0 5b 5d c3 66 90 55 48 89 e5 41 57 41 56
+> > 53 49 89 d7 49 89 f6 <c6> 07 01 48 c7 c7 80 ce 8d 97 e8 d2 e9 4a 00 48 8b 3d 9b de c9 00
+> > [    8.409066] RSP: 0018:ffffb764c02d3c90 EFLAGS: 00010246
+> > [    8.415697] RAX: 4f51d3d06bc94000 RBX: d474b86ddf7162eb RCX: 000000007229b1d6
+> > [    8.424805] RDX: 0000000000000000 RSI: ffffffff9791b4a0 RDI: ffffffff97216c6a
+> > [    8.434108] RBP: ffffb764c02d3ca8 R08: 0e81c130f1159fc1 R09: 1d19d60ce0b52c77
+> > [    8.443408] R10: 8ea59218e6892b1f R11: d5260237a3c1e35c R12: ffff9c3dadd42600
+> > [    8.452468] R13: ffffffff97910f80 R14: ffffffff9791b4a0 R15: 0000000000000000
+> > [    8.461416] FS:  00007eff855b40c0(0000) GS:ffff9c3db7a80000(0000) knlGS:0000000000000000
+> > [    8.471632] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > [    8.478763] CR2: ffffffff97216c6a CR3: 000000022ded0000 CR4: 00000000000006a0
+> > [    8.487789] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > [    8.496684] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > [    8.505443] Call Trace:
+> > [    8.508568]  __inet_hash_connect+0x523/0x530
+> > [    8.513839]  ? inet_hash_connect+0x50/0x50
+> > [    8.518818]  ? secure_ipv4_port_ephemeral+0x69/0xe0
+> > [    8.525003]  tcp_v4_connect+0x2c5/0x410
+> > [    8.529858]  __inet_stream_connect+0xd7/0x360
+> > [    8.535329]  ? _raw_spin_unlock+0xe/0x10
+> > ... skipped ...
+> >
+> >
+> > The root cause is the difference in __section macro semantics between 5.4 and
+> > later LTS releases. On 5.4 it stringifies the argument so the ___done
+> > symbol is created in a bogus section ".data.once", with double quotes:
+> >
+> > % readelf -S vmlinux | grep data.once
+> >   [ 5] ".data.once"      PROGBITS         ffffffff82216c6a  01416c6a
+> 
+> Yes, this has been discovered earlier today.
+> 
+> Look at Google-Bug-Id 256204637
 
---qssvbHuPXMPpCfaV
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's a bit hard to see a google bug in public :(
 
-On Fri, Oct 28, 2022 at 02:04:05PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.76 release.
-> There are 78 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+Why not talk about it here?
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.1.0).
+> (include/linux/mmdebug.h has a similar issue)
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>=20
+Is this an issue in Linus's tree?  Should it be reverted there and/or in
+stable kernels too?
 
---=20
-An old man doll... just what I always wanted! - Clara
+what is recommended?
 
---qssvbHuPXMPpCfaV
-Content-Type: application/pgp-signature; name="signature.asc"
+thanks,
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY1yk6AAKCRD2uYlJVVFO
-o2a0AP9y95qXermEVKYVo+Byvrab0z+Lc0AEiw4tg/9Cg/NAJwEA/8sNUexhkOvd
-aFUTrQgKyMoXijPBLxyewgzD1nqsbQ8=
-=eXSA
------END PGP SIGNATURE-----
-
---qssvbHuPXMPpCfaV--
+greg k-h
