@@ -2,86 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E513B61265A
-	for <lists+stable@lfdr.de>; Sun, 30 Oct 2022 01:06:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 780EB61265B
+	for <lists+stable@lfdr.de>; Sun, 30 Oct 2022 01:10:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229571AbiJ2XGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Oct 2022 19:06:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56062 "EHLO
+        id S229544AbiJ2XKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Oct 2022 19:10:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbiJ2XGW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Oct 2022 19:06:22 -0400
-Received: from out02.mta.xmission.com (out02.mta.xmission.com [166.70.13.232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374672528D
-        for <stable@vger.kernel.org>; Sat, 29 Oct 2022 16:06:22 -0700 (PDT)
-Received: from in01.mta.xmission.com ([166.70.13.51]:54288)
-        by out02.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <dominic@xmission.com>)
-        id 1oouuB-004wqJ-HN; Sat, 29 Oct 2022 17:06:19 -0600
-Received: from 75-169-157-62.slkc.qwest.net ([75.169.157.62]:37780 helo=mail.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <dominic@xmission.com>)
-        id 1oouuA-000lwg-Hm; Sat, 29 Oct 2022 17:06:19 -0600
-Date:   Sat, 29 Oct 2022 23:04:20 +0000
-Message-ID: <e70421fc67d06853c0aaf3d3507129b2.dominic@xmission.com>
-From:   Dominic Jones <jonesd@xmission.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
-Content-Type: text/plain
-X-XM-SPF: eid=1oouuA-000lwg-Hm;;;mid=<e70421fc67d06853c0aaf3d3507129b2.dominic@xmission.com>;;;hst=in01.mta.xmission.com;;;ip=75.169.157.62;;;frm=dominic@xmission.com;;;spf=softfail
-X-XM-AID: U2FsdGVkX19ARMVLhTVrD154DOF9reOe
-X-SA-Exim-Connect-IP: 75.169.157.62
-X-SA-Exim-Mail-From: dominic@xmission.com
+        with ESMTP id S229441AbiJ2XKv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Oct 2022 19:10:51 -0400
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F4110286F4;
+        Sat, 29 Oct 2022 16:10:50 -0700 (PDT)
+Received: by mail-pg1-f181.google.com with SMTP id g129so7774541pgc.7;
+        Sat, 29 Oct 2022 16:10:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=RKuufKUacq98coDfbHylwf70NDNDwuBrz/1iKBZ4tBg=;
+        b=jyP03bu0TOomk862KxbPtI6eGbaGJ3lIOrXdX+bAo98vJR99S7Otl3YHwyfZ+OSfAf
+         sNRc2ntxjg9IoEFIuHoXGCI5dbcafS2LhrzWyuWq78jPXm58pdeLQ2AYr5D+aUK+XM3K
+         +y9yYbiPfljDsNY0kBOGOCQdwa3zJx80zbXci2HKNCzAUkzRioqIyciFiE0vJe21DPQT
+         E3LfnrN88JM+Y1HLj7T45AvSC28uiJ/5zdtCErdo9NwX89DdUqiUusOQNUv2/iN/bpK5
+         tiamL3Y/Z770WQVFeZ+D+5TlGhXUt/G69fymAD6Lfofrv8OgbwCGMGAFPM/P3gRhvClA
+         Ec0Q==
+X-Gm-Message-State: ACrzQf3YNM+hq2+wh/WLKI1yKJAawkpSvCztEOvT2xKkxZKR7F/0lL/x
+        4+KcEKpWfic0MdXkSfJIigk=
+X-Google-Smtp-Source: AMsMyM4BQlI8gWRRmy8uCysPtCtYvOyKN/QDcSsbqVJRiZrhNYIRDCdx7rdt+cLeWGvS52yER9LZXg==
+X-Received: by 2002:a63:e218:0:b0:448:5163:478f with SMTP id q24-20020a63e218000000b004485163478fmr5846451pgh.415.1667085050358;
+        Sat, 29 Oct 2022 16:10:50 -0700 (PDT)
+Received: from [192.168.3.219] ([98.51.102.78])
+        by smtp.gmail.com with ESMTPSA id n4-20020a170903110400b0017534ffd491sm1781654plh.163.2022.10.29.16.10.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 29 Oct 2022 16:10:49 -0700 (PDT)
+Message-ID: <fb98be99-58e9-9f09-7179-cef70b45a8dc@acm.org>
+Date:   Sat, 29 Oct 2022 16:10:47 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [PATCH 5.10/5.15] scsi: sd: Revert "scsi: sd: Remove a local
+ variable"
+Content-Language: en-US
+To:     Yu Kuai <yukuai1@huaweicloud.com>, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, jejb@linux.ibm.com,
+        martin.petersen@oracle.com, hare@suse.com
+Cc:     linux-scsi@vger.kernel.org, yukuai3@huawei.com, yi.zhang@huawei.com
+References: <20221029025837.1258377-1-yukuai1@huaweicloud.com>
+From:   Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <20221029025837.1258377-1-yukuai1@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
+        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
-X-Spam-DCC: XMission; sa07 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ***;Greg KH <gregkh@linuxfoundation.org>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 470 ms - load_scoreonly_sql: 0.04 (0.0%),
-        signal_user_changed: 9 (1.9%), b_tie_ro: 8 (1.7%), parse: 0.99 (0.2%),
-        extract_message_metadata: 4.2 (0.9%), get_uri_detail_list: 1.56 (0.3%),
-         tests_pri_-1000: 6 (1.2%), tests_pri_-950: 1.73 (0.4%),
-        tests_pri_-900: 1.39 (0.3%), tests_pri_-90: 234 (49.8%), check_bayes:
-        231 (49.2%), b_tokenize: 8 (1.6%), b_tok_get_all: 7 (1.4%),
-        b_comp_prob: 3.6 (0.8%), b_tok_touch_all: 210 (44.6%), b_finish: 0.98
-        (0.2%), tests_pri_0: 192 (40.8%), check_dkim_signature: 0.64 (0.1%),
-        check_dkim_adsp: 2.6 (0.6%), poll_dns_idle: 0.67 (0.1%), tests_pri_10:
-        2.1 (0.4%), tests_pri_500: 6 (1.3%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: [REGRESSION] v6.0.x fails to boot after updating from v5.19.x
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings,
-
-> On Fri, Oct 28, 2022 at 02:51:43PM +0000, Dominic Jones wrote:
-> > Updating the machine's kernel from v5.19.x to v6.0.x causes the machine to not
-> > successfully boot. The machine boots successfully (and exhibits stable operation)
-> > with version v5.19.17 and multiple earlier releases in the 5.19 line. Multiple releases
-> > from the 6.0 line (including 6.0.0, 6.0.3, and 6.0.5), with no other changes to the
-> > software environment, do not boot. Instead, the machine hangs after loading services
-> > but before presenting a display manager; the machine instead shows repetitive hard
-> > drive activity at this point and then no apparent activity.
-> > 
-> > ''uname'' output for the machine successfully running v5.19.17 is:
-> > 
-> >     Linux [MACHINE_NAME] 5.19.17 #1 SMP PREEMPT_DYNAMIC Mon Oct 24 13:32:29 2022 i686 Intel(R) Atom(TM) CPU N270 @ 1.60GHz GenuineIntel GNU/Linux
-> > 
-> > The machine is an OCZ Neutrino netbook, running a custom OS build largely similar to
-> > LFS development. The kernel update uses ''make olddefconfig''.
+On 10/28/22 19:58, Yu Kuai wrote:
+> This reverts commit 84f7a9de0602704bbec774a6c7f7c8c4994bee9c.
 > 
-> Can you use 'git bisect' to find the offending change that causes this
-> to happen?
+> Because it introduces a problem that rq->__data_len is set to the wrong
+> value.
+> 
+> before this patch:
+> 1) nr_bytes = rq->__data_len
+> 2) rq->__data_len = sdp->sector_size
+> 3) scsi_init_io()
+> 4) rq->__data_len = nr_bytes
+> 
+> after this patch:
+> 1) rq->__data_len = sdp->sector_size
+> 2) scsi_init_io()
+> 3) rq->__data_len = rq->__data_len -> __data_len is wrong
+> 
+> It will cause that io can only complete one segment each time, and the io
+> will requeue in scsi_io_completion_action(), which will cause severe
+> performance degradation.
 
-Thanks for the reply; I'll see if I can get up to speed on ''git bisect'' -- that'll
-be new to me. (This is the first time I've run into a kernel issue.)
+It's probably worth mentioning that the code affected by this patch has 
+been removed from the master branch and hence that this patch is only 
+needed for stable kernels. Anyway:
 
-
-Dominic
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
