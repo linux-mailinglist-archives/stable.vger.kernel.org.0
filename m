@@ -2,113 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86B98612AC9
-	for <lists+stable@lfdr.de>; Sun, 30 Oct 2022 14:49:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C38D6612AD2
+	for <lists+stable@lfdr.de>; Sun, 30 Oct 2022 14:51:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229782AbiJ3Ns7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 Oct 2022 09:48:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33588 "EHLO
+        id S229608AbiJ3Nvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 Oct 2022 09:51:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229763AbiJ3Ns5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 Oct 2022 09:48:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3971116;
-        Sun, 30 Oct 2022 06:48:55 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94B0EB80DC1;
-        Sun, 30 Oct 2022 13:48:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B1CAC433D6;
-        Sun, 30 Oct 2022 13:48:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667137733;
-        bh=nNCzuG++iWS4MoBVYVs4QccQ/6fcWE2S9X50mqOQVjo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=S71KeKI6OPNU6E0w6wtksOtTJzudGKKZjTGIzvqTMcKYSPYjkZYY0SJpnAVM5FqEd
-         3NclTBSqcw39Y4vwBduV/NZcUnZ++a2oV2hKaC63AlJcX8Sh68Lku+5aj7X597laxW
-         KPaZHfovvv505ofsBFMDWMwD09tI+4nNAVTLIz1M=
-Date:   Sun, 30 Oct 2022 14:49:48 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Oleksandr Tymoshenko <ovt@google.com>
-Cc:     christophe.leroy@csgroup.eu, davem@davemloft.net,
-        edumazet@google.com, linux-kernel@vger.kernel.org,
-        sashal@kernel.org, stable@vger.kernel.org, w@1wt.eu
-Subject: Re: [PATCH 5.4 086/255] once: add DO_ONCE_SLOW() for sleepable
- contexts
-Message-ID: <Y16A/ImgUCJX0HOB@kroah.com>
-References: <20221024113005.376059449@linuxfoundation.org>
- <20221029011211.4049810-1-ovt@google.com>
- <Y15+X1VJ5xdt1642@kroah.com>
+        with ESMTP id S229682AbiJ3Nvh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 Oct 2022 09:51:37 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E7CA6310
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 06:51:36 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id k5so809618pjo.5
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 06:51:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=f4jZNGfRkexp/Y/onHrVSboiYlgBVQUYiIY+wVIcnGk=;
+        b=GxVDfG0M6LAxJy7CQRB+xQWZHe48czwT6EOoeeSCTcPD5VutkrjuPrzOAAaqMiQwZ/
+         aIicaXb3QTIGtkQrOftK7/SawW2UoWH6oxdxTr8D1bJcuWCcEWxMHcG3UrMBPPIKDOzg
+         hGFdQTuOU7CVA5EHyc10mQlw3U8WjLzw5Yq2Nm3TxUFxzD9/G8r2Qt+uaXhbZeHo5qks
+         6efbjxVWFtAqxs4exAf01O6b5SSR4n8sCg+/8/wwcPLtlt6rVBnmCFxtSPR7FZh6uID4
+         bpmz8F0u6p8lrx4Cwf61Xh8cIXTu+7njGJ4Rknh/8uwNuAR1Chbr9un/JoBxmaGmiv+2
+         SDEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=f4jZNGfRkexp/Y/onHrVSboiYlgBVQUYiIY+wVIcnGk=;
+        b=2AHWzL2x20oG+T1reynP7ZtU70GdQ7/SIB6V5T+/LIg1WKF/tkTeeQlGLFcxbbMT24
+         sZVsM/fj1SaQjbdVXCY5MRr1unv178n7oSwncwjkvV7ncY7e7PoxRWlXQg0eXPC1JFU5
+         aNPveszjf07Drv56M0x5JKe4h9YMg9f7gViKsLrgsC5KjHekc4Pd9vVO4IHBf97V0ui7
+         987leteYsY8wNpIGkbYGpkSa/qrr4cJHvh9Wka03OZiOXfpACRY28p1bYs/NMPMk7XTJ
+         d6SnyxFO9JnuDvgGJE+LwC5dLlNOhjry7zBDWZHkbgFOqLjf9YQaktkGAgVhkCsxUnhi
+         k3Lg==
+X-Gm-Message-State: ACrzQf02cLEn2cbJwYd64cHTABPSypx1P4+ru7nk/2sYTwrDdQCOcabd
+        LHCC5pCutsXGH+b2fSoGjvNpV6Z7XBmT9lr/
+X-Google-Smtp-Source: AMsMyM5hTs5wDbrFBAsZK9rsDaf/U40xHx19F2EIWXgCcFvyRjTZZ8A8azG591v38JFDpHlAYR4T2g==
+X-Received: by 2002:a17:902:dad1:b0:183:243c:d0d0 with SMTP id q17-20020a170902dad100b00183243cd0d0mr9360828plx.157.1667137895531;
+        Sun, 30 Oct 2022 06:51:35 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o10-20020a62f90a000000b005625d5ae760sm2736148pfh.11.2022.10.30.06.51.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 30 Oct 2022 06:51:35 -0700 (PDT)
+Message-ID: <635e8167.620a0220.bd2e5.43fd@mx.google.com>
+Date:   Sun, 30 Oct 2022 06:51:35 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y15+X1VJ5xdt1642@kroah.com>
-X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.76
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.15.y baseline: 159 runs, 1 regressions (v5.15.76)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,TVD_SPACE_RATIO
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Oct 30, 2022 at 02:38:39PM +0100, Greg KH wrote:
-> On Sat, Oct 29, 2022 at 01:12:11AM +0000, Oleksandr Tymoshenko wrote:
-> > Hello,
-> > 
-> > This commit causes the following panic in kernel built with clang
-> > (GCC build is not affected): 
-> > 
-> > [    8.320308] BUG: unable to handle page fault for address: ffffffff97216c6a                                        [26/4066]
-> > [    8.330029] #PF: supervisor write access in kernel mode                                                                    
-> > [    8.337263] #PF: error_code(0x0003) - permissions violation 
-> > [    8.344816] PGD 12e816067 P4D 12e816067 PUD 12e817063 PMD 800000012e2001e1                                                 
-> > [    8.354337] Oops: 0003 [#1] SMP PTI                
-> > [    8.359178] CPU: 2 PID: 437 Comm: curl Not tainted 5.4.220 #15                                                             
-> > [    8.367241] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015                                   
-> > [    8.378529] RIP: 0010:__do_once_slow_done+0xf/0xa0   
-> > [    8.384962] Code: 1b 84 db 74 0c 48 c7 c7 80 ce 8d 97 e8 fa e9 4a 00 84 db 0f 94 c0 5b 5d c3 66 90 55 48 89 e5 41 57 41 56 
-> > 53 49 89 d7 49 89 f6 <c6> 07 01 48 c7 c7 80 ce 8d 97 e8 d2 e9 4a 00 48 8b 3d 9b de c9 00                                      
-> > [    8.409066] RSP: 0018:ffffb764c02d3c90 EFLAGS: 00010246
-> > [    8.415697] RAX: 4f51d3d06bc94000 RBX: d474b86ddf7162eb RCX: 000000007229b1d6                                              
-> > [    8.424805] RDX: 0000000000000000 RSI: ffffffff9791b4a0 RDI: ffffffff97216c6a                                              
-> > [    8.434108] RBP: ffffb764c02d3ca8 R08: 0e81c130f1159fc1 R09: 1d19d60ce0b52c77                                              
-> > [    8.443408] R10: 8ea59218e6892b1f R11: d5260237a3c1e35c R12: ffff9c3dadd42600                                              
-> > [    8.452468] R13: ffffffff97910f80 R14: ffffffff9791b4a0 R15: 0000000000000000                                            
-> > [    8.461416] FS:  00007eff855b40c0(0000) GS:ffff9c3db7a80000(0000) knlGS:0000000000000000                                   
-> > [    8.471632] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033                                                              
-> > [    8.478763] CR2: ffffffff97216c6a CR3: 000000022ded0000 CR4: 00000000000006a0                                              
-> > [    8.487789] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000                                              
-> > [    8.496684] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400                                              
-> > [    8.505443] Call Trace:                                                                                                    
-> > [    8.508568]  __inet_hash_connect+0x523/0x530                                                                               
-> > [    8.513839]  ? inet_hash_connect+0x50/0x50                                                                                 
-> > [    8.518818]  ? secure_ipv4_port_ephemeral+0x69/0xe0
-> > [    8.525003]  tcp_v4_connect+0x2c5/0x410
-> > [    8.529858]  __inet_stream_connect+0xd7/0x360
-> > [    8.535329]  ? _raw_spin_unlock+0xe/0x10
-> > ... skipped ...
-> > 
-> > 
-> > The root cause is the difference in __section macro semantics between 5.4 and
-> > later LTS releases. On 5.4 it stringifies the argument so the ___done
-> > symbol is created in a bogus section ".data.once", with double quotes:
-> > 
-> > % readelf -S vmlinux | grep data.once
-> >   [ 5] ".data.once"      PROGBITS         ffffffff82216c6a  01416c6a
-> 
-> This is really odd.  I just did a bunch of build tests, and this seems
-> to only show up on the latest version of clang (14) and the 5.4 kernel.
-> Newer kernel trees are fine, and I don't see the problem showing up on
-> older clang releases with 5.4 (i.e. Android builds of the Android 11
-> release)
-> 
-> So this is very compiler and version dependant, ugh...
+stable-rc/linux-5.15.y baseline: 159 runs, 1 regressions (v5.15.76)
 
-Nope, I now can see this on 5.4 with older versions of clang, Android 11
-does show this as a problem.
+Regressions Summary
+-------------------
 
-So it's 5.4 specific, I wonder why all of the testing bots never saw
-this...
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.76/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.76
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4f5365f77018349d64386b202b37e8b737236556 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/635e4e6c8d14825735e7db6e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
+6/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-mt8183-kuk=
+ui-jacuzzi-juniper-sku16.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
+6/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-mt8183-kuk=
+ui-jacuzzi-juniper-sku16.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/635e4e6c8d14825735e7d=
+b6f
+        new failure (last pass: v5.15.75-79-g5a0236b27f28) =
+
+ =20
