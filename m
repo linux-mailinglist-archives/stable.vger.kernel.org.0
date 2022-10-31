@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8428A61302A
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:09:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A273613034
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:14:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229487AbiJaGJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 02:09:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41252 "EHLO
+        id S229479AbiJaGOT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 02:14:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229674AbiJaGJA (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 31 Oct 2022 02:09:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3685B25C3
-        for <Stable@vger.kernel.org>; Sun, 30 Oct 2022 23:08:59 -0700 (PDT)
+        with ESMTP id S229469AbiJaGOS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:14:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0864524C
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:14:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6F8260FCE
-        for <Stable@vger.kernel.org>; Mon, 31 Oct 2022 06:08:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBA9FC433D6;
-        Mon, 31 Oct 2022 06:08:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95B8360FCE
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:14:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 942C4C433D6;
+        Mon, 31 Oct 2022 06:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667196538;
-        bh=QfvI9IHnoY1vT/Hl4iJlpSuIlTurj6BAYKzndlMsuec=;
+        s=korg; t=1667196856;
+        bh=pZ3oTStRX3nILQg3y6PAAzqUcCL9rE+Pm8lLm21e3Yc=;
         h=Subject:To:Cc:From:Date:From;
-        b=MIJnGLByYWsQI4l16rZhEKaJB2kK68jiaqhr81D6nU+SqKsqOVZISes5ysJ8rAEgo
-         7FdAvtSqq8K1OCMz6SaiuVMoxL7RFSs0aLn400DSPHs3SLzDVZt3B05MT5zHQTkfVX
-         K7syeHVE9tambps3NVsDyyHyHRMyrdKKe/Kkoikk=
-Subject: FAILED: patch "[PATCH] iio: adc: stm32-adc: fix channel sampling time init" failed to apply to 6.0-stable tree
-To:     olivier.moysan@foss.st.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, andy.shevchenko@gmail.com,
-        fabrice.gasnier@foss.st.com
+        b=NoJIQqV2WX3jEVRSJllWyRevsmz6P2ZF9lxP4pxZG6NprHd75doaha1WUuxwM9LjY
+         9ryO3PWTveRZ/sD4k5LsYIVHjgXEVAhzAZOflN9CnCS3hiNJ6AA2wffFj6+egw068y
+         lXi3vh6+4BeCIcg2+M8yDckYt/gYhQSKOnTOTdmw=
+Subject: FAILED: patch "[PATCH] exec: Copy oldsighand->action under spin-lock" failed to apply to 5.4-stable tree
+To:     bernd.edlinger@hotmail.de, keescook@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Oct 2022 07:09:54 +0100
-Message-ID: <16671965943532@kroah.com>
+Date:   Mon, 31 Oct 2022 07:15:12 +0100
+Message-ID: <166719691229179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,15 +47,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-174dac5dc800 ("iio: adc: stm32-adc: fix channel sampling time init")
-d7705f35448a ("iio: adc: stm32-adc: convert to device properties")
+5bf2fedca8f5 ("exec: Copy oldsighand->action under spin-lock")
+021691559245 ("exec: Factor unshare_sighand out of de_thread and call it separately")
 
 thanks,
 
@@ -65,55 +63,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 174dac5dc800e4e2e4552baf6340846a344d01a3 Mon Sep 17 00:00:00 2001
-From: Olivier Moysan <olivier.moysan@foss.st.com>
-Date: Wed, 12 Oct 2022 16:21:58 +0200
-Subject: [PATCH] iio: adc: stm32-adc: fix channel sampling time init
+From 5bf2fedca8f59379025b0d52f917b9ddb9bfe17e Mon Sep 17 00:00:00 2001
+From: Bernd Edlinger <bernd.edlinger@hotmail.de>
+Date: Mon, 7 Jun 2021 15:54:27 +0200
+Subject: [PATCH] exec: Copy oldsighand->action under spin-lock
 
-Fix channel init for ADC generic channel bindings.
-In generic channel initialization, stm32_adc_smpr_init() is called to
-initialize channel sampling time. The "st,min-sample-time-ns" property
-is an optional property. If it is not defined, stm32_adc_smpr_init() is
-currently skipped.
-However stm32_adc_smpr_init() must always be called, to force a minimum
-sampling time for the internal channels, as the minimum sampling time is
-known. Make stm32_adc_smpr_init() call unconditional.
+unshare_sighand should only access oldsighand->action
+while holding oldsighand->siglock, to make sure that
+newsighand->action is in a consistent state.
 
-Fixes: 796e5d0b1e9b ("iio: adc: stm32-adc: use generic binding for sample-time")
-Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/20221012142205.13041-2-olivier.moysan@foss.st.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
+Cc: stable@vger.kernel.org
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/AM8PR10MB470871DEBD1DED081F9CC391E4389@AM8PR10MB4708.EURPRD10.PROD.OUTLOOK.COM
 
-diff --git a/drivers/iio/adc/stm32-adc.c b/drivers/iio/adc/stm32-adc.c
-index 6256977eb7f7..3cda529f081d 100644
---- a/drivers/iio/adc/stm32-adc.c
-+++ b/drivers/iio/adc/stm32-adc.c
-@@ -2086,18 +2086,19 @@ static int stm32_adc_generic_chan_init(struct iio_dev *indio_dev,
- 		stm32_adc_chan_init_one(indio_dev, &channels[scan_index], val,
- 					vin[1], scan_index, differential);
+diff --git a/fs/exec.c b/fs/exec.c
+index 349a5da91efe..32dc8cf5fceb 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1197,11 +1197,11 @@ static int unshare_sighand(struct task_struct *me)
+ 			return -ENOMEM;
  
-+		val = 0;
- 		ret = fwnode_property_read_u32(child, "st,min-sample-time-ns", &val);
- 		/* st,min-sample-time-ns is optional */
--		if (!ret) {
--			stm32_adc_smpr_init(adc, channels[scan_index].channel, val);
--			if (differential)
--				stm32_adc_smpr_init(adc, vin[1], val);
--		} else if (ret != -EINVAL) {
-+		if (ret && ret != -EINVAL) {
- 			dev_err(&indio_dev->dev, "Invalid st,min-sample-time-ns property %d\n",
- 				ret);
- 			goto err;
- 		}
+ 		refcount_set(&newsighand->count, 1);
+-		memcpy(newsighand->action, oldsighand->action,
+-		       sizeof(newsighand->action));
  
-+		stm32_adc_smpr_init(adc, channels[scan_index].channel, val);
-+		if (differential)
-+			stm32_adc_smpr_init(adc, vin[1], val);
-+
- 		scan_index++;
- 	}
- 
+ 		write_lock_irq(&tasklist_lock);
+ 		spin_lock(&oldsighand->siglock);
++		memcpy(newsighand->action, oldsighand->action,
++		       sizeof(newsighand->action));
+ 		rcu_assign_pointer(me->sighand, newsighand);
+ 		spin_unlock(&oldsighand->siglock);
+ 		write_unlock_irq(&tasklist_lock);
 
