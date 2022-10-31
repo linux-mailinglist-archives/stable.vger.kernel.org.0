@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE7566130B1
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:48:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5E406130B3
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:49:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229475AbiJaGs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 02:48:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58200 "EHLO
+        id S229574AbiJaGtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 02:49:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229565AbiJaGsz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:48:55 -0400
+        with ESMTP id S229565AbiJaGtG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:49:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA8189FD1
-        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:48:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 321139FD1
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:49:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9291EB81148
-        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:48:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB61AC433C1;
-        Mon, 31 Oct 2022 06:48:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D876DB8112D
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:49:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3456BC433D6;
+        Mon, 31 Oct 2022 06:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667198932;
-        bh=GFjFMye49OUwsjDWp42w6B/uMJ03bAA5aAV2rK39QzA=;
+        s=korg; t=1667198943;
+        bh=tGnTC+dc9xkmwq/21NOTYQeEaGySCb6ZkfFoqzG8oFc=;
         h=Subject:To:Cc:From:Date:From;
-        b=LhxPx93gCv8nDmUmIvreGIRQ21HvsqgdJs4ycrmnsMq5oG4ZRFXGJ+qtt12ydzXoB
-         56qTrIQ2LnKGeLeHAPxdb0m2bYZYSdqQlLMlmgsllZ10J2Qj0KmngVr27gd9u/XRIk
-         qM1vuCsIuMtTRGXKYcWqdY5hqLT7HEjgwoXAETPc=
-Subject: FAILED: patch "[PATCH] perf auxtrace: Fix address filter symbol name match for" failed to apply to 4.9-stable tree
-To:     adrian.hunter@intel.com, acme@redhat.com, irogers@google.com,
-        jolsa@kernel.org, namhyung@kernel.org
+        b=aEfN9tntqEU6ZwT3saXmybBCXaE4xZ3zLPQKNagWwJBmpEsQH9YVOai1JPUF4I6EB
+         3kGySPrYa3D5gRTbbYWo0lq4GD8sv6XWg7eTP9E4TUBwFFKccQJTolBDwP2jU3O0Rp
+         K6zQSGsndTpIG48qJhVuk7V6gBnOBXYSGArqa01g=
+Subject: FAILED: patch "[PATCH] s390/boot: add secure boot trailer" failed to apply to 5.15-stable tree
+To:     oberpar@linux.ibm.com, gor@linux.ibm.com, stable@vger.kernel.org,
+        svens@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Oct 2022 07:49:39 +0100
-Message-ID: <16671989797156@kroah.com>
+Date:   Mon, 31 Oct 2022 07:49:59 +0100
+Message-ID: <16671989994781@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,15 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-cba04f3136b6 ("perf auxtrace: Fix address filter symbol name match for modules")
-e85e0e0ccc60 ("perf tools: Use kallsyms__is_function()")
+aa127a069ef3 ("s390/boot: add secure boot trailer")
 
 thanks,
 
@@ -64,50 +63,41 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From cba04f3136b658583adb191556f99d087589c1cc Mon Sep 17 00:00:00 2001
-From: Adrian Hunter <adrian.hunter@intel.com>
-Date: Wed, 26 Oct 2022 10:27:36 +0300
-Subject: [PATCH] perf auxtrace: Fix address filter symbol name match for
- modules
+From aa127a069ef312aca02b730d5137e1778d0c3ba7 Mon Sep 17 00:00:00 2001
+From: Peter Oberparleiter <oberpar@linux.ibm.com>
+Date: Fri, 16 Sep 2022 15:01:36 +0200
+Subject: [PATCH] s390/boot: add secure boot trailer
 
-For modules, names from kallsyms__parse() contain the module name which
-meant that module symbols did not match exactly by name.
+This patch enhances the kernel image adding a trailer as required for
+secure boot by future firmware versions.
 
-Fix by matching the name string up to the separating tab character.
+Cc: <stable@vger.kernel.org> # 5.2+
+Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 
-Fixes: 1b36c03e356936d6 ("perf record: Add support for using symbols in address filters")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221026072736.2982-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-
-diff --git a/tools/perf/util/auxtrace.c b/tools/perf/util/auxtrace.c
-index 60d8beb662aa..46ada5ec3f9a 100644
---- a/tools/perf/util/auxtrace.c
-+++ b/tools/perf/util/auxtrace.c
-@@ -2325,11 +2325,19 @@ struct sym_args {
- 	bool		near;
- };
+diff --git a/arch/s390/boot/vmlinux.lds.S b/arch/s390/boot/vmlinux.lds.S
+index af5c6860e0a1..fa9d33b01b85 100644
+--- a/arch/s390/boot/vmlinux.lds.S
++++ b/arch/s390/boot/vmlinux.lds.S
+@@ -102,8 +102,17 @@ SECTIONS
+ 		_compressed_start = .;
+ 		*(.vmlinux.bin.compressed)
+ 		_compressed_end = .;
+-		FILL(0xff);
+-		. = ALIGN(4096);
++	}
++
++#define SB_TRAILER_SIZE 32
++	/* Trailer needed for Secure Boot */
++	. += SB_TRAILER_SIZE; /* make sure .sb.trailer does not overwrite the previous section */
++	. = ALIGN(4096) - SB_TRAILER_SIZE;
++	.sb.trailer : {
++		QUAD(0)
++		QUAD(0)
++		QUAD(0)
++		QUAD(0x000000207a49504c)
+ 	}
+ 	_end = .;
  
-+static bool kern_sym_name_match(const char *kname, const char *name)
-+{
-+	size_t n = strlen(name);
-+
-+	return !strcmp(kname, name) ||
-+	       (!strncmp(kname, name, n) && kname[n] == '\t');
-+}
-+
- static bool kern_sym_match(struct sym_args *args, const char *name, char type)
- {
- 	/* A function with the same name, and global or the n'th found or any */
- 	return kallsyms__is_function(type) &&
--	       !strcmp(name, args->name) &&
-+	       kern_sym_name_match(name, args->name) &&
- 	       ((args->global && isupper(type)) ||
- 		(args->selected && ++(args->cnt) == args->idx) ||
- 		(!args->global && !args->selected));
 
