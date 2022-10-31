@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16FB3613095
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:40:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 142D9613096
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:41:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229515AbiJaGk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 02:40:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55742 "EHLO
+        id S229647AbiJaGlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 02:41:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229642AbiJaGk5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:40:57 -0400
+        with ESMTP id S229642AbiJaGlF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:41:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE327662
-        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:40:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1EA5BC2B
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:41:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AB8A60FDF
-        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:40:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B57BC433C1;
-        Mon, 31 Oct 2022 06:40:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BED860FBB
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:41:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AB58C433C1;
+        Mon, 31 Oct 2022 06:41:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667198454;
-        bh=lqMLB0TfOpzztaLAK9HMkaiFOchkledx/zD7bI4QFog=;
+        s=korg; t=1667198463;
+        bh=2weqA4V2255ozMRgtnNrc1NhzF12FA0ME9uxxx2AYHc=;
         h=Subject:To:Cc:From:Date:From;
-        b=yZbV0rtmWz0OuWKEdd5zCvBB1E50R1vfEn22ZZgl9nmVa+TR9A4qz+byAjb21V+Ry
-         x1UFaG+VHIei63yHXWYkhgV3G/HC3ijOqEjxkAsQrSdOIgyo7168Xx7kdi+5+Qwczt
-         8GI5BM2ZECOq4E8i6paAfZEcbLZU/XzDw774fKSg=
-Subject: FAILED: patch "[PATCH] counter: 104-quad-8: Fix race getting function mode and" failed to apply to 5.15-stable tree
+        b=0fWK7Q4RZ31BrBgDGk5PHBCftchW7McgH/111bK1C5gTLFtcqWmq2vHs7ZhVTi6Vt
+         jrPQO7gk/WfSd6fGpkSezn9/ygalowVbRCEYYnytYZmwFDXMjV9BHaRnv+mKyh4E4E
+         pAIHA5cqTmoymkQQC9ASfGaqExHpIkQY47PQS4lA=
+Subject: FAILED: patch "[PATCH] counter: 104-quad-8: Fix race getting function mode and" failed to apply to 5.10-stable tree
 To:     william.gray@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Oct 2022 07:41:50 +0100
-Message-ID: <166719851012451@kroah.com>
+Date:   Mon, 31 Oct 2022 07:41:51 +0100
+Message-ID: <166719851114627@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,6 +61,19 @@ aea8334b24fe ("counter: 104-quad-8: Convert to counter_priv() wrapper")
 aaec1a0f76ec ("counter: Internalize sysfs interface code")
 ea434ff82649 ("counter: stm32-timer-cnt: Provide defines for slave mode selection")
 05593a3fd103 ("counter: stm32-lptimer-cnt: Provide defines for clock polarities")
+394a0150a064 ("counter: Rename counter_count_function to counter_function")
+493b938a14ed ("counter: Rename counter_signal_value to counter_signal_level")
+b11eed1554e8 ("counter: Return error code on invalid modes")
+728246e8f726 ("counter: 104-quad-8: Return error when invalid mode during ceiling_write")
+d0ce3d5cf77d ("counter: stm32-timer-cnt: Add const qualifier for actions_list array")
+f83e6e59366b ("counter: stm32-lptimer-cnt: Add const qualifier for actions_list array")
+0056a405c7ad ("counter: microchip-tcb-capture: Add const qualifier for actions_list array")
+9b2574f61c49 ("counter: ftm-quaddec: Add const qualifier for actions_list array")
+6a9eb0e31044 ("counter: 104-quad-8: Add const qualifier for actions_list array")
+45af9ae84c60 ("counter: stm32-timer-cnt: Add const qualifier for functions_list array")
+8a00fed665ad ("counter: stm32-lptimer-cnt: Add const qualifier for functions_list array")
+7e0dcfcefeca ("counter: microchip-tcb-capture: Add const qualifier for functions_list array")
+891b58b35fd6 ("counter: interrupt-cnt: Add const qualifier for functions_list array")
 
 thanks,
 
