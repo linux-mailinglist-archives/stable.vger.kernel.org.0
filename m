@@ -2,55 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FE7F6130DC
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 08:02:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E4C66130DB
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 08:02:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229587AbiJaHCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 03:02:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34888 "EHLO
+        id S229536AbiJaHCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 03:02:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229457AbiJaHCS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 03:02:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B9E1BC31;
-        Mon, 31 Oct 2022 00:02:17 -0700 (PDT)
+        with ESMTP id S229457AbiJaHCO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 03:02:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50384BC31
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 00:02:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3657AB81151;
-        Mon, 31 Oct 2022 07:02:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6230DC433C1;
-        Mon, 31 Oct 2022 07:02:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E022460FE9
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 07:02:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3487C433D6;
+        Mon, 31 Oct 2022 07:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667199734;
-        bh=izXUeTAnZYDOq36uQJFHi8H95rgZoH4hxSRBjqOB43k=;
-        h=From:To:Cc:Subject:Date:From;
-        b=WDTZe131H5mBA1z9XM8YMCa0dYryERRsdZOlPzbziKLdoOplI6Ig7x8muFaoe2uKX
-         GjvUrMkAY/MBTyjuskGnQtsL8xxRBgeM4Hal+ORzWOmFHlEXxjFVjrsaV1Xi+c9CXS
-         GS4apyipyzYYS30DEkLUKLNln89sqMYGnIlrJITU=
+        s=korg; t=1667199732;
+        bh=W4VyP3LkI/36PuB6z9Emmh72hZcJQm/7g0X7OFjW9IA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=zUOKv2crzxFnrT3ZpGy5HngR8YRuOy2cyXbApOFczOhweT5PfOKTXo8lQQiOcAkCV
+         Xt98+PSACVU0woIhDeQ1vFI9sOPRvgaeFgv77yxcmRP1cdmYwLo+xtknkrlPngGARq
+         /5U8k5FbI7cgfa5mYwU3jFtIE5E97VKpSpMGfrw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: [PATCH 4.14 00/34] 4.14.297-rc1 review
-Date:   Mon, 31 Oct 2022 08:02:33 +0100
-Message-Id: <20221031070140.108124105@linuxfoundation.org>
+        patches@lists.linux.dev, Suraj Jitindar Singh <surajjs@amazon.com>
+Subject: [PATCH 4.14 01/34] Revert "x86/cpu: Add a steppings field to struct x86_cpu_id"
+Date:   Mon, 31 Oct 2022 08:02:34 +0100
+Message-Id: <20221031070140.147079986@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-MIME-Version: 1.0
+In-Reply-To: <20221031070140.108124105@linuxfoundation.org>
+References: <20221031070140.108124105@linuxfoundation.org>
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.297-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.297-rc1
-X-KernelTest-Deadline: 2022-11-02T07:01+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,164 +53,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.297 release.
-There are 34 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Suraj Jitindar Singh <surajjs@amazon.com>
 
-Responses should be made by Wed, 02 Nov 2022 07:01:32 +0000.
-Anything received after that time might be too late.
+This reverts commit ae585de4296413ae4bbb8f2ac09faa38ff78f4cd.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.297-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+This is commit e9d7144597b10ff13ff2264c059f7d4a7fbc89ac upstream. Reverting this
+commit makes the following patches apply cleanly. This patch is then reapplied.
 
-thanks,
+Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/x86/include/asm/cpu_device_id.h |   27 ---------------------------
+ arch/x86/kernel/cpu/match.c          |    7 +------
+ include/linux/mod_devicetable.h      |    6 ------
+ 3 files changed, 1 insertion(+), 39 deletions(-)
 
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.297-rc1
-
-Daniel Sneddon <daniel.sneddon@linux.intel.com>
-    x86/speculation: Add RSB VM Exit protections
-
-Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-    x86/bugs: Warn when "ibrs" mitigation is selected on Enhanced IBRS parts
-
-Nathan Chancellor <nathan@kernel.org>
-    x86/speculation: Use DECLARE_PER_CPU for x86_spec_ctrl_current
-
-Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-    x86/speculation: Disable RRSBA behavior
-
-Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-    x86/bugs: Add Cannon lake to RETBleed affected CPU list
-
-Andrew Cooper <andrew.cooper3@citrix.com>
-    x86/cpu/amd: Enumerate BTC_NO
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/common: Stamp out the stepping madness
-
-Josh Poimboeuf <jpoimboe@kernel.org>
-    x86/speculation: Fill RSB on vmexit for IBRS
-
-Josh Poimboeuf <jpoimboe@kernel.org>
-    KVM: VMX: Fix IBRS handling after vmexit
-
-Josh Poimboeuf <jpoimboe@kernel.org>
-    KVM: VMX: Prevent guest RSB poisoning attacks with eIBRS
-
-Josh Poimboeuf <jpoimboe@kernel.org>
-    x86/speculation: Remove x86_spec_ctrl_mask
-
-Josh Poimboeuf <jpoimboe@kernel.org>
-    x86/speculation: Use cached host SPEC_CTRL value for guest entry/exit
-
-Josh Poimboeuf <jpoimboe@kernel.org>
-    x86/speculation: Fix SPEC_CTRL write on SMT state change
-
-Josh Poimboeuf <jpoimboe@kernel.org>
-    x86/speculation: Fix firmware entry SPEC_CTRL handling
-
-Josh Poimboeuf <jpoimboe@kernel.org>
-    x86/speculation: Fix RSB filling with CONFIG_RETPOLINE=n
-
-Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-    x86/speculation: Add LFENCE to RSB fill sequence
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/speculation: Change FILL_RETURN_BUFFER to work with objtool
-
-Peter Zijlstra <peterz@infradead.org>
-    entel_idle: Disable IBRS during long idle
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/bugs: Report Intel retbleed vulnerability
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/bugs: Split spectre_v2_select_mitigation() and spectre_v2_user_select_mitigation()
-
-Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-    x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/bugs: Optimize SPEC_CTRL MSR writes
-
-Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-    x86/entry: Add kernel IBRS implementation
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value
-
-Alexandre Chartre <alexandre.chartre@oracle.com>
-    x86/bugs: Add AMD retbleed= boot parameter
-
-Alexandre Chartre <alexandre.chartre@oracle.com>
-    x86/bugs: Report AMD retbleed vulnerability
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/cpufeatures: Move RETPOLINE flags to word 11
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/entry: Remove skip_r11rcx
-
-Mark Gross <mgross@linux.intel.com>
-    x86/cpu: Add a steppings field to struct x86_cpu_id
-
-Thomas Gleixner <tglx@linutronix.de>
-    x86/cpu: Add consistent CPU match macros
-
-Thomas Gleixner <tglx@linutronix.de>
-    x86/devicetable: Move x86 specific macro out of generic code
-
-Ingo Molnar <mingo@kernel.org>
-    x86/cpufeature: Fix various quality problems in the <asm/cpu_device_hd.h> header
-
-Kan Liang <kan.liang@linux.intel.com>
-    x86/cpufeature: Add facility to check for min microcode revisions
-
-Suraj Jitindar Singh <surajjs@amazon.com>
-    Revert "x86/cpu: Add a steppings field to struct x86_cpu_id"
-
-
--------------
-
-Diffstat:
-
- Documentation/admin-guide/hw-vuln/spectre.rst   |   8 +
- Documentation/admin-guide/kernel-parameters.txt |  13 +
- Makefile                                        |   4 +-
- arch/x86/entry/calling.h                        |  68 +++-
- arch/x86/entry/entry_32.S                       |   2 -
- arch/x86/entry/entry_64.S                       |  38 ++-
- arch/x86/entry/entry_64_compat.S                |  12 +-
- arch/x86/include/asm/cpu_device_id.h            | 168 +++++++++-
- arch/x86/include/asm/cpufeatures.h              |  16 +-
- arch/x86/include/asm/intel-family.h             |   6 +
- arch/x86/include/asm/msr-index.h                |  14 +
- arch/x86/include/asm/nospec-branch.h            |  48 +--
- arch/x86/kernel/cpu/amd.c                       |  21 +-
- arch/x86/kernel/cpu/bugs.c                      | 415 ++++++++++++++++++++----
- arch/x86/kernel/cpu/common.c                    |  68 ++--
- arch/x86/kernel/cpu/match.c                     |  44 ++-
- arch/x86/kernel/cpu/scattered.c                 |   1 +
- arch/x86/kernel/process.c                       |   2 +-
- arch/x86/kvm/svm.c                              |   1 +
- arch/x86/kvm/vmx.c                              |  51 ++-
- drivers/base/cpu.c                              |   8 +
- drivers/cpufreq/acpi-cpufreq.c                  |   1 +
- drivers/cpufreq/amd_freq_sensitivity.c          |   1 +
- drivers/idle/intel_idle.c                       |  45 ++-
- include/linux/cpu.h                             |   2 +
- include/linux/mod_devicetable.h                 |   4 +-
- tools/arch/x86/include/asm/cpufeatures.h        |   1 +
- 27 files changed, 899 insertions(+), 163 deletions(-)
+--- a/arch/x86/include/asm/cpu_device_id.h
++++ b/arch/x86/include/asm/cpu_device_id.h
+@@ -9,33 +9,6 @@
+ 
+ #include <linux/mod_devicetable.h>
+ 
+-#define X86_STEPPINGS(mins, maxs)    GENMASK(maxs, mins)
+-
+-/**
+- * X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE - Base macro for CPU matching
+- * @_vendor:	The vendor name, e.g. INTEL, AMD, HYGON, ..., ANY
+- *		The name is expanded to X86_VENDOR_@_vendor
+- * @_family:	The family number or X86_FAMILY_ANY
+- * @_model:	The model number, model constant or X86_MODEL_ANY
+- * @_steppings:	Bitmask for steppings, stepping constant or X86_STEPPING_ANY
+- * @_feature:	A X86_FEATURE bit or X86_FEATURE_ANY
+- * @_data:	Driver specific data or NULL. The internal storage
+- *		format is unsigned long. The supplied value, pointer
+- *		etc. is casted to unsigned long internally.
+- *
+- * Backport version to keep the SRBDS pile consistant. No shorter variants
+- * required for this.
+- */
+-#define X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE(_vendor, _family, _model, \
+-						    _steppings, _feature, _data) { \
+-	.vendor		= X86_VENDOR_##_vendor,				\
+-	.family		= _family,					\
+-	.model		= _model,					\
+-	.steppings	= _steppings,					\
+-	.feature	= _feature,					\
+-	.driver_data	= (unsigned long) _data				\
+-}
+-
+ extern const struct x86_cpu_id *x86_match_cpu(const struct x86_cpu_id *match);
+ 
+ #endif
+--- a/arch/x86/kernel/cpu/match.c
++++ b/arch/x86/kernel/cpu/match.c
+@@ -34,18 +34,13 @@ const struct x86_cpu_id *x86_match_cpu(c
+ 	const struct x86_cpu_id *m;
+ 	struct cpuinfo_x86 *c = &boot_cpu_data;
+ 
+-	for (m = match;
+-	     m->vendor | m->family | m->model | m->steppings | m->feature;
+-	     m++) {
++	for (m = match; m->vendor | m->family | m->model | m->feature; m++) {
+ 		if (m->vendor != X86_VENDOR_ANY && c->x86_vendor != m->vendor)
+ 			continue;
+ 		if (m->family != X86_FAMILY_ANY && c->x86 != m->family)
+ 			continue;
+ 		if (m->model != X86_MODEL_ANY && c->x86_model != m->model)
+ 			continue;
+-		if (m->steppings != X86_STEPPING_ANY &&
+-		    !(BIT(c->x86_stepping) & m->steppings))
+-			continue;
+ 		if (m->feature != X86_FEATURE_ANY && !cpu_has(c, m->feature))
+ 			continue;
+ 		return m;
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -589,10 +589,6 @@ struct mips_cdmm_device_id {
+ /*
+  * MODULE_DEVICE_TABLE expects this struct to be called x86cpu_device_id.
+  * Although gcc seems to ignore this error, clang fails without this define.
+- *
+- * Note: The ordering of the struct is different from upstream because the
+- * static initializers in kernels < 5.7 still use C89 style while upstream
+- * has been converted to proper C99 initializers.
+  */
+ #define x86cpu_device_id x86_cpu_id
+ struct x86_cpu_id {
+@@ -601,7 +597,6 @@ struct x86_cpu_id {
+ 	__u16 model;
+ 	__u16 feature;	/* bit index */
+ 	kernel_ulong_t driver_data;
+-	__u16 steppings;
+ };
+ 
+ #define X86_FEATURE_MATCH(x) \
+@@ -610,7 +605,6 @@ struct x86_cpu_id {
+ #define X86_VENDOR_ANY 0xffff
+ #define X86_FAMILY_ANY 0
+ #define X86_MODEL_ANY  0
+-#define X86_STEPPING_ANY 0
+ #define X86_FEATURE_ANY 0	/* Same as FPU, you can't test for that */
+ 
+ /*
 
 
