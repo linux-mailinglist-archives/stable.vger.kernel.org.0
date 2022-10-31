@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6E9261301D
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:05:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCF2561301E
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:05:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229505AbiJaGFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 02:05:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38426 "EHLO
+        id S229566AbiJaGFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 02:05:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229477AbiJaGFB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:05:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA9E363C0
-        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:04:59 -0700 (PDT)
+        with ESMTP id S229477AbiJaGFH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:05:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF60E646B
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:05:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76BE0B81117
-        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:04:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC757C433D6;
-        Mon, 31 Oct 2022 06:04:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5944D60FCE
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:05:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F3AEC433B5;
+        Mon, 31 Oct 2022 06:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667196297;
-        bh=BvHgeq9EemD3RoaeWNit1OACSio2ZGr0R/PIJUlMXgE=;
+        s=korg; t=1667196305;
+        bh=+lQsOM8gaN4taiyNdE9DqurvgDsjVV7h7Q8N2wk+Mes=;
         h=Subject:To:Cc:From:Date:From;
-        b=K4uULWUBjhcO1VccNBqklTlT26crlVZDFKaeNnYLfGKQRpwdcmg6TwLH+So35uB+b
-         lw9NYZkBPsBNVsK/K6Fu0ZI8GizQExaZD5B5DhRpIhxplpNSZjwLznlQJLE54HmHPB
-         iJ4ODZUi3CY6eMT7XlRGL5xtiggB53reWS3qLY8g=
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Add quirk for ASUS Zenbook using CS35L41" failed to apply to 5.4-stable tree
+        b=dscKMwKlrUjpVVM7MmX8y68RFgtB5wuaWo4OLIzWguPd1gIoykItHx0jXQQ9Aie6r
+         E3anjQTeRAzZ4uF35WNHC13QTUoA0GosAbvwmgztgKp49ue4XYhVQdCP4RIpiirtiZ
+         qt5bZU1DAceFRAlSW3B98zIhE1w+HOzq7WPy94K0=
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Add quirk for ASUS Zenbook using CS35L41" failed to apply to 5.10-stable tree
 To:     sbinding@opensource.cirrus.com, stable@vger.kernel.org,
         tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 31 Oct 2022 07:05:53 +0100
-Message-ID: <1667196353147227@kroah.com>
+Message-ID: <166719635321447@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,25 +56,6 @@ id to <stable@vger.kernel.org>.
 Possible dependencies:
 
 491a4ccd8a02 ("ALSA: hda/realtek: Add quirk for ASUS Zenbook using CS35L41")
-ef9ce66fab95 ("ALSA: hda/realtek - Enable headphone for ASUS TM420")
-8a8de09cb2ad ("ALSA: hda/realtek - Fixed HP headset Mic can't be detected")
-08befca40026 ("ALSA: hda/realtek - Add mute Led support for HP Elitebook 845 G7")
-13468bfa8c58 ("ALSA: hda/realtek - set mic to auto detect on a HP AIO machine")
-fc19d559b0d3 ("ALSA: hda/realtek - The Mic on a RedmiBook doesn't work")
-23dc95868944 ("ALSA: hda/realtek: Add model alc298-samsung-headphone")
-e2d2fded6bdf ("ALSA: hda/realtek: Fix pin default on Intel NUC 8 Rugged")
-f1ec5be17b9a ("ALSA: hda/realtek: Add alc269/alc662 pin-tables for Loongson-3 laptops")
-5649625344fe ("ALSA: hda/realtek - Fixed HP right speaker no sound")
-4b43d05a1978 ("ALSA: hda/realtek: enable headset mic of ASUS ROG Zephyrus G15(GA502) series with ALC289")
-f50a121d2f32 ("ALSA: hda/realtek: Enable headset mic of Acer TravelMate B311R-31 with ALC256")
-ff53664daff2 ("ALSA: hda/realtek: enable headset mic of ASUS ROG Zephyrus G14(G401) series with ALC289")
-781c90c034d9 ("ALSA: hda/realtek: Enable headset mic of Acer Veriton N4660G with ALC269VC")
-6e15d1261d52 ("ALSA: hda/realtek: Enable headset mic of Acer C20-820 with ALC269VC")
-8eae7e9b3967 ("ALSA: hda/realtek - Enable audio jacks of Acer vCopperbox with ALC269VC")
-b2c22910fe5a ("ALSA: hda/realtek: Add mute LED and micmute LED support for HP systems")
-9e43342b464f ("ALSA: hda/realtek - Enable headset mic of ASUS GL503VM with ALC295")
-14425f1f521f ("ALSA: hda/realtek: Add quirk for Samsung Notebook")
-24164f434dc9 ("ALSA: hda/realtek - Add HP new mute led supported for ALC236")
 
 thanks,
 
