@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 501C4612FF8
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 06:48:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81510612FF9
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 06:49:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229487AbiJaFs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 01:48:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58720 "EHLO
+        id S229495AbiJaFtU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 01:49:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbiJaFsz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 01:48:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3ED6AE6F
-        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 22:48:54 -0700 (PDT)
+        with ESMTP id S229494AbiJaFtM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 01:49:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB90B1D8
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 22:49:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 556B5B8111C
-        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 05:48:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A815AC433C1;
-        Mon, 31 Oct 2022 05:48:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 018F0B8111C
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 05:49:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 622E8C433C1;
+        Mon, 31 Oct 2022 05:48:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667195332;
-        bh=RGoCPsuFxXU4VmBZL347D8YiwSNRWTXs7aV2DKpvHZA=;
+        s=korg; t=1667195338;
+        bh=/7zRa3g9uqvrOklb4X3srLBXkW03fnpZX+GFwGScOmM=;
         h=Subject:To:Cc:From:Date:From;
-        b=DHPepy1HLsOOY6V/XaoBDzxsdMYUEVZQPYZp7YieZ6AEK9Djv24xUFJ/t82nz08FL
-         BMVdBAwYZGb8rhGVfg7G/C+naWPk+w3f8EKjoS9tSL3enulwKvPrEtKX3Tvo6o2Rlr
-         eE/yMmiJZw496BYUbF3wk2HbSihW63gc8GgKEP1U=
-Subject: FAILED: patch "[PATCH] usb: typec: ucsi: acpi: Implement resume callback" failed to apply to 5.15-stable tree
+        b=M52Rhbl3b0ld+/pRd90PZQM9uQmJzCxECXDaZx+7UVfrGnj7aXB8Afxv9tCdjhqUP
+         PcAT9V6ftKHK1jn90e1yM4gRZ7fjmmRpz02Bt7/Gje/jpas5dYC3bjcsBlWjYMEZsp
+         6UZpvtPnmdoSAUK9uwQHvJNMtTiKF8B+mCmht1bk=
+Subject: FAILED: patch "[PATCH] usb: typec: ucsi: acpi: Implement resume callback" failed to apply to 5.10-stable tree
 To:     heikki.krogerus@linux.intel.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Oct 2022 06:49:48 +0100
-Message-ID: <166719538819395@kroah.com>
+Date:   Mon, 31 Oct 2022 06:49:54 +0100
+Message-ID: <166719539446109@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
