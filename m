@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9233B612FC3
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 06:39:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E5A6612FCB
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 06:41:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229726AbiJaFjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 01:39:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52532 "EHLO
+        id S229750AbiJaFlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 01:41:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229721AbiJaFjh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 01:39:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25794B87C
-        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 22:39:36 -0700 (PDT)
+        with ESMTP id S229757AbiJaFlP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 01:41:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67641AE6F
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 22:41:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8C3360FA5
-        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 05:39:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE5F7C433D7;
-        Mon, 31 Oct 2022 05:39:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25AE5B81116
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 05:41:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CF64C433C1;
+        Mon, 31 Oct 2022 05:41:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667194775;
-        bh=qJ+1RV7WsyVxPNuSKAsouf+CEJEwo094Z5rXEONIOLc=;
+        s=korg; t=1667194871;
+        bh=cjqAapJl0KiA8BKtsVKxxfjZ/j/nafIPYzi7r6R467s=;
         h=Subject:To:Cc:From:Date:From;
-        b=OFNgOO16Ifh1WBmt1Bk1HddKQKeL2C0/fv1qgRPy7RHb5j8bofr8KX2PS8H2apf2i
-         CVDYahRmSEs3Jj3+ifwrDvSZs84XXH9IXrsdfaWX7poW/bV0iOjy9511Z2Inai3uvw
-         WeSA5bsd1VDwT1/HC3hDyiQIkSqXzQfq4h9k/kdw=
-Subject: FAILED: patch "[PATCH] usb: typec: ucsi: Check the connection on resume" failed to apply to 5.4-stable tree
-To:     heikki.krogerus@linux.intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=T4iUWpe5htSfD/pn8xjFrk49juXrAZXZZIqyGfSGoTx+XNOunyfI0e/PHbYkkdFAn
+         LA0YwnCqJQOnJQOQX13xgWXsiZFecvtD5UhFX8GutlAy/ol1hmQWBeFbjvH81d3ZCU
+         EgZ7vQTsFwMbVUlDJzEJmDRfRU2sTwEKdLhLsclY=
+Subject: FAILED: patch "[PATCH] mtd: rawnand: tegra: Fix PM disable depth imbalance in probe" failed to apply to 5.10-stable tree
+To:     zhangqilong3@huawei.com, miquel.raynal@bootlin.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Oct 2022 06:40:23 +0100
-Message-ID: <1667194823166232@kroah.com>
+Date:   Mon, 31 Oct 2022 06:41:59 +0100
+Message-ID: <1667194919229110@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,22 +47,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-99f6d4361113 ("usb: typec: ucsi: Check the connection on resume")
-512df95b9432 ("usb: typec: ucsi: Better fix for missing unplug events issue")
-bd19ac98f77e ("usb: typec: ucsi: Read the PDOs in separate work")
-6cbe4b2d5a3f ("usb: typec: ucsi: Check the partner alt modes always if there is PD contract")
-b9aa02ca39a4 ("usb: typec: ucsi: Add polling mechanism for partner tasks like alt mode checking")
-8c9b3caab3ac ("usb: typec: ucsi: Clear pending after acking connector change")
-1f4642b72be7 ("usb: typec: ucsi: Retrieve all the PDOs instead of just the first 4")
-89795852c9c4 ("usb: typec: ucsi: Add support for USB role switch")
-0fb2c41f992c ("Merge 5.10-rc4 into here.")
+3ada71310d2c ("mtd: rawnand: tegra: Fix PM disable depth imbalance in probe")
+6902dc2fd57c ("mtd: rawnand: tegra: Add runtime PM and OPP support")
 
 thanks,
 
@@ -71,100 +63,41 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 99f6d43611135bd6f211dec9e88bb41e4167e304 Mon Sep 17 00:00:00 2001
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Date: Fri, 7 Oct 2022 13:09:50 +0300
-Subject: [PATCH] usb: typec: ucsi: Check the connection on resume
+From 3ada71310d2c68eebb57772df6bb1f5f033ae802 Mon Sep 17 00:00:00 2001
+From: Zhang Qilong <zhangqilong3@huawei.com>
+Date: Mon, 26 Sep 2022 16:44:56 +0800
+Subject: [PATCH] mtd: rawnand: tegra: Fix PM disable depth imbalance in probe
 
-Checking the connection status of every port on resume. This
-fixes an issue where the partner device is not unregistered
-properly after resume if it was unplugged while the system
-was suspended.
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context.
 
-The function ucsi_check_connection() is also modified so
-that it can be used also for registering the connection on
-top of unregistering it.
+Cc: stable@vger.kernel.org
+Fixes: d7d9f8ec77fe9 ("mtd: rawnand: add NVIDIA Tegra NAND Flash controller driver")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220926084456.98160-1-zhangqilong3@huawei.com
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=210425
-Fixes: a94ecde41f7e ("usb: typec: ucsi: ccg: enable runtime pm support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20221007100951.43798-2-heikki.krogerus@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
-index 74fb5a4c6f21..a7987fc764cc 100644
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -183,16 +183,6 @@ int ucsi_send_command(struct ucsi *ucsi, u64 command,
- }
- EXPORT_SYMBOL_GPL(ucsi_send_command);
+diff --git a/drivers/mtd/nand/raw/tegra_nand.c b/drivers/mtd/nand/raw/tegra_nand.c
+index e12f9f580a15..a9b9031ce616 100644
+--- a/drivers/mtd/nand/raw/tegra_nand.c
++++ b/drivers/mtd/nand/raw/tegra_nand.c
+@@ -1181,7 +1181,7 @@ static int tegra_nand_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 	err = pm_runtime_resume_and_get(&pdev->dev);
+ 	if (err)
+-		return err;
++		goto err_dis_pm;
  
--int ucsi_resume(struct ucsi *ucsi)
--{
--	u64 command;
--
--	/* Restore UCSI notification enable mask after system resume */
--	command = UCSI_SET_NOTIFICATION_ENABLE | ucsi->ntfy;
--
--	return ucsi_send_command(ucsi, command, NULL, 0);
--}
--EXPORT_SYMBOL_GPL(ucsi_resume);
- /* -------------------------------------------------------------------------- */
- 
- struct ucsi_work {
-@@ -744,6 +734,7 @@ static void ucsi_partner_change(struct ucsi_connector *con)
- 
- static int ucsi_check_connection(struct ucsi_connector *con)
- {
-+	u8 prev_flags = con->status.flags;
- 	u64 command;
- 	int ret;
- 
-@@ -754,10 +745,13 @@ static int ucsi_check_connection(struct ucsi_connector *con)
- 		return ret;
- 	}
- 
-+	if (con->status.flags == prev_flags)
-+		return 0;
-+
- 	if (con->status.flags & UCSI_CONSTAT_CONNECTED) {
--		if (UCSI_CONSTAT_PWR_OPMODE(con->status.flags) ==
--		    UCSI_CONSTAT_PWR_OPMODE_PD)
--			ucsi_partner_task(con, ucsi_check_altmodes, 30, 0);
-+		ucsi_register_partner(con);
-+		ucsi_pwr_opmode_change(con);
-+		ucsi_partner_change(con);
- 	} else {
- 		ucsi_partner_change(con);
- 		ucsi_port_psy_changed(con);
-@@ -1276,6 +1270,28 @@ static int ucsi_init(struct ucsi *ucsi)
- 	return ret;
+ 	err = reset_control_reset(rst);
+ 	if (err) {
+@@ -1215,6 +1215,8 @@ static int tegra_nand_probe(struct platform_device *pdev)
+ err_put_pm:
+ 	pm_runtime_put_sync_suspend(ctrl->dev);
+ 	pm_runtime_force_suspend(ctrl->dev);
++err_dis_pm:
++	pm_runtime_disable(&pdev->dev);
+ 	return err;
  }
  
-+int ucsi_resume(struct ucsi *ucsi)
-+{
-+	struct ucsi_connector *con;
-+	u64 command;
-+	int ret;
-+
-+	/* Restore UCSI notification enable mask after system resume */
-+	command = UCSI_SET_NOTIFICATION_ENABLE | ucsi->ntfy;
-+	ret = ucsi_send_command(ucsi, command, NULL, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	for (con = ucsi->connector; con->port; con++) {
-+		mutex_lock(&con->lock);
-+		ucsi_check_connection(con);
-+		mutex_unlock(&con->lock);
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(ucsi_resume);
-+
- static void ucsi_init_work(struct work_struct *work)
- {
- 	struct ucsi *ucsi = container_of(work, struct ucsi, work.work);
 
