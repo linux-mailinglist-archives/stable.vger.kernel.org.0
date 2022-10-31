@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BFAB613092
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:40:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DACA613094
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:40:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229636AbiJaGkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 02:40:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55406 "EHLO
+        id S229696AbiJaGkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 02:40:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229574AbiJaGkJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:40:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065535FDA
-        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:40:08 -0700 (PDT)
+        with ESMTP id S229647AbiJaGkQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:40:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3CC2BCB1
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:40:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4825B81141
-        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:40:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2861C433D6;
-        Mon, 31 Oct 2022 06:40:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9354360FDA
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:40:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5B32C433C1;
+        Mon, 31 Oct 2022 06:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667198405;
-        bh=Yb2+HVO8e/qnPqf3Fk5wR3/1pjrwrylaMYNy2XjRqZM=;
+        s=korg; t=1667198414;
+        bh=T0ks8MZFHb4pySfzSlH2+8W7ouAbiH1lCWl8IUnIkZk=;
         h=Subject:To:Cc:From:Date:From;
-        b=qC9CytH5xrRgmAJ15CuvfpovrTSk9M3ZX8X/AyDoqC8BaQQ+hH4zSP3H/2pjgT9XQ
-         KbNvihyF14Oxzl5hM+rjp2dcz8emfvQ64U1E49nqcKYoQ6hjMlaHqLmLqDil+bpBre
-         QbUx0KrcmwgDFHbTWMI0oFP4OFxNk6DWMEpkUsJ8=
-Subject: FAILED: patch "[PATCH] mmc: sdhci-esdhc-imx: Propagate ESDHC_FLAG_HS400* only on" failed to apply to 5.10-stable tree
+        b=Kky0BCl14+GFqTGkl+QeNn5Jiqn8du651hbaiAWz1keRc5KDfXC22u1K9uE1kh1Cl
+         I1+cy+viwNyMtnY0HST8VibQcTuJg4lam7/kQs6g9h5yiIfLwtfvs/jMgOIiwvPyUT
+         pYFh0jfo9JuM0ObmMlDrzkBkOL2tFWLiWXjwWmYc=
+Subject: FAILED: patch "[PATCH] mmc: sdhci-esdhc-imx: Propagate ESDHC_FLAG_HS400* only on" failed to apply to 5.4-stable tree
 To:     s.hauer@pengutronix.de, haibo.chen@nxp.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Oct 2022 07:40:56 +0100
-Message-ID: <166719845613250@kroah.com>
+Date:   Mon, 31 Oct 2022 07:41:02 +0100
+Message-ID: <1667198462255164@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,8 @@ Possible dependencies:
 1ed5c3b22fc7 ("mmc: sdhci-esdhc-imx: Propagate ESDHC_FLAG_HS400* only on 8bit bus")
 2991ad76d253 ("mmc: sdhci-esdhc-imx: advertise HS400 mode through MMC caps")
 854a22997ad5 ("mmc: sdhci-esdhc-imx: Convert the driver to DT-only")
+df561f6688fe ("treewide: Use fallthrough pseudo-keyword")
+37711e5e2325 ("Merge tag 'nfs-for-5.9-1' of git://git.linux-nfs.org/projects/trondmy/linux-nfs")
 
 thanks,
 
