@@ -2,41 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CE68613097
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:41:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D924361309C
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:43:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229642AbiJaGlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 02:41:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55822 "EHLO
+        id S229492AbiJaGnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 02:43:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229648AbiJaGlJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:41:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB41EBE36
-        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:41:07 -0700 (PDT)
+        with ESMTP id S229495AbiJaGnP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:43:15 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BEEF9FCE;
+        Sun, 30 Oct 2022 23:43:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F080D60FDF
-        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:41:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F9A7C433D6;
-        Mon, 31 Oct 2022 06:41:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DE2BFCE11AA;
+        Mon, 31 Oct 2022 06:43:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3DB4C433C1;
+        Mon, 31 Oct 2022 06:43:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667198466;
-        bh=63dwigOT1xzrEnOuAYbz8vkAVfYQRHskeJorZsSl9nY=;
-        h=Subject:To:Cc:From:Date:From;
-        b=EKJJdYlXCuEcACvVX3a+1Zi/Oa6vkrxZz8daZA6+SnUWA7nS12qWMkqSNczXcru/J
-         3OdyCWfdJxy7RmFEHcjCH6Ej3yg5qCFXXIEGGGku/AB2+8ihzr1U6s4uPrChyBCJkj
-         O8OQRzNFGzMaXquR96KZoUsI1fnssMvCfFmuF/C8=
-Subject: FAILED: patch "[PATCH] counter: 104-quad-8: Fix race getting function mode and" failed to apply to 5.4-stable tree
-To:     william.gray@linaro.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Oct 2022 07:41:52 +0100
-Message-ID: <166719851253141@kroah.com>
+        s=korg; t=1667198591;
+        bh=/uOymnmq3L0wCgzh9UenzjngMO5eZ7weW3tXKMXj070=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SnApzoz5nPHjOYu3jOox7h9Lx3FxN9woN1z98MN+I2PZkjErP1pHDyzIlHHIoQPFi
+         UKgmo1t3281lBCpYm6fYM21XJFDLLwJ8hT8FZK1ZFthzmoIN2oQvh1t6jh+Y1zlICD
+         YredZBbU5ah/QSBt5XVbhG7kJm6Z3qC7ju+WAyz8=
+Date:   Mon, 31 Oct 2022 07:44:07 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Mel Gorman <mgorman@techsingularity.net>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Yang Shi <shy828301@gmail.com>,
+        Brian Foster <bfoster@redhat.com>,
+        Dan Streetman <ddstreet@ieee.org>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Seth Jennings <sjenning@redhat.com>,
+        Vitaly Wool <vitaly.wool@konsulko.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Subject: Re: [PATCH 6.0 19/20] mm/huge_memory: do not clobber swp_entry_t
+ during THP split
+Message-ID: <Y19utwpTpppwnQeS@kroah.com>
+References: <20221024112934.415391158@linuxfoundation.org>
+ <20221024112935.173960536@linuxfoundation.org>
+ <f6d7b68a-a5ae-2f85-49b7-f4666eb3a8c9@google.com>
+ <Y1gHmy6g0SMFXH5k@kroah.com>
+ <11bd36e-eff1-ca79-fa48-f32ba815523@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11bd36e-eff1-ca79-fa48-f32ba815523@google.com>
 X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -46,172 +64,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Oct 29, 2022 at 08:33:01PM -0700, Hugh Dickins wrote:
+> On Tue, 25 Oct 2022, Greg Kroah-Hartman wrote:
+> > On Tue, Oct 25, 2022 at 08:11:44AM -0700, Hugh Dickins wrote:
+> > > On Mon, 24 Oct 2022, Greg Kroah-Hartman wrote:
+> > > > From: Mel Gorman <mgorman@techsingularity.net>
+> > > > 
+> > > > commit 71e2d666ef85d51834d658830f823560c402b8b6 upstream.
+> > > >...
+> > > 
+> > > Greg, this patch from Mel is important,
+> > > but introduces a warning which is giving Tvrtko trouble - see linux-mm
+> > > https://lore.kernel.org/linux-mm/1596edbb-02ad-6bdf-51b8-15c2d2e08b76@linux.intel.com/
+> > > 
+> > > We already have the fix for the warning, it's making its way through the
+> > > system, and is marked for stable, but it has not reached Linus's tree yet.
+> > > 
+> > > Please drop this 19/20 from 6.0.4, then I'll reply to this to let you know
+> > > when the fix does reach Linus's tree - hopefully the two can go together
+> > > in the next 6.0-stable.
+> > > 
+> > > I apologize for not writing yesterday: gmail had gathered together
+> > > different threads with the same subject, I thought you and stable
+> > > were Cc'ed on the linux-mm mail and you would immediately drop it
+> > > yourself, but in fact you were not on that thread at all.
+> > 
+> > No worries, now dropped, thanks.
+> 
+> Thanks Greg.  Linus's tree now contains my fix
+> 5aae9265ee1a ("mm: prep_compound_tail() clear page->private")
+> to Mel's fix
+> 71e2d666ef85 ("mm/huge_memory: do not clobber swp_entry_t during THP split")
+> so they can now go on together into 6.0 stable.
+> 
+> They would also have been good in 5.19 stable: but too late now, it's EOL.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-Possible dependencies:
-
-d501d37841d3 ("counter: 104-quad-8: Fix race getting function mode and direction")
-aea8334b24fe ("counter: 104-quad-8: Convert to counter_priv() wrapper")
-7aa2ba0df651 ("counter: 104-quad-8: Add IRQ support for the ACCES 104-QUAD-8")
-09db4678bfbb ("counter: 104-quad-8: Replace mutex with spinlock")
-aaec1a0f76ec ("counter: Internalize sysfs interface code")
-ea434ff82649 ("counter: stm32-timer-cnt: Provide defines for slave mode selection")
-05593a3fd103 ("counter: stm32-lptimer-cnt: Provide defines for clock polarities")
-394a0150a064 ("counter: Rename counter_count_function to counter_function")
-493b938a14ed ("counter: Rename counter_signal_value to counter_signal_level")
-b11eed1554e8 ("counter: Return error code on invalid modes")
-728246e8f726 ("counter: 104-quad-8: Return error when invalid mode during ceiling_write")
-d0ce3d5cf77d ("counter: stm32-timer-cnt: Add const qualifier for actions_list array")
-f83e6e59366b ("counter: stm32-lptimer-cnt: Add const qualifier for actions_list array")
-0056a405c7ad ("counter: microchip-tcb-capture: Add const qualifier for actions_list array")
-9b2574f61c49 ("counter: ftm-quaddec: Add const qualifier for actions_list array")
-6a9eb0e31044 ("counter: 104-quad-8: Add const qualifier for actions_list array")
-45af9ae84c60 ("counter: stm32-timer-cnt: Add const qualifier for functions_list array")
-8a00fed665ad ("counter: stm32-lptimer-cnt: Add const qualifier for functions_list array")
-7e0dcfcefeca ("counter: microchip-tcb-capture: Add const qualifier for functions_list array")
-891b58b35fd6 ("counter: interrupt-cnt: Add const qualifier for functions_list array")
-
-thanks,
+Thanks, both now queued up for 6.0
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From d501d37841d3b7f18402d71a9ef057eb9dde127e Mon Sep 17 00:00:00 2001
-From: William Breathitt Gray <william.gray@linaro.org>
-Date: Thu, 20 Oct 2022 10:11:21 -0400
-Subject: [PATCH] counter: 104-quad-8: Fix race getting function mode and
- direction
-
-The quad8_action_read() function checks the Count function mode and
-Count direction without first acquiring a lock. This is a race condition
-because the function mode could change by the time the direction is
-checked.
-
-Because the quad8_function_read() already acquires a lock internally,
-the quad8_function_read() is refactored to spin out the no-lock code to
-a new quad8_function_get() function.
-
-To resolve the race condition in quad8_action_read(), a lock is acquired
-before calling quad8_function_get() and quad8_direction_read() in order
-to get both function mode and direction atomically.
-
-Fixes: f1d8a071d45b ("counter: 104-quad-8: Add Generic Counter interface support")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221020141121.15434-1-william.gray@linaro.org/
-Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
-
-diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
-index 77a863b7eefe..deed4afadb29 100644
---- a/drivers/counter/104-quad-8.c
-+++ b/drivers/counter/104-quad-8.c
-@@ -232,34 +232,45 @@ static const enum counter_function quad8_count_functions_list[] = {
- 	COUNTER_FUNCTION_QUADRATURE_X4,
- };
- 
-+static int quad8_function_get(const struct quad8 *const priv, const size_t id,
-+			      enum counter_function *const function)
-+{
-+	if (!priv->quadrature_mode[id]) {
-+		*function = COUNTER_FUNCTION_PULSE_DIRECTION;
-+		return 0;
-+	}
-+
-+	switch (priv->quadrature_scale[id]) {
-+	case 0:
-+		*function = COUNTER_FUNCTION_QUADRATURE_X1_A;
-+		return 0;
-+	case 1:
-+		*function = COUNTER_FUNCTION_QUADRATURE_X2_A;
-+		return 0;
-+	case 2:
-+		*function = COUNTER_FUNCTION_QUADRATURE_X4;
-+		return 0;
-+	default:
-+		/* should never reach this path */
-+		return -EINVAL;
-+	}
-+}
-+
- static int quad8_function_read(struct counter_device *counter,
- 			       struct counter_count *count,
- 			       enum counter_function *function)
- {
- 	struct quad8 *const priv = counter_priv(counter);
--	const int id = count->id;
- 	unsigned long irqflags;
-+	int retval;
- 
- 	spin_lock_irqsave(&priv->lock, irqflags);
- 
--	if (priv->quadrature_mode[id])
--		switch (priv->quadrature_scale[id]) {
--		case 0:
--			*function = COUNTER_FUNCTION_QUADRATURE_X1_A;
--			break;
--		case 1:
--			*function = COUNTER_FUNCTION_QUADRATURE_X2_A;
--			break;
--		case 2:
--			*function = COUNTER_FUNCTION_QUADRATURE_X4;
--			break;
--		}
--	else
--		*function = COUNTER_FUNCTION_PULSE_DIRECTION;
-+	retval = quad8_function_get(priv, count->id, function);
- 
- 	spin_unlock_irqrestore(&priv->lock, irqflags);
- 
--	return 0;
-+	return retval;
- }
- 
- static int quad8_function_write(struct counter_device *counter,
-@@ -359,6 +370,7 @@ static int quad8_action_read(struct counter_device *counter,
- 			     enum counter_synapse_action *action)
- {
- 	struct quad8 *const priv = counter_priv(counter);
-+	unsigned long irqflags;
- 	int err;
- 	enum counter_function function;
- 	const size_t signal_a_id = count->synapses[0].signal->id;
-@@ -374,9 +386,21 @@ static int quad8_action_read(struct counter_device *counter,
- 		return 0;
- 	}
- 
--	err = quad8_function_read(counter, count, &function);
--	if (err)
-+	spin_lock_irqsave(&priv->lock, irqflags);
-+
-+	/* Get Count function and direction atomically */
-+	err = quad8_function_get(priv, count->id, &function);
-+	if (err) {
-+		spin_unlock_irqrestore(&priv->lock, irqflags);
-+		return err;
-+	}
-+	err = quad8_direction_read(counter, count, &direction);
-+	if (err) {
-+		spin_unlock_irqrestore(&priv->lock, irqflags);
- 		return err;
-+	}
-+
-+	spin_unlock_irqrestore(&priv->lock, irqflags);
- 
- 	/* Default action mode */
- 	*action = COUNTER_SYNAPSE_ACTION_NONE;
-@@ -389,10 +413,6 @@ static int quad8_action_read(struct counter_device *counter,
- 		return 0;
- 	case COUNTER_FUNCTION_QUADRATURE_X1_A:
- 		if (synapse->signal->id == signal_a_id) {
--			err = quad8_direction_read(counter, count, &direction);
--			if (err)
--				return err;
--
- 			if (direction == COUNTER_COUNT_DIRECTION_FORWARD)
- 				*action = COUNTER_SYNAPSE_ACTION_RISING_EDGE;
- 			else
-
