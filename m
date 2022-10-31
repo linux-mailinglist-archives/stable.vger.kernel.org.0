@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEA5C6130B4
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:49:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A78526130B6
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:49:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229494AbiJaGtV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 02:49:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58228 "EHLO
+        id S229544AbiJaGtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 02:49:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbiJaGtU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:49:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5CF89FD1
-        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:49:19 -0700 (PDT)
+        with ESMTP id S229441AbiJaGtX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:49:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 981649FF0
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:49:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1D1DB81147
-        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:49:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BD40C433C1;
-        Mon, 31 Oct 2022 06:49:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A3AAB8114A
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:49:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F0EFC433D6;
+        Mon, 31 Oct 2022 06:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667198957;
-        bh=eBl1CN87dKos69NAUt07YuDwR6ih44a/bV7jcsMvuEw=;
+        s=korg; t=1667198960;
+        bh=zncp7mPjd8uW8Ham84pRwyB4Oih9LzkmaUWH5VP+pmg=;
         h=Subject:To:Cc:From:Date:From;
-        b=F+SV6i3dskGDendXn3YMP7TBNz1bvoB7wns801ftiBxjrj7dhuX44ZHTCIeUZvMY6
-         BFqVjjo9XlJJt0UqNI1aiU6jg+n4xB3+zp3Vn3PxuCfFnp9sCBo/tP01pS3damPdoc
-         jUyvzPHoWeSqio+bQQNjs4FH7hlXt+EOVCaeshv8=
-Subject: FAILED: patch "[PATCH] s390/boot: add secure boot trailer" failed to apply to 5.4-stable tree
+        b=XtzG25zodIU1TUdrCwifVDhxJf7sN7NPUwVMM8FKzsyc2dmc1AjVYnDXqHPHePA0O
+         0io+EvXR/68T6lGlZxnz+h5llu9AobZl9yYefiWPqYUDNKXsrvldS/gXH3n4VwSJ5K
+         NgeiHdQQ4kmOB7L6z+Hmd/6kOmvn93FZlpFsN7VQ=
+Subject: FAILED: patch "[PATCH] s390/boot: add secure boot trailer" failed to apply to 5.10-stable tree
 To:     oberpar@linux.ibm.com, gor@linux.ibm.com, stable@vger.kernel.org,
         svens@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 31 Oct 2022 07:50:00 +0100
-Message-ID: <166719900013035@kroah.com>
+Message-ID: <166719900010331@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
