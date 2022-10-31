@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82886612FC2
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 06:39:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B7E612FC4
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 06:39:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229477AbiJaFj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 01:39:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52460 "EHLO
+        id S229721AbiJaFjm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 01:39:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229721AbiJaFj2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 01:39:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53670A186
-        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 22:39:27 -0700 (PDT)
+        with ESMTP id S229553AbiJaFjl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 01:39:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D67BB844
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 22:39:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED47C60FA5
-        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 05:39:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 086E7C433D7;
-        Mon, 31 Oct 2022 05:39:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D863B81107
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 05:39:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A413C433D6;
+        Mon, 31 Oct 2022 05:39:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667194766;
-        bh=7IFbjFSXY2bvf4+r5uqHCOjUjViw8XPjvutA+wsgmSM=;
+        s=korg; t=1667194778;
+        bh=VKrXxtdwgOcApaZVSBzIcHVQcTu1ez6aghf33GHxISs=;
         h=Subject:To:Cc:From:Date:From;
-        b=pfpPlFZr4rEXxMNjkXYEZ5kJ1lzU5To+UEvx6jpE8ZQOeoCWhOv0NZEmRIj8694HX
-         UcJFY1jja2Rxzr8qpCiB02B7NZh796P+QilVac+6JvSsPxKrRfiWrWgHw1c4OfxVih
-         rjfNYLyURea7WAvjX2si7Dah1AQaroQDXzccih14=
-Subject: FAILED: patch "[PATCH] usb: typec: ucsi: Check the connection on resume" failed to apply to 5.15-stable tree
+        b=RIJpEZp4AX+xpWd7AL6WqBzt9Log01GMFm6kFWAQZGaplz4xGnA00YNFKBh40TfSe
+         Ua0lks68Oc0RbpRK9jjW7YgfuK6pOMquX65Zwp7iDszoLTjVNol/3egrouPwokfxOy
+         KwhlF2xyCTshKn+/YvybBoqfR9vpEhWxGiQsyZgk=
+Subject: FAILED: patch "[PATCH] usb: typec: ucsi: Check the connection on resume" failed to apply to 5.10-stable tree
 To:     heikki.krogerus@linux.intel.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Oct 2022 06:40:22 +0100
-Message-ID: <16671948222947@kroah.com>
+Date:   Mon, 31 Oct 2022 06:40:23 +0100
+Message-ID: <166719482311236@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,6 +60,10 @@ Possible dependencies:
 bd19ac98f77e ("usb: typec: ucsi: Read the PDOs in separate work")
 6cbe4b2d5a3f ("usb: typec: ucsi: Check the partner alt modes always if there is PD contract")
 b9aa02ca39a4 ("usb: typec: ucsi: Add polling mechanism for partner tasks like alt mode checking")
+8c9b3caab3ac ("usb: typec: ucsi: Clear pending after acking connector change")
+1f4642b72be7 ("usb: typec: ucsi: Retrieve all the PDOs instead of just the first 4")
+89795852c9c4 ("usb: typec: ucsi: Add support for USB role switch")
+0fb2c41f992c ("Merge 5.10-rc4 into here.")
 
 thanks,
 
