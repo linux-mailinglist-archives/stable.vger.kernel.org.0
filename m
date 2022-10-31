@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF3F861304F
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:31:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BACF613052
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:32:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229479AbiJaGb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 02:31:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52618 "EHLO
+        id S229469AbiJaGcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 02:32:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229469AbiJaGb4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:31:56 -0400
+        with ESMTP id S229639AbiJaGcE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:32:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AFCE7646
-        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:31:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A19C29596
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:32:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 950FBB81135
-        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:31:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1750C433C1;
-        Mon, 31 Oct 2022 06:31:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CB68B8112D
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:32:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7484C433C1;
+        Mon, 31 Oct 2022 06:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667197912;
-        bh=oB6TqUDRBgpqve86Snh+T+OHij8UkEdPXBF0Phhu1MM=;
+        s=korg; t=1667197921;
+        bh=qIMuGid75a72XLzXeJ7uW25AnrGBxtj7Prp7welW3rA=;
         h=Subject:To:Cc:From:Date:From;
-        b=zLz0/96R6dGBOKBGpr+RrTCy0I+H1VJI9bGat9GEITJ+bUS1HN/2RFDefRqxWHPyp
-         zCIp6FBw1RwUeXDtk/SfyLr8khUT2BDEdRTl92dzeyfUzzt8x+6OhH13SXJW+/4JKk
-         G5kq2Xirp+Cclx1BNex1MONzJy5YTTzfWclN1Djc=
-Subject: FAILED: patch "[PATCH] drm/msm/dsi: fix memory corruption with too many bridges" failed to apply to 4.14-stable tree
+        b=zZivmLRCWo/XfWCHOa8300POxeytXA1HICoSP5oLZn5mul2tFREKgrWEOvOh5vlwF
+         d18flj+C9zVMNLyh3KVZdDAAgQNfID72JDVEfrHv6FgLscsQIq6QJWKm4u/ZT0UByT
+         pAo7SDc8MPrIviPPuHlBMWStJ4X4O33CipJGBHOw=
+Subject: FAILED: patch "[PATCH] drm/msm/dsi: fix memory corruption with too many bridges" failed to apply to 4.9-stable tree
 To:     johan+linaro@kernel.org, dmitry.baryshkov@linaro.org,
         quic_abhinavk@quicinc.com, quic_khsieh@quicinc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Oct 2022 07:32:48 +0100
-Message-ID: <16671979686979@kroah.com>
+Date:   Mon, 31 Oct 2022 07:32:49 +0100
+Message-ID: <1667197969251145@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
