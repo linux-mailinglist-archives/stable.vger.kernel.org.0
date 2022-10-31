@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 142D9613096
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:41:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CE68613097
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:41:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229647AbiJaGlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 02:41:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55770 "EHLO
+        id S229642AbiJaGlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 02:41:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229642AbiJaGlF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:41:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1EA5BC2B
-        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:41:04 -0700 (PDT)
+        with ESMTP id S229648AbiJaGlJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:41:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB41EBE36
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:41:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BED860FBB
-        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:41:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AB58C433C1;
-        Mon, 31 Oct 2022 06:41:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F080D60FDF
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:41:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F9A7C433D6;
+        Mon, 31 Oct 2022 06:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667198463;
-        bh=2weqA4V2255ozMRgtnNrc1NhzF12FA0ME9uxxx2AYHc=;
+        s=korg; t=1667198466;
+        bh=63dwigOT1xzrEnOuAYbz8vkAVfYQRHskeJorZsSl9nY=;
         h=Subject:To:Cc:From:Date:From;
-        b=0fWK7Q4RZ31BrBgDGk5PHBCftchW7McgH/111bK1C5gTLFtcqWmq2vHs7ZhVTi6Vt
-         jrPQO7gk/WfSd6fGpkSezn9/ygalowVbRCEYYnytYZmwFDXMjV9BHaRnv+mKyh4E4E
-         pAIHA5cqTmoymkQQC9ASfGaqExHpIkQY47PQS4lA=
-Subject: FAILED: patch "[PATCH] counter: 104-quad-8: Fix race getting function mode and" failed to apply to 5.10-stable tree
+        b=EKJJdYlXCuEcACvVX3a+1Zi/Oa6vkrxZz8daZA6+SnUWA7nS12qWMkqSNczXcru/J
+         3OdyCWfdJxy7RmFEHcjCH6Ej3yg5qCFXXIEGGGku/AB2+8ihzr1U6s4uPrChyBCJkj
+         O8OQRzNFGzMaXquR96KZoUsI1fnssMvCfFmuF/C8=
+Subject: FAILED: patch "[PATCH] counter: 104-quad-8: Fix race getting function mode and" failed to apply to 5.4-stable tree
 To:     william.gray@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Oct 2022 07:41:51 +0100
-Message-ID: <166719851114627@kroah.com>
+Date:   Mon, 31 Oct 2022 07:41:52 +0100
+Message-ID: <166719851253141@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
