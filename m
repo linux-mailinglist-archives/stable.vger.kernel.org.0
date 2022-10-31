@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 991956130B0
-	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:48:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE7566130B1
+	for <lists+stable@lfdr.de>; Mon, 31 Oct 2022 07:48:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229505AbiJaGss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 02:48:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58180 "EHLO
+        id S229475AbiJaGs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 02:48:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229475AbiJaGsr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:48:47 -0400
+        with ESMTP id S229565AbiJaGsz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 02:48:55 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CDFF9FD1
-        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:48:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA8189FD1
+        for <stable@vger.kernel.org>; Sun, 30 Oct 2022 23:48:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E5B7B8114A
-        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:48:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62A92C43140;
-        Mon, 31 Oct 2022 06:48:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9291EB81148
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 06:48:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB61AC433C1;
+        Mon, 31 Oct 2022 06:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667198923;
-        bh=VTHU6qtx0p/JnBzYn2D2+Rf0G4Q08XhKIaf1drVMfYM=;
+        s=korg; t=1667198932;
+        bh=GFjFMye49OUwsjDWp42w6B/uMJ03bAA5aAV2rK39QzA=;
         h=Subject:To:Cc:From:Date:From;
-        b=wD0DYfQTmbn0WYwgkPc5sWiL6Opeq/d3YEUhHEeALhDiRre9oQ+/JyWWHaPruF+4g
-         +vFe1LYXvi3wMqYDbqIp8vKZ/65gCqX8EnohBq3PZWIF3V3/jLUEEpCnFol0uZywLB
-         ChH7y7Ldgbk0iloNRb9G2sCc8ltNmWNghWStx8qw=
-Subject: FAILED: patch "[PATCH] perf auxtrace: Fix address filter symbol name match for" failed to apply to 4.14-stable tree
+        b=LhxPx93gCv8nDmUmIvreGIRQ21HvsqgdJs4ycrmnsMq5oG4ZRFXGJ+qtt12ydzXoB
+         56qTrIQ2LnKGeLeHAPxdb0m2bYZYSdqQlLMlmgsllZ10J2Qj0KmngVr27gd9u/XRIk
+         qM1vuCsIuMtTRGXKYcWqdY5hqLT7HEjgwoXAETPc=
+Subject: FAILED: patch "[PATCH] perf auxtrace: Fix address filter symbol name match for" failed to apply to 4.9-stable tree
 To:     adrian.hunter@intel.com, acme@redhat.com, irogers@google.com,
         jolsa@kernel.org, namhyung@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 31 Oct 2022 07:49:39 +0100
-Message-ID: <1667198979160110@kroah.com>
+Message-ID: <16671989797156@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
