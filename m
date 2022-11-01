@@ -2,70 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14AE9615283
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 20:45:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC2EF615261
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 20:36:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229906AbiKATpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 15:45:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39878 "EHLO
+        id S229875AbiKATgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 15:36:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229920AbiKATpE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 15:45:04 -0400
-X-Greylist: delayed 578 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 01 Nov 2022 12:45:03 PDT
-Received: from mx2.mythic-beasts.com (mx2.mythic-beasts.com [IPv6:2a00:1098:0:82:1000:0:2:1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBFA1DF24
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 12:45:03 -0700 (PDT)
-Received: from [217.155.36.16] (port=40428 helo=[192.168.1.22])
-        by mailhub-hex-d.mythic-beasts.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <john-linux@pelago.org.uk>)
-        id 1opx2k-00EEPU-Ra; Tue, 01 Nov 2022 19:35:27 +0000
-Message-ID: <8497a3bb-be33-ba8e-b31b-f59bf9eca5dd@pelago.org.uk>
-Date:   Tue, 1 Nov 2022 19:35:23 +0000
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Subject: Re: ALSA: usb-audio: Add quirks for MacroSilicon MS2100/MS2106
- devices
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-References: <6239ff94-c587-b2ac-9b8b-cdf5e65d0157@pelago.org.uk>
- <Y2F0IR6YchEOjaYT@kroah.com>
-From:   John Veness <john-linux@pelago.org.uk>
-In-Reply-To: <Y2F0IR6YchEOjaYT@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-BlackCat-Spam-Score: 0
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229601AbiKATgE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 15:36:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9A191DF1D
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 12:36:03 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48FE461725
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:36:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACB04C433C1;
+        Tue,  1 Nov 2022 19:36:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1667331362;
+        bh=Rj1bZFx9VnHU9uH341ke8qqC18aDyq7kOdah2pSpsFs=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=YC+I6FFOmLs2GrP43E1PIwZwp4hqH8c0hrhF5jnspJhqhuQ5qU/08rSdDT+hDr/oj
+         GLlD9ZEkPSBSjm0M4Z9s2YzfvouqAt1N72Y0NnLcHdRRQGk4Eg5g1T1orcrfauiYzW
+         E60pRxkPZaOKkjSU53zXQLEQbTt6zfAfXKymo2lJ8rE2CNPnskBMwvzKrTARa+gpxo
+         ZrTzGoQ/wn1TIhe5d1pfJUbMyntHjOChT9jmIcBww1a8FkkTbuQYPiilRdGeVvTVby
+         W2BPmfIXPmion7ug6/seJp1+ySq1Xr13teryrohXFmiBmX/tEGjdHOKRecOI8xPA6w
+         Dg+PzXMPBqdpQ==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1opx3I-0033ep-8R;
+        Tue, 01 Nov 2022 19:36:00 +0000
+Date:   Tue, 01 Nov 2022 19:35:59 +0000
+Message-ID: <86a65aeacg.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Peter Maydell <peter.maydell@linaro.org>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Vincent Donnefort <vdonnefort@google.com>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] KVM: arm64: Trap access to SMPRI_EL1 and TPIDR2 in VHE mode
+In-Reply-To: <Y2EtcQSnu5R/Frhj@sirena.org.uk>
+References: <20221101112716.52035-1-broonie@kernel.org>
+        <20221101112716.52035-3-broonie@kernel.org>
+        <86bkpqer4z.wl-maz@kernel.org>
+        <Y2EtcQSnu5R/Frhj@sirena.org.uk>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: broonie@kernel.org, catalin.marinas@arm.com, will@kernel.org, peter.maydell@linaro.org, richard.henderson@linaro.org, vdonnefort@google.com, james.morse@arm.com, alexandru.elisei@arm.com, suzuki.poulose@arm.com, oliver.upton@linux.dev, linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 01/11/2022 19:31, Greg KH wrote:
-> On Mon, Oct 31, 2022 at 01:12:21PM +0000, John Veness wrote:
->> Hello,
->>
->> Please can you consider my "ALSA: usb-audio: Add quirks for MacroSilicon
->> MS2100/MS2106 devices" patch, with upstream commit ID
->> 6e2c9105e0b743c92a157389d40f00b81bdd09fe for inclusion in all -stable
->> kernels. Apart from the device IDs, it is a copy of the similar existing
->> patch for MS2109 devices, which is already present in -stable kernels.
+On Tue, 01 Nov 2022 14:30:09 +0000,
+Mark Brown <broonie@kernel.org> wrote:
 > 
-> That commit is already in the 5.15.56 release.  If you wish to have it
-> added to older stable kernel trees, please provide a working backport as
-> it does not apply cleanly.
+> On Tue, Nov 01, 2022 at 01:33:16PM +0000, Marc Zyngier wrote:
+> > Date: Tue, 1 Nov 2022 12:19:51 +0000
+> > Subject: [PATCH] KVM: arm64: Fix SMPRI_EL1/TPIDR2_EL0 trapping on VHE
+> > 
+> > The trapping of SMPRI_EL1 and TPIDR2_EL0 currently only really
+> > work on nVHE, as only this mode uses the fine-grained trapping
+> > that controls these two registers.
+> > 
+> > Move the trapping enable/disable code into
+> > __{de,}activate_traps_common(), allowing it to be called when it
+> > actually matters on VHE, and remove the flipping of EL2 control
+> > for TPIDR2_EL0, which only affects the host access of this
+> > register.
+> > 
+> > Fixes: 861262ab8627 ("KVM: arm64: Handle SME host state when running guests")
+> > Signed-off-by: Marc Zyngier <maz@kernel.org>
+> > Cc: stable@vger.kernel.org
 > 
-> thanks,
-> 
-> greg k-h
+> Reported-by: Mark Brown <broonie@kernel.org>
+> Reviewed-by: Mark Brown <broonie@kernel.org>
 
-OK, thanks Greg. I wasn't sure if backporting was something I had to do, 
-or that someone else would do for me! I am very new to kernel dev, but I 
-will see what I can do.
+Thanks. I've now applied the first patch and this one to kvmarm/fixes.
 
-John
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
