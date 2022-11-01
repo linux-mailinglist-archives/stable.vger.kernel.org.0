@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E77F614938
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:35:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61EB3614944
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:35:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230311AbiKALfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:35:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45240 "EHLO
+        id S230434AbiKALfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:35:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230477AbiKALet (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:34:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7840E635E;
-        Tue,  1 Nov 2022 04:30:55 -0700 (PDT)
+        with ESMTP id S230439AbiKALfK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:35:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E85AF6448;
+        Tue,  1 Nov 2022 04:31:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E41CAB81CD3;
-        Tue,  1 Nov 2022 11:30:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B262C433D7;
-        Tue,  1 Nov 2022 11:30:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D488A615EA;
+        Tue,  1 Nov 2022 11:30:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ACB6C433C1;
+        Tue,  1 Nov 2022 11:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302228;
-        bh=1+Gtk/lM3WWJOYb0UT2QDICBrYedhOEGI6VJvrirL4c=;
+        s=k20201202; t=1667302232;
+        bh=iMtcZ2hgd/8o3eZRyC05fwrDGSMl1QLWd9ncN2TxP78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRRWm956jbQ0SmXrIl9M+9wWIptHnhfgN0F2UdFWnydWP+3MGdmpUsUq0mMy7l+Ph
-         IirGMmUln9wEdrjAtsaJHkhqnb/JXekpfwwJldiDvg6NmqBJ/CCK8WTCmr1z1fxm4P
-         Z57FrBi1+zJaVn+b+1bov89eQZlzmmP4ZuugOTa5gcJl3ibmf7rEqwmtKH07t+kP1H
-         oOMuq7FlJiUgPG13hGwCNOHkEgi3sHLDePgBvb7I7JKwVtOkgJ6g/bwi9BOmKwdsAI
-         2Fu+548KBtPXfhfrm7hMqCFjuBRrVmRQqmTcC2gBsqM1JZDTVFpG7C9AIiENqRSZO9
-         ewxLdKP6RkHZA==
+        b=NrQBDsELl3mVQ5SpMh/ctW05BsDTaGyXhkp8RsrNHnKWyh/mOhrO0NIzE+Bn+zAg6
+         nT6/GTHa5rqliWOCkwDz1qhPx9YzHlKMs9kgfWd7C+du+E0ptcumHX+Z4lQ8hCpsVj
+         k8g0Vrgsaw/1AJQl10ILLhhbIbNUj34r0P+EMvI0GsJOJ/JBepfgueTvJ3gGjjLpxT
+         dcaewN7k/SsvKQHhV0bs/GBEYbv7hVlTQWXEcEPj9ufY+rCB5lzxyDDHw6CK2EW7kZ
+         T1uARhO/fX29bRlC+PnfaJ/slXVrxKQM8fcOUKiRuGd/KovFA325kYnmJU8snhImvI
+         OTzvsvB5NQ7uQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hangyu Hua <hbh25y@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, neil.armstrong@linaro.org,
-        gregkh@linuxfoundation.org, khilman@baylibre.com,
-        linux-media@vger.kernel.org, linux-amlogic@lists.infradead.org,
-        linux-staging@lists.linux.dev, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 06/14] media: meson: vdec: fix possible refcount leak in vdec_probe()
-Date:   Tue,  1 Nov 2022 07:30:02 -0400
-Message-Id: <20221101113012.800271-6-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
+        andriy.shevchenko@linux.intel.com, kitakar@gmail.com,
+        linux-media@vger.kernel.org, linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.10 07/14] media: atomisp: Ensure that USERPTR pointers are page aligned
+Date:   Tue,  1 Nov 2022 07:30:03 -0400
+Message-Id: <20221101113012.800271-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101113012.800271-1-sashal@kernel.org>
 References: <20221101113012.800271-1-sashal@kernel.org>
@@ -59,41 +58,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 7718999356234d9cc6a11b4641bb773928f1390f ]
+[ Upstream commit 6e6c4ae0f0ba295dbf6cbd48d93bec169d6ce431 ]
 
-v4l2_device_unregister need to be called to put the refcount got by
-v4l2_device_register when vdec_probe fails or vdec_remove is called.
+The atomisp code needs USERPTR pointers to be page aligned,
+otherwise bad things (scribbling over other parts of the
+process' RAM) happen.
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Add a check to ensure this and exit VIDIOC_QBUF calls with
+unaligned pointers with -EINVAL.
+
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/meson/vdec/vdec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/media/atomisp/pci/atomisp_ioctl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/staging/media/meson/vdec/vdec.c b/drivers/staging/media/meson/vdec/vdec.c
-index 5ccb3846c879..7a818ca15b37 100644
---- a/drivers/staging/media/meson/vdec/vdec.c
-+++ b/drivers/staging/media/meson/vdec/vdec.c
-@@ -1109,6 +1109,7 @@ static int vdec_probe(struct platform_device *pdev)
- 
- err_vdev_release:
- 	video_device_release(vdev);
-+	v4l2_device_unregister(&core->v4l2_dev);
- 	return ret;
- }
- 
-@@ -1117,6 +1118,7 @@ static int vdec_remove(struct platform_device *pdev)
- 	struct amvdec_core *core = platform_get_drvdata(pdev);
- 
- 	video_unregister_device(core->vdev_dec);
-+	v4l2_device_unregister(&core->v4l2_dev);
- 
- 	return 0;
- }
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
+index 8a0648fd7c81..317db11703e6 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
+@@ -1290,6 +1290,12 @@ static int atomisp_qbuf(struct file *file, void *fh, struct v4l2_buffer *buf)
+ 	 * address and reprograme out page table properly
+ 	 */
+ 	if (buf->memory == V4L2_MEMORY_USERPTR) {
++		if (offset_in_page(buf->m.userptr)) {
++			dev_err(isp->dev, "Error userptr is not page aligned.\n");
++			ret = -EINVAL;
++			goto error;
++		}
++
+ 		vb = pipe->capq.bufs[buf->index];
+ 		vm_mem = vb->priv;
+ 		if (!vm_mem) {
 -- 
 2.35.1
 
