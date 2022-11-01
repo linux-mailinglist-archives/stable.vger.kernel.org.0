@@ -2,72 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85541614BFC
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 14:44:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0973614C3F
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 15:06:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229628AbiKANoo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 09:44:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45640 "EHLO
+        id S230185AbiKAOGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 10:06:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229919AbiKANon (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 09:44:43 -0400
-Received: from mail-vs1-xe2e.google.com (mail-vs1-xe2e.google.com [IPv6:2607:f8b0:4864:20::e2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92E9F62DA
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 06:44:41 -0700 (PDT)
-Received: by mail-vs1-xe2e.google.com with SMTP id 128so4841535vse.6
-        for <stable@vger.kernel.org>; Tue, 01 Nov 2022 06:44:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=wmlDbxR43p/AVKjp9OWEiUiPO2sb+nmDFWo89vNMtlg=;
-        b=xtRaXtRJufi5E55u5VPH6L1vPkaVY/Jjx2qHNusVQQxg4p3/fIJSs4FCm1Elk3Ebwe
-         X3m+I2TMPqgEaBf8SHtwhHDhM4/F6H7SoDJ5SQyAp8J1YJm72JF34sTCclU83H8TQlBL
-         W6RqZ6Z6IYSgld0lt7BrTTR+BssWEJptn5pkoTmMHGXOOaNTtsMNrKPSswLxIhp7GNKS
-         /+TyRssm0BbWHqn9pg8qFets9zKXOVDADiWK7SlU9jYAMJX7sBaaloKZ4s8FEJYDSTNI
-         tCdb1Q22k4qBc72CTZ1A7D4kMUEKNjZWOk1PFX6QaJnZ8HqZtBUzL9HxHmosAqosnjaO
-         fhmQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=wmlDbxR43p/AVKjp9OWEiUiPO2sb+nmDFWo89vNMtlg=;
-        b=DHjLVWMYMOaY8tZtFQECnashv7LoNF8JPztYTOAEIMVredfshHB2FjRkqdUtt2WYu3
-         DmY3PUmMRKE6Htf6dwLnH5effxtDMwT0zKcu3VInY3j52M1r6Zp+jYxiADNQ0+Tiij0E
-         5FVjztX7xd/e7tWWWXFxUe5vwEYaJPok9kOQNZ4FoKCsKcvLwoxiI2AdBr5XYsVEAvMA
-         wfZHvFMpcjmCGG7VXj7jNS+miewbPuf81Au8Qp6EBT5Uu3v8G3XA8+DujhASJUdI7bC8
-         7P5HpyE1SQk9sPCRGDwvu9AoUtQ88Fgv9FHM5bQtKwBPKnRmbc80ttgC5bVBos9r7o9k
-         FJvg==
-X-Gm-Message-State: ACrzQf0y8wZVXm1zqfiLoD0+nJ5qcdTvnp876DTkOcl6v5An8tycgkTm
-        5nI0UDC0E9LrkMRaTiF9Zvz57SndVufdnCxaquPmYw==
-X-Google-Smtp-Source: AMsMyM6dWSMgu33OOYMi6pqhJtdD0hvHbgxTBidAxbGSJKrSQUJ+/zQvT4C+WxuQjurTuoXPI7dmuwFGM+oJm9yuWgo=
-X-Received: by 2002:a05:6102:534c:b0:3a7:c31a:a661 with SMTP id
- bq12-20020a056102534c00b003a7c31aa661mr7280950vsb.7.1667310280708; Tue, 01
- Nov 2022 06:44:40 -0700 (PDT)
+        with ESMTP id S230180AbiKAOGg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 10:06:36 -0400
+Received: from IND01-BMX-obe.outbound.protection.outlook.com (mail-bmxind01olkn2084.outbound.protection.outlook.com [40.92.103.84])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9FE91A803;
+        Tue,  1 Nov 2022 07:06:35 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=IwxNx/lxzjThiV9cr1IhWvdsFpNf6yT0aGbp6rukTAsF4ZqMLveWxRxsL71KtjU3WpPBxek7GYnzHPG/3Aq0G9xHvvYsZx79fg2pkhRMaMFb6OSCWJVJsZupkgQA+9buHPRVh3jTy2in35dBSnFcM12WjzYIFT+RXNVlaVuE5F2eqlhQb3L7SfDgcKqnmnKbGXhejhBKYPoGZOW1bv7CT6sLlz7YVjuBux2rKYq1agfIx4n2J7H+wv535xseNms5dzY8bYDkpFQThxt3JRKBGdB1WZLJ4yaz6YrCU9WUO+DhjFB80iZCdwPwzXXMos3W8+f70q+9fBDlPwRcfhx0RA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=qQ9L+LtixxFQtsHQB6Vn9SqXNr15ekUJtkOSvHOdKRw=;
+ b=RJSbTc1dKShU4ukhCDLSqe6PqWwEg9IYIpIzkwPZYUfpFG2kJDzFciacKwxDTAvctX9NK3og4XrDz2uGek5wGpjY3ewNWTCYmDnfBOtrJkq0w0bX7KX2sWE4XGkF/Z88t6Wi1OpgNRA3VnmHknP4DKmncI/l4xNCc36D4esirzKZWE9mhew3bTSFG+JTMV5Y/39kRQBKVOAvonH0tw5+9BQsKWlMsm46kFzu42az9ghDBd4nnn6z/8CT8URw+NRAqZO1ig5VBfbJ7W7O1xCgYH/I0QdmVdA9qbya31Q0dBuXqbKO3XiEaHtsmD3c0W3wYvBX4dCbEub2yzWg8RZ6pw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qQ9L+LtixxFQtsHQB6Vn9SqXNr15ekUJtkOSvHOdKRw=;
+ b=PUD+CYdYAasTlvE2HwiZYsqiNHLOaBEeXz1AJhOrpZ0WOtQMdTEw5pyVpSHbeOLCUKV7SQkC9C0fMDbnv0nIdgMuDEp1uhnk/giZOnkPemhzaQ303eqZiFMiMSEiVeR1udjDfc4Eq8x1/6xOikw1Jn8eU/RYDnogiJBZdIopzJaS5EhqEB52TplSvzPYlffKvDS+EoxmlsytrL/Tng4u1Sqn/R7gvLUtC9IqXJ6Nc/iCz1WGWbK5X/d0h/stxeu8MJSwCRE+0qHw+paFeChYiTiDjpCzdpSytx6bouYiC/Vy25uCvuzpKcEWxRkFqZSxURhhbrqV1Lps6YEXZ+LusA==
+Received: from BM1PR01MB0931.INDPRD01.PROD.OUTLOOK.COM (2603:1096:b00:2::9) by
+ PN0PR01MB6352.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:72::9) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5769.19; Tue, 1 Nov 2022 14:06:30 +0000
+Received: from BM1PR01MB0931.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::3dc1:f6bc:49e4:b294]) by BM1PR01MB0931.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::3dc1:f6bc:49e4:b294%9]) with mapi id 15.20.5769.021; Tue, 1 Nov 2022
+ 14:06:29 +0000
+From:   Aditya Garg <gargaditya08@live.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>
+CC:     "chyishian.jiang@gmail.com" <chyishian.jiang@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "jarkko@kernel.org" <jarkko@kernel.org>,
+        "dmitry.kasatkin@gmail.com" <dmitry.kasatkin@gmail.com>,
+        "paul@paul-moore.com" <paul@paul-moore.com>,
+        "jmorris@namei.org" <jmorris@namei.org>,
+        "serge@hallyn.com" <serge@hallyn.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Orlando Chamberlain <redecorating@protonmail.com>
+Subject: Re: [PATCH] efi: Add iMac Pro 2017 to uefi skip cert quirk
+Thread-Topic: [PATCH] efi: Add iMac Pro 2017 to uefi skip cert quirk
+Thread-Index: AQHY6esdl6KnIgWJpkiPJy9/QYH1qa4p/leAgAAkCoA=
+Date:   Tue, 1 Nov 2022 14:06:29 +0000
+Message-ID: <9D46D92F-1381-4F10-989C-1A12CD2FFDD8@live.com>
+References: <8CB9E43B-AB65-4735-BB8D-A8A7A10F9E30@live.com>
+ <cee0b0176edc942ecc0ce6f4d585c239f9b7c425.camel@linux.ibm.com>
+In-Reply-To: <cee0b0176edc942ecc0ce6f4d585c239f9b7c425.camel@linux.ibm.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-tmn:  [RF7TXoAYhMByxGM2eb2puNimRey2Lu+h]
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BM1PR01MB0931:EE_|PN0PR01MB6352:EE_
+x-ms-office365-filtering-correlation-id: 091f3098-2859-408c-0dcf-08dabc12462f
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: G4Aao7jpe1hyExV4KcHIj29veQ/4R0zZFSZrRWIoImkXUHtDSGxZZ5ky4Bss1fP6Ohp8D7ZUQsBF+ykR6NSg/8J4rh5DAiBvQwgKEtg4JDzwDGcV481SSTPe4DCdgNKTcGbYXYixcBXjE8QjbKUgnyVF8+Vt4cvrDrqP1I1ulx/IJhnS8/+sqEQ01VoDyhCozVNPKhjQtNoKd5T3polynUFFXOJdL9E5RWd0XEiOzAar+Dn940ty5s48fj2luF06USdv7Dx1I3HC1OqYDsiH9t0r6gdYHr5PGeck+kQhSvGvSYfXTMx/2RbmJ9VSEjonHV/S6CCSMFQY3JWAau8XyLXe6Pphj4+a80qtnVhd2RL41Sv7bhcQHzGJj1Ry70yifMb4VhBWwvMgZQNJbnHtOBjffeIX3OS7v8h7KEBf/mVtWMiPcxG+YEUjUSLltiosW5rF6paSt2E5OGiV0ZJEt8sp7NQZqoLPrRxS4bQh5KT3ZQzLDjExv47sDS6gfxgNyleyrPjo/ymAne5FIFwsQqlVNeEIdkbwX51ke7FCIHRleJHcoqE/HjqiooRrAeAeI/hdQXuxzAHQwH0X5c5Eyuuy9oIPvS+qgFe3FYaU6bbV5X3sVD+SZ2hVXD0n89hoGAIqdz5EJ8fZy3EVTvACYgnoHyOAst0JCnEQQubw+AcSHoSxeCPOVwqlbLppGquuY9YvvGgmnzmDPMQaDYf9QQ==
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?WkpqVVFubEtVejhpcDBRSjFOTTljSEJqZFN5dFYxVFM0aVVuem9DcklWWm9P?=
+ =?utf-8?B?MzdMODJ6VUcxeEJIam5ZRXdpcjZtQXZKT0FTcTFVc0VFdUZXTDlNem1oSlhO?=
+ =?utf-8?B?Wm9FbExGNVNkNmZnUVRhNFRLanFuWlRtdnV4b1JFdk1yc2tqUzFtT1pmM2Rz?=
+ =?utf-8?B?Y2gvSkJmWm90aXhFK0VyaGFvSENzQ1h6MmVHSzEzVFVsM05ZbXlzbWVseGpr?=
+ =?utf-8?B?LzBoQTM1ckxaN1pTNDRsT0tzaU5vZlpvNGM5dE0zOUtxZzNFYnFQZ0V5elVN?=
+ =?utf-8?B?VU5MQXdtUmF2bCtBYkF3OFE3YWtDVzJDTHJhbGhlclhlcmpDMHF0TzJhRHB0?=
+ =?utf-8?B?aGZDQ2FFTnVMbk5SalhOVXBveFZZcHo3TEg0OU5sZW5lUFZLSmVUN3dJRDN6?=
+ =?utf-8?B?OUVwcXArU0pMUVNraXR6Y1IyTWFaVmx3SjgrZWVZV2xXS2UxQ0Q0ZXlxRkNM?=
+ =?utf-8?B?TFdFQmd3MDlBVWlMc2VGcVZkZEJ5MjkzdjBROXhWL2N5NWNVdEhqWHQ1UTQ0?=
+ =?utf-8?B?WklKV0VXNXpzR1lWUWFUYnFSY2Jxd00yb1NsMTR4OUxmZWcybGNFaWFlVnBG?=
+ =?utf-8?B?aXpLdm5aOG5nR0lNYW1ZV3djdVdmdzBLTDdTODQyUnlZYnYzVzVmdllDaXlE?=
+ =?utf-8?B?YnNFRmhadE13WitUN0MvNXFSc3UzUmQwVUlvMzF4UzVkRjdMV29nTzZ0cXRS?=
+ =?utf-8?B?cVlTSXI1ZHF4MkRUaFJ5Mmp4ZUxyQXdOcytVMWVFL25ETHR4cHR2OTdYYXpK?=
+ =?utf-8?B?MDBtcjBLdVRmcmM0bUR3RC9iaWZWSzVCR0VSQWVadUZ3blNHd0JVdUpibHJI?=
+ =?utf-8?B?bkIwcXoyUnVGSjJZb3BvSmVkSVdaT3RxM1Y4NTY0RnhLL3JvaWkvN3VDK2Y0?=
+ =?utf-8?B?TWFrYytXL1NYMStHVkMvL05SWEQ2QjB0L1MxZXp4c0piUXoyWGowSHFYYkVQ?=
+ =?utf-8?B?M3dPZ3NENkpmN1JTT3k2K29vMDRiZmhML2d3elg3TGg2VkU0OUw2L1oyekI4?=
+ =?utf-8?B?MUJIUnBnT3h0Z1JEbzExUGZxemk2clJJaENIR3hnTkp6M05ZME5EOVRaTzc2?=
+ =?utf-8?B?S25ZRXFhRUNKMHl0ZXV6SWN0N3R0SG12dkJyWmU5VUtNc2RzMXpjQVgzYmpk?=
+ =?utf-8?B?d2lxdFJwUTZHOXJRdmdBeGErYzVEbTZnaGFzQ0F5NUM4cERyckh4a2NQT1gr?=
+ =?utf-8?B?QkVreU5UV1lnRzlaemNqUGlYUHNUVEJpV1A0M0tJYUlybWhTb2pRUk9YdEpJ?=
+ =?utf-8?B?Qjlob28xSFFWdWt4WUpwZzRqRGFpektLLzdnRnk2T1ZVbjFXOHFVTkxDV1R4?=
+ =?utf-8?B?bmxTRndxSzFzeE5YK0F0dmFpTENWMnpxdG9CYTh1NlNDSm1GQ1lXbHQwdHhZ?=
+ =?utf-8?B?M2Rtd04rckNWWVd2L2tlOEJCNDFpMk1SVE5sQWNpQzBOQTh3M2FsOThNU1pz?=
+ =?utf-8?B?emp0K2ZnZmgzME9YM0t6VHZkbnplb28vYkFwaTlIN3I5RkYzNVlHczBLVFM0?=
+ =?utf-8?B?amlKUVlWK2NvWjRQbnVJVEIyN3EvbitENDBjWFhrZW9Lc2VVQzdWT1dGNTcz?=
+ =?utf-8?B?amFYVkF6TTRveit5UVp5YkE2dmplSmZsQjRTQzdicDI4SmhYSDBVc2h1eFc5?=
+ =?utf-8?B?dWRZL1JoWEpTMTUxamtVOEJNYWlEUVkwNTNYdklRUjE2UEpFdFhvT29Jbmc3?=
+ =?utf-8?B?Y0hnYXdjNHNxVHREaUxZNFFFSWliTDdSdjFsVVJYcFplRTNycUo1anJ3PT0=?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <EAEAB7C18C8DFC4AAADC2D4B8C245436@INDPRD01.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <20221024112959.085534368@linuxfoundation.org> <20221024113002.025977656@linuxfoundation.org>
- <CAMSo37XApZ_F5nSQYWFsSqKdMv_gBpfdKG3KN1TDB+QNXqSh0A@mail.gmail.com>
- <Y2C74nuMI3RBroTg@kroah.com> <CAMSo37Vt4BMkY1AJTR5yaWPDaJSQQhbj7xhqnVqDo0Q_Sy6ycg@mail.gmail.com>
- <Y2Egh1LFMvOv6I7m@kroah.com>
-In-Reply-To: <Y2Egh1LFMvOv6I7m@kroah.com>
-From:   Yongqin Liu <yongqin.liu@linaro.org>
-Date:   Tue, 1 Nov 2022 21:44:29 +0800
-Message-ID: <CAMSo37XDNfptuK3=MepUUMht4+hqrg8OJMwRTYmu1utW1eJdJA@mail.gmail.com>
-Subject: Re: [PATCH 4.19 092/229] once: add DO_ONCE_SLOW() for sleepable contexts
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Benjamin Copeland <ben.copeland@linaro.org>,
-        =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-42ed3.templateTenant
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BM1PR01MB0931.INDPRD01.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 091f3098-2859-408c-0dcf-08dabc12462f
+X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Nov 2022 14:06:29.8799
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN0PR01MB6352
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,SPF_HELO_PASS,SPF_PASS autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,58 +124,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 1 Nov 2022 at 21:34, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Nov 01, 2022 at 08:00:03PM +0800, Yongqin Liu wrote:
-> > Hi, Greg
-> >
-> > On Tue, 1 Nov 2022 at 14:26, Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Tue, Nov 01, 2022 at 02:07:35PM +0800, Yongqin Liu wrote:
-> > > > Hello,
-> > > >
-> > > > As mentioned in the thread for the 5.4 version here[1], it causes a
-> > > > crash for the 4.19 kernel too.
-> > > > Just paste the log here for reference:
-> > >
-> > > Can you try this patch please:
-> > >
-> > >
-> > > diff --git a/include/linux/once.h b/include/linux/once.h
-> > > index bb58e1c3aa03..3a6671d961b9 100644
-> > > --- a/include/linux/once.h
-> > > +++ b/include/linux/once.h
-> > > @@ -64,7 +64,7 @@ void __do_once_slow_done(bool *done, struct static_key_true *once_key,
-> > >  #define DO_ONCE_SLOW(func, ...)                                                     \
-> > >         ({                                                                   \
-> > >                 bool ___ret = false;                                         \
-> > > -               static bool __section(".data.once") ___done = false;         \
-> > > +               static bool __section(.data.once) ___done = false;           \
-> > >                 static DEFINE_STATIC_KEY_TRUE(___once_key);                  \
-> > >                 if (static_branch_unlikely(&___once_key)) {                  \
-> > >                         ___ret = __do_once_slow_start(&___done);             \
-> >
-> >
-> > This change works, it does not cause kernel panic again after this
-> > change is applied.
->
-> Great, thanks!  Can I get a Tested-by: line for the changelog?
-
-Sure, Yongqin Liu <yongqin.liu@linaro.org>
-
-> I'll queue this up in a bit and get it fixed in the next release.
-
-BTW, to be clear, I tested it with one 4.19-q tree based on the latest
-ACK android-4.19-q branch[1],
-If there is something else I could help test, please let me know.
-
-[1]: https://android.googlesource.com/kernel/common/+/refs/heads/android-4.19-q
--- 
-Best Regards,
-Yongqin Liu
----------------------------------------------------------------
-#mailing list
-linaro-android@lists.linaro.org
-http://lists.linaro.org/mailman/listinfo/linaro-android
+SGkgTWltaQ0KDQo+IEkgZm91bmQgdGhpcyBsaXN0IG9mIGNvbXB1dGVycyB3aXRoIHRoZSBBcHBs
+ZSBUMiBTZWN1cml0eSBDaGlwIC0gDQo+IGh0dHBzOi8vc3VwcG9ydC5hcHBsZS5jb20vZW4tdXMv
+SFQyMDg4NjIsIGJ1dCBub3QgYSBsaXN0IHRoYXQNCj4gY29ycmVsYXRlcyB0aGVtIHRvIHRoZSBz
+eXN0ZW0gSUQuICBXaXRoIHRoaXMgdXBkYXRlLCBpcyB0aGlzIHRoZSBlbnRpcmUNCj4gbGlzdD8N
+Cg0KQXMgcGVyIHRoZSBsaW5rIHlvdSBzZW50IG1lLCB0aGUgZm9sbG93aW5nIGFyZSB0aGUgc3lz
+dGVtIElEcyBvZiB0aGUgVDIgTWFjcyBtZW50aW9uZWQgaW4gdGhlIGxpc3QNCg0KMS4gaU1hYyAo
+UmV0aW5hIDVLLCAyNy1pbmNoLCAyMDIwKSAtIGlNYWMyMCwxLCBpTWFjMjAsMg0KMi4gaU1hYyBQ
+cm8gLSBpTWFjUHJvMSwxDQozLiBNYWMgUHJvICgyMDE5KSAtIE1hY1BybzcsMQ0KNC4gTWFjIFBy
+byAoUmFjaywgMjAxOSkgLSBNYWNQcm83LDENCjUuIE1hYyBtaW5pICgyMDE4KSAtIE1hY21pbmk4
+LDENCjYuIE1hY0Jvb2sgQWlyIChSZXRpbmEsIDEzLWluY2gsIDIwMjApIC0gTWFjQm9va0Fpcjks
+MQ0KNy4gTWFjQm9vayBBaXIgKFJldGluYSwgMTMtaW5jaCwgMjAxOSkgLSBNYWNCb29rQWlyOCwy
+DQo4LiBNYWNCb29rIEFpciAoUmV0aW5hLCAxMy1pbmNoLCAyMDE4KSAtIE1hY0Jvb2tBaXI4LDEN
+CjkuIE1hY0Jvb2sgUHJvICgxMy1pbmNoLCAyMDIwLCBUd28gVGh1bmRlcmJvbHQgMyBwb3J0cykg
+LSBNYWNCb29rUHJvMTYsMw0KMTAuIE1hY0Jvb2sgUHJvICgxMy1pbmNoLCAyMDIwLCBGb3VyIFRo
+dW5kZXJib2x0IDMgcG9ydHMpIC0gTWFjQm9va1BybzE2LDINCjExLiBNYWNCb29rIFBybyAoMTYt
+aW5jaCwgMjAxOSkgLSBNYWNCb29rUHJvMTYsMSwgTWFjQm9va1BybzE2LDQNCjEyLiBNYWNCb29r
+IFBybyAoMTMtaW5jaCwgMjAxOSwgVHdvIFRodW5kZXJib2x0IDMgcG9ydHMpIC0gTWFjQm9va1By
+bzE1LDQNCjEzLiBNYWNCb29rIFBybyAoMTUtaW5jaCwgMjAxOSkgLSBNYWNCb29rUHJvMTUsMSwg
+TWFjQm9va1BybzE1LDMNCjE0LiBNYWNCb29rIFBybyAoMTMtaW5jaCwgMjAxOSwgRm91ciBUaHVu
+ZGVyYm9sdCAzIHBvcnRzKSAtIE1hY0Jvb2tQcm8xNSwyDQoxNS4gTWFjQm9vayBQcm8gKDE1LWlu
+Y2gsIDIwMTgpIC0gTWFjQm9va1BybzE1LDENCjE2LiBNYWNCb29rIFBybyAoMTMtaW5jaCwgMjAx
+OCwgRm91ciBUaHVuZGVyYm9sdCAzIHBvcnRzKSAtIE1hY0Jvb2tQcm8xNSwyDQoNClRoZSBzeXN0
+ZW0gSURzIG9mIHRoZSBNYWNzIGNhbiBiZSBzZWVuIGZyb20gb2ZmaWNpYWwgQXBwbGXigJlzIGRv
+Y3VtZW50YXRpb24gZm9ybSB0aGUgbGlua3MgYmVsb3cgOi0NCg0KaHR0cHM6Ly9zdXBwb3J0LmFw
+cGxlLmNvbS9lbi1pbi9IVDIwMTYzNCAtIEZvciBpTWFjDQpodHRwczovL3N1cHBvcnQuYXBwbGUu
+Y29tL2VuLWluL0hUMjAyODg4IC0gRm9yIE1hYyBQcm8NCmh0dHBzOi8vc3VwcG9ydC5hcHBsZS5j
+b20vZW4taW4vSFQyMDE4OTQgLSBGb3IgTWFjIG1pbmkNCmh0dHBzOi8vc3VwcG9ydC5hcHBsZS5j
+b20vZW4taW4vSFQyMDE4NjIgLSBGb3IgTWFjQm9vayBBaXINCmh0dHBzOi8vc3VwcG9ydC5hcHBs
+ZS5jb20vZW4taW4vSFQyMDEzMDAgLSBGb3IgTWFjQm9vayBQcm8NCg0KQWZ0ZXIgY3Jvc3MtY2hl
+Y2tpbmcgb25seSBpTWFjUHJvMSwxIHNlZW1zIHRvIGJlIG1pc3NpbmcuDQoNClRoYW5rcw0KQWRp
+dHlh
