@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48157614864
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:17:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B00F61486C
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:22:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229468AbiKALRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:17:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53310 "EHLO
+        id S229531AbiKALWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:22:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbiKALRp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:17:45 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2D44186C9
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 04:17:44 -0700 (PDT)
-Received: from kwepemi500009.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4N1nYC674TzHvQ5;
-        Tue,  1 Nov 2022 19:17:19 +0800 (CST)
+        with ESMTP id S229475AbiKALV7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:21:59 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 955DF112E
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 04:21:58 -0700 (PDT)
+Received: from kwepemi500009.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4N1nfV1b5wzmV5c;
+        Tue,  1 Nov 2022 19:21:54 +0800 (CST)
 Received: from localhost.localdomain (10.175.127.227) by
  kwepemi500009.china.huawei.com (7.221.188.199) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Tue, 1 Nov 2022 19:17:37 +0800
+ 15.1.2375.31; Tue, 1 Nov 2022 19:21:56 +0800
 From:   Long Li <leo.lilong@huawei.com>
-To:     <leo.lilong@huawei.com>
-CC:     Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+To:     <patchwork@huawei.com>, <liuyongqiang13@huawei.com>
+CC:     <leo.lilong@huawei.com>, <yi.zhang@huawei.com>,
+        <houtao1@huawei.com>, Ryusuke Konishi <konishi.ryusuke@gmail.com>,
         <syzbot+2b32eb36c1a825b7a74c@syzkaller.appspotmail.com>,
         Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         <stable@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 Subject: [PATCH openEuler-22.03-LTS] nilfs2: fix NULL pointer dereference at nilfs_bmap_lookup_at_level()
-Date:   Tue, 1 Nov 2022 19:39:18 +0800
-Message-ID: <20221101113918.715622-1-leo.lilong@huawei.com>
+Date:   Tue, 1 Nov 2022 19:43:37 +0800
+Message-ID: <20221101114337.726788-1-leo.lilong@huawei.com>
 X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
 X-Originating-IP: [10.175.127.227]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
  kwepemi500009.china.huawei.com (7.221.188.199)
 X-CFilter-Loop: Reflected
 X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
