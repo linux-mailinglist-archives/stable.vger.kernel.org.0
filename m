@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FB1A61496E
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:37:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D6CE61497C
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:37:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231157AbiKALh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46020 "EHLO
+        id S231417AbiKALhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:37:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231171AbiKALhG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:37:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49CAD1D328;
-        Tue,  1 Nov 2022 04:32:02 -0700 (PDT)
+        with ESMTP id S231280AbiKALhZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:37:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E73D91D668;
+        Tue,  1 Nov 2022 04:32:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5444FB81CD1;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDCC0615FA;
         Tue,  1 Nov 2022 11:31:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B421C433D6;
-        Tue,  1 Nov 2022 11:31:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B8A2C433C1;
+        Tue,  1 Nov 2022 11:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302275;
-        bh=L9aQ73/4PQIxYU6PJzWji8OE/jJa6y6rkGYuYWnYiko=;
+        s=k20201202; t=1667302276;
+        bh=Q/K3/OmSb/+pV/16sKiDrK2TMY3OM84BEbvbM1slRfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkX6AvLDN+FabWKcZfQ8JsWeXuv9vLb8sxzg+mQbTuCI8BHIMVM9NEVdrc4kop8Yq
-         yfPmiu4OvUbue237hH+/7d5PPdobcZP0Mkj4LTY9BDneNxWgHBMVDKjDZmneMtp8sC
-         qq5fuzqXIfY3R8f5S6QuP5HqCY8fGB7mqwy04Q8Scy3lGXMrNunFIHJwP8fjVgMe8b
-         i69EiPasv/CdjBJXoeO5Wy3gtFzwNYwmTvb93ySTvv+ZYHbigEs5GfjP0Iwp486NKQ
-         zngm2ZR2eDrBFOtzH5UhxosUYVb5Ar0ImFyGRwUDbisZc21gKJPQmdfgfh05CqC4XD
-         ahYbuK3eHuOdg==
+        b=Wy66OX/G9crt0+o29B0e9cm49njcW705vflEFLzaPZQYWUumpM/tTxmIjWBcx5ke9
+         fm1jJFs8oY2ggLuZ79c5t+hYSUJDUNWRoq4Y5JEZ+C+aQINuz67bQI8uKPslncCfOj
+         Yw9vA48xy6eV/0/jKCg7oSvq5Qed5Zw0LQOxXsUlViGB2A+UyR7+5j6MM8fZDG1Ioo
+         1gzFnX0Z+J3l+Ktca5uDWEoYQ4UBTXhC/vdsi1gWVY8joM9oV1m8UAfQg17Pe+AA2Y
+         D/26nGKdlNB57NzabXk3ac0SPcGmsgtg1/ft++Vwqq2SRyHMfhTdbvSjcNaL7PQ3LT
+         IEF7WEeNRVfxA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Samuel Bailey <samuel.bailey1@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 7/8] HID: saitek: add madcatz variant of MMO7 mouse device ID
-Date:   Tue,  1 Nov 2022 07:30:56 -0400
-Message-Id: <20221101113059.800777-7-sashal@kernel.org>
+Cc:     =?UTF-8?q?Martin=20T=C5=AFma?= <martin.tuma@digiteqautomotive.com>,
+        Michal Simek <michal.simek@amd.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        michal.simek@xilinx.com, linux-arm-kernel@lists.infradead.org,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 8/8] i2c: xiic: Add platform module alias
+Date:   Tue,  1 Nov 2022 07:30:57 -0400
+Message-Id: <20221101113059.800777-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101113059.800777-1-sashal@kernel.org>
 References: <20221101113059.800777-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,59 +58,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Bailey <samuel.bailey1@gmail.com>
+From: Martin Tůma <martin.tuma@digiteqautomotive.com>
 
-[ Upstream commit 79425b297f56bd481c6e97700a9a4e44c7bcfa35 ]
+[ Upstream commit b8caf0a0e04583fb71e21495bef84509182227ea ]
 
-The MadCatz variant of the MMO7 mouse has the ID 0738:1713 and the same
-quirks as the Saitek variant.
+The missing "platform" alias is required for the mgb4 v4l2 driver to load
+the i2c controller driver when probing the HW.
 
-Signed-off-by: Samuel Bailey <samuel.bailey1@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Martin Tůma <martin.tuma@digiteqautomotive.com>
+Acked-by: Michal Simek <michal.simek@amd.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- drivers/hid/hid-saitek.c | 2 ++
- 3 files changed, 4 insertions(+)
+ drivers/i2c/busses/i2c-xiic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c587a77d493c..d6cd94cad571 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -818,6 +818,7 @@
- #define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
- #define USB_DEVICE_ID_MADCATZ_RAT5	0x1705
- #define USB_DEVICE_ID_MADCATZ_RAT9	0x1709
-+#define USB_DEVICE_ID_MADCATZ_MMO7  0x1713
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index a48bee59dcde..c92ea6990ec6 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -884,6 +884,7 @@ static struct platform_driver xiic_i2c_driver = {
  
- #define USB_VENDOR_ID_MCC		0x09db
- #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 45eba224cdc7..89e236b71ddf 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -615,6 +615,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT5) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_MMO7) },
- #endif
- #if IS_ENABLED(CONFIG_HID_SAMSUNG)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
-diff --git a/drivers/hid/hid-saitek.c b/drivers/hid/hid-saitek.c
-index c7bf14c01960..b84e975977c4 100644
---- a/drivers/hid/hid-saitek.c
-+++ b/drivers/hid/hid-saitek.c
-@@ -187,6 +187,8 @@ static const struct hid_device_id saitek_devices[] = {
- 		.driver_data = SAITEK_RELEASE_MODE_RAT7 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7),
- 		.driver_data = SAITEK_RELEASE_MODE_MMO7 },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_MMO7),
-+		.driver_data = SAITEK_RELEASE_MODE_MMO7 },
- 	{ }
- };
+ module_platform_driver(xiic_i2c_driver);
  
++MODULE_ALIAS("platform:" DRIVER_NAME);
+ MODULE_AUTHOR("info@mocean-labs.com");
+ MODULE_DESCRIPTION("Xilinx I2C bus driver");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.35.1
 
