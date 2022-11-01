@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CED6148E1
+	by mail.lfdr.de (Postfix) with ESMTP id 266F16148E0
 	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:31:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230458AbiKALbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:31:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35352 "EHLO
+        id S230336AbiKALbK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:31:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230322AbiKALaj (ORCPT
+        with ESMTP id S230074AbiKALaj (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:30:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F3E6464;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51322640F;
         Tue,  1 Nov 2022 04:29:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 580B3B81CC3;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1025615C9;
         Tue,  1 Nov 2022 11:29:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69DCDC433D6;
-        Tue,  1 Nov 2022 11:29:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 715EEC433B5;
+        Tue,  1 Nov 2022 11:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302153;
-        bh=3jXtpSIwEXAW4EAq4OZoPSPi8/gX8DtutC4ENnfdEM4=;
+        s=k20201202; t=1667302154;
+        bh=tOpZeKAOJMh58ZPuvY2dDkisClZLVE+pnygsqxNEdmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q6SfJeeC+m1Q0l+pNOooRVEisJhLwdzeXO54fbR9q5+iIV6mFh0WdOfpRhwR2dE/7
-         z12ium+mUJcRPQGm9oNKfZZ5ViiCn4qW4RtWxfpgmXHTFFuAziZf1aDtoXPupI5AW2
-         TYK1hrjc+7/EhuF6fjQ+3au3N9GwaP613jkYaEcASefJEEJpLp7cBgpMZPVw7TgEY+
-         jbk7uGYBdxWDpidlQUUVtmZIIey6Ga9oZNFbFu8iWa2r9G6eIHrJTG85JiiJvX944+
-         INfTPC39um/KOGTA8tlBScxinlmvDncsfiCqfY26s1UQ8A32k5HBYqdT+OBG57p3FZ
-         tXWsjlvmCVsFw==
+        b=FO/cX53WLCtwLVcdQbsY5lT8dORSED6svu0TI/u02wM2a5uLVtn0aLETaH0yzGOLq
+         Zp0MbOQw0tl0izwAhUXNhmiPPiAWa3awIgl3Ds2X36KmXqkZ0g8QBz23gsVazCWbYh
+         Q9VB7udVIi70PriOikxez5BCFMr/Mx+RIf/hLgwgTb6+8nF/rxOV1gKNOlPPMghmqx
+         nItxm1m5B1FbKLvdFepj9wZkfb1m5gfNETVeOgrmOepLEcIpJcKQznbGEJvcg8wt9K
+         WkLbPqujlm1kOb5/1Kq9X06mdOWjh0lx7Xx2r5sveb/i/PAu6LcAMq7g0YgrS7aoSD
+         frZpUlbmQyVyQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YuBiao Wang <YuBiao.Wang@amd.com>, Jack Xiao <Jack.Xiao@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        Hawking.Zhang@amd.com, Felix.Kuehling@amd.com,
-        Graham.Sider@amd.com, yifan1.zhang@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 30/34] drm/amdgpu: dequeue mes scheduler during fini
-Date:   Tue,  1 Nov 2022 07:27:22 -0400
-Message-Id: <20221101112726.799368-30-sashal@kernel.org>
+Cc:     Xander Li <xander_li@kingston.com.tw>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
+        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.0 31/34] nvme-pci: disable write zeroes on various Kingston SSD
+Date:   Tue,  1 Nov 2022 07:27:23 -0400
+Message-Id: <20221101112726.799368-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112726.799368-1-sashal@kernel.org>
 References: <20221101112726.799368-1-sashal@kernel.org>
@@ -59,96 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YuBiao Wang <YuBiao.Wang@amd.com>
+From: Xander Li <xander_li@kingston.com.tw>
 
-[ Upstream commit 2abe92c7adc9c0397ba51bf74909b85bc0fff84b ]
+[ Upstream commit ac9b57d4e1e3ecf0122e915bbba1bd4c90ec3031 ]
 
-[Why]
-If mes is not dequeued during fini, mes will be in an uncleaned state
-during reload, then mes couldn't receive some commands which leads to
-reload failure.
+Kingston SSDs do support NVMe Write_Zeroes cmd but take long time to
+process.  The firmware version is locked by these SSDs, we can not expect
+firmware improvement, so disable Write_Zeroes cmd.
 
-[How]
-Perform MES dequeue via MMIO after all the unmap jobs are done by mes
-and before kiq fini.
-
-v2: Move the dequeue operation inside kiq_hw_fini.
-
-Signed-off-by: YuBiao Wang <YuBiao.Wang@amd.com>
-Reviewed-by: Jack Xiao <Jack.Xiao@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Xander Li <xander_li@kingston.com.tw>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/mes_v11_0.c | 42 ++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 3 deletions(-)
+ drivers/nvme/host/pci.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
-index f92744b8d79d..2dd827472d6e 100644
---- a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
-@@ -1145,6 +1145,42 @@ static int mes_v11_0_sw_fini(void *handle)
- 	return 0;
- }
- 
-+static void mes_v11_0_kiq_dequeue_sched(struct amdgpu_device *adev)
-+{
-+	uint32_t data;
-+	int i;
-+
-+	mutex_lock(&adev->srbm_mutex);
-+	soc21_grbm_select(adev, 3, AMDGPU_MES_SCHED_PIPE, 0, 0);
-+
-+	/* disable the queue if it's active */
-+	if (RREG32_SOC15(GC, 0, regCP_HQD_ACTIVE) & 1) {
-+		WREG32_SOC15(GC, 0, regCP_HQD_DEQUEUE_REQUEST, 1);
-+		for (i = 0; i < adev->usec_timeout; i++) {
-+			if (!(RREG32_SOC15(GC, 0, regCP_HQD_ACTIVE) & 1))
-+				break;
-+			udelay(1);
-+		}
-+	}
-+	data = RREG32_SOC15(GC, 0, regCP_HQD_PQ_DOORBELL_CONTROL);
-+	data = REG_SET_FIELD(data, CP_HQD_PQ_DOORBELL_CONTROL,
-+				DOORBELL_EN, 0);
-+	data = REG_SET_FIELD(data, CP_HQD_PQ_DOORBELL_CONTROL,
-+				DOORBELL_HIT, 1);
-+	WREG32_SOC15(GC, 0, regCP_HQD_PQ_DOORBELL_CONTROL, data);
-+
-+	WREG32_SOC15(GC, 0, regCP_HQD_PQ_DOORBELL_CONTROL, 0);
-+
-+	WREG32_SOC15(GC, 0, regCP_HQD_PQ_WPTR_LO, 0);
-+	WREG32_SOC15(GC, 0, regCP_HQD_PQ_WPTR_HI, 0);
-+	WREG32_SOC15(GC, 0, regCP_HQD_PQ_RPTR, 0);
-+
-+	soc21_grbm_select(adev, 0, 0, 0, 0);
-+	mutex_unlock(&adev->srbm_mutex);
-+
-+	adev->mes.ring.sched.ready = false;
-+}
-+
- static void mes_v11_0_kiq_setting(struct amdgpu_ring *ring)
- {
- 	uint32_t tmp;
-@@ -1196,6 +1232,9 @@ static int mes_v11_0_kiq_hw_init(struct amdgpu_device *adev)
- 
- static int mes_v11_0_kiq_hw_fini(struct amdgpu_device *adev)
- {
-+	if (adev->mes.ring.sched.ready)
-+		mes_v11_0_kiq_dequeue_sched(adev);
-+
- 	mes_v11_0_enable(adev, false);
- 	return 0;
- }
-@@ -1251,9 +1290,6 @@ static int mes_v11_0_hw_init(void *handle)
- 
- static int mes_v11_0_hw_fini(void *handle)
- {
--	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
--
--	adev->mes.ring.sched.ready = false;
- 	return 0;
- }
- 
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 57cc2bb5b1a2..554468ea5a2a 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3508,6 +3508,16 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(0x2646, 0x2263),   /* KINGSTON A2000 NVMe SSD  */
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
++	{ PCI_DEVICE(0x2646, 0x5018),   /* KINGSTON OM8SFP4xxxxP OS21012 NVMe SSD */
++		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
++	{ PCI_DEVICE(0x2646, 0x5016),   /* KINGSTON OM3PGP4xxxxP OS21011 NVMe SSD */
++		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
++	{ PCI_DEVICE(0x2646, 0x501A),   /* KINGSTON OM8PGP4xxxxP OS21005 NVMe SSD */
++		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
++	{ PCI_DEVICE(0x2646, 0x501B),   /* KINGSTON OM8PGP4xxxxQ OS21005 NVMe SSD */
++		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
++	{ PCI_DEVICE(0x2646, 0x501E),   /* KINGSTON OM3PGP4xxxxQ OS21011 NVMe SSD */
++		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
+ 	{ PCI_DEVICE(0x1e4B, 0x1001),   /* MAXIO MAP1001 */
+ 		.driver_data = NVME_QUIRK_BOGUS_NID, },
+ 	{ PCI_DEVICE(0x1e4B, 0x1002),   /* MAXIO MAP1002 */
 -- 
 2.35.1
 
