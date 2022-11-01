@@ -2,94 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 017866153A1
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 21:55:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 735666153C3
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 22:07:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230241AbiKAUzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 16:55:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51818 "EHLO
+        id S230178AbiKAVHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 17:07:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229591AbiKAUzg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 16:55:36 -0400
-Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F7D81D66D
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 13:55:33 -0700 (PDT)
-Received: by mail-vs1-xe36.google.com with SMTP id 3so15157849vsh.5
-        for <stable@vger.kernel.org>; Tue, 01 Nov 2022 13:55:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=cqbLWcBIQb8XYE6Q27K1dn/Qss6FqbanMa9ZMLFawV4=;
-        b=SdjNIV61+AUiZipfoF7z/c0eF1KHkns1gDf6WR18rSKtwTn3J9NycXKuLaGE/ifLBA
-         Q+tkY6+S1b3wJgNBmRXFGueGN2obI2CsTD6SlcPkRQbi8GcAf+GzNGUpUFVDeIxrI7Me
-         8HLnbiynOTtlwbs1mQ72Bz1x7KjFhTbHyInElQleif4JZULlD8aDhmx38LBjFwQE9OWu
-         TTUEnLtg3EhTZs0biHl3diEQHkWf0XyTHwvg00sgNV/esRjeb1Ml3eDhciGpmfkcwDH6
-         U5kibEKCB7ASEKxZpbFa/jvJmsmmpkEeB4lyj+Re2uhnsV6/3CrA1UEZ3HG6rn9xIfJS
-         h1KA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=cqbLWcBIQb8XYE6Q27K1dn/Qss6FqbanMa9ZMLFawV4=;
-        b=sAG0mkBFn3f61wFA12KaDftYUwNeC4+gjCGhkgDKeROkYAXwn8B4TCrHDobSs1vCwC
-         OXkBQNjgU52qcHWjHz28S2e8ykXdfKcmPZPeMDwC8W5nfIJZSFaTux1tQtCXjNi6Vare
-         0NpUp19z1sDXveqsjgMJTYq7bt3h8zhcjrjN9b1nD7qvf6p5eSA3wk2oFd3TtqQy4kV8
-         DZUGsrbwt+yB9rHpNu4PXhOBP1ltPs82wi+bawF9IstDOKSAR3JlM+L8oeOHh951QbLd
-         j+A1xexGGgzko8Bf7JNOv0DyyWyjjHc5FFQ1oLEbvl5U+hKVgny0+SUmZ3gvl7gZtlby
-         ej/g==
-X-Gm-Message-State: ACrzQf0Yh/RT21T5Ml01wLhg3X9g7XHXKvPjQvWWE4N5cdISS19xHhFX
-        BLcFym1InomSPxRdhPfsliXzOqRblWt6auCUNf5hyA==
-X-Google-Smtp-Source: AMsMyM6zDilx7lfGrhrvjg9wGn6qEo4r8XjxEXwu+fZr3qoEztNU5zmGwOINFEQZphmHedm1PBqPXpqBFDEu3yFAyzg=
-X-Received: by 2002:a67:c398:0:b0:3aa:b87:9326 with SMTP id
- s24-20020a67c398000000b003aa0b879326mr9028289vsj.82.1667336132443; Tue, 01
- Nov 2022 13:55:32 -0700 (PDT)
-MIME-Version: 1.0
-References: <20221101005202.50231-1-meenashanmugam@google.com> <Y2F0ct7Dk9Npxrta@kroah.com>
-In-Reply-To: <Y2F0ct7Dk9Npxrta@kroah.com>
-From:   Meena Shanmugam <meenashanmugam@google.com>
-Date:   Tue, 1 Nov 2022 13:55:21 -0700
-Message-ID: <CAMdnWFBSu87S4v=RVu0Y8RBau_=WiPkXf35tzpwd37rNn1-ZLg@mail.gmail.com>
-Subject: Re: [PATCH 5.15 0/1] Request to backport 3c52c6bb831f to 5.15.y
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, kuniyu@amazon.com
+        with ESMTP id S230017AbiKAVHp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 17:07:45 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2C711DA78;
+        Tue,  1 Nov 2022 14:07:44 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A1K0bgv011530;
+        Tue, 1 Nov 2022 21:07:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=tFHhevBTuVeibnGjbNPPIb8CHtAFDNMRfUu71KO8UeY=;
+ b=Qm+NsJ51+Im8XWzN3Akue+SjanAA0ED81sCyGTTNa17E8tKerbqyzj/blekFvm/xyr14
+ HUG/shLEno4Ov8xDIhXqeSkxN1FrgWnX3cetsHnKxVBS3FcqRpJiXdbz69MuI0zMwoh9
+ um5Fo+OEE1ocAMj98KpR0afWkuRNSvfX3cKVw/p70Sr0M6GvKASevTXsOPkVBrE9Gu2m
+ 7OVvcJlum+sUVIEhsKFD/zkEZ5IFXsn0l7KI469k0aBx8sleygPhFBY0AWip0+v5jAZ0
+ RnyZBriXM/A72qr/zWaWTqa0a0GtIYE4Nv1znDi+zdnQ4NGyEkSWNuBuYP4Vds+FIvuB Cw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kjvbhem89-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Nov 2022 21:07:20 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2A1Iag3I019035;
+        Tue, 1 Nov 2022 21:07:19 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kjvbhem7r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Nov 2022 21:07:19 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2A1L6p7J028551;
+        Tue, 1 Nov 2022 21:07:18 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma04dal.us.ibm.com with ESMTP id 3kguta3yk0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Nov 2022 21:07:18 +0000
+Received: from smtpav01.dal12v.mail.ibm.com ([9.208.128.133])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2A1L7K9L10289820
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 1 Nov 2022 21:07:21 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DF28558058;
+        Tue,  1 Nov 2022 21:07:16 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 17A0E58059;
+        Tue,  1 Nov 2022 21:07:16 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.106.109])
+        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Tue,  1 Nov 2022 21:07:15 +0000 (GMT)
+Message-ID: <6d1f5204ad68fa34d55019790ce376167a0110a9.camel@linux.ibm.com>
+Subject: Re: [PATCH] efi: Add iMac Pro 2017 to uefi skip cert quirk
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Aditya Garg <gargaditya08@live.com>
+Cc:     "chyishian.jiang@gmail.com" <chyishian.jiang@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "jarkko@kernel.org" <jarkko@kernel.org>,
+        "dmitry.kasatkin@gmail.com" <dmitry.kasatkin@gmail.com>,
+        "paul@paul-moore.com" <paul@paul-moore.com>,
+        "jmorris@namei.org" <jmorris@namei.org>,
+        "serge@hallyn.com" <serge@hallyn.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Orlando Chamberlain <redecorating@protonmail.com>
+Date:   Tue, 01 Nov 2022 17:07:15 -0400
+In-Reply-To: <9D46D92F-1381-4F10-989C-1A12CD2FFDD8@live.com>
+References: <8CB9E43B-AB65-4735-BB8D-A8A7A10F9E30@live.com>
+         <cee0b0176edc942ecc0ce6f4d585c239f9b7c425.camel@linux.ibm.com>
+         <9D46D92F-1381-4F10-989C-1A12CD2FFDD8@live.com>
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: otuF8GVL0erMKE98_o_DPisopIAymoU4
+X-Proofpoint-ORIG-GUID: YSB9X97RL2Qh1CzDBwDtkO-er7_dB7zc
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-01_10,2022-11-01_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ phishscore=0 adultscore=0 bulkscore=0 mlxscore=0 spamscore=0
+ malwarescore=0 mlxlogscore=718 suspectscore=0 classifier=spam adjust=0
+ reason=mlx scancount=1 engine=8.12.0-2210170000
+ definitions=main-2211010147
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 1, 2022 at 12:32 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Nov 01, 2022 at 12:52:01AM +0000, Meena Shanmugam wrote:
-> > The commit 3c52c6bb831f (tcp/udp: Fix memory leak in
-> > ipv6_renew_options()) fixes a memory leak reported by syzbot. This seems
-> > to be a good candidate for the stable trees. This patch didn't apply cleanly
-> > in 5.15 kernel, since release_sock() calls are changed to
-> > sockopt_release_sock() in the latest kernel versions.
-> >
-> > Kuniyuki Iwashima (1):
-> >   tcp/udp: Fix memory leak in ipv6_renew_options().
-> >
-> >  net/ipv6/ipv6_sockglue.c | 7 +++++++
-> >  1 file changed, 7 insertions(+)
->
-> Can you provide a working version for 6.0.y first?  We can not have
-> people upgrading to newer kernels and having a regression.
->
-> thanks,
->
-> greg k-h
+Hi Aditya,
 
-I have submitted the patch for 6.0.y as well.
-https://lore.kernel.org/all/20221101200505.291406-2-meenashanmugam@google.com/
+On Tue, 2022-11-01 at 14:06 +0000, Aditya Garg wrote:
+> Hi Mimi
+> 
+> > I found this list of computers with the Apple T2 Security Chip - 
+> > https://support.apple.com/en-us/HT208862, but not a list that
+> > correlates them to the system ID.  With this update, is this the entire
+> > list?
+> 
+> As per the link you sent me, the following are the system IDs of the T2 Macs mentioned in the list
+> 
+> 1. iMac (Retina 5K, 27-inch, 2020) - iMac20,1, iMac20,2
+> 2. iMac Pro - iMacPro1,1
+> 3. Mac Pro (2019) - MacPro7,1
+> 4. Mac Pro (Rack, 2019) - MacPro7,1
+> 5. Mac mini (2018) - Macmini8,1
+> 6. MacBook Air (Retina, 13-inch, 2020) - MacBookAir9,1
+> 7. MacBook Air (Retina, 13-inch, 2019) - MacBookAir8,2
+> 8. MacBook Air (Retina, 13-inch, 2018) - MacBookAir8,1
+> 9. MacBook Pro (13-inch, 2020, Two Thunderbolt 3 ports) - MacBookPro16,3
+> 10. MacBook Pro (13-inch, 2020, Four Thunderbolt 3 ports) - MacBookPro16,2
+> 11. MacBook Pro (16-inch, 2019) - MacBookPro16,1, MacBookPro16,4
+> 12. MacBook Pro (13-inch, 2019, Two Thunderbolt 3 ports) - MacBookPro15,4
+> 13. MacBook Pro (15-inch, 2019) - MacBookPro15,1, MacBookPro15,3
+> 14. MacBook Pro (13-inch, 2019, Four Thunderbolt 3 ports) - MacBookPro15,2
+> 15. MacBook Pro (15-inch, 2018) - MacBookPro15,1
+> 16. MacBook Pro (13-inch, 2018, Four Thunderbolt 3 ports) - MacBookPro15,2
+> 
+> The system IDs of the Macs can be seen from official Apple’s documentation form the links below :-
+> 
+> https://support.apple.com/en-in/HT201634 - For iMac
+> https://support.apple.com/en-in/HT202888 - For Mac Pro
+> https://support.apple.com/en-in/HT201894 - For Mac mini
+> https://support.apple.com/en-in/HT201862 - For MacBook Air
+> https://support.apple.com/en-in/HT201300 - For MacBook Pro
+> 
+> After cross-checking only iMacPro1,1 seems to be missing.
 
-Thanks,
-Meena
+Thank you for double checking.  The patch is now queued in next-
+integrity.
+
+Mimi
+
