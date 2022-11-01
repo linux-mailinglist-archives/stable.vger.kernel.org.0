@@ -2,113 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC831614A30
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 13:00:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B4DF614AD2
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 13:37:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229944AbiKAMAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 08:00:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52194 "EHLO
+        id S229650AbiKAMhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 08:37:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230372AbiKAMAQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 08:00:16 -0400
-Received: from mail-vs1-xe29.google.com (mail-vs1-xe29.google.com [IPv6:2607:f8b0:4864:20::e29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 688F3E97
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 05:00:15 -0700 (PDT)
-Received: by mail-vs1-xe29.google.com with SMTP id k67so13700742vsk.2
-        for <stable@vger.kernel.org>; Tue, 01 Nov 2022 05:00:15 -0700 (PDT)
+        with ESMTP id S229528AbiKAMhI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 08:37:08 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B8EC17E18;
+        Tue,  1 Nov 2022 05:37:06 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id d24so13434872pls.4;
+        Tue, 01 Nov 2022 05:37:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=OyhJRlri+Ua8la0vT3fYEy+X4DHeUkraR4jrupnv/Ro=;
-        b=LLWUSWTahHJNf74iOqqhW3ealUpzKgZr3mY7FFxf/p9Jc38hodpkHq8elNbEsL8W4T
-         Z9M/8nV0IJiEMr7eUiqtsjP65sPJvOU2qjEg4c+ZalXiBhz65Qfm594sSPtXf/HPTq/L
-         gtsz/aS98e1AdIsUvhdiHMC4IfEgvnyHHaH3kOGHOSRil7+bu9JOD6VMCKKnvH5OlL5l
-         a3ZMKkl4104+7rZGJAMG7Y47KStW2gfuLuphCf2sgaJVoqdQGvFpj19n+tDhrCaXuh4r
-         zaOCOKC+9y0iUXi3qJQLF6emzicjCh85WAVoi1cGPs7T4Y8nlbcbPoij0+yFAgCHggw4
-         Z6JQ==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=8UQRCroGbZvbN/wuUnBp7fR9SFQ4noJrL6f95B344r4=;
+        b=iUPjFvfRCMd9oZmwbhRbchTuwGz+6E4LppQmC0lCfLz0W+6p0HAQftLD46X+yagFjO
+         xDWodmuRkU5H8sJPGVgw1lrPEmv2s9wvaBGVPgz3B3UWOg0G2s3VF5XDg0GyORvsOwWw
+         PGMbX2GmfW77RO48f6hD9EelrjAejhtiSahHqZpJ8Lvm7mHsSh+GPUP2ODbryRJWcjmy
+         NjI9mgiaT4s+oEQeuurZYZakyCuOGbBa37TyY6MWdfOLdVMXWQfVVPtwpTYZFzTxxQ/k
+         SBZfj8ZaNFF+96QaY/fO1g6P/o6W7jouyb9ec4IZe12MrXbavJWSrMCv4hDBK+/adjW+
+         sEJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=OyhJRlri+Ua8la0vT3fYEy+X4DHeUkraR4jrupnv/Ro=;
-        b=VfFgTl12ZowJ5plHL4D4fY7ABxgOgQ7eIqBhYFbZ6I0JvWPB3lLAnucAysIvsfmeAE
-         pyJeWTK1H0pnH+NYT9nZxzxQzWtAtW4Z8HAAconuHpziw1RQfWhH4pfe3JnCsTJB9G8D
-         E0ADzfrRPni6x55yzmzEqWD6DAZnXdAmaDWO9FnNafSeGDweMBlTiDxyn1ZzwzuC6blt
-         n+RPxiKDQBPU1SpKEptrXuA9+WY58RzddELIWWwgz0scFKB9x9WCfXO6O3QW5E4i4MYe
-         EyGW+iKlol9ukfiWxvSpQ7VRseff8GhDGfyvM78GO3Cr+PVVxg2bv+WqDeaYLDyZobJz
-         uyPg==
-X-Gm-Message-State: ACrzQf1XcLd5ySwE19pMoKfc0EoLVSyYOL3CV7iTUpcCKAtqYDrkmQfe
-        RlERdY8UY7KpMUwF0xwLjAkVVm5OvMCZbMKpqGr7WA==
-X-Google-Smtp-Source: AMsMyM45tMNHb3fFKpqRgP2ZyymkN3exp6A62pwnq8o3DEMttkS7aIUy0I1Di48cJ/Ke90w1GFxStn9bMpNfnB57tvM=
-X-Received: by 2002:a05:6102:534c:b0:3a7:c31a:a661 with SMTP id
- bq12-20020a056102534c00b003a7c31aa661mr6871842vsb.7.1667304014246; Tue, 01
- Nov 2022 05:00:14 -0700 (PDT)
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=8UQRCroGbZvbN/wuUnBp7fR9SFQ4noJrL6f95B344r4=;
+        b=owu5oQLWlYyxnaGH0oVCkC6kR/MDY1mXY0XHR5HmZT3S4b6v2Ykr3CVLtugtpI01fM
+         tbdUQ8i67+pFGvL2glIlUCkwkWAsEXj9+Fk37pcA61Ckt63bzVg6MrjyiP66hPFdc1/o
+         WrR0YQXlM3BjRQYyK3dvRI5hIoycjpEIu/06Dmrek4Po1qDMreeNiutxQ3ssgLrpU36/
+         0YKGZDhWga5qJOEPtWUmcdETS9cP7lfE5fTXJbXlZ3NP9ZbfSDABAzF60gmjfZ0JPOjP
+         7FtC6NM57o0Wa32JEgqc677ahFuhSJO6CVuhhMJUbmE7nRMK/aWOn6Yf2Mm2G7WuTGhc
+         yOyA==
+X-Gm-Message-State: ACrzQf3wQorivk8Xm4mGgo1Y3SzvdMeu3NoVYDwU8IKMQxPwE+/Jdo3I
+        UTqM2d42Faa9TWIQCgmnptcDMwe89nMPhg==
+X-Google-Smtp-Source: AMsMyM70cze/4h3TWE9CjuViil/KQGdba4o1DJXGYi+5hz++/FOHtA5sn+T4Brv7I4+qd79x+Ii8wg==
+X-Received: by 2002:a17:90a:d586:b0:213:de8f:4d6 with SMTP id v6-20020a17090ad58600b00213de8f04d6mr11447129pju.31.1667306225915;
+        Tue, 01 Nov 2022 05:37:05 -0700 (PDT)
+Received: from [192.168.43.80] (subs02-180-214-232-74.three.co.id. [180.214.232.74])
+        by smtp.gmail.com with ESMTPSA id x9-20020a628609000000b00563ce1905f4sm6451631pfd.5.2022.11.01.05.37.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Nov 2022 05:37:05 -0700 (PDT)
+Message-ID: <83d70f8f-419c-2eb9-5130-782750772868@gmail.com>
+Date:   Tue, 1 Nov 2022 19:36:20 +0700
 MIME-Version: 1.0
-References: <20221024112959.085534368@linuxfoundation.org> <20221024113002.025977656@linuxfoundation.org>
- <CAMSo37XApZ_F5nSQYWFsSqKdMv_gBpfdKG3KN1TDB+QNXqSh0A@mail.gmail.com> <Y2C74nuMI3RBroTg@kroah.com>
-In-Reply-To: <Y2C74nuMI3RBroTg@kroah.com>
-From:   Yongqin Liu <yongqin.liu@linaro.org>
-Date:   Tue, 1 Nov 2022 20:00:03 +0800
-Message-ID: <CAMSo37Vt4BMkY1AJTR5yaWPDaJSQQhbj7xhqnVqDo0Q_Sy6ycg@mail.gmail.com>
-Subject: Re: [PATCH 4.19 092/229] once: add DO_ONCE_SLOW() for sleepable contexts
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        "David S. Miller" <davem@davemloft.net>,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+Subject: Re: [PATCH] can: rcar_canfd: rcar_canfd_handle_global_receive(): fix
+ IRQ storm on global FIFO receive
+Content-Language: en-US
+To:     Biju Das <biju.das.jz@bp.renesas.com>, Pavel Machek <pavel@denx.de>
+Cc:     Wolfgang Grandegger <wg@grandegger.com>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
         Sasha Levin <sashal@kernel.org>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Benjamin Copeland <ben.copeland@linaro.org>,
-        =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        "linux-can@vger.kernel.org" <linux-can@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        "linux-renesas-soc@vger.kernel.org" 
+        <linux-renesas-soc@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20221031143317.938785-1-biju.das.jz@bp.renesas.com>
+ <20221101074351.GA8310@amd>
+ <OS0PR01MB59222BA2B1CAA6CDA9B4137486369@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+In-Reply-To: <OS0PR01MB59222BA2B1CAA6CDA9B4137486369@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Greg
+On 11/1/22 14:59, Biju Das wrote:
+>> I got 7 or so copies of this, with slightly different Cc: lines.
+> 
+> I followed option 1 mentioned in [1]
+> > [1] https://www.kernel.org/doc/html/v5.10/process/stable-kernel-rules.html
+> 
+> 
+>>
+>> AFAICT this is supposed to be stable kernel submission. In such case,
+>> I'd expect [PATCH 4.14, 4.19, 5.10] in the subject line, and original
+>> sign-off block from the mainline patch.
+> 
+> OK. Maybe [1] needs updating.
 
-On Tue, 1 Nov 2022 at 14:26, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Nov 01, 2022 at 02:07:35PM +0800, Yongqin Liu wrote:
-> > Hello,
-> >
-> > As mentioned in the thread for the 5.4 version here[1], it causes a
-> > crash for the 4.19 kernel too.
-> > Just paste the log here for reference:
->
-> Can you try this patch please:
->
->
-> diff --git a/include/linux/once.h b/include/linux/once.h
-> index bb58e1c3aa03..3a6671d961b9 100644
-> --- a/include/linux/once.h
-> +++ b/include/linux/once.h
-> @@ -64,7 +64,7 @@ void __do_once_slow_done(bool *done, struct static_key_true *once_key,
->  #define DO_ONCE_SLOW(func, ...)                                                     \
->         ({                                                                   \
->                 bool ___ret = false;                                         \
-> -               static bool __section(".data.once") ___done = false;         \
-> +               static bool __section(.data.once) ___done = false;           \
->                 static DEFINE_STATIC_KEY_TRUE(___once_key);                  \
->                 if (static_branch_unlikely(&___once_key)) {                  \
->                         ___ret = __do_once_slow_start(&___done);             \
+The documentation says (in this case the third option applies):
 
+> Send the patch, after verifying that it follows the above rules, to> stable@vger.kernel.org. You must note the upstream commit ID in the
+> changelog of your submission, as well as the kernel version you wish
+> it to be applied to.
 
-This change works, it does not cause kernel panic again after this
-change is applied.
+It doesn't specify how to mark desired target branch, unfortunately.
+
+> 
+>>
+>> OTOH if it has Fixes tag (and it does) or Cc: stable (it has both),
+>> normally there's no need to do separate submission to stable, as Greg
+>> handles these automatically?
+> 
+> I got merge conflict mails for 4.9, 4.14, 4.19, 5.4, 5.10 and 5.15 stable.
+> I thought, I need to fix the conflicts and resend. Am I missing anything?? Please let me know.
+> 
+
+The upstream commit didn't apply cleanly to *all* stable branches due
+to conflicts, right?
+
+Thanks.
 
 -- 
-Best Regards,
-Yongqin Liu
----------------------------------------------------------------
-#mailing list
-linaro-android@lists.linaro.org
-http://lists.linaro.org/mailman/listinfo/linaro-android
+An old man doll... just what I always wanted! - Clara
+
