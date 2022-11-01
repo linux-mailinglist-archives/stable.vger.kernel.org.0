@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D282761494E
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:36:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 010AE614978
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:37:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231320AbiKALgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:36:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46870 "EHLO
+        id S231292AbiKALhj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:37:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231250AbiKALfc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:35:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A25A1CFCC;
-        Tue,  1 Nov 2022 04:31:23 -0700 (PDT)
+        with ESMTP id S231377AbiKALhV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:37:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06B581D651;
+        Tue,  1 Nov 2022 04:32:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C4D8615ED;
-        Tue,  1 Nov 2022 11:30:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1C8AC433D7;
-        Tue,  1 Nov 2022 11:30:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0105B81CC7;
+        Tue,  1 Nov 2022 11:31:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6208C433C1;
+        Tue,  1 Nov 2022 11:31:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302256;
-        bh=NBStALmNljR8+uMJV4rH7+lAIwrVfUG1e/uawsZ6k5U=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6WxZF4jofb45MMjXOVauN1y471ptqyIXFYM2mjE/x3qcbKdtvIoE3jIK+JqOLrRs
-         kj8wpJOyKucQWKYT7RwOAxVNxAf3G0F8Dj/UaZ9x4DaIuGykdE5mGeyjMCLGRJGvXn
-         PYmybh3WKrovE3/V+d2rnuf98WHn4lxo1ntpCCsoMeeOK/ebouMxA4TF7yXGoCY8jH
-         EGvnIuwUpKOaWJJiO4qjV7LwvUrP/r+AYlXewmNEgJ4IhE/fY6MX6mN8DeXzBG4aE1
-         uryBBNr3yEQvdzHiD/T+J+CFwq3CibBtj/L/a+TFpwni3CwLItBNx2FNH3n/qdpQvL
-         iySVQA4gacZrw==
+        s=k20201202; t=1667302261;
+        bh=Kw4Nn01bzJRVrsHjMDBHatH2mY1/n9rmS1Khm+s9vkk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=vDwmwT7EeqTQduPCn1sd1X1H5u/izqIp9OXJidjWQ/aVDEQgJTGIx7YDO58FWvwK3
+         ANchDS7qLU6eWMs5YsmRRzxkq4QdZrA5s+S1TUgNjcRoAohZXgIChnej7M+j0E+6P2
+         3bSwX4XFBXtTZ7Il44BNkHSLwobBkJWCOaCFwCbTa5pTBlhJO3oO0jT1dcATNhXbFy
+         ISBADdhNJHRMIGuhf5YDtJ4DFqZbX3U2wQCvTNQ1x5z9NWW1vA0LTCzXpdJjzSWQQo
+         +2un1c2vDC8f5mR5Yl89QFOqwxZsAglP354ypPhE7OINg+RIdSp4rvTZM5oWLS1rrQ
+         GEyb0ZK4NwQwA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Martin=20T=C5=AFma?= <martin.tuma@digiteqautomotive.com>,
-        Michal Simek <michal.simek@amd.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        michal.simek@xilinx.com, linux-arm-kernel@lists.infradead.org,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 14/14] i2c: xiic: Add platform module alias
-Date:   Tue,  1 Nov 2022 07:30:10 -0400
-Message-Id: <20221101113012.800271-14-sashal@kernel.org>
+Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 1/8] media: s5p_cec: limit msg.len to CEC_MAX_MSG_SIZE
+Date:   Tue,  1 Nov 2022 07:30:50 -0400
+Message-Id: <20221101113059.800777-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221101113012.800271-1-sashal@kernel.org>
-References: <20221101113012.800271-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,33 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Tůma <martin.tuma@digiteqautomotive.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit b8caf0a0e04583fb71e21495bef84509182227ea ]
+[ Upstream commit 93f65ce036863893c164ca410938e0968964b26c ]
 
-The missing "platform" alias is required for the mgb4 v4l2 driver to load
-the i2c controller driver when probing the HW.
+I expect that the hardware will have limited this to 16, but just in
+case it hasn't, check for this corner case.
 
-Signed-off-by: Martin Tůma <martin.tuma@digiteqautomotive.com>
-Acked-by: Michal Simek <michal.simek@amd.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-xiic.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/s5p-cec/s5p_cec.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 8dabb6ffb1a4..3b564e68130b 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -935,6 +935,7 @@ static struct platform_driver xiic_i2c_driver = {
- 
- module_platform_driver(xiic_i2c_driver);
- 
-+MODULE_ALIAS("platform:" DRIVER_NAME);
- MODULE_AUTHOR("info@mocean-labs.com");
- MODULE_DESCRIPTION("Xilinx I2C bus driver");
- MODULE_LICENSE("GPL v2");
+diff --git a/drivers/media/platform/s5p-cec/s5p_cec.c b/drivers/media/platform/s5p-cec/s5p_cec.c
+index 828792b854f5..0c668d4a3daa 100644
+--- a/drivers/media/platform/s5p-cec/s5p_cec.c
++++ b/drivers/media/platform/s5p-cec/s5p_cec.c
+@@ -115,6 +115,8 @@ static irqreturn_t s5p_cec_irq_handler(int irq, void *priv)
+ 				dev_dbg(cec->dev, "Buffer overrun (worker did not process previous message)\n");
+ 			cec->rx = STATE_BUSY;
+ 			cec->msg.len = status >> 24;
++			if (cec->msg.len > CEC_MAX_MSG_SIZE)
++				cec->msg.len = CEC_MAX_MSG_SIZE;
+ 			cec->msg.rx_status = CEC_RX_STATUS_OK;
+ 			s5p_cec_get_rx_buf(cec, cec->msg.len,
+ 					cec->msg.msg);
 -- 
 2.35.1
 
