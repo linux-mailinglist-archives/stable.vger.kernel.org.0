@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D379614972
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:37:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8654E614981
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:38:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231209AbiKALhe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:37:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46476 "EHLO
+        id S231428AbiKALiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:38:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231285AbiKALhP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:37:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85C001D337;
-        Tue,  1 Nov 2022 04:32:03 -0700 (PDT)
+        with ESMTP id S231394AbiKALhb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:37:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BDE61DA52;
+        Tue,  1 Nov 2022 04:32:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16CACB81CD2;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B3C25615F0;
+        Tue,  1 Nov 2022 11:31:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4911C433C1;
         Tue,  1 Nov 2022 11:31:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EE35C433B5;
-        Tue,  1 Nov 2022 11:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302286;
-        bh=g+cv/K2ZJ3kR1P1sjXVQV3NhC0JzyAn3UeI8gjk605o=;
+        s=k20201202; t=1667302290;
+        bh=M/wlWrMuFWFlNr4cnsXihNBkIiZ9hHBkCDu2Fk/tOZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JIsqRwpm4wXtBZIQ/QTINvLLBufTWNau2H/dt5VpUa1gnf9/HuvqQ/0Mbbj0yy+ZZ
-         /L+cdPoxNqLuKPf2t93KlFLKqAUF3Z1frxFubvc1Unki4472srh6CGE+8Yj0oWapXK
-         Xyev9OJ9mK1bY4HFceAZRm4uJlkncUXq9+lQUuIWTGt2rb/Yd+jm+xzklws6cS8V3F
-         0SudJcLgRcdjyMkUvXJ1TmPJ9lyBVs9153yPn/6fyd22fK9Q/Saet+qt4/npDKV5iC
-         JIgx4KVNU6ExA/ECvW5N1IVy90haE9e1uq4YD+xH/3Qy4f9jC3hjY9leBk+9usKvbB
-         yuw3cGCFymb/w==
+        b=UOBW37F2q1EM/m3W/6nvvTT2d9oIhOeBe2/OLzWEvH9jnqxpm+KWVR02FRmF2tqI1
+         olMtrsmY/sCgDD9adXPFSPPMgNMzQ3ZH5FIBNScF5U/pEFevxWDnWR6k5XxCtIVFqn
+         EqIV4u37hlAxAxhFkVZyPh4GQK1VESL7otz0ZgfVQjIxvzP27fyzQMWOu0dt33msfg
+         375tm+9EP8zhqmkeWC4ZGzhD3BC5FdS4mhDiWzuSOgWbx6/ZRrIOUBAJp6rpWZtBu0
+         5D86plw6WowrUxWkEinDaK3I+hcXAAmJ/pmIEXfSM2gc28u2Wx3PONNwsJ2t8Q3BrD
+         L5oT/8vdBNI5Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 3/6] media: dvb-frontends/drxk: initialize err to 0
-Date:   Tue,  1 Nov 2022 07:31:13 -0400
-Message-Id: <20221101113118.800889-3-sashal@kernel.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, olivia@selenic.com,
+        rjui@broadcom.com, sbranden@broadcom.com,
+        linux-crypto@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 4/6] hwrng: bcm2835 - use hwrng_msleep() instead of cpu_relax()
+Date:   Tue,  1 Nov 2022 07:31:14 -0400
+Message-Id: <20221101113118.800889-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101113118.800889-1-sashal@kernel.org>
 References: <20221101113118.800889-1-sashal@kernel.org>
@@ -55,40 +59,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 20694e96ca089ce6693c2348f8f628ee621e4e74 ]
+[ Upstream commit 96cb9d0554457086664d3bd10630b11193d863f1 ]
 
-Fix a compiler warning:
+Rather than busy looping, yield back to the scheduler and sleep for a
+bit in the event that there's no data. This should hopefully prevent the
+stalls that Mark reported:
 
-drivers/media/dvb-frontends/drxk_hard.c: In function 'drxk_read_ucblocks':
-drivers/media/dvb-frontends/drxk_hard.c:6673:21: warning: 'err' may be used uninitialized [-Wmaybe-uninitialized]
- 6673 |         *ucblocks = (u32) err;
-      |                     ^~~~~~~~~
-drivers/media/dvb-frontends/drxk_hard.c:6663:13: note: 'err' was declared here
- 6663 |         u16 err;
-      |             ^~~
+<6>[    3.362859] Freeing initrd memory: 16196K
+<3>[   23.160131] rcu: INFO: rcu_sched self-detected stall on CPU
+<3>[   23.166057] rcu:  0-....: (2099 ticks this GP) idle=03b4/1/0x40000002 softirq=28/28 fqs=1050
+<4>[   23.174895]       (t=2101 jiffies g=-1147 q=2353 ncpus=4)
+<4>[   23.180203] CPU: 0 PID: 49 Comm: hwrng Not tainted 6.0.0 #1
+<4>[   23.186125] Hardware name: BCM2835
+<4>[   23.189837] PC is at bcm2835_rng_read+0x30/0x6c
+<4>[   23.194709] LR is at hwrng_fillfn+0x71/0xf4
+<4>[   23.199218] pc : [<c07ccdc8>]    lr : [<c07cb841>]    psr: 40000033
+<4>[   23.205840] sp : f093df70  ip : 00000000  fp : 00000000
+<4>[   23.211404] r10: c3c7e800  r9 : 00000000  r8 : c17e6b20
+<4>[   23.216968] r7 : c17e6b64  r6 : c18b0a74  r5 : c07ccd99  r4 : c3f171c0
+<4>[   23.223855] r3 : 000fffff  r2 : 00000040  r1 : c3c7e800  r0 : c3f171c0
+<4>[   23.230743] Flags: nZcv  IRQs on  FIQs on  Mode SVC_32  ISA Thumb  Segment none
+<4>[   23.238426] Control: 50c5387d  Table: 0020406a  DAC: 00000051
+<4>[   23.244519] CPU: 0 PID: 49 Comm: hwrng Not tainted 6.0.0 #1
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://lore.kernel.org/all/Y0QJLauamRnCDUef@sirena.org.uk/
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/drxk_hard.c | 2 +-
+ drivers/char/hw_random/bcm2835-rng.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/dvb-frontends/drxk_hard.c b/drivers/media/dvb-frontends/drxk_hard.c
-index 84ac3f73f8fe..100a3a0b2db3 100644
---- a/drivers/media/dvb-frontends/drxk_hard.c
-+++ b/drivers/media/dvb-frontends/drxk_hard.c
-@@ -6694,7 +6694,7 @@ static int drxk_read_snr(struct dvb_frontend *fe, u16 *snr)
- static int drxk_read_ucblocks(struct dvb_frontend *fe, u32 *ucblocks)
- {
- 	struct drxk_state *state = fe->demodulator_priv;
--	u16 err;
-+	u16 err = 0;
+diff --git a/drivers/char/hw_random/bcm2835-rng.c b/drivers/char/hw_random/bcm2835-rng.c
+index 19bde680aee1..56c38edf9fac 100644
+--- a/drivers/char/hw_random/bcm2835-rng.c
++++ b/drivers/char/hw_random/bcm2835-rng.c
+@@ -72,7 +72,7 @@ static int bcm2835_rng_read(struct hwrng *rng, void *buf, size_t max,
+ 	while ((rng_readl(priv, RNG_STATUS) >> 24) == 0) {
+ 		if (!wait)
+ 			return 0;
+-		cpu_relax();
++		hwrng_msleep(rng, 1000);
+ 	}
  
- 	dprintk(1, "\n");
- 
+ 	num_words = rng_readl(priv, RNG_STATUS) >> 24;
 -- 
 2.35.1
 
