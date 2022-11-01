@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD41C6148F3
+	by mail.lfdr.de (Postfix) with ESMTP id 1E9526148F1
 	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229944AbiKALbU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:31:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35370 "EHLO
+        id S230385AbiKALbT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:31:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230390AbiKALar (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:30:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 733D064D8;
-        Tue,  1 Nov 2022 04:29:26 -0700 (PDT)
+        with ESMTP id S230455AbiKALa4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:30:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F546568;
+        Tue,  1 Nov 2022 04:29:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 23913B81C9C;
-        Tue,  1 Nov 2022 11:29:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A81CEC433B5;
-        Tue,  1 Nov 2022 11:29:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A30DEB81CC1;
+        Tue,  1 Nov 2022 11:29:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5269EC433C1;
+        Tue,  1 Nov 2022 11:29:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302163;
-        bh=HruG7jQ4za4m7TozHiv4ec4kangJmfDPWzplEJO2B50=;
+        s=k20201202; t=1667302165;
+        bh=/fc3IxWnlL9ryUX+Xrm9lW41E1+fW8R8qfEU7/6uRn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aF9MZWBQ3fVnLEUWAtzZVpvcbS6/ltkV5AbYbfb1FwJA8iDMCN2frA31cX5WdAchK
-         Vvkm1C3UuaMjnXiGRcKa8Pal4s+On7Ot/RaShCOWT+kp71CYy66Iw+ntSFgdO7FpFU
-         mctQUr5fEGsnEXrcBeDvLbrqZRwKJAq1I6dmcfW3wmbhm8u1TdB/E1Z0R9kZgD/Q5g
-         RUGNJzMkq1yB5Mor2yVwoXQB+WUYOWYP1ZGF8EdYR/sPJHjPwMHmnnIcCDO291kGG+
-         oMJD93RolFyWGK1GqCY7rwGBW0Mhe9b5sTD0tPMrPUHpBV5yc+qyk8OoCEEFwWY0dx
-         jAHwhElq9ptyQ==
+        b=pcSZq6dSXHqatwBFbCe6NUIYSuetreI0jsxcuUJqd2E04S8Dq+iHWcVwZJcv/hAqo
+         WnnkY2ZYbAi0Ms0wQG4MsEQojIwN93cAiDjf55JbL7zml7nP88GoMJX3APcYh89Mzk
+         /wTmVNwMxJiZlFLyy9O6rHXo8mrK40Kx8GpVcy+xom6rMvKXZ2nwS28GWnXpdDnHft
+         GW2SLvg5629E5XpY2wIECQwFr73dxYxy/rEQddJSYzjCYtgSypF5ER53K6j/4orkiC
+         X6hfWfZm6soJhbr+oMx9yx5XQd+o0wtMKRo30/zePVNGZ4XAy+Z4pij7aP6a3lqhpz
+         D6tPJCPorq68g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Paul Elder <paul.elder@ideasonboard.com>,
         Dafna Hirschfeld <dafna@fastmail.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>, heiko@sntech.de,
         linux-media@vger.kernel.org, linux-rockchip@lists.infradead.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 02/19] media: rkisp1: Initialize color space on resizer sink and source pads
-Date:   Tue,  1 Nov 2022 07:29:02 -0400
-Message-Id: <20221101112919.799868-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 03/19] media: rkisp1: Use correct macro for gradient registers
+Date:   Tue,  1 Nov 2022 07:29:03 -0400
+Message-Id: <20221101112919.799868-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112919.799868-1-sashal@kernel.org>
 References: <20221101112919.799868-1-sashal@kernel.org>
@@ -61,37 +60,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 83b9296e399367862845d3b19984444fc756bd61 ]
+[ Upstream commit 4c3501f13e8e60f6e7e7308c77ac4404e1007c18 ]
 
-Initialize the four color space fields on the sink and source video pads
-of the resizer in the .init_cfg() operation. The resizer can't perform
-any color space conversion, so set the sink and source color spaces to
-the same defaults, which match the ISP source video pad default.
+The rkisp1_lsc_config() function incorrectly uses the
+RKISP1_CIF_ISP_LSC_SECT_SIZE() macro for the gradient registers. Replace
+it with the correct macro, and rename it from
+RKISP1_CIF_ISP_LSC_GRAD_SIZE() to RKISP1_CIF_ISP_LSC_SECT_GRAD() as the
+corresponding registers store the gradients for each sector, not a size.
+This doesn't cause any functional change as the two macros are defined
+identically (the size and gradient registers store fields in the same
+number of bits at the same positions).
 
 Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
 Reviewed-by: Dafna Hirschfeld <dafna@fastmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/platform/rockchip/rkisp1/rkisp1-params.c | 4 ++--
+ drivers/media/platform/rockchip/rkisp1/rkisp1-regs.h   | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c
-index 2070f4b06705..a166ede40967 100644
---- a/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c
-+++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c
-@@ -510,6 +510,10 @@ static int rkisp1_rsz_init_config(struct v4l2_subdev *sd,
- 	sink_fmt->height = RKISP1_DEFAULT_HEIGHT;
- 	sink_fmt->field = V4L2_FIELD_NONE;
- 	sink_fmt->code = RKISP1_DEF_FMT;
-+	sink_fmt->colorspace = V4L2_COLORSPACE_SRGB;
-+	sink_fmt->xfer_func = V4L2_XFER_FUNC_SRGB;
-+	sink_fmt->ycbcr_enc = V4L2_YCBCR_ENC_601;
-+	sink_fmt->quantization = V4L2_QUANTIZATION_LIM_RANGE;
+diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
+index 8461e88c1288..e0e7d0b4ea04 100644
+--- a/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
++++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
+@@ -275,7 +275,7 @@ static void rkisp1_lsc_config(struct rkisp1_params *params,
+ 			     RKISP1_CIF_ISP_LSC_XSIZE_01 + i * 4);
  
- 	sink_crop = v4l2_subdev_get_try_crop(sd, sd_state,
- 					     RKISP1_RSZ_PAD_SINK);
+ 		/* program x grad tables */
+-		data = RKISP1_CIF_ISP_LSC_SECT_SIZE(arg->x_grad_tbl[i * 2],
++		data = RKISP1_CIF_ISP_LSC_SECT_GRAD(arg->x_grad_tbl[i * 2],
+ 						    arg->x_grad_tbl[i * 2 + 1]);
+ 		rkisp1_write(params->rkisp1, data,
+ 			     RKISP1_CIF_ISP_LSC_XGRAD_01 + i * 4);
+@@ -287,7 +287,7 @@ static void rkisp1_lsc_config(struct rkisp1_params *params,
+ 			     RKISP1_CIF_ISP_LSC_YSIZE_01 + i * 4);
+ 
+ 		/* program y grad tables */
+-		data = RKISP1_CIF_ISP_LSC_SECT_SIZE(arg->y_grad_tbl[i * 2],
++		data = RKISP1_CIF_ISP_LSC_SECT_GRAD(arg->y_grad_tbl[i * 2],
+ 						    arg->y_grad_tbl[i * 2 + 1]);
+ 		rkisp1_write(params->rkisp1, data,
+ 			     RKISP1_CIF_ISP_LSC_YGRAD_01 + i * 4);
+diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-regs.h b/drivers/media/platform/rockchip/rkisp1/rkisp1-regs.h
+index fa33080f51db..f584ccfe0286 100644
+--- a/drivers/media/platform/rockchip/rkisp1/rkisp1-regs.h
++++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-regs.h
+@@ -480,7 +480,7 @@
+ 	(((v0) & 0xFFF) | (((v1) & 0xFFF) << 12))
+ #define RKISP1_CIF_ISP_LSC_SECT_SIZE(v0, v1)      \
+ 	(((v0) & 0xFFF) | (((v1) & 0xFFF) << 16))
+-#define RKISP1_CIF_ISP_LSC_GRAD_SIZE(v0, v1)      \
++#define RKISP1_CIF_ISP_LSC_SECT_GRAD(v0, v1)      \
+ 	(((v0) & 0xFFF) | (((v1) & 0xFFF) << 16))
+ 
+ /* LSC: ISP_LSC_TABLE_SEL */
 -- 
 2.35.1
 
