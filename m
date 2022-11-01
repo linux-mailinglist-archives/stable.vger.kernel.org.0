@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3F6B614897
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:28:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C1096148A1
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:28:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230087AbiKAL2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:28:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35376 "EHLO
+        id S230197AbiKAL2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:28:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230323AbiKAL2E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:28:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F6301A22A;
-        Tue,  1 Nov 2022 04:27:56 -0700 (PDT)
+        with ESMTP id S230264AbiKAL2H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:28:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 396D8192AE;
+        Tue,  1 Nov 2022 04:27:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3C76615DD;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D80D9B81CC6;
+        Tue,  1 Nov 2022 11:27:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94B3BC433C1;
         Tue,  1 Nov 2022 11:27:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B69A4C433D7;
-        Tue,  1 Nov 2022 11:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302075;
-        bh=b+tOwlQfc42Ncz47RnuqxCIhFUSWfgZuPWXMdk9EOzI=;
+        s=k20201202; t=1667302076;
+        bh=aWWKt+ul8OJyODn7hJWxMis7sxtGLPT1ptklxe2XRB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K8x6Te07yn+54I5W0CN7L52abTQvozAySpzSqJWCCyrbdx9hSkS3WsCNFX40WRBHj
-         oNGgvsM/sanzknXwr0/ndG6RQzc+eHi/PcR/wc1ZrTEQrDbgTw1gcscrNl7PzHxsEB
-         a0iS2FTngGkEfLNW3NGUrgXTJ0DMH1fz2PQUS9OdUr+cFAW7YIfc1JxeW80XfykH8u
-         GzHw2kra/efqXtS8Ab1vKP2fxtiffjS6wgvZ38fArJ3XF/gUvhAT9csnMWXJTaEkdX
-         SwJE2kLfV0FbI21/Nd1diYDw4KlIXHVj/SvNzdBOcd6TKfCuTH8DBT7kyF40x1MLRR
-         6uRFCXcTyY6rQ==
+        b=WTpEV75bOoriK477S73KlZPt2tlhgQAZjmFRs8Vf1ol//W1F8+NyGrLA7oIS8NXPk
+         gsqsYoUqTaXGYfmk7bmiyq1atDQKIbqRbgi8rmc/EpUXJgllLq2rhNetLpnN4eQ4Ia
+         ARkTCwlobxRy0rkDwc+v+I7wkalxKkGdeD/bzmU5/yaC0OovV8uBL9XLjyQlcL6rZK
+         YlYPsmuKHkamHyhg5vcOAffO8N9Gw2xYpKKYI9xPD0dE3J1QLnusiIUT47jYJfyctZ
+         FzNmddgLimRaQAUm6MJKPTvyuMyhuL+eCwlpveBUAB/oE5SzxiQpFUhYV1k3cj9/tv
+         sniq9QXODflCA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Gaignard <benjamin.gaignard@collabora.com>,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, p.zabel@pengutronix.de,
-        gregkh@linuxfoundation.org, linux-media@vger.kernel.org,
-        linux-rockchip@lists.infradead.org, linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.0 13/34] media: hantro: HEVC: Fix chroma offset computation
-Date:   Tue,  1 Nov 2022 07:27:05 -0400
-Message-Id: <20221101112726.799368-13-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 14/34] media: v4l: subdev: Fail graciously when getting try data for NULL state
+Date:   Tue,  1 Nov 2022 07:27:06 -0400
+Message-Id: <20221101112726.799368-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112726.799368-1-sashal@kernel.org>
 References: <20221101112726.799368-1-sashal@kernel.org>
@@ -59,35 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Gaignard <benjamin.gaignard@collabora.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-[ Upstream commit f64853ad7f964b3bf7c1d63b27ca7ef972797a1c ]
+[ Upstream commit 2ba3e38517f5a4ebf9c997168079dca01b7f9fc6 ]
 
-The chroma offset depends of the bitstream depth.
-Make sure that ctx->bit_depth is used to compute it.
+The state argument for the functions for obtaining various parts of the
+state is NULL if it is called by drivers for active state. Fail graciously
+in that case instead of dereferencing a NULL pointer.
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@collabora.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Suggested-by: Bingbu Cao <bingbu.cao@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/hantro/hantro_g2_hevc_dec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/media/v4l2-subdev.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/staging/media/hantro/hantro_g2_hevc_dec.c b/drivers/staging/media/hantro/hantro_g2_hevc_dec.c
-index 233ecd863d5f..a917079a6ed3 100644
---- a/drivers/staging/media/hantro/hantro_g2_hevc_dec.c
-+++ b/drivers/staging/media/hantro/hantro_g2_hevc_dec.c
-@@ -12,7 +12,7 @@
- 
- static size_t hantro_hevc_chroma_offset(struct hantro_ctx *ctx)
+diff --git a/include/media/v4l2-subdev.h b/include/media/v4l2-subdev.h
+index 9689f38a0af1..ec1896886dbd 100644
+--- a/include/media/v4l2-subdev.h
++++ b/include/media/v4l2-subdev.h
+@@ -1046,6 +1046,8 @@ v4l2_subdev_get_pad_format(struct v4l2_subdev *sd,
+ 			   struct v4l2_subdev_state *state,
+ 			   unsigned int pad)
  {
--	return ctx->dst_fmt.width * ctx->dst_fmt.height;
-+	return ctx->dst_fmt.width * ctx->dst_fmt.height * ctx->bit_depth / 8;
- }
- 
- static size_t hantro_hevc_motion_vectors_offset(struct hantro_ctx *ctx)
++	if (WARN_ON(!state))
++		return NULL;
+ 	if (WARN_ON(pad >= sd->entity.num_pads))
+ 		pad = 0;
+ 	return &state->pads[pad].try_fmt;
+@@ -1064,6 +1066,8 @@ v4l2_subdev_get_pad_crop(struct v4l2_subdev *sd,
+ 			 struct v4l2_subdev_state *state,
+ 			 unsigned int pad)
+ {
++	if (WARN_ON(!state))
++		return NULL;
+ 	if (WARN_ON(pad >= sd->entity.num_pads))
+ 		pad = 0;
+ 	return &state->pads[pad].try_crop;
+@@ -1082,6 +1086,8 @@ v4l2_subdev_get_pad_compose(struct v4l2_subdev *sd,
+ 			    struct v4l2_subdev_state *state,
+ 			    unsigned int pad)
+ {
++	if (WARN_ON(!state))
++		return NULL;
+ 	if (WARN_ON(pad >= sd->entity.num_pads))
+ 		pad = 0;
+ 	return &state->pads[pad].try_compose;
 -- 
 2.35.1
 
