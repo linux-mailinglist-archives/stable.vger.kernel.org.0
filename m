@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8F996148CA
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:29:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A3D86148CC
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:29:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229997AbiKAL3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:29:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34764 "EHLO
+        id S230419AbiKAL3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:29:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230311AbiKAL3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:29:17 -0400
+        with ESMTP id S230369AbiKAL3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:29:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3BC6247;
-        Tue,  1 Nov 2022 04:28:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B2886272;
+        Tue,  1 Nov 2022 04:28:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CBDED6152E;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39EB4615DB;
+        Tue,  1 Nov 2022 11:28:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBE2BC433D6;
         Tue,  1 Nov 2022 11:28:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47EC0C433C1;
-        Tue,  1 Nov 2022 11:28:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302114;
-        bh=/d4XatDkBeJiW0pJ2RZNoRT5620x04FZ8zQKk8rwHLw=;
+        s=k20201202; t=1667302115;
+        bh=0Dey/UFhuf0OrEo/sloIPYEVTEtorlx8N38Ma/FUBUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QwGnQIGjaEWhVBYrsvHeTI21Bq3tcUVmGvrBsKB2tPmDAu+KbRzQ7DeBWBHXEv9d5
-         u8gEBcciJR7Nm+Uli4YEbHaJvmLouGz69B6ZeWjs0Hvnc9KzywUbk8f2aMTTzk4iOT
-         7UGBvmEBaCwAM6o368zE4cT78JOb1jnkxkWyrVgDfyqfQjmHvjrUsgzVucMW3+GtCU
-         yo17VuzX87Bv7qeV10fUe/f5mK7QZenNcFeAuEEMix1CrSP/jVr7I2+89qMn818X0q
-         RfzvjpemyQnCZDN/zI0LUXVQ/8vz5UiIT4CJNKPsdi4xGy9Sz/OPedLInv2kXFpfJM
-         2i03YVqRpX8mg==
+        b=rstczm31Im5rPjomugKPvOGBYWLcSBtZgN35blM79gKLQK4XL7+LzgXtxQ+K7+0QM
+         yy33zsbbbMmNiia+eazKjvcciyGkFv6ruj0Bcj3B12x11Hv49HkECGe9gZegPdGzJO
+         oY6py6P/I7yUfA7giWGv51oOVpimnZ8PTjK3bjX9EJzmUpvWBF5rHnJ4kNz2Fj6gpL
+         +y4EbORr7LEvJ9h4hMCMtiw2JFUC6l2rsQ0k7rmQqMpZqpOHQvSsk0gJO2Djl+eV9i
+         VSEEO4baPgR0m8H6XDh5Tw452DFXfai4vXmmdMhdRyJAc9i5DW16J03XPZASCiK1mG
+         yTtcQsRY+0RcA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Uday Shankar <ushankar@purestorage.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        Hannes Reinecke <hare@suse.de>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 24/34] scsi: core: Restrict legal sdev_state transitions via sysfs
-Date:   Tue,  1 Nov 2022 07:27:16 -0400
-Message-Id: <20221101112726.799368-24-sashal@kernel.org>
+Cc:     Samuel Bailey <samuel.bailey1@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 25/34] HID: saitek: add madcatz variant of MMO7 mouse device ID
+Date:   Tue,  1 Nov 2022 07:27:17 -0400
+Message-Id: <20221101112726.799368-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112726.799368-1-sashal@kernel.org>
 References: <20221101112726.799368-1-sashal@kernel.org>
@@ -58,52 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uday Shankar <ushankar@purestorage.com>
+From: Samuel Bailey <samuel.bailey1@gmail.com>
 
-[ Upstream commit 2331ce6126be8864b39490e705286b66e2344aac ]
+[ Upstream commit 79425b297f56bd481c6e97700a9a4e44c7bcfa35 ]
 
-Userspace can currently write to sysfs to transition sdev_state to RUNNING
-or OFFLINE from any source state. This causes issues because proper
-transitioning out of some states involves steps besides just changing
-sdev_state, so allowing userspace to change sdev_state regardless of the
-source state can result in inconsistencies; e.g. with ISCSI we can end up
-with sdev_state == SDEV_RUNNING while the device queue is quiesced. Any
-task attempting I/O on the device will then hang, and in more recent
-kernels, iscsid will hang as well.
+The MadCatz variant of the MMO7 mouse has the ID 0738:1713 and the same
+quirks as the Saitek variant.
 
-More detail about this bug is provided in my first attempt:
-
-https://groups.google.com/g/open-iscsi/c/PNKca4HgPDs/m/CXaDkntOAQAJ
-
-Link: https://lore.kernel.org/r/20220924000241.2967323-1-ushankar@purestorage.com
-Signed-off-by: Uday Shankar <ushankar@purestorage.com>
-Suggested-by: Mike Christie <michael.christie@oracle.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Samuel Bailey <samuel.bailey1@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_sysfs.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ drivers/hid/hid-saitek.c | 2 ++
+ 3 files changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-index 5d61f58399dc..dc41d7c6b9b1 100644
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -828,6 +828,14 @@ store_state_field(struct device *dev, struct device_attribute *attr,
- 	}
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 043cf1cc8794..256795ed6247 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -867,6 +867,7 @@
+ #define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
+ #define USB_DEVICE_ID_MADCATZ_RAT5	0x1705
+ #define USB_DEVICE_ID_MADCATZ_RAT9	0x1709
++#define USB_DEVICE_ID_MADCATZ_MMO7  0x1713
  
- 	mutex_lock(&sdev->state_mutex);
-+	switch (sdev->sdev_state) {
-+	case SDEV_RUNNING:
-+	case SDEV_OFFLINE:
-+		break;
-+	default:
-+		mutex_unlock(&sdev->state_mutex);
-+		return -EINVAL;
-+	}
- 	if (sdev->sdev_state == SDEV_RUNNING && state == SDEV_RUNNING) {
- 		ret = 0;
- 	} else {
+ #define USB_VENDOR_ID_MCC		0x09db
+ #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 70f602c64fd1..50e1c717fc0a 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -620,6 +620,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT5) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_MMO7) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_SAMSUNG)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
+diff --git a/drivers/hid/hid-saitek.c b/drivers/hid/hid-saitek.c
+index c7bf14c01960..b84e975977c4 100644
+--- a/drivers/hid/hid-saitek.c
++++ b/drivers/hid/hid-saitek.c
+@@ -187,6 +187,8 @@ static const struct hid_device_id saitek_devices[] = {
+ 		.driver_data = SAITEK_RELEASE_MODE_RAT7 },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7),
+ 		.driver_data = SAITEK_RELEASE_MODE_MMO7 },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_MMO7),
++		.driver_data = SAITEK_RELEASE_MODE_MMO7 },
+ 	{ }
+ };
+ 
 -- 
 2.35.1
 
