@@ -2,81 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA0CC61483F
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:11:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C56E061487D
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:27:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229739AbiKALLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:11:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47766 "EHLO
+        id S230002AbiKAL1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:27:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229475AbiKALLs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:11:48 -0400
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFD4C1900F
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 04:11:46 -0700 (PDT)
-Received: by mail-pf1-x429.google.com with SMTP id 17so8905831pfv.4
-        for <stable@vger.kernel.org>; Tue, 01 Nov 2022 04:11:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :references:in-reply-to:reply-to:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=HBjdIYKHnjihWoVdQbIvsMMuAIG6cNclbI+ODn1N92w=;
-        b=U+dgapWbL02DgcWK58GL3e3G5syJcYtIZMg+0FYV4U1a0GS/xZrGtCWsC0JyeeBBqg
-         NRGkTwUNWzlGWPVYtKMWlsea7aFGgMxLcs6yS9o+KlBrDq4f7fuIq2ud2qA16UVUfJu5
-         aJlkjWh4rUO8x8Fj6UFaNIh8MKQVx8124RHg/KsfQCgUBr0PxrH7LApaPV6xXvYROI77
-         tjJU37d//Q06VjpR7C+WPtba2M4dou+uxi5shnYm749R2I86kDwoRDwyBF8UijPb5wEW
-         QLqq+M7bpCsh3DkL+mmpE5Yf/T0BhKz6Q5ZtG2f4pJ2q60/65Rn4cHbpO8dq70BcI+CQ
-         qLhg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :references:in-reply-to:reply-to:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=HBjdIYKHnjihWoVdQbIvsMMuAIG6cNclbI+ODn1N92w=;
-        b=XjYXptQ9uNqjoTwuENVtGzqObyQfAhdS6FzDvt9p4mgvuUWP4nQ7pBO04n7awQ0gch
-         m1d7aqW6HfeJaWz8wsPzM7l+pcHVnVis1cPFJ27DK9rEugfZCqSqPIALhHyJy5/yowZa
-         iRsnhh0x9zaTESDc3+fGrWp6vJIpCo/4VgaTBlf4eIrxJYnEpI6vWmmCMtR4/erdhOeH
-         yfe15amSZXVmDz3ZN7++/HKh+QZ0Luuoe20ajExlW7K9o5seBQHXnDJMSrJH/226o8rj
-         4OBCNnWaDuEBgcyvHRpR/nfPaBkgPbP2+sjtAm1888doZdgeTt+hVZb7FskfKnzeNf5X
-         GLsg==
-X-Gm-Message-State: ACrzQf0YoQieelH6jagL02QWxMK2sxUe2Y472WLNY0nAOPHuS8AvSurp
-        tyv5FH3onjY6L67eTL4DJG8bPej6tEHenQaOE70=
-X-Google-Smtp-Source: AMsMyM4SMS+qV22/C+EuINUx+0Vn+iwAfs11IXxcq922uGqG/VZn6zDFaSNiDRjVyZP3jC6OXafkhO7EgC8PnCR6ri0=
-X-Received: by 2002:a05:6a00:cc9:b0:56c:b47:a73e with SMTP id
- b9-20020a056a000cc900b0056c0b47a73emr18894398pfv.19.1667301106205; Tue, 01
- Nov 2022 04:11:46 -0700 (PDT)
+        with ESMTP id S229945AbiKAL1e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:27:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE7A717E29;
+        Tue,  1 Nov 2022 04:27:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6AB45B81CC1;
+        Tue,  1 Nov 2022 11:27:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEF24C433C1;
+        Tue,  1 Nov 2022 11:27:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1667302050;
+        bh=ACB5NCpzrjJVLKWCx5UcKZl9u+6qQLqmZKiRINI/hCE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ay3qp9lT+Oeq4QKw0e4JsX92Y+9fO0fO1vsxjSW1bKWujheGFaU+EJm6uiAdWTm9C
+         zUk4KHP9zrUB7lNL77kBjdRotanUM9OvSIl991MTwCThx7HXq+1NZgrLkha87Kn0eW
+         IUXEcpONa2AWoDgKIgNEENTTv8vPPtIBsjrIX1JAwhi/jXfAc1sfzhx01kkJ6HAnfT
+         3UNkKQuS2NeKVrFjWC0Dl/1nm4MB8rfktdScXfl7cNYtNlyCDBA2Du/HWwdmwnVqgf
+         coId7cfTHIbWK0o8uZVDhwWmSZvWZ/HqID/03FD7tafQtTSi6P1zwJz8HEkhbNUSQY
+         R229r1I+mzoDA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Dafna Hirschfeld <dafna@fastmail.com>,
+        Paul Elder <paul.elder@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, heiko@sntech.de,
+        linux-media@vger.kernel.org, linux-rockchip@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.0 01/34] media: rkisp1: Fix source pad format configuration
+Date:   Tue,  1 Nov 2022 07:26:53 -0400
+Message-Id: <20221101112726.799368-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Received: by 2002:a05:7300:18a7:b0:79:c710:b3d0 with HTTP; Tue, 1 Nov 2022
- 04:11:45 -0700 (PDT)
-Reply-To: davidtayo2007@gmail.com
-In-Reply-To: <CACxwsrc227wjpRcsEPJXiiFueSzU-Zgc9+PGsd5rNc9crgaCiQ@mail.gmail.com>
-References: <CACxwsre0qGrEP3UYgahTNr0s=nLPNasaU-G4wf9Tqr7bhm8nGw@mail.gmail.com>
- <CACxwsrc227wjpRcsEPJXiiFueSzU-Zgc9+PGsd5rNc9crgaCiQ@mail.gmail.com>
-From:   david tayo <omarmatilda007@gmail.com>
-Date:   Tue, 1 Nov 2022 12:11:45 +0100
-Message-ID: <CACxwsrfHUByjukOwwUomUHseCDutEL2Xozjn84X6ubSgHt=zqA@mail.gmail.com>
-Subject: =?UTF-8?Q?best=C3=A4tigen?=
-To:     davidtayo2007@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=2.1 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: **
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Gr=C3=BC=C3=9Fe, ich hoffe, diese E-Mail erreicht Sie gut. Sie haben nicht =
-auf
-die Informationen geantwortet, die ich Ihnen zuvor geschickt habe.
-Bitte melden Sie sich bei mir, es ist dringend, wir m=C3=BCssen uns
-unterhalten
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-Mit besten Empfehlungen
-David Tayo
+[ Upstream commit cb00f3a4421d5c7d7155bd4bded7fb2ff8eec211 ]
+
+The ISP converts Bayer data to YUV when operating normally, and can also
+operate in pass-through mode where the input and output formats must
+match. Converting from YUV to Bayer isn't possible. If such an invalid
+configuration is attempted, adjust it by copying the sink pad media bus
+code to the source pad.
+
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Dafna Hirschfeld <dafna@fastmail.com>
+Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ .../platform/rockchip/rkisp1/rkisp1-isp.c     | 40 +++++++++++++++----
+ 1 file changed, 32 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-isp.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-isp.c
+index 383a3ec83ca9..00032b849a07 100644
+--- a/drivers/media/platform/rockchip/rkisp1/rkisp1-isp.c
++++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-isp.c
+@@ -472,23 +472,43 @@ static void rkisp1_isp_set_src_fmt(struct rkisp1_isp *isp,
+ 				   struct v4l2_mbus_framefmt *format,
+ 				   unsigned int which)
+ {
+-	const struct rkisp1_mbus_info *mbus_info;
++	const struct rkisp1_mbus_info *sink_info;
++	const struct rkisp1_mbus_info *src_info;
++	struct v4l2_mbus_framefmt *sink_fmt;
+ 	struct v4l2_mbus_framefmt *src_fmt;
+ 	const struct v4l2_rect *src_crop;
+ 
++	sink_fmt = rkisp1_isp_get_pad_fmt(isp, sd_state,
++					  RKISP1_ISP_PAD_SINK_VIDEO, which);
+ 	src_fmt = rkisp1_isp_get_pad_fmt(isp, sd_state,
+ 					 RKISP1_ISP_PAD_SOURCE_VIDEO, which);
+ 	src_crop = rkisp1_isp_get_pad_crop(isp, sd_state,
+ 					   RKISP1_ISP_PAD_SOURCE_VIDEO, which);
+ 
++	/*
++	 * Media bus code. The ISP can operate in pass-through mode (Bayer in,
++	 * Bayer out or YUV in, YUV out) or process Bayer data to YUV, but
++	 * can't convert from YUV to Bayer.
++	 */
++	sink_info = rkisp1_mbus_info_get_by_code(sink_fmt->code);
++
+ 	src_fmt->code = format->code;
+-	mbus_info = rkisp1_mbus_info_get_by_code(src_fmt->code);
+-	if (!mbus_info || !(mbus_info->direction & RKISP1_ISP_SD_SRC)) {
++	src_info = rkisp1_mbus_info_get_by_code(src_fmt->code);
++	if (!src_info || !(src_info->direction & RKISP1_ISP_SD_SRC)) {
+ 		src_fmt->code = RKISP1_DEF_SRC_PAD_FMT;
+-		mbus_info = rkisp1_mbus_info_get_by_code(src_fmt->code);
++		src_info = rkisp1_mbus_info_get_by_code(src_fmt->code);
+ 	}
+-	if (which == V4L2_SUBDEV_FORMAT_ACTIVE)
+-		isp->src_fmt = mbus_info;
++
++	if (sink_info->pixel_enc == V4L2_PIXEL_ENC_YUV &&
++	    src_info->pixel_enc == V4L2_PIXEL_ENC_BAYER) {
++		src_fmt->code = sink_fmt->code;
++		src_info = sink_info;
++	}
++
++	/*
++	 * The source width and height must be identical to the source crop
++	 * size.
++	 */
+ 	src_fmt->width  = src_crop->width;
+ 	src_fmt->height = src_crop->height;
+ 
+@@ -498,14 +518,18 @@ static void rkisp1_isp_set_src_fmt(struct rkisp1_isp *isp,
+ 	 */
+ 	if (format->flags & V4L2_MBUS_FRAMEFMT_SET_CSC &&
+ 	    format->quantization == V4L2_QUANTIZATION_FULL_RANGE &&
+-	    mbus_info->pixel_enc == V4L2_PIXEL_ENC_YUV)
++	    src_info->pixel_enc == V4L2_PIXEL_ENC_YUV)
+ 		src_fmt->quantization = V4L2_QUANTIZATION_FULL_RANGE;
+-	else if (mbus_info->pixel_enc == V4L2_PIXEL_ENC_YUV)
++	else if (src_info->pixel_enc == V4L2_PIXEL_ENC_YUV)
+ 		src_fmt->quantization = V4L2_QUANTIZATION_LIM_RANGE;
+ 	else
+ 		src_fmt->quantization = V4L2_QUANTIZATION_FULL_RANGE;
+ 
+ 	*format = *src_fmt;
++
++	/* Store the source format info when setting the active format. */
++	if (which == V4L2_SUBDEV_FORMAT_ACTIVE)
++		isp->src_fmt = src_info;
+ }
+ 
+ static void rkisp1_isp_set_src_crop(struct rkisp1_isp *isp,
+-- 
+2.35.1
+
