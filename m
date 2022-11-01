@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E31A461493C
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:35:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5B961494A
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:35:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230521AbiKALfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:35:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45830 "EHLO
+        id S230468AbiKALfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:35:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230302AbiKALez (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:34:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3E7C1CB01;
-        Tue,  1 Nov 2022 04:30:59 -0700 (PDT)
+        with ESMTP id S230089AbiKALf0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:35:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 797C61CB1D;
+        Tue,  1 Nov 2022 04:31:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36FE8B81CC1;
-        Tue,  1 Nov 2022 11:30:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A76EDC433C1;
-        Tue,  1 Nov 2022 11:30:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DDA84615DD;
+        Tue,  1 Nov 2022 11:30:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B275C433D6;
+        Tue,  1 Nov 2022 11:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302235;
-        bh=cmNTbBy0ITeyQAOWKJ1WhJquHtMEaGIfAStDm/zXi/g=;
+        s=k20201202; t=1667302239;
+        bh=uqyuWR1r5w6IShtUPWv7xEGNh6pYqaTS19lYL1oAyI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FQW6zXZU2NQLpgsgZy4nmfayTOEIqFoK6ZudxvFuQcTkEL5ivtQK91xyLsniUwOdX
-         owMnwV95PJfTUv/efCrn3tQRI1DKx/HhN7lTe5BANfRcfdn+73vgvUStLh5JUMReDE
-         IU04oMYMdh3Q2XQtIzygF8GsGS7Ep4OraPLfdnCj1Fq3U2J5XK/LmzPuUiOH+y/iVQ
-         K+dE/NRnuyx+YMdwDIV98utJuQGhh3Z1gOALoTacrfqjlZgjJr+8aqOIoZesRaCrrO
-         1FkT2bro2GxCF00ypBi/Ka5PfPgSzpfRDPJgg/qYXupDNqni+dTrlE3H11aDpfCxra
-         PmyU2scCz6E/g==
+        b=LHZis4/UE+o5JkCsJJe3veGPUiykwKplEG834v8jTbpIP4FVBHERFfDiWeB7190Lp
+         55NTJQITyf9q4Qh9UXrN+FPIa3/g8nksb1RzReJ2ZQchtCyqmeg7ZzifFhpKV59WTA
+         6awDxGhZc/ZZnw7c3HCwc5OpSSW72wJJXuTtBEQ2u8rbOoR1w/67yS+Y2zL6CB/SGi
+         GQcrdWfBW9M+88+qYO2QK3aA+uo8X0XhvI5CzkrU+ydwfQjaypnXlvaC+z3+1YPXPb
+         o/5YeQ92wVSFosXDot/kPabUeQGhKkyjsOXvLhr3KXFf0ZBFTb+VtSXau6cVArJWcP
+         NdUYPQp3rJ31g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
-        andriy.shevchenko@linux.intel.com, kitakar@gmail.com,
-        alan@linux.intel.com, linux-media@vger.kernel.org,
-        linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.10 08/14] media: atomisp: Fix v4l2_fh resource leak on open errors
-Date:   Tue,  1 Nov 2022 07:30:04 -0400
-Message-Id: <20221101113012.800271-8-sashal@kernel.org>
+Cc:     Ashish Kalra <ashish.kalra@amd.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        robert.moore@intel.com, xueshuai@linux.alibaba.com,
+        tony.luck@intel.com, dave.hansen@linux.intel.com,
+        linux-acpi@vger.kernel.org, devel@acpica.org
+Subject: [PATCH AUTOSEL 5.10 09/14] ACPI: APEI: Fix integer overflow in ghes_estatus_pool_init()
+Date:   Tue,  1 Nov 2022 07:30:05 -0400
+Message-Id: <20221101113012.800271-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101113012.800271-1-sashal@kernel.org>
 References: <20221101113012.800271-1-sashal@kernel.org>
@@ -59,32 +58,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ashish Kalra <ashish.kalra@amd.com>
 
-[ Upstream commit 5b9853ad1329be49343a608d574eb232ff1273d0 ]
+[ Upstream commit 43d2748394c3feb86c0c771466f5847e274fc043 ]
 
-When atomisp_open() fails then it must call v4l2_fh_release() to undo
-the results of v4l2_fh_open().
+Change num_ghes from int to unsigned int, preventing an overflow
+and causing subsequent vmalloc() to fail.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+The overflow happens in ghes_estatus_pool_init() when calculating
+len during execution of the statement below as both multiplication
+operands here are signed int:
+
+len += (num_ghes * GHES_ESOURCE_PREALLOC_MAX_SIZE);
+
+The following call trace is observed because of this bug:
+
+[    9.317108] swapper/0: vmalloc error: size 18446744071562596352, exceeds total pages, mode:0xcc0(GFP_KERNEL), nodemask=(null),cpuset=/,mems_allowed=0-1
+[    9.317131] Call Trace:
+[    9.317134]  <TASK>
+[    9.317137]  dump_stack_lvl+0x49/0x5f
+[    9.317145]  dump_stack+0x10/0x12
+[    9.317146]  warn_alloc.cold+0x7b/0xdf
+[    9.317150]  ? __device_attach+0x16a/0x1b0
+[    9.317155]  __vmalloc_node_range+0x702/0x740
+[    9.317160]  ? device_add+0x17f/0x920
+[    9.317164]  ? dev_set_name+0x53/0x70
+[    9.317166]  ? platform_device_add+0xf9/0x240
+[    9.317168]  __vmalloc_node+0x49/0x50
+[    9.317170]  ? ghes_estatus_pool_init+0x43/0xa0
+[    9.317176]  vmalloc+0x21/0x30
+[    9.317177]  ghes_estatus_pool_init+0x43/0xa0
+[    9.317179]  acpi_hest_init+0x129/0x19c
+[    9.317185]  acpi_init+0x434/0x4a4
+[    9.317188]  ? acpi_sleep_proc_init+0x2a/0x2a
+[    9.317190]  do_one_initcall+0x48/0x200
+[    9.317195]  kernel_init_freeable+0x221/0x284
+[    9.317200]  ? rest_init+0xe0/0xe0
+[    9.317204]  kernel_init+0x1a/0x130
+[    9.317205]  ret_from_fork+0x22/0x30
+[    9.317208]  </TASK>
+
+Signed-off-by: Ashish Kalra <ashish.kalra@amd.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/atomisp/pci/atomisp_fops.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/apei/ghes.c | 2 +-
+ include/acpi/ghes.h      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/atomisp_fops.c b/drivers/staging/media/atomisp/pci/atomisp_fops.c
-index b751df31cc24..ccf398b42520 100644
---- a/drivers/staging/media/atomisp/pci/atomisp_fops.c
-+++ b/drivers/staging/media/atomisp/pci/atomisp_fops.c
-@@ -890,6 +890,7 @@ static int atomisp_open(struct file *file)
- 	hmm_pool_unregister(HMM_POOL_TYPE_DYNAMIC);
- 	pm_runtime_put(vdev->v4l2_dev->dev);
- 	rt_mutex_unlock(&isp->mutex);
-+	v4l2_fh_release(file);
- 	return ret;
+diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
+index 5206fd3b7867..9bdb5bd5fda6 100644
+--- a/drivers/acpi/apei/ghes.c
++++ b/drivers/acpi/apei/ghes.c
+@@ -163,7 +163,7 @@ static void ghes_unmap(void __iomem *vaddr, enum fixed_addresses fixmap_idx)
+ 	clear_fixmap(fixmap_idx);
  }
+ 
+-int ghes_estatus_pool_init(int num_ghes)
++int ghes_estatus_pool_init(unsigned int num_ghes)
+ {
+ 	unsigned long addr, len;
+ 	int rc;
+diff --git a/include/acpi/ghes.h b/include/acpi/ghes.h
+index 34fb3431a8f3..292a5c40bd0c 100644
+--- a/include/acpi/ghes.h
++++ b/include/acpi/ghes.h
+@@ -71,7 +71,7 @@ int ghes_register_vendor_record_notifier(struct notifier_block *nb);
+ void ghes_unregister_vendor_record_notifier(struct notifier_block *nb);
+ #endif
+ 
+-int ghes_estatus_pool_init(int num_ghes);
++int ghes_estatus_pool_init(unsigned int num_ghes);
+ 
+ /* From drivers/edac/ghes_edac.c */
  
 -- 
 2.35.1
