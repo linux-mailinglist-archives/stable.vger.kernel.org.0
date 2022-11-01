@@ -2,153 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 167D6614228
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 01:11:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEA9B61426E
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 01:52:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229667AbiKAALm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Oct 2022 20:11:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50372 "EHLO
+        id S229469AbiKAAwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Oct 2022 20:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229886AbiKAALl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 20:11:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63CC715A38;
-        Mon, 31 Oct 2022 17:11:38 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4800614FA;
-        Tue,  1 Nov 2022 00:11:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AB0AC433C1;
-        Tue,  1 Nov 2022 00:11:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1667261497;
-        bh=FqB5HswNyzokFpWJzKWIrptfNMOGT5HBsgJrTF1eHmQ=;
-        h=Date:To:From:Subject:From;
-        b=0DbZ9/+ACCAiTXPBKFINIYtmIS0K19MKtTc+yvxdJTRxLkNbQXdr3sLKRzflS8jy+
-         L4ohV0wtPyK1kXJ3iUJ5jTdBM2lQSW3CF4fFxybCuJKAClLlEXwNqUEfa/6Q018Br4
-         5sDoFoUeQmn14ZJYCOxnWVN6EVzS1UnGIfi33VLw=
-Date:   Mon, 31 Oct 2022 17:11:36 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        konishi.ryusuke@gmail.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + nilfs2-fix-deadlock-in-nilfs_count_free_blocks.patch added to mm-hotfixes-unstable branch
-Message-Id: <20221101001137.2AB0AC433C1@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229475AbiKAAwg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Oct 2022 20:52:36 -0400
+Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91ACA14D3E
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 17:52:35 -0700 (PDT)
+Received: by mail-pl1-x649.google.com with SMTP id m11-20020a170902db0b00b00186d72ea4b8so9172817plx.23
+        for <stable@vger.kernel.org>; Mon, 31 Oct 2022 17:52:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=/bOk8Nw8q6yCV6bZoY0M/Z45IGR0Qe6dCEbbdHD0Bt4=;
+        b=r6xjsdWi2D/1sA+9SnbqC64BheiJXnVJt+vtpPAaB5q53sToR1Tju/UEPuqDfkkyNG
+         r7TvfXwuJfXKpcz7EEWW0AjqZsjgRd7LpM1XPJkeSSCWqh2ncpZ+CjssNMMmv3aeR2yP
+         oEAiiDGudXKlmVBU/pFMJ/DeMPP8OryfPrLuBHDPlT7Wh4M78kULTFVAYw6KqG+QIe2Y
+         pRI5EZGSDLJ9uoQozKxn0ws/lrOqQf8Iwjs44R/Z6arADAz1V5T7EIKH8uVfCBrT9L++
+         U3hnu4H45usqEr6QZ57uUyAS0ighBRc84rMakROWDvFfXKv36MzVFW7IqSSBui0BxxcC
+         3xQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=/bOk8Nw8q6yCV6bZoY0M/Z45IGR0Qe6dCEbbdHD0Bt4=;
+        b=erQagkkZbIucV89Sf5R7zTfPZWnztkojyNp9e0c1YLw8/U4MADLdx9MwstNSVbisxx
+         DS41c7a7TJV8fQbL7jypeNLNjJ9ZC7LyhB4K4IkT3w7X/aFYqzbyZ5yPTfJ0ipLMUiSo
+         BTinlPZsOPglBLq9bVBI+D4jAIWaJp18CInpfflUv7+UCEmfReY7vq/9nLYcjs/CQdnv
+         H1o+Ujl17nMHrVvOoiJGCaV42lrBjhciFEmHv283vDliN/y5DZE35Oi/nbHBHKIp257S
+         vrv4fdTZvCsr3SeUTtBObMNLBkJxe3Pguz1Ai6HwZfBgXRqHt0P3tvKXgFqIVgm8Dzyh
+         hncA==
+X-Gm-Message-State: ACrzQf34tjH2YyUkgDDC4wFrxgOcN42ruAoWg4Qfwngi6DeRYz3LRgRx
+        CaTSg+YGM47sVoDJpBEVHHY+/3e8l5JmzOaSynaqiqXDw7E2aYbbVzAYpP0KcyzUW/OuB+8naf5
+        8kLVf3sWmYNr2NGotE9UQF2wm5VFNvXW1htI5hFSzksCapjnpezPWYuT9s6kvKHDDkdVOdXkWrl
+        +bSstzYz4=
+X-Google-Smtp-Source: AMsMyM753dqZiFOMsAKK/dF1GqLkvGG3LDo1McF2vUiLdeGjBDDQTqgJB8r6M65TbvtYpFUgXVRh9UEy5XyLADYxeV+DGA==
+X-Received: from meenashanmugamspl.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:2707])
+ (user=meenashanmugam job=sendgmr) by 2002:a05:6a00:2987:b0:56c:636a:ac94 with
+ SMTP id cj7-20020a056a00298700b0056c636aac94mr34942pfb.38.1667263954932; Mon,
+ 31 Oct 2022 17:52:34 -0700 (PDT)
+Date:   Tue,  1 Nov 2022 00:52:01 +0000
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.38.1.273.g43a17bfeac-goog
+Message-ID: <20221101005202.50231-1-meenashanmugam@google.com>
+Subject: [PATCH 5.15 0/1] Request to backport 3c52c6bb831f to 5.15.y
+From:   Meena Shanmugam <meenashanmugam@google.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, kuniyu@amazon.com,
+        Meena Shanmugam <meenashanmugam@google.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The commit 3c52c6bb831f (tcp/udp: Fix memory leak in
+ipv6_renew_options()) fixes a memory leak reported by syzbot. This seems
+to be a good candidate for the stable trees. This patch didn't apply cleanly
+in 5.15 kernel, since release_sock() calls are changed to
+sockopt_release_sock() in the latest kernel versions.
 
-The patch titled
-     Subject: nilfs2: fix deadlock in nilfs_count_free_blocks()
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     nilfs2-fix-deadlock-in-nilfs_count_free_blocks.patch
+Kuniyuki Iwashima (1):
+  tcp/udp: Fix memory leak in ipv6_renew_options().
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/nilfs2-fix-deadlock-in-nilfs_count_free_blocks.patch
+ net/ipv6/ipv6_sockglue.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Subject: nilfs2: fix deadlock in nilfs_count_free_blocks()
-Date: Sat, 29 Oct 2022 13:49:12 +0900
-
-A semaphore deadlock can occur if nilfs_get_block() detects metadata
-corruption while locating data blocks and a superblock writeback occurs at
-the same time:
-
-task 1                               task 2
-------                               ------
-* A file operation *
-nilfs_truncate()
-  nilfs_get_block()
-    down_read(rwsem A) <--
-    nilfs_bmap_lookup_contig()
-      ...                            generic_shutdown_super()
-                                       nilfs_put_super()
-                                         * Prepare to write superblock *
-                                         down_write(rwsem B) <--
-                                         nilfs_cleanup_super()
-      * Detect b-tree corruption *         nilfs_set_log_cursor()
-      nilfs_bmap_convert_error()             nilfs_count_free_blocks()
-        __nilfs_error()                        down_read(rwsem A) <--
-          nilfs_set_error()
-            down_write(rwsem B) <--
-
-                           *** DEADLOCK ***
-
-Here, nilfs_get_block() readlocks rwsem A (= NILFS_MDT(dat_inode)->mi_sem)
-and then calls nilfs_bmap_lookup_contig(), but if it fails due to metadata
-corruption, __nilfs_error() is called from nilfs_bmap_convert_error()
-inside the lock section.
-
-Since __nilfs_error() calls nilfs_set_error() unless the filesystem is
-read-only and nilfs_set_error() attempts to writelock rwsem B (=
-nilfs->ns_sem) to write back superblock exclusively, hierarchical lock
-acquisition occurs in the order rwsem A -> rwsem B.
-
-Now, if another task starts updating the superblock, it may writelock
-rwsem B during the lock sequence above, and can deadlock trying to
-readlock rwsem A in nilfs_count_free_blocks().
-
-However, there is actually no need to take rwsem A in
-nilfs_count_free_blocks() because it, within the lock section, only reads
-a single integer data on a shared struct with
-nilfs_sufile_get_ncleansegs().  This has been the case after commit
-aa474a220180 ("nilfs2: add local variable to cache the number of clean
-segments"), that is, even before this bug was introduced.
-
-So, this resolves the deadlock problem by just not taking the semaphore in
-nilfs_count_free_blocks().
-
-Link: https://lkml.kernel.org/r/20221029044912.9139-1-konishi.ryusuke@gmail.com
-Fixes: e828949e5b42 ("nilfs2: call nilfs_error inside bmap routines")
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+45d6ce7b7ad7ef455d03@syzkaller.appspotmail.com
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>	[2.6.38+
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/nilfs2/the_nilfs.c |    2 --
- 1 file changed, 2 deletions(-)
-
---- a/fs/nilfs2/the_nilfs.c~nilfs2-fix-deadlock-in-nilfs_count_free_blocks
-+++ a/fs/nilfs2/the_nilfs.c
-@@ -690,9 +690,7 @@ int nilfs_count_free_blocks(struct the_n
- {
- 	unsigned long ncleansegs;
- 
--	down_read(&NILFS_MDT(nilfs->ns_dat)->mi_sem);
- 	ncleansegs = nilfs_sufile_get_ncleansegs(nilfs->ns_sufile);
--	up_read(&NILFS_MDT(nilfs->ns_dat)->mi_sem);
- 	*nblocks = (sector_t)ncleansegs * nilfs->ns_blocks_per_segment;
- 	return 0;
- }
-_
-
-Patches currently in -mm which might be from konishi.ryusuke@gmail.com are
-
-nilfs2-fix-deadlock-in-nilfs_count_free_blocks.patch
-nilfs2-fix-shift-out-of-bounds-overflow-in-nilfs_sb2_bad_offset.patch
-nilfs2-fix-shift-out-of-bounds-due-to-too-large-exponent-of-block-size.patch
+-- 
+2.38.1.273.g43a17bfeac-goog
 
