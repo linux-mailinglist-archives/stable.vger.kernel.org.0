@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E3CB614917
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:32:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4E2614916
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:32:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231215AbiKALcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:32:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35694 "EHLO
+        id S230481AbiKALch (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:32:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230510AbiKALb0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:31:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 789D41AF1C;
-        Tue,  1 Nov 2022 04:29:57 -0700 (PDT)
+        with ESMTP id S230405AbiKALbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:31:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 787F91AF18;
+        Tue,  1 Nov 2022 04:29:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0B29B81CC4;
-        Tue,  1 Nov 2022 11:29:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47F98C4314A;
-        Tue,  1 Nov 2022 11:29:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F642615C9;
+        Tue,  1 Nov 2022 11:29:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 073E5C433C1;
+        Tue,  1 Nov 2022 11:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302194;
-        bh=fqCQqSR8ab59nXjlma9DCDL6bufX4YL6UejIkg+oPH4=;
+        s=k20201202; t=1667302196;
+        bh=USvHquiFgiGFjM0GueEZoVxriggjzHuSZ+R9lifCgAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GMqBJsSy7DZS+I8GfhUToeecqcG2DwqqWyCZZDBOkl1PUoiunPfM1tYxl/TSxde6C
-         5RsdGHDcMR0TLLvpoUSm0IdnzjO0NzDD82tjwT//dp7wuzrUXdP8/aCHngIwlzigKp
-         hLvLJbJToahllUN9MCModQm6PFlf86EvPJuA8kd7DvFt5HOQzSpOe4q9LCSexJ8P4I
-         LWXKoKVm6fSShriQfB/WFXlsDnowPl5gO64dN/h3y3JgiY+01gSTAlkRCa8jDGJ2dZ
-         c1fJJcta4r294HjoISGpV3iDRwuIkMLWm1xcnIP1NDua+vHeb4XfR3MfXflNJfEO+4
-         5P+9p7vl7smQw==
+        b=JEB1T0vqmUHgQr25VCGigz9sZypwcFhAVX37cb68ezyvH9RV1PRJDz3/UddlYFtXA
+         yLGH04Fphei+pMV/SevgDFvppRxprgnKP3n98BhWX4I3b0cwkUDCzamV8JAL4X4mk+
+         VlDRELQqfv0gOKmOQ/xqMH+pdwzd+FFxAK9amkz8+lFZicyJiSjwIsJxfYvgi4BwTT
+         8fHDENw/YiPoWTQF7ukh5Sfq3vhRD7DiLMj5SolHRMM1u4nsW4Brc7xQaumxR000jw
+         ow32810GG22ub50Is17aXRG9b8Re7pEq3nuLI8HJv8VeXyJPb+Mwd+GVUU6pdYdGH5
+         QsJUeRmZg+FdA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, olivia@selenic.com,
-        rjui@broadcom.com, sbranden@broadcom.com,
-        linux-crypto@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 14/19] hwrng: bcm2835 - use hwrng_msleep() instead of cpu_relax()
-Date:   Tue,  1 Nov 2022 07:29:14 -0400
-Message-Id: <20221101112919.799868-14-sashal@kernel.org>
+Cc:     Uday Shankar <ushankar@purestorage.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 15/19] scsi: core: Restrict legal sdev_state transitions via sysfs
+Date:   Tue,  1 Nov 2022 07:29:15 -0400
+Message-Id: <20221101112919.799868-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112919.799868-1-sashal@kernel.org>
 References: <20221101112919.799868-1-sashal@kernel.org>
@@ -59,53 +58,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Uday Shankar <ushankar@purestorage.com>
 
-[ Upstream commit 96cb9d0554457086664d3bd10630b11193d863f1 ]
+[ Upstream commit 2331ce6126be8864b39490e705286b66e2344aac ]
 
-Rather than busy looping, yield back to the scheduler and sleep for a
-bit in the event that there's no data. This should hopefully prevent the
-stalls that Mark reported:
+Userspace can currently write to sysfs to transition sdev_state to RUNNING
+or OFFLINE from any source state. This causes issues because proper
+transitioning out of some states involves steps besides just changing
+sdev_state, so allowing userspace to change sdev_state regardless of the
+source state can result in inconsistencies; e.g. with ISCSI we can end up
+with sdev_state == SDEV_RUNNING while the device queue is quiesced. Any
+task attempting I/O on the device will then hang, and in more recent
+kernels, iscsid will hang as well.
 
-<6>[    3.362859] Freeing initrd memory: 16196K
-<3>[   23.160131] rcu: INFO: rcu_sched self-detected stall on CPU
-<3>[   23.166057] rcu:  0-....: (2099 ticks this GP) idle=03b4/1/0x40000002 softirq=28/28 fqs=1050
-<4>[   23.174895]       (t=2101 jiffies g=-1147 q=2353 ncpus=4)
-<4>[   23.180203] CPU: 0 PID: 49 Comm: hwrng Not tainted 6.0.0 #1
-<4>[   23.186125] Hardware name: BCM2835
-<4>[   23.189837] PC is at bcm2835_rng_read+0x30/0x6c
-<4>[   23.194709] LR is at hwrng_fillfn+0x71/0xf4
-<4>[   23.199218] pc : [<c07ccdc8>]    lr : [<c07cb841>]    psr: 40000033
-<4>[   23.205840] sp : f093df70  ip : 00000000  fp : 00000000
-<4>[   23.211404] r10: c3c7e800  r9 : 00000000  r8 : c17e6b20
-<4>[   23.216968] r7 : c17e6b64  r6 : c18b0a74  r5 : c07ccd99  r4 : c3f171c0
-<4>[   23.223855] r3 : 000fffff  r2 : 00000040  r1 : c3c7e800  r0 : c3f171c0
-<4>[   23.230743] Flags: nZcv  IRQs on  FIQs on  Mode SVC_32  ISA Thumb  Segment none
-<4>[   23.238426] Control: 50c5387d  Table: 0020406a  DAC: 00000051
-<4>[   23.244519] CPU: 0 PID: 49 Comm: hwrng Not tainted 6.0.0 #1
+More detail about this bug is provided in my first attempt:
 
-Link: https://lore.kernel.org/all/Y0QJLauamRnCDUef@sirena.org.uk/
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+https://groups.google.com/g/open-iscsi/c/PNKca4HgPDs/m/CXaDkntOAQAJ
+
+Link: https://lore.kernel.org/r/20220924000241.2967323-1-ushankar@purestorage.com
+Signed-off-by: Uday Shankar <ushankar@purestorage.com>
+Suggested-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/bcm2835-rng.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_sysfs.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/char/hw_random/bcm2835-rng.c b/drivers/char/hw_random/bcm2835-rng.c
-index e7dd457e9b22..e98fcac578d6 100644
---- a/drivers/char/hw_random/bcm2835-rng.c
-+++ b/drivers/char/hw_random/bcm2835-rng.c
-@@ -71,7 +71,7 @@ static int bcm2835_rng_read(struct hwrng *rng, void *buf, size_t max,
- 	while ((rng_readl(priv, RNG_STATUS) >> 24) == 0) {
- 		if (!wait)
- 			return 0;
--		cpu_relax();
-+		hwrng_msleep(rng, 1000);
+diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+index 920aae661c5b..774864b54b97 100644
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -816,6 +816,14 @@ store_state_field(struct device *dev, struct device_attribute *attr,
  	}
  
- 	num_words = rng_readl(priv, RNG_STATUS) >> 24;
+ 	mutex_lock(&sdev->state_mutex);
++	switch (sdev->sdev_state) {
++	case SDEV_RUNNING:
++	case SDEV_OFFLINE:
++		break;
++	default:
++		mutex_unlock(&sdev->state_mutex);
++		return -EINVAL;
++	}
+ 	if (sdev->sdev_state == SDEV_RUNNING && state == SDEV_RUNNING) {
+ 		ret = 0;
+ 	} else {
 -- 
 2.35.1
 
