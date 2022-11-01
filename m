@@ -2,156 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0973614C3F
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 15:06:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0DE6614C54
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 15:15:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230185AbiKAOGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 10:06:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60252 "EHLO
+        id S230179AbiKAOPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 10:15:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230180AbiKAOGg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 10:06:36 -0400
-Received: from IND01-BMX-obe.outbound.protection.outlook.com (mail-bmxind01olkn2084.outbound.protection.outlook.com [40.92.103.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9FE91A803;
-        Tue,  1 Nov 2022 07:06:35 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=IwxNx/lxzjThiV9cr1IhWvdsFpNf6yT0aGbp6rukTAsF4ZqMLveWxRxsL71KtjU3WpPBxek7GYnzHPG/3Aq0G9xHvvYsZx79fg2pkhRMaMFb6OSCWJVJsZupkgQA+9buHPRVh3jTy2in35dBSnFcM12WjzYIFT+RXNVlaVuE5F2eqlhQb3L7SfDgcKqnmnKbGXhejhBKYPoGZOW1bv7CT6sLlz7YVjuBux2rKYq1agfIx4n2J7H+wv535xseNms5dzY8bYDkpFQThxt3JRKBGdB1WZLJ4yaz6YrCU9WUO+DhjFB80iZCdwPwzXXMos3W8+f70q+9fBDlPwRcfhx0RA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qQ9L+LtixxFQtsHQB6Vn9SqXNr15ekUJtkOSvHOdKRw=;
- b=RJSbTc1dKShU4ukhCDLSqe6PqWwEg9IYIpIzkwPZYUfpFG2kJDzFciacKwxDTAvctX9NK3og4XrDz2uGek5wGpjY3ewNWTCYmDnfBOtrJkq0w0bX7KX2sWE4XGkF/Z88t6Wi1OpgNRA3VnmHknP4DKmncI/l4xNCc36D4esirzKZWE9mhew3bTSFG+JTMV5Y/39kRQBKVOAvonH0tw5+9BQsKWlMsm46kFzu42az9ghDBd4nnn6z/8CT8URw+NRAqZO1ig5VBfbJ7W7O1xCgYH/I0QdmVdA9qbya31Q0dBuXqbKO3XiEaHtsmD3c0W3wYvBX4dCbEub2yzWg8RZ6pw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qQ9L+LtixxFQtsHQB6Vn9SqXNr15ekUJtkOSvHOdKRw=;
- b=PUD+CYdYAasTlvE2HwiZYsqiNHLOaBEeXz1AJhOrpZ0WOtQMdTEw5pyVpSHbeOLCUKV7SQkC9C0fMDbnv0nIdgMuDEp1uhnk/giZOnkPemhzaQ303eqZiFMiMSEiVeR1udjDfc4Eq8x1/6xOikw1Jn8eU/RYDnogiJBZdIopzJaS5EhqEB52TplSvzPYlffKvDS+EoxmlsytrL/Tng4u1Sqn/R7gvLUtC9IqXJ6Nc/iCz1WGWbK5X/d0h/stxeu8MJSwCRE+0qHw+paFeChYiTiDjpCzdpSytx6bouYiC/Vy25uCvuzpKcEWxRkFqZSxURhhbrqV1Lps6YEXZ+LusA==
-Received: from BM1PR01MB0931.INDPRD01.PROD.OUTLOOK.COM (2603:1096:b00:2::9) by
- PN0PR01MB6352.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:72::9) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5769.19; Tue, 1 Nov 2022 14:06:30 +0000
-Received: from BM1PR01MB0931.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::3dc1:f6bc:49e4:b294]) by BM1PR01MB0931.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::3dc1:f6bc:49e4:b294%9]) with mapi id 15.20.5769.021; Tue, 1 Nov 2022
- 14:06:29 +0000
-From:   Aditya Garg <gargaditya08@live.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-CC:     "chyishian.jiang@gmail.com" <chyishian.jiang@gmail.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "jarkko@kernel.org" <jarkko@kernel.org>,
-        "dmitry.kasatkin@gmail.com" <dmitry.kasatkin@gmail.com>,
-        "paul@paul-moore.com" <paul@paul-moore.com>,
-        "jmorris@namei.org" <jmorris@namei.org>,
-        "serge@hallyn.com" <serge@hallyn.com>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Orlando Chamberlain <redecorating@protonmail.com>
-Subject: Re: [PATCH] efi: Add iMac Pro 2017 to uefi skip cert quirk
-Thread-Topic: [PATCH] efi: Add iMac Pro 2017 to uefi skip cert quirk
-Thread-Index: AQHY6esdl6KnIgWJpkiPJy9/QYH1qa4p/leAgAAkCoA=
-Date:   Tue, 1 Nov 2022 14:06:29 +0000
-Message-ID: <9D46D92F-1381-4F10-989C-1A12CD2FFDD8@live.com>
-References: <8CB9E43B-AB65-4735-BB8D-A8A7A10F9E30@live.com>
- <cee0b0176edc942ecc0ce6f4d585c239f9b7c425.camel@linux.ibm.com>
-In-Reply-To: <cee0b0176edc942ecc0ce6f4d585c239f9b7c425.camel@linux.ibm.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [RF7TXoAYhMByxGM2eb2puNimRey2Lu+h]
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BM1PR01MB0931:EE_|PN0PR01MB6352:EE_
-x-ms-office365-filtering-correlation-id: 091f3098-2859-408c-0dcf-08dabc12462f
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: G4Aao7jpe1hyExV4KcHIj29veQ/4R0zZFSZrRWIoImkXUHtDSGxZZ5ky4Bss1fP6Ohp8D7ZUQsBF+ykR6NSg/8J4rh5DAiBvQwgKEtg4JDzwDGcV481SSTPe4DCdgNKTcGbYXYixcBXjE8QjbKUgnyVF8+Vt4cvrDrqP1I1ulx/IJhnS8/+sqEQ01VoDyhCozVNPKhjQtNoKd5T3polynUFFXOJdL9E5RWd0XEiOzAar+Dn940ty5s48fj2luF06USdv7Dx1I3HC1OqYDsiH9t0r6gdYHr5PGeck+kQhSvGvSYfXTMx/2RbmJ9VSEjonHV/S6CCSMFQY3JWAau8XyLXe6Pphj4+a80qtnVhd2RL41Sv7bhcQHzGJj1Ry70yifMb4VhBWwvMgZQNJbnHtOBjffeIX3OS7v8h7KEBf/mVtWMiPcxG+YEUjUSLltiosW5rF6paSt2E5OGiV0ZJEt8sp7NQZqoLPrRxS4bQh5KT3ZQzLDjExv47sDS6gfxgNyleyrPjo/ymAne5FIFwsQqlVNeEIdkbwX51ke7FCIHRleJHcoqE/HjqiooRrAeAeI/hdQXuxzAHQwH0X5c5Eyuuy9oIPvS+qgFe3FYaU6bbV5X3sVD+SZ2hVXD0n89hoGAIqdz5EJ8fZy3EVTvACYgnoHyOAst0JCnEQQubw+AcSHoSxeCPOVwqlbLppGquuY9YvvGgmnzmDPMQaDYf9QQ==
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?WkpqVVFubEtVejhpcDBRSjFOTTljSEJqZFN5dFYxVFM0aVVuem9DcklWWm9P?=
- =?utf-8?B?MzdMODJ6VUcxeEJIam5ZRXdpcjZtQXZKT0FTcTFVc0VFdUZXTDlNem1oSlhO?=
- =?utf-8?B?Wm9FbExGNVNkNmZnUVRhNFRLanFuWlRtdnV4b1JFdk1yc2tqUzFtT1pmM2Rz?=
- =?utf-8?B?Y2gvSkJmWm90aXhFK0VyaGFvSENzQ1h6MmVHSzEzVFVsM05ZbXlzbWVseGpr?=
- =?utf-8?B?LzBoQTM1ckxaN1pTNDRsT0tzaU5vZlpvNGM5dE0zOUtxZzNFYnFQZ0V5elVN?=
- =?utf-8?B?VU5MQXdtUmF2bCtBYkF3OFE3YWtDVzJDTHJhbGhlclhlcmpDMHF0TzJhRHB0?=
- =?utf-8?B?aGZDQ2FFTnVMbk5SalhOVXBveFZZcHo3TEg0OU5sZW5lUFZLSmVUN3dJRDN6?=
- =?utf-8?B?OUVwcXArU0pMUVNraXR6Y1IyTWFaVmx3SjgrZWVZV2xXS2UxQ0Q0ZXlxRkNM?=
- =?utf-8?B?TFdFQmd3MDlBVWlMc2VGcVZkZEJ5MjkzdjBROXhWL2N5NWNVdEhqWHQ1UTQ0?=
- =?utf-8?B?WklKV0VXNXpzR1lWUWFUYnFSY2Jxd00yb1NsMTR4OUxmZWcybGNFaWFlVnBG?=
- =?utf-8?B?aXpLdm5aOG5nR0lNYW1ZV3djdVdmdzBLTDdTODQyUnlZYnYzVzVmdllDaXlE?=
- =?utf-8?B?YnNFRmhadE13WitUN0MvNXFSc3UzUmQwVUlvMzF4UzVkRjdMV29nTzZ0cXRS?=
- =?utf-8?B?cVlTSXI1ZHF4MkRUaFJ5Mmp4ZUxyQXdOcytVMWVFL25ETHR4cHR2OTdYYXpK?=
- =?utf-8?B?MDBtcjBLdVRmcmM0bUR3RC9iaWZWSzVCR0VSQWVadUZ3blNHd0JVdUpibHJI?=
- =?utf-8?B?bkIwcXoyUnVGSjJZb3BvSmVkSVdaT3RxM1Y4NTY0RnhLL3JvaWkvN3VDK2Y0?=
- =?utf-8?B?TWFrYytXL1NYMStHVkMvL05SWEQ2QjB0L1MxZXp4c0piUXoyWGowSHFYYkVQ?=
- =?utf-8?B?M3dPZ3NENkpmN1JTT3k2K29vMDRiZmhML2d3elg3TGg2VkU0OUw2L1oyekI4?=
- =?utf-8?B?MUJIUnBnT3h0Z1JEbzExUGZxemk2clJJaENIR3hnTkp6M05ZME5EOVRaTzc2?=
- =?utf-8?B?S25ZRXFhRUNKMHl0ZXV6SWN0N3R0SG12dkJyWmU5VUtNc2RzMXpjQVgzYmpk?=
- =?utf-8?B?d2lxdFJwUTZHOXJRdmdBeGErYzVEbTZnaGFzQ0F5NUM4cERyckh4a2NQT1gr?=
- =?utf-8?B?QkVreU5UV1lnRzlaemNqUGlYUHNUVEJpV1A0M0tJYUlybWhTb2pRUk9YdEpJ?=
- =?utf-8?B?Qjlob28xSFFWdWt4WUpwZzRqRGFpektLLzdnRnk2T1ZVbjFXOHFVTkxDV1R4?=
- =?utf-8?B?bmxTRndxSzFzeE5YK0F0dmFpTENWMnpxdG9CYTh1NlNDSm1GQ1lXbHQwdHhZ?=
- =?utf-8?B?M2Rtd04rckNWWVd2L2tlOEJCNDFpMk1SVE5sQWNpQzBOQTh3M2FsOThNU1pz?=
- =?utf-8?B?emp0K2ZnZmgzME9YM0t6VHZkbnplb28vYkFwaTlIN3I5RkYzNVlHczBLVFM0?=
- =?utf-8?B?amlKUVlWK2NvWjRQbnVJVEIyN3EvbitENDBjWFhrZW9Lc2VVQzdWT1dGNTcz?=
- =?utf-8?B?amFYVkF6TTRveit5UVp5YkE2dmplSmZsQjRTQzdicDI4SmhYSDBVc2h1eFc5?=
- =?utf-8?B?dWRZL1JoWEpTMTUxamtVOEJNYWlEUVkwNTNYdklRUjE2UEpFdFhvT29Jbmc3?=
- =?utf-8?B?Y0hnYXdjNHNxVHREaUxZNFFFSWliTDdSdjFsVVJYcFplRTNycUo1anJ3PT0=?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <EAEAB7C18C8DFC4AAADC2D4B8C245436@INDPRD01.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: base64
+        with ESMTP id S229939AbiKAOPo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 10:15:44 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD2818E37
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 07:15:43 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id d59-20020a17090a6f4100b00213202d77e1so18946108pjk.2
+        for <stable@vger.kernel.org>; Tue, 01 Nov 2022 07:15:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=XkA3q4ZuYl8WiWjg1RJTxK24EJUWKrEDxDZgf18Lv6A=;
+        b=b/KiuyXkMDrP74iJHD1F+5nOCMt6Gveh9+Sk5OxebU0UKGU7ZEzYtOFsI3W5xrmNnI
+         pCli7OWNBjLug7ILxkoq1MdCU2f8nn65pWDKhBuHFuHWa72NM57O50h+akMf0gn48QGG
+         uvjhAJvrrlXUQhSLIleGv48oBY3KD4+VnVn49izrRLEp9WkujXocGri8YpGhSvFkgY8H
+         F63q/vGDN7+Zpvy9q5EH0U0f/Fk6IAMPtbg5PTcZ2KUbh54eASJSULRExAE+ZCP78ZAD
+         Z3JB4FCZR3O8Zf8ZgXhbrs+1JPKB7aFUxuG5GP8v7mOHSJscnEHsll0aQcdhSZONSLP6
+         Mhfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=XkA3q4ZuYl8WiWjg1RJTxK24EJUWKrEDxDZgf18Lv6A=;
+        b=DGh8CcckSi+J1NuxS9Jv/5kYNb5pBHZmCG0gtHgKlGFgYU22Kn7F4FTMfVWcQj2+kW
+         GJzTx+gq4AnN7n+WAMbu9+Sf2rRV8x+JzUKCo5gahGuyOzBU1Ok45SNPJ/22j5r0ygl2
+         zbaCJf24musaZwekgQ2VP9W8XrV3Q3dilQ/bCNAwSM4e44lOcAXXOxws2UmVP5A8EzHH
+         xBUeEalrrXGBhQk5mEUH+FSHO6zukC9mo1yq+sEGT37adzKjvq0wkFCdIeH5V+xTBNa4
+         KQ/qQrtN16YmoDmXYCpL1rhi1/OABaZql7vRNa1sOdCBRU24qf87pp2WDbJB2pu33Utr
+         5x9A==
+X-Gm-Message-State: ACrzQf2dI0uSqm9Ed58tfERbQWFXv4SC3dQEjomX1OXgSgimeC+7vNvz
+        JQd5zgifajRUODlP8IAeEWur6yCvb0Q1
+X-Google-Smtp-Source: AMsMyM6lks+3B06ka5KdmDad2xCg7POxi4cgFqCw2zcizKT4Jh9muVX6PZOthfI6nJR/FxfK79eQ7Q==
+X-Received: by 2002:a17:90b:1950:b0:212:de19:b3ce with SMTP id nk16-20020a17090b195000b00212de19b3cemr20040323pjb.16.1667312142940;
+        Tue, 01 Nov 2022 07:15:42 -0700 (PDT)
+Received: from thinkpad ([117.193.209.178])
+        by smtp.gmail.com with ESMTPSA id d14-20020a170902654e00b0018157b415dbsm6429387pln.63.2022.11.01.07.15.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Nov 2022 07:15:41 -0700 (PDT)
+Date:   Tue, 1 Nov 2022 19:45:34 +0530
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     kishon@ti.com, lpieralisi@kernel.org, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mie@igel.co.jp, kw@linux.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 2/5] tools: PCI: Fix parsing the return value of IOCTLs
+Message-ID: <20221101141534.GQ54667@thinkpad>
+References: <20220824123010.51763-1-manivannan.sadhasivam@linaro.org>
+ <20220824123010.51763-3-manivannan.sadhasivam@linaro.org>
+ <YwYdFt6sc7lZGRcg@kroah.com>
 MIME-Version: 1.0
-X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-42ed3.templateTenant
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BM1PR01MB0931.INDPRD01.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 091f3098-2859-408c-0dcf-08dabc12462f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Nov 2022 14:06:29.8799
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN0PR01MB6352
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,SPF_HELO_PASS,SPF_PASS autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YwYdFt6sc7lZGRcg@kroah.com>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGkgTWltaQ0KDQo+IEkgZm91bmQgdGhpcyBsaXN0IG9mIGNvbXB1dGVycyB3aXRoIHRoZSBBcHBs
-ZSBUMiBTZWN1cml0eSBDaGlwIC0gDQo+IGh0dHBzOi8vc3VwcG9ydC5hcHBsZS5jb20vZW4tdXMv
-SFQyMDg4NjIsIGJ1dCBub3QgYSBsaXN0IHRoYXQNCj4gY29ycmVsYXRlcyB0aGVtIHRvIHRoZSBz
-eXN0ZW0gSUQuICBXaXRoIHRoaXMgdXBkYXRlLCBpcyB0aGlzIHRoZSBlbnRpcmUNCj4gbGlzdD8N
-Cg0KQXMgcGVyIHRoZSBsaW5rIHlvdSBzZW50IG1lLCB0aGUgZm9sbG93aW5nIGFyZSB0aGUgc3lz
-dGVtIElEcyBvZiB0aGUgVDIgTWFjcyBtZW50aW9uZWQgaW4gdGhlIGxpc3QNCg0KMS4gaU1hYyAo
-UmV0aW5hIDVLLCAyNy1pbmNoLCAyMDIwKSAtIGlNYWMyMCwxLCBpTWFjMjAsMg0KMi4gaU1hYyBQ
-cm8gLSBpTWFjUHJvMSwxDQozLiBNYWMgUHJvICgyMDE5KSAtIE1hY1BybzcsMQ0KNC4gTWFjIFBy
-byAoUmFjaywgMjAxOSkgLSBNYWNQcm83LDENCjUuIE1hYyBtaW5pICgyMDE4KSAtIE1hY21pbmk4
-LDENCjYuIE1hY0Jvb2sgQWlyIChSZXRpbmEsIDEzLWluY2gsIDIwMjApIC0gTWFjQm9va0Fpcjks
-MQ0KNy4gTWFjQm9vayBBaXIgKFJldGluYSwgMTMtaW5jaCwgMjAxOSkgLSBNYWNCb29rQWlyOCwy
-DQo4LiBNYWNCb29rIEFpciAoUmV0aW5hLCAxMy1pbmNoLCAyMDE4KSAtIE1hY0Jvb2tBaXI4LDEN
-CjkuIE1hY0Jvb2sgUHJvICgxMy1pbmNoLCAyMDIwLCBUd28gVGh1bmRlcmJvbHQgMyBwb3J0cykg
-LSBNYWNCb29rUHJvMTYsMw0KMTAuIE1hY0Jvb2sgUHJvICgxMy1pbmNoLCAyMDIwLCBGb3VyIFRo
-dW5kZXJib2x0IDMgcG9ydHMpIC0gTWFjQm9va1BybzE2LDINCjExLiBNYWNCb29rIFBybyAoMTYt
-aW5jaCwgMjAxOSkgLSBNYWNCb29rUHJvMTYsMSwgTWFjQm9va1BybzE2LDQNCjEyLiBNYWNCb29r
-IFBybyAoMTMtaW5jaCwgMjAxOSwgVHdvIFRodW5kZXJib2x0IDMgcG9ydHMpIC0gTWFjQm9va1By
-bzE1LDQNCjEzLiBNYWNCb29rIFBybyAoMTUtaW5jaCwgMjAxOSkgLSBNYWNCb29rUHJvMTUsMSwg
-TWFjQm9va1BybzE1LDMNCjE0LiBNYWNCb29rIFBybyAoMTMtaW5jaCwgMjAxOSwgRm91ciBUaHVu
-ZGVyYm9sdCAzIHBvcnRzKSAtIE1hY0Jvb2tQcm8xNSwyDQoxNS4gTWFjQm9vayBQcm8gKDE1LWlu
-Y2gsIDIwMTgpIC0gTWFjQm9va1BybzE1LDENCjE2LiBNYWNCb29rIFBybyAoMTMtaW5jaCwgMjAx
-OCwgRm91ciBUaHVuZGVyYm9sdCAzIHBvcnRzKSAtIE1hY0Jvb2tQcm8xNSwyDQoNClRoZSBzeXN0
-ZW0gSURzIG9mIHRoZSBNYWNzIGNhbiBiZSBzZWVuIGZyb20gb2ZmaWNpYWwgQXBwbGXigJlzIGRv
-Y3VtZW50YXRpb24gZm9ybSB0aGUgbGlua3MgYmVsb3cgOi0NCg0KaHR0cHM6Ly9zdXBwb3J0LmFw
-cGxlLmNvbS9lbi1pbi9IVDIwMTYzNCAtIEZvciBpTWFjDQpodHRwczovL3N1cHBvcnQuYXBwbGUu
-Y29tL2VuLWluL0hUMjAyODg4IC0gRm9yIE1hYyBQcm8NCmh0dHBzOi8vc3VwcG9ydC5hcHBsZS5j
-b20vZW4taW4vSFQyMDE4OTQgLSBGb3IgTWFjIG1pbmkNCmh0dHBzOi8vc3VwcG9ydC5hcHBsZS5j
-b20vZW4taW4vSFQyMDE4NjIgLSBGb3IgTWFjQm9vayBBaXINCmh0dHBzOi8vc3VwcG9ydC5hcHBs
-ZS5jb20vZW4taW4vSFQyMDEzMDAgLSBGb3IgTWFjQm9vayBQcm8NCg0KQWZ0ZXIgY3Jvc3MtY2hl
-Y2tpbmcgb25seSBpTWFjUHJvMSwxIHNlZW1zIHRvIGJlIG1pc3NpbmcuDQoNClRoYW5rcw0KQWRp
-dHlh
+On Wed, Aug 24, 2022 at 02:44:06PM +0200, Greg KH wrote:
+> On Wed, Aug 24, 2022 at 06:00:07PM +0530, Manivannan Sadhasivam wrote:
+> > "pci_endpoint_test" driver now returns 0 for success and negative error
+> > code for failure. So adapt to the change by reporting FAILURE if the
+> > return value is < 0, and SUCCESS otherwise.
+> > 
+> > Cc: stable@vger.kernel.org #5.10
+> > Fixes: 3f2ed8134834 ("tools: PCI: Add a userspace tool to test PCI endpoint")
+> > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > ---
+> >  tools/pci/pcitest.c | 41 +++++++++++++++++++++--------------------
+> >  1 file changed, 21 insertions(+), 20 deletions(-)
+> > 
+> > diff --git a/tools/pci/pcitest.c b/tools/pci/pcitest.c
+> > index 441b54234635..a4e5b17cc3b5 100644
+> > --- a/tools/pci/pcitest.c
+> > +++ b/tools/pci/pcitest.c
+> > @@ -18,7 +18,6 @@
+> >  
+> >  #define BILLION 1E9
+> >  
+> > -static char *result[] = { "NOT OKAY", "OKAY" };
+> >  static char *irq[] = { "LEGACY", "MSI", "MSI-X" };
+> >  
+> >  struct pci_test {
+> > @@ -54,9 +53,9 @@ static int run_test(struct pci_test *test)
+> >  		ret = ioctl(fd, PCITEST_BAR, test->barnum);
+> >  		fprintf(stdout, "BAR%d:\t\t", test->barnum);
+> >  		if (ret < 0)
+> > -			fprintf(stdout, "TEST FAILED\n");
+> > +			fprintf(stdout, "FAILED\n");
+> >  		else
+> > -			fprintf(stdout, "%s\n", result[ret]);
+> > +			fprintf(stdout, "SUCCESS\n");
+> 
+> Is this following the kernel TAP output rules?  If not, why not?  If so,
+> say that you are fixing that issue up in the changelog text.
+> 
+
+Sorry to revive this two months old thread. Adapting to TAP output rules
+requires this test to be moved to KUnit which is strictly not necessary and can
+be done later.
+
+Moreover, I do not have the hardware to run this testcase and I don't feel
+comfortable moving this to KUnit without doing functional testing.
+
+So for now, I will fix the return value of IOCTLs which is the real motive
+behind this series.
+
+Thanks,
+Mani
+
+> thanks,
+> 
+> greg k-h
+
+-- 
+மணிவண்ணன் சதாசிவம்
