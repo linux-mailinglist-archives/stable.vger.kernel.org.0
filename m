@@ -2,47 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8357D61499A
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:41:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 660BE61498F
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230314AbiKALkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:40:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58980 "EHLO
+        id S229824AbiKALii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:38:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231395AbiKALih (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:38:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D92BF1E3E9;
-        Tue,  1 Nov 2022 04:32:38 -0700 (PDT)
+        with ESMTP id S231400AbiKALiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:38:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C095C1DF0C;
+        Tue,  1 Nov 2022 04:32:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 13417615FE;
-        Tue,  1 Nov 2022 11:31:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D82E7C433D7;
-        Tue,  1 Nov 2022 11:31:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 306C4B81CCD;
+        Tue,  1 Nov 2022 11:31:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0135C43470;
+        Tue,  1 Nov 2022 11:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302312;
-        bh=pgEpeLqWWA/iYrLgMSS01/VSurWQ4R6k9M+CT2jmfRY=;
+        s=k20201202; t=1667302313;
+        bh=8JproDmIxUKonuf1KKRNqVQpO4Bk98mgN8CquEEfLPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N4xiX/oojOLK+pU5WbC3ebtg80NqHWzOtlh+L478i/LYL48TV5rcGp98EbzBwfXQe
-         cna7o4fn+QKjF1GZQrdMkzU23pIhW+BTuUjDv7QOCKxXz4Zlzdloo56r6Uq7m/HY/0
-         a/UhBIxdrhN485FxenxMnOaI5XDPg2OkegtL9TgAL0M7xeKWaQgIZSZQqF1tO40NDE
-         LCXnvfYRf0oMN7TZwChTB+oZL9DhBde8uz5aYB7SRckVv+LtOblSI6gCLbwM2gdjly
-         TjKuJ8FJgCcqbxYI8OnMQ9+SErEIqfPYUEvwLPFz9jem3QKr2XGGi167A+Po/8OpMh
-         owS2V8O4Uvpqg==
+        b=R/6GXtCGWo5zVGxDsGS7bD2rh9SumnrtG+3iQk5G4QtR09Mc2R2XgU/c1peloP8st
+         B4dJK7MgTjHamLaOHDGlTNAmEBj3IYAy2HjQH6jRkAHiRzTKUu5XcYxsL9Q5dZkyaw
+         QpV17EHL11rIJmttE3WDaOanpDxuhcQDHchaWJlmPsmZxRyhm/IE3Q8N2vtpxAWzXK
+         aKajc3uAkjqUlrLNFCHJSfu/gxvXrqofqmPElMmbsjXyZwYdzG4uhZG7SVq4WaAMEo
+         GNTLzcGOToscD8eSN2fBtIZZWqRX2e9jF00bxIdcBaatGEc3UMixoDqzLxNRZ5R7er
+         ++K+5N77VCT7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 2/3] media: dvb-frontends/drxk: initialize err to 0
-Date:   Tue,  1 Nov 2022 07:31:44 -0400
-Message-Id: <20221101113147.801048-2-sashal@kernel.org>
+Cc:     =?UTF-8?q?Martin=20T=C5=AFma?= <martin.tuma@digiteqautomotive.com>,
+        Michal Simek <michal.simek@amd.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        michal.simek@xilinx.com, linux-arm-kernel@lists.infradead.org,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 3/3] i2c: xiic: Add platform module alias
+Date:   Tue,  1 Nov 2022 07:31:45 -0400
+Message-Id: <20221101113147.801048-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101113147.801048-1-sashal@kernel.org>
 References: <20221101113147.801048-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -55,40 +58,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Martin Tůma <martin.tuma@digiteqautomotive.com>
 
-[ Upstream commit 20694e96ca089ce6693c2348f8f628ee621e4e74 ]
+[ Upstream commit b8caf0a0e04583fb71e21495bef84509182227ea ]
 
-Fix a compiler warning:
+The missing "platform" alias is required for the mgb4 v4l2 driver to load
+the i2c controller driver when probing the HW.
 
-drivers/media/dvb-frontends/drxk_hard.c: In function 'drxk_read_ucblocks':
-drivers/media/dvb-frontends/drxk_hard.c:6673:21: warning: 'err' may be used uninitialized [-Wmaybe-uninitialized]
- 6673 |         *ucblocks = (u32) err;
-      |                     ^~~~~~~~~
-drivers/media/dvb-frontends/drxk_hard.c:6663:13: note: 'err' was declared here
- 6663 |         u16 err;
-      |             ^~~
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Martin Tůma <martin.tuma@digiteqautomotive.com>
+Acked-by: Michal Simek <michal.simek@amd.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/drxk_hard.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-xiic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/dvb-frontends/drxk_hard.c b/drivers/media/dvb-frontends/drxk_hard.c
-index c595adc61c6f..f6cf1b0b992c 100644
---- a/drivers/media/dvb-frontends/drxk_hard.c
-+++ b/drivers/media/dvb-frontends/drxk_hard.c
-@@ -6697,7 +6697,7 @@ static int drxk_read_snr(struct dvb_frontend *fe, u16 *snr)
- static int drxk_read_ucblocks(struct dvb_frontend *fe, u32 *ucblocks)
- {
- 	struct drxk_state *state = fe->demodulator_priv;
--	u16 err;
-+	u16 err = 0;
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index c65a5d0af555..4b750c99819a 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -897,6 +897,7 @@ static struct platform_driver xiic_i2c_driver = {
  
- 	dprintk(1, "\n");
+ module_platform_driver(xiic_i2c_driver);
  
++MODULE_ALIAS("platform:" DRIVER_NAME);
+ MODULE_AUTHOR("info@mocean-labs.com");
+ MODULE_DESCRIPTION("Xilinx I2C bus driver");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.35.1
 
