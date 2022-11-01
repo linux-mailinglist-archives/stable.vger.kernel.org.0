@@ -2,81 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E7F0614EE2
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 17:12:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22BEB614FEF
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 18:03:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229516AbiKAQM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 12:12:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50736 "EHLO
+        id S229650AbiKARDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 13:03:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230116AbiKAQM1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 12:12:27 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B80531C428
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 09:12:25 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id t25so38273847ejb.8
-        for <stable@vger.kernel.org>; Tue, 01 Nov 2022 09:12:25 -0700 (PDT)
+        with ESMTP id S229648AbiKARDY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 13:03:24 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BE6CCC
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 10:03:21 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id d26so38568914eje.10
+        for <stable@vger.kernel.org>; Tue, 01 Nov 2022 10:03:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=google.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ab9TumGnVcQYDbKNM45MvF3h/etVGLXj7Sk0rQBsw6s=;
-        b=ULcFfhMCUyMy4Bls0YByc376JJlGzb4PF2gmzFQiuA1hAE3rTe5bFdq/1tdW/zn7yZ
-         lL+UDCU13ErCSuEyyTHtbYh+5n5sJivkt9jRSXZSXDZN8e1ldNEGKw4aDG5ZVAzTiPoU
-         0LkJAJlAdkCz/LtDgoRW4GpTFLkxyBSLhBEQRedBxJesVp18WSsPvnH4eRGilQn8faMZ
-         Fn42KEtzuKgubU7Byh9a1xUKJ6QnLVPW2ZP1hBVkmLw6HvsdE+0GF+jIwAVm6U+SkB/6
-         No4matFol/mrexh+rZ8YWEfxtZz9g5QfrJewcBlv8yx4F4t8b4dOGvpjOPV45cG8kL17
-         3XKg==
+        bh=BmOzTOknKLYK8DbDZpYjaVcrV5Rf9u7VBwmv6gC9EQg=;
+        b=IC2ritDxFfviQyivZT1zEPdBHtRvQheBhy87DVoM2Dnn4hrKtKUj+Q5jVpTwAJ6AUt
+         1PflSYX85K1ScAwgTcalIluR3ShrwF3HvH2hATRukFHMvxYKv+Z3EIk4Tg7/EO8B7UlQ
+         b2lO9fdC3SEL/NZ1IMFoJwDEHI7G0LHIhj4yP2QJgMrnSicur8XEz/3SWho/Ca2qcdCp
+         AhYGV1YmG0mA8G0JdxFbMoghbhOE4m1JI3Xudk/cfuyYzTVEUZd2SlgPpzxE3M3dLuE4
+         w4YiNTTY4I7Sa44+0yFlAT/VShoywczeaJw5PTSKIh/tha0bJ31algwl+oMDM8QCYPm+
+         VfIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Ab9TumGnVcQYDbKNM45MvF3h/etVGLXj7Sk0rQBsw6s=;
-        b=d1NhDPf9PWLbJk+B+YTZDstIIqENevkSS7OKsJT1qMp28xAA07N55M90UEfDAgk5p1
-         G76wDxsqCTONSCY7qkXf5TfRp5ln7Izvzu0g5UxU0A/8V5PnsjBQMZIDf9GpwB+/dY0A
-         2jd9dI6csHhZRzsN6ENjXme+Q2I1nhuSMwxunBZKzeOG//GEAZcgmd5hjT1ZPnr25Zr6
-         aS6ljCkLZpbwVnANjiELV3fadLv1KhlvsU7GccBkd3s+ChTSBjvAdn2NGyfDppJWtPSk
-         52l7RDSNpeql9vftcSH6oWPXZynDxT0Q164DZPyxHrpQaCSFsj2SLwCvGza9+vOBsMR4
-         SumQ==
-X-Gm-Message-State: ACrzQf1d89O/dTSH6StHEDx1QQ7fBXhpzAtPLjt5pMz9cNJak1he7ZGG
-        oZE2hIzlrfov9T4mR/dhSOPEf+H7WR+qKxVoaCmEag==
-X-Google-Smtp-Source: AMsMyM7S4RF2BkvtcpNXDlgORfJXftSzemj3U2XM1jc/wCeA6rhQGSQ9o9FEfAxWrYRj5xDc+JkWTZySunWPW24D2Ek=
-X-Received: by 2002:a17:907:6e1b:b0:78e:15a3:5be6 with SMTP id
- sd27-20020a1709076e1b00b0078e15a35be6mr19096151ejc.750.1667319143878; Tue, 01
- Nov 2022 09:12:23 -0700 (PDT)
+        bh=BmOzTOknKLYK8DbDZpYjaVcrV5Rf9u7VBwmv6gC9EQg=;
+        b=XrHXqJxvV6RIX4ElOzV/lPGRkDuB5PUMb3P7fLfFt4gJ/hu84ARGKtJT2IBeMkPwDg
+         mH7AyRH2RRTcIo3mg7S3r1BkfgL0Msjl0hRc04HhKroBCaA8SfxHy6X02ZwPR1J2bRV6
+         gUKAAkAaF7iUua5u94bmRwNM8tVT8oJNFMB/TZfYoNO9imYJT/1V7kAPSnyEY3MDTDeN
+         HE91r1GVvwzxOHkoZRVkgM0vRLQO/IINHnVCNz6M1JwqnrzjNRTw5i9c0BaaKjDd/Q4X
+         LFKdDOJ482POjQJ07dwTC7dHqbxMKy+UGZNfOc4rMmcdS4NdoiZby8NYyeMMNgzaA6yD
+         HDYw==
+X-Gm-Message-State: ACrzQf2JYLsXQaFmO+oQfpHvMdgSP9nguLWr0M0fk1Lw8vIB9CGRBb1m
+        aqM5g9NR6bFjkvVZ4OmYJtqGHkspwA0EVB+xkkOAUw==
+X-Google-Smtp-Source: AMsMyM5iD9QIGkzpSWJvRSHJcLR0py6LxhfUPirqCdA/nZTRd5GGthw+pZdfhJvjr/BvZMJQaiXrkWuJVBekRM6v1jg=
+X-Received: by 2002:a17:906:fc1e:b0:780:93d2:8510 with SMTP id
+ ov30-20020a170906fc1e00b0078093d28510mr149190ejb.457.1667322199705; Tue, 01
+ Nov 2022 10:03:19 -0700 (PDT)
 MIME-Version: 1.0
 References: <20221024113005.376059449@linuxfoundation.org> <20221029011211.4049810-1-ovt@google.com>
  <Y2ATiXtpwPxfsOUD@dev-arch.thelio-3990X> <Y2ClHT6FNL+DLfqP@kroah.com> <Y2C70Gc5vcrRIsRr@kroah.com>
 In-Reply-To: <Y2C70Gc5vcrRIsRr@kroah.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 1 Nov 2022 21:42:12 +0530
-Message-ID: <CA+G9fYsyNp2vNupc55CqoTiKLAEmLHYdFoPNqChbe05RvX9U0A@mail.gmail.com>
+From:   Oleksandr Tymoshenko <ovt@google.com>
+Date:   Tue, 1 Nov 2022 10:03:07 -0700
+Message-ID: <CACGj0Ci3qXX6E_U27Jg9UFp4b8-UyuNCq_hHUP9akA+6ipp7xA@mail.gmail.com>
 Subject: Re: [PATCH 5.4 086/255] once: add DO_ONCE_SLOW() for sleepable contexts
 To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Oleksandr Tymoshenko <ovt@google.com>,
-        christophe.leroy@csgroup.eu, davem@davemloft.net,
-        edumazet@google.com, linux-kernel@vger.kernel.org,
-        sashal@kernel.org, stable@vger.kernel.org, w@1wt.eu,
-        llvm@lists.linux.dev
-Content-Type: multipart/mixed; boundary="0000000000004c953205ec6afd13"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Cc:     Nathan Chancellor <nathan@kernel.org>, christophe.leroy@csgroup.eu,
+        davem@davemloft.net, edumazet@google.com,
+        linux-kernel@vger.kernel.org, sashal@kernel.org,
+        stable@vger.kernel.org, w@1wt.eu, llvm@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---0000000000004c953205ec6afd13
-Content-Type: text/plain; charset="UTF-8"
-
-Hi Greg,
-
-On Tue, 1 Nov 2022 at 11:55, Greg KH <gregkh@linuxfoundation.org> wrote:
+On Mon, Oct 31, 2022 at 11:25 PM Greg KH <gregkh@linuxfoundation.org> wrote:
 >
 > On Tue, Nov 01, 2022 at 05:48:29AM +0100, Greg KH wrote:
 > > On Mon, Oct 31, 2022 at 11:27:21AM -0700, Nathan Chancellor wrote:
@@ -149,11 +143,9 @@ On Tue, 1 Nov 2022 at 11:55, Greg KH <gregkh@linuxfoundation.org> wrote:
 >
 > Can someone test the following patch:
 
-I have tested the following patch and confirmed that reported issues
-have been fixed. The test performed on 5.4 with patch applied and
-built with clang-nightly and ran the LTP CVE (cve-2018-9568 ) connect02
-test case on qemu-x86-64.
+The patch fixes the issue for me, the system boots fine.
 
+>
 >
 > diff --git a/include/linux/once.h b/include/linux/once.h
 > index bb58e1c3aa03..3a6671d961b9 100644
@@ -168,60 +160,3 @@ test case on qemu-x86-64.
 >                 static DEFINE_STATIC_KEY_TRUE(___once_key);                  \
 >                 if (static_branch_unlikely(&___once_key)) {                  \
 >                         ___ret = __do_once_slow_start(&___done);             \
->
-
-Step to confirm the reported issues has been fixed attached.
-
-Regression log detailed link,
-https://tuxapi.tuxsuite.com/v1/groups/linaro/projects/daniel/tests/2GtjmfCgOwjkQo76N4YkscpHSqw
-
-Fix kernel,
-https://builds.tuxbuild.com/2Gx1SmgFoS1AwMMbNCnOmO540py/
-
-- Naresh
-
---0000000000004c953205ec6afd13
-Content-Type: application/x-shellscript; 
-	name="tuxrun-ltp-cve-qemu-x86-bug-reproduce.sh"
-Content-Disposition: attachment; 
-	filename="tuxrun-ltp-cve-qemu-x86-bug-reproduce.sh"
-Content-Transfer-Encoding: base64
-Content-ID: <f_l9yek9ke0>
-X-Attachment-Id: f_l9yek9ke0
-
-IyEvYmluL3NoCgojIFR1eFJ1biBpcyBhIGNvbW1hbmQgbGluZSB0b29sIGFuZCBQeXRob24gbGli
-cmFyeSB0aGF0IHByb3ZpZGVzIGEgd2F5IHRvCiMgYm9vdCBhbmQgdGVzdCBsaW51eCBrZXJuZWxz
-LgojCiMgVHV4UnVuIHN1cHBvcnRzIHRoZSBjb25jZXB0IG9mIHJ1bnRpbWVzLiBGb3IgdGhhdCB0
-byB3b3JrIGl0IHJlcXVpcmVzIHRoYXQKIyB5b3UgaW5zdGFsbCBwb2RtYW4gb3IgZG9ja2VyIG9u
-IHlvdXIgc3lzdGVtLgojCiMgVG8gaW5zdGFsbCB0dXhydW4gb24geW91ciBzeXN0ZW0gZ2xvYmFs
-bHk6CiMgc3VkbyBwaXAzIGluc3RhbGwgLVUgdHV4cnVuPT0wLjMwLjAKIwojIFNlZSBodHRwczov
-L3R1eHJ1bi5vcmcvIGZvciBjb21wbGV0ZSBkb2N1bWVudGF0aW9uLgoKdHV4cnVuIC0tcnVudGlt
-ZSBwb2RtYW4gLS1kZXZpY2UgcWVtdS14ODZfNjQgLS1rZXJuZWwgaHR0cHM6Ly9idWlsZHMudHV4
-YnVpbGQuY29tLzJHdGptNnBWemRxbkRLMm5LSEZ4bEpPdllJUy9iekltYWdlIC0tbW9kdWxlcyBo
-dHRwczovL2J1aWxkcy50dXhidWlsZC5jb20vMkd0am02cFZ6ZHFuREsybktIRnhsSk92WUlTL21v
-ZHVsZXMudGFyLnh6IC0tcm9vdGZzIGh0dHBzOi8vc3RvcmFnZS50dXhzdWl0ZS5jb20vcHVibGlj
-L2xpbmFyby9kYW5pZWwvb2VidWlsZHMvMkczbzQzWFBuNXhqOFRERHkwcHg3YU0xWXZQL2ltYWdl
-cy9pbnRlbC1jb3JlaTctNjQvbGtmdC10dXgtaW1hZ2UtaW50ZWwtY29yZWk3LTY0LTIwMjIxMDEz
-MDIyMTU3LnJvb3Rmcy5leHQ0Lmd6IC0tcGFyYW1ldGVycyBTS0lQRklMRT1za2lwZmlsZS1sa2Z0
-LnlhbWwgLS1pbWFnZSBkb2NrZXIuaW8vbGF2YXNvZnR3YXJlL2xhdmEtZGlzcGF0Y2hlcjoyMDIy
-LjEwLjAwNDAuZ2MzOGQ0NDk3MSAtLXRlc3RzIGx0cC1jdmUgLS10aW1lb3V0cyBib290PTE1Cg==
---0000000000004c953205ec6afd13
-Content-Type: application/x-shellscript; 
-	name="tuxrun-ltp-cve-qemu-x86-bug-fix.sh"
-Content-Disposition: attachment; 
-	filename="tuxrun-ltp-cve-qemu-x86-bug-fix.sh"
-Content-Transfer-Encoding: base64
-Content-ID: <f_l9yek9lk1>
-X-Attachment-Id: f_l9yek9lk1
-
-dHV4cnVuIC0tcnVudGltZSBwb2RtYW4gLS1kZXZpY2UgcWVtdS14ODZfNjQgLS1rZXJuZWwgaHR0
-cHM6Ly9idWlsZHMudHV4YnVpbGQuY29tLzJHeDFTbWdGb1MxQXdNTWJOQ25PbU81NDBweS9ieklt
-YWdlIC0tbW9kdWxlcyBodHRwczovL2J1aWxkcy50dXhidWlsZC5jb20vMkd4MVNtZ0ZvUzFBd01N
-Yk5Dbk9tTzU0MHB5L21vZHVsZXMudGFyLnh6IC0tcm9vdGZzIGh0dHBzOi8vc3RvcmFnZS50dXhz
-dWl0ZS5jb20vcHVibGljL2xpbmFyby9kYW5pZWwvb2VidWlsZHMvMkczbzQzWFBuNXhqOFRERHkw
-cHg3YU0xWXZQL2ltYWdlcy9pbnRlbC1jb3JlaTctNjQvbGtmdC10dXgtaW1hZ2UtaW50ZWwtY29y
-ZWk3LTY0LTIwMjIxMDEzMDIyMTU3LnJvb3Rmcy5leHQ0Lmd6IC0tcGFyYW1ldGVycyBTS0lQRklM
-RT1za2lwZmlsZS1sa2Z0LnlhbWwgLS1pbWFnZSBkb2NrZXIuaW8vbGF2YXNvZnR3YXJlL2xhdmEt
-ZGlzcGF0Y2hlcjoyMDIyLjEwLjAwNDAuZ2MzOGQ0NDk3MSAtLXRlc3RzIGx0cC1jdmUgLS10aW1l
-b3V0cyBib290PTQ1Cg==
---0000000000004c953205ec6afd13--
