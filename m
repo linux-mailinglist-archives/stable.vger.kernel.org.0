@@ -2,233 +2,235 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26791614574
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 09:08:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3796A6145F2
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 09:48:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229950AbiKAIII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 04:08:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46528 "EHLO
+        id S229468AbiKAIsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 04:48:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229959AbiKAIIH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 04:08:07 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58FEF183AD
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 01:08:05 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id x2so20732725edd.2
-        for <stable@vger.kernel.org>; Tue, 01 Nov 2022 01:08:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=64mtFI8kiMJTqgi+qPiL317s+1K5P7hJj88eWZIQK3U=;
-        b=GhNj2AXjtnL+Nd8dz/L4xBusn0WUYFf9FxVqaTONNJykKKRwWl6stYQxdwzJZ/RIQs
-         uUuB0Fe4mTE2N9AfE6Au/DMYUNQxDph7E1mfyltsvWxOyuWb8VudXU9rgYD9cN4jbkAs
-         2VSPdSy7PL3gO4nD47eoyP2t6a5D1ztEXrvLqCB6y5GBvR/vM22U+7GohmHAacYX0rwt
-         FcKxN738bwIA4FXTEJMgMQe+0JDE6Z/U0H3UcheKLKGHXG9QnjaNDwhVT4mrrB2gI6Kj
-         6B9J4Pr8KHkOe2VtdrCkK1uJuSrRu25X0Bi/hrvIw3CzuYmKHTVvrI/16ULT4AKm2vZc
-         M6Rw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=64mtFI8kiMJTqgi+qPiL317s+1K5P7hJj88eWZIQK3U=;
-        b=qRRCEAhQZ2ONTNGk+LzDJCsk+MjQCBYSZMC5Fi/7QeT3ZqOJNN/qhFlg6zkrVkQ3Kr
-         gsuwqHjOXyt3xiuGSCr/r0/aSDI4EAyFQ7QIQI5ccH69ogG5QgeHoLs0p0YvUBbj4Ch7
-         wYIZ/FYpzhZUQ7m3D/qDgYxlNCmeheqPLLbZ4C2Z7jXtrYCpDvpzVxH8ixMkEXymk9AM
-         BH0ZWc4p0HWqFGgBJwVKrXgUphnYoffatcanvbLs2OuoTBsRkEjQ4W3wRS+pC/unb49c
-         eXjHeE4CapR2ors8zpfUnhquHsz3oIqm5oVF7I32rCL1YYroHbzuAWrEzA8al45IWSRJ
-         7ytw==
-X-Gm-Message-State: ACrzQf2oadXeWz7WvLE3TT+01gKeeJnQjbzJu/FeXEruNhNLqU295tjb
-        xWQe2M0UEw1I3MyVzE+l3EpM0Z1jo6OqqzkGA1yB1A==
-X-Google-Smtp-Source: AMsMyM4RXefnX7pojq4NXpKhpBvJ/pDRGnapGDjzVq8wDnSODdrOLu6hb5mVWnm7YZF4N/IGPEVl2PuYMYnj1E31H/g=
-X-Received: by 2002:a05:6402:254f:b0:45d:3044:d679 with SMTP id
- l15-20020a056402254f00b0045d3044d679mr18515635edb.137.1667290083694; Tue, 01
- Nov 2022 01:08:03 -0700 (PDT)
+        with ESMTP id S229452AbiKAIsa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 04:48:30 -0400
+X-Greylist: delayed 348 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 01 Nov 2022 01:48:28 PDT
+Received: from chronos.abteam.si (chronos.abteam.si [46.4.99.117])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D04F13DE9;
+        Tue,  1 Nov 2022 01:48:27 -0700 (PDT)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by chronos.abteam.si (Postfix) with ESMTP id 611F05D000A6;
+        Tue,  1 Nov 2022 09:42:37 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=bstnet.org; h=
+        content-transfer-encoding:content-type:content-type:in-reply-to
+        :from:from:content-language:references:subject:subject
+        :user-agent:mime-version:date:date:message-id; s=default; t=
+        1667292156; x=1669106557; bh=orYPDonopnYWnk6KNpWogha3A6MFzQO5b8n
+        13W0ne5c=; b=T/HCgOCtyy1/43tBkBG/wrh4kCnAotRCtT5BIY5+hHrWWDwQZ5S
+        Dsjh0eBQLYzIo7TVFQxVFwHiKYVpbEWWr1KtutULUD6urokKp0UzHk8W6K2OWwKU
+        /mpn+9T12hR6Do5tm5x4LC3EVvg0buHm/lxAl4taY9Diw6Cw8kNnSA6I=
+X-Virus-Scanned: Debian amavisd-new at chronos.abteam.si
+Received: from chronos.abteam.si ([127.0.0.1])
+        by localhost (chronos.abteam.si [127.0.0.1]) (amavisd-new, port 10026)
+        with LMTP id TQGiW9kMgI9y; Tue,  1 Nov 2022 09:42:36 +0100 (CET)
+Received: from [IPV6:2a00:ee2:4d00:602:9f2b:eb04:ae5e:7a5f] (unknown [IPv6:2a00:ee2:4d00:602:9f2b:eb04:ae5e:7a5f])
+        (Authenticated sender: boris@abteam.si)
+        by chronos.abteam.si (Postfix) with ESMTPSA id B4FC85D000A3;
+        Tue,  1 Nov 2022 09:42:35 +0100 (CET)
+Message-ID: <ba4caf7a-9e1f-d5fb-f20c-dba81dc00c06@bstnet.org>
+Date:   Tue, 1 Nov 2022 09:42:34 +0100
 MIME-Version: 1.0
-References: <20221031070140.108124105@linuxfoundation.org>
-In-Reply-To: <20221031070140.108124105@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 1 Nov 2022 13:37:52 +0530
-Message-ID: <CA+G9fYusnMsOJgmAKL5X1NrtZuUSeWePd3_cvMU-6G22fgeV3A@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/34] 4.14.297-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [PATCH 6.0 20/20] fbdev/core: Remove
+ remove_conflicting_pci_framebuffers()
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Javier Martinez Canillas <javierm@redhat.com>
+References: <20221024112934.415391158@linuxfoundation.org>
+ <20221024112935.205547130@linuxfoundation.org>
+Content-Language: en-US
+From:   "Boris V." <borisvk@bstnet.org>
+In-Reply-To: <20221024112935.205547130@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,NO_DNS_FOR_FROM,
+        SPF_HELO_PASS,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 31 Oct 2022 at 12:32, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On 24/10/2022 13:31, Greg Kroah-Hartman wrote:
+> From: Thomas Zimmermann <tzimmermann@suse.de>
 >
-> This is the start of the stable review cycle for the 4.14.297 release.
-> There are 34 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> commit 9d69ef1838150c7d87afc1a87aa658c637217585 upstream.
 >
-> Responses should be made by Wed, 02 Nov 2022 07:01:32 +0000.
-> Anything received after that time might be too late.
+> Remove remove_conflicting_pci_framebuffers() and implement similar
+> functionality in aperture_remove_conflicting_pci_device(), which was
+> the only caller. Removes an otherwise unused interface and streamlines
+> the aperture helper. No functional changes.
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.297-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+> Link: https://patchwork.freedesktop.org/patch/msgid/20220718072322.8927-5-tzimmermann@suse.de
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>   drivers/video/aperture.c         |   30 ++++++++++++++----------
+>   drivers/video/fbdev/core/fbmem.c |   48 ---------------------------------------
+>   include/linux/fb.h               |    2 -
+>   3 files changed, 18 insertions(+), 62 deletions(-)
 >
-> thanks,
+> --- a/drivers/video/aperture.c
+> +++ b/drivers/video/aperture.c
+> @@ -335,30 +335,36 @@ EXPORT_SYMBOL(aperture_remove_conflictin
+>    */
+>   int aperture_remove_conflicting_pci_devices(struct pci_dev *pdev, const char *name)
+>   {
+> +	bool primary = false;
+>   	resource_size_t base, size;
+>   	int bar, ret;
+>   
+> -	/*
+> -	 * WARNING: Apparently we must kick fbdev drivers before vgacon,
+> -	 * otherwise the vga fbdev driver falls over.
+> -	 */
+> -#if IS_REACHABLE(CONFIG_FB)
+> -	ret = remove_conflicting_pci_framebuffers(pdev, name);
+> -	if (ret)
+> -		return ret;
+> +#ifdef CONFIG_X86
+> +	primary = pdev->resource[PCI_ROM_RESOURCE].flags & IORESOURCE_ROM_SHADOW;
+>   #endif
+> -	ret = vga_remove_vgacon(pdev);
+> -	if (ret)
+> -		return ret;
+>   
+>   	for (bar = 0; bar < PCI_STD_NUM_BARS; ++bar) {
+>   		if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM))
+>   			continue;
+> +
+>   		base = pci_resource_start(pdev, bar);
+>   		size = pci_resource_len(pdev, bar);
+> -		aperture_detach_devices(base, size);
+> +		ret = aperture_remove_conflicting_devices(base, size, primary, name);
+> +		if (ret)
+> +			break;
+>   	}
+>   
+> +	if (ret)
+> +		return ret;
+> +
+> +	/*
+> +	 * WARNING: Apparently we must kick fbdev drivers before vgacon,
+> +	 * otherwise the vga fbdev driver falls over.
+> +	 */
+> +	ret = vga_remove_vgacon(pdev);
+> +	if (ret)
+> +		return ret;
+> +
+>   	return 0;
+>   
+>   }
+> --- a/drivers/video/fbdev/core/fbmem.c
+> +++ b/drivers/video/fbdev/core/fbmem.c
+> @@ -1788,54 +1788,6 @@ int remove_conflicting_framebuffers(stru
+>   EXPORT_SYMBOL(remove_conflicting_framebuffers);
+>   
+>   /**
+> - * remove_conflicting_pci_framebuffers - remove firmware-configured framebuffers for PCI devices
+> - * @pdev: PCI device
+> - * @name: requesting driver name
+> - *
+> - * This function removes framebuffer devices (eg. initialized by firmware)
+> - * using memory range configured for any of @pdev's memory bars.
+> - *
+> - * The function assumes that PCI device with shadowed ROM drives a primary
+> - * display and so kicks out vga16fb.
+> - */
+> -int remove_conflicting_pci_framebuffers(struct pci_dev *pdev, const char *name)
+> -{
+> -	struct apertures_struct *ap;
+> -	bool primary = false;
+> -	int err, idx, bar;
+> -
+> -	for (idx = 0, bar = 0; bar < PCI_STD_NUM_BARS; bar++) {
+> -		if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM))
+> -			continue;
+> -		idx++;
+> -	}
+> -
+> -	ap = alloc_apertures(idx);
+> -	if (!ap)
+> -		return -ENOMEM;
+> -
+> -	for (idx = 0, bar = 0; bar < PCI_STD_NUM_BARS; bar++) {
+> -		if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM))
+> -			continue;
+> -		ap->ranges[idx].base = pci_resource_start(pdev, bar);
+> -		ap->ranges[idx].size = pci_resource_len(pdev, bar);
+> -		pci_dbg(pdev, "%s: bar %d: 0x%lx -> 0x%lx\n", __func__, bar,
+> -			(unsigned long)pci_resource_start(pdev, bar),
+> -			(unsigned long)pci_resource_end(pdev, bar));
+> -		idx++;
+> -	}
+> -
+> -#ifdef CONFIG_X86
+> -	primary = pdev->resource[PCI_ROM_RESOURCE].flags &
+> -					IORESOURCE_ROM_SHADOW;
+> -#endif
+> -	err = remove_conflicting_framebuffers(ap, name, primary);
+> -	kfree(ap);
+> -	return err;
+> -}
+> -EXPORT_SYMBOL(remove_conflicting_pci_framebuffers);
+> -
+> -/**
+>    *	register_framebuffer - registers a frame buffer device
+>    *	@fb_info: frame buffer info structure
+>    *
+> --- a/include/linux/fb.h
+> +++ b/include/linux/fb.h
+> @@ -615,8 +615,6 @@ extern ssize_t fb_sys_write(struct fb_in
+>   /* drivers/video/fbmem.c */
+>   extern int register_framebuffer(struct fb_info *fb_info);
+>   extern void unregister_framebuffer(struct fb_info *fb_info);
+> -extern int remove_conflicting_pci_framebuffers(struct pci_dev *pdev,
+> -					       const char *name);
+>   extern int remove_conflicting_framebuffers(struct apertures_struct *a,
+>   					   const char *name, bool primary);
+>   extern int fb_prepare_logo(struct fb_info *fb_info, int rotate);
 >
-> greg k-h
+>
+>
+>
 
+Hello,
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+this patch seems to disable console/framebuffer when vfio-pci is used.
+I hava 2 nvidia GPUs one is used for host and other is passed through to VM.
+Now after this patch, when vfio-pci module is loaded with parameter 
+ids=10de:2486,10de:228b,
+console is lost/frozen, last message is that vfio-pci module was loaded 
+and then there is no more output.
+This PCI IDs (10de:2486,10de:228b) are for secondary GPU, primary/boot 
+GPU is used for host and boot messages are displayed on primary/boot GPU.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Using dmesg I see this messages after vfio-pci is loaded:
 
-## Build
-* kernel: 4.14.297-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.14.y
-* git commit: fa618ab2d638c19252de8ff8b2091cc2b5314353
-* git describe: v4.14.296-36-gfa618ab2d638
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14.296-36-gfa618ab2d638
+[    3.993601] VFIO - User Level meta-driver version: 0.3
+[    4.020239] Console: switching to colour dummy device 80x25
+[    4.020335] vfio-pci 0000:1a:00.0: vgaarb: changed VGA decodes: 
+olddecodes=io+mem,decodes=none:owns=none
+[    4.020722] vfio_pci: add [10de:2486[ffffffff:ffffffff]] class 
+0x000000/00000000
+[    4.116616] vfio_pci: add [10de:228b[ffffffff:ffffffff]] class 
+0x000000/00000000
 
-## No Test Regressions (compared to v4.14.296)
+I guess the problem here is "Console: switching to colour dummy device 
+80x25", but I don't know why this happens.
+Last working kernel is 6.0.3, after upgrading to 6.0.4 (and 6.0.5, 
+6.0.6), console is no longer working.
+By git bisecting it seems bad commit is 
+af9ac541e88390d97b01d5e8c77309d2637c1d4c.
 
-## No Metric Regressions (compared to v4.14.296)
-
-## No Test Fixes (compared to v4.14.296)
-
-## No Metric Fixes (compared to v4.14.296)
-
-## Test result summary
-total: 115178, pass: 96662, fail: 1962, skip: 15618, xfail: 936
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 313 total, 308 passed, 5 failed
-* arm64: 53 total, 50 passed, 3 failed
-* i386: 29 total, 28 passed, 1 failed
-* mips: 41 total, 41 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 20 total, 19 passed, 1 failed
-* s390: 15 total, 11 passed, 4 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 51 total, 50 passed, 1 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
