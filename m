@@ -2,56 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 309E7614996
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:39:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8F996148CA
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:29:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231297AbiKALja (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:39:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59836 "EHLO
+        id S229997AbiKAL3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:29:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231601AbiKALjM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:39:12 -0400
+        with ESMTP id S230311AbiKAL3R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:29:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 100771E70F
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 04:33:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3BC6247;
+        Tue,  1 Nov 2022 04:28:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DE55615DD
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 11:32:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7529C433D7;
-        Tue,  1 Nov 2022 11:32:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBDED6152E;
+        Tue,  1 Nov 2022 11:28:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47EC0C433C1;
+        Tue,  1 Nov 2022 11:28:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302373;
-        bh=EXiQns829Bb67vu73AHZikkySIerml1s5ANE5SA/IJY=;
+        s=k20201202; t=1667302114;
+        bh=/d4XatDkBeJiW0pJ2RZNoRT5620x04FZ8zQKk8rwHLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ccbuzk5Xo8BZwshELphkIahA+UnJ2H/gM6sY3GFtdq7NTh0OM3gNPVhT6mfLFQ30D
-         +PwxTIgUVsbebYBi7z/DJpaMSNRNs9fxcrAJ1z9//1ZjbRzfbIN60aHL7rBPJhTkcf
-         ePylI87Sza2fwLZYIqAjt9oSpUCKAcDGhpNcLaSzBkCe39RHi6zrMgDb9YBAN5kYHD
-         Lpuh6W06Ca/4OToodZejEp6zlgz32oMBe1xH7vlj/3g0owbKtKpKAujXj0bnzA2rfw
-         C46rwrWZyNbe4L3fKf5SYw/2ehgzSUiTjb96XY2uvwppvB4eqIXKWyRBpuUYgtrTIq
-         8A6GLKFuOjnyg==
-From:   Mark Brown <broonie@kernel.org>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>
-Cc:     Peter Maydell <peter.maydell@linaro.org>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Vincent Donnefort <vdonnefort@google.com>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Oliver Upton <oliver.upton@linux.dev>,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
-        Mark Brown <broonie@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2 2/2] KVM: arm64: Trap access to SMPRI_EL1 and TPIDR2 in VHE mode
-Date:   Tue,  1 Nov 2022 11:27:15 +0000
-Message-Id: <20221101112716.52035-3-broonie@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20221101112716.52035-1-broonie@kernel.org>
-References: <20221101112716.52035-1-broonie@kernel.org>
+        b=QwGnQIGjaEWhVBYrsvHeTI21Bq3tcUVmGvrBsKB2tPmDAu+KbRzQ7DeBWBHXEv9d5
+         u8gEBcciJR7Nm+Uli4YEbHaJvmLouGz69B6ZeWjs0Hvnc9KzywUbk8f2aMTTzk4iOT
+         7UGBvmEBaCwAM6o368zE4cT78JOb1jnkxkWyrVgDfyqfQjmHvjrUsgzVucMW3+GtCU
+         yo17VuzX87Bv7qeV10fUe/f5mK7QZenNcFeAuEEMix1CrSP/jVr7I2+89qMn818X0q
+         RfzvjpemyQnCZDN/zI0LUXVQ/8vz5UiIT4CJNKPsdi4xGy9Sz/OPedLInv2kXFpfJM
+         2i03YVqRpX8mg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Uday Shankar <ushankar@purestorage.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 24/34] scsi: core: Restrict legal sdev_state transitions via sysfs
+Date:   Tue,  1 Nov 2022 07:27:16 -0400
+Message-Id: <20221101112726.799368-24-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221101112726.799368-1-sashal@kernel.org>
+References: <20221101112726.799368-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2209; i=broonie@kernel.org; h=from:subject; bh=EXiQns829Bb67vu73AHZikkySIerml1s5ANE5SA/IJY=; b=owEBbQGS/pANAwAKASTWi3JdVIfQAcsmYgBjYQKTYCLd7B0hpUD75o7ncz+2/v0Ro/MQ5Hg62/y0 0R/SkkOJATMEAAEKAB0WIQSt5miqZ1cYtZ/in+ok1otyXVSH0AUCY2ECkwAKCRAk1otyXVSH0CdJB/ oDhMpQeRtJTk88BQUWd3a+CoABO4t6/hme/Ni263gfWTSMfTVjkSkHZFcmMZaf3tWYqOjLkG2dG94r PXLI/ZpbqsxuSenyteUZku89PCTQ6IWB/fghyZ0W+hAgFPdQ0xE/H1TFIqHdfgnrbGRf3IzWs1sQB6 P7K85txCnj9y6GzEfgL6uyERr2AUGOpjUriVH2PwVecsNS1yTmTTfSjQ7ghcbzEPKFlZak+afrrbzc mpqqFjQD/JUq3oBVykgXSCRJjxfIAx/+0ctTRvQmAwbDad9iUWvYn8YvL/xa0IcDByPpQ1+cJgfOX/ Vv861B3S6vu2DhaDSRvM4NOOrHU1yH
-X-Developer-Key: i=broonie@kernel.org; a=openpgp; fpr=3F2568AAC26998F9E813A1C5C3F436CA30F5D8EB
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -62,69 +58,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On systems with SME access to the SMPRI_EL1 priority management register is
-controlled by the nSMPRI_EL1 fine grained trap and TPIDR2_EL0 is controlled
-by nTPIDR2_EL0. We manage these traps in nVHE mode but do not do so when in
-VHE mode, add the required management.
+From: Uday Shankar <ushankar@purestorage.com>
 
-Without this these registers could be used as side channels where implemented.
+[ Upstream commit 2331ce6126be8864b39490e705286b66e2344aac ]
 
-Fixes: 861262ab8627 ("KVM: arm64: Handle SME host state when running guests")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
+Userspace can currently write to sysfs to transition sdev_state to RUNNING
+or OFFLINE from any source state. This causes issues because proper
+transitioning out of some states involves steps besides just changing
+sdev_state, so allowing userspace to change sdev_state regardless of the
+source state can result in inconsistencies; e.g. with ISCSI we can end up
+with sdev_state == SDEV_RUNNING while the device queue is quiesced. Any
+task attempting I/O on the device will then hang, and in more recent
+kernels, iscsid will hang as well.
+
+More detail about this bug is provided in my first attempt:
+
+https://groups.google.com/g/open-iscsi/c/PNKca4HgPDs/m/CXaDkntOAQAJ
+
+Link: https://lore.kernel.org/r/20220924000241.2967323-1-ushankar@purestorage.com
+Signed-off-by: Uday Shankar <ushankar@purestorage.com>
+Suggested-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/hyp/vhe/switch.c | 26 ++++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_sysfs.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arm64/kvm/hyp/vhe/switch.c b/arch/arm64/kvm/hyp/vhe/switch.c
-index 7acb87eaa092..9dac3a1a85f7 100644
---- a/arch/arm64/kvm/hyp/vhe/switch.c
-+++ b/arch/arm64/kvm/hyp/vhe/switch.c
-@@ -63,10 +63,20 @@ static void __activate_traps(struct kvm_vcpu *vcpu)
- 		__activate_traps_fpsimd32(vcpu);
+diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+index 5d61f58399dc..dc41d7c6b9b1 100644
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -828,6 +828,14 @@ store_state_field(struct device *dev, struct device_attribute *attr,
  	}
  
--	if (cpus_have_final_cap(ARM64_SME))
-+	if (cpus_have_final_cap(ARM64_SME)) {
- 		write_sysreg(read_sysreg(sctlr_el2) & ~SCTLR_ELx_ENTP2,
- 			     sctlr_el2);
- 
-+		sysreg_clear_set_s(SYS_HFGRTR_EL2,
-+				   HFGxTR_EL2_nSMPRI_EL1_MASK |
-+				   HFGxTR_EL2_nTPIDR2_EL0_MASK,
-+				   0);
-+		sysreg_clear_set_s(SYS_HFGWTR_EL2,
-+				   HFGxTR_EL2_nSMPRI_EL1_MASK |
-+				   HFGxTR_EL2_nTPIDR2_EL0_MASK,
-+				   0);
+ 	mutex_lock(&sdev->state_mutex);
++	switch (sdev->sdev_state) {
++	case SDEV_RUNNING:
++	case SDEV_OFFLINE:
++		break;
++	default:
++		mutex_unlock(&sdev->state_mutex);
++		return -EINVAL;
 +	}
-+
- 	write_sysreg(val, cpacr_el1);
- 
- 	write_sysreg(__this_cpu_read(kvm_hyp_vector), vbar_el1);
-@@ -88,9 +98,21 @@ static void __deactivate_traps(struct kvm_vcpu *vcpu)
- 	 */
- 	asm(ALTERNATIVE("nop", "isb", ARM64_WORKAROUND_SPECULATIVE_AT));
- 
--	if (cpus_have_final_cap(ARM64_SME))
-+	if (cpus_have_final_cap(ARM64_SME)) {
-+		/*
-+		 * Enable access to SMPRI_EL1 - we don't need to
-+		 * control nTPIDR2_EL0 in VHE mode.
-+		 */
-+		sysreg_clear_set_s(SYS_HFGRTR_EL2, 0,
-+				   HFGxTR_EL2_nSMPRI_EL1_MASK |
-+				   HFGxTR_EL2_nTPIDR2_EL0_MASK);
-+		sysreg_clear_set_s(SYS_HFGWTR_EL2, 0,
-+				   HFGxTR_EL2_nSMPRI_EL1_MASK |
-+				   HFGxTR_EL2_nTPIDR2_EL0_MASK);
-+
- 		write_sysreg(read_sysreg(sctlr_el2) | SCTLR_ELx_ENTP2,
- 			     sctlr_el2);
-+	}
- 
- 	write_sysreg(CPACR_EL1_DEFAULT, cpacr_el1);
- 
+ 	if (sdev->sdev_state == SDEV_RUNNING && state == SDEV_RUNNING) {
+ 		ret = 0;
+ 	} else {
 -- 
-2.30.2
+2.35.1
 
