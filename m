@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 220DB6148FF
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:32:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 883936148FE
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:32:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231162AbiKALb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:31:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35420 "EHLO
+        id S230328AbiKALb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:31:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230292AbiKALbG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:31:06 -0400
+        with ESMTP id S230280AbiKALbH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:31:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 376D61A238;
-        Tue,  1 Nov 2022 04:29:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7071C1A38B;
+        Tue,  1 Nov 2022 04:29:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAE6F615E8;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DC6C615C9;
+        Tue,  1 Nov 2022 11:29:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0844C433C1;
         Tue,  1 Nov 2022 11:29:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04383C43470;
-        Tue,  1 Nov 2022 11:29:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302176;
-        bh=YQ4Lk3UcAKphAjqq5lv9bvPAgferpP7JxNfNGci/Xro=;
+        s=k20201202; t=1667302177;
+        bh=82EMhrKD2k3Vq0UgIqRPxIdSREuBfT+AGF/x/ED5Ek8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+6dmSV4jvPQeDTsn/pBmxOuI1hVAXZKbmwRBsVi3wcbyNgN0lRxURyaZO8YfCp3U
-         m4OhrBzfmwo32wF1rFhsT0OdxuarRgCv8zuTL8qp8joQBd7TyReWFI74MZ2STObhR1
-         a39cRgJkSMi82ppcZAS/XCaJa+hbwRjguD4d1Y8HKXZJd02W+pkwvZUn+jo+EgyjM7
-         /BoxqPyBzzQYWdtAtQPtTPx99c8IFpp+o0ka3lt/2JiuodCipxSPxgTA9uSLyKxo+H
-         TcmdhH4fS50wtGBT8O6J5iFdlINdZbhR7viXKZ+SdSWkjpRaPA0QbF3ecABH4zpMVQ
-         lwPiSuDZsm91g==
+        b=JhldVZNgwUI5s4v0ZLQcmu8WROJOkoPVAXGD9o7BydTjrsUikgbEE1Yr/RMdQ1zL7
+         JAJxu+zQk+Cceoq8Wcx8bDH44Y8S1AxhwprrwzU+At6WX/JyNClYaXJdJ8h2KMBOf+
+         GfaWqgwAnUM+aBjSfOIQ9IC/x4yeFw2kGa4+qgvCHDjei23Q21jvWXVR2oBTAKxocX
+         x3+yEb+Xm/ZqdKEKLh5asyA5fQHhImpPscFgOS1/RdsmtD/KqwP/Tw5aH/e6+TCyuH
+         UlFr2mJYfk8/7W8V68emnXqpDhnddA0EZMFgv5h07c/FYX2C6B2FxfFUjlD0HgY2WF
+         rQ4O8kbRJKDqw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hangyu Hua <hbh25y@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, neil.armstrong@linaro.org,
-        gregkh@linuxfoundation.org, khilman@baylibre.com,
-        linux-media@vger.kernel.org, linux-amlogic@lists.infradead.org,
-        linux-staging@lists.linux.dev, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 08/19] media: meson: vdec: fix possible refcount leak in vdec_probe()
-Date:   Tue,  1 Nov 2022 07:29:08 -0400
-Message-Id: <20221101112919.799868-8-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 09/19] media: v4l: subdev: Fail graciously when getting try data for NULL state
+Date:   Tue,  1 Nov 2022 07:29:09 -0400
+Message-Id: <20221101112919.799868-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112919.799868-1-sashal@kernel.org>
 References: <20221101112919.799868-1-sashal@kernel.org>
@@ -59,41 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-[ Upstream commit 7718999356234d9cc6a11b4641bb773928f1390f ]
+[ Upstream commit 2ba3e38517f5a4ebf9c997168079dca01b7f9fc6 ]
 
-v4l2_device_unregister need to be called to put the refcount got by
-v4l2_device_register when vdec_probe fails or vdec_remove is called.
+The state argument for the functions for obtaining various parts of the
+state is NULL if it is called by drivers for active state. Fail graciously
+in that case instead of dereferencing a NULL pointer.
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Suggested-by: Bingbu Cao <bingbu.cao@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/meson/vdec/vdec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/media/v4l2-subdev.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/staging/media/meson/vdec/vdec.c b/drivers/staging/media/meson/vdec/vdec.c
-index e51d69c4729d..040ed56eb24f 100644
---- a/drivers/staging/media/meson/vdec/vdec.c
-+++ b/drivers/staging/media/meson/vdec/vdec.c
-@@ -1105,6 +1105,7 @@ static int vdec_probe(struct platform_device *pdev)
- 
- err_vdev_release:
- 	video_device_release(vdev);
-+	v4l2_device_unregister(&core->v4l2_dev);
- 	return ret;
- }
- 
-@@ -1113,6 +1114,7 @@ static int vdec_remove(struct platform_device *pdev)
- 	struct amvdec_core *core = platform_get_drvdata(pdev);
- 
- 	video_unregister_device(core->vdev_dec);
-+	v4l2_device_unregister(&core->v4l2_dev);
- 
- 	return 0;
- }
+diff --git a/include/media/v4l2-subdev.h b/include/media/v4l2-subdev.h
+index 95ec18c2f49c..9a476f902c42 100644
+--- a/include/media/v4l2-subdev.h
++++ b/include/media/v4l2-subdev.h
+@@ -995,6 +995,8 @@ v4l2_subdev_get_try_format(struct v4l2_subdev *sd,
+ 			   struct v4l2_subdev_state *state,
+ 			   unsigned int pad)
+ {
++	if (WARN_ON(!state))
++		return NULL;
+ 	if (WARN_ON(pad >= sd->entity.num_pads))
+ 		pad = 0;
+ 	return &state->pads[pad].try_fmt;
+@@ -1013,6 +1015,8 @@ v4l2_subdev_get_try_crop(struct v4l2_subdev *sd,
+ 			 struct v4l2_subdev_state *state,
+ 			 unsigned int pad)
+ {
++	if (WARN_ON(!state))
++		return NULL;
+ 	if (WARN_ON(pad >= sd->entity.num_pads))
+ 		pad = 0;
+ 	return &state->pads[pad].try_crop;
+@@ -1031,6 +1035,8 @@ v4l2_subdev_get_try_compose(struct v4l2_subdev *sd,
+ 			    struct v4l2_subdev_state *state,
+ 			    unsigned int pad)
+ {
++	if (WARN_ON(!state))
++		return NULL;
+ 	if (WARN_ON(pad >= sd->entity.num_pads))
+ 		pad = 0;
+ 	return &state->pads[pad].try_compose;
 -- 
 2.35.1
 
