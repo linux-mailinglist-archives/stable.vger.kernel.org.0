@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A646148D6
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:30:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8210B6148D8
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:30:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230271AbiKALah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:30:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35256 "EHLO
+        id S229939AbiKALai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:30:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230183AbiKAL3Z (ORCPT
+        with ESMTP id S230186AbiKAL3Z (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:29:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B9B5631D;
-        Tue,  1 Nov 2022 04:28:46 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D2536331;
+        Tue,  1 Nov 2022 04:28:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5550B81CC7;
-        Tue,  1 Nov 2022 11:28:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45361C433B5;
-        Tue,  1 Nov 2022 11:28:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB9EE615E0;
+        Tue,  1 Nov 2022 11:28:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF4C0C433C1;
+        Tue,  1 Nov 2022 11:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302123;
-        bh=NfAJxd4Bqv2vNr3BhLdBe5Ud8ZRMp7uvqMlgv7Bpawg=;
+        s=k20201202; t=1667302127;
+        bh=xdh7G/bIiGGJA9u5xFJF/ax3tcZiKlc8bZPavpkA3MQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hb5Do8ymdsH/OShNhNgixCHkG+Kk0V5i8vYX4Cjtfk3mww/tkgs/+y+8JOwRwYbVo
-         jUx1qfESbzwP79/SjsoP3y7c/FApVOOH0z3yFsRreVYD3ZqqVjfmX6rH0RLWJS9RKv
-         Upq3muoxRD59fAZyBYlh2wv0WnGwLRMqoePsvpxH5GTQr5iTfRx1Ou94MSz6z46bdq
-         dyrp54N30gV8WIyl04j7ddRXid7bVbYQPzTX0wxuXUwipm/7hGyCxTEjhjwSq/EDPk
-         mlVgp1JCTMj3RlkNdpxh9ZkDJqYdLMVW6pRQc+J8Yn8160IJYL/C6FUV5UqayuDt2J
-         KfU25F5MsDx8Q==
+        b=MToXO5PCTAOpwruuD+MifybG+/kXXHpi0H+DgudD695IGxp/aVeW3AXAmswM/Obuc
+         nXX3M1NAOeuwzmX+M6s4itp66gWM8oKj0cUEWw4u0ISyP6WcsrbYFEtQhcr+7LIetX
+         gmz6hwN1lv5rjBTPaClLiGa1Z+QP4vKlbTTTI7OcMgT+LV35WImj1MVN/3OAcSpTRI
+         iwcVMmGcFSMf1wEpX1k+RYNM8vBd/lHHPx7/g3HaXkDgXB4IC+jhV4ADyQghkw8QJC
+         jh9PLn2BlS74GqMW4N62JZQBjld9xy9TGxnyItryT9ywdR6InlsqK1KZmpZmsMAyYK
+         ALghC+3A/BQKg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Danijel Slivka <danijel.slivka@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
+Cc:     Kenneth Feng <kenneth.feng@amd.com>, Guan Yu <Guan.Yu@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        Hawking.Zhang@amd.com, lijo.lazar@amd.com,
-        victor.skvortsov@amd.com, guchun.chen@amd.com,
-        marmarek@invisiblethingslab.com, Jingwen.Chen2@amd.com,
-        bernard@vivo.com, Gavin.Wan@amd.com, PengJu.Zhou@amd.com,
-        Victor.Zhao@amd.com, Philip.Yang@amd.com, qiang.yu@amd.com,
+        Sasha Levin <sashal@kernel.org>, evan.quan@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, Hawking.Zhang@amd.com, lijo.lazar@amd.com,
+        mario.limonciello@amd.com, tim.huang@amd.com, tao.zhou1@amd.com,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 26/34] drm/amdgpu: set vm_update_mode=0 as default for Sienna Cichlid in SRIOV case
-Date:   Tue,  1 Nov 2022 07:27:18 -0400
-Message-Id: <20221101112726.799368-26-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 27/34] drm/amd/pm: skip loading pptable from driver on secure board for smu_v13_0_10
+Date:   Tue,  1 Nov 2022 07:27:19 -0400
+Message-Id: <20221101112726.799368-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112726.799368-1-sashal@kernel.org>
 References: <20221101112726.799368-1-sashal@kernel.org>
@@ -63,84 +59,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danijel Slivka <danijel.slivka@amd.com>
+From: Kenneth Feng <kenneth.feng@amd.com>
 
-[ Upstream commit 65f8682b9aaae20c2cdee993e6fe52374ad513c9 ]
+[ Upstream commit f700486cd1f2bf381671d1c2c7dc9000db10c50e ]
 
-For asic with VF MMIO access protection avoid using CPU for VM table updates.
-CPU pagetable updates have issues with HDP flush as VF MMIO access protection
-blocks write to mmBIF_BX_DEV0_EPF0_VF0_HDP_MEM_COHERENCY_FLUSH_CNTL register
-during sriov runtime.
+skip loading pptable from driver on secure board since it's loaded from psp.
 
-v3: introduce virtualization capability flag AMDGPU_VF_MMIO_ACCESS_PROTECT
-which indicates that VF MMIO write access is not allowed in sriov runtime
-
-Signed-off-by: Danijel Slivka <danijel.slivka@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Kenneth Feng <kenneth.feng@amd.com>
+Reviewed-by: Guan Yu <Guan.Yu@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c | 6 ++++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h | 4 ++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c   | 6 +++++-
- 3 files changed, 15 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-index 9be57389301b..af5aeb0ec2e9 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-@@ -726,6 +726,12 @@ void amdgpu_detect_virtualization(struct amdgpu_device *adev)
- 			adev->virt.caps |= AMDGPU_PASSTHROUGH_MODE;
- 	}
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
+index 93f9b8377539..750d8da84fac 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
+@@ -210,7 +210,8 @@ int smu_v13_0_init_pptable_microcode(struct smu_context *smu)
+ 		return 0;
  
-+	if (amdgpu_sriov_vf(adev) && adev->asic_type == CHIP_SIENNA_CICHLID)
-+		/* VF MMIO access (except mailbox range) from CPU
-+		 * will be blocked during sriov runtime
-+		 */
-+		adev->virt.caps |= AMDGPU_VF_MMIO_ACCESS_PROTECT;
-+
- 	/* we have the ability to check now */
- 	if (amdgpu_sriov_vf(adev)) {
- 		switch (adev->asic_type) {
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h
-index 239f232f9c02..617d072275eb 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h
-@@ -31,6 +31,7 @@
- #define AMDGPU_SRIOV_CAPS_IS_VF        (1 << 2) /* this GPU is a virtual function */
- #define AMDGPU_PASSTHROUGH_MODE        (1 << 3) /* thw whole GPU is pass through for VM */
- #define AMDGPU_SRIOV_CAPS_RUNTIME      (1 << 4) /* is out of full access mode */
-+#define AMDGPU_VF_MMIO_ACCESS_PROTECT  (1 << 5) /* MMIO write access is not allowed in sriov runtime */
+ 	if ((adev->ip_versions[MP1_HWIP][0] == IP_VERSION(13, 0, 7)) ||
+-	    (adev->ip_versions[MP1_HWIP][0] == IP_VERSION(13, 0, 0)))
++	    (adev->ip_versions[MP1_HWIP][0] == IP_VERSION(13, 0, 0)) ||
++	    (adev->ip_versions[MP1_HWIP][0] == IP_VERSION(13, 0, 10)))
+ 		return 0;
  
- /* flags for indirect register access path supported by rlcg for sriov */
- #define AMDGPU_RLCG_GC_WRITE_LEGACY    (0x8 << 28)
-@@ -294,6 +295,9 @@ struct amdgpu_video_codec_info;
- #define amdgpu_passthrough(adev) \
- ((adev)->virt.caps & AMDGPU_PASSTHROUGH_MODE)
- 
-+#define amdgpu_sriov_vf_mmio_access_protection(adev) \
-+((adev)->virt.caps & AMDGPU_VF_MMIO_ACCESS_PROTECT)
-+
- static inline bool is_virtual_machine(void)
- {
- #if defined(CONFIG_X86)
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-index 690fd4f639f1..04130f8813ef 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -2301,7 +2301,11 @@ void amdgpu_vm_manager_init(struct amdgpu_device *adev)
- 	 */
- #ifdef CONFIG_X86_64
- 	if (amdgpu_vm_update_mode == -1) {
--		if (amdgpu_gmc_vram_full_visible(&adev->gmc))
-+		/* For asic with VF MMIO access protection
-+		 * avoid using CPU for VM table updates
-+		 */
-+		if (amdgpu_gmc_vram_full_visible(&adev->gmc) &&
-+		    !amdgpu_sriov_vf_mmio_access_protection(adev))
- 			adev->vm_manager.vm_update_mode =
- 				AMDGPU_VM_USE_CPU_FOR_COMPUTE;
- 		else
+ 	/* override pptable_id from driver parameter */
 -- 
 2.35.1
 
