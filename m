@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4C756148E8
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD41C6148F3
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230472AbiKALbO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:31:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35516 "EHLO
+        id S229944AbiKALbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:31:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230187AbiKALaq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:30:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF580647F;
-        Tue,  1 Nov 2022 04:29:24 -0700 (PDT)
+        with ESMTP id S230390AbiKALar (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:30:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 733D064D8;
+        Tue,  1 Nov 2022 04:29:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 867ADB81CCA;
-        Tue,  1 Nov 2022 11:29:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B7C1C433D7;
-        Tue,  1 Nov 2022 11:29:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23913B81C9C;
+        Tue,  1 Nov 2022 11:29:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A81CEC433B5;
+        Tue,  1 Nov 2022 11:29:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302162;
-        bh=Vmo3ZHg1pN7KwuHV1CJhSuXf8BQVVmcDqJbW4/gHbJg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=j+T/niV3QDtRdccCSwCxbIMAL3hyiS9Du2qjYKzOQ6SrGhNw0C9CKg7NkVrl0QjVf
-         Kv8YANndLMWoIEAl/vp3rfDqyoNt3gVxGOwH1OfRNBn/sqHqYbSERabsxISB0QyaG/
-         9y5AtPyQ593PQOht9Ggw6XC0hFBE6N980MFr25DZXTFLg7LjknUr9kxtnbSko2m8PF
-         rqkwlyxNuYnQLuxKzZmNeW7MYfLLQmYQhRMx/QpiHpq4CeZx7/LacG8RKun0chnF8/
-         dvLnpQ15ujW++RpexFuPKe/N/xwyjMCxvcE6EE9ar8ftfoT+LCkQvNQe+Uo0ZjLghm
-         auS2qnp0UsQzA==
+        s=k20201202; t=1667302163;
+        bh=HruG7jQ4za4m7TozHiv4ec4kangJmfDPWzplEJO2B50=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=aF9MZWBQ3fVnLEUWAtzZVpvcbS6/ltkV5AbYbfb1FwJA8iDMCN2frA31cX5WdAchK
+         Vvkm1C3UuaMjnXiGRcKa8Pal4s+On7Ot/RaShCOWT+kp71CYy66Iw+ntSFgdO7FpFU
+         mctQUr5fEGsnEXrcBeDvLbrqZRwKJAq1I6dmcfW3wmbhm8u1TdB/E1Z0R9kZgD/Q5g
+         RUGNJzMkq1yB5Mor2yVwoXQB+WUYOWYP1ZGF8EdYR/sPJHjPwMHmnnIcCDO291kGG+
+         oMJD93RolFyWGK1GqCY7rwGBW0Mhe9b5sTD0tPMrPUHpBV5yc+qyk8OoCEEFwWY0dx
+         jAHwhElq9ptyQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Dafna Hirschfeld <dafna@fastmail.com>,
         Paul Elder <paul.elder@ideasonboard.com>,
+        Dafna Hirschfeld <dafna@fastmail.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>, heiko@sntech.de,
         linux-media@vger.kernel.org, linux-rockchip@lists.infradead.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 01/19] media: rkisp1: Don't pass the quantization to rkisp1_csm_config()
-Date:   Tue,  1 Nov 2022 07:29:01 -0400
-Message-Id: <20221101112919.799868-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 02/19] media: rkisp1: Initialize color space on resizer sink and source pads
+Date:   Tue,  1 Nov 2022 07:29:02 -0400
+Message-Id: <20221101112919.799868-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221101112919.799868-1-sashal@kernel.org>
+References: <20221101112919.799868-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,56 +61,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 711d91497e203b058cf0a08c0f7d41c04efbde76 ]
+[ Upstream commit 83b9296e399367862845d3b19984444fc756bd61 ]
 
-The rkisp1_csm_config() function takes a pointer to the rkisp1_params
-structure which contains the quantization value. There's no need to pass
-it separately to the function. Drop it from the function parameters.
+Initialize the four color space fields on the sink and source video pads
+of the resizer in the .init_cfg() operation. The resizer can't perform
+any color space conversion, so set the sink and source color spaces to
+the same defaults, which match the ISP source video pad default.
 
 Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Dafna Hirschfeld <dafna@fastmail.com>
 Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
+Reviewed-by: Dafna Hirschfeld <dafna@fastmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rockchip/rkisp1/rkisp1-params.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
-index 8fa5b0abf1f9..8461e88c1288 100644
---- a/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
-+++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
-@@ -751,7 +751,7 @@ static void rkisp1_ie_enable(struct rkisp1_params *params, bool en)
- 	}
- }
+diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c
+index 2070f4b06705..a166ede40967 100644
+--- a/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c
++++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c
+@@ -510,6 +510,10 @@ static int rkisp1_rsz_init_config(struct v4l2_subdev *sd,
+ 	sink_fmt->height = RKISP1_DEFAULT_HEIGHT;
+ 	sink_fmt->field = V4L2_FIELD_NONE;
+ 	sink_fmt->code = RKISP1_DEF_FMT;
++	sink_fmt->colorspace = V4L2_COLORSPACE_SRGB;
++	sink_fmt->xfer_func = V4L2_XFER_FUNC_SRGB;
++	sink_fmt->ycbcr_enc = V4L2_YCBCR_ENC_601;
++	sink_fmt->quantization = V4L2_QUANTIZATION_LIM_RANGE;
  
--static void rkisp1_csm_config(struct rkisp1_params *params, bool full_range)
-+static void rkisp1_csm_config(struct rkisp1_params *params)
- {
- 	static const u16 full_range_coeff[] = {
- 		0x0026, 0x004b, 0x000f,
-@@ -765,7 +765,7 @@ static void rkisp1_csm_config(struct rkisp1_params *params, bool full_range)
- 	};
- 	unsigned int i;
- 
--	if (full_range) {
-+	if (params->quantization == V4L2_QUANTIZATION_FULL_RANGE) {
- 		for (i = 0; i < ARRAY_SIZE(full_range_coeff); i++)
- 			rkisp1_write(params->rkisp1, full_range_coeff[i],
- 				     RKISP1_CIF_ISP_CC_COEFF_0 + i * 4);
-@@ -1235,11 +1235,7 @@ static void rkisp1_params_config_parameter(struct rkisp1_params *params)
- 	rkisp1_param_set_bits(params, RKISP1_CIF_ISP_HIST_PROP,
- 			      rkisp1_hst_params_default_config.mode);
- 
--	/* set the  range */
--	if (params->quantization == V4L2_QUANTIZATION_FULL_RANGE)
--		rkisp1_csm_config(params, true);
--	else
--		rkisp1_csm_config(params, false);
-+	rkisp1_csm_config(params);
- 
- 	spin_lock_irq(&params->config_lock);
- 
+ 	sink_crop = v4l2_subdev_get_try_crop(sd, sd_state,
+ 					     RKISP1_RSZ_PAD_SINK);
 -- 
 2.35.1
 
