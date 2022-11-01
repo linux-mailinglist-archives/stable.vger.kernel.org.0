@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C54C56148E3
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:31:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D9056148E7
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:31:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229648AbiKALbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:31:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35440 "EHLO
+        id S230470AbiKALbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:31:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229531AbiKALak (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:30:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0BEC645E;
+        with ESMTP id S229720AbiKALal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:30:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3725C63F3;
         Tue,  1 Nov 2022 04:29:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4EA56B81CCC;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7044615AC;
         Tue,  1 Nov 2022 11:29:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D12DCC433D7;
-        Tue,  1 Nov 2022 11:29:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56272C43470;
+        Tue,  1 Nov 2022 11:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302155;
-        bh=B3LbPgQNVizzP/SCpy9m+4Q4ekqHIeBU5u7nK2+lmq4=;
+        s=k20201202; t=1667302157;
+        bh=VAr6C0CXLB+EFgA0HJJwq5nnQqDB8BWNg5mgX0ovKuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3TW1NFv/svfFF/FwyCX6XJCHKupFWGbDbNfNdye8Ki/8i6aWW0i6kWHvIgZsb8yu
-         LDOcAxmpT4WTV7/Zdnk/EaPyzn90OGqQOlA83xDtxdxlIGWoAjJtIkka6IaQlJHSbG
-         3d+cSg8BpoQEg70BpbXdV0HtCL3WI8qiPzIqGsLHiAnGeGWuMJXDixiJclBEoVFhwF
-         PBAzS632B8JTN6GY7apm+e1THsjZYyQFsaTwHxc6DYVeZ8zN+QjWfk2naS8ptRHhFl
-         0wDDljqK+gN5jGHi0XJyYZWcu4SgUTyQE6he+TFr7+bjYysPmfyImNBDQ9Ex/kMMKf
-         PkcHulK3vMI8w==
+        b=luCUugNvTEg2GzPTMAi38bCarhiz8MopGlKSQIT2xpuY+cFb2d0TUVpWIOZcdZVy1
+         5yTdEDdBgB7mO5N3UhBGeFxj7wEu3EwArIJoE8HqCp2P0FUhaTCmyg+/mYviO2t301
+         wJZ8c41a+iBV0mmMzhXefvR733UGHofZPoMr2W2nrAQGTgZ7A9TbXCJw/kg8/SkW5c
+         6o7rD1hqorI2VoGMkdCffEGd0JzB9HzkkNYWHXZ6YUn5wKrZg79wd9LKHj2u32mQxV
+         NptgHRYgvHu2x/YPMrwanXLg7B6Uxn78HvaKpgy6PcDcqiGqXk5L97GQSgLYr1rEa6
+         0A0zId3RFg7pA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, Guenter Roeck <linux@roeck-us.net>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
-        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.0 32/34] nvme-hwmon: consistently ignore errors from nvme_hwmon_init
-Date:   Tue,  1 Nov 2022 07:27:24 -0400
-Message-Id: <20221101112726.799368-32-sashal@kernel.org>
+Cc:     =?UTF-8?q?Martin=20T=C5=AFma?= <martin.tuma@digiteqautomotive.com>,
+        Michal Simek <michal.simek@amd.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        michal.simek@xilinx.com, linux-arm-kernel@lists.infradead.org,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 33/34] i2c: xiic: Add platform module alias
+Date:   Tue,  1 Nov 2022 07:27:25 -0400
+Message-Id: <20221101112726.799368-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112726.799368-1-sashal@kernel.org>
 References: <20221101112726.799368-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -56,82 +58,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Martin Tůma <martin.tuma@digiteqautomotive.com>
 
-[ Upstream commit 6b8cf94005187952f794c0c4ed3920a1e8accfa3 ]
+[ Upstream commit b8caf0a0e04583fb71e21495bef84509182227ea ]
 
-An NVMe controller works perfectly fine even when the hwmon
-initialization fails.  Stop returning errors that do not come from a
-controller reset from nvme_hwmon_init to handle this case consistently.
+The missing "platform" alias is required for the mgb4 v4l2 driver to load
+the i2c controller driver when probing the HW.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
+Signed-off-by: Martin Tůma <martin.tuma@digiteqautomotive.com>
+Acked-by: Michal Simek <michal.simek@amd.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c  |  6 +++++-
- drivers/nvme/host/hwmon.c | 13 ++++++++-----
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 59e4b188fc71..ed47c256dbd2 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3256,8 +3256,12 @@ int nvme_init_ctrl_finish(struct nvme_ctrl *ctrl)
- 		return ret;
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index b3fe6b2aa3ca..277a02455cdd 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -920,6 +920,7 @@ static struct platform_driver xiic_i2c_driver = {
  
- 	if (!ctrl->identified && !nvme_discovery_ctrl(ctrl)) {
-+		/*
-+		 * Do not return errors unless we are in a controller reset,
-+		 * the controller works perfectly fine without hwmon.
-+		 */
- 		ret = nvme_hwmon_init(ctrl);
--		if (ret < 0)
-+		if (ret == -EINTR)
- 			return ret;
- 	}
+ module_platform_driver(xiic_i2c_driver);
  
-diff --git a/drivers/nvme/host/hwmon.c b/drivers/nvme/host/hwmon.c
-index 0a586d712920..23918bb7bdca 100644
---- a/drivers/nvme/host/hwmon.c
-+++ b/drivers/nvme/host/hwmon.c
-@@ -230,7 +230,7 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
- 
- 	data = kzalloc(sizeof(*data), GFP_KERNEL);
- 	if (!data)
--		return 0;
-+		return -ENOMEM;
- 
- 	data->ctrl = ctrl;
- 	mutex_init(&data->read_lock);
-@@ -238,8 +238,7 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
- 	err = nvme_hwmon_get_smart_log(data);
- 	if (err) {
- 		dev_warn(dev, "Failed to read smart log (error %d)\n", err);
--		kfree(data);
--		return err;
-+		goto err_free_data;
- 	}
- 
- 	hwmon = hwmon_device_register_with_info(dev, "nvme",
-@@ -247,11 +246,15 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
- 						NULL);
- 	if (IS_ERR(hwmon)) {
- 		dev_warn(dev, "Failed to instantiate hwmon device\n");
--		kfree(data);
--		return PTR_ERR(hwmon);
-+		err = PTR_ERR(hwmon);
-+		goto err_free_data;
- 	}
- 	ctrl->hwmon_device = hwmon;
- 	return 0;
-+
-+err_free_data:
-+	kfree(data);
-+	return err;
- }
- 
- void nvme_hwmon_exit(struct nvme_ctrl *ctrl)
++MODULE_ALIAS("platform:" DRIVER_NAME);
+ MODULE_AUTHOR("info@mocean-labs.com");
+ MODULE_DESCRIPTION("Xilinx I2C bus driver");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.35.1
 
