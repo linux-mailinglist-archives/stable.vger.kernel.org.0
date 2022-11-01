@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 266F16148E0
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:31:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C54C56148E3
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:31:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230336AbiKALbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:31:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35252 "EHLO
+        id S229648AbiKALbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:31:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230074AbiKALaj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:30:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51322640F;
-        Tue,  1 Nov 2022 04:29:15 -0700 (PDT)
+        with ESMTP id S229531AbiKALak (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:30:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0BEC645E;
+        Tue,  1 Nov 2022 04:29:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1025615C9;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4EA56B81CCC;
+        Tue,  1 Nov 2022 11:29:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D12DCC433D7;
         Tue,  1 Nov 2022 11:29:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 715EEC433B5;
-        Tue,  1 Nov 2022 11:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302154;
-        bh=tOpZeKAOJMh58ZPuvY2dDkisClZLVE+pnygsqxNEdmk=;
+        s=k20201202; t=1667302155;
+        bh=B3LbPgQNVizzP/SCpy9m+4Q4ekqHIeBU5u7nK2+lmq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FO/cX53WLCtwLVcdQbsY5lT8dORSED6svu0TI/u02wM2a5uLVtn0aLETaH0yzGOLq
-         Zp0MbOQw0tl0izwAhUXNhmiPPiAWa3awIgl3Ds2X36KmXqkZ0g8QBz23gsVazCWbYh
-         Q9VB7udVIi70PriOikxez5BCFMr/Mx+RIf/hLgwgTb6+8nF/rxOV1gKNOlPPMghmqx
-         nItxm1m5B1FbKLvdFepj9wZkfb1m5gfNETVeOgrmOepLEcIpJcKQznbGEJvcg8wt9K
-         WkLbPqujlm1kOb5/1Kq9X06mdOWjh0lx7Xx2r5sveb/i/PAu6LcAMq7g0YgrS7aoSD
-         frZpUlbmQyVyQ==
+        b=s3TW1NFv/svfFF/FwyCX6XJCHKupFWGbDbNfNdye8Ki/8i6aWW0i6kWHvIgZsb8yu
+         LDOcAxmpT4WTV7/Zdnk/EaPyzn90OGqQOlA83xDtxdxlIGWoAjJtIkka6IaQlJHSbG
+         3d+cSg8BpoQEg70BpbXdV0HtCL3WI8qiPzIqGsLHiAnGeGWuMJXDixiJclBEoVFhwF
+         PBAzS632B8JTN6GY7apm+e1THsjZYyQFsaTwHxc6DYVeZ8zN+QjWfk2naS8ptRHhFl
+         0wDDljqK+gN5jGHi0XJyYZWcu4SgUTyQE6he+TFr7+bjYysPmfyImNBDQ9Ex/kMMKf
+         PkcHulK3vMI8w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xander Li <xander_li@kingston.com.tw>,
-        Christoph Hellwig <hch@lst.de>,
+Cc:     Christoph Hellwig <hch@lst.de>, Guenter Roeck <linux@roeck-us.net>,
+        Serge Semin <fancer.lancer@gmail.com>,
         Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
         axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.0 31/34] nvme-pci: disable write zeroes on various Kingston SSD
-Date:   Tue,  1 Nov 2022 07:27:23 -0400
-Message-Id: <20221101112726.799368-31-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 32/34] nvme-hwmon: consistently ignore errors from nvme_hwmon_init
+Date:   Tue,  1 Nov 2022 07:27:24 -0400
+Message-Id: <20221101112726.799368-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112726.799368-1-sashal@kernel.org>
 References: <20221101112726.799368-1-sashal@kernel.org>
@@ -56,42 +56,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xander Li <xander_li@kingston.com.tw>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit ac9b57d4e1e3ecf0122e915bbba1bd4c90ec3031 ]
+[ Upstream commit 6b8cf94005187952f794c0c4ed3920a1e8accfa3 ]
 
-Kingston SSDs do support NVMe Write_Zeroes cmd but take long time to
-process.  The firmware version is locked by these SSDs, we can not expect
-firmware improvement, so disable Write_Zeroes cmd.
+An NVMe controller works perfectly fine even when the hwmon
+initialization fails.  Stop returning errors that do not come from a
+controller reset from nvme_hwmon_init to handle this case consistently.
 
-Signed-off-by: Xander Li <xander_li@kingston.com.tw>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/nvme/host/core.c  |  6 +++++-
+ drivers/nvme/host/hwmon.c | 13 ++++++++-----
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 57cc2bb5b1a2..554468ea5a2a 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3508,6 +3508,16 @@ static const struct pci_device_id nvme_id_table[] = {
- 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
- 	{ PCI_DEVICE(0x2646, 0x2263),   /* KINGSTON A2000 NVMe SSD  */
- 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
-+	{ PCI_DEVICE(0x2646, 0x5018),   /* KINGSTON OM8SFP4xxxxP OS21012 NVMe SSD */
-+		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
-+	{ PCI_DEVICE(0x2646, 0x5016),   /* KINGSTON OM3PGP4xxxxP OS21011 NVMe SSD */
-+		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
-+	{ PCI_DEVICE(0x2646, 0x501A),   /* KINGSTON OM8PGP4xxxxP OS21005 NVMe SSD */
-+		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
-+	{ PCI_DEVICE(0x2646, 0x501B),   /* KINGSTON OM8PGP4xxxxQ OS21005 NVMe SSD */
-+		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
-+	{ PCI_DEVICE(0x2646, 0x501E),   /* KINGSTON OM3PGP4xxxxQ OS21011 NVMe SSD */
-+		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
- 	{ PCI_DEVICE(0x1e4B, 0x1001),   /* MAXIO MAP1001 */
- 		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x1e4B, 0x1002),   /* MAXIO MAP1002 */
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 59e4b188fc71..ed47c256dbd2 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3256,8 +3256,12 @@ int nvme_init_ctrl_finish(struct nvme_ctrl *ctrl)
+ 		return ret;
+ 
+ 	if (!ctrl->identified && !nvme_discovery_ctrl(ctrl)) {
++		/*
++		 * Do not return errors unless we are in a controller reset,
++		 * the controller works perfectly fine without hwmon.
++		 */
+ 		ret = nvme_hwmon_init(ctrl);
+-		if (ret < 0)
++		if (ret == -EINTR)
+ 			return ret;
+ 	}
+ 
+diff --git a/drivers/nvme/host/hwmon.c b/drivers/nvme/host/hwmon.c
+index 0a586d712920..23918bb7bdca 100644
+--- a/drivers/nvme/host/hwmon.c
++++ b/drivers/nvme/host/hwmon.c
+@@ -230,7 +230,7 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
+ 
+ 	data = kzalloc(sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+-		return 0;
++		return -ENOMEM;
+ 
+ 	data->ctrl = ctrl;
+ 	mutex_init(&data->read_lock);
+@@ -238,8 +238,7 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
+ 	err = nvme_hwmon_get_smart_log(data);
+ 	if (err) {
+ 		dev_warn(dev, "Failed to read smart log (error %d)\n", err);
+-		kfree(data);
+-		return err;
++		goto err_free_data;
+ 	}
+ 
+ 	hwmon = hwmon_device_register_with_info(dev, "nvme",
+@@ -247,11 +246,15 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
+ 						NULL);
+ 	if (IS_ERR(hwmon)) {
+ 		dev_warn(dev, "Failed to instantiate hwmon device\n");
+-		kfree(data);
+-		return PTR_ERR(hwmon);
++		err = PTR_ERR(hwmon);
++		goto err_free_data;
+ 	}
+ 	ctrl->hwmon_device = hwmon;
+ 	return 0;
++
++err_free_data:
++	kfree(data);
++	return err;
+ }
+ 
+ void nvme_hwmon_exit(struct nvme_ctrl *ctrl)
 -- 
 2.35.1
 
