@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4626614899
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:28:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4DC4614895
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:28:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229534AbiKAL22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:28:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34764 "EHLO
+        id S230293AbiKAL2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:28:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230258AbiKAL2B (ORCPT
+        with ESMTP id S230281AbiKAL2B (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:28:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C94171A05F;
-        Tue,  1 Nov 2022 04:27:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89ED4193EB;
+        Tue,  1 Nov 2022 04:27:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FBD9615C3;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20CF9615D7;
+        Tue,  1 Nov 2022 11:27:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D044C433D6;
         Tue,  1 Nov 2022 11:27:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C9F5C433C1;
-        Tue,  1 Nov 2022 11:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302067;
-        bh=gya0bJPhRIzVdB0g3VDNw7gd6/xMQzaHVCvDAQ7OOLo=;
+        s=k20201202; t=1667302069;
+        bh=vTVY2knQEcb7la2FRrJIXdoN6YYxxKU3nLVR9s6WBMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvtR+s92y+Bk+pbPtngKSfAZYpKO8PIelKj11l8lDysJq5qk5hnED46cqHtBNpvTP
-         6IN4pRB7xLGiXWugV/tO7NmN8VR5bqwz9wQfd1ao0fGojYfAg8uCTM+/NQS1feCFOs
-         XJoBcDIrkPjdS32iEYLDk9/ZA8caF4u+G1JqjJsXWQkrX4VidC+OHAjLGhvcNfYcXd
-         7XwejT9OyJC/nD8qVRo3ruFNzzU41W4Iz9uD+im8M24lxiMmTErsUsW1U1OkMzt5Vy
-         Odg3dwUp7jeC11bSWPfv//qNHowNlrfNm8IxyszX//qtHrRo4i0vpHM5k3sRK0SXpj
-         7bmfWIiiB7aNw==
+        b=ni93Maz6JHDiWoBCandlPuyZUAhvQegLi+xbDjrTZSM3DjSqlWhk9H07iRPhAG4u6
+         2PeZxAE7lAC4pq/waSXms4sBMI+tQkNc+Kh58ABl5dCGV6/KsFrnQhXqfgu/DDsqOC
+         eivAzQKzcRJfZ2lMRgQ668v9y8hQNorTfmBSuyi4UblPGGGsfQHwFVdd9bJiMaPMz8
+         FUM0m2f962K9cCRqIveFSo7y6papv+aJ1hcNQnUWJGuYrE/lb7Cs8fsOsKPvG5LHN3
+         senI2fpCpFfuYSCsIVmawxelEJMWnhT7bO4FD7/xXRiTsLIVdA/NwOlV0SufiI8igB
+         ibj6o+v6JLmWw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rory Liu <hellojacky0226@hotmail.com>,
+Cc:     Hangyu Hua <hbh25y@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, bleung@chromium.org,
-        groeck@chromium.org, scott_chao@wistron.corp-partner.google.com,
-        ajye_huang@compal.corp-partner.google.com, zhuohao@chromium.org,
-        linux-media@vger.kernel.org, chrome-platform@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.0 09/34] media: platform: cros-ec: Add Kuldax to the match table
-Date:   Tue,  1 Nov 2022 07:27:01 -0400
-Message-Id: <20221101112726.799368-9-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, neil.armstrong@linaro.org,
+        gregkh@linuxfoundation.org, khilman@baylibre.com,
+        linux-media@vger.kernel.org, linux-amlogic@lists.infradead.org,
+        linux-staging@lists.linux.dev, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.0 10/34] media: meson: vdec: fix possible refcount leak in vdec_probe()
+Date:   Tue,  1 Nov 2022 07:27:02 -0400
+Message-Id: <20221101112726.799368-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112726.799368-1-sashal@kernel.org>
 References: <20221101112726.799368-1-sashal@kernel.org>
@@ -59,34 +59,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rory Liu <hellojacky0226@hotmail.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 594b6bdde2e7833a56413de5092b6e4188d33ff7 ]
+[ Upstream commit 7718999356234d9cc6a11b4641bb773928f1390f ]
 
-The Google Kuldax device uses the same approach as the Google Brask
-which enables the HDMI CEC via the cros-ec-cec driver.
+v4l2_device_unregister need to be called to put the refcount got by
+v4l2_device_register when vdec_probe fails or vdec_remove is called.
 
-Signed-off-by: Rory Liu <hellojacky0226@hotmail.com>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/platform/cros-ec/cros-ec-cec.c | 2 ++
+ drivers/staging/media/meson/vdec/vdec.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/cec/platform/cros-ec/cros-ec-cec.c b/drivers/media/cec/platform/cros-ec/cros-ec-cec.c
-index e5ebaa58be45..6ebedc71d67d 100644
---- a/drivers/media/cec/platform/cros-ec/cros-ec-cec.c
-+++ b/drivers/media/cec/platform/cros-ec/cros-ec-cec.c
-@@ -223,6 +223,8 @@ static const struct cec_dmi_match cec_dmi_match_table[] = {
- 	{ "Google", "Moli", "0000:00:02.0", "Port B" },
- 	/* Google Kinox */
- 	{ "Google", "Kinox", "0000:00:02.0", "Port B" },
-+	/* Google Kuldax */
-+	{ "Google", "Kuldax", "0000:00:02.0", "Port B" },
- };
+diff --git a/drivers/staging/media/meson/vdec/vdec.c b/drivers/staging/media/meson/vdec/vdec.c
+index 8549d95be0f2..52f224d8def1 100644
+--- a/drivers/staging/media/meson/vdec/vdec.c
++++ b/drivers/staging/media/meson/vdec/vdec.c
+@@ -1102,6 +1102,7 @@ static int vdec_probe(struct platform_device *pdev)
  
- static struct device *cros_ec_cec_find_hdmi_dev(struct device *dev,
+ err_vdev_release:
+ 	video_device_release(vdev);
++	v4l2_device_unregister(&core->v4l2_dev);
+ 	return ret;
+ }
+ 
+@@ -1110,6 +1111,7 @@ static int vdec_remove(struct platform_device *pdev)
+ 	struct amvdec_core *core = platform_get_drvdata(pdev);
+ 
+ 	video_unregister_device(core->vdev_dec);
++	v4l2_device_unregister(&core->v4l2_dev);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
