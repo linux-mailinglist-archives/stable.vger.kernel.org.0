@@ -2,59 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F8CC614BC9
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 14:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0080614BCD
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 14:33:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229650AbiKANbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 09:31:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58494 "EHLO
+        id S229452AbiKANd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 09:33:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230074AbiKANbM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 09:31:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF97D15823;
-        Tue,  1 Nov 2022 06:31:11 -0700 (PDT)
+        with ESMTP id S229782AbiKANdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 09:33:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B4DC0
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 06:33:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 955B1B81D90;
-        Tue,  1 Nov 2022 13:31:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E585DC433D6;
-        Tue,  1 Nov 2022 13:31:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667309469;
-        bh=3mnC+ohPX5eM5kabMfqS4VLYbl3w+VHP+O9hIGhQWPA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2RPpq2L0tufs3QfJAzzsU11zpwK88plYUKNLqNLLPAiPFkhc2TzAUAGYVFZ0r83da
-         yeK4H+Zzry0i9QdMHMiaUtQ3JvemxyKDjHj8cBTpEDRUpBksI41pT/JEOELPKfg0MR
-         gL6A4INBEPxoGShGyaFGY9+6VbohijR6nPW9Al5w=
-Date:   Tue, 1 Nov 2022 14:32:02 +0100
-From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To:     Bagas Sanjaya <bagasdotme@gmail.com>
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
-        Pavel Machek <pavel@denx.de>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Sasha Levin <sashal@kernel.org>,
-        "linux-can@vger.kernel.org" <linux-can@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Chris Paterson <Chris.Paterson2@renesas.com>,
-        "linux-renesas-soc@vger.kernel.org" 
-        <linux-renesas-soc@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] can: rcar_canfd: rcar_canfd_handle_global_receive(): fix
- IRQ storm on global FIFO receive
-Message-ID: <Y2Ef0hK4rTmAoEUs@kroah.com>
-References: <20221031143317.938785-1-biju.das.jz@bp.renesas.com>
- <20221101074351.GA8310@amd>
- <OS0PR01MB59222BA2B1CAA6CDA9B4137486369@OS0PR01MB5922.jpnprd01.prod.outlook.com>
- <83d70f8f-419c-2eb9-5130-782750772868@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <83d70f8f-419c-2eb9-5130-782750772868@gmail.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B9F4B81D62
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 13:33:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF039C433D6;
+        Tue,  1 Nov 2022 13:33:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1667309599;
+        bh=5XxivnaAct8X5b7nrwCTNG1mC1yuQ5qBa7xK3g6EmMo=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=COwcbDtIF+lWbHFixg1gMjywf1TEzsx5s9v51BvESMJ5UOHlB3qqY7GxVp5XgQ2BK
+         lXToQns5J0TNRDqRmA9bMbsOPQg77lOwtrEVUdM96D8d01jhWYj11j1uRflc3+ACzt
+         9I/Z08qdB7JaCvXw6IA/8z3gEOlDe4P7nt4fgQ72v+9CnJPZa4KXUO0KdGV/8RfLo0
+         /hbfdwrp7hAgQj+7j67ulv9l2n6DZrtBRhiV1mGrrdBu6cI20z/ge9XEum2fF3x2Bg
+         eWqGIlAE4Nm78Gqz7tY/+eS02kTZVH0Gb08/azJOtCenxoH2Wxtr+EgG00q+NcvY4N
+         nvvx25qfWTUsw==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1oprOH-002yyQ-BG;
+        Tue, 01 Nov 2022 13:33:17 +0000
+Date:   Tue, 01 Nov 2022 13:33:16 +0000
+Message-ID: <86bkpqer4z.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Peter Maydell <peter.maydell@linaro.org>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Vincent Donnefort <vdonnefort@google.com>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] KVM: arm64: Trap access to SMPRI_EL1 and TPIDR2 in VHE mode
+In-Reply-To: <20221101112716.52035-3-broonie@kernel.org>
+References: <20221101112716.52035-1-broonie@kernel.org>
+        <20221101112716.52035-3-broonie@kernel.org>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: broonie@kernel.org, catalin.marinas@arm.com, will@kernel.org, peter.maydell@linaro.org, richard.henderson@linaro.org, vdonnefort@google.com, james.morse@arm.com, alexandru.elisei@arm.com, suzuki.poulose@arm.com, oliver.upton@linux.dev, linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -64,33 +75,259 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 01, 2022 at 07:36:20PM +0700, Bagas Sanjaya wrote:
-> On 11/1/22 14:59, Biju Das wrote:
-> >> I got 7 or so copies of this, with slightly different Cc: lines.
-> > 
-> > I followed option 1 mentioned in [1]
-> > > [1] https://www.kernel.org/doc/html/v5.10/process/stable-kernel-rules.html
-> > 
-> > 
-> >>
-> >> AFAICT this is supposed to be stable kernel submission. In such case,
-> >> I'd expect [PATCH 4.14, 4.19, 5.10] in the subject line, and original
-> >> sign-off block from the mainline patch.
-> > 
-> > OK. Maybe [1] needs updating.
-> 
-> The documentation says (in this case the third option applies):
-> 
-> > Send the patch, after verifying that it follows the above rules, to> stable@vger.kernel.org. You must note the upstream commit ID in the
-> > changelog of your submission, as well as the kernel version you wish
-> > it to be applied to.
-> 
-> It doesn't specify how to mark desired target branch, unfortunately.
+On Tue, 01 Nov 2022 11:27:15 +0000,
+Mark Brown <broonie@kernel.org> wrote:
+>=20
+> On systems with SME access to the SMPRI_EL1 priority management register =
+is
+> controlled by the nSMPRI_EL1 fine grained trap and TPIDR2_EL0 is controll=
+ed
+> by nTPIDR2_EL0. We manage these traps in nVHE mode but do not do so when =
+in
+> VHE mode, add the required management.
+>=20
+> Without this these registers could be used as side channels where impleme=
+nted.
+>=20
+> Fixes: 861262ab8627 ("KVM: arm64: Handle SME host state when running gues=
+ts")
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> Cc: stable@vger.kernel.org
+> ---
+>  arch/arm64/kvm/hyp/vhe/switch.c | 26 ++++++++++++++++++++++++--
+>  1 file changed, 24 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/arch/arm64/kvm/hyp/vhe/switch.c b/arch/arm64/kvm/hyp/vhe/swi=
+tch.c
+> index 7acb87eaa092..9dac3a1a85f7 100644
+> --- a/arch/arm64/kvm/hyp/vhe/switch.c
+> +++ b/arch/arm64/kvm/hyp/vhe/switch.c
+> @@ -63,10 +63,20 @@ static void __activate_traps(struct kvm_vcpu *vcpu)
+>  		__activate_traps_fpsimd32(vcpu);
+>  	}
+> =20
+> -	if (cpus_have_final_cap(ARM64_SME))
+> +	if (cpus_have_final_cap(ARM64_SME)) {
+>  		write_sysreg(read_sysreg(sctlr_el2) & ~SCTLR_ELx_ENTP2,
+>  			     sctlr_el2);
 
-And that's fine, the submitter did the right thing here and gave me all
-of the information that I need.  Please do not confuse people, there is
-nothing wrong with the submission as-is.
+I still question this. As far as I can tell, it only affects the host
+context (HCR_EL2.{E2H,TGE}=3D{1,1}).
 
-thanks,
+This is outlined in the description of the HFGWTR_EL2.nTPIDR2_EL0 bit:
 
-greg k-h
+<quote>
+	If EL2 is implemented and enabled in the current Security
+	state, HCR_EL2.{E2H, TGE} !=3D {1, 1}, and either EL3 is
+	not implemented or SCR_EL3.FGTEn =3D=3D 1, then MSR writes
+	of TPIDR2_EL0 at EL1 and EL0 using AArch64 are
+	trapped to EL2 and reported with EC syndrome value 0x18,
+	unless the write generates a higher priority exception.
+</quote>
+
+Similar language is there for the read counterpart.
+
+So I can only conclude that messing with SCTLR_EL2 is superfluous and
+doesn't affect the execution in a guest context.
+
+> =20
+> +		sysreg_clear_set_s(SYS_HFGRTR_EL2,
+> +				   HFGxTR_EL2_nSMPRI_EL1_MASK |
+> +				   HFGxTR_EL2_nTPIDR2_EL0_MASK,
+> +				   0);
+> +		sysreg_clear_set_s(SYS_HFGWTR_EL2,
+> +				   HFGxTR_EL2_nSMPRI_EL1_MASK |
+> +				   HFGxTR_EL2_nTPIDR2_EL0_MASK,
+> +				   0);
+> +	}
+> +
+>  	write_sysreg(val, cpacr_el1);
+> =20
+>  	write_sysreg(__this_cpu_read(kvm_hyp_vector), vbar_el1);
+> @@ -88,9 +98,21 @@ static void __deactivate_traps(struct kvm_vcpu *vcpu)
+>  	 */
+>  	asm(ALTERNATIVE("nop", "isb", ARM64_WORKAROUND_SPECULATIVE_AT));
+> =20
+> -	if (cpus_have_final_cap(ARM64_SME))
+> +	if (cpus_have_final_cap(ARM64_SME)) {
+> +		/*
+> +		 * Enable access to SMPRI_EL1 - we don't need to
+> +		 * control nTPIDR2_EL0 in VHE mode.
+> +		 */
+
+This comment is factually wrong.
+
+> +		sysreg_clear_set_s(SYS_HFGRTR_EL2, 0,
+> +				   HFGxTR_EL2_nSMPRI_EL1_MASK |
+> +				   HFGxTR_EL2_nTPIDR2_EL0_MASK);
+> +		sysreg_clear_set_s(SYS_HFGWTR_EL2, 0,
+> +				   HFGxTR_EL2_nSMPRI_EL1_MASK |
+> +				   HFGxTR_EL2_nTPIDR2_EL0_MASK);
+> +
+>  		write_sysreg(read_sysreg(sctlr_el2) | SCTLR_ELx_ENTP2,
+>  			     sctlr_el2);
+
+Same as above. It serves no purpose AFAICT.
+
+> +	}
+> =20
+>  	write_sysreg(CPACR_EL1_DEFAULT, cpacr_el1);
+> =20
+
+And then you realise that the VHE and nVHE behaviours are strictly
+identical and that they should simply be merged. Or rather, that we
+should make use of the existing infrastructure to enable/disable the
+trapping of the SME ops when it actually matters: at load/put time for
+VHE, at enter/exit for nVHE.
+
+I came up with the following patch, compile-tested only.
+
+Thanks,
+
+	M.
+
+=46rom 5c0913a6de47e32b071ea5534319015e0a61db71 Mon Sep 17 00:00:00 2001
+From: Marc Zyngier <maz@kernel.org>
+Date: Tue, 1 Nov 2022 12:19:51 +0000
+Subject: [PATCH] KVM: arm64: Fix SMPRI_EL1/TPIDR2_EL0 trapping on VHE
+
+The trapping of SMPRI_EL1 and TPIDR2_EL0 currently only really
+work on nVHE, as only this mode uses the fine-grained trapping
+that controls these two registers.
+
+Move the trapping enable/disable code into
+__{de,}activate_traps_common(), allowing it to be called when it
+actually matters on VHE, and remove the flipping of EL2 control
+for TPIDR2_EL0, which only affects the host access of this
+register.
+
+Fixes: 861262ab8627 ("KVM: arm64: Handle SME host state when running guests=
+")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+---
+ arch/arm64/kvm/hyp/include/hyp/switch.h | 20 +++++++++++++++++++
+ arch/arm64/kvm/hyp/nvhe/switch.c        | 26 -------------------------
+ arch/arm64/kvm/hyp/vhe/switch.c         |  8 --------
+ 3 files changed, 20 insertions(+), 34 deletions(-)
+
+diff --git a/arch/arm64/kvm/hyp/include/hyp/switch.h b/arch/arm64/kvm/hyp/i=
+nclude/hyp/switch.h
+index 6cbbb6c02f66..3330d1b76bdd 100644
+--- a/arch/arm64/kvm/hyp/include/hyp/switch.h
++++ b/arch/arm64/kvm/hyp/include/hyp/switch.h
+@@ -87,6 +87,17 @@ static inline void __activate_traps_common(struct kvm_vc=
+pu *vcpu)
+=20
+ 	vcpu->arch.mdcr_el2_host =3D read_sysreg(mdcr_el2);
+ 	write_sysreg(vcpu->arch.mdcr_el2, mdcr_el2);
++
++	if (cpus_have_final_cap(ARM64_SME)) {
++		sysreg_clear_set_s(SYS_HFGRTR_EL2,
++				   HFGxTR_EL2_nSMPRI_EL1_MASK |
++				   HFGxTR_EL2_nTPIDR2_EL0_MASK,
++				   0);
++		sysreg_clear_set_s(SYS_HFGWTR_EL2,
++				   HFGxTR_EL2_nSMPRI_EL1_MASK |
++				   HFGxTR_EL2_nTPIDR2_EL0_MASK,
++				   0);
++	}
+ }
+=20
+ static inline void __deactivate_traps_common(struct kvm_vcpu *vcpu)
+@@ -96,6 +107,15 @@ static inline void __deactivate_traps_common(struct kvm=
+_vcpu *vcpu)
+ 	write_sysreg(0, hstr_el2);
+ 	if (kvm_arm_support_pmu_v3())
+ 		write_sysreg(0, pmuserenr_el0);
++
++	if (cpus_have_final_cap(ARM64_SME)) {
++		sysreg_clear_set_s(SYS_HFGRTR_EL2, 0,
++				   HFGxTR_EL2_nSMPRI_EL1_MASK |
++				   HFGxTR_EL2_nTPIDR2_EL0_MASK);
++		sysreg_clear_set_s(SYS_HFGWTR_EL2, 0,
++				   HFGxTR_EL2_nSMPRI_EL1_MASK |
++				   HFGxTR_EL2_nTPIDR2_EL0_MASK);
++	}
+ }
+=20
+ static inline void ___activate_traps(struct kvm_vcpu *vcpu)
+diff --git a/arch/arm64/kvm/hyp/nvhe/switch.c b/arch/arm64/kvm/hyp/nvhe/swi=
+tch.c
+index 8e9d49a964be..c2cb46ca4fb6 100644
+--- a/arch/arm64/kvm/hyp/nvhe/switch.c
++++ b/arch/arm64/kvm/hyp/nvhe/switch.c
+@@ -55,18 +55,6 @@ static void __activate_traps(struct kvm_vcpu *vcpu)
+ 	write_sysreg(val, cptr_el2);
+ 	write_sysreg(__this_cpu_read(kvm_hyp_vector), vbar_el2);
+=20
+-	if (cpus_have_final_cap(ARM64_SME)) {
+-		val =3D read_sysreg_s(SYS_HFGRTR_EL2);
+-		val &=3D ~(HFGxTR_EL2_nTPIDR2_EL0_MASK |
+-			 HFGxTR_EL2_nSMPRI_EL1_MASK);
+-		write_sysreg_s(val, SYS_HFGRTR_EL2);
+-
+-		val =3D read_sysreg_s(SYS_HFGWTR_EL2);
+-		val &=3D ~(HFGxTR_EL2_nTPIDR2_EL0_MASK |
+-			 HFGxTR_EL2_nSMPRI_EL1_MASK);
+-		write_sysreg_s(val, SYS_HFGWTR_EL2);
+-	}
+-
+ 	if (cpus_have_final_cap(ARM64_WORKAROUND_SPECULATIVE_AT)) {
+ 		struct kvm_cpu_context *ctxt =3D &vcpu->arch.ctxt;
+=20
+@@ -110,20 +98,6 @@ static void __deactivate_traps(struct kvm_vcpu *vcpu)
+=20
+ 	write_sysreg(this_cpu_ptr(&kvm_init_params)->hcr_el2, hcr_el2);
+=20
+-	if (cpus_have_final_cap(ARM64_SME)) {
+-		u64 val;
+-
+-		val =3D read_sysreg_s(SYS_HFGRTR_EL2);
+-		val |=3D HFGxTR_EL2_nTPIDR2_EL0_MASK |
+-			HFGxTR_EL2_nSMPRI_EL1_MASK;
+-		write_sysreg_s(val, SYS_HFGRTR_EL2);
+-
+-		val =3D read_sysreg_s(SYS_HFGWTR_EL2);
+-		val |=3D HFGxTR_EL2_nTPIDR2_EL0_MASK |
+-			HFGxTR_EL2_nSMPRI_EL1_MASK;
+-		write_sysreg_s(val, SYS_HFGWTR_EL2);
+-	}
+-
+ 	cptr =3D CPTR_EL2_DEFAULT;
+ 	if (vcpu_has_sve(vcpu) && (vcpu->arch.fp_state =3D=3D FP_STATE_GUEST_OWNE=
+D))
+ 		cptr |=3D CPTR_EL2_TZ;
+diff --git a/arch/arm64/kvm/hyp/vhe/switch.c b/arch/arm64/kvm/hyp/vhe/switc=
+h.c
+index 7acb87eaa092..1a97391fedd2 100644
+--- a/arch/arm64/kvm/hyp/vhe/switch.c
++++ b/arch/arm64/kvm/hyp/vhe/switch.c
+@@ -63,10 +63,6 @@ static void __activate_traps(struct kvm_vcpu *vcpu)
+ 		__activate_traps_fpsimd32(vcpu);
+ 	}
+=20
+-	if (cpus_have_final_cap(ARM64_SME))
+-		write_sysreg(read_sysreg(sctlr_el2) & ~SCTLR_ELx_ENTP2,
+-			     sctlr_el2);
+-
+ 	write_sysreg(val, cpacr_el1);
+=20
+ 	write_sysreg(__this_cpu_read(kvm_hyp_vector), vbar_el1);
+@@ -88,10 +84,6 @@ static void __deactivate_traps(struct kvm_vcpu *vcpu)
+ 	 */
+ 	asm(ALTERNATIVE("nop", "isb", ARM64_WORKAROUND_SPECULATIVE_AT));
+=20
+-	if (cpus_have_final_cap(ARM64_SME))
+-		write_sysreg(read_sysreg(sctlr_el2) | SCTLR_ELx_ENTP2,
+-			     sctlr_el2);
+-
+ 	write_sysreg(CPACR_EL1_DEFAULT, cpacr_el1);
+=20
+ 	if (!arm64_kernel_unmapped_at_el0())
+--=20
+2.34.1
+
+
+--=20
+Without deviation from the norm, progress is not possible.
