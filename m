@@ -2,115 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 115F8614B81
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 14:18:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29D8B614BBB
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 14:29:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229787AbiKANSB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 09:18:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50484 "EHLO
+        id S229487AbiKAN3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 09:29:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230346AbiKANSA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 09:18:00 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CC581B9CE;
-        Tue,  1 Nov 2022 06:17:59 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id v4-20020a17090a088400b00212cb0ed97eso12890095pjc.5;
-        Tue, 01 Nov 2022 06:17:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=SZStpR1lAywA4/7qBURPNQ4IOtsjBZHRYMQymFdTRYs=;
-        b=ICimq5g3SQr0EIGp9dAm1iBnXGYoBdXWX7Gv9ZnxCtsXsO5J1XxqrXMmE/0r0ZjW51
-         g7nKkmM10LXh9wUziD26lQkT+wheww9qrcNOgTxlPO/YYHuTBewnSu88T2SW7WYw1UlR
-         cZt59i2idpItyoXU0tBDjhddgsZX5ug1jEQkqqlET0xkiayImhhdY8Jdy4/cICNGnDlm
-         +47+l2yt2GELSHMuevXIyJJbFu5dLvr/EOaDzDIUfwASahd14yoWyniaRfT2q9z39lHW
-         IYmuR5vmNAQLelfzfv9V7rIDRb/566d3s68VN0wWDhDdUiSGngmxdV0/XPCISwVa0weL
-         fVaQ==
+        with ESMTP id S229865AbiKAN2y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 09:28:54 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8188411452
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 06:27:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667309277;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=TuQrcuKYSmxbYTgmez/0o7iIQmKrnxkqsQehv9iqJF8=;
+        b=aU22Geq+2GHoLLghJZE1+XedJtmCm+IaRPnbEA66StQPq1h/wCXZ3YVTyrS/rWIlAOuP9H
+        1gZUrwGUsrP9i+L8vbYDFFGBiyt6ahjbH01bfEc12kQ5ArKF1u7Ee8JEaUn2F/qSLNrZSl
+        cdqZYF4dtIerD72VUztdN7vQJhNNA40=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-313-gZmWBbxrOgKGWaNZkB2pJA-1; Tue, 01 Nov 2022 09:27:56 -0400
+X-MC-Unique: gZmWBbxrOgKGWaNZkB2pJA-1
+Received: by mail-ed1-f69.google.com with SMTP id r12-20020a05640251cc00b00463699c95aeso3549761edd.18
+        for <stable@vger.kernel.org>; Tue, 01 Nov 2022 06:27:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=SZStpR1lAywA4/7qBURPNQ4IOtsjBZHRYMQymFdTRYs=;
-        b=KOaTwh8hiEOK4D57IvlmhdKtiG1V2q0RZ0FmWP4C7XEDGYBCZKW1DBo2bOQF8hpFqa
-         tjRl3jYAk7aOSy47FuJoMU45NC4m2/QiZo0BYIJeAYnVRH67DoseOq+77vteKeMnWPyp
-         iAGw3HwJc9nSYjBNfIHA7ZoZQ4ey7eGAAnb4gfBrfT+Vcb3GrFPqJRtXzhDiQy6bt0Of
-         WPSOzwGwJGoLOY9xgDm8LSvLtXHnAIK2PzIN27u38P5zX0uihQ3eB5r1ZYLF8AJbOE7q
-         2zui714BEtvOFRUCzr8EY5tVts3TRRXd+Wsqs7PTXZQzxEh1zTLkEkdpRPph0EV0W7+R
-         3Pww==
-X-Gm-Message-State: ACrzQf2g8DnyRldZZBL+Olqdvuc0FmpOHFzq6VB+wr+SJ/NOGId92xLC
-        jixia/eIxVzK57+RUcL3U+UtS7IF0bJFYg==
-X-Google-Smtp-Source: AMsMyM5bwLtd76eUNGRWg9awECg+BMt4aF9pSYS0/6T/xy0NTPQ4TtVy0KFj2FKBug6dggT/UllhIA==
-X-Received: by 2002:a17:902:d4ce:b0:186:c8b9:c301 with SMTP id o14-20020a170902d4ce00b00186c8b9c301mr19581091plg.27.1667308678756;
-        Tue, 01 Nov 2022 06:17:58 -0700 (PDT)
-Received: from debian.. (subs02-180-214-232-74.three.co.id. [180.214.232.74])
-        by smtp.gmail.com with ESMTPSA id d14-20020a170902cece00b0017f64ab80e5sm6357767plg.179.2022.11.01.06.17.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Nov 2022 06:17:58 -0700 (PDT)
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     stable@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>, Pavel Machek <pavel@denx.de>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Bagas Sanjaya <bagasdotme@gmail.com>
-Subject: [PATCH] Documentation: process: Describe kernel version prefix for third option
-Date:   Tue,  1 Nov 2022 20:17:43 +0700
-Message-Id: <20221101131743.371340-1-bagasdotme@gmail.com>
-X-Mailer: git-send-email 2.38.1
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=TuQrcuKYSmxbYTgmez/0o7iIQmKrnxkqsQehv9iqJF8=;
+        b=27Lztt/3NVEeoYMTFEnC3j0Qy0gDvQxrXQaYivnSLeDU+mMBZbf1WZ4Cb+XbDTctYh
+         CbvBrHVoaIz1YVcGbhbjKx3N5Jv1yxPesniIJaw/HJBKcKMy5JMscW6Nfu11qG1fYp8M
+         /v0ReWVcj+V/LdTam5kLe4fg6hPJSe3s1gptNJ6FqDhNzRCxF5JrC8kBq2r08bVgSzne
+         lGkhTF/NkQiM0i0vcQf0BLzgvGEjxK0jaOrVYFwu9NgGlx20bLx+YpDNWbWPJmac2Cgx
+         ptnyEmcaKfbCWUqsYMQOQdnj3DLXVxLAbmGkGN03rEy7DW0Wl1PdlzTGoJuOis7jBbtK
+         ZvvA==
+X-Gm-Message-State: ACrzQf2hhEKwNBDd/4FWfwDL5tQhvGoXB9Ccnugisr91NUV6LQ0cmXOL
+        MUzQ+zeJX6lCikhBUpd0KJcZmvVL6i9nKHBLLS4dK1fNpSLzhmWnEKAi1Xh5fsC7x0dx4jf4kBR
+        6a88gYddD043LlMZT
+X-Received: by 2002:a17:907:da5:b0:7ad:7e95:6513 with SMTP id go37-20020a1709070da500b007ad7e956513mr18872141ejc.442.1667309275374;
+        Tue, 01 Nov 2022 06:27:55 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7G9zSldywDkzM/+VU8twoULILd9bDVUvHBmvJahcdwrQ9vJk2UsXR4+PeLwv2QQ+0RgvbxhQ==
+X-Received: by 2002:a17:907:da5:b0:7ad:7e95:6513 with SMTP id go37-20020a1709070da500b007ad7e956513mr18872125ejc.442.1667309275190;
+        Tue, 01 Nov 2022 06:27:55 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:c1e:bf00:d69d:5353:dba5:ee81? (2001-1c00-0c1e-bf00-d69d-5353-dba5-ee81.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:d69d:5353:dba5:ee81])
+        by smtp.gmail.com with ESMTPSA id v27-20020aa7cd5b000000b00458898fe90asm4554226edw.5.2022.11.01.06.27.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Nov 2022 06:27:54 -0700 (PDT)
+Message-ID: <48a28601-a3eb-8735-6a15-34436dcbd73e@redhat.com>
+Date:   Tue, 1 Nov 2022 14:27:53 +0100
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1745; i=bagasdotme@gmail.com; h=from:subject; bh=P8qNp9CcuZ7RseMNAYFQaX1Xu9cmLi6P2n4KkPfzHok=; b=owGbwMvMwCH2bWenZ2ig32LG02pJDMmJMuWiEy+adRatenJsZ3bKxLsMd2VT/UwOMGU1HJlgITPl +fu7HaUsDGIcDLJiiiyTEvmaTu8yErnQvtYRZg4rE8gQBi5OAZjIoXRGhisPt4u2pAvHrxBWiPgWOi /9Iuc7n/ANj78Lm7U2Kr30N2Bk+BiY7tSWXSpbYz/DPEV/edUMAVHvJ+In22cGfD55WXcdDwA=
-X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+Subject: Re: [PATCH AUTOSEL 6.0 15/34] media: atomisp-ov2680: Fix
+ ov2680_set_fmt()
+Content-Language: en-US, nl
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        gregkh@linuxfoundation.org, linux-media@vger.kernel.org,
+        linux-staging@lists.linux.dev
+References: <20221101112726.799368-1-sashal@kernel.org>
+ <20221101112726.799368-15-sashal@kernel.org>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <20221101112726.799368-15-sashal@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The current wording on third option of stable kernel submission doesn't
-mention how to specify desired kernel version. Submitters reading the
-documentation could simply send multiple backported patches of the same
-upstream commit without any kernel version information, leaving stable
-maintainers and reviewers hard time to figure out the correct kernel
-version to be applied.
+Hi Sasha,
 
-Describe the subject prefix for specifying kernel version for the case
-above.
+I have no specific objections against the backporting of this
+and other atomisp related patches.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
----
- This patch is sent as response to [1].
+But in general the atomisp driver is not yet in a state where
+it is ready to be used by normal users. Progress is being made
+but atm I don't really expect normal users to have it enabled /
+in active use.
 
- [1]: https://lore.kernel.org/stable/20221101074351.GA8310@amd/
+As such I'm also not sure if there is much value in backporting
+atomisp changes to the stable series.
 
- Documentation/process/stable-kernel-rules.rst | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+I don't know if you have a way to opt out certain drivers /
+file-paths from stable series backporting, but if you do
+you may want to consider opting out everything under:
 
-diff --git a/Documentation/process/stable-kernel-rules.rst b/Documentation/process/stable-kernel-rules.rst
-index 2fd8aa593a2851..409ae73c1ffcd1 100644
---- a/Documentation/process/stable-kernel-rules.rst
-+++ b/Documentation/process/stable-kernel-rules.rst
-@@ -77,7 +77,9 @@ Option 3
- Send the patch, after verifying that it follows the above rules, to
- stable@vger.kernel.org.  You must note the upstream commit ID in the
- changelog of your submission, as well as the kernel version you wish
--it to be applied to.
-+it to be applied to by adding desired kernel version number to the
-+patch subject prefix. For example, patches targeting 5.15 kernel should
-+have ``[PATCH 5.15]`` prefix.
- 
- :ref:`option_1` is **strongly** preferred, is the easiest and most common.
- :ref:`option_2` and :ref:`option_3` are more useful if the patch isn't deemed
+drivers/staging/media/atomisp/
 
-base-commit: 30a0b95b1335e12efef89dd78518ed3e4a71a763
--- 
-An old man doll... just what I always wanted! - Clara
+As said above I don't think doing the backports offers
+much (if any) value to end users and I assume it does take
+you some time, so opting this path out might be better.
+
+Also given the fragile state of atomisp support atm
+it is hard to say for me if partially backporting some of
+the changes won't break the driver.
+
+Regards,
+
+Hans
+
+
+
+
+On 11/1/22 12:27, Sasha Levin wrote:
+> From: Hans de Goede <hdegoede@redhat.com>
+> 
+> [ Upstream commit adea153b4f6537f367fe77abada263fde8a1f7b6 ]
+> 
+> On sets actually store the set (closest) format inside ov2680_device.dev,
+> so that it also properly gets returned by get_fmt.
+> 
+> This fixes the following problem:
+> 
+> 1. App does an VIDIOC_SET_FMT 640x480, calling ov2680_set_fmt()
+> 2. Internal buffers (atomisp_create_pipes_stream()) get allocated
+>    at 640x480 size by atomisp_set_fmt()
+> 3. ov2680_get_fmt() gets called later on and returns 1600x1200
+>    since ov2680_device.dev was not updated. So things get configured
+>    to stream at 1600x1200, but the internal buffers created during
+>    atomisp_create_pipes_stream() do not get updated in size
+> 4. streaming starts, internal buffers overflow and the entire
+>    machine freezes eventually due to memory being corrupted
+> 
+> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/staging/media/atomisp/i2c/atomisp-ov2680.c | 6 +-----
+>  1 file changed, 1 insertion(+), 5 deletions(-)
+> 
+> diff --git a/drivers/staging/media/atomisp/i2c/atomisp-ov2680.c b/drivers/staging/media/atomisp/i2c/atomisp-ov2680.c
+> index 4ba99c660681..ab52e35266bb 100644
+> --- a/drivers/staging/media/atomisp/i2c/atomisp-ov2680.c
+> +++ b/drivers/staging/media/atomisp/i2c/atomisp-ov2680.c
+> @@ -894,11 +894,7 @@ static int ov2680_set_fmt(struct v4l2_subdev *sd,
+>  	if (v_flag)
+>  		ov2680_v_flip(sd, v_flag);
+>  
+> -	/*
+> -	 * ret = startup(sd);
+> -	 * if (ret)
+> -	 * dev_err(&client->dev, "ov2680 startup err\n");
+> -	 */
+> +	dev->res = res;
+>  err:
+>  	mutex_unlock(&dev->input_lock);
+>  	return ret;
 
