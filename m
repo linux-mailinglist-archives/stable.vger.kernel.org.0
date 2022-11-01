@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0607D614946
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:35:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22CEE61495F
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:36:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231202AbiKALfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:35:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45836 "EHLO
+        id S230188AbiKALgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:36:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229826AbiKALfS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:35:18 -0400
+        with ESMTP id S231327AbiKALgL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:36:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D754F1BEB2;
-        Tue,  1 Nov 2022 04:31:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A78C1D0E1;
+        Tue,  1 Nov 2022 04:31:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AADAB81CC1;
-        Tue,  1 Nov 2022 11:31:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EAE2C433D6;
-        Tue,  1 Nov 2022 11:31:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F10A7B81CCF;
+        Tue,  1 Nov 2022 11:31:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A88D7C433D7;
+        Tue,  1 Nov 2022 11:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302272;
-        bh=DCqghhcXbQ+ZK2qiKjlWNsSTsCJf39ywUUSRTGc9Mrs=;
+        s=k20201202; t=1667302273;
+        bh=NpTtqdMNxT1KjmVtp4h6K8oH+flM8cd/rKUZBHfnVow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dhL/WOfsa0UntDU2cDRS17BlCSqHMro5feURns35zrGiKCDA+v7kMchPGmEv1yXbJ
-         gTLSfMDi8beJeWIS/sMeWIcwv9imGOkpCtKvXoK4kAoNijBK8y1Ydd2lMiw0QfzlNZ
-         cEM+ZLKAL+3sZ3w1+i5orqjVr+Vlsc5ce69QmyN43p4PxZNNre25yv8rCOaEKRnLR6
-         zFejoh9LH4pCmTKnAEuAab2PPVK0N2+UQjRJCRKdoqDASeT6LWVxwXm62MUOClQ767
-         /bSr9DQc7OoPpBANKHOn0wGueJZiP6g292gCwJ68tRDRSD6RbW5gszXeLbxPSdkVWX
-         8HUp+mPjWtcdA==
+        b=S12QqJ70l5PVWmP3uWY6UdDPRDI/aTiZoIm/sfjTvx3vHV9uz+jMyCI6Lsr1PQt1L
+         9WkuH6q7ke4Br7Bk42ZSKD7EyOsVMR4rSG8gNI4Jorc9rbC/Jfxv47B/WKIC0NSmKE
+         uovOrEN0nDGLaw7mHqtLtxyRh0Z4eSgo34dxhSMhCrVycMks/Ti9EDgk6FQyUGwgD4
+         bepy/i7fiS1HFRE5nq/jC+6fINCl6kHcccYFtVRjPnEMM8aMplBWeNO3RsrhzEexIO
+         0CXHC+UQ3bWjFzYfwx+AZSkod/xWRwnq6uT7THm6d735fqlsb/pfQDcBF+0HkyPWAG
+         eIc5mE2yxV48Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, olivia@selenic.com,
-        rjui@broadcom.com, sbranden@broadcom.com,
-        linux-crypto@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 5/8] hwrng: bcm2835 - use hwrng_msleep() instead of cpu_relax()
-Date:   Tue,  1 Nov 2022 07:30:54 -0400
-Message-Id: <20221101113059.800777-5-sashal@kernel.org>
+Cc:     Uday Shankar <ushankar@purestorage.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 6/8] scsi: core: Restrict legal sdev_state transitions via sysfs
+Date:   Tue,  1 Nov 2022 07:30:55 -0400
+Message-Id: <20221101113059.800777-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101113059.800777-1-sashal@kernel.org>
 References: <20221101113059.800777-1-sashal@kernel.org>
@@ -59,53 +58,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Uday Shankar <ushankar@purestorage.com>
 
-[ Upstream commit 96cb9d0554457086664d3bd10630b11193d863f1 ]
+[ Upstream commit 2331ce6126be8864b39490e705286b66e2344aac ]
 
-Rather than busy looping, yield back to the scheduler and sleep for a
-bit in the event that there's no data. This should hopefully prevent the
-stalls that Mark reported:
+Userspace can currently write to sysfs to transition sdev_state to RUNNING
+or OFFLINE from any source state. This causes issues because proper
+transitioning out of some states involves steps besides just changing
+sdev_state, so allowing userspace to change sdev_state regardless of the
+source state can result in inconsistencies; e.g. with ISCSI we can end up
+with sdev_state == SDEV_RUNNING while the device queue is quiesced. Any
+task attempting I/O on the device will then hang, and in more recent
+kernels, iscsid will hang as well.
 
-<6>[    3.362859] Freeing initrd memory: 16196K
-<3>[   23.160131] rcu: INFO: rcu_sched self-detected stall on CPU
-<3>[   23.166057] rcu:  0-....: (2099 ticks this GP) idle=03b4/1/0x40000002 softirq=28/28 fqs=1050
-<4>[   23.174895]       (t=2101 jiffies g=-1147 q=2353 ncpus=4)
-<4>[   23.180203] CPU: 0 PID: 49 Comm: hwrng Not tainted 6.0.0 #1
-<4>[   23.186125] Hardware name: BCM2835
-<4>[   23.189837] PC is at bcm2835_rng_read+0x30/0x6c
-<4>[   23.194709] LR is at hwrng_fillfn+0x71/0xf4
-<4>[   23.199218] pc : [<c07ccdc8>]    lr : [<c07cb841>]    psr: 40000033
-<4>[   23.205840] sp : f093df70  ip : 00000000  fp : 00000000
-<4>[   23.211404] r10: c3c7e800  r9 : 00000000  r8 : c17e6b20
-<4>[   23.216968] r7 : c17e6b64  r6 : c18b0a74  r5 : c07ccd99  r4 : c3f171c0
-<4>[   23.223855] r3 : 000fffff  r2 : 00000040  r1 : c3c7e800  r0 : c3f171c0
-<4>[   23.230743] Flags: nZcv  IRQs on  FIQs on  Mode SVC_32  ISA Thumb  Segment none
-<4>[   23.238426] Control: 50c5387d  Table: 0020406a  DAC: 00000051
-<4>[   23.244519] CPU: 0 PID: 49 Comm: hwrng Not tainted 6.0.0 #1
+More detail about this bug is provided in my first attempt:
 
-Link: https://lore.kernel.org/all/Y0QJLauamRnCDUef@sirena.org.uk/
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+https://groups.google.com/g/open-iscsi/c/PNKca4HgPDs/m/CXaDkntOAQAJ
+
+Link: https://lore.kernel.org/r/20220924000241.2967323-1-ushankar@purestorage.com
+Signed-off-by: Uday Shankar <ushankar@purestorage.com>
+Suggested-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/bcm2835-rng.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_sysfs.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/char/hw_random/bcm2835-rng.c b/drivers/char/hw_random/bcm2835-rng.c
-index f759790c3cdb..b20782e012e8 100644
---- a/drivers/char/hw_random/bcm2835-rng.c
-+++ b/drivers/char/hw_random/bcm2835-rng.c
-@@ -69,7 +69,7 @@ static int bcm2835_rng_read(struct hwrng *rng, void *buf, size_t max,
- 	while ((rng_readl(priv, RNG_STATUS) >> 24) == 0) {
- 		if (!wait)
- 			return 0;
--		cpu_relax();
-+		hwrng_msleep(rng, 1000);
+diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+index 6faf1d6451b0..530b14685fd7 100644
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -795,6 +795,14 @@ store_state_field(struct device *dev, struct device_attribute *attr,
  	}
  
- 	num_words = rng_readl(priv, RNG_STATUS) >> 24;
+ 	mutex_lock(&sdev->state_mutex);
++	switch (sdev->sdev_state) {
++	case SDEV_RUNNING:
++	case SDEV_OFFLINE:
++		break;
++	default:
++		mutex_unlock(&sdev->state_mutex);
++		return -EINVAL;
++	}
+ 	if (sdev->sdev_state == SDEV_RUNNING && state == SDEV_RUNNING) {
+ 		ret = 0;
+ 	} else {
 -- 
 2.35.1
 
