@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C2BD61560F
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 00:25:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84B69615610
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 00:25:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230274AbiKAXZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 19:25:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52926 "EHLO
+        id S230329AbiKAXZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 19:25:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229871AbiKAXZj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 19:25:39 -0400
+        with ESMTP id S229875AbiKAXZk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 19:25:40 -0400
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E05F41;
-        Tue,  1 Nov 2022 16:25:38 -0700 (PDT)
-Date:   Tue, 01 Nov 2022 23:25:34 -0000
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2EE11759A;
+        Tue,  1 Nov 2022 16:25:39 -0700 (PDT)
+Date:   Tue, 01 Nov 2022 23:25:36 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1667345136;
+        s=2020; t=1667345137;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=PgZ2saWcj12B2LGvN6+ymIA0OYwa1Zze0hs3Kr39gnw=;
-        b=bJSDssIleaBpjovgILsQGlTqNzv8T8gAtoSpjJoI0/B6/DFl7suBk4wVLhd/S4L41ug3Yh
-        KL128xi7nw0YYImRTujRguSE4FtltHeRzrbt1JazQv5rYhvj+ZG/qpeDE9eFMUcckuBSOs
-        A1QPdX0cPPRiNgiiiSyrDTPwhVXqdcJVmPQyM5w73ljbF5ObXnU/sAKtfWdfWdoTrIRf2f
-        A8kSgMFh0MnffEKdh96LymIbzGyok2KltrYSrfNqeWvsYEAPfRtrFnScsleNVHpaJvY/L0
-        yIta/xW1jE++rgehb+RsxuAiCQstHpOy5F97mNbY7zgCuD889BsmoFaR1XMkZA==
+        bh=I0y+lhuQmGVn5FfJdmSsSqet8+hYCRLEMYJ6mzf+imk=;
+        b=ocwjHhsqkDMORDxhZRk7e2/M12hs2heP6mVSKrctyjQxsZ1zxm21zL+afOe24/4cLKb7BL
+        JwRT764ss3GCaMTCYFE1YU0sSrDbI9Ff4QfWQIrOX23D8NTvQB58JLnuW8NhvShqvT0BTK
+        934cLxLRlV/Fe5mDA7gnbcDwYHDWq0N5tHWFy2x+3Srn2Z+2JagyQl6BGNo1LzbaTvxIgb
+        CRbqmUpMZlhYmGu7N0yNFX6yRiaI22X7pJHD7QYQFPnFKiWoxZHM0lKHnjkd7rE4G9K3Rs
+        RfVOb5Q2rmU+ePhgONojqaDkOnHjn9ehtWe8I1VV/KBfSTspyaenlbfnhX0S1A==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1667345136;
+        s=2020e; t=1667345137;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=PgZ2saWcj12B2LGvN6+ymIA0OYwa1Zze0hs3Kr39gnw=;
-        b=97arwmJPxXD9DJleqtNiELngt4bkY+BpSss/wPtT35m39LVvetNNhwQE3mjSM3hZQETEhd
-        aBmC46HzUA9fiwBg==
-From:   "tip-bot2 for Kirill A. Shutemov" <tip-bot2@linutronix.de>
+        bh=I0y+lhuQmGVn5FfJdmSsSqet8+hYCRLEMYJ6mzf+imk=;
+        b=sAlyXw8KeGH4/B1syi7NnNrh0XgPqkOKhhSBREeBagzDNSK1e7AcOAyPnHVzMAihNz6AYU
+        ylP+qPO9LTUvUtCQ==
+From:   "tip-bot2 for Dave Hansen" <tip-bot2@linutronix.de>
 Sender: tip-bot2@linutronix.de
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/tdx: Panic on bad configs that #VE on "private"
- memory access
-Cc:     ruogui.ygr@alibaba-inc.com,
+Subject: [tip: x86/urgent] x86/tdx: Prepare for using "INFO" call for a second purpose
+Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
         "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
         stable@vger.kernel.org, x86@kernel.org,
         linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Message-ID: <166734513448.7716.12910026848446212237.tip-bot2@tip-bot2>
+Message-ID: <166734513630.7716.12952231613533508782.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2@linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
@@ -62,102 +60,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     373e715e31bf4e0f129befe87613a278fac228d3
-Gitweb:        https://git.kernel.org/tip/373e715e31bf4e0f129befe87613a278fac228d3
-Author:        Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-AuthorDate:    Fri, 28 Oct 2022 17:12:20 +03:00
+Commit-ID:     a6dd6f39008bb3ef7c73ef0a2acc2a4209555bd8
+Gitweb:        https://git.kernel.org/tip/a6dd6f39008bb3ef7c73ef0a2acc2a4209555bd8
+Author:        Dave Hansen <dave.hansen@linux.intel.com>
+AuthorDate:    Fri, 28 Oct 2022 17:12:19 +03:00
 Committer:     Dave Hansen <dave.hansen@linux.intel.com>
-CommitterDate: Tue, 01 Nov 2022 16:02:40 -07:00
+CommitterDate: Tue, 01 Nov 2022 10:07:15 -07:00
 
-x86/tdx: Panic on bad configs that #VE on "private" memory access
+x86/tdx: Prepare for using "INFO" call for a second purpose
 
-All normal kernel memory is "TDX private memory".  This includes
-everything from kernel stacks to kernel text.  Handling
-exceptions on arbitrary accesses to kernel memory is essentially
-impossible because they can happen in horribly nasty places like
-kernel entry/exit.  But, TDX hardware can theoretically _deliver_
-a virtualization exception (#VE) on any access to private memory.
+The TDG.VP.INFO TDCALL provides the guest with various details about
+the TDX system that the guest needs to run.  Only one field is currently
+used: 'gpa_width' which tells the guest which PTE bits mark pages shared
+or private.
 
-But, it's not as bad as it sounds.  TDX can be configured to never
-deliver these exceptions on private memory with a "TD attribute"
-called ATTR_SEPT_VE_DISABLE.  The guest has no way to *set* this
-attribute, but it can check it.
+A second field is now needed: the guest "TD attributes" to tell if
+virtualization exceptions are configured in a way that can harm the guest.
 
-Ensure ATTR_SEPT_VE_DISABLE is set in early boot.  panic() if it
-is unset.  There is no sane way for Linux to run with this
-attribute clear so a panic() is appropriate.
+Make the naming and calling convention more generic and discrete from the
+mask-centric one.
 
-There's small window during boot before the check where kernel
-has an early #VE handler. But the handler is only for port I/O
-and will also panic() as soon as it sees any other #VE, such as
-a one generated by a private memory access.
+Thanks to Sathya for the inspiration here, but there's no code, comments
+or changelogs left from where he started.
 
-[ dhansen: Rewrite changelog and rebase on new tdx_parse_tdinfo().
-	   Add Kirill's tested-by because I made changes since
-	   he wrote this. ]
-
-Fixes: 9a22bf6debbf ("x86/traps: Add #VE support for TDX guest")
-Reported-by: ruogui.ygr@alibaba-inc.com
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Tested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/20221028141220.29217-3-kirill.shutemov%40linux.intel.com
 ---
- arch/x86/coco/tdx/tdx.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ arch/x86/coco/tdx/tdx.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/arch/x86/coco/tdx/tdx.c b/arch/x86/coco/tdx/tdx.c
-index 3fee969..b8998cf 100644
+index 928dcf7..3fee969 100644
 --- a/arch/x86/coco/tdx/tdx.c
 +++ b/arch/x86/coco/tdx/tdx.c
-@@ -34,6 +34,8 @@
- #define VE_GET_PORT_NUM(e)	((e) >> 16)
- #define VE_IS_IO_STRING(e)	((e) & BIT(4))
+@@ -98,7 +98,7 @@ static inline void tdx_module_call(u64 fn, u64 rcx, u64 rdx, u64 r8, u64 r9,
+ 		panic("TDCALL %lld failed (Buggy TDX module!)\n", fn);
+ }
  
-+#define ATTR_SEPT_VE_DISABLE	BIT(28)
-+
- /*
-  * Wrapper for standard use of __tdx_hypercall with no output aside from
-  * return code.
-@@ -102,6 +104,7 @@ static void tdx_parse_tdinfo(u64 *cc_mask)
+-static u64 get_cc_mask(void)
++static void tdx_parse_tdinfo(u64 *cc_mask)
  {
  	struct tdx_module_output out;
  	unsigned int gpa_width;
-+	u64 td_attr;
- 
- 	/*
- 	 * TDINFO TDX module call is used to get the TD execution environment
-@@ -109,19 +112,27 @@ static void tdx_parse_tdinfo(u64 *cc_mask)
- 	 * information, etc. More details about the ABI can be found in TDX
- 	 * Guest-Host-Communication Interface (GHCI), section 2.4.2 TDCALL
- 	 * [TDG.VP.INFO].
--	 *
--	 * The GPA width that comes out of this call is critical. TDX guests
--	 * can not meaningfully run without it.
- 	 */
- 	tdx_module_call(TDX_GET_INFO, 0, 0, 0, 0, &out);
- 
--	gpa_width = out.rcx & GENMASK(5, 0);
--
- 	/*
+@@ -121,7 +121,7 @@ static u64 get_cc_mask(void)
  	 * The highest bit of a guest physical address is the "sharing" bit.
  	 * Set it for shared pages and clear it for private pages.
-+	 *
-+	 * The GPA width that comes out of this call is critical. TDX guests
-+	 * can not meaningfully run without it.
  	 */
-+	gpa_width = out.rcx & GENMASK(5, 0);
- 	*cc_mask = BIT_ULL(gpa_width - 1);
-+
-+	/*
-+	 * The kernel can not handle #VE's when accessing normal kernel
-+	 * memory.  Ensure that no #VE will be delivered for accesses to
-+	 * TD-private memory.  Only VMM-shared memory (MMIO) will #VE.
-+	 */
-+	td_attr = out.rdx;
-+	if (!(td_attr & ATTR_SEPT_VE_DISABLE))
-+		panic("TD misconfiguration: SEPT_VE_DISABLE attibute must be set.\n");
+-	return BIT_ULL(gpa_width - 1);
++	*cc_mask = BIT_ULL(gpa_width - 1);
  }
  
  /*
+@@ -758,7 +758,7 @@ void __init tdx_early_init(void)
+ 	setup_force_cpu_cap(X86_FEATURE_TDX_GUEST);
+ 
+ 	cc_set_vendor(CC_VENDOR_INTEL);
+-	cc_mask = get_cc_mask();
++	tdx_parse_tdinfo(&cc_mask);
+ 	cc_set_mask(cc_mask);
+ 
+ 	/*
