@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E0436148C6
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:29:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FB9E6148CB
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:29:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230313AbiKAL3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:29:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35532 "EHLO
+        id S230370AbiKAL3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:29:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230358AbiKAL3N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:29:13 -0400
+        with ESMTP id S230368AbiKAL3Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:29:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C81660E7;
-        Tue,  1 Nov 2022 04:28:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 435F7616D;
+        Tue,  1 Nov 2022 04:28:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4986B81CC6;
-        Tue,  1 Nov 2022 11:28:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D8A4C433C1;
-        Tue,  1 Nov 2022 11:28:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 055F3B81CC3;
+        Tue,  1 Nov 2022 11:28:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7853CC433C1;
+        Tue,  1 Nov 2022 11:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302108;
-        bh=bJGpsnaeqIW4OyysBJrOqqOPq6OzDc2JHGBYXmqPJEg=;
+        s=k20201202; t=1667302111;
+        bh=fqCQqSR8ab59nXjlma9DCDL6bufX4YL6UejIkg+oPH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kg289btFN8V8DcuR1CHr7UwGBl39yH39510M6nH9owraouE4KqkosMwk4NbEav/By
-         z169SoSyhHjn8Iv9o5h6bcPr+TQgpvxIr3zrVUxiA1PIT3WfwaDRvxFPbKzeN9+xb1
-         x8SDV6XNA7302kEFWKMxplAwHVGpCGnKBz+lot1GWYyvQY/Km6UvV+/WfbABT5pqmY
-         n3uT2PqGCLi6kwXcKrIvvPqR3K8enCV934mT0hY2j0lk///8hPca65f6YiPt1L5HCl
-         ghCeQGR+Jwv8d37PWF9m3WbCYHrZkyxtxNMW6Nxc4d+Ro8I6kWNGq9EjRdj5PkxfoH
-         bO6y7I93QL2+w==
+        b=l9J9L/zmxUnrWojBERBe0GJIUuG+heRYwe8Q+lkmHdyKNaN3T9fL/Y3Sp1qGitrQo
+         EX+wf3KdTdoUl34cAS5y9Hih+S7xypgRs+WO5oa1mpGJT2Rm+C1jDmAJXYivi7YQzC
+         Tu2N0hsFA40duXrGMcqjcAQPYQFHwYk53a62tL5xmcGX1+drWYTXxzVc5E4eSS6zXX
+         isNWnbyGbY2nY0eWhvzXIWS5nYut8U3mncNpJLYKcFSPJXIWce5t+E4DyTdO0fAob0
+         +LJ2AAD0lkCi96SUjyuJ2xBmo6AfcZzdaEM4eaJVBv2pI3I8XoWMmzFMHCdC4Aweq7
+         r7AttM8TFffyg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ashish Kalra <ashish.kalra@amd.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        robert.moore@intel.com, xueshuai@linux.alibaba.com,
-        tony.luck@intel.com, dave.hansen@linux.intel.com,
-        linux-acpi@vger.kernel.org, devel@acpica.org
-Subject: [PATCH AUTOSEL 6.0 21/34] ACPI: APEI: Fix integer overflow in ghes_estatus_pool_init()
-Date:   Tue,  1 Nov 2022 07:27:13 -0400
-Message-Id: <20221101112726.799368-21-sashal@kernel.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, olivia@selenic.com,
+        rjui@broadcom.com, sbranden@broadcom.com,
+        linux-crypto@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.0 22/34] hwrng: bcm2835 - use hwrng_msleep() instead of cpu_relax()
+Date:   Tue,  1 Nov 2022 07:27:14 -0400
+Message-Id: <20221101112726.799368-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112726.799368-1-sashal@kernel.org>
 References: <20221101112726.799368-1-sashal@kernel.org>
@@ -58,81 +59,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ashish Kalra <ashish.kalra@amd.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 43d2748394c3feb86c0c771466f5847e274fc043 ]
+[ Upstream commit 96cb9d0554457086664d3bd10630b11193d863f1 ]
 
-Change num_ghes from int to unsigned int, preventing an overflow
-and causing subsequent vmalloc() to fail.
+Rather than busy looping, yield back to the scheduler and sleep for a
+bit in the event that there's no data. This should hopefully prevent the
+stalls that Mark reported:
 
-The overflow happens in ghes_estatus_pool_init() when calculating
-len during execution of the statement below as both multiplication
-operands here are signed int:
+<6>[    3.362859] Freeing initrd memory: 16196K
+<3>[   23.160131] rcu: INFO: rcu_sched self-detected stall on CPU
+<3>[   23.166057] rcu:  0-....: (2099 ticks this GP) idle=03b4/1/0x40000002 softirq=28/28 fqs=1050
+<4>[   23.174895]       (t=2101 jiffies g=-1147 q=2353 ncpus=4)
+<4>[   23.180203] CPU: 0 PID: 49 Comm: hwrng Not tainted 6.0.0 #1
+<4>[   23.186125] Hardware name: BCM2835
+<4>[   23.189837] PC is at bcm2835_rng_read+0x30/0x6c
+<4>[   23.194709] LR is at hwrng_fillfn+0x71/0xf4
+<4>[   23.199218] pc : [<c07ccdc8>]    lr : [<c07cb841>]    psr: 40000033
+<4>[   23.205840] sp : f093df70  ip : 00000000  fp : 00000000
+<4>[   23.211404] r10: c3c7e800  r9 : 00000000  r8 : c17e6b20
+<4>[   23.216968] r7 : c17e6b64  r6 : c18b0a74  r5 : c07ccd99  r4 : c3f171c0
+<4>[   23.223855] r3 : 000fffff  r2 : 00000040  r1 : c3c7e800  r0 : c3f171c0
+<4>[   23.230743] Flags: nZcv  IRQs on  FIQs on  Mode SVC_32  ISA Thumb  Segment none
+<4>[   23.238426] Control: 50c5387d  Table: 0020406a  DAC: 00000051
+<4>[   23.244519] CPU: 0 PID: 49 Comm: hwrng Not tainted 6.0.0 #1
 
-len += (num_ghes * GHES_ESOURCE_PREALLOC_MAX_SIZE);
-
-The following call trace is observed because of this bug:
-
-[    9.317108] swapper/0: vmalloc error: size 18446744071562596352, exceeds total pages, mode:0xcc0(GFP_KERNEL), nodemask=(null),cpuset=/,mems_allowed=0-1
-[    9.317131] Call Trace:
-[    9.317134]  <TASK>
-[    9.317137]  dump_stack_lvl+0x49/0x5f
-[    9.317145]  dump_stack+0x10/0x12
-[    9.317146]  warn_alloc.cold+0x7b/0xdf
-[    9.317150]  ? __device_attach+0x16a/0x1b0
-[    9.317155]  __vmalloc_node_range+0x702/0x740
-[    9.317160]  ? device_add+0x17f/0x920
-[    9.317164]  ? dev_set_name+0x53/0x70
-[    9.317166]  ? platform_device_add+0xf9/0x240
-[    9.317168]  __vmalloc_node+0x49/0x50
-[    9.317170]  ? ghes_estatus_pool_init+0x43/0xa0
-[    9.317176]  vmalloc+0x21/0x30
-[    9.317177]  ghes_estatus_pool_init+0x43/0xa0
-[    9.317179]  acpi_hest_init+0x129/0x19c
-[    9.317185]  acpi_init+0x434/0x4a4
-[    9.317188]  ? acpi_sleep_proc_init+0x2a/0x2a
-[    9.317190]  do_one_initcall+0x48/0x200
-[    9.317195]  kernel_init_freeable+0x221/0x284
-[    9.317200]  ? rest_init+0xe0/0xe0
-[    9.317204]  kernel_init+0x1a/0x130
-[    9.317205]  ret_from_fork+0x22/0x30
-[    9.317208]  </TASK>
-
-Signed-off-by: Ashish Kalra <ashish.kalra@amd.com>
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/all/Y0QJLauamRnCDUef@sirena.org.uk/
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/apei/ghes.c | 2 +-
- include/acpi/ghes.h      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/hw_random/bcm2835-rng.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
-index 80ad530583c9..9952f3a792ba 100644
---- a/drivers/acpi/apei/ghes.c
-+++ b/drivers/acpi/apei/ghes.c
-@@ -163,7 +163,7 @@ static void ghes_unmap(void __iomem *vaddr, enum fixed_addresses fixmap_idx)
- 	clear_fixmap(fixmap_idx);
- }
+diff --git a/drivers/char/hw_random/bcm2835-rng.c b/drivers/char/hw_random/bcm2835-rng.c
+index e7dd457e9b22..e98fcac578d6 100644
+--- a/drivers/char/hw_random/bcm2835-rng.c
++++ b/drivers/char/hw_random/bcm2835-rng.c
+@@ -71,7 +71,7 @@ static int bcm2835_rng_read(struct hwrng *rng, void *buf, size_t max,
+ 	while ((rng_readl(priv, RNG_STATUS) >> 24) == 0) {
+ 		if (!wait)
+ 			return 0;
+-		cpu_relax();
++		hwrng_msleep(rng, 1000);
+ 	}
  
--int ghes_estatus_pool_init(int num_ghes)
-+int ghes_estatus_pool_init(unsigned int num_ghes)
- {
- 	unsigned long addr, len;
- 	int rc;
-diff --git a/include/acpi/ghes.h b/include/acpi/ghes.h
-index 34fb3431a8f3..292a5c40bd0c 100644
---- a/include/acpi/ghes.h
-+++ b/include/acpi/ghes.h
-@@ -71,7 +71,7 @@ int ghes_register_vendor_record_notifier(struct notifier_block *nb);
- void ghes_unregister_vendor_record_notifier(struct notifier_block *nb);
- #endif
- 
--int ghes_estatus_pool_init(int num_ghes);
-+int ghes_estatus_pool_init(unsigned int num_ghes);
- 
- /* From drivers/edac/ghes_edac.c */
- 
+ 	num_words = rng_readl(priv, RNG_STATUS) >> 24;
 -- 
 2.35.1
 
