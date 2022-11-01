@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83AB46148DD
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:30:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71CED6148E1
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:31:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230186AbiKALas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:30:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35522 "EHLO
+        id S230458AbiKALbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:31:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230395AbiKAL3g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:29:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACFBF638B;
-        Tue,  1 Nov 2022 04:29:04 -0700 (PDT)
+        with ESMTP id S230322AbiKALaj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:30:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F3E6464;
+        Tue,  1 Nov 2022 04:29:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1319615E0;
-        Tue,  1 Nov 2022 11:29:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D347C433C1;
-        Tue,  1 Nov 2022 11:29:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 580B3B81CC3;
+        Tue,  1 Nov 2022 11:29:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69DCDC433D6;
+        Tue,  1 Nov 2022 11:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302143;
-        bh=3odNfFTxhlSI2oqPWmgqSTu/8N7j/fMmlaKxX+8l4aY=;
+        s=k20201202; t=1667302153;
+        bh=3jXtpSIwEXAW4EAq4OZoPSPi8/gX8DtutC4ENnfdEM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KF6Z6nM/23H2jYDtStELISuRuY1dtFKcvPMUYiZuHZFHyfbYoNJf+/OC0en8r9GlW
-         CKiwp11Vt3zS5ORj4ffbpmGrXxHnqlglSo7PGyCDQvs+ANTGur/WGozAvjy74XhyNI
-         1+d+3eiUnSf9CS1HcZgw2SjPPMbcvc/F8XWL/CnMYcLcxNcP/IFMHCTYYOCS8Ra1EU
-         VIeE1m4+keFZS/eAh1tLAepb3HQcBUXCgFn6Ycn6ys6/kmg4OOul8QEByGlLtBYb/m
-         ByfHm/gJoUZlZG2PoWFmyyxE54VgTN8En2lAXszDQpGMRhkjF9jL0xr97ACXDzpY2s
-         cazKOJgPU1Ufw==
+        b=q6SfJeeC+m1Q0l+pNOooRVEisJhLwdzeXO54fbR9q5+iIV6mFh0WdOfpRhwR2dE/7
+         z12ium+mUJcRPQGm9oNKfZZ5ViiCn4qW4RtWxfpgmXHTFFuAziZf1aDtoXPupI5AW2
+         TYK1hrjc+7/EhuF6fjQ+3au3N9GwaP613jkYaEcASefJEEJpLp7cBgpMZPVw7TgEY+
+         jbk7uGYBdxWDpidlQUUVtmZIIey6Ga9oZNFbFu8iWa2r9G6eIHrJTG85JiiJvX944+
+         INfTPC39um/KOGTA8tlBScxinlmvDncsfiCqfY26s1UQ8A32k5HBYqdT+OBG57p3FZ
+         tXWsjlvmCVsFw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yifan Zha <Yifan.Zha@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
+Cc:     YuBiao Wang <YuBiao.Wang@amd.com>, Jack Xiao <Jack.Xiao@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, Felix.Kuehling@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, tim.huang@amd.com, yifan1.zhang@amd.com,
-        ray.huang@amd.com, Jack.Xiao@amd.com, evan.quan@amd.com,
-        Likun.Gao@amd.com, tao.zhou1@amd.com, YiPeng.Chai@amd.com,
-        Prike.Liang@amd.com, Lang.Yu@amd.com,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
+        Hawking.Zhang@amd.com, Felix.Kuehling@amd.com,
+        Graham.Sider@amd.com, yifan1.zhang@amd.com,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 29/34] drm/amdgpu: Program GC registers through RLCG interface in gfx_v11/gmc_v11
-Date:   Tue,  1 Nov 2022 07:27:21 -0400
-Message-Id: <20221101112726.799368-29-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.0 30/34] drm/amdgpu: dequeue mes scheduler during fini
+Date:   Tue,  1 Nov 2022 07:27:22 -0400
+Message-Id: <20221101112726.799368-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112726.799368-1-sashal@kernel.org>
 References: <20221101112726.799368-1-sashal@kernel.org>
@@ -62,106 +59,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifan Zha <Yifan.Zha@amd.com>
+From: YuBiao Wang <YuBiao.Wang@amd.com>
 
-[ Upstream commit 97a3d6090f5c2a165dc88bda05c1dcf9f08bf886 ]
+[ Upstream commit 2abe92c7adc9c0397ba51bf74909b85bc0fff84b ]
 
 [Why]
-L1 blocks most of GC registers accessing by MMIO.
+If mes is not dequeued during fini, mes will be in an uncleaned state
+during reload, then mes couldn't receive some commands which leads to
+reload failure.
 
 [How]
-Use RLCG interface to program GC registers under SRIOV VF in full access time.
+Perform MES dequeue via MMIO after all the unmap jobs are done by mes
+and before kiq fini.
 
-Signed-off-by: Yifan Zha <Yifan.Zha@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
+v2: Move the dequeue operation inside kiq_hw_fini.
+
+Signed-off-by: YuBiao Wang <YuBiao.Wang@amd.com>
+Reviewed-by: Jack Xiao <Jack.Xiao@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c |  2 +-
- drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c         |  2 +-
- drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c         | 18 +++++++++++-------
- 3 files changed, 13 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/mes_v11_0.c | 42 ++++++++++++++++++++++++--
+ 1 file changed, 39 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c
-index 0b0a72ca5695..7e80caa05060 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c
-@@ -111,7 +111,7 @@ static int init_interrupts_v11(struct amdgpu_device *adev, uint32_t pipe_id)
+diff --git a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
+index f92744b8d79d..2dd827472d6e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
+@@ -1145,6 +1145,42 @@ static int mes_v11_0_sw_fini(void *handle)
+ 	return 0;
+ }
  
- 	lock_srbm(adev, mec, pipe, 0, 0);
- 
--	WREG32(SOC15_REG_OFFSET(GC, 0, regCPC_INT_CNTL),
-+	WREG32_SOC15(GC, 0, regCPC_INT_CNTL,
- 		CP_INT_CNTL_RING0__TIME_STAMP_INT_ENABLE_MASK |
- 		CP_INT_CNTL_RING0__OPCODE_ERROR_INT_ENABLE_MASK);
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-index daf8ba8235cd..03775e0a8100 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-@@ -1729,7 +1729,7 @@ static void gfx_v11_0_init_compute_vmid(struct amdgpu_device *adev)
- 		WREG32_SOC15(GC, 0, regSH_MEM_BASES, sh_mem_bases);
- 
- 		/* Enable trap for each kfd vmid. */
--		data = RREG32(SOC15_REG_OFFSET(GC, 0, regSPI_GDBG_PER_VMID_CNTL));
-+		data = RREG32_SOC15(GC, 0, regSPI_GDBG_PER_VMID_CNTL);
- 		data = REG_SET_FIELD(data, SPI_GDBG_PER_VMID_CNTL, TRAP_EN, 1);
- 	}
- 	soc21_grbm_select(adev, 0, 0, 0, 0);
-diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c
-index 1471bfb9ae38..2475fdbe8010 100644
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c
-@@ -185,6 +185,10 @@ static void gmc_v11_0_flush_vm_hub(struct amdgpu_device *adev, uint32_t vmid,
- 	/* Use register 17 for GART */
- 	const unsigned eng = 17;
- 	unsigned int i;
-+	unsigned char hub_ip = 0;
++static void mes_v11_0_kiq_dequeue_sched(struct amdgpu_device *adev)
++{
++	uint32_t data;
++	int i;
 +
-+	hub_ip = (vmhub == AMDGPU_GFXHUB_0) ?
-+		   GC_HWIP : MMHUB_HWIP;
++	mutex_lock(&adev->srbm_mutex);
++	soc21_grbm_select(adev, 3, AMDGPU_MES_SCHED_PIPE, 0, 0);
++
++	/* disable the queue if it's active */
++	if (RREG32_SOC15(GC, 0, regCP_HQD_ACTIVE) & 1) {
++		WREG32_SOC15(GC, 0, regCP_HQD_DEQUEUE_REQUEST, 1);
++		for (i = 0; i < adev->usec_timeout; i++) {
++			if (!(RREG32_SOC15(GC, 0, regCP_HQD_ACTIVE) & 1))
++				break;
++			udelay(1);
++		}
++	}
++	data = RREG32_SOC15(GC, 0, regCP_HQD_PQ_DOORBELL_CONTROL);
++	data = REG_SET_FIELD(data, CP_HQD_PQ_DOORBELL_CONTROL,
++				DOORBELL_EN, 0);
++	data = REG_SET_FIELD(data, CP_HQD_PQ_DOORBELL_CONTROL,
++				DOORBELL_HIT, 1);
++	WREG32_SOC15(GC, 0, regCP_HQD_PQ_DOORBELL_CONTROL, data);
++
++	WREG32_SOC15(GC, 0, regCP_HQD_PQ_DOORBELL_CONTROL, 0);
++
++	WREG32_SOC15(GC, 0, regCP_HQD_PQ_WPTR_LO, 0);
++	WREG32_SOC15(GC, 0, regCP_HQD_PQ_WPTR_HI, 0);
++	WREG32_SOC15(GC, 0, regCP_HQD_PQ_RPTR, 0);
++
++	soc21_grbm_select(adev, 0, 0, 0, 0);
++	mutex_unlock(&adev->srbm_mutex);
++
++	adev->mes.ring.sched.ready = false;
++}
++
+ static void mes_v11_0_kiq_setting(struct amdgpu_ring *ring)
+ {
+ 	uint32_t tmp;
+@@ -1196,6 +1232,9 @@ static int mes_v11_0_kiq_hw_init(struct amdgpu_device *adev)
  
- 	spin_lock(&adev->gmc.invalidate_lock);
- 	/*
-@@ -198,8 +202,8 @@ static void gmc_v11_0_flush_vm_hub(struct amdgpu_device *adev, uint32_t vmid,
- 	if (use_semaphore) {
- 		for (i = 0; i < adev->usec_timeout; i++) {
- 			/* a read return value of 1 means semaphore acuqire */
--			tmp = RREG32_NO_KIQ(hub->vm_inv_eng0_sem +
--					    hub->eng_distance * eng);
-+			tmp = RREG32_RLC_NO_KIQ(hub->vm_inv_eng0_sem +
-+					    hub->eng_distance * eng, hub_ip);
- 			if (tmp & 0x1)
- 				break;
- 			udelay(1);
-@@ -209,12 +213,12 @@ static void gmc_v11_0_flush_vm_hub(struct amdgpu_device *adev, uint32_t vmid,
- 			DRM_ERROR("Timeout waiting for sem acquire in VM flush!\n");
- 	}
+ static int mes_v11_0_kiq_hw_fini(struct amdgpu_device *adev)
+ {
++	if (adev->mes.ring.sched.ready)
++		mes_v11_0_kiq_dequeue_sched(adev);
++
+ 	mes_v11_0_enable(adev, false);
+ 	return 0;
+ }
+@@ -1251,9 +1290,6 @@ static int mes_v11_0_hw_init(void *handle)
  
--	WREG32_NO_KIQ(hub->vm_inv_eng0_req + hub->eng_distance * eng, inv_req);
-+	WREG32_RLC_NO_KIQ(hub->vm_inv_eng0_req + hub->eng_distance * eng, inv_req, hub_ip);
+ static int mes_v11_0_hw_fini(void *handle)
+ {
+-	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+-
+-	adev->mes.ring.sched.ready = false;
+ 	return 0;
+ }
  
- 	/* Wait for ACK with a delay.*/
- 	for (i = 0; i < adev->usec_timeout; i++) {
--		tmp = RREG32_NO_KIQ(hub->vm_inv_eng0_ack +
--				    hub->eng_distance * eng);
-+		tmp = RREG32_RLC_NO_KIQ(hub->vm_inv_eng0_ack +
-+				    hub->eng_distance * eng, hub_ip);
- 		tmp &= 1 << vmid;
- 		if (tmp)
- 			break;
-@@ -228,8 +232,8 @@ static void gmc_v11_0_flush_vm_hub(struct amdgpu_device *adev, uint32_t vmid,
- 		 * add semaphore release after invalidation,
- 		 * write with 0 means semaphore release
- 		 */
--		WREG32_NO_KIQ(hub->vm_inv_eng0_sem +
--			      hub->eng_distance * eng, 0);
-+		WREG32_RLC_NO_KIQ(hub->vm_inv_eng0_sem +
-+			      hub->eng_distance * eng, 0, hub_ip);
- 
- 	/* Issue additional private vm invalidation to MMHUB */
- 	if ((vmhub != AMDGPU_GFXHUB_0) &&
 -- 
 2.35.1
 
