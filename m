@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A66F614922
-	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:33:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 287AA614928
+	for <lists+stable@lfdr.de>; Tue,  1 Nov 2022 12:34:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231235AbiKALdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 07:33:22 -0400
+        id S230175AbiKALeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 07:34:09 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231172AbiKALdA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:33:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9BA71AF27;
-        Tue,  1 Nov 2022 04:30:13 -0700 (PDT)
+        with ESMTP id S231175AbiKALdU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 07:33:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB16E1BEA5;
+        Tue,  1 Nov 2022 04:30:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29837B81CC6;
-        Tue,  1 Nov 2022 11:30:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99B7BC433D7;
-        Tue,  1 Nov 2022 11:30:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2DF4B81C9C;
+        Tue,  1 Nov 2022 11:30:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B570C433C1;
+        Tue,  1 Nov 2022 11:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302206;
-        bh=Jihi+eO85z7Z056MqHxc/Cn4Z8SMENDYNRLcV01aesQ=;
+        s=k20201202; t=1667302208;
+        bh=VADL+T6fZwdGh0W4raH+aJgABxlYJhViH1cU4JQ1Fsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xe3H+YCutFcLW7wSoqveyHkvkj67ub5sRX10sgMvDQYlKHkFmiaQobm8pYmM/3zjF
-         mhvSRBYhfWpxiq3XH4zH+e1wAAq/v0mpzh/teMlWVAKfYce+suunjk0xauOxkuLgYr
-         P3g5/zb06pJEIBM4YCPN1jm71gQve1TrKJNgAivtANYLhfCFgYG6ugltaraVZz1CAw
-         xJBX+wXZA8zt/8vCZkD/7QWgMLIyEIebKZbBU0gjXJuBU9/h5uxGhwNUO5DAazLfoF
-         4u8zeLUI1sQlQuq5EURjbf9e2g9xdRU3aRmGsGbfpsO/7khSmw4AzeUKZwfsG/LoKA
-         aYpOv132MaIBg==
+        b=IopP+7SdWLGD9COEUihbRs9DdzpJokTCeqyBzKUl4OkLgU0xxCXKqkAXDqNmOyEvg
+         rXWvfls3RGYT95rX9NhsBQysIedG2FLC7ZGbQ2DwAXA69mW2TEENs/VaAcWxq4308c
+         KA25GFRPwNd0DFPeuz71ZVAXM19Gq4frGAPvj6lC5wxdxiM7YquiYGbTLn3ukiKB3g
+         uulqvai+ZQxwqRJyiTswADMI0rYmrhkIbP5cpnbbTu9lHggc8ggcCXdA1fEoSkSmdf
+         0g2Yz8yO3o+iXbIK8JeiH2e9oozawSmgh7QTvcS+U8Eaj5yRFWyhp/cA+MVs4SITHx
+         qWNx2Gr/ALlSw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Danijel Slivka <danijel.slivka@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        Hawking.Zhang@amd.com, lijo.lazar@amd.com, Jingwen.Chen2@amd.com,
-        marmarek@invisiblethingslab.com, victor.skvortsov@amd.com,
-        guchun.chen@amd.com, bernard@vivo.com, Gavin.Wan@amd.com,
-        PengJu.Zhou@amd.com, Victor.Zhao@amd.com, Philip.Yang@amd.com,
-        qiang.yu@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 17/19] drm/amdgpu: set vm_update_mode=0 as default for Sienna Cichlid in SRIOV case
-Date:   Tue,  1 Nov 2022 07:29:17 -0400
-Message-Id: <20221101112919.799868-17-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>, Guenter Roeck <linux@roeck-us.net>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
+        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 18/19] nvme-hwmon: consistently ignore errors from nvme_hwmon_init
+Date:   Tue,  1 Nov 2022 07:29:18 -0400
+Message-Id: <20221101112919.799868-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221101112919.799868-1-sashal@kernel.org>
 References: <20221101112919.799868-1-sashal@kernel.org>
@@ -63,84 +56,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danijel Slivka <danijel.slivka@amd.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 65f8682b9aaae20c2cdee993e6fe52374ad513c9 ]
+[ Upstream commit 6b8cf94005187952f794c0c4ed3920a1e8accfa3 ]
 
-For asic with VF MMIO access protection avoid using CPU for VM table updates.
-CPU pagetable updates have issues with HDP flush as VF MMIO access protection
-blocks write to mmBIF_BX_DEV0_EPF0_VF0_HDP_MEM_COHERENCY_FLUSH_CNTL register
-during sriov runtime.
+An NVMe controller works perfectly fine even when the hwmon
+initialization fails.  Stop returning errors that do not come from a
+controller reset from nvme_hwmon_init to handle this case consistently.
 
-v3: introduce virtualization capability flag AMDGPU_VF_MMIO_ACCESS_PROTECT
-which indicates that VF MMIO write access is not allowed in sriov runtime
-
-Signed-off-by: Danijel Slivka <danijel.slivka@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c | 6 ++++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h | 4 ++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c   | 6 +++++-
- 3 files changed, 15 insertions(+), 1 deletion(-)
+ drivers/nvme/host/core.c  |  6 +++++-
+ drivers/nvme/host/hwmon.c | 13 ++++++++-----
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-index a0803425b456..b508126a9738 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-@@ -706,6 +706,12 @@ void amdgpu_detect_virtualization(struct amdgpu_device *adev)
- 			adev->virt.caps |= AMDGPU_PASSTHROUGH_MODE;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 3527a0667568..92fe67bd2457 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3088,8 +3088,12 @@ int nvme_init_ctrl_finish(struct nvme_ctrl *ctrl)
+ 		return ret;
+ 
+ 	if (!ctrl->identified && !nvme_discovery_ctrl(ctrl)) {
++		/*
++		 * Do not return errors unless we are in a controller reset,
++		 * the controller works perfectly fine without hwmon.
++		 */
+ 		ret = nvme_hwmon_init(ctrl);
+-		if (ret < 0)
++		if (ret == -EINTR)
+ 			return ret;
  	}
  
-+	if (amdgpu_sriov_vf(adev) && adev->asic_type == CHIP_SIENNA_CICHLID)
-+		/* VF MMIO access (except mailbox range) from CPU
-+		 * will be blocked during sriov runtime
-+		 */
-+		adev->virt.caps |= AMDGPU_VF_MMIO_ACCESS_PROTECT;
-+
- 	/* we have the ability to check now */
- 	if (amdgpu_sriov_vf(adev)) {
- 		switch (adev->asic_type) {
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h
-index 9adfb8d63280..ce31d4fdee93 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h
-@@ -31,6 +31,7 @@
- #define AMDGPU_SRIOV_CAPS_IS_VF        (1 << 2) /* this GPU is a virtual function */
- #define AMDGPU_PASSTHROUGH_MODE        (1 << 3) /* thw whole GPU is pass through for VM */
- #define AMDGPU_SRIOV_CAPS_RUNTIME      (1 << 4) /* is out of full access mode */
-+#define AMDGPU_VF_MMIO_ACCESS_PROTECT  (1 << 5) /* MMIO write access is not allowed in sriov runtime */
+diff --git a/drivers/nvme/host/hwmon.c b/drivers/nvme/host/hwmon.c
+index 0a586d712920..23918bb7bdca 100644
+--- a/drivers/nvme/host/hwmon.c
++++ b/drivers/nvme/host/hwmon.c
+@@ -230,7 +230,7 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
  
- /* all asic after AI use this offset */
- #define mmRCC_IOV_FUNC_IDENTIFIER 0xDE5
-@@ -278,6 +279,9 @@ struct amdgpu_video_codec_info;
- #define amdgpu_passthrough(adev) \
- ((adev)->virt.caps & AMDGPU_PASSTHROUGH_MODE)
+ 	data = kzalloc(sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+-		return 0;
++		return -ENOMEM;
  
-+#define amdgpu_sriov_vf_mmio_access_protection(adev) \
-+((adev)->virt.caps & AMDGPU_VF_MMIO_ACCESS_PROTECT)
+ 	data->ctrl = ctrl;
+ 	mutex_init(&data->read_lock);
+@@ -238,8 +238,7 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
+ 	err = nvme_hwmon_get_smart_log(data);
+ 	if (err) {
+ 		dev_warn(dev, "Failed to read smart log (error %d)\n", err);
+-		kfree(data);
+-		return err;
++		goto err_free_data;
+ 	}
+ 
+ 	hwmon = hwmon_device_register_with_info(dev, "nvme",
+@@ -247,11 +246,15 @@ int nvme_hwmon_init(struct nvme_ctrl *ctrl)
+ 						NULL);
+ 	if (IS_ERR(hwmon)) {
+ 		dev_warn(dev, "Failed to instantiate hwmon device\n");
+-		kfree(data);
+-		return PTR_ERR(hwmon);
++		err = PTR_ERR(hwmon);
++		goto err_free_data;
+ 	}
+ 	ctrl->hwmon_device = hwmon;
+ 	return 0;
 +
- static inline bool is_virtual_machine(void)
- {
- #ifdef CONFIG_X86
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-index fd37bb39774c..01710cd0d972 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -3224,7 +3224,11 @@ void amdgpu_vm_manager_init(struct amdgpu_device *adev)
- 	 */
- #ifdef CONFIG_X86_64
- 	if (amdgpu_vm_update_mode == -1) {
--		if (amdgpu_gmc_vram_full_visible(&adev->gmc))
-+		/* For asic with VF MMIO access protection
-+		 * avoid using CPU for VM table updates
-+		 */
-+		if (amdgpu_gmc_vram_full_visible(&adev->gmc) &&
-+		    !amdgpu_sriov_vf_mmio_access_protection(adev))
- 			adev->vm_manager.vm_update_mode =
- 				AMDGPU_VM_USE_CPU_FOR_COMPUTE;
- 		else
++err_free_data:
++	kfree(data);
++	return err;
+ }
+ 
+ void nvme_hwmon_exit(struct nvme_ctrl *ctrl)
 -- 
 2.35.1
 
