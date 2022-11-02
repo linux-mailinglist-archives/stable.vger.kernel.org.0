@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 038A9615AB9
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:39:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BFF0615A85
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:32:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229826AbiKBDjs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:39:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56962 "EHLO
+        id S231174AbiKBDcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:32:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230115AbiKBDjr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:39:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B002657F
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:39:46 -0700 (PDT)
+        with ESMTP id S231171AbiKBDct (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:32:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06AF36413
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:32:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D234617D4
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:39:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E483C433D6;
-        Wed,  2 Nov 2022 03:39:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0485B82072
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:32:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FEE5C433D6;
+        Wed,  2 Nov 2022 03:32:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360385;
-        bh=3KHNOE4VFvIOrotjvbRERgvBBlSRWKxhJQL625JXmXg=;
+        s=korg; t=1667359965;
+        bh=T+e0r3n7zNdg4082UbrEg3ntzv5SD+KG8RD2FFIxk9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGQSH5UvSEsugJSPtiCzojiKgooyjplmqc43zYZb4xVCJV8uwGEc9xgZiQH2lYFcA
-         PQvrtrHDcIuynnZPhCTNJY6RmHsVYWcMBVsg5LklgKjcjQe7DBH4cLyN7vd8byR7Be
-         e0elvV4ODlUC5ymFvnZSpTJsDamAyLrCP9Wru7dY=
+        b=FMmv6ejv/3jFrjhI2reQsYtN8e8pQ0NElFIYAOfsFfNfGPG28vWBCoZGLNW87oPDA
+         ejgtXPiZDiSfPX5FEcEVEhGR+f6/wtwwHHGk43NyrAgM1mFYIU193P5jG/N4Fx9fhA
+         SjlFUR8Tgs8lh3+3dlmNPiKsl8jChjWPx1ADSEM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>
-Subject: [PATCH 4.14 28/60] drm/msm/hdmi: fix memory corruption with too many bridges
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 64/78] media: vivid: s_fbuf: add more sanity checks
 Date:   Wed,  2 Nov 2022 03:34:49 +0100
-Message-Id: <20221102022052.004542720@linuxfoundation.org>
+Message-Id: <20221102022054.831223648@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit 4c1294da6aed1f16d47a417dcfe6602833c3c95c upstream.
+[ Upstream commit f8bcaf714abfc94818dff8c0db84d750433984f4 ]
 
-Add the missing sanity check on the bridge counter to avoid corrupting
-data beyond the fixed-sized bridge array in case there are ever more
-than eight bridges.
+VIDIOC_S_FBUF is by definition a scary ioctl, which is why only root
+can use it. But at least check if the framebuffer parameters match that
+of one of the framebuffer created by vivid, and reject anything else.
 
-Fixes: a3376e3ec81c ("drm/msm: convert to drm_bridge")
-Cc: stable@vger.kernel.org	# 3.12
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Tested-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/502670/
-Link: https://lore.kernel.org/r/20220913085320.8577-5-johan+linaro@kernel.org
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: ef834f7836ec ([media] vivid: add the video capture and output parts)
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/hdmi/hdmi.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/platform/vivid/vivid-core.c    | 22 ++++++++++++++++++++
+ drivers/media/platform/vivid/vivid-core.h    |  2 ++
+ drivers/media/platform/vivid/vivid-vid-cap.c |  9 +++++++-
+ 3 files changed, 32 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/msm/hdmi/hdmi.c
-+++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
-@@ -291,6 +291,11 @@ int msm_hdmi_modeset_init(struct hdmi *h
- 	struct platform_device *pdev = hdmi->pdev;
- 	int ret;
+diff --git a/drivers/media/platform/vivid/vivid-core.c b/drivers/media/platform/vivid/vivid-core.c
+index b603ca412387..e8cd189ec9ef 100644
+--- a/drivers/media/platform/vivid/vivid-core.c
++++ b/drivers/media/platform/vivid/vivid-core.c
+@@ -297,6 +297,28 @@ static int vidioc_g_fbuf(struct file *file, void *fh, struct v4l2_framebuffer *a
+ 	return vivid_vid_out_g_fbuf(file, fh, a);
+ }
  
-+	if (priv->num_bridges == ARRAY_SIZE(priv->bridges)) {
-+		DRM_DEV_ERROR(dev->dev, "too many bridges\n");
-+		return -ENOSPC;
-+	}
++/*
++ * Only support the framebuffer of one of the vivid instances.
++ * Anything else is rejected.
++ */
++bool vivid_validate_fb(const struct v4l2_framebuffer *a)
++{
++	struct vivid_dev *dev;
++	int i;
 +
- 	hdmi->dev = dev;
- 	hdmi->encoder = encoder;
++	for (i = 0; i < n_devs; i++) {
++		dev = vivid_devs[i];
++		if (!dev || !dev->video_pbase)
++			continue;
++		if ((unsigned long)a->base == dev->video_pbase &&
++		    a->fmt.width <= dev->display_width &&
++		    a->fmt.height <= dev->display_height &&
++		    a->fmt.bytesperline <= dev->display_byte_stride)
++			return true;
++	}
++	return false;
++}
++
+ static int vidioc_s_fbuf(struct file *file, void *fh, const struct v4l2_framebuffer *a)
+ {
+ 	struct video_device *vdev = video_devdata(file);
+diff --git a/drivers/media/platform/vivid/vivid-core.h b/drivers/media/platform/vivid/vivid-core.h
+index cd4c8230563c..6ea4448dfb7c 100644
+--- a/drivers/media/platform/vivid/vivid-core.h
++++ b/drivers/media/platform/vivid/vivid-core.h
+@@ -551,4 +551,6 @@ static inline bool vivid_is_hdmi_out(const struct vivid_dev *dev)
+ 	return dev->output_type[dev->output] == HDMI;
+ }
  
++bool vivid_validate_fb(const struct v4l2_framebuffer *a);
++
+ #endif
+diff --git a/drivers/media/platform/vivid/vivid-vid-cap.c b/drivers/media/platform/vivid/vivid-vid-cap.c
+index c58ae489f39c..30d9106624b9 100644
+--- a/drivers/media/platform/vivid/vivid-vid-cap.c
++++ b/drivers/media/platform/vivid/vivid-vid-cap.c
+@@ -1240,7 +1240,14 @@ int vivid_vid_cap_s_fbuf(struct file *file, void *fh,
+ 		return -EINVAL;
+ 	if (a->fmt.bytesperline < (a->fmt.width * fmt->bit_depth[0]) / 8)
+ 		return -EINVAL;
+-	if (a->fmt.height * a->fmt.bytesperline < a->fmt.sizeimage)
++	if (a->fmt.bytesperline > a->fmt.sizeimage / a->fmt.height)
++		return -EINVAL;
++
++	/*
++	 * Only support the framebuffer of one of the vivid instances.
++	 * Anything else is rejected.
++	 */
++	if (!vivid_validate_fb(a))
+ 		return -EINVAL;
+ 
+ 	dev->fb_vbase_cap = phys_to_virt((unsigned long)a->base);
+-- 
+2.35.1
+
 
 
