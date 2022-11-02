@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D780E6159C9
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:18:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0AE0615A48
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:28:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229950AbiKBDSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:18:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37290 "EHLO
+        id S231184AbiKBD2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:28:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229974AbiKBDSK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:18:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4183B24BED
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:18:09 -0700 (PDT)
+        with ESMTP id S231163AbiKBD2U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:28:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64FB02612C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:28:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB316B82072
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:18:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9EF1C433C1;
-        Wed,  2 Nov 2022 03:18:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0138F61799
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:28:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95145C433C1;
+        Wed,  2 Nov 2022 03:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359086;
-        bh=Ai0T8Se5ZxTVM0gTCa/ktOwFA53etXm5lzdNh0kKnNE=;
+        s=korg; t=1667359685;
+        bh=zGfuE45S3FXHX+uiH5I27s5YYHNOm8CX2Prl/n4NoEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mXkTRdLR9/IhG3B91kyqyqVto0m72jI6wvJZEjWBDnEnFjWrP7aCxWr7+fR4mMmb3
-         NFVpDRvVHk1tABhqigVMkmB6YTYbv3csk64e2GrUKUJ9tUf4PHF0m/b7pTdAOFgbcl
-         YnsIMRBCZuF/sTnD8U6Yx1krvrvex2HlPaGOlW3k=
+        b=FF53s+RZAXYmBgPxTqaKcZsIVdATJJvMvAN0zmg97PPPLaC3uD+PwqsjTsIlSItmz
+         4OiDdwkn0RXbxln+/Xx5zsPdu7u/NZULNzw3impB52ZmcBu/4MPIrKpgxc5FkIBd0w
+         V9CdbNU5GKC1d1T5RlRm9uElzic9M5FvCqla6opY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 66/91] media: v4l2-dv-timings: add sanity checks for blanking values
+        patches@lists.linux.dev, Zhang Rui <rui.zhang@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Len Brown <len.brown@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 04/78] hwmon/coretemp: Handle large core ID value
 Date:   Wed,  2 Nov 2022 03:33:49 +0100
-Message-Id: <20221102022056.911661946@linuxfoundation.org>
+Message-Id: <20221102022053.036768743@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +54,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Zhang Rui <rui.zhang@intel.com>
 
-[ Upstream commit 4b6d66a45ed34a15721cb9e11492fa1a24bc83df ]
+commit 7108b80a542b9d65e44b36d64a700a83658c0b73 upstream.
 
-Add sanity checks to v4l2_valid_dv_timings() to ensure that the provided
-blanking values are reasonable.
+The coretemp driver supports up to a hard-coded limit of 128 cores.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: b18787ed1ce3 ([media] v4l2-dv-timings: add new helper module)
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Today, the driver can not support a core with an ID above that limit.
+Yet, the encoding of core ID's is arbitrary (BIOS APIC-ID) and so they
+may be sparse and they may be large.
+
+Update the driver to map arbitrary core ID numbers into appropriate
+array indexes so that 128 cores can be supported, no matter the encoding
+of core ID's.
+
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Acked-by: Len Brown <len.brown@intel.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20221014090147.1836-3-rui.zhang@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/v4l2-core/v4l2-dv-timings.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/hwmon/coretemp.c |   56 ++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 41 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-dv-timings.c b/drivers/media/v4l2-core/v4l2-dv-timings.c
-index af48705c704f..003c32fed3f7 100644
---- a/drivers/media/v4l2-core/v4l2-dv-timings.c
-+++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
-@@ -161,6 +161,20 @@ bool v4l2_valid_dv_timings(const struct v4l2_dv_timings *t,
- 	    (bt->interlaced && !(caps & V4L2_DV_BT_CAP_INTERLACED)) ||
- 	    (!bt->interlaced && !(caps & V4L2_DV_BT_CAP_PROGRESSIVE)))
- 		return false;
-+
-+	/* sanity checks for the blanking timings */
-+	if (!bt->interlaced &&
-+	    (bt->il_vbackporch || bt->il_vsync || bt->il_vfrontporch))
-+		return false;
-+	if (bt->hfrontporch > 2 * bt->width ||
-+	    bt->hsync > 1024 || bt->hbackporch > 1024)
-+		return false;
-+	if (bt->vfrontporch > 4096 ||
-+	    bt->vsync > 128 || bt->vbackporch > 4096)
-+		return false;
-+	if (bt->interlaced && (bt->il_vfrontporch > 4096 ||
-+	    bt->il_vsync > 128 || bt->il_vbackporch > 4096))
-+		return false;
- 	return fnc == NULL || fnc(t, fnc_handle);
+--- a/drivers/hwmon/coretemp.c
++++ b/drivers/hwmon/coretemp.c
+@@ -59,9 +59,6 @@ MODULE_PARM_DESC(tjmax, "TjMax value in
+ #define TOTAL_ATTRS		(MAX_CORE_ATTRS + 1)
+ #define MAX_CORE_DATA		(NUM_REAL_CORES + BASE_SYSFS_ATTR_NO)
+ 
+-#define TO_CORE_ID(cpu)		(cpu_data(cpu).cpu_core_id)
+-#define TO_ATTR_NO(cpu)		(TO_CORE_ID(cpu) + BASE_SYSFS_ATTR_NO)
+-
+ #ifdef CONFIG_SMP
+ #define for_each_sibling(i, cpu) \
+ 	for_each_cpu(i, topology_sibling_cpumask(cpu))
+@@ -104,6 +101,8 @@ struct temp_data {
+ struct platform_data {
+ 	struct device		*hwmon_dev;
+ 	u16			pkg_id;
++	u16			cpu_map[NUM_REAL_CORES];
++	struct ida		ida;
+ 	struct cpumask		cpumask;
+ 	struct temp_data	*core_data[MAX_CORE_DATA];
+ 	struct device_attribute name_attr;
+@@ -454,7 +453,7 @@ static struct temp_data *init_temp_data(
+ 							MSR_IA32_THERM_STATUS;
+ 	tdata->is_pkg_data = pkg_flag;
+ 	tdata->cpu = cpu;
+-	tdata->cpu_core_id = TO_CORE_ID(cpu);
++	tdata->cpu_core_id = topology_core_id(cpu);
+ 	tdata->attr_size = MAX_CORE_ATTRS;
+ 	mutex_init(&tdata->update_lock);
+ 	return tdata;
+@@ -467,7 +466,7 @@ static int create_core_data(struct platf
+ 	struct platform_data *pdata = platform_get_drvdata(pdev);
+ 	struct cpuinfo_x86 *c = &cpu_data(cpu);
+ 	u32 eax, edx;
+-	int err, attr_no;
++	int err, index, attr_no;
+ 
+ 	/*
+ 	 * Find attr number for sysfs:
+@@ -475,14 +474,26 @@ static int create_core_data(struct platf
+ 	 * The attr number is always core id + 2
+ 	 * The Pkgtemp will always show up as temp1_*, if available
+ 	 */
+-	attr_no = pkg_flag ? PKG_SYSFS_ATTR_NO : TO_ATTR_NO(cpu);
++	if (pkg_flag) {
++		attr_no = PKG_SYSFS_ATTR_NO;
++	} else {
++		index = ida_alloc(&pdata->ida, GFP_KERNEL);
++		if (index < 0)
++			return index;
++		pdata->cpu_map[index] = topology_core_id(cpu);
++		attr_no = index + BASE_SYSFS_ATTR_NO;
++	}
+ 
+-	if (attr_no > MAX_CORE_DATA - 1)
+-		return -ERANGE;
++	if (attr_no > MAX_CORE_DATA - 1) {
++		err = -ERANGE;
++		goto ida_free;
++	}
+ 
+ 	tdata = init_temp_data(cpu, pkg_flag);
+-	if (!tdata)
+-		return -ENOMEM;
++	if (!tdata) {
++		err = -ENOMEM;
++		goto ida_free;
++	}
+ 
+ 	/* Test if we can access the status register */
+ 	err = rdmsr_safe_on_cpu(cpu, tdata->status_reg, &eax, &edx);
+@@ -518,6 +529,9 @@ static int create_core_data(struct platf
+ exit_free:
+ 	pdata->core_data[attr_no] = NULL;
+ 	kfree(tdata);
++ida_free:
++	if (!pkg_flag)
++		ida_free(&pdata->ida, index);
+ 	return err;
  }
- EXPORT_SYMBOL_GPL(v4l2_valid_dv_timings);
--- 
-2.35.1
-
+ 
+@@ -537,6 +551,9 @@ static void coretemp_remove_core(struct
+ 
+ 	kfree(pdata->core_data[indx]);
+ 	pdata->core_data[indx] = NULL;
++
++	if (indx >= BASE_SYSFS_ATTR_NO)
++		ida_free(&pdata->ida, indx - BASE_SYSFS_ATTR_NO);
+ }
+ 
+ static int coretemp_probe(struct platform_device *pdev)
+@@ -550,6 +567,7 @@ static int coretemp_probe(struct platfor
+ 		return -ENOMEM;
+ 
+ 	pdata->pkg_id = pdev->id;
++	ida_init(&pdata->ida);
+ 	platform_set_drvdata(pdev, pdata);
+ 
+ 	pdata->hwmon_dev = devm_hwmon_device_register_with_groups(dev, DRVNAME,
+@@ -566,6 +584,7 @@ static int coretemp_remove(struct platfo
+ 		if (pdata->core_data[i])
+ 			coretemp_remove_core(pdata, i);
+ 
++	ida_destroy(&pdata->ida);
+ 	return 0;
+ }
+ 
+@@ -660,7 +679,7 @@ static int coretemp_cpu_offline(unsigned
+ 	struct platform_device *pdev = coretemp_get_pdev(cpu);
+ 	struct platform_data *pd;
+ 	struct temp_data *tdata;
+-	int indx, target;
++	int i, indx = -1, target;
+ 
+ 	/*
+ 	 * Don't execute this on suspend as the device remove locks
+@@ -673,12 +692,19 @@ static int coretemp_cpu_offline(unsigned
+ 	if (!pdev)
+ 		return 0;
+ 
+-	/* The core id is too big, just return */
+-	indx = TO_ATTR_NO(cpu);
+-	if (indx > MAX_CORE_DATA - 1)
++	pd = platform_get_drvdata(pdev);
++
++	for (i = 0; i < NUM_REAL_CORES; i++) {
++		if (pd->cpu_map[i] == topology_core_id(cpu)) {
++			indx = i + BASE_SYSFS_ATTR_NO;
++			break;
++		}
++	}
++
++	/* Too many cores and this core is not populated, just return */
++	if (indx < 0)
+ 		return 0;
+ 
+-	pd = platform_get_drvdata(pdev);
+ 	tdata = pd->core_data[indx];
+ 
+ 	cpumask_clear_cpu(cpu, &pd->cpumask);
 
 
