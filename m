@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A35E96157E3
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:41:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97E3F6157E4
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:41:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230262AbiKBClD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:41:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59314 "EHLO
+        id S230274AbiKBClI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:41:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230274AbiKBClC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:41:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 330CB1FCF2
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:41:01 -0700 (PDT)
+        with ESMTP id S230280AbiKBClI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:41:08 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1ABB1FCF2
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:41:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2C52B82073
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:40:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA938C433D6;
-        Wed,  2 Nov 2022 02:40:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1F121CE1EFE
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:41:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9039C433D7;
+        Wed,  2 Nov 2022 02:41:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356858;
-        bh=n9v04feawbnhZT9lKEgnT9vkdbjyv2tsABZUHgqfayY=;
+        s=korg; t=1667356864;
+        bh=zgTc57MKs97swQ1owZLGhT9ob1S+TYacvabpj7X7dQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vW6/vvFyCym3gFZD37Eh3SnqV7KhYc5pVT2Xdv/wjqlQU5fF4snu2OjiOEa38U7cm
-         j+uxfc9AZvLvEFwgMRjrUVyRd9LTrziN6SmyeZ1X/RTFJJyygAV5wAZUmBN7H0p96h
-         thUNomsZP3BMSy1YeToLOr1h9ONZ/DQmTUkV71hM=
+        b=GRR9bZTx6ODPBZ5n7rumL4wkdHN00N2HKzmGN5Hnbe1I0ehO5O8sCGLdlKhWzZBmP
+         3dV56i+8q+1DagTwpdm/ZE+UuVEFJ6ofYLtJ90WujRCwdAK9tUcFHv0Z1YyHDCC3qj
+         E1H8xIZOM1iN1OYxrBkL2u/2igXWTqogvhdox+VU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        Douglas Anderson <dianders@chromium.org>,
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
         Kuogee Hsieh <quic_khsieh@quicinc.com>,
         Abhinav Kumar <quic_abhinavk@quicinc.com>
-Subject: [PATCH 6.0 072/240] drm/msm/dp: fix aux-bus EP lifetime
-Date:   Wed,  2 Nov 2022 03:30:47 +0100
-Message-Id: <20221102022113.031386155@linuxfoundation.org>
+Subject: [PATCH 6.0 073/240] drm/msm/dp: fix IRQ lifetime
+Date:   Wed,  2 Nov 2022 03:30:48 +0100
+Message-Id: <20221102022113.054084530@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -56,72 +57,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 2b57f726611e294dc4297dd48eb8c98ef1938e82 upstream.
+commit a79343dcaba4b11adb57350e0b6426906a9b658e upstream.
 
 Device-managed resources allocated post component bind must be tied to
 the lifetime of the aggregate DRM device or they will not necessarily be
 released when binding of the aggregate device is deferred.
 
-This can lead resource leaks or failure to bind the aggregate device
-when binding is later retried and a second attempt to allocate the
-resources is made.
+This is specifically true for the DP IRQ, which will otherwise remain
+requested so that the next bind attempt fails when requesting the IRQ a
+second time.
 
-For the DP aux-bus, an attempt to populate the bus a second time will
-simply fail ("DP AUX EP device already populated").
+Since commit c3bf8e21b38a ("drm/msm/dp: Add eDP support via aux_bus")
+this can happen when the aux-bus panel driver has not yet been loaded so
+that probe is deferred.
 
-Fix this by tying the lifetime of the EP device to the DRM device rather
-than DP controller platform device.
+Fix this by tying the device-managed lifetime of the DP IRQ to the DRM
+device so that it is released when bind fails.
 
-Fixes: c3bf8e21b38a ("drm/msm/dp: Add eDP support via aux_bus")
-Cc: stable@vger.kernel.org      # 5.19
+Fixes: c943b4948b58 ("drm/msm/dp: add displayPort driver support")
+Cc: stable@vger.kernel.org      # 5.10
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
 Tested-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
 Reviewed-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/502672/
-Link: https://lore.kernel.org/r/20220913085320.8577-7-johan+linaro@kernel.org
+Patchwork: https://patchwork.freedesktop.org/patch/502679/
+Link: https://lore.kernel.org/r/20220913085320.8577-6-johan+linaro@kernel.org
 Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/dp/dp_display.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index 352cc09f2069..42de690132cf 100644
 --- a/drivers/gpu/drm/msm/dp/dp_display.c
 +++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -1528,6 +1528,11 @@ void msm_dp_debugfs_init(struct msm_dp *dp_display, struct drm_minor *minor)
+@@ -1249,7 +1249,7 @@ int dp_display_request_irq(struct msm_dp
+ 		return -EINVAL;
  	}
- }
  
-+static void of_dp_aux_depopulate_bus_void(void *data)
-+{
-+	of_dp_aux_depopulate_bus(data);
-+}
-+
- static int dp_display_get_next_bridge(struct msm_dp *dp)
- {
- 	int rc;
-@@ -1552,10 +1557,16 @@ static int dp_display_get_next_bridge(struct msm_dp *dp)
- 		 * panel driver is probed asynchronously but is the best we
- 		 * can do without a bigger driver reorganization.
- 		 */
--		rc = devm_of_dp_aux_populate_ep_devices(dp_priv->aux);
-+		rc = of_dp_aux_populate_bus(dp_priv->aux, NULL);
- 		of_node_put(aux_bus);
- 		if (rc)
- 			goto error;
-+
-+		rc = devm_add_action_or_reset(dp->drm_dev->dev,
-+						of_dp_aux_depopulate_bus_void,
-+						dp_priv->aux);
-+		if (rc)
-+			goto error;
- 	} else if (dp->is_edp) {
- 		DRM_ERROR("eDP aux_bus not found\n");
- 		return -ENODEV;
--- 
-2.38.1
-
+-	rc = devm_request_irq(&dp->pdev->dev, dp->irq,
++	rc = devm_request_irq(dp_display->drm_dev->dev, dp->irq,
+ 			dp_display_irq_handler,
+ 			IRQF_TRIGGER_HIGH, "dp_display_isr", dp);
+ 	if (rc < 0) {
 
 
