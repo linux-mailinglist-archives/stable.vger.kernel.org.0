@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2FFD6157D8
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:40:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDBE16157DB
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:40:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230254AbiKBCkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:40:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58670 "EHLO
+        id S230256AbiKBCkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:40:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230258AbiKBCkJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:40:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F081208D
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:40:07 -0700 (PDT)
+        with ESMTP id S230259AbiKBCkP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:40:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 663FF12600
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:40:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB78D617AD
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:40:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49863C433D6;
-        Wed,  2 Nov 2022 02:40:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21661B82072
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:40:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C92BC433D7;
+        Wed,  2 Nov 2022 02:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356806;
-        bh=4e2EYndJHgu+BCxLjWsaIE/peMlQlXIgh8jZ4wEIebM=;
+        s=korg; t=1667356811;
+        bh=N6H/qRSL3YgHoDhTK7tcCe9i/SF5iY6Y7TS0MjoL63o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Un7jmmFTEDZW4wUpy+A+ycZGKjGB4E5/9Jb7ANw7CIGkAaS73knh/LHCP9JYFkvyQ
-         0voSvtSJMqteG754bOz8EqHLyzA3AtKHC44lP1ZPxFw4jmCUE20xAltMQYzsoIKmnb
-         KtWicMfyeai0IxCjsHhk8x5qVe2+iwj5CEwtx3OU=
+        b=NPt1qa7fzxUge02SM+JCn96M7ppS8a4poSxncRavCswy4RuJN+hs+bLPJpM4XGaHk
+         P7t75Fr8tjkjqpvu/NLS5weGX2+oxk8rckYe9OeIHXlEFrMqkqoMti4q3uE/65D/j0
+         MH5cbOFenqNxHm3sV7P9NScPLgvQrPZCuYdBSX7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Jens Glathe <jens.glathe@oldschoolsolutions.biz>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 6.0 034/240] usb: xhci: add XHCI_SPURIOUS_SUCCESS to ASM1042 despite being a V0.96 controller
-Date:   Wed,  2 Nov 2022 03:30:09 +0100
-Message-Id: <20221102022112.176122964@linuxfoundation.org>
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 6.0 035/240] mtd: rawnand: tegra: Fix PM disable depth imbalance in probe
+Date:   Wed,  2 Nov 2022 03:30:10 +0100
+Message-Id: <20221102022112.198049006@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -53,45 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Glathe <jens.glathe@oldschoolsolutions.biz>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-commit 4f547472380136718b56064ea5689a61e135f904 upstream.
+commit 3ada71310d2c68eebb57772df6bb1f5f033ae802 upstream.
 
-This appears to fix the error:
-"xhci_hcd <address>; ERROR Transfer event TRB DMA ptr not part of
-current TD ep_index 2 comp_code 13" that appear spuriously (or pretty
-often) when using a r8152 USB3 ethernet adapter with integrated hub.
-
-ASM1042 reports as a 0.96 controller, but appears to behave more like 1.0
-
-Inspired by this email thread: https://markmail.org/thread/7vzqbe7t6du6qsw3
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Jens Glathe <jens.glathe@oldschoolsolutions.biz>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20221024142720.4122053-2-mathias.nyman@intel.com
+Fixes: d7d9f8ec77fe9 ("mtd: rawnand: add NVIDIA Tegra NAND Flash controller driver")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220926084456.98160-1-zhangqilong3@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-pci.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/tegra_nand.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -306,8 +306,14 @@ static void xhci_pci_quirks(struct devic
- 	}
+--- a/drivers/mtd/nand/raw/tegra_nand.c
++++ b/drivers/mtd/nand/raw/tegra_nand.c
+@@ -1181,7 +1181,7 @@ static int tegra_nand_probe(struct platf
+ 	pm_runtime_enable(&pdev->dev);
+ 	err = pm_runtime_resume_and_get(&pdev->dev);
+ 	if (err)
+-		return err;
++		goto err_dis_pm;
  
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
--		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042_XHCI)
-+		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042_XHCI) {
-+		/*
-+		 * try to tame the ASMedia 1042 controller which reports 0.96
-+		 * but appears to behave more like 1.0
-+		 */
-+		xhci->quirks |= XHCI_SPURIOUS_SUCCESS;
- 		xhci->quirks |= XHCI_BROKEN_STREAMS;
-+	}
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
- 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI) {
- 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
+ 	err = reset_control_reset(rst);
+ 	if (err) {
+@@ -1215,6 +1215,8 @@ static int tegra_nand_probe(struct platf
+ err_put_pm:
+ 	pm_runtime_put_sync_suspend(ctrl->dev);
+ 	pm_runtime_force_suspend(ctrl->dev);
++err_dis_pm:
++	pm_runtime_disable(&pdev->dev);
+ 	return err;
+ }
+ 
 
 
