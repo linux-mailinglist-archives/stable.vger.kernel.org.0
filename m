@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 124E0615856
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:49:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 372116158E7
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:01:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230448AbiKBCty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:49:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39720 "EHLO
+        id S231238AbiKBDBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:01:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230466AbiKBCtx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:49:53 -0400
+        with ESMTP id S231296AbiKBDAk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:00:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC1DC11C04
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:49:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43A8C22B23
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:00:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 877D2B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:49:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 120ECC433D6;
-        Wed,  2 Nov 2022 02:49:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBD5CB82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:00:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D386CC433D7;
+        Wed,  2 Nov 2022 03:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357390;
-        bh=PaYLz9a3Av4QApHyKMJNX7rMRmK8DqVdnbbYSxFwd2M=;
+        s=korg; t=1667358036;
+        bh=Q8PAeh/DqnU1LGNnbvY05kaIZfj2OA9sJeLBt/YEZBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e0ENsxUrh7FiNlns6UGtrQ8XlHx2QWc0dXyARRlsQHDB26mBwJd43pxRAiRTJ6Bhz
-         QnUnXWy/aqmeE8OYYzcCLTYgDCR1EbS8F1mpyLnF3NPRbTmNjWNJ6Nou5W9g6uvKYi
-         gVg7vbTx0wFOLnMIzULfg/dqvRULEuULM+pI4kHc=
+        b=FSu8nhI0nvpzr/XD8b2te5Ro3cntb9+RmjAL6y44BPVE1kTpuTcOIhd+tcaSmNM8Y
+         OkruMXm3qX+3VIx+nJsUPAGrryUg1/XGlSWFw4wGyaJsF1AoxDeypE+DnsYNoFWtNH
+         nemxFmyLXES7EXD7s/7atwetv7HOENsQFh14Fdwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 162/240] net: lan966x: Fix the rx drop counter
+        patches@lists.linux.dev, Prike Liang <Prike.Liang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 031/132] drm/amdgpu: disallow gfxoff until GC IP blocks complete s2idle resume
 Date:   Wed,  2 Nov 2022 03:32:17 +0100
-Message-Id: <20221102022115.047147301@linuxfoundation.org>
+Message-Id: <20221102022100.453181355@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
-References: <20221102022111.398283374@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Prike Liang <Prike.Liang@amd.com>
 
-[ Upstream commit f8c1c66b99a570c08b9d26e4347276f00e49bba7 ]
+commit d61e1d1d5225a9baeb995bcbdb904f66f70ed87e upstream.
 
-Currently the rx drop is calculated as the sum of multiple HW drop
-counters. The issue is that not all the HW drop counters were added for
-the rx drop counter. So if for example you have a police that drops
-frames, they were not see in the rx drop counter.
-Fix this by updating how the rx drop counter is calculated. It is
-required to add also RX_RED_PRIO_* HW counters.
+In the S2idle suspend/resume phase the gfxoff is keeping functional so
+some IP blocks will be likely to reinitialize at gfxoff entry and that
+will result in failing to program GC registers.Therefore, let disallow
+gfxoff until AMDGPU IPs reinitialized completely.
 
-Fixes: 12c2d0a5b8e2 ("net: lan966x: add ethtool configuration and statistics")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Link: https://lore.kernel.org/r/20221019083056.2744282-1-horatiu.vultur@microchip.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Prike Liang <Prike.Liang@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 5.15.x
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/microchip/lan966x/lan966x_ethtool.c   | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_ethtool.c b/drivers/net/ethernet/microchip/lan966x/lan966x_ethtool.c
-index e58a27fd8b50..fea42542be28 100644
---- a/drivers/net/ethernet/microchip/lan966x/lan966x_ethtool.c
-+++ b/drivers/net/ethernet/microchip/lan966x/lan966x_ethtool.c
-@@ -656,7 +656,15 @@ void lan966x_stats_get(struct net_device *dev,
- 	stats->rx_dropped = dev->stats.rx_dropped +
- 		lan966x->stats[idx + SYS_COUNT_RX_LONG] +
- 		lan966x->stats[idx + SYS_COUNT_DR_LOCAL] +
--		lan966x->stats[idx + SYS_COUNT_DR_TAIL];
-+		lan966x->stats[idx + SYS_COUNT_DR_TAIL] +
-+		lan966x->stats[idx + SYS_COUNT_RX_RED_PRIO_0] +
-+		lan966x->stats[idx + SYS_COUNT_RX_RED_PRIO_1] +
-+		lan966x->stats[idx + SYS_COUNT_RX_RED_PRIO_2] +
-+		lan966x->stats[idx + SYS_COUNT_RX_RED_PRIO_3] +
-+		lan966x->stats[idx + SYS_COUNT_RX_RED_PRIO_4] +
-+		lan966x->stats[idx + SYS_COUNT_RX_RED_PRIO_5] +
-+		lan966x->stats[idx + SYS_COUNT_RX_RED_PRIO_6] +
-+		lan966x->stats[idx + SYS_COUNT_RX_RED_PRIO_7];
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -3185,6 +3185,15 @@ static int amdgpu_device_ip_resume_phase
+ 			return r;
+ 		}
+ 		adev->ip_blocks[i].status.hw = true;
++
++		if (adev->in_s0ix && adev->ip_blocks[i].version->type == AMD_IP_BLOCK_TYPE_SMC) {
++			/* disable gfxoff for IP resume. The gfxoff will be re-enabled in
++			 * amdgpu_device_resume() after IP resume.
++			 */
++			amdgpu_gfx_off_ctrl(adev, false);
++			DRM_DEBUG("will disable gfxoff for re-initializing other blocks\n");
++		}
++
+ 	}
  
- 	for (i = 0; i < LAN966X_NUM_TC; i++) {
- 		stats->rx_dropped +=
--- 
-2.35.1
-
+ 	return 0;
+@@ -4114,6 +4123,13 @@ int amdgpu_device_resume(struct drm_devi
+ 	/* Make sure IB tests flushed */
+ 	flush_delayed_work(&adev->delayed_init_work);
+ 
++	if (adev->in_s0ix) {
++		/* re-enable gfxoff after IP resume. This re-enables gfxoff after
++		 * it was disabled for IP resume in amdgpu_device_ip_resume_phase2().
++		 */
++		amdgpu_gfx_off_ctrl(adev, true);
++		DRM_DEBUG("will enable gfxoff for the mission mode\n");
++	}
+ 	if (fbcon)
+ 		amdgpu_fbdev_set_suspend(adev, 0);
+ 
 
 
