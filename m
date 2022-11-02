@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA14B615A54
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:29:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83FF0615A56
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:29:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231162AbiKBD3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:29:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47426 "EHLO
+        id S231261AbiKBD3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:29:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231202AbiKBD3A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:29:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14AE9D97
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:28:59 -0700 (PDT)
+        with ESMTP id S231264AbiKBD3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:29:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09F271F2F2
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:29:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A73F6617CF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:28:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E162C433C1;
-        Wed,  2 Nov 2022 03:28:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9ADD8617D4
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:29:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4077BC433D6;
+        Wed,  2 Nov 2022 03:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359738;
-        bh=pqSnykMIfQxwmzSq2JcY8DwL0vLvZnQpAXlCjQHnWo4=;
+        s=korg; t=1667359744;
+        bh=zBfkaFvI5JWSbghU23CyT0em6cHrhP1RFQ2l0rr1BXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBUKKxf1f/Q2v5vkFCK64e1gEb5lvc5xTS1OVY3mQYahI+kxwJLWntsjIIysvmf2Y
-         XyWp36iUqMoYfmv7goqpiFbCW8pWXbLoe9wFUB4VM+42UOrPxPqbEDK8Y36vV0Y8rk
-         DoNoYa1/fHtL1Ucd64BrRY6i/QLP8SWdK2hrJaRQ=
+        b=AaVTinkhqw5OaZHWDLQPXX9xR3k0JT96Ir2mr2K3z0quUrjAyJSMwcHB7tuKTtk6+
+         dx2RZ9JjclQajnkdCC4Pk8UbKKF325oRaewBRuKzdsn2yDtd96k9OPAAk4kUY1cbKg
+         YM6kiBvakAx8d1U/C3d3LdhefNdQY0KEFPB4vc6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jimmy Assarsson <extja@kvaser.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 26/78] can: kvaser_usb: Fix possible completions during init_completion
-Date:   Wed,  2 Nov 2022 03:34:11 +0100
-Message-Id: <20221102022053.760634152@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 27/78] ALSA: Use del_timer_sync() before freeing timer
+Date:   Wed,  2 Nov 2022 03:34:12 +0100
+Message-Id: <20221102022053.797366716@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
 References: <20221102022052.895556444@linuxfoundation.org>
@@ -53,79 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 2871edb32f4622c3a25ce4b3977bad9050b91974 upstream.
+commit f0a868788fcbf63cdab51f5adcf73b271ede8164 upstream.
 
-kvaser_usb uses completions to signal when a response event is received
-for outgoing commands.
+The current code for freeing the emux timer is extremely dangerous:
 
-However, it uses init_completion() to reinitialize the start_comp and
-stop_comp completions before sending the start/stop commands.
+  CPU0				CPU1
+  ----				----
+snd_emux_timer_callback()
+			    snd_emux_free()
+			      spin_lock(&emu->voice_lock)
+			      del_timer(&emu->tlist); <-- returns immediately
+			      spin_unlock(&emu->voice_lock);
+			      [..]
+			      kfree(emu);
 
-In case the device sends the corresponding response just before the
-actual command is sent, complete() may be called concurrently with
-init_completion() which is not safe.
+  spin_lock(&emu->voice_lock);
 
-This might be triggerable even with a properly functioning device by
-stopping the interface (CMD_STOP_CHIP) just after it goes bus-off (which
-also causes the driver to send CMD_STOP_CHIP when restart-ms is off),
-but that was not tested.
+ [BOOM!]
 
-Fix the issue by using reinit_completion() instead.
+Instead just use del_timer_sync() which will wait for the timer to finish
+before continuing. No need to check if the timer is active or not when
+doing so.
 
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Tested-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010185237.319219-2-extja@kvaser.com
+This doesn't fix the race of a possible re-arming of the timer, but at
+least it won't use the data that has just been freed.
+
+[ Fixed unused variable warning by tiwai ]
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221026231236.6834b551@gandalf.local.home
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c |    4 ++--
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c  |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ sound/synth/emux/emux.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-@@ -1845,7 +1845,7 @@ static int kvaser_usb_hydra_start_chip(s
+--- a/sound/synth/emux/emux.c
++++ b/sound/synth/emux/emux.c
+@@ -138,15 +138,10 @@ EXPORT_SYMBOL(snd_emux_register);
+  */
+ int snd_emux_free(struct snd_emux *emu)
  {
- 	int err;
+-	unsigned long flags;
+-
+ 	if (! emu)
+ 		return -EINVAL;
  
--	init_completion(&priv->start_comp);
-+	reinit_completion(&priv->start_comp);
+-	spin_lock_irqsave(&emu->voice_lock, flags);
+-	if (emu->timer_active)
+-		del_timer(&emu->tlist);
+-	spin_unlock_irqrestore(&emu->voice_lock, flags);
++	del_timer_sync(&emu->tlist);
  
- 	err = kvaser_usb_hydra_send_simple_cmd(priv->dev, CMD_START_CHIP_REQ,
- 					       priv->channel);
-@@ -1863,7 +1863,7 @@ static int kvaser_usb_hydra_stop_chip(st
- {
- 	int err;
- 
--	init_completion(&priv->stop_comp);
-+	reinit_completion(&priv->stop_comp);
- 
- 	/* Make sure we do not report invalid BUS_OFF from CMD_CHIP_STATE_EVENT
- 	 * see comment in kvaser_usb_hydra_update_state()
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -1324,7 +1324,7 @@ static int kvaser_usb_leaf_start_chip(st
- {
- 	int err;
- 
--	init_completion(&priv->start_comp);
-+	reinit_completion(&priv->start_comp);
- 
- 	err = kvaser_usb_leaf_send_simple_cmd(priv->dev, CMD_START_CHIP,
- 					      priv->channel);
-@@ -1342,7 +1342,7 @@ static int kvaser_usb_leaf_stop_chip(str
- {
- 	int err;
- 
--	init_completion(&priv->stop_comp);
-+	reinit_completion(&priv->stop_comp);
- 
- 	err = kvaser_usb_leaf_send_simple_cmd(priv->dev, CMD_STOP_CHIP,
- 					      priv->channel);
+ 	snd_emux_proc_free(emu);
+ 	snd_emux_delete_virmidi(emu);
 
 
