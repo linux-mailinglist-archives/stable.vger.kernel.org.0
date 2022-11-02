@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85399615985
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:13:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 016E261594B
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:09:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230420AbiKBDNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:13:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33274 "EHLO
+        id S229846AbiKBDJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:09:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230421AbiKBDMy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:12:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCCE9240BE
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:12:35 -0700 (PDT)
+        with ESMTP id S230216AbiKBDI0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:08:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C27FE248D5
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:07:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79A94616DB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:12:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E36C433D6;
-        Wed,  2 Nov 2022 03:12:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3158617BB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:07:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DD97C433D7;
+        Wed,  2 Nov 2022 03:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358754;
-        bh=Dnor4adkufRk++lfcAtgS5yKuVG7nGEmHiyDDMIs/1s=;
+        s=korg; t=1667358467;
+        bh=GqIBl5vA8F5cosTxBITAhVlx45qP69AqbUG5hXaBO7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rGb0EIBhGcnvy/FcS4oQltAIidiICmfhotGKmWSl4lM/NFIOAsrN6NvJ2t1Yi1NuA
-         NRpl11s19vrNyYeIDvwFz9Jiey6pZL9JlEhFvs8ZCIMtHxvvpwzgMrHIqsfpBLnp6e
-         qht85ELR/ZaX0ynlrI+Gw6cayLPefS+ql17ojzLU=
+        b=JqCXN7Dh+WC16h8lpmf171sGbo6jKPAM5t6y/JYnslrpHy0npSOb++Rhp4V4YJyw+
+         7V6OLrorXNqwdxqCM6gKWNHGgBTsOjG/mjbu/wclDo+SZzgtLFlYX8V7lPv7Jmna1F
+         VRqedmn01aiE75hIHZDA84qhGNmdFies15x+C0LI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 5.10 20/91] mac802154: Fix LQI recording
-Date:   Wed,  2 Nov 2022 03:33:03 +0100
-Message-Id: <20221102022055.624693600@linuxfoundation.org>
+        patches@lists.linux.dev, Raju Rangoju <Raju.Rangoju@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 078/132] amd-xgbe: add the bit rate quirk for Molex cables
+Date:   Wed,  2 Nov 2022 03:33:04 +0100
+Message-Id: <20221102022101.662970012@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Raju Rangoju <Raju.Rangoju@amd.com>
 
-commit 5a5c4e06fd03b595542d5590f2bc05a6b7fc5c2b upstream.
+[ Upstream commit 170a9e341a3b02c0b2ea0df16ef14a33a4f41de8 ]
 
-Back in 2014, the LQI was saved in the skb control buffer (skb->cb, or
-mac_cb(skb)) without any actual reset of this area prior to its use.
+The offset 12 (bit-rate) of EEPROM SFP DAC (passive) cables is expected
+to be in the range 0x64 to 0x68. However, the 5 meter and 7 meter Molex
+passive cables have the rate ceiling 0x78 at offset 12.
 
-As part of a useful rework of the use of this region, 32edc40ae65c
-("ieee802154: change _cb handling slightly") introduced mac_cb_init() to
-basically memset the cb field to 0. In particular, this new function got
-called at the beginning of mac802154_parse_frame_start(), right before
-the location where the buffer got actually filled.
+Add a quirk for Molex passive cables to extend the rate ceiling to 0x78.
 
-What went through unnoticed however, is the fact that the very first
-helper called by device drivers in the receive path already used this
-area to save the LQI value for later extraction. Resetting the cb field
-"so late" led to systematically zeroing the LQI.
-
-If we consider the reset of the cb field needed, we can make it as soon
-as we get an skb from a device driver, right before storing the LQI,
-as is the very first time we need to write something there.
-
-Cc: stable@vger.kernel.org
-Fixes: 32edc40ae65c ("ieee802154: change _cb handling slightly")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20221020142535.1038885-1-miquel.raynal@bootlin.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
+Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac802154/rx.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/net/mac802154/rx.c
-+++ b/net/mac802154/rx.c
-@@ -132,7 +132,7 @@ static int
- ieee802154_parse_frame_start(struct sk_buff *skb, struct ieee802154_hdr *hdr)
- {
- 	int hlen;
--	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
-+	struct ieee802154_mac_cb *cb = mac_cb(skb);
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index 21e38b720d87..a7166cd1179f 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -239,6 +239,7 @@ enum xgbe_sfp_speed {
+ #define XGBE_SFP_BASE_BR_1GBE_MAX		0x0d
+ #define XGBE_SFP_BASE_BR_10GBE_MIN		0x64
+ #define XGBE_SFP_BASE_BR_10GBE_MAX		0x68
++#define XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX	0x78
  
- 	skb_reset_mac_header(skb);
+ #define XGBE_SFP_BASE_CU_CABLE_LEN		18
  
-@@ -294,8 +294,9 @@ void
- ieee802154_rx_irqsafe(struct ieee802154_hw *hw, struct sk_buff *skb, u8 lqi)
- {
- 	struct ieee802154_local *local = hw_to_local(hw);
-+	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
+@@ -284,6 +285,8 @@ struct xgbe_sfp_eeprom {
+ #define XGBE_BEL_FUSE_VENDOR	"BEL-FUSE        "
+ #define XGBE_BEL_FUSE_PARTNO	"1GBT-SFP06      "
  
--	mac_cb(skb)->lqi = lqi;
-+	cb->lqi = lqi;
- 	skb->pkt_type = IEEE802154_RX_MSG;
- 	skb_queue_tail(&local->skb_queue, skb);
- 	tasklet_schedule(&local->tasklet);
++#define XGBE_MOLEX_VENDOR	"Molex Inc.      "
++
+ struct xgbe_sfp_ascii {
+ 	union {
+ 		char vendor[XGBE_SFP_BASE_VENDOR_NAME_LEN + 1];
+@@ -834,7 +837,11 @@ static bool xgbe_phy_sfp_bit_rate(struct xgbe_sfp_eeprom *sfp_eeprom,
+ 		break;
+ 	case XGBE_SFP_SPEED_10000:
+ 		min = XGBE_SFP_BASE_BR_10GBE_MIN;
+-		max = XGBE_SFP_BASE_BR_10GBE_MAX;
++		if (memcmp(&sfp_eeprom->base[XGBE_SFP_BASE_VENDOR_NAME],
++			   XGBE_MOLEX_VENDOR, XGBE_SFP_BASE_VENDOR_NAME_LEN) == 0)
++			max = XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX;
++		else
++			max = XGBE_SFP_BASE_BR_10GBE_MAX;
+ 		break;
+ 	default:
+ 		return false;
+-- 
+2.35.1
+
 
 
