@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A83BA615975
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB92C61590C
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:04:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230271AbiKBDLn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:11:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60496 "EHLO
+        id S229468AbiKBDEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:04:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230308AbiKBDLk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:11:40 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A8A523EAA
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:11:33 -0700 (PDT)
+        with ESMTP id S230012AbiKBDDh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:03:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 668D9D46
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:03:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E00D2CE1EB9
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:11:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FE51C433D6;
-        Wed,  2 Nov 2022 03:11:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51685B82064
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:03:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13018C433D6;
+        Wed,  2 Nov 2022 03:03:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358690;
-        bh=46JCP7KOjFIz6FGBsSpPrxIOv01lrZlj9sSeTPItX3I=;
+        s=korg; t=1667358198;
+        bh=VoBS8t/C3X3/fVxwYlFvwRewtP3sId5o7h9l+luqBxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qo1oXHrqSNJlnjH3d9mlk07oW4qMoqXNN8SBA2+1L/pz4ssx9zkorBzU1rfK7C3lX
-         wjRbcvZVV68Z8lk9oVNrhuhHEbA4JwVxPfLGvKNiZJX8fh3ugg8FIV6e+N4gpPkFrU
-         1/42uHmmixeecRX1Sql8UCXAlovDFEWFLGRNfMzs=
+        b=AWXYd+/WEvLEo3zt3SBYt4aP5pvnrUeyYLIPWKCmN3Sfqk2uHJk1+uLDvM/JJ2N19
+         k1E9v5zw7R1qM3A/CEO+D2lP7c9DLpA8VhaSDA1OwRtJGlGtbwGQxtvJPoK+BdWG63
+         IjFTxLJ503LAF644D20IK7M7h9zjw9eM3O7N3ofQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 01/91] can: j1939: transport: j1939_session_skb_drop_old(): spin_unlock_irqrestore() before kfree_skb()
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        llvm@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 058/132] drm/msm: Fix return type of mdp4_lvds_connector_mode_valid
 Date:   Wed,  2 Nov 2022 03:32:44 +0100
-Message-Id: <20221102022055.082946510@linuxfoundation.org>
+Message-Id: <20221102022101.136573661@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,41 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-commit c3c06c61890da80494bb196f75d89b791adda87f upstream.
+[ Upstream commit 0b33a33bd15d5bab73b87152b220a8d0153a4587 ]
 
-It is not allowed to call kfree_skb() from hardware interrupt context
-or with interrupts being disabled. The skb is unlinked from the queue,
-so it can be freed after spin_unlock_irqrestore().
+The mode_valid field in drm_connector_helper_funcs is expected to be of
+type:
+enum drm_mode_status (* mode_valid) (struct drm_connector *connector,
+                                     struct drm_display_mode *mode);
 
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/all/20221027091237.2290111-1-yangyingliang@huawei.com
-Cc: stable@vger.kernel.org
-[mkl: adjust subject]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The mismatched return type breaks forward edge kCFI since the underlying
+function definition does not match the function hook definition.
+
+The return type of mdp4_lvds_connector_mode_valid should be changed from
+int to enum drm_mode_status.
+
+Reported-by: Dan Carpenter <error27@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1703
+Cc: llvm@lists.linux.dev
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Fixes: 3e87599b68e7 ("drm/msm/mdp4: add LVDS panel support")
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Patchwork: https://patchwork.freedesktop.org/patch/502878/
+Link: https://lore.kernel.org/r/20220913205551.155128-1-nhuck@google.com
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/transport.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/mdp4/mdp4_lvds_connector.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -338,10 +338,12 @@ static void j1939_session_skb_drop_old(s
- 		__skb_unlink(do_skb, &session->skb_queue);
- 		/* drop ref taken in j1939_session_skb_queue() */
- 		skb_unref(do_skb);
-+		spin_unlock_irqrestore(&session->skb_queue.lock, flags);
- 
- 		kfree_skb(do_skb);
-+	} else {
-+		spin_unlock_irqrestore(&session->skb_queue.lock, flags);
- 	}
--	spin_unlock_irqrestore(&session->skb_queue.lock, flags);
+diff --git a/drivers/gpu/drm/msm/disp/mdp4/mdp4_lvds_connector.c b/drivers/gpu/drm/msm/disp/mdp4/mdp4_lvds_connector.c
+index 7288041dd86a..7444b75c4215 100644
+--- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_lvds_connector.c
++++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_lvds_connector.c
+@@ -56,8 +56,9 @@ static int mdp4_lvds_connector_get_modes(struct drm_connector *connector)
+ 	return ret;
  }
  
- void j1939_session_skb_queue(struct j1939_session *session,
+-static int mdp4_lvds_connector_mode_valid(struct drm_connector *connector,
+-				 struct drm_display_mode *mode)
++static enum drm_mode_status
++mdp4_lvds_connector_mode_valid(struct drm_connector *connector,
++			       struct drm_display_mode *mode)
+ {
+ 	struct mdp4_lvds_connector *mdp4_lvds_connector =
+ 			to_mdp4_lvds_connector(connector);
+-- 
+2.35.1
+
 
 
