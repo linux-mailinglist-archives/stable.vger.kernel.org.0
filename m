@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E8A615ACF
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:41:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4150615AF8
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:45:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229982AbiKBDlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:41:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58152 "EHLO
+        id S230216AbiKBDpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:45:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230283AbiKBDlg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:41:36 -0400
+        with ESMTP id S230224AbiKBDpH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:45:07 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3694626AEF
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:41:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 229B36405
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:45:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 378E5B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:41:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E396C433C1;
-        Wed,  2 Nov 2022 03:41:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C87E4B81AF4
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:45:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAED9C433D6;
+        Wed,  2 Nov 2022 03:45:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360489;
-        bh=orhphv44KSHTszBcTkr9pxQpS81cHxE8/wzsP4LL8dU=;
+        s=korg; t=1667360704;
+        bh=twMH8s1afK3HaacY3VjARbSZZEFWOOK0luZzayqiTus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nDh1mP0AWP64f5r9LAal2EeU4LjlkjM/fXbT6eKoyuMyzGeeNfYU1ETIZTPkwNel1
-         cU71wIP2bZemMDXPlPTG6DirwETGvQyHWiQ9Gd6dxxGANCzORLok+Pnosy4/BaRiKp
-         vGB2wVc8bMkp7198QP4kQaAITM1cr61/+DfAumqw=
+        b=Q0Sem1xLxXEvtIMmMmACkaWR43UfJCP/YzuB4vBIq76Q7W1TDY3mdo8uBnVpo2jQS
+         t2mR4yq1FOI4UZsn8GW5zHnaL3G+HjY+6hRdqbvZ8Hh9QlPRzf2dmyJNmGdorNHWs/
+         j2Wv8gO/3zDjkgeHQ/evKoLO7RZ436SWmiZ68tyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        kolAflash <kolAflash@kolahilft.de>
-Subject: [PATCH 4.14 47/60] PM: hibernate: Allow hybrid sleep to work with s2idle
+        patches@lists.linux.dev, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>,
+        Demi Marie Obenour <demi@invisiblethingslab.com>
+Subject: [PATCH 4.9 22/44] Xen/gntdev: dont ignore kernel unmapping error
 Date:   Wed,  2 Nov 2022 03:35:08 +0100
-Message-Id: <20221102022052.625942006@linuxfoundation.org>
+Message-Id: <20221102022049.836169584@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
+References: <20221102022049.017479464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit 85850af4fc47132f3f2f0dd698b90f67906600b4 ]
+commit f28347cc66395e96712f5c2db0a302ee75bafce6 upstream.
 
-Hybrid sleep is currently hardcoded to only operate with S3 even
-on systems that might not support it.
+While working on XSA-361 and its follow-ups, I failed to spot another
+place where the kernel mapping part of an operation was not treated the
+same as the user space part. Detect and propagate errors and add a 2nd
+pr_debug().
 
-Instead of assuming this mode is what the user wants to use, for
-hybrid sleep follow the setting of `mem_sleep_current` which
-will respect mem_sleep_default kernel command line and policy
-decisions made by the presence of the FADT low power idle bit.
-
-Fixes: 81d45bdf8913 ("PM / hibernate: Untangle power_down()")
-Reported-and-tested-by: kolAflash <kolAflash@kolahilft.de>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216574
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/c2513395-74dc-aea3-9192-fd265aa44e35@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Co-authored-by: Demi Marie Obenour <demi@invisiblethingslab.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/power/hibernate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/xen/gntdev.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
-index f4ecb23c9194..e97f2395e15d 100644
---- a/kernel/power/hibernate.c
-+++ b/kernel/power/hibernate.c
-@@ -618,7 +618,7 @@ static void power_down(void)
- 	int error;
- 
- 	if (hibernation_mode == HIBERNATION_SUSPEND) {
--		error = suspend_devices_and_enter(PM_SUSPEND_MEM);
-+		error = suspend_devices_and_enter(mem_sleep_current);
- 		if (error) {
- 			hibernation_mode = hibernation_ops ?
- 						HIBERNATION_PLATFORM :
--- 
-2.35.1
-
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -396,6 +396,14 @@ static void __unmap_grant_pages_done(int
+ 			map->unmap_ops[offset+i].handle,
+ 			map->unmap_ops[offset+i].status);
+ 		map->unmap_ops[offset+i].handle = -1;
++		if (use_ptemod) {
++			WARN_ON(map->kunmap_ops[offset+i].status &&
++				map->kunmap_ops[offset+i].handle != -1);
++			pr_debug("kunmap handle=%u st=%d\n",
++				 map->kunmap_ops[offset+i].handle,
++				 map->kunmap_ops[offset+i].status);
++			map->kunmap_ops[offset+i].handle = -1;
++		}
+ 	}
+ 	/*
+ 	 * Decrease the live-grant counter.  This must happen after the loop to
 
 
