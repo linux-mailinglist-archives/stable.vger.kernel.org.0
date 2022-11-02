@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D2436159D0
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:18:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF5F4615A10
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:23:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229932AbiKBDSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:18:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38410 "EHLO
+        id S230292AbiKBDXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:23:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229941AbiKBDSr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:18:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A4F1F5B4
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:18:43 -0700 (PDT)
+        with ESMTP id S230312AbiKBDXw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:23:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1B3724BCE
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:23:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61CDA6177E
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:18:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F012EC433D6;
-        Wed,  2 Nov 2022 03:18:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E806EB82055
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:23:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D41D2C433C1;
+        Wed,  2 Nov 2022 03:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359122;
-        bh=QTsPiAQBRNWC1LwypWCxasAUrTX0p/9OgrYLxochyJ0=;
+        s=korg; t=1667359428;
+        bh=uAlIgFIYkVfiPxFBsebkHCz3eMrvjhj0B2NfboG9yEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1lt2ldTg1VWPqvKtK27ADKUm/DQ0Dz3i7Ul2E/EOvC1hHJdqjbsDMItEbYGav7qJz
-         zquNNZy0zpBemNVDKj7RityWWjQJmM+vDJ3sdiObahM0Ema64ATSIPCAIKtvBi5cVF
-         jQU+nJsVxZqm9T5XrvVxI7UBOgKgtNSiQ0JMm8PE=
+        b=U00kTJ+fN3Qde+lqtVLwL8G4T2Lw0T7WsEVlPNttgkke8HLjXBlM0X6y3SVlQoDMC
+         +JbXN/gsgpQ3okAgv4j+/liJmbh2bmS92G2FBmcyvTEEfR4wkuBKhwgO3sc8Hszrdj
+         XO8ZPiYnfCvZHs96XVL1PoTV1t7XrmS2ePv88urI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Julian Anastasov <ja@ssi.bg>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 80/91] nh: fix scope used to find saddr when adding non gw nh
+Subject: [PATCH 5.4 37/64] x86/unwind/orc: Fix unreliable stack dump with gcov
 Date:   Wed,  2 Nov 2022 03:34:03 +0100
-Message-Id: <20221102022057.325119364@linuxfoundation.org>
+Message-Id: <20221102022053.018053491@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit bac0f937c343d651874f83b265ca8f5070ed4f06 ]
+[ Upstream commit 230db82413c091bc16acee72650f48d419cebe49 ]
 
-As explained by Julian, fib_nh_scope is related to fib_nh_gw4, but
-fib_info_update_nhc_saddr() needs the scope of the route, which is
-the scope "before" fib_nh_scope, ie fib_nh_scope - 1.
+When a console stack dump is initiated with CONFIG_GCOV_PROFILE_ALL
+enabled, show_trace_log_lvl() gets out of sync with the ORC unwinder,
+causing the stack trace to show all text addresses as unreliable:
 
-This patch fixes the problem described in commit 747c14307214 ("ip: fix
-dflt addr selection for connected nexthop").
+  # echo l > /proc/sysrq-trigger
+  [  477.521031] sysrq: Show backtrace of all active CPUs
+  [  477.523813] NMI backtrace for cpu 0
+  [  477.524492] CPU: 0 PID: 1021 Comm: bash Not tainted 6.0.0 #65
+  [  477.525295] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-1.fc36 04/01/2014
+  [  477.526439] Call Trace:
+  [  477.526854]  <TASK>
+  [  477.527216]  ? dump_stack_lvl+0xc7/0x114
+  [  477.527801]  ? dump_stack+0x13/0x1f
+  [  477.528331]  ? nmi_cpu_backtrace.cold+0xb5/0x10d
+  [  477.528998]  ? lapic_can_unplug_cpu+0xa0/0xa0
+  [  477.529641]  ? nmi_trigger_cpumask_backtrace+0x16a/0x1f0
+  [  477.530393]  ? arch_trigger_cpumask_backtrace+0x1d/0x30
+  [  477.531136]  ? sysrq_handle_showallcpus+0x1b/0x30
+  [  477.531818]  ? __handle_sysrq.cold+0x4e/0x1ae
+  [  477.532451]  ? write_sysrq_trigger+0x63/0x80
+  [  477.533080]  ? proc_reg_write+0x92/0x110
+  [  477.533663]  ? vfs_write+0x174/0x530
+  [  477.534265]  ? handle_mm_fault+0x16f/0x500
+  [  477.534940]  ? ksys_write+0x7b/0x170
+  [  477.535543]  ? __x64_sys_write+0x1d/0x30
+  [  477.536191]  ? do_syscall_64+0x6b/0x100
+  [  477.536809]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  [  477.537609]  </TASK>
 
-Fixes: 597cfe4fc339 ("nexthop: Add support for IPv4 nexthops")
-Link: https://lore.kernel.org/netdev/6c8a44ba-c2d5-cdf-c5c7-5baf97cba38@ssi.bg/
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: Julian Anastasov <ja@ssi.bg>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This happens when the compiled code for show_stack() has a single word
+on the stack, and doesn't use a tail call to show_stack_log_lvl().
+(CONFIG_GCOV_PROFILE_ALL=y is the only known case of this.)  Then the
+__unwind_start() skip logic hits an off-by-one bug and fails to unwind
+all the way to the intended starting frame.
+
+Fix it by reverting the following commit:
+
+  f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
+
+The original justification for that commit no longer exists.  That
+original issue was later fixed in a different way, with the following
+commit:
+
+  f2ac57a4c49d ("x86/unwind/orc: Fix inactive tasks with stack pointer in %sp on GCC 10 compiled kernels")
+
+Fixes: f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+[jpoimboe: rewrite commit log]
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/nexthop.c | 2 +-
+ arch/x86/kernel/unwind_orc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
-index 2a17dc9413ae..7a0102a4b1de 100644
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -1346,7 +1346,7 @@ static int nh_create_ipv4(struct net *net, struct nexthop *nh,
- 	if (!err) {
- 		nh->nh_flags = fib_nh->fib_nh_flags;
- 		fib_info_update_nhc_saddr(net, &fib_nh->nh_common,
--					  fib_nh->fib_nh_scope);
-+					  !fib_nh->fib_nh_scope ? 0 : fib_nh->fib_nh_scope - 1);
- 	} else {
- 		fib_nh_release(net, fib_nh);
- 	}
+diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
+index 4e7c49fcf003..c85634152d30 100644
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -687,7 +687,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+ 	/* Otherwise, skip ahead to the user-specified starting frame: */
+ 	while (!unwind_done(state) &&
+ 	       (!on_stack(&state->stack_info, first_frame, sizeof(long)) ||
+-			state->sp < (unsigned long)first_frame))
++			state->sp <= (unsigned long)first_frame))
+ 		unwind_next_frame(state);
+ 
+ 	return;
 -- 
 2.35.1
 
