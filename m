@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD1DB615947
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:08:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 554C7615949
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:08:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230304AbiKBDIv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:08:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56430 "EHLO
+        id S230373AbiKBDIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:08:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230366AbiKBDIK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:08:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8525240A4
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:07:30 -0700 (PDT)
+        with ESMTP id S230161AbiKBDIN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:08:13 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB60248C3
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:07:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45636617D1
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:07:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD4B4C433D6;
-        Wed,  2 Nov 2022 03:07:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 48BE7CE1E2F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:07:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE986C433D6;
+        Wed,  2 Nov 2022 03:07:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358449;
-        bh=8QSbkHzLEAaWB7KWUNi3L7Jf3NW+es0+cDoZVu5Xzwg=;
+        s=korg; t=1667358455;
+        bh=JHGw/IMDMnMotLEnwn0hc24dqRjBoO2ZW0Adx3jQhTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QsmG6+QQny9M9CUjnAJGyaWz7rqIVhPHvWN14hUMu7i9aZe/Cyr97TC/vUf2tojwV
-         cOLbFXvug0AV1vlwkSfNEr4BUI62ISpjDZ1XgIE/YB3yPz/B5zHK9y13jGJ4vcosvg
-         /pbcQ+uacRgojIHjHCjdGHTal06V3yDfXzzHS64g=
+        b=YKVheG2D/+mMpFSjiiO+zRkRUU2thj3YMkjRGixC5Oy1hbOi9NPPR+TLcPOjGxGoR
+         DDyODfa+I/ZocAile8ao9x0dbPiRYLGJ5+5Gka4fOOV9cKwGCySjcsei8uiV4PT5e1
+         qonlsAIJ3mGQHt+4mZfcGujr/PCPgRt1Y6CCrt4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 075/132] nfc: virtual_ncidev: Fix memory leak in virtual_nci_send()
-Date:   Wed,  2 Nov 2022 03:33:01 +0100
-Message-Id: <20221102022101.583345029@linuxfoundation.org>
+Subject: [PATCH 5.15 076/132] x86/unwind/orc: Fix unreliable stack dump with gcov
+Date:   Wed,  2 Nov 2022 03:33:02 +0100
+Message-Id: <20221102022101.609635284@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
 References: <20221102022059.593236470@linuxfoundation.org>
@@ -54,76 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit e840d8f4a1b323973052a1af5ad4edafcde8ae3d ]
+[ Upstream commit 230db82413c091bc16acee72650f48d419cebe49 ]
 
-skb should be free in virtual_nci_send(), otherwise kmemleak will report
-memleak.
+When a console stack dump is initiated with CONFIG_GCOV_PROFILE_ALL
+enabled, show_trace_log_lvl() gets out of sync with the ORC unwinder,
+causing the stack trace to show all text addresses as unreliable:
 
-Steps for reproduction (simulated in qemu):
-	cd tools/testing/selftests/nci
-	make
-	./nci_dev
+  # echo l > /proc/sysrq-trigger
+  [  477.521031] sysrq: Show backtrace of all active CPUs
+  [  477.523813] NMI backtrace for cpu 0
+  [  477.524492] CPU: 0 PID: 1021 Comm: bash Not tainted 6.0.0 #65
+  [  477.525295] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-1.fc36 04/01/2014
+  [  477.526439] Call Trace:
+  [  477.526854]  <TASK>
+  [  477.527216]  ? dump_stack_lvl+0xc7/0x114
+  [  477.527801]  ? dump_stack+0x13/0x1f
+  [  477.528331]  ? nmi_cpu_backtrace.cold+0xb5/0x10d
+  [  477.528998]  ? lapic_can_unplug_cpu+0xa0/0xa0
+  [  477.529641]  ? nmi_trigger_cpumask_backtrace+0x16a/0x1f0
+  [  477.530393]  ? arch_trigger_cpumask_backtrace+0x1d/0x30
+  [  477.531136]  ? sysrq_handle_showallcpus+0x1b/0x30
+  [  477.531818]  ? __handle_sysrq.cold+0x4e/0x1ae
+  [  477.532451]  ? write_sysrq_trigger+0x63/0x80
+  [  477.533080]  ? proc_reg_write+0x92/0x110
+  [  477.533663]  ? vfs_write+0x174/0x530
+  [  477.534265]  ? handle_mm_fault+0x16f/0x500
+  [  477.534940]  ? ksys_write+0x7b/0x170
+  [  477.535543]  ? __x64_sys_write+0x1d/0x30
+  [  477.536191]  ? do_syscall_64+0x6b/0x100
+  [  477.536809]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  [  477.537609]  </TASK>
 
-BUG: memory leak
-unreferenced object 0xffff888107588000 (size 208):
-  comm "nci_dev", pid 206, jiffies 4294945376 (age 368.248s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000008d94c8fd>] __alloc_skb+0x1da/0x290
-    [<00000000278bc7f8>] nci_send_cmd+0xa3/0x350
-    [<0000000081256a22>] nci_reset_req+0x6b/0xa0
-    [<000000009e721112>] __nci_request+0x90/0x250
-    [<000000005d556e59>] nci_dev_up+0x217/0x5b0
-    [<00000000e618ce62>] nfc_dev_up+0x114/0x220
-    [<00000000981e226b>] nfc_genl_dev_up+0x94/0xe0
-    [<000000009bb03517>] genl_family_rcv_msg_doit.isra.14+0x228/0x2d0
-    [<00000000b7f8c101>] genl_rcv_msg+0x35c/0x640
-    [<00000000c94075ff>] netlink_rcv_skb+0x11e/0x350
-    [<00000000440cfb1e>] genl_rcv+0x24/0x40
-    [<0000000062593b40>] netlink_unicast+0x43f/0x640
-    [<000000001d0b13cc>] netlink_sendmsg+0x73a/0xbf0
-    [<000000003272487f>] __sys_sendto+0x324/0x370
-    [<00000000ef9f1747>] __x64_sys_sendto+0xdd/0x1b0
-    [<000000001e437841>] do_syscall_64+0x3f/0x90
+This happens when the compiled code for show_stack() has a single word
+on the stack, and doesn't use a tail call to show_stack_log_lvl().
+(CONFIG_GCOV_PROFILE_ALL=y is the only known case of this.)  Then the
+__unwind_start() skip logic hits an off-by-one bug and fails to unwind
+all the way to the intended starting frame.
 
-Fixes: e624e6c3e777 ("nfc: Add a virtual nci device driver")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20221020030505.15572-1-shangxiaojing@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix it by reverting the following commit:
+
+  f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
+
+The original justification for that commit no longer exists.  That
+original issue was later fixed in a different way, with the following
+commit:
+
+  f2ac57a4c49d ("x86/unwind/orc: Fix inactive tasks with stack pointer in %sp on GCC 10 compiled kernels")
+
+Fixes: f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+[jpoimboe: rewrite commit log]
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/virtual_ncidev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/unwind_orc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/virtual_ncidev.c b/drivers/nfc/virtual_ncidev.c
-index 221fa3bb8705..6317e8505aaa 100644
---- a/drivers/nfc/virtual_ncidev.c
-+++ b/drivers/nfc/virtual_ncidev.c
-@@ -54,16 +54,19 @@ static int virtual_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
- 	mutex_lock(&nci_mutex);
- 	if (state != virtual_ncidev_enabled) {
- 		mutex_unlock(&nci_mutex);
-+		kfree_skb(skb);
- 		return 0;
- 	}
+diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
+index 3423aaea4ad8..8488966da5f1 100644
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -700,7 +700,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+ 	/* Otherwise, skip ahead to the user-specified starting frame: */
+ 	while (!unwind_done(state) &&
+ 	       (!on_stack(&state->stack_info, first_frame, sizeof(long)) ||
+-			state->sp < (unsigned long)first_frame))
++			state->sp <= (unsigned long)first_frame))
+ 		unwind_next_frame(state);
  
- 	if (send_buff) {
- 		mutex_unlock(&nci_mutex);
-+		kfree_skb(skb);
- 		return -1;
- 	}
- 	send_buff = skb_copy(skb, GFP_KERNEL);
- 	mutex_unlock(&nci_mutex);
- 	wake_up_interruptible(&wq);
-+	consume_skb(skb);
- 
- 	return 0;
- }
+ 	return;
 -- 
 2.35.1
 
