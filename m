@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A7D46159A6
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:16:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80AF46159EC
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:21:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229546AbiKBDQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:16:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33992 "EHLO
+        id S230187AbiKBDVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:21:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230318AbiKBDPg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:15:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF3D248F8
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:15:18 -0700 (PDT)
+        with ESMTP id S230115AbiKBDVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:21:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A4E823383
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:21:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58183B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:15:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32213C433C1;
-        Wed,  2 Nov 2022 03:15:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C693DB8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:21:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FA20C433C1;
+        Wed,  2 Nov 2022 03:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358916;
-        bh=t/to6hZaq3ncMU0PwNe9CuhcUWGzy41DQLQXwM2QxbA=;
+        s=korg; t=1667359265;
+        bh=x9r6tYA3+3uSr9xQoaPHfp9Oc8suWSMO/Xz7qB+H8jQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkLw6+ynEmsxNbYfcuCZ5tz9p7DfdX4IyGyPiWkvpmwWonReKIGQQ2Y5yi4vmwNxu
-         lVoFOEFZIFZqHHLhp0O9gLxC8FJ98TxoJIJP7DuVK2itWAFJy6yXqJYJPRpsPmqxC6
-         w2vQsIymVQxI+q3nqulZ2tAblhSi/y476pk+A4Zs=
+        b=po0bj0LLGxU+zXNxSdfRkMkan8EKOCfu5NgtRi18qwhVUCf3aI+qd2NGhwcH3PsML
+         ZgjsIA8E1VphhZ86/z+fou5xA++RHiwsBY86SiZwIdjuVY2mJ0LuG612Yn7q2lyMme
+         DnkDsHQBNAgn4m4UdDlK5hSljACP3GjgBna8zrSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 46/91] net: hinic: fix incorrect assignment issue in hinic_set_interrupt_cfg()
+        patches@lists.linux.dev,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 03/64] ALSA: Use del_timer_sync() before freeing timer
 Date:   Wed,  2 Nov 2022 03:33:29 +0100
-Message-Id: <20221102022056.337496963@linuxfoundation.org>
+Message-Id: <20221102022051.933376166@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit c0605cd6750f2db9890c43a91ea4d77be8fb4908 ]
+commit f0a868788fcbf63cdab51f5adcf73b271ede8164 upstream.
 
-The value of lli_credit_cnt is incorrectly assigned, fix it.
+The current code for freeing the emux timer is extremely dangerous:
 
-Fixes: a0337c0dee68 ("hinic: add support to set and get irq coalesce")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  CPU0				CPU1
+  ----				----
+snd_emux_timer_callback()
+			    snd_emux_free()
+			      spin_lock(&emu->voice_lock)
+			      del_timer(&emu->tlist); <-- returns immediately
+			      spin_unlock(&emu->voice_lock);
+			      [..]
+			      kfree(emu);
+
+  spin_lock(&emu->voice_lock);
+
+ [BOOM!]
+
+Instead just use del_timer_sync() which will wait for the timer to finish
+before continuing. No need to check if the timer is active or not when
+doing so.
+
+This doesn't fix the race of a possible re-arming of the timer, but at
+least it won't use the data that has just been freed.
+
+[ Fixed unused variable warning by tiwai ]
+
+Cc: stable@vger.kernel.org
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221026231236.6834b551@gandalf.local.home
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/synth/emux/emux.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c
-index 799b85c88eff..bcf2476512a5 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c
-@@ -892,7 +892,7 @@ int hinic_set_interrupt_cfg(struct hinic_hwdev *hwdev,
- 	if (err)
+--- a/sound/synth/emux/emux.c
++++ b/sound/synth/emux/emux.c
+@@ -125,15 +125,10 @@ EXPORT_SYMBOL(snd_emux_register);
+  */
+ int snd_emux_free(struct snd_emux *emu)
+ {
+-	unsigned long flags;
+-
+ 	if (! emu)
  		return -EINVAL;
  
--	interrupt_info->lli_credit_cnt = temp_info.lli_timer_cnt;
-+	interrupt_info->lli_credit_cnt = temp_info.lli_credit_cnt;
- 	interrupt_info->lli_timer_cnt = temp_info.lli_timer_cnt;
+-	spin_lock_irqsave(&emu->voice_lock, flags);
+-	if (emu->timer_active)
+-		del_timer(&emu->tlist);
+-	spin_unlock_irqrestore(&emu->voice_lock, flags);
++	del_timer_sync(&emu->tlist);
  
- 	err = hinic_msg_to_mgmt(&pfhwdev->pf_to_mgmt, HINIC_MOD_COMM,
--- 
-2.35.1
-
+ 	snd_emux_proc_free(emu);
+ 	snd_emux_delete_virmidi(emu);
 
 
