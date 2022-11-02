@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E8B0615838
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:47:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1DF96158D3
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:59:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230370AbiKBCr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:47:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37208 "EHLO
+        id S231237AbiKBC7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:59:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230438AbiKBCrY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:47:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A32F42182D
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:47:23 -0700 (PDT)
+        with ESMTP id S231245AbiKBC7J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:59:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A96221E07
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:59:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C79EB8206C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:47:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 258A8C433D6;
-        Wed,  2 Nov 2022 02:47:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDA91617C8
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:59:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91DFCC433C1;
+        Wed,  2 Nov 2022 02:59:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357240;
-        bh=PrPjAuot/Me1QKPS4+hqJUcN0kqV5mapkhkXWbOIwWU=;
+        s=korg; t=1667357947;
+        bh=hirwckMCgJj+uW0rDUlQ18kc0agJ0aW2bIOVc7+5l04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2sMfzzFPnQXVzIp0JgaVoD1IP4yatFOoOY8eVZorYI2G5kELknoh3fR1F4taR7Tl
-         cL4vS4P1gE9X7ErobWJAy8CaSYxBFqgoTesfXfriYuRXpigVJWTqaMFnBZlK+01qha
-         6k1ztzv7OwPOgOBeWUTH+w9HJZT+CFp8AlFo1CA8=
+        b=ZJzdiwt38hwDpT0s46fTXt2jkc1gUEmZ7nnt6m6wDQYNHEHPkzaTTIfWTukOfLN1y
+         BDv6GUKeaczoMj0OS9HXebBWwIMU7jtXv6MBqAVkt/6yMgJOerLXc+JFvuUgw6Ffuk
+         m47xf97KacChuIX5DbaBsO2kVeurLV7mdeFwwSK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Chang S. Bae" <chang.seok.bae@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>, neelnatu@google.com,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 137/240] x86/fpu: Configure init_fpstate attributes orderly
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 006/132] ALSA: usb-audio: Add quirks for M-Audio Fast Track C400/600
 Date:   Wed,  2 Nov 2022 03:31:52 +0100
-Message-Id: <20221102022114.477692651@linuxfoundation.org>
+Message-Id: <20221102022059.777003818@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
-References: <20221102022111.398283374@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,77 +51,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chang S. Bae <chang.seok.bae@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c32d7cab57e3a77af8ecc17cde7a5761a26483b8 ]
+commit 794814529384721ce8f4d34228dc599cc010353d upstream.
 
-The init_fpstate setup code is spread out and out of order. The init image
-is recorded before its scoped features and the buffer size are determined.
+M-Audio Fast Track C400 and C600 devices (0763:2030 and 0763:2031,
+respectively) seem requiring the explicit setup for the implicit
+feedback mode.  This patch adds the quirk entries for those.
 
-Determine the scope of init_fpstate components and its size before
-recording the init state. Also move the relevant code together.
-
-Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: neelnatu@google.com
-Link: https://lore.kernel.org/r/20220824191223.1248-2-chang.seok.bae@intel.com
-Stable-dep-of: d3e021adac7c ("x86/fpu: Fix the init_fpstate size check with the actual size")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214817
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221021122722.24784-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/fpu/init.c   | 8 --------
- arch/x86/kernel/fpu/xstate.c | 6 +++++-
- 2 files changed, 5 insertions(+), 9 deletions(-)
+ sound/usb/implicit.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/kernel/fpu/init.c b/arch/x86/kernel/fpu/init.c
-index 621f4b6cac4a..8946f89761cc 100644
---- a/arch/x86/kernel/fpu/init.c
-+++ b/arch/x86/kernel/fpu/init.c
-@@ -210,13 +210,6 @@ static void __init fpu__init_system_xstate_size_legacy(void)
- 	fpstate_reset(&current->thread.fpu);
- }
- 
--static void __init fpu__init_init_fpstate(void)
--{
--	/* Bring init_fpstate size and features up to date */
--	init_fpstate.size		= fpu_kernel_cfg.max_size;
--	init_fpstate.xfeatures		= fpu_kernel_cfg.max_features;
--}
--
- /*
-  * Called on the boot CPU once per system bootup, to set up the initial
-  * FPU state that is later cloned into all processes:
-@@ -236,5 +229,4 @@ void __init fpu__init_system(struct cpuinfo_x86 *c)
- 	fpu__init_system_xstate_size_legacy();
- 	fpu__init_system_xstate(fpu_kernel_cfg.max_size);
- 	fpu__init_task_struct_size();
--	fpu__init_init_fpstate();
- }
-diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
-index c8340156bfd2..f0ce10620ab0 100644
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -360,7 +360,7 @@ static void __init setup_init_fpu_buf(void)
- 
- 	print_xstate_features();
- 
--	xstate_init_xcomp_bv(&init_fpstate.regs.xsave, fpu_kernel_cfg.max_features);
-+	xstate_init_xcomp_bv(&init_fpstate.regs.xsave, init_fpstate.xfeatures);
- 
- 	/*
- 	 * Init all the features state with header.xfeatures being 0x0
-@@ -875,6 +875,10 @@ void __init fpu__init_system_xstate(unsigned int legacy_size)
- 	update_regset_xstate_info(fpu_user_cfg.max_size,
- 				  fpu_user_cfg.max_features);
- 
-+	/* Bring init_fpstate size and features up to date */
-+	init_fpstate.size		= fpu_kernel_cfg.max_size;
-+	init_fpstate.xfeatures		= fpu_kernel_cfg.max_features;
-+
- 	setup_init_fpu_buf();
- 
- 	/*
--- 
-2.35.1
-
+--- a/sound/usb/implicit.c
++++ b/sound/usb/implicit.c
+@@ -47,6 +47,8 @@ struct snd_usb_implicit_fb_match {
+ static const struct snd_usb_implicit_fb_match playback_implicit_fb_quirks[] = {
+ 	/* Fixed EP */
+ 	/* FIXME: check the availability of generic matching */
++	IMPLICIT_FB_FIXED_DEV(0x0763, 0x2030, 0x81, 3), /* M-Audio Fast Track C400 */
++	IMPLICIT_FB_FIXED_DEV(0x0763, 0x2031, 0x81, 3), /* M-Audio Fast Track C600 */
+ 	IMPLICIT_FB_FIXED_DEV(0x0763, 0x2080, 0x81, 2), /* M-Audio FastTrack Ultra */
+ 	IMPLICIT_FB_FIXED_DEV(0x0763, 0x2081, 0x81, 2), /* M-Audio FastTrack Ultra */
+ 	IMPLICIT_FB_FIXED_DEV(0x2466, 0x8010, 0x81, 2), /* Fractal Audio Axe-Fx III */
 
 
