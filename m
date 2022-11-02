@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8848615998
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:15:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 889F2615932
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:06:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229795AbiKBDPE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:15:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33794 "EHLO
+        id S230115AbiKBDGj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:06:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229457AbiKBDOI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:14:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76B8524BD6
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:13:52 -0700 (PDT)
+        with ESMTP id S229846AbiKBDGP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:06:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24E3B23E87
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:06:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCC72B82055
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:13:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9939DC433D6;
-        Wed,  2 Nov 2022 03:13:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8D5B617BC
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:06:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F6B0C433D6;
+        Wed,  2 Nov 2022 03:06:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358829;
-        bh=i1N/ngFIDlkTgHcazrzBy5JVntrbj5UxGm42Fbx757o=;
+        s=korg; t=1667358374;
+        bh=FeJs2gKM++hqlwsNFAzSqDbMOqIeYuKBjUhJHrss8Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+x39qZ9ZpQ+eKOPJyD1ffkqlFJtkU9VqUtL039s8iQo1u/hQnElIs2AcQ3s7aeaR
-         m5cu0TVHin4G4A3pKeMUKSm8pku6ChFlYnkZkMj2ep5WZvOCMXdN9wVZMns7t4dRsp
-         PlRRKA46/zdwRCUWn0sgc3ldtdOxFfdBLBWbsFoo=
+        b=xJ20gN4ZiCTOeskz7vIurwlnZisP6MuPYuE71Cud7+wmb3ILzicVzrsSf6nLVQstP
+         WwpO2P7GLwFRhL9kOSDstcVa36B/cCcJksI8wauZsZ32WVBnGRIu/MdNKoQ1ZifIzn
+         BJgY+v0HQx8xi5wgOTfooQOcss3L29GPVV7Qz9xE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Niklas Schnelle <schnelle@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.10 31/91] s390/pci: add missing EX_TABLE entries to __pcistg_mio_inuser()/__pcilg_mio_inuser()
+        patches@lists.linux.dev, Shakeel Butt <shakeelb@google.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 088/132] net-memcg: avoid stalls when under memory pressure
 Date:   Wed,  2 Nov 2022 03:33:14 +0100
-Message-Id: <20221102022055.926634689@linuxfoundation.org>
+Message-Id: <20221102022101.937795582@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 6ec803025cf3173a57222e4411097166bd06fa98 upstream.
+[ Upstream commit 720ca52bcef225b967a339e0fffb6d0c7e962240 ]
 
-For some exception types the instruction address points behind the
-instruction that caused the exception. Take that into account and add
-the missing exception table entry.
+As Shakeel explains the commit under Fixes had the unintended
+side-effect of no longer pre-loading the cached memory allowance.
+Even tho we previously dropped the first packet received when
+over memory limit - the consecutive ones would get thru by using
+the cache. The charging was happening in batches of 128kB, so
+we'd let in 128kB (truesize) worth of packets per one drop.
 
-Cc: <stable@vger.kernel.org>
-Fixes: f058599e22d5 ("s390/pci: Fix s390_mmio_read/write with MIO")
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+After the change we no longer force charge, there will be no
+cache filling side effects. This causes significant drops and
+connection stalls for workloads which use a lot of page cache,
+since we can't reclaim page cache under GFP_NOWAIT.
+
+Some of the latency can be recovered by improving SACK reneg
+handling but nowhere near enough to get back to the pre-5.15
+performance (the application I'm experimenting with still
+sees 5-10x worst latency).
+
+Apply the suggested workaround of using GFP_ATOMIC. We will now
+be more permissive than previously as we'll drop _no_ packets
+in softirq when under pressure. But I can't think of any good
+and simple way to address that within networking.
+
+Link: https://lore.kernel.org/all/20221012163300.795e7b86@kernel.org/
+Suggested-by: Shakeel Butt <shakeelb@google.com>
+Fixes: 4b1327be9fe5 ("net-memcg: pass in gfp_t mask to mem_cgroup_charge_skmem()")
+Acked-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
+Link: https://lore.kernel.org/r/20221021160304.1362511-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/pci/pci_mmio.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ include/net/sock.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/pci/pci_mmio.c
-+++ b/arch/s390/pci/pci_mmio.c
-@@ -64,7 +64,7 @@ static inline int __pcistg_mio_inuser(
- 	asm volatile (
- 		"       sacf    256\n"
- 		"0:     llgc    %[tmp],0(%[src])\n"
--		"       sllg    %[val],%[val],8\n"
-+		"4:	sllg	%[val],%[val],8\n"
- 		"       aghi    %[src],1\n"
- 		"       ogr     %[val],%[tmp]\n"
- 		"       brctg   %[cnt],0b\n"
-@@ -72,7 +72,7 @@ static inline int __pcistg_mio_inuser(
- 		"2:     ipm     %[cc]\n"
- 		"       srl     %[cc],28\n"
- 		"3:     sacf    768\n"
--		EX_TABLE(0b, 3b) EX_TABLE(1b, 3b) EX_TABLE(2b, 3b)
-+		EX_TABLE(0b, 3b) EX_TABLE(4b, 3b) EX_TABLE(1b, 3b) EX_TABLE(2b, 3b)
- 		:
- 		[src] "+a" (src), [cnt] "+d" (cnt),
- 		[val] "+d" (val), [tmp] "=d" (tmp),
-@@ -222,10 +222,10 @@ static inline int __pcilg_mio_inuser(
- 		"2:     ahi     %[shift],-8\n"
- 		"       srlg    %[tmp],%[val],0(%[shift])\n"
- 		"3:     stc     %[tmp],0(%[dst])\n"
--		"       aghi    %[dst],1\n"
-+		"5:	aghi	%[dst],1\n"
- 		"       brctg   %[cnt],2b\n"
- 		"4:     sacf    768\n"
--		EX_TABLE(0b, 4b) EX_TABLE(1b, 4b) EX_TABLE(3b, 4b)
-+		EX_TABLE(0b, 4b) EX_TABLE(1b, 4b) EX_TABLE(3b, 4b) EX_TABLE(5b, 4b)
- 		:
- 		[cc] "+d" (cc), [val] "=d" (val), [len] "+d" (len),
- 		[dst] "+a" (dst), [cnt] "+d" (cnt), [tmp] "=d" (tmp),
+diff --git a/include/net/sock.h b/include/net/sock.h
+index cb1a1bb64ed8..e1a303e4f0f7 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -2472,7 +2472,7 @@ static inline gfp_t gfp_any(void)
+ 
+ static inline gfp_t gfp_memcg_charge(void)
+ {
+-	return in_softirq() ? GFP_NOWAIT : GFP_KERNEL;
++	return in_softirq() ? GFP_ATOMIC : GFP_KERNEL;
+ }
+ 
+ static inline long sock_rcvtimeo(const struct sock *sk, bool noblock)
+-- 
+2.35.1
+
 
 
