@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B39CA615AEB
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:44:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 604E3615AA3
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:37:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230161AbiKBDoA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:44:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60660 "EHLO
+        id S230229AbiKBDhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:37:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230086AbiKBDn5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:43:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 804E32676
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:43:56 -0700 (PDT)
+        with ESMTP id S229971AbiKBDho (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:37:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F032655C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:37:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19DE3617CF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:43:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7081C433C1;
-        Wed,  2 Nov 2022 03:43:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA6B461729
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:37:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5309DC433D6;
+        Wed,  2 Nov 2022 03:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360635;
-        bh=0TvDcCnf/LXip/6wvfEvF2VTSR+Cy5BXwUBYoYzNL8Y=;
+        s=korg; t=1667360263;
+        bh=rW1IYqcYQ1DD1viS3spLNZ1+QEjUnkW/V/pP8ZL/mPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPjdBcSjpme/khLOOj8CpNcs4uQ9bscq+eFasiTmpeGkPB2XF4cIkeHG3KdcKjNWa
-         jI/dLa68f+IesU/NJytfAzwJ4BDKZAUcVe9RzoxUPSYFcYKPeGk7IeTj6pnuQ65jxf
-         vp0Nk92X6CENEMQuaFlzy4IwQ/T2TFzgkNyuOZE0=
+        b=BqSf0rAWIgeItboqpeDLJLMsjk7WHNqbm+qA+KQwqUusdnoch9eWepCk6o97iCEG6
+         IeXs8o9Uyg3X0UeGSZVj4dNgsWpPKLuzqgNzLc79/BOlbaHzu1Qf+3upl2GIlHVvle
+         N8Bh1uSOw4hoCWXiVJ+nOSjba6t2yTTn93oyaEVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 11/44] ALSA: au88x0: use explicitly signed char
+        patches@lists.linux.dev, Sudeep Holla <sudeep.holla@arm.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 72/78] PM: domains: Fix handling of unavailable/disabled idle states
 Date:   Wed,  2 Nov 2022 03:34:57 +0100
-Message-Id: <20221102022049.425286195@linuxfoundation.org>
+Message-Id: <20221102022055.049721379@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
-References: <20221102022049.017479464@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,64 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-commit ee03c0f200eb0d9f22dd8732d9fb7956d91019c2 upstream.
+[ Upstream commit e0c57a5c70c13317238cb19a7ded0eab4a5f7de5 ]
 
-With char becoming unsigned by default, and with `char` alone being
-ambiguous and based on architecture, signed chars need to be marked
-explicitly as such. This fixes warnings like:
+Platforms can provide the information about the availability of each
+idle states via status flag. Platforms may have to disable one or more
+idle states for various reasons like broken firmware or other unmet
+dependencies.
 
-sound/pci/au88x0/au88x0_core.c:2029 vortex_adb_checkinout() warn: signedness bug returning '(-22)'
-sound/pci/au88x0/au88x0_core.c:2046 vortex_adb_checkinout() warn: signedness bug returning '(-12)'
-sound/pci/au88x0/au88x0_core.c:2125 vortex_adb_allocroute() warn: 'vortex_adb_checkinout(vortex, (0), en, 0)' is unsigned
-sound/pci/au88x0/au88x0_core.c:2170 vortex_adb_allocroute() warn: 'vortex_adb_checkinout(vortex, stream->resources, en, 4)' is unsigned
+Fix handling of such unavailable/disabled idle states by ignoring them
+while parsing the states.
 
-As well, since one function returns errnos, return an `int` rather than
-a `signed char`.
-
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221024162929.536004-1-Jason@zx2c4.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a3381e3a65cb ("PM / domains: Fix up domain-idle-states OF parsing")
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/au88x0/au88x0.h      |    6 +++---
- sound/pci/au88x0/au88x0_core.c |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/base/power/domain.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/sound/pci/au88x0/au88x0.h
-+++ b/sound/pci/au88x0/au88x0.h
-@@ -153,7 +153,7 @@ struct snd_vortex {
- #ifndef CHIP_AU8810
- 	stream_t dma_wt[NR_WT];
- 	wt_voice_t wt_voice[NR_WT];	/* WT register cache. */
--	char mixwt[(NR_WT / NR_WTPB) * 6];	/* WT mixin objects */
-+	s8 mixwt[(NR_WT / NR_WTPB) * 6];	/* WT mixin objects */
- #endif
- 
- 	/* Global resources */
-@@ -247,8 +247,8 @@ static int vortex_alsafmt_aspfmt(int als
- static void vortex_connect_default(vortex_t * vortex, int en);
- static int vortex_adb_allocroute(vortex_t * vortex, int dma, int nr_ch,
- 				 int dir, int type, int subdev);
--static char vortex_adb_checkinout(vortex_t * vortex, int resmap[], int out,
--				  int restype);
-+static int vortex_adb_checkinout(vortex_t * vortex, int resmap[], int out,
-+				 int restype);
- #ifndef CHIP_AU8810
- static int vortex_wt_allocroute(vortex_t * vortex, int dma, int nr_ch);
- static void vortex_wt_connect(vortex_t * vortex, int en);
---- a/sound/pci/au88x0/au88x0_core.c
-+++ b/sound/pci/au88x0/au88x0_core.c
-@@ -2004,7 +2004,7 @@ static int resnum[VORTEX_RESOURCE_LAST]
-  out: Mean checkout if != 0. Else mean Checkin resource.
-  restype: Indicates type of resource to be checked in or out.
- */
--static char
-+static int
- vortex_adb_checkinout(vortex_t * vortex, int resmap[], int out, int restype)
- {
- 	int i, qty = resnum[restype], resinuse = 0;
+diff --git a/drivers/base/power/domain.c b/drivers/base/power/domain.c
+index 52c292d0908a..e865aa4b2504 100644
+--- a/drivers/base/power/domain.c
++++ b/drivers/base/power/domain.c
+@@ -2459,6 +2459,10 @@ static int genpd_iterate_idle_states(struct device_node *dn,
+ 		np = it.node;
+ 		if (!of_match_node(idle_state_match, np))
+ 			continue;
++
++		if (!of_device_is_available(np))
++			continue;
++
+ 		if (states) {
+ 			ret = genpd_parse_state(&states[i], np);
+ 			if (ret) {
+-- 
+2.35.1
+
 
 
