@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50061615929
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:06:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5058661598D
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229971AbiKBDGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:06:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55168 "EHLO
+        id S230153AbiKBDNq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:13:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230060AbiKBDFg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:05:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9119A23394
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:05:34 -0700 (PDT)
+        with ESMTP id S230374AbiKBDNC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:13:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A7E22BD5
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:13:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C95B616DB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:05:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2650C433D6;
-        Wed,  2 Nov 2022 03:05:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE27CB82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:12:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A97A0C433D7;
+        Wed,  2 Nov 2022 03:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358333;
-        bh=OTa6+yZieo8+xQvGlIRCXJemPmcuq/hm3BSCceI2+Ok=;
+        s=korg; t=1667358778;
+        bh=lUC5X3iSFGZQmbNEdUfRZ/ahLgK0KyzBUvTQ9XIl5jY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pguaHQs8Soa6eqkaG2H/jfC97Hb46s74U6M6/SE4tho4znp19g2QfRuDD9plTTkKI
-         0rIONSw2LPZtV23+DRJWLSrYLigQWNJEDSNpzgt3QtFXZeiMvflphjyOfzPSVm4UbH
-         oed5iJ744Y3ohOmJ91YoPhE3LUlJVVI63Ck4uTp4=
+        b=nUcUf8ApCQDmNVt9ZUlAlPPGVIZawz4x68m99yxNCM79BSAMbbj+OE3f0aqodKGkd
+         SNhMl45RylYsDEr/+tfL56Dyzn6Mz4j2oTeOKjZPPeM/lV8ueTQs/opSn4u5cBqAfL
+         Q/Gm7YepLJC+o3KFk8zzWv+Mwe4F1z0gAVzC7Vm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 081/132] kcm: annotate data-races around kcm->rx_psock
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>
+Subject: [PATCH 5.10 24/91] drm/msm/dp: fix IRQ lifetime
 Date:   Wed,  2 Nov 2022 03:33:07 +0100
-Message-Id: <20221102022101.746774838@linuxfoundation.org>
+Message-Id: <20221102022055.734505041@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,101 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 15e4dabda11b0fa31d510a915d1a580f47dfc92e ]
+commit a79343dcaba4b11adb57350e0b6426906a9b658e upstream.
 
-kcm->rx_psock can be read locklessly in kcm_rfree().
-Annotate the read and writes accordingly.
+Device-managed resources allocated post component bind must be tied to
+the lifetime of the aggregate DRM device or they will not necessarily be
+released when binding of the aggregate device is deferred.
 
-We do the same for kcm->rx_wait in the following patch.
+This is specifically true for the DP IRQ, which will otherwise remain
+requested so that the next bind attempt fails when requesting the IRQ a
+second time.
 
-syzbot reported:
-BUG: KCSAN: data-race in kcm_rfree / unreserve_rx_kcm
+Since commit c3bf8e21b38a ("drm/msm/dp: Add eDP support via aux_bus")
+this can happen when the aux-bus panel driver has not yet been loaded so
+that probe is deferred.
 
-write to 0xffff888123d827b8 of 8 bytes by task 2758 on cpu 1:
-unreserve_rx_kcm+0x72/0x1f0 net/kcm/kcmsock.c:313
-kcm_rcv_strparser+0x2b5/0x3a0 net/kcm/kcmsock.c:373
-__strp_recv+0x64c/0xd20 net/strparser/strparser.c:301
-strp_recv+0x6d/0x80 net/strparser/strparser.c:335
-tcp_read_sock+0x13e/0x5a0 net/ipv4/tcp.c:1703
-strp_read_sock net/strparser/strparser.c:358 [inline]
-do_strp_work net/strparser/strparser.c:406 [inline]
-strp_work+0xe8/0x180 net/strparser/strparser.c:415
-process_one_work+0x3d3/0x720 kernel/workqueue.c:2289
-worker_thread+0x618/0xa70 kernel/workqueue.c:2436
-kthread+0x1a9/0x1e0 kernel/kthread.c:376
-ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+Fix this by tying the device-managed lifetime of the DP IRQ to the DRM
+device so that it is released when bind fails.
 
-read to 0xffff888123d827b8 of 8 bytes by task 5859 on cpu 0:
-kcm_rfree+0x14c/0x220 net/kcm/kcmsock.c:181
-skb_release_head_state+0x8e/0x160 net/core/skbuff.c:841
-skb_release_all net/core/skbuff.c:852 [inline]
-__kfree_skb net/core/skbuff.c:868 [inline]
-kfree_skb_reason+0x5c/0x260 net/core/skbuff.c:891
-kfree_skb include/linux/skbuff.h:1216 [inline]
-kcm_recvmsg+0x226/0x2b0 net/kcm/kcmsock.c:1161
-____sys_recvmsg+0x16c/0x2e0
-___sys_recvmsg net/socket.c:2743 [inline]
-do_recvmmsg+0x2f1/0x710 net/socket.c:2837
-__sys_recvmmsg net/socket.c:2916 [inline]
-__do_sys_recvmmsg net/socket.c:2939 [inline]
-__se_sys_recvmmsg net/socket.c:2932 [inline]
-__x64_sys_recvmmsg+0xde/0x160 net/socket.c:2932
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-value changed: 0xffff88812971ce00 -> 0x0000000000000000
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 5859 Comm: syz-executor.3 Not tainted 6.0.0-syzkaller-12189-g19d17ab7c68b-dirty #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
-
-Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c943b4948b58 ("drm/msm/dp: add displayPort driver support")
+Cc: stable@vger.kernel.org      # 5.10
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Tested-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/502679/
+Link: https://lore.kernel.org/r/20220913085320.8577-6-johan+linaro@kernel.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/kcm/kcmsock.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_display.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
-index f780fbe82e7d..2e8990036ec4 100644
---- a/net/kcm/kcmsock.c
-+++ b/net/kcm/kcmsock.c
-@@ -177,7 +177,7 @@ static void kcm_rfree(struct sk_buff *skb)
- 	/* For reading rx_wait and rx_psock without holding lock */
- 	smp_mb__after_atomic();
+--- a/drivers/gpu/drm/msm/dp/dp_display.c
++++ b/drivers/gpu/drm/msm/dp/dp_display.c
+@@ -1201,7 +1201,7 @@ int dp_display_request_irq(struct msm_dp
+ 		return -EINVAL;
+ 	}
  
--	if (!kcm->rx_wait && !kcm->rx_psock &&
-+	if (!kcm->rx_wait && !READ_ONCE(kcm->rx_psock) &&
- 	    sk_rmem_alloc_get(sk) < sk->sk_rcvlowat) {
- 		spin_lock_bh(&mux->rx_lock);
- 		kcm_rcv_ready(kcm);
-@@ -282,7 +282,8 @@ static struct kcm_sock *reserve_rx_kcm(struct kcm_psock *psock,
- 	kcm->rx_wait = false;
- 
- 	psock->rx_kcm = kcm;
--	kcm->rx_psock = psock;
-+	/* paired with lockless reads in kcm_rfree() */
-+	WRITE_ONCE(kcm->rx_psock, psock);
- 
- 	spin_unlock_bh(&mux->rx_lock);
- 
-@@ -309,7 +310,8 @@ static void unreserve_rx_kcm(struct kcm_psock *psock,
- 	spin_lock_bh(&mux->rx_lock);
- 
- 	psock->rx_kcm = NULL;
--	kcm->rx_psock = NULL;
-+	/* paired with lockless reads in kcm_rfree() */
-+	WRITE_ONCE(kcm->rx_psock, NULL);
- 
- 	/* Commit kcm->rx_psock before sk_rmem_alloc_get to sync with
- 	 * kcm_rfree
--- 
-2.35.1
-
+-	rc = devm_request_irq(&dp->pdev->dev, dp->irq,
++	rc = devm_request_irq(dp_display->drm_dev->dev, dp->irq,
+ 			dp_display_irq_handler,
+ 			IRQF_TRIGGER_HIGH, "dp_display_isr", dp);
+ 	if (rc < 0) {
 
 
