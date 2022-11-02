@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72CA56158B1
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:56:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED6306158B2
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:56:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231162AbiKBC4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:56:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46366 "EHLO
+        id S231135AbiKBC4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:56:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231135AbiKBC4o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:56:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 136C422513
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:56:44 -0700 (PDT)
+        with ESMTP id S231180AbiKBC4v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:56:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE892251F
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:56:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9AF3B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:56:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BBD9C433C1;
-        Wed,  2 Nov 2022 02:56:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8513EB82064
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:56:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D437C433C1;
+        Wed,  2 Nov 2022 02:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357801;
-        bh=TwwWxJWYRhXpg2nnu3IkxG4kXRsEg8DkVan1/qYEypA=;
+        s=korg; t=1667357807;
+        bh=4uJPfMeB9S5ogt1uSlC+xl8SGodLN9/5GsgFN8KcdU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qFPZGFMzLt76++MvI8BzBXIfj7yF/z7fJaOD7bvk8gWWR0LGL/hJ+5i7WBGE7WkSO
-         q6a+A9+3EWSAYi9HniCyaijAZjXqC3CaLT5zONsNy72Gjxr5KbOqb/vnMqpdZKHq6a
-         y78HhBD7z+HuBCHFELihXZNJylAkW58qHU5xkBLo=
+        b=S7uYK/cBXmhiqjhGn528dvkEUarHMOKVkEBzAfvNhQB+Pyb6tjhNip5yL/jiDiWOQ
+         0FbE7znOKNYY/QVywfaJW8bW19TX+CeSLLTSIoZlb6Anaw+bsxobKYt/PpB38rqWUx
+         faRiPp8EVXxi96m/KAQdlXYUMdphanJn7fr6T8yE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roy Novich <royno@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>, Aya Levin <ayal@nvidia.com>,
+        patches@lists.linux.dev, Suresh Devarakonda <ramad@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Bodong Wang <bodong@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 231/240] net/mlx5: Update fw fatal reporter state on PCI handlers successful recover
-Date:   Wed,  2 Nov 2022 03:33:26 +0100
-Message-Id: <20221102022116.626955023@linuxfoundation.org>
+Subject: [PATCH 6.0 232/240] net/mlx5: Fix crash during sync firmware reset
+Date:   Wed,  2 Nov 2022 03:33:27 +0100
+Message-Id: <20221102022116.649726343@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,46 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roy Novich <royno@nvidia.com>
+From: Suresh Devarakonda <ramad@nvidia.com>
 
-[ Upstream commit 416ef713631937cf5452476a7f1041a3ae7b06c6 ]
+[ Upstream commit aefb62a9988749703435e941704624949a80a2a9 ]
 
-Update devlink health fw fatal reporter state to "healthy" is needed by
-strictly calling devlink_health_reporter_state_update() after recovery
-was done by PCI error handler. This is needed when fw_fatal reporter was
-triggered due to PCI error. Poll health is called and set reporter state
-to error. Health recovery failed (since EEH didn't re-enable the PCI).
-PCI handlers keep on recover flow and succeed later without devlink
-acknowledgment. Fix this by adding devlink state update at the end of
-the PCI handler recovery process.
+When setting Bluefield to DPU NIC mode using mlxconfig tool +  sync
+firmware reset flow, we run into scenario where the host was not
+eswitch manager at the time of mlx5 driver load but becomes eswitch manager
+after the sync firmware reset flow. This results in null pointer
+access of mpfs structure during mac filter add. This change prevents null
+pointer access but mpfs table entries will not be added.
 
-Fixes: 6181e5cb752e ("devlink: add support for reporter recovery completion")
-Signed-off-by: Roy Novich <royno@nvidia.com>
+Fixes: 5ec697446f46 ("net/mlx5: Add support for devlink reload action fw activate")
+Signed-off-by: Suresh Devarakonda <ramad@nvidia.com>
 Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Bodong Wang <bodong@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/20221026135153.154807-11-saeed@kernel.org
+Link: https://lore.kernel.org/r/20221026135153.154807-12-saeed@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index 89b2d9cea33f..e5e32430b6af 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1833,6 +1833,10 @@ static void mlx5_pci_resume(struct pci_dev *pdev)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c
+index 839a01da110f..8ff16318e32d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c
+@@ -122,7 +122,7 @@ void mlx5_mpfs_cleanup(struct mlx5_core_dev *dev)
+ {
+ 	struct mlx5_mpfs *mpfs = dev->priv.mpfs;
  
- 	err = mlx5_load_one(dev, false);
+-	if (!MLX5_ESWITCH_MANAGER(dev))
++	if (!mpfs)
+ 		return;
  
-+	if (!err)
-+		devlink_health_reporter_state_update(dev->priv.health.fw_fatal_reporter,
-+						     DEVLINK_HEALTH_REPORTER_STATE_HEALTHY);
-+
- 	mlx5_pci_trace(dev, "Done, err = %d, device %s\n", err,
- 		       !err ? "recovered" : "Failed");
- }
+ 	WARN_ON(!hlist_empty(mpfs->hash));
+@@ -137,7 +137,7 @@ int mlx5_mpfs_add_mac(struct mlx5_core_dev *dev, u8 *mac)
+ 	int err = 0;
+ 	u32 index;
+ 
+-	if (!MLX5_ESWITCH_MANAGER(dev))
++	if (!mpfs)
+ 		return 0;
+ 
+ 	mutex_lock(&mpfs->lock);
+@@ -185,7 +185,7 @@ int mlx5_mpfs_del_mac(struct mlx5_core_dev *dev, u8 *mac)
+ 	int err = 0;
+ 	u32 index;
+ 
+-	if (!MLX5_ESWITCH_MANAGER(dev))
++	if (!mpfs)
+ 		return 0;
+ 
+ 	mutex_lock(&mpfs->lock);
 -- 
 2.35.1
 
