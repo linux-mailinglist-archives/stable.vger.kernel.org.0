@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2DB96158D1
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:59:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E72A3615836
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:47:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231268AbiKBC7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:59:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48456 "EHLO
+        id S230431AbiKBCrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:47:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231231AbiKBC7G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:59:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EF84205C0
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:59:02 -0700 (PDT)
+        with ESMTP id S230418AbiKBCrS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:47:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D6C32180D
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:47:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE3E8617BF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:59:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60A02C433D6;
-        Wed,  2 Nov 2022 02:59:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46487B82075
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:47:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24461C433C1;
+        Wed,  2 Nov 2022 02:47:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357941;
-        bh=dM/HVk0aOyFBkLvoISyOFMY/ZYpAVduwIzNTy3bW268=;
+        s=korg; t=1667357234;
+        bh=hf/2atxo370edgHm3wo67uB4OMbaDIQlNsv9U2J2My0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VmLXkD+buJuuZRuQbgTcdS8Yt0n6cJKg1ZZ6WYcQ/QYFMeCeJo+fdcKwgiHhT5nXm
-         FT+14MVckMxavGbt97MlouadZD51io0VsnQ4xi6BGmuY/VcVqMDVgzDM3rhkVdPp2l
-         IEc+cypavdYCX1fU2ZHNOGPKZi2tMW4d7fWW72pI=
+        b=h2VKJdSuQzSdc5r5W5/CGtLCfpExkqRi0rox8p9XUBIxQF/uzeVi4eOh3Wj1C6Z9p
+         7vXDwUrzp7SBorav1JB+Y7bJQzqqzq5JN7WsKfAXAHcaVCr/XVgW1vNCK7B5Ps+xC0
+         LmqTyu5ZZe+NO55FTyPjzerTMItOsNmfC9GoOuVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 005/132] ALSA: Use del_timer_sync() before freeing timer
+        patches@lists.linux.dev, Robert Marko <robert.marko@sartura.hr>,
+        luka.perkov@sartura.hr, Linus Walleij <linus.walleij@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 136/240] spi: qup: support using GPIO as chip select line
 Date:   Wed,  2 Nov 2022 03:31:51 +0100
-Message-Id: <20221102022059.748558856@linuxfoundation.org>
+Message-Id: <20221102022114.455716106@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
+References: <20221102022111.398283374@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Robert Marko <robert.marko@sartura.hr>
 
-commit f0a868788fcbf63cdab51f5adcf73b271ede8164 upstream.
+[ Upstream commit b40af6183b685b0cf7870987b858de0d48db9ea0 ]
 
-The current code for freeing the emux timer is extremely dangerous:
+Most of the device with QUP SPI adapter are actually using GPIO-s for
+chip select.
 
-  CPU0				CPU1
-  ----				----
-snd_emux_timer_callback()
-			    snd_emux_free()
-			      spin_lock(&emu->voice_lock)
-			      del_timer(&emu->tlist); <-- returns immediately
-			      spin_unlock(&emu->voice_lock);
-			      [..]
-			      kfree(emu);
+However, this stopped working after ("spi: Retire legacy GPIO handling")
+as it introduced a check on ->use_gpio_descriptors flag and since spi-qup
+driver does not set the flag it meant that all of boards using GPIO-s and
+with QUP adapter SPI devices stopped working.
 
-  spin_lock(&emu->voice_lock);
+So, to enable using GPIO-s again set ->use_gpio_descriptors to true and
+populate ->max_native_cs.
 
- [BOOM!]
-
-Instead just use del_timer_sync() which will wait for the timer to finish
-before continuing. No need to check if the timer is active or not when
-doing so.
-
-This doesn't fix the race of a possible re-arming of the timer, but at
-least it won't use the data that has just been freed.
-
-[ Fixed unused variable warning by tiwai ]
-
-Cc: stable@vger.kernel.org
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20221026231236.6834b551@gandalf.local.home
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f48dc6b96649 ("spi: Retire legacy GPIO handling")
+Signed-off-by: Robert Marko <robert.marko@sartura.hr>
+Cc: luka.perkov@sartura.hr
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20221006194819.1536932-1-robert.marko@sartura.hr
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/synth/emux/emux.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/spi/spi-qup.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/synth/emux/emux.c
-+++ b/sound/synth/emux/emux.c
-@@ -126,15 +126,10 @@ EXPORT_SYMBOL(snd_emux_register);
-  */
- int snd_emux_free(struct snd_emux *emu)
- {
--	unsigned long flags;
--
- 	if (! emu)
- 		return -EINVAL;
+diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
+index 7d89510dc3f0..678dc51ef017 100644
+--- a/drivers/spi/spi-qup.c
++++ b/drivers/spi/spi-qup.c
+@@ -1057,6 +1057,8 @@ static int spi_qup_probe(struct platform_device *pdev)
+ 	else
+ 		master->num_chipselect = num_cs;
  
--	spin_lock_irqsave(&emu->voice_lock, flags);
--	if (emu->timer_active)
--		del_timer(&emu->tlist);
--	spin_unlock_irqrestore(&emu->voice_lock, flags);
-+	del_timer_sync(&emu->tlist);
- 
- 	snd_emux_proc_free(emu);
- 	snd_emux_delete_virmidi(emu);
++	master->use_gpio_descriptors = true;
++	master->max_native_cs = SPI_NUM_CHIPSELECTS;
+ 	master->bus_num = pdev->id;
+ 	master->mode_bits = SPI_CPOL | SPI_CPHA | SPI_CS_HIGH | SPI_LOOP;
+ 	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(4, 32);
+-- 
+2.35.1
+
 
 
