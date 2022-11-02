@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D5846158C3
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:58:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BAD96158A1
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:55:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231200AbiKBC6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:58:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47238 "EHLO
+        id S231165AbiKBCz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:55:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231216AbiKBC6L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:58:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E57E322B19
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:58:09 -0700 (PDT)
+        with ESMTP id S231135AbiKBCz2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:55:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9B5A220FB
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:55:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85BE561729
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:58:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30DE9C433D6;
-        Wed,  2 Nov 2022 02:58:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C213B82064
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:55:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23E8DC433D6;
+        Wed,  2 Nov 2022 02:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357889;
-        bh=BwgF8QS+/gmGCZrRD3fLt+uPUG1MhXNYrXzpU26Qe9M=;
+        s=korg; t=1667357725;
+        bh=yb0/IESyzdeWQPDJOh9QPdBxMM+rHJ6SRYnUlYuNwsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNxHtLRh0YGF9JjRaf3PRFWu0H30F7f87wGfQulX3ZBkK38tRNS7oV1lzRhdqo0O8
-         TSMfJmd3nbi9nzseRk7W14P6vSp13HXE33ELXCOPGE+4wiRjzBCjGcsWsnNDJUvzlU
-         jnt7WJ3hpTrHdZ0x9EyR4/hbkzszdZOIt+xXEDHw=
+        b=ym6Aj6NWlflqd6paGPrufmeZOV20FnkBSntI5K/ee8NMpXPXabQ9aX6vB0aUGA7W9
+         DxgFMFlIFSteuWoKqcdPCnFEtBMBDt+NqQX3mBQ7CYajaWAsXFI/zORKIF2IU57NI8
+         zsPgb8vCCsC0QuU2ZTQdGwwI8bQHDOU3tZloBHuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Julian Anastasov <ja@ssi.bg>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 218/240] nh: fix scope used to find saddr when adding non gw nh
-Date:   Wed,  2 Nov 2022 03:33:13 +0100
-Message-Id: <20221102022116.330780375@linuxfoundation.org>
+Subject: [PATCH 6.0 219/240] net: broadcom: bcm4908_enet: update TX stats after actual transmission
+Date:   Wed,  2 Nov 2022 03:33:14 +0100
+Message-Id: <20221102022116.353753968@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -54,40 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit bac0f937c343d651874f83b265ca8f5070ed4f06 ]
+[ Upstream commit ef3556ee16c68735ec69bd08df41d1cd83b14ad3 ]
 
-As explained by Julian, fib_nh_scope is related to fib_nh_gw4, but
-fib_info_update_nhc_saddr() needs the scope of the route, which is
-the scope "before" fib_nh_scope, ie fib_nh_scope - 1.
+Queueing packets doesn't guarantee their transmission. Update TX stats
+after hardware confirms consuming submitted data.
 
-This patch fixes the problem described in commit 747c14307214 ("ip: fix
-dflt addr selection for connected nexthop").
+This also fixes a possible race and NULL dereference.
+bcm4908_enet_start_xmit() could try to access skb after freeing it in
+the bcm4908_enet_poll_tx().
 
-Fixes: 597cfe4fc339 ("nexthop: Add support for IPv4 nexthops")
-Link: https://lore.kernel.org/netdev/6c8a44ba-c2d5-cdf-c5c7-5baf97cba38@ssi.bg/
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: Julian Anastasov <ja@ssi.bg>
+Reported-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 4feffeadbcb2e ("net: broadcom: bcm4908enet: add BCM4908 controller driver")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20221027112430.8696-1-zajec5@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/nexthop.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bcm4908_enet.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
-index 853a75a8fbaf..d8ef05347fd9 100644
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -2534,7 +2534,7 @@ static int nh_create_ipv4(struct net *net, struct nexthop *nh,
- 	if (!err) {
- 		nh->nh_flags = fib_nh->fib_nh_flags;
- 		fib_info_update_nhc_saddr(net, &fib_nh->nh_common,
--					  fib_nh->fib_nh_scope);
-+					  !fib_nh->fib_nh_scope ? 0 : fib_nh->fib_nh_scope - 1);
- 	} else {
- 		fib_nh_release(net, fib_nh);
+diff --git a/drivers/net/ethernet/broadcom/bcm4908_enet.c b/drivers/net/ethernet/broadcom/bcm4908_enet.c
+index c131d8118489..5ec429663f4c 100644
+--- a/drivers/net/ethernet/broadcom/bcm4908_enet.c
++++ b/drivers/net/ethernet/broadcom/bcm4908_enet.c
+@@ -561,8 +561,6 @@ static int bcm4908_enet_start_xmit(struct sk_buff *skb, struct net_device *netde
+ 
+ 	if (++ring->write_idx == ring->length - 1)
+ 		ring->write_idx = 0;
+-	enet->netdev->stats.tx_bytes += skb->len;
+-	enet->netdev->stats.tx_packets++;
+ 
+ 	return NETDEV_TX_OK;
+ }
+@@ -635,6 +633,7 @@ static int bcm4908_enet_poll_tx(struct napi_struct *napi, int weight)
+ 	struct bcm4908_enet_dma_ring_bd *buf_desc;
+ 	struct bcm4908_enet_dma_ring_slot *slot;
+ 	struct device *dev = enet->dev;
++	unsigned int bytes = 0;
+ 	int handled = 0;
+ 
+ 	while (handled < weight && tx_ring->read_idx != tx_ring->write_idx) {
+@@ -645,12 +644,17 @@ static int bcm4908_enet_poll_tx(struct napi_struct *napi, int weight)
+ 
+ 		dma_unmap_single(dev, slot->dma_addr, slot->len, DMA_TO_DEVICE);
+ 		dev_kfree_skb(slot->skb);
+-		if (++tx_ring->read_idx == tx_ring->length)
+-			tx_ring->read_idx = 0;
+ 
+ 		handled++;
++		bytes += slot->len;
++
++		if (++tx_ring->read_idx == tx_ring->length)
++			tx_ring->read_idx = 0;
  	}
+ 
++	enet->netdev->stats.tx_packets += handled;
++	enet->netdev->stats.tx_bytes += bytes;
++
+ 	if (handled < weight) {
+ 		napi_complete_done(napi, handled);
+ 		bcm4908_enet_dma_ring_intrs_on(enet, tx_ring);
 -- 
 2.35.1
 
