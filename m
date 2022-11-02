@@ -2,68 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20FD7616E13
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 20:55:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF26D616E25
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 21:00:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230211AbiKBTze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Nov 2022 15:55:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33964 "EHLO
+        id S229935AbiKBUA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Nov 2022 16:00:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229523AbiKBTzc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 15:55:32 -0400
-Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77461036
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 12:55:31 -0700 (PDT)
-Received: by mail-pj1-x104a.google.com with SMTP id bt19-20020a17090af01300b00213c7cd1083so4742839pjb.8
-        for <stable@vger.kernel.org>; Wed, 02 Nov 2022 12:55:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Nbdp27tsxp2ibpbU0lVoSCLA2OCXdLvEI7ZLDNEzxpg=;
-        b=Y05NAnRqcdu94M8xftt53yInGq2qp3Mxb+n5zy4TGfMJdifv1ITs+NlPuGChcm0dKx
-         fgw1u4CpK061pmB4QwDM+NSM83khrLuz+jBzmynO2Sx6EIc1+iScgIUAFraj/sivUwv0
-         jn9kEKcFRetpK1xliFQh/mRY5TK1tetQSpzyIp7TuCpDp/KX0/XHtxDUXIg09aB9qcEL
-         +iJ6OYu9Tg2tnVHyaaUbSKxrkfthnSLBp9kzFwv20Z05/RJkciZlss3omm0OZqOfY94u
-         xzi2xkgPm3W0jlXLjTcpGd3dP3WZScZtQTQUMm/b8KIRg9zubkLqK2P8HmS4SDmamyI2
-         3V5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Nbdp27tsxp2ibpbU0lVoSCLA2OCXdLvEI7ZLDNEzxpg=;
-        b=q50216Zgua3D2/jr4clqbSmQb+pXKHNQVwzSSAey9oBiQMg4FuHJ6xqBq4tivzi3op
-         kInLP+zjuov2QUc5Zs0mrPQa89aMZl/uUHExbPVxLUL+CNXnxDyXvbduAhkPAOImDH0V
-         kVPzqL4FNVKUgkDZDFXpcElgfWIiCYEoVPL/qz71yYvn5ZMlc2ivflzIm+mVqVoGwnn0
-         OIvi2MBxiCoUmXHSRLsUixLQiAjiCX+FQRqc9YaTT7hw1LsfLfc6FDhFxfEec6oLSzkr
-         BJRvb4a28sYExnVkeJFs9iHVZMgSZfl2MbQo75Hibfx9cbhLWyxgl+VDhJ1mVcUnXlFx
-         IWyw==
-X-Gm-Message-State: ACrzQf196TOfaRuR1kHPDvG1V/pqYShuQJQYKofnxSsLe5SoyMmABYn/
-        XN6wDYlZdlEYM759Jar6o6Ts1ttHJiuk9hXDLg2wEV6igSDDRV1GqmxYU5+QVj4ey6hwv9sZi9u
-        yvUDfbO/7P57AwKve4vf4Fqe7QzNN06kKyax6FiQ4JVq0QGx4JOvm3nx6QOvdMe5c87QyfN03rm
-        DgS5Lx2M0=
-X-Google-Smtp-Source: AMsMyM75dXg2pw7bvyOQI9D/LkrR22tHhv77rViti3gaOBfBmKIOF0LjywKPLEs3unq/IxtlPggDL2qkOrlyDerNHV82yQ==
-X-Received: from meenashanmugamspl.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:2707])
- (user=meenashanmugam job=sendgmr) by 2002:a05:6a00:1582:b0:56d:4bc6:68c7 with
- SMTP id u2-20020a056a00158200b0056d4bc668c7mr20364747pfk.31.1667418931329;
- Wed, 02 Nov 2022 12:55:31 -0700 (PDT)
-Date:   Wed,  2 Nov 2022 19:55:02 +0000
-In-Reply-To: <20221102195502.844256-1-meenashanmugam@google.com>
-Mime-Version: 1.0
-References: <20221102195502.844256-1-meenashanmugam@google.com>
-X-Mailer: git-send-email 2.38.1.273.g43a17bfeac-goog
-Message-ID: <20221102195502.844256-2-meenashanmugam@google.com>
-Subject: [PATCH 5.4 1/1] tcp/udp: Fix memory leak in ipv6_renew_options().
-From:   Meena Shanmugam <meenashanmugam@google.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, kuniyu@amazon.com,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Meena Shanmugam <meenashanmugam@google.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+        with ESMTP id S230209AbiKBUA4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 16:00:56 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E603A9;
+        Wed,  2 Nov 2022 13:00:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
+        t=1667419253; bh=tDaAl8wMewvB6cloUZWJXVNMG6+JRsZW4moZsDfgz3M=;
+        h=X-UI-Sender-Class:Date:From:Subject:To:Cc;
+        b=l3twHfn2lJwHfZsrduYoXmCmbvLg0gERZAbXpeAHGtsg53O+ft9SGcccIaPqoiIqU
+         gGziccqtWJa8Z/r13DflkfMF3ehGNMR0ss+AcNQkOSbHgUCHw+w0dNIoeFlczBgTZE
+         NKWFET58rW0ro6KtQWe9T7bdDUfI/yVGvTP13ht6xnGT76y9uCdO1qq4qMLXTeTAai
+         Hmcgb5IRU28ssCQMkCk5mWzJR1GOSYZjjrp6kRPrkj/kqS5+7PcACXimpXsm3uxMi8
+         PBOCoRt2jR8OfIi1cFC/ncwgV0d3ny9bgJ7NG5PgIDXvvXRymQJ1nj1W3gKYRWMbEW
+         ZVLmwPVcdocbQ==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from [192.168.100.20] ([46.142.35.174]) by mail.gmx.net (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MrhQC-1pM8132UU8-00neYK; Wed, 02
+ Nov 2022 21:00:53 +0100
+Message-ID: <523c38cc-e302-01f1-70d5-09f797d85feb@gmx.de>
+Date:   Wed, 2 Nov 2022 21:00:53 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+From:   Ronald Warsow <rwarsow@gmx.de>
+Subject: Re: [PATCH 6.0 000/240] 6.0.7-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:Awad4/L+uOF3t1uoZZIb1Vz5E2vvDubzZns6smD/rMZtDg5krGv
+ ohmu17qfvNTKrL2S3VGvdCQElzE4VAlDXL+rqbwpkaHB9/8r2W7hDD18QXLAdf3CmK7N9c9
+ /7isAL6AO1urocinyDxuOG+Vd5V82kOCeVtc5KSEmL/im072uZ7fu+iei6f1UktpGAoqusV
+ AoFFC0RnDwq2iMRQYLK8w==
+UI-OutboundReport: notjunk:1;M01:P0:/HA5iKM78pc=;OC+/tyYlhzkQgGtkEmI8picDNoV
+ 6DolkPk3u1gaKmvgtjmxzbhOXUXgc0t1kD7TuxXKebF3YUl0Gm+8iuMqzS8MKDAMW/MgxP1I4
+ o4gVjZp5EzUOQDlVHA3P8HcBYJliQbUcMyTlNi+iKHG10dysYxHhnt3hYVG79aE/pd+NVlmQd
+ oOOAH01UG6nwAK0ojU9qqGTFB1o4jnWoA8kD6GWU5Kp3RkJh6TGL43ZbWcI4XThIt+YA8zp1u
+ yfR3Kc3nEi0DmRFAeCF/KG0RVwzRViVhsCMO72A6PvcGku14wDskJhTx8sOdlaNz7xdn1LrA2
+ y5LenEF7C1KD1nhrKouDNGmjBwrzRkYJSesLCINPxSTmiPoJlmxmYjZdIyKy2ae3bTMF8bhM8
+ 6Oz3BNWdtgrpSLuVPJlf02aNZ0noY/vPZ6wpLrnvjjlTNkT5rFtK/m2q/5UEW2krFp6wh7PUW
+ gnRh07SxU+vkP2mGVb/1aqOIYVNDuqNrICiqj9T+sEW0opJE/YYPISE/WRAm5OA7fg1tUnAch
+ XXigpRQDpYWA+f72Qp40kHx/kKMxeuquCI5oPk3QjBLWrgFe8GTZnaPZLG0sdy3hPb+H3PIaW
+ dC/RUx+9sM4H+BdVJTfoscDUM8kbfmQEZ2Q9/0gOQdBeo4K9vt6GHwDeuk3Wid/vxklnjA0CX
+ PYkbPduACMRN2i6p3+ilzOffbycXhrCLOjc77LLl/rrSqvkVcVrH/22IoNKa2gXdmJQGlWiKM
+ PKsIzJeu6CINc+X2PtbnZc5areZhWtV42eZDeyx8Wt89tQFRHqfecqtbzkvnZNEMH27eW6Gvv
+ 3R9at2C7vUzlck82dqnZ6eEx8EXYtzRI5eRazrPBNCo5t2gHydBbeT7NPgkTjFT2WmLm4V+I9
+ X2kDtt0moc0XRsOQRFHQmQ/U7IZUaUgMdPKfmV7tMplt+EfpLt2kwgXnZa9Ec5alA96BL/feR
+ dxrmwkqNaDPxjLjj+nsVYZDuYL8=
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,102 +68,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+Hi Greg
 
-commit 3c52c6bb831f6335c176a0fc7214e26f43adbd11 upstream.
+6.0.7-rc1
 
-syzbot reported a memory leak [0] related to IPV6_ADDRFORM.
+compiles, boots and runs here on x86_64
+(Intel i5-11400, Fedora 37 Beta)
 
-The scenario is that while one thread is converting an IPv6 socket into
-IPv4 with IPV6_ADDRFORM, another thread calls do_ipv6_setsockopt() and
-allocates memory to inet6_sk(sk)->XXX after conversion.
+Thanks
 
-Then, the converted sk with (tcp|udp)_prot never frees the IPv6 resources,
-which inet6_destroy_sock() should have cleaned up.
-
-setsockopt(IPV6_ADDRFORM)                 setsockopt(IPV6_DSTOPTS)
-+-----------------------+                 +----------------------+
-- do_ipv6_setsockopt(sk, ...)
-  - sockopt_lock_sock(sk)                 - do_ipv6_setsockopt(sk, ...)
-    - lock_sock(sk)                         ^._ called via tcpv6_prot
-  - WRITE_ONCE(sk->sk_prot, &tcp_prot)          before WRITE_ONCE()
-  - xchg(&np->opt, NULL)
-  - txopt_put(opt)
-  - sockopt_release_sock(sk)
-    - release_sock(sk)                      - sockopt_lock_sock(sk)
-                                              - lock_sock(sk)
-                                            - ipv6_set_opt_hdr(sk, ...)
-                                              - ipv6_update_options(sk, opt)
-                                                - xchg(&inet6_sk(sk)->opt, opt)
-                                                  ^._ opt is never freed.
-
-                                            - sockopt_release_sock(sk)
-                                              - release_sock(sk)
-
-Since IPV6_DSTOPTS allocates options under lock_sock(), we can avoid this
-memory leak by testing whether sk_family is changed by IPV6_ADDRFORM after
-acquiring the lock.
-
-This issue exists from the initial commit between IPV6_ADDRFORM and
-IPV6_PKTOPTIONS.
-
-[0]:
-BUG: memory leak
-unreferenced object 0xffff888009ab9f80 (size 96):
-  comm "syz-executor583", pid 328, jiffies 4294916198 (age 13.034s)
-  hex dump (first 32 bytes):
-    01 00 00 00 48 00 00 00 08 00 00 00 00 00 00 00  ....H...........
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000002ee98ae1>] kmalloc include/linux/slab.h:605 [inline]
-    [<000000002ee98ae1>] sock_kmalloc+0xb3/0x100 net/core/sock.c:2566
-    [<0000000065d7b698>] ipv6_renew_options+0x21e/0x10b0 net/ipv6/exthdrs.c:1318
-    [<00000000a8c756d7>] ipv6_set_opt_hdr net/ipv6/ipv6_sockglue.c:354 [inline]
-    [<00000000a8c756d7>] do_ipv6_setsockopt.constprop.0+0x28b7/0x4350 net/ipv6/ipv6_sockglue.c:668
-    [<000000002854d204>] ipv6_setsockopt+0xdf/0x190 net/ipv6/ipv6_sockglue.c:1021
-    [<00000000e69fdcf8>] tcp_setsockopt+0x13b/0x2620 net/ipv4/tcp.c:3789
-    [<0000000090da4b9b>] __sys_setsockopt+0x239/0x620 net/socket.c:2252
-    [<00000000b10d192f>] __do_sys_setsockopt net/socket.c:2263 [inline]
-    [<00000000b10d192f>] __se_sys_setsockopt net/socket.c:2260 [inline]
-    [<00000000b10d192f>] __x64_sys_setsockopt+0xbe/0x160 net/socket.c:2260
-    [<000000000a80d7aa>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<000000000a80d7aa>] do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
-    [<000000004562b5c6>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
----
- net/ipv6/ipv6_sockglue.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
-index 5352c7e68c42..1d7fad8269e6 100644
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -164,6 +164,12 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
- 		rtnl_lock();
- 	lock_sock(sk);
- 
-+	/* Another thread has converted the socket into IPv4 with
-+	 * IPV6_ADDRFORM concurrently.
-+	 */
-+	if (unlikely(sk->sk_family != AF_INET6))
-+		goto unlock;
-+
- 	switch (optname) {
- 
- 	case IPV6_ADDRFORM:
-@@ -924,6 +930,7 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
- 		break;
- 	}
- 
-+unlock:
- 	release_sock(sk);
- 	if (needs_rtnl)
- 		rtnl_unlock();
--- 
-2.38.1.273.g43a17bfeac-goog
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
 
