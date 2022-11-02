@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9627615955
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:09:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D7F26159B3
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:16:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230256AbiKBDJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:09:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56464 "EHLO
+        id S229846AbiKBDQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:16:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230280AbiKBDIu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:08:50 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB1EB15815
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:08:43 -0700 (PDT)
+        with ESMTP id S230106AbiKBDQY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:16:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3575424BDA
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:16:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3651ECE1F1A
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:08:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9CF5C433C1;
-        Wed,  2 Nov 2022 03:08:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C628260B72
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:16:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AF1BC433D6;
+        Wed,  2 Nov 2022 03:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358520;
-        bh=Mve9tX5ZDtNQHTqiWGvWjiBRdpI3FCU+nq0NjtQlPC8=;
+        s=korg; t=1667358983;
+        bh=IDbiOKUF3/tFcpqawWDcIxEa2Zu9c8WVsl9Qbf5tYHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uOvGtgBewjdkPsrVunMoGguXb6GGWvy7PBhf7q6ZkPjxsa+AXxRe5RzvTay1HyWsO
-         7kPuClipIwn7Ug3tYjkiTqMOrxOq2NLNgOopQhjandF6NPB97jFvOtpWZFuap/7EKb
-         iWqLRv8MOQB0NqAuodsCC4zAKY/89B5TJmiPl5J0=
+        b=Qwx4xvIwzNkWXnkUUet7eIU/laCgMqGklqqx0azhFo60Ot72czYPc6+DapYXEswOH
+         yot1WnzTNhZ9cqqp/zsT0nSR0IvdN3PmRufrxpN7IY4FG+2X3tRP0HKSXZ38xB+wSw
+         M+ZDG2Hqb8eGa2vkS/SvSUR4gN+TD6PYDqMRgSw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Julian Anastasov <ja@ssi.bg>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 113/132] nh: fix scope used to find saddr when adding non gw nh
+Subject: [PATCH 5.10 56/91] net: fix UAF issue in nfqnl_nf_hook_drop() when ops_init() failed
 Date:   Wed,  2 Nov 2022 03:33:39 +0100
-Message-Id: <20221102022102.637328773@linuxfoundation.org>
+Message-Id: <20221102022056.623293875@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit bac0f937c343d651874f83b265ca8f5070ed4f06 ]
+[ Upstream commit d266935ac43d57586e311a087510fe6a084af742 ]
 
-As explained by Julian, fib_nh_scope is related to fib_nh_gw4, but
-fib_info_update_nhc_saddr() needs the scope of the route, which is
-the scope "before" fib_nh_scope, ie fib_nh_scope - 1.
+When the ops_init() interface is invoked to initialize the net, but
+ops->init() fails, data is released. However, the ptr pointer in
+net->gen is invalid. In this case, when nfqnl_nf_hook_drop() is invoked
+to release the net, invalid address access occurs.
 
-This patch fixes the problem described in commit 747c14307214 ("ip: fix
-dflt addr selection for connected nexthop").
+The process is as follows:
+setup_net()
+	ops_init()
+		data = kzalloc(...)   ---> alloc "data"
+		net_assign_generic()  ---> assign "date" to ptr in net->gen
+		...
+		ops->init()           ---> failed
+		...
+		kfree(data);          ---> ptr in net->gen is invalid
+	...
+	ops_exit_list()
+		...
+		nfqnl_nf_hook_drop()
+			*q = nfnl_queue_pernet(net) ---> q is invalid
 
-Fixes: 597cfe4fc339 ("nexthop: Add support for IPv4 nexthops")
-Link: https://lore.kernel.org/netdev/6c8a44ba-c2d5-cdf-c5c7-5baf97cba38@ssi.bg/
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: Julian Anastasov <ja@ssi.bg>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The following is the Call Trace information:
+BUG: KASAN: use-after-free in nfqnl_nf_hook_drop+0x264/0x280
+Read of size 8 at addr ffff88810396b240 by task ip/15855
+Call Trace:
+<TASK>
+dump_stack_lvl+0x8e/0xd1
+print_report+0x155/0x454
+kasan_report+0xba/0x1f0
+nfqnl_nf_hook_drop+0x264/0x280
+nf_queue_nf_hook_drop+0x8b/0x1b0
+__nf_unregister_net_hook+0x1ae/0x5a0
+nf_unregister_net_hooks+0xde/0x130
+ops_exit_list+0xb0/0x170
+setup_net+0x7ac/0xbd0
+copy_net_ns+0x2e6/0x6b0
+create_new_namespaces+0x382/0xa50
+unshare_nsproxy_namespaces+0xa6/0x1c0
+ksys_unshare+0x3a4/0x7e0
+__x64_sys_unshare+0x2d/0x40
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+</TASK>
+
+Allocated by task 15855:
+kasan_save_stack+0x1e/0x40
+kasan_set_track+0x21/0x30
+__kasan_kmalloc+0xa1/0xb0
+__kmalloc+0x49/0xb0
+ops_init+0xe7/0x410
+setup_net+0x5aa/0xbd0
+copy_net_ns+0x2e6/0x6b0
+create_new_namespaces+0x382/0xa50
+unshare_nsproxy_namespaces+0xa6/0x1c0
+ksys_unshare+0x3a4/0x7e0
+__x64_sys_unshare+0x2d/0x40
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Freed by task 15855:
+kasan_save_stack+0x1e/0x40
+kasan_set_track+0x21/0x30
+kasan_save_free_info+0x2a/0x40
+____kasan_slab_free+0x155/0x1b0
+slab_free_freelist_hook+0x11b/0x220
+__kmem_cache_free+0xa4/0x360
+ops_init+0xb9/0x410
+setup_net+0x5aa/0xbd0
+copy_net_ns+0x2e6/0x6b0
+create_new_namespaces+0x382/0xa50
+unshare_nsproxy_namespaces+0xa6/0x1c0
+ksys_unshare+0x3a4/0x7e0
+__x64_sys_unshare+0x2d/0x40
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Fixes: f875bae06533 ("net: Automatically allocate per namespace data.")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/nexthop.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/net_namespace.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
-index cc8f120149f6..6cc7d347ec0a 100644
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -2535,7 +2535,7 @@ static int nh_create_ipv4(struct net *net, struct nexthop *nh,
- 	if (!err) {
- 		nh->nh_flags = fib_nh->fib_nh_flags;
- 		fib_info_update_nhc_saddr(net, &fib_nh->nh_common,
--					  fib_nh->fib_nh_scope);
-+					  !fib_nh->fib_nh_scope ? 0 : fib_nh->fib_nh_scope - 1);
- 	} else {
- 		fib_nh_release(net, fib_nh);
- 	}
+diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
+index cbff7d94b993..a3b7d965e9c0 100644
+--- a/net/core/net_namespace.c
++++ b/net/core/net_namespace.c
+@@ -135,6 +135,7 @@ static int net_assign_generic(struct net *net, unsigned int id, void *data)
+ 
+ static int ops_init(const struct pernet_operations *ops, struct net *net)
+ {
++	struct net_generic *ng;
+ 	int err = -ENOMEM;
+ 	void *data = NULL;
+ 
+@@ -153,7 +154,13 @@ static int ops_init(const struct pernet_operations *ops, struct net *net)
+ 	if (!err)
+ 		return 0;
+ 
++	if (ops->id && ops->size) {
+ cleanup:
++		ng = rcu_dereference_protected(net->gen,
++					       lockdep_is_held(&pernet_ops_rwsem));
++		ng->ptr[*ops->id] = NULL;
++	}
++
+ 	kfree(data);
+ 
+ out:
 -- 
 2.35.1
 
