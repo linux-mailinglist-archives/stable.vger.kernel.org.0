@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CE036157DC
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:40:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DAFA6157DD
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:40:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230258AbiKBCkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:40:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58812 "EHLO
+        id S230265AbiKBCk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:40:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230259AbiKBCkV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:40:21 -0400
+        with ESMTP id S230261AbiKBCk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:40:26 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49D8811C2F
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:40:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 199051208D
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:40:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA8BEB82070
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE7EDC43470;
-        Wed,  2 Nov 2022 02:40:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C54CFB82071
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:40:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A4FEC433D6;
+        Wed,  2 Nov 2022 02:40:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356817;
-        bh=flm/uUKV4mhs7EWfUkurx135fN2KPjZvwASFEHuc4fo=;
+        s=korg; t=1667356823;
+        bh=hoBhVye89RKg/eBDm3QQh/VDmYGvrHAGOcr/0wxaQWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ah7R3OzrMArwm/PCcG7986THqI+bcWxR992xKawpIM0K90p842cnzwuWHHWtvXC+j
-         Wx/CIzo+XuPpOvepxgs23wC9+g7Dfo0Fx1QHm1GoOe5CjU2xVrY5F5Wl1j4N7D6AFc
-         6rRQd6k2DKBowtIJPaew08jgrM2Tl3Zutu+xFeFo=
+        b=tHMrlQvgWmYZ8E83kzqXkmWlYN+TkmlgMzdFVz9mHBNq700K94OFQrFA5dndsqR+P
+         ZwbNP73Y6a9YqY4hczZqu4HM+9Io7U6SB18RYadp9GZJkJDnFqOuHC0qj1AfAXstB+
+         GjsRoaDcmN694e061K/GbHc804mwLD2qM8yNufG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hongyu Ning <hongyu.ning@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Michael Walle <michael@walle.cc>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 6.0 036/240] mtd: spi-nor: core: Ignore -ENOTSUPP in spi_nor_init()
-Date:   Wed,  2 Nov 2022 03:30:11 +0100
-Message-Id: <20221102022112.220709200@linuxfoundation.org>
+Subject: [PATCH 6.0 037/240] mtd: parsers: bcm47xxpart: Fix halfblock reads
+Date:   Wed,  2 Nov 2022 03:30:12 +0100
+Message-Id: <20221102022112.242812391@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,46 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 69d04ca999499bccb6ca849fa2bfc5e6448f7233 upstream.
+commit 05e258c6ec669d6d18c494ea03d35962d6f5b545 upstream.
 
-The Intel SPI-NOR controller does not support the 4-byte address opcode
-so ->set_4byte_addr_mode() ends up returning -ENOTSUPP and the SPI flash
-chip probe fail like this:
+There is some code in the parser that tries to read 0x8000
+bytes into a block to "read in the middle" of the block. Well
+that only works if the block is also 0x10000 bytes all the time,
+else we get these parse errors as we reach the end of the flash:
 
-  [ 12.291082] spi-nor: probe of spi0.0 failed with error -524
+spi-nor spi0.0: mx25l1606e (2048 Kbytes)
+mtd_read error while parsing (offset: 0x200000): -22
+mtd_read error while parsing (offset: 0x201000): -22
+(...)
 
-Whereas previously before commit 08412e72afba ("mtd: spi-nor: core:
-Return error code from set_4byte_addr_mode()") it worked just fine.
+Fix the code to do what I think was intended.
 
-Fix this by ignoring -ENOTSUPP in spi_nor_init().
-
-Fixes: 08412e72afba ("mtd: spi-nor: core: Return error code from set_4byte_addr_mode()")
 Cc: stable@vger.kernel.org
-Reported-by: Hongyu Ning <hongyu.ning@intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Michael Walle <michael@walle.cc>
-Acked-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Fixes: f0501e81fbaa ("mtd: bcm47xxpart: alternative MAGIC for board_data partition")
+Cc: Rafał Miłecki <zajec5@gmail.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220923093441.3178-1-mika.westerberg@linux.intel.com
+Link: https://lore.kernel.org/linux-mtd/20221018091129.280026-1-linus.walleij@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/spi-nor/core.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mtd/parsers/bcm47xxpart.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/mtd/spi-nor/core.c
-+++ b/drivers/mtd/spi-nor/core.c
-@@ -2724,7 +2724,9 @@ static int spi_nor_init(struct spi_nor *
- 		 */
- 		WARN_ONCE(nor->flags & SNOR_F_BROKEN_RESET,
- 			  "enabling reset hack; may not recover from unexpected reboots\n");
--		return nor->params->set_4byte_addr_mode(nor, true);
-+		err = nor->params->set_4byte_addr_mode(nor, true);
-+		if (err && err != -ENOTSUPP)
-+			return err;
- 	}
+--- a/drivers/mtd/parsers/bcm47xxpart.c
++++ b/drivers/mtd/parsers/bcm47xxpart.c
+@@ -233,11 +233,11 @@ static int bcm47xxpart_parse(struct mtd_
+ 		}
  
- 	return 0;
+ 		/* Read middle of the block */
+-		err = mtd_read(master, offset + 0x8000, 0x4, &bytes_read,
++		err = mtd_read(master, offset + (blocksize / 2), 0x4, &bytes_read,
+ 			       (uint8_t *)buf);
+ 		if (err && !mtd_is_bitflip(err)) {
+ 			pr_err("mtd_read error while parsing (offset: 0x%X): %d\n",
+-			       offset + 0x8000, err);
++			       offset + (blocksize / 2), err);
+ 			continue;
+ 		}
+ 
 
 
