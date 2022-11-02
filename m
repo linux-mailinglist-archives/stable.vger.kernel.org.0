@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A1066157F5
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:42:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B8306157F6
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:42:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230300AbiKBCmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:42:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60442 "EHLO
+        id S230295AbiKBCmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:42:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230297AbiKBCmM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:42:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7733A20BD8
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:42:11 -0700 (PDT)
+        with ESMTP id S230306AbiKBCmR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:42:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BE3B20BD5
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:42:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22FA5B82070
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:42:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DBD0C433D7;
-        Wed,  2 Nov 2022 02:42:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A105601C6
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:42:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEB21C433D6;
+        Wed,  2 Nov 2022 02:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356928;
-        bh=RVDcvqO2uQdLBeWYbLaW5OfwEFuBCSBEtBinjI0uhlU=;
+        s=korg; t=1667356934;
+        bh=NXrLfcjVYLnYM3bEbiybgYzcXA/qKxy50MSqeFZmTZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/i6tFpbXDhk77O8snPrNy6kRxzVOLMbgW+lq6s3S/JeBgVcuvhYJdJ2XBHmWNvt9
-         U2Wey2vw87W5vSZh6Df2W6aEFZhHvPCugJW7l7L/XzB4zruY6JJly10GIKF7fRxwzx
-         AIEzUKhvPDdO9FDgH15K6NR/QpjoqhmBbOwgWEd0=
+        b=Jt7FbjwWw4NoHC3aDzCO51V1MaMQEJLRrBPnX1SZa6351A2j3yQnuR6PRR2UiEEN8
+         GzA0kC4JjhDHDhu2dmWK8MNLUDen1N6i2XhukoTrJEdO/9xxBmNdyR0MvaJi5IgMfC
+         /mFoYudCK/7leSPqJhAq2Ys4JnG5gFKnRQvVl1+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Patrick Thompson <ptf@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
+        patches@lists.linux.dev, Sascha Hauer <s.hauer@pengutronix.de>,
+        Haibo Chen <haibo.chen@nxp.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.0 083/240] mmc: sdhci-pci-core: Disable ES for ASUS BIOS on Jasper Lake
-Date:   Wed,  2 Nov 2022 03:30:58 +0100
-Message-Id: <20221102022113.278045737@linuxfoundation.org>
+Subject: [PATCH 6.0 084/240] mmc: sdhci-esdhc-imx: Propagate ESDHC_FLAG_HS400* only on 8bit bus
+Date:   Wed,  2 Nov 2022 03:30:59 +0100
+Message-Id: <20221102022113.299921649@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -53,58 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Thompson <ptf@google.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-commit 9dc0033e4658d6f9d9952c3c0c6be3ec25bc2985 upstream.
+commit 1ed5c3b22fc78735c539e4767832aea58db6761c upstream.
 
-Enhanced Strobe (ES) does not work correctly on the ASUS 1100 series of
-devices. Jasper Lake eMMCs (pci_id 8086:4dc4) are supposed to support
-ES. There are also two system families under the series, thus this is
-being scoped to the ASUS BIOS.
+The core issues the warning "drop HS400 support since no 8-bit bus" when
+one of the ESDHC_FLAG_HS400* flags is set on a non 8bit capable host. To
+avoid this warning set these flags only on hosts that actually can do
+8bit, i.e. have bus-width = <8> set in the device tree.
 
-The failing ES prevents the installer from writing to disk. Falling back
-to HS400 without ES fixes the issue.
-
-Signed-off-by: Patrick Thompson <ptf@google.com>
-Fixes: 315e3bd7ac19 ("mmc: sdhci-pci: Add support for Intel JSL")
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Reviewed-by: Haibo Chen <haibo.chen@nxp.com>
+Fixes: 029e2476f9e6 ("mmc: sdhci-esdhc-imx: add HS400_ES support for i.MX8QXP")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221013210017.3751025-1-ptf@google.com
+Link: https://lore.kernel.org/r/20221013093248.2220802-1-s.hauer@pengutronix.de
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-pci-core.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/mmc/host/sdhci-esdhc-imx.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -893,6 +893,12 @@ static bool glk_broken_cqhci(struct sdhc
- 		dmi_match(DMI_SYS_VENDOR, "IRBIS"));
- }
- 
-+static bool jsl_broken_hs400es(struct sdhci_pci_slot *slot)
-+{
-+	return slot->chip->pdev->device == PCI_DEVICE_ID_INTEL_JSL_EMMC &&
-+			dmi_match(DMI_BIOS_VENDOR, "ASUSTeK COMPUTER INC.");
-+}
-+
- static int glk_emmc_probe_slot(struct sdhci_pci_slot *slot)
- {
- 	int ret = byt_emmc_probe_slot(slot);
-@@ -901,9 +907,11 @@ static int glk_emmc_probe_slot(struct sd
- 		slot->host->mmc->caps2 |= MMC_CAP2_CQE;
- 
- 	if (slot->chip->pdev->device != PCI_DEVICE_ID_INTEL_GLK_EMMC) {
--		slot->host->mmc->caps2 |= MMC_CAP2_HS400_ES;
--		slot->host->mmc_host_ops.hs400_enhanced_strobe =
--						intel_hs400_enhanced_strobe;
-+		if (!jsl_broken_hs400es(slot)) {
-+			slot->host->mmc->caps2 |= MMC_CAP2_HS400_ES;
-+			slot->host->mmc_host_ops.hs400_enhanced_strobe =
-+							intel_hs400_enhanced_strobe;
-+		}
- 		slot->host->mmc->caps2 |= MMC_CAP2_CQE_DCMD;
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -1660,6 +1660,10 @@ static int sdhci_esdhc_imx_probe(struct
+ 		host->mmc_host_ops.execute_tuning = usdhc_execute_tuning;
  	}
  
++	err = sdhci_esdhc_imx_probe_dt(pdev, host, imx_data);
++	if (err)
++		goto disable_ahb_clk;
++
+ 	if (imx_data->socdata->flags & ESDHC_FLAG_MAN_TUNING)
+ 		sdhci_esdhc_ops.platform_execute_tuning =
+ 					esdhc_executing_tuning;
+@@ -1667,13 +1671,15 @@ static int sdhci_esdhc_imx_probe(struct
+ 	if (imx_data->socdata->flags & ESDHC_FLAG_ERR004536)
+ 		host->quirks |= SDHCI_QUIRK_BROKEN_ADMA;
+ 
+-	if (imx_data->socdata->flags & ESDHC_FLAG_HS400)
++	if (host->caps & MMC_CAP_8_BIT_DATA &&
++	    imx_data->socdata->flags & ESDHC_FLAG_HS400)
+ 		host->mmc->caps2 |= MMC_CAP2_HS400;
+ 
+ 	if (imx_data->socdata->flags & ESDHC_FLAG_BROKEN_AUTO_CMD23)
+ 		host->quirks2 |= SDHCI_QUIRK2_ACMD23_BROKEN;
+ 
+-	if (imx_data->socdata->flags & ESDHC_FLAG_HS400_ES) {
++	if (host->caps & MMC_CAP_8_BIT_DATA &&
++	    imx_data->socdata->flags & ESDHC_FLAG_HS400_ES) {
+ 		host->mmc->caps2 |= MMC_CAP2_HS400_ES;
+ 		host->mmc_host_ops.hs400_enhanced_strobe =
+ 					esdhc_hs400_enhanced_strobe;
+@@ -1695,10 +1701,6 @@ static int sdhci_esdhc_imx_probe(struct
+ 			goto disable_ahb_clk;
+ 	}
+ 
+-	err = sdhci_esdhc_imx_probe_dt(pdev, host, imx_data);
+-	if (err)
+-		goto disable_ahb_clk;
+-
+ 	sdhci_esdhc_imx_hwinit(host);
+ 
+ 	err = sdhci_add_host(host);
 
 
