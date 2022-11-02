@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5CF1615A78
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:31:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0ADC615AAC
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231271AbiKBDbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:31:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50608 "EHLO
+        id S229561AbiKBDig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:38:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231303AbiKBDbc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:31:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E66F2613C
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:31:30 -0700 (PDT)
+        with ESMTP id S230283AbiKBDie (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:38:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C958DF25
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:38:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0B6161729
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:31:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3823BC433D7;
-        Wed,  2 Nov 2022 03:31:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BB2DB82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:38:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15260C433C1;
+        Wed,  2 Nov 2022 03:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359889;
-        bh=20ykqCOdl5SEPRZewjI8oNgs3a+zm1almnAMhExeoS0=;
+        s=korg; t=1667360309;
+        bh=YGgoXYAL7Q1OAoMu/pRRdz9z/QKitpFQ+Jw59Dwm6J0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cHg+tNO7bGFi6XZv17icNHxUJ2ZonEH0e3TxiNqPhOxS+sir3d6r8X+BKEpbu480w
-         nWohp7sy/frjQan4H+r9WDxQeoPxKpJ2trpSl16XyXvCDBDn+NDLugZUUi6swJWE4o
-         4XeR/aKCNCWgyFX9DcahraGpMNLlFuUNbSDm+V50=
+        b=HA0rPCV9Zb545MnTQaStOc7hSRJbYu+Wt7se28p+Ps+PUgdt9fVVgmnjnHiAsqz9N
+         L1XJBA/Op5vfE8p2W5HXIw5iP9qOUHKzN5i7WrE3LB8K0ybhBZ3mbzhTeKRF1IdZQ7
+         wPu2ulBsEjpNL/UOHNICkV+BAYrBZyaF9D9AjtIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+c5ce866a8d30f4be0651@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 52/78] tipc: fix a null-ptr-deref in tipc_topsrv_accept
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Werner Sembach <wse@tuxedocomputers.com>
+Subject: [PATCH 4.14 16/60] [PATCH v3] ACPI: video: Force backlight native for more TongFang devices
 Date:   Wed,  2 Nov 2022 03:34:37 +0100
-Message-Id: <20221102022054.503222869@linuxfoundation.org>
+Message-Id: <20221102022051.605577532@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,98 +52,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-[ Upstream commit 82cb4e4612c633a9ce320e1773114875604a3cce ]
+commit 3dbc80a3e4c55c4a5b89ef207bed7b7de36157b4 upstream.
 
-syzbot found a crash in tipc_topsrv_accept:
+This commit is very different from the upstream commit! It fixes the same
+issue by adding more quirks, rather then the general fix from the 6.1
+kernel, because the general fix from the 6.1 kernel is part of a larger
+refactoring of the backlight code which is not suitable for the stable
+series.
 
-  KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-  Workqueue: tipc_rcv tipc_topsrv_accept
-  RIP: 0010:kernel_accept+0x22d/0x350 net/socket.c:3487
-  Call Trace:
-   <TASK>
-   tipc_topsrv_accept+0x197/0x280 net/tipc/topsrv.c:460
-   process_one_work+0x991/0x1610 kernel/workqueue.c:2289
-   worker_thread+0x665/0x1080 kernel/workqueue.c:2436
-   kthread+0x2e4/0x3a0 kernel/kthread.c:376
-   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+As described in "ACPI: video: Drop NL5x?U, PF4NU1F and PF5?U??
+acpi_backlight=native quirks" (10212754a0d2) the upstream commit "ACPI:
+video: Make backlight class device registration a separate step (v2)"
+(3dbc80a3e4c5) makes these quirks unnecessary. However as mentioned in this
+bugtracker ticket https://bugzilla.kernel.org/show_bug.cgi?id=215683#c17
+the upstream fix is part of a larger patchset that is overall too complex
+for stable.
 
-It was caused by srv->listener that might be set to null by
-tipc_topsrv_stop() in net .exit whereas it's still used in
-tipc_topsrv_accept() worker.
+The TongFang GKxNRxx, GMxNGxx, GMxZGxx, and GMxRGxx / TUXEDO
+Stellaris/Polaris Gen 1-4, have the same problem as the Clevo NL5xRU and
+NL5xNU / TUXEDO Aura 15 Gen1 and Gen2:
+They have a working native and video interface for screen backlight.
+However the default detection mechanism first registers the video interface
+before unregistering it again and switching to the native interface during
+boot. This results in a dangling SBIOS request for backlight change for
+some reason, causing the backlight to switch to ~2% once per boot on the
+first power cord connect or disconnect event. Setting the native interface
+explicitly circumvents this buggy behaviour by avoiding the unregistering
+process.
 
-srv->listener is protected by srv->idr_lock in tipc_topsrv_stop(), so add
-a check for srv->listener under srv->idr_lock in tipc_topsrv_accept() to
-avoid the null-ptr-deref. To ensure the lsock is not released during the
-tipc_topsrv_accept(), move sock_release() after tipc_topsrv_work_stop()
-where it's waiting until the tipc_topsrv_accept worker to be done.
-
-Note that sk_callback_lock is used to protect sk->sk_user_data instead of
-srv->listener, and it should check srv in tipc_topsrv_listener_data_ready()
-instead. This also ensures that no more tipc_topsrv_accept worker will be
-started after tipc_conn_close() is called in tipc_topsrv_stop() where it
-sets sk->sk_user_data to null.
-
-Fixes: 0ef897be12b8 ("tipc: separate topology server listener socket from subcsriber sockets")
-Reported-by: syzbot+c5ce866a8d30f4be0651@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Link: https://lore.kernel.org/r/4eee264380c409c61c6451af1059b7fb271a7e7b.1666120790.git.lucien.xin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/topsrv.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/acpi/video_detect.c |   64 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 64 insertions(+)
 
-diff --git a/net/tipc/topsrv.c b/net/tipc/topsrv.c
-index ceb1e4c5aa2a..5a88a93e67ef 100644
---- a/net/tipc/topsrv.c
-+++ b/net/tipc/topsrv.c
-@@ -457,12 +457,19 @@ static void tipc_conn_data_ready(struct sock *sk)
- static void tipc_topsrv_accept(struct work_struct *work)
- {
- 	struct tipc_topsrv *srv = container_of(work, struct tipc_topsrv, awork);
--	struct socket *lsock = srv->listener;
--	struct socket *newsock;
-+	struct socket *newsock, *lsock;
- 	struct tipc_conn *con;
- 	struct sock *newsk;
- 	int ret;
- 
-+	spin_lock_bh(&srv->idr_lock);
-+	if (!srv->listener) {
-+		spin_unlock_bh(&srv->idr_lock);
-+		return;
-+	}
-+	lsock = srv->listener;
-+	spin_unlock_bh(&srv->idr_lock);
-+
- 	while (1) {
- 		ret = kernel_accept(lsock, &newsock, O_NONBLOCK);
- 		if (ret < 0)
-@@ -496,7 +503,7 @@ static void tipc_topsrv_listener_data_ready(struct sock *sk)
- 
- 	read_lock_bh(&sk->sk_callback_lock);
- 	srv = sk->sk_user_data;
--	if (srv->listener)
-+	if (srv)
- 		queue_work(srv->rcv_wq, &srv->awork);
- 	read_unlock_bh(&sk->sk_callback_lock);
- }
-@@ -706,8 +713,9 @@ static void tipc_topsrv_stop(struct net *net)
- 	__module_get(lsock->sk->sk_prot_creator->owner);
- 	srv->listener = NULL;
- 	spin_unlock_bh(&srv->idr_lock);
--	sock_release(lsock);
-+
- 	tipc_topsrv_work_stop(srv);
-+	sock_release(lsock);
- 	idr_destroy(&srv->conn_idr);
- 	kfree(srv);
- }
--- 
-2.35.1
-
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -448,6 +448,70 @@ static const struct dmi_system_id video_
+ 		},
+ 	},
+ 	/*
++	 * More Tongfang devices with the same issue as the Clevo NL5xRU and
++	 * NL5xNU/TUXEDO Aura 15 Gen1 and Gen2. See the description above.
++	 */
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "GKxNRxx"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1501A1650TI"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1501A2060"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1701A1650TI"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1701A2060"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GMxNGxx",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "GMxNGxx"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GMxZGxx",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "GMxZGxx"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GMxRGxx",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "GMxRGxx"),
++		},
++	},
++	/*
+ 	 * Desktops which falsely report a backlight and which our heuristics
+ 	 * for this do not catch.
+ 	 */
 
 
