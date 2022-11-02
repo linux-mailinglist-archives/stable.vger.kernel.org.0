@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 381D4615928
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:06:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0168D61598C
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229967AbiKBDGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:06:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53964 "EHLO
+        id S229637AbiKBDNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:13:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229992AbiKBDFc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:05:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC3B923E82
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:05:30 -0700 (PDT)
+        with ESMTP id S230434AbiKBDM5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:12:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 933B8BF64
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:12:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 357D4B82062
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:05:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C033C433C1;
-        Wed,  2 Nov 2022 03:05:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30682616DB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:12:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9575C433D6;
+        Wed,  2 Nov 2022 03:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358327;
-        bh=kcfMHmvwTUxoj/+DgPleIiQMtr0F+au8S35UpuCPz4w=;
+        s=korg; t=1667358772;
+        bh=S/S8Ac/of6DLveMK+E1Zq4/1umkkLunRcOxcyerIbXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UTKtFNTV341jprzd33kxXVYoGsQn1KIXx/NLh/g//vK1BLua4+jtfkqAHRR7f6Q2X
-         RImj6bvQT2oefcgHrkxu+7M7DNL+46i+bA/7tsDjs9Hr3oXPhFkrl6Ql7Zca2MILMA
-         0epd+dPgzT2gpUrHzA3EqFa2zugihEYx+O8BuhL8=
+        b=JSRc2yXcC7HtLE2OPaSmbvVlQMVGr/1Ekd9Hu/AwDJUkhzpRf+89z+A9hNAUnAZP4
+         h47VVZEFWV+t9Fxs9w5HYf0Ys/n/M69dgf8qX4CUS3y5MKMSyMKAt3ENNxqxhr1/KK
+         i9rhCYh3m+aSmPhyKjvlbq+1oGEvGemS7XrPQPM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Liang <liali@redhat.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 080/132] atlantic: fix deadlock at aq_nic_stop
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>
+Subject: [PATCH 5.10 23/91] drm/msm/hdmi: fix memory corruption with too many bridges
 Date:   Wed,  2 Nov 2022 03:33:06 +0100
-Message-Id: <20221102022101.719794627@linuxfoundation.org>
+Message-Id: <20221102022055.706583971@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,247 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 6960d133f66ecddcd3af2b1cbd0c7dcd104268b8 ]
+commit 4c1294da6aed1f16d47a417dcfe6602833c3c95c upstream.
 
-NIC is stopped with rtnl_lock held, and during the stop it cancels the
-'service_task' work and free irqs.
+Add the missing sanity check on the bridge counter to avoid corrupting
+data beyond the fixed-sized bridge array in case there are ever more
+than eight bridges.
 
-However, if CONFIG_MACSEC is set, rtnl_lock is acquired both from
-aq_nic_service_task and aq_linkstate_threaded_isr. Then a deadlock
-happens if aq_nic_stop tries to cancel/disable them when they've already
-started their execution.
-
-As the deadlock is caused by rtnl_lock, it causes many other processes
-to stall, not only atlantic related stuff.
-
-Fix it by introducing a mutex that protects each NIC's macsec related
-data, and locking it instead of the rtnl_lock from the service task and
-the threaded IRQ.
-
-Before this patch, all macsec data was protected with rtnl_lock, but
-maybe not all of it needs to be protected. With this new mutex, further
-efforts can be made to limit the protected data only to that which
-requires it. However, probably it doesn't worth it because all macsec's
-data accesses are infrequent, and almost all are done from macsec_ops
-or ethtool callbacks, called holding rtnl_lock, so macsec_mutex won't
-never be much contended.
-
-The issue appeared repeteadly attaching and deattaching the NIC to a
-bond interface. Doing that after this patch I cannot reproduce the bug.
-
-Fixes: 62c1c2e606f6 ("net: atlantic: MACSec offload skeleton")
-Reported-by: Li Liang <liali@redhat.com>
-Suggested-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Reviewed-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a3376e3ec81c ("drm/msm: convert to drm_bridge")
+Cc: stable@vger.kernel.org	# 3.12
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Tested-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/502670/
+Link: https://lore.kernel.org/r/20220913085320.8577-5-johan+linaro@kernel.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../ethernet/aquantia/atlantic/aq_macsec.c    | 96 ++++++++++++++-----
- .../net/ethernet/aquantia/atlantic/aq_nic.h   |  2 +
- 2 files changed, 74 insertions(+), 24 deletions(-)
+ drivers/gpu/drm/msm/hdmi/hdmi.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_macsec.c b/drivers/net/ethernet/aquantia/atlantic/aq_macsec.c
-index 4a6dfac857ca..7c6e0811f2e6 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_macsec.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_macsec.c
-@@ -1451,26 +1451,57 @@ static void aq_check_txsa_expiration(struct aq_nic_s *nic)
- 			egress_sa_threshold_expired);
- }
+--- a/drivers/gpu/drm/msm/hdmi/hdmi.c
++++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
+@@ -293,6 +293,11 @@ int msm_hdmi_modeset_init(struct hdmi *h
+ 	struct platform_device *pdev = hdmi->pdev;
+ 	int ret;
  
-+#define AQ_LOCKED_MDO_DEF(mdo)						\
-+static int aq_locked_mdo_##mdo(struct macsec_context *ctx)		\
-+{									\
-+	struct aq_nic_s *nic = netdev_priv(ctx->netdev);		\
-+	int ret;							\
-+	mutex_lock(&nic->macsec_mutex);					\
-+	ret = aq_mdo_##mdo(ctx);					\
-+	mutex_unlock(&nic->macsec_mutex);				\
-+	return ret;							\
-+}
++	if (priv->num_bridges == ARRAY_SIZE(priv->bridges)) {
++		DRM_DEV_ERROR(dev->dev, "too many bridges\n");
++		return -ENOSPC;
++	}
 +
-+AQ_LOCKED_MDO_DEF(dev_open)
-+AQ_LOCKED_MDO_DEF(dev_stop)
-+AQ_LOCKED_MDO_DEF(add_secy)
-+AQ_LOCKED_MDO_DEF(upd_secy)
-+AQ_LOCKED_MDO_DEF(del_secy)
-+AQ_LOCKED_MDO_DEF(add_rxsc)
-+AQ_LOCKED_MDO_DEF(upd_rxsc)
-+AQ_LOCKED_MDO_DEF(del_rxsc)
-+AQ_LOCKED_MDO_DEF(add_rxsa)
-+AQ_LOCKED_MDO_DEF(upd_rxsa)
-+AQ_LOCKED_MDO_DEF(del_rxsa)
-+AQ_LOCKED_MDO_DEF(add_txsa)
-+AQ_LOCKED_MDO_DEF(upd_txsa)
-+AQ_LOCKED_MDO_DEF(del_txsa)
-+AQ_LOCKED_MDO_DEF(get_dev_stats)
-+AQ_LOCKED_MDO_DEF(get_tx_sc_stats)
-+AQ_LOCKED_MDO_DEF(get_tx_sa_stats)
-+AQ_LOCKED_MDO_DEF(get_rx_sc_stats)
-+AQ_LOCKED_MDO_DEF(get_rx_sa_stats)
-+
- const struct macsec_ops aq_macsec_ops = {
--	.mdo_dev_open = aq_mdo_dev_open,
--	.mdo_dev_stop = aq_mdo_dev_stop,
--	.mdo_add_secy = aq_mdo_add_secy,
--	.mdo_upd_secy = aq_mdo_upd_secy,
--	.mdo_del_secy = aq_mdo_del_secy,
--	.mdo_add_rxsc = aq_mdo_add_rxsc,
--	.mdo_upd_rxsc = aq_mdo_upd_rxsc,
--	.mdo_del_rxsc = aq_mdo_del_rxsc,
--	.mdo_add_rxsa = aq_mdo_add_rxsa,
--	.mdo_upd_rxsa = aq_mdo_upd_rxsa,
--	.mdo_del_rxsa = aq_mdo_del_rxsa,
--	.mdo_add_txsa = aq_mdo_add_txsa,
--	.mdo_upd_txsa = aq_mdo_upd_txsa,
--	.mdo_del_txsa = aq_mdo_del_txsa,
--	.mdo_get_dev_stats = aq_mdo_get_dev_stats,
--	.mdo_get_tx_sc_stats = aq_mdo_get_tx_sc_stats,
--	.mdo_get_tx_sa_stats = aq_mdo_get_tx_sa_stats,
--	.mdo_get_rx_sc_stats = aq_mdo_get_rx_sc_stats,
--	.mdo_get_rx_sa_stats = aq_mdo_get_rx_sa_stats,
-+	.mdo_dev_open = aq_locked_mdo_dev_open,
-+	.mdo_dev_stop = aq_locked_mdo_dev_stop,
-+	.mdo_add_secy = aq_locked_mdo_add_secy,
-+	.mdo_upd_secy = aq_locked_mdo_upd_secy,
-+	.mdo_del_secy = aq_locked_mdo_del_secy,
-+	.mdo_add_rxsc = aq_locked_mdo_add_rxsc,
-+	.mdo_upd_rxsc = aq_locked_mdo_upd_rxsc,
-+	.mdo_del_rxsc = aq_locked_mdo_del_rxsc,
-+	.mdo_add_rxsa = aq_locked_mdo_add_rxsa,
-+	.mdo_upd_rxsa = aq_locked_mdo_upd_rxsa,
-+	.mdo_del_rxsa = aq_locked_mdo_del_rxsa,
-+	.mdo_add_txsa = aq_locked_mdo_add_txsa,
-+	.mdo_upd_txsa = aq_locked_mdo_upd_txsa,
-+	.mdo_del_txsa = aq_locked_mdo_del_txsa,
-+	.mdo_get_dev_stats = aq_locked_mdo_get_dev_stats,
-+	.mdo_get_tx_sc_stats = aq_locked_mdo_get_tx_sc_stats,
-+	.mdo_get_tx_sa_stats = aq_locked_mdo_get_tx_sa_stats,
-+	.mdo_get_rx_sc_stats = aq_locked_mdo_get_rx_sc_stats,
-+	.mdo_get_rx_sa_stats = aq_locked_mdo_get_rx_sa_stats,
- };
+ 	hdmi->dev = dev;
+ 	hdmi->encoder = encoder;
  
- int aq_macsec_init(struct aq_nic_s *nic)
-@@ -1492,6 +1523,7 @@ int aq_macsec_init(struct aq_nic_s *nic)
- 
- 	nic->ndev->features |= NETIF_F_HW_MACSEC;
- 	nic->ndev->macsec_ops = &aq_macsec_ops;
-+	mutex_init(&nic->macsec_mutex);
- 
- 	return 0;
- }
-@@ -1515,7 +1547,7 @@ int aq_macsec_enable(struct aq_nic_s *nic)
- 	if (!nic->macsec_cfg)
- 		return 0;
- 
--	rtnl_lock();
-+	mutex_lock(&nic->macsec_mutex);
- 
- 	if (nic->aq_fw_ops->send_macsec_req) {
- 		struct macsec_cfg_request cfg = { 0 };
-@@ -1564,7 +1596,7 @@ int aq_macsec_enable(struct aq_nic_s *nic)
- 	ret = aq_apply_macsec_cfg(nic);
- 
- unlock:
--	rtnl_unlock();
-+	mutex_unlock(&nic->macsec_mutex);
- 	return ret;
- }
- 
-@@ -1576,9 +1608,9 @@ void aq_macsec_work(struct aq_nic_s *nic)
- 	if (!netif_carrier_ok(nic->ndev))
- 		return;
- 
--	rtnl_lock();
-+	mutex_lock(&nic->macsec_mutex);
- 	aq_check_txsa_expiration(nic);
--	rtnl_unlock();
-+	mutex_unlock(&nic->macsec_mutex);
- }
- 
- int aq_macsec_rx_sa_cnt(struct aq_nic_s *nic)
-@@ -1589,21 +1621,30 @@ int aq_macsec_rx_sa_cnt(struct aq_nic_s *nic)
- 	if (!cfg)
- 		return 0;
- 
-+	mutex_lock(&nic->macsec_mutex);
-+
- 	for (i = 0; i < AQ_MACSEC_MAX_SC; i++) {
- 		if (!test_bit(i, &cfg->rxsc_idx_busy))
- 			continue;
- 		cnt += hweight_long(cfg->aq_rxsc[i].rx_sa_idx_busy);
- 	}
- 
-+	mutex_unlock(&nic->macsec_mutex);
- 	return cnt;
- }
- 
- int aq_macsec_tx_sc_cnt(struct aq_nic_s *nic)
- {
-+	int cnt;
-+
- 	if (!nic->macsec_cfg)
- 		return 0;
- 
--	return hweight_long(nic->macsec_cfg->txsc_idx_busy);
-+	mutex_lock(&nic->macsec_mutex);
-+	cnt = hweight_long(nic->macsec_cfg->txsc_idx_busy);
-+	mutex_unlock(&nic->macsec_mutex);
-+
-+	return cnt;
- }
- 
- int aq_macsec_tx_sa_cnt(struct aq_nic_s *nic)
-@@ -1614,12 +1655,15 @@ int aq_macsec_tx_sa_cnt(struct aq_nic_s *nic)
- 	if (!cfg)
- 		return 0;
- 
-+	mutex_lock(&nic->macsec_mutex);
-+
- 	for (i = 0; i < AQ_MACSEC_MAX_SC; i++) {
- 		if (!test_bit(i, &cfg->txsc_idx_busy))
- 			continue;
- 		cnt += hweight_long(cfg->aq_txsc[i].tx_sa_idx_busy);
- 	}
- 
-+	mutex_unlock(&nic->macsec_mutex);
- 	return cnt;
- }
- 
-@@ -1691,6 +1735,8 @@ u64 *aq_macsec_get_stats(struct aq_nic_s *nic, u64 *data)
- 	if (!cfg)
- 		return data;
- 
-+	mutex_lock(&nic->macsec_mutex);
-+
- 	aq_macsec_update_stats(nic);
- 
- 	common_stats = &cfg->stats;
-@@ -1773,5 +1819,7 @@ u64 *aq_macsec_get_stats(struct aq_nic_s *nic, u64 *data)
- 
- 	data += i;
- 
-+	mutex_unlock(&nic->macsec_mutex);
-+
- 	return data;
- }
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_nic.h b/drivers/net/ethernet/aquantia/atlantic/aq_nic.h
-index 1a7148041e3d..b7f7d6f66633 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_nic.h
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_nic.h
-@@ -154,6 +154,8 @@ struct aq_nic_s {
- 	struct mutex fwreq_mutex;
- #if IS_ENABLED(CONFIG_MACSEC)
- 	struct aq_macsec_cfg *macsec_cfg;
-+	/* mutex to protect data in macsec_cfg */
-+	struct mutex macsec_mutex;
- #endif
- 	/* PTP support */
- 	struct aq_ptp_s *aq_ptp;
--- 
-2.35.1
-
 
 
