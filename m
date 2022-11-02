@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C097615ACC
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:41:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02147615AF4
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:44:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229827AbiKBDle (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:41:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57846 "EHLO
+        id S229932AbiKBDop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:44:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229637AbiKBDlR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:41:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B43F826ACD
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:41:13 -0700 (PDT)
+        with ESMTP id S229772AbiKBDoo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:44:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAF935FA9
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:44:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50811617CB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:41:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0B80C433C1;
-        Wed,  2 Nov 2022 03:41:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9966FB82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:44:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A198C433C1;
+        Wed,  2 Nov 2022 03:44:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360472;
-        bh=+dXw1RLTC31Ktq8s4mPuVqVM3PeHvawF75ZgfvhyKzE=;
+        s=korg; t=1667360681;
+        bh=1EBnthBD3u/GquVJZSWcraO2LYmCiBxFoa3WCz7y5s0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QIIkW6tAm2F0HVUQEcAV5FeqQio+KVRldvDcC7Lqi/qmiNKN+Stl6LciO6FaOf+9A
-         MUvqgFwJIajtrkiuj9yiRfVrMdmnQOIZsXvxYd24pc85iSl+mNi3LR564qEkplqzPN
-         ABdqpYOdCKbSRa8716mIaLRbETK8kqtXVDnlhPck=
+        b=zxPZb/G8R6Oatvg0fYRFidiagHivOefKBcwG+6dDD2OrPMI0bdWQwrSN3LWQ6UBNJ
+         A3viFGppMqf/AmKFijKz8Z6yUtyRMFoGC6SQXJyftZRu4FNcoveUKICYNOX1SHlSeA
+         5HF1KdDy3EgmQMRqMxhmOJTD54GXYzyAN8aK1IYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 44/60] net: lantiq_etop: dont free skb when returning NETDEV_TX_BUSY
+        patches@lists.linux.dev, Matthew Ma <mahongwei@zeku.com>,
+        Weizhao Ouyang <ouyangweizhao@zeku.com>,
+        John Wang <wangdayu@zeku.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.9 19/44] mmc: core: Fix kernel panic when remove non-standard SDIO card
 Date:   Wed,  2 Nov 2022 03:35:05 +0100
-Message-Id: <20221102022052.530593293@linuxfoundation.org>
+Message-Id: <20221102022049.723437460@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
+References: <20221102022049.017479464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Matthew Ma <mahongwei@zeku.com>
 
-[ Upstream commit 9c1eaa27ec599fcc25ed4970c0b73c247d147a2b ]
+commit 9972e6b404884adae9eec7463e30d9b3c9a70b18 upstream.
 
-The ndo_start_xmit() method must not free skb when returning
-NETDEV_TX_BUSY, since caller is going to requeue freed skb.
+SDIO tuple is only allocated for standard SDIO card, especially it causes
+memory corruption issues when the non-standard SDIO card has removed, which
+is because the card device's reference counter does not increase for it at
+sdio_init_func(), but all SDIO card device reference counter gets decreased
+at sdio_release_func().
 
-Fixes: 504d4721ee8e ("MIPS: Lantiq: Add ethernet driver")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6f51be3d37df ("sdio: allow non-standard SDIO cards")
+Signed-off-by: Matthew Ma <mahongwei@zeku.com>
+Reviewed-by: Weizhao Ouyang <ouyangweizhao@zeku.com>
+Reviewed-by: John Wang <wangdayu@zeku.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221014034951.2300386-1-ouyangweizhao@zeku.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/lantiq_etop.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/mmc/core/sdio_bus.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/lantiq_etop.c b/drivers/net/ethernet/lantiq_etop.c
-index afc810069440..2a14520e4798 100644
---- a/drivers/net/ethernet/lantiq_etop.c
-+++ b/drivers/net/ethernet/lantiq_etop.c
-@@ -479,7 +479,6 @@ ltq_etop_tx(struct sk_buff *skb, struct net_device *dev)
- 	len = skb->len < ETH_ZLEN ? ETH_ZLEN : skb->len;
+--- a/drivers/mmc/core/sdio_bus.c
++++ b/drivers/mmc/core/sdio_bus.c
+@@ -263,7 +263,8 @@ static void sdio_release_func(struct dev
+ {
+ 	struct sdio_func *func = dev_to_sdio_func(dev);
  
- 	if ((desc->ctl & (LTQ_DMA_OWN | LTQ_DMA_C)) || ch->skb[ch->dma.desc]) {
--		dev_kfree_skb_any(skb);
- 		netdev_err(dev, "tx ring full\n");
- 		netif_tx_stop_queue(txq);
- 		return NETDEV_TX_BUSY;
--- 
-2.35.1
-
+-	sdio_free_func_cis(func);
++	if (!(func->card->quirks & MMC_QUIRK_NONSTD_SDIO))
++		sdio_free_func_cis(func);
+ 
+ 	kfree(func->info);
+ 	kfree(func->tmpbuf);
 
 
