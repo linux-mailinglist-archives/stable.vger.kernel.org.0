@@ -2,45 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B59F06159FB
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:22:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1899A615A52
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:29:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230503AbiKBDWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:22:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41292 "EHLO
+        id S230452AbiKBD3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:29:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230323AbiKBDWB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:22:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4885A25C4C
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:21:55 -0700 (PDT)
+        with ESMTP id S231193AbiKBD2q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:28:46 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14B2926119;
+        Tue,  1 Nov 2022 20:28:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4D39617BF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:21:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 427B1C433D6;
-        Wed,  2 Nov 2022 03:21:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 38E72CE1E47;
+        Wed,  2 Nov 2022 03:28:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A367C433C1;
+        Wed,  2 Nov 2022 03:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359314;
-        bh=yzW89t6abUnZ++is/C2C5WWDLY4hWjv/m59bwbt9u4g=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P/jCtvZpsRYyNdTYJToeWUNe/0YEWRXk9zhQ4kYlBpVMjBpIObWUO2YRuZS9SQtSF
-         NlfZI7x8ZFnGu2ytzGq5ORjqMYMRbiABBieuFHOTZVTlyaDc9tgQJJ+ksjgsqgDVjb
-         S129O1YMCzoep+n+n8XnHFvbu1Ib45FjfByGYTQY=
+        s=korg; t=1667359720;
+        bh=1ypsYs0QgWP1CIogU6al4Phh1irrXEaF+w+ry2gtOAU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=E8CELCiC5Z670bkN+uaCCI+5/fgD80RWWfiYC0wA9FRE7Wl3C9/FLWz6n82XvDofX
+         GRwSDmTRklYM07HEybv0e4Zz65ob4ZXvWeAvA27mEwIt0FX1iamJzN+xhZSsSV4YXf
+         huPSk1lxz6iWPixVvzUnSGKUYDb94V+0RQYhbQGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
-        "Christian A. Ehrhardt" <lk@c--e.de>, stable <stable@kernel.org>
-Subject: [PATCH 5.4 19/64] kernfs: fix use-after-free in __kernfs_remove
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Subject: [PATCH 4.19 00/78] 4.19.264-rc1 review
 Date:   Wed,  2 Nov 2022 03:33:45 +0100
-Message-Id: <20221102022052.430585220@linuxfoundation.org>
+Message-Id: <20221102022052.895556444@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
-References: <20221102022051.821538553@linuxfoundation.org>
-User-Agent: quilt/0.67
 MIME-Version: 1.0
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.264-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.264-rc1
+X-KernelTest-Deadline: 2022-11-04T02:20+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -52,197 +62,351 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian A. Ehrhardt <lk@c--e.de>
+This is the start of the stable review cycle for the 4.19.264 release.
+There are 78 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 4abc99652812a2ddf932f137515d5c5a04723538 upstream.
+Responses should be made by Fri, 04 Nov 2022 02:20:38 +0000.
+Anything received after that time might be too late.
 
-Syzkaller managed to trigger concurrent calls to
-kernfs_remove_by_name_ns() for the same file resulting in
-a KASAN detected use-after-free. The race occurs when the root
-node is freed during kernfs_drain().
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.264-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-To prevent this acquire an additional reference for the root
-of the tree that is removed before calling __kernfs_remove().
+thanks,
 
-Found by syzkaller with the following reproducer (slab_nomerge is
-required):
+greg k-h
 
-syz_mount_image$ext4(0x0, &(0x7f0000000100)='./file0\x00', 0x100000, 0x0, 0x0, 0x0, 0x0)
-r0 = openat(0xffffffffffffff9c, &(0x7f0000000080)='/proc/self/exe\x00', 0x0, 0x0)
-close(r0)
-pipe2(&(0x7f0000000140)={0xffffffffffffffff, <r1=>0xffffffffffffffff}, 0x800)
-mount$9p_fd(0x0, &(0x7f0000000040)='./file0\x00', &(0x7f00000000c0), 0x408, &(0x7f0000000280)={'trans=fd,', {'rfdno', 0x3d, r0}, 0x2c, {'wfdno', 0x3d, r1}, 0x2c, {[{@cache_loose}, {@mmap}, {@loose}, {@loose}, {@mmap}], [{@mask={'mask', 0x3d, '^MAY_EXEC'}}, {@fsmagic={'fsmagic', 0x3d, 0x10001}}, {@dont_hash}]}})
+-------------
+Pseudo-Shortlog of commits:
 
-Sample report:
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.264-rc1
 
-==================================================================
-BUG: KASAN: use-after-free in kernfs_type include/linux/kernfs.h:335 [inline]
-BUG: KASAN: use-after-free in kernfs_leftmost_descendant fs/kernfs/dir.c:1261 [inline]
-BUG: KASAN: use-after-free in __kernfs_remove.part.0+0x843/0x960 fs/kernfs/dir.c:1369
-Read of size 2 at addr ffff8880088807f0 by task syz-executor.2/857
+Biju Das <biju.das.jz@bp.renesas.com>
+    can: rcar_canfd: rcar_canfd_handle_global_receive(): fix IRQ storm on global FIFO receive
 
-CPU: 0 PID: 857 Comm: syz-executor.2 Not tainted 6.0.0-rc3-00363-g7726d4c3e60b #5
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x6e/0x91 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:317 [inline]
- print_report.cold+0x5e/0x5e5 mm/kasan/report.c:433
- kasan_report+0xa3/0x130 mm/kasan/report.c:495
- kernfs_type include/linux/kernfs.h:335 [inline]
- kernfs_leftmost_descendant fs/kernfs/dir.c:1261 [inline]
- __kernfs_remove.part.0+0x843/0x960 fs/kernfs/dir.c:1369
- __kernfs_remove fs/kernfs/dir.c:1356 [inline]
- kernfs_remove_by_name_ns+0x108/0x190 fs/kernfs/dir.c:1589
- sysfs_slab_add+0x133/0x1e0 mm/slub.c:5943
- __kmem_cache_create+0x3e0/0x550 mm/slub.c:4899
- create_cache mm/slab_common.c:229 [inline]
- kmem_cache_create_usercopy+0x167/0x2a0 mm/slab_common.c:335
- p9_client_create+0xd4d/0x1190 net/9p/client.c:993
- v9fs_session_init+0x1e6/0x13c0 fs/9p/v9fs.c:408
- v9fs_mount+0xb9/0xbd0 fs/9p/vfs_super.c:126
- legacy_get_tree+0xf1/0x200 fs/fs_context.c:610
- vfs_get_tree+0x85/0x2e0 fs/super.c:1530
- do_new_mount fs/namespace.c:3040 [inline]
- path_mount+0x675/0x1d00 fs/namespace.c:3370
- do_mount fs/namespace.c:3383 [inline]
- __do_sys_mount fs/namespace.c:3591 [inline]
- __se_sys_mount fs/namespace.c:3568 [inline]
- __x64_sys_mount+0x282/0x300 fs/namespace.c:3568
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f725f983aed
-Code: 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f725f0f7028 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
-RAX: ffffffffffffffda RBX: 00007f725faa3f80 RCX: 00007f725f983aed
-RDX: 00000000200000c0 RSI: 0000000020000040 RDI: 0000000000000000
-RBP: 00007f725f9f419c R08: 0000000020000280 R09: 0000000000000000
-R10: 0000000000000408 R11: 0000000000000246 R12: 0000000000000000
-R13: 0000000000000006 R14: 00007f725faa3f80 R15: 00007f725f0d7000
- </TASK>
+Hyong Youb Kim <hyonkim@cisco.com>
+    net/mlx5e: Do not increment ESN when updating IPsec ESN state
 
-Allocated by task 855:
- kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
- kasan_set_track mm/kasan/common.c:45 [inline]
- set_alloc_info mm/kasan/common.c:437 [inline]
- __kasan_slab_alloc+0x66/0x80 mm/kasan/common.c:470
- kasan_slab_alloc include/linux/kasan.h:224 [inline]
- slab_post_alloc_hook mm/slab.h:727 [inline]
- slab_alloc_node mm/slub.c:3243 [inline]
- slab_alloc mm/slub.c:3251 [inline]
- __kmem_cache_alloc_lru mm/slub.c:3258 [inline]
- kmem_cache_alloc+0xbf/0x200 mm/slub.c:3268
- kmem_cache_zalloc include/linux/slab.h:723 [inline]
- __kernfs_new_node+0xd4/0x680 fs/kernfs/dir.c:593
- kernfs_new_node fs/kernfs/dir.c:655 [inline]
- kernfs_create_dir_ns+0x9c/0x220 fs/kernfs/dir.c:1010
- sysfs_create_dir_ns+0x127/0x290 fs/sysfs/dir.c:59
- create_dir lib/kobject.c:63 [inline]
- kobject_add_internal+0x24a/0x8d0 lib/kobject.c:223
- kobject_add_varg lib/kobject.c:358 [inline]
- kobject_init_and_add+0x101/0x160 lib/kobject.c:441
- sysfs_slab_add+0x156/0x1e0 mm/slub.c:5954
- __kmem_cache_create+0x3e0/0x550 mm/slub.c:4899
- create_cache mm/slab_common.c:229 [inline]
- kmem_cache_create_usercopy+0x167/0x2a0 mm/slab_common.c:335
- p9_client_create+0xd4d/0x1190 net/9p/client.c:993
- v9fs_session_init+0x1e6/0x13c0 fs/9p/v9fs.c:408
- v9fs_mount+0xb9/0xbd0 fs/9p/vfs_super.c:126
- legacy_get_tree+0xf1/0x200 fs/fs_context.c:610
- vfs_get_tree+0x85/0x2e0 fs/super.c:1530
- do_new_mount fs/namespace.c:3040 [inline]
- path_mount+0x675/0x1d00 fs/namespace.c:3370
- do_mount fs/namespace.c:3383 [inline]
- __do_sys_mount fs/namespace.c:3591 [inline]
- __se_sys_mount fs/namespace.c:3568 [inline]
- __x64_sys_mount+0x282/0x300 fs/namespace.c:3568
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+Yang Yingliang <yangyingliang@huawei.com>
+    net: ehea: fix possible memory leak in ehea_register_port()
 
-Freed by task 857:
- kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
- kasan_set_track+0x21/0x30 mm/kasan/common.c:45
- kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:370
- ____kasan_slab_free mm/kasan/common.c:367 [inline]
- ____kasan_slab_free mm/kasan/common.c:329 [inline]
- __kasan_slab_free+0x108/0x190 mm/kasan/common.c:375
- kasan_slab_free include/linux/kasan.h:200 [inline]
- slab_free_hook mm/slub.c:1754 [inline]
- slab_free_freelist_hook mm/slub.c:1780 [inline]
- slab_free mm/slub.c:3534 [inline]
- kmem_cache_free+0x9c/0x340 mm/slub.c:3551
- kernfs_put.part.0+0x2b2/0x520 fs/kernfs/dir.c:547
- kernfs_put+0x42/0x50 fs/kernfs/dir.c:521
- __kernfs_remove.part.0+0x72d/0x960 fs/kernfs/dir.c:1407
- __kernfs_remove fs/kernfs/dir.c:1356 [inline]
- kernfs_remove_by_name_ns+0x108/0x190 fs/kernfs/dir.c:1589
- sysfs_slab_add+0x133/0x1e0 mm/slub.c:5943
- __kmem_cache_create+0x3e0/0x550 mm/slub.c:4899
- create_cache mm/slab_common.c:229 [inline]
- kmem_cache_create_usercopy+0x167/0x2a0 mm/slab_common.c:335
- p9_client_create+0xd4d/0x1190 net/9p/client.c:993
- v9fs_session_init+0x1e6/0x13c0 fs/9p/v9fs.c:408
- v9fs_mount+0xb9/0xbd0 fs/9p/vfs_super.c:126
- legacy_get_tree+0xf1/0x200 fs/fs_context.c:610
- vfs_get_tree+0x85/0x2e0 fs/super.c:1530
- do_new_mount fs/namespace.c:3040 [inline]
- path_mount+0x675/0x1d00 fs/namespace.c:3370
- do_mount fs/namespace.c:3383 [inline]
- __do_sys_mount fs/namespace.c:3591 [inline]
- __se_sys_mount fs/namespace.c:3568 [inline]
- __x64_sys_mount+0x282/0x300 fs/namespace.c:3568
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+Aaron Conole <aconole@redhat.com>
+    openvswitch: switch from WARN to pr_warn
 
-The buggy address belongs to the object at ffff888008880780
- which belongs to the cache kernfs_node_cache of size 128
-The buggy address is located 112 bytes inside of
- 128-byte region [ffff888008880780, ffff888008880800)
+Takashi Iwai <tiwai@suse.de>
+    ALSA: aoa: Fix I2S device accounting
 
-The buggy address belongs to the physical page:
-page:00000000732833f8 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x8880
-flags: 0x100000000000200(slab|node=0|zone=1)
-raw: 0100000000000200 0000000000000000 dead000000000122 ffff888001147280
-raw: 0000000000000000 0000000000150015 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
+Yang Yingliang <yangyingliang@huawei.com>
+    ALSA: aoa: i2sbus: fix possible memory leak in i2sbus_add_dev()
 
-Memory state around the buggy address:
- ffff888008880680: fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb fb
- ffff888008880700: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
->ffff888008880780: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                                                             ^
- ffff888008880800: fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb fb
- ffff888008880880: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-==================================================================
+Sudeep Holla <sudeep.holla@arm.com>
+    PM: domains: Fix handling of unavailable/disabled idle states
 
-Acked-by: Tejun Heo <tj@kernel.org>
-Cc: stable <stable@kernel.org> # -rc3
-Signed-off-by: Christian A. Ehrhardt <lk@c--e.de>
-Link: https://lore.kernel.org/r/20220913121723.691454-1-lk@c--e.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/kernfs/dir.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+Yang Yingliang <yangyingliang@huawei.com>
+    net: ksz884x: fix missing pci_disable_device() on error in pcidev_init()
 
---- a/fs/kernfs/dir.c
-+++ b/fs/kernfs/dir.c
-@@ -1515,8 +1515,11 @@ int kernfs_remove_by_name_ns(struct kern
- 	mutex_lock(&kernfs_mutex);
- 
- 	kn = kernfs_find_ns(parent, name, ns);
--	if (kn)
-+	if (kn) {
-+		kernfs_get(kn);
- 		__kernfs_remove(kn);
-+		kernfs_put(kn);
-+	}
- 
- 	mutex_unlock(&kernfs_mutex);
- 
+Slawomir Laba <slawomirx.laba@intel.com>
+    i40e: Fix flow-type by setting GL_HASH_INSET registers
+
+Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+    i40e: Fix VF hang when reset is triggered on another VF
+
+Slawomir Laba <slawomirx.laba@intel.com>
+    i40e: Fix ethtool rx-flow-hash setting for X722
+
+Hans Verkuil <hverkuil-cisco@xs4all.nl>
+    media: videodev2.h: V4L2_DV_BT_BLANKING_HEIGHT should check 'interlaced'
+
+Hans Verkuil <hverkuil-cisco@xs4all.nl>
+    media: v4l2-dv-timings: add sanity checks for blanking values
+
+Hans Verkuil <hverkuil-cisco@xs4all.nl>
+    media: vivid: dev->bitmap_cap wasn't freed in all cases
+
+Hans Verkuil <hverkuil-cisco@xs4all.nl>
+    media: vivid: s_fbuf: add more sanity checks
+
+Mario Limonciello <mario.limonciello@amd.com>
+    PM: hibernate: Allow hybrid sleep to work with s2idle
+
+Dongliang Mu <dzm91@hust.edu.cn>
+    can: mscan: mpc5xxx: mpc5xxx_can_probe(): add missing put_clock() in error path
+
+Neal Cardwell <ncardwell@google.com>
+    tcp: fix indefinite deferral of RTO with SACK reneging
+
+Zhang Changzhong <zhangchangzhong@huawei.com>
+    net: lantiq_etop: don't free skb when returning NETDEV_TX_BUSY
+
+Zhengchao Shao <shaozhengchao@huawei.com>
+    net: fix UAF issue in nfqnl_nf_hook_drop() when ops_init() failed
+
+Eric Dumazet <edumazet@google.com>
+    kcm: annotate data-races around kcm->rx_wait
+
+Eric Dumazet <edumazet@google.com>
+    kcm: annotate data-races around kcm->rx_psock
+
+Raju Rangoju <Raju.Rangoju@amd.com>
+    amd-xgbe: add the bit rate quirk for Molex cables
+
+Raju Rangoju <Raju.Rangoju@amd.com>
+    amd-xgbe: fix the SFP compliance codes check for DAC cables
+
+Chen Zhongjin <chenzhongjin@huawei.com>
+    x86/unwind/orc: Fix unreliable stack dump with gcov
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net: netsec: fix error handling in netsec_register_mdio()
+
+Xin Long <lucien.xin@gmail.com>
+    tipc: fix a null-ptr-deref in tipc_topsrv_accept
+
+Yang Yingliang <yangyingliang@huawei.com>
+    ALSA: ac97: fix possible memory leak in snd_ac97_dev_register()
+
+Randy Dunlap <rdunlap@infradead.org>
+    arc: iounmap() arg is volatile
+
+Nathan Huckleberry <nhuck@google.com>
+    drm/msm: Fix return type of mdp4_lvds_connector_mode_valid
+
+Wei Yongjun <weiyongjun1@huawei.com>
+    net: ieee802154: fix error return code in dgram_bind()
+
+Rik van Riel <riel@surriel.com>
+    mm,hugetlb: take hugetlb_lock before decrementing h->resv_huge_pages
+
+M. Vefa Bicakci <m.v.b@runbox.com>
+    xen/gntdev: Prevent leaking grants
+
+Jan Beulich <jbeulich@suse.com>
+    Xen/gntdev: don't ignore kernel unmapping error
+
+Heiko Carstens <hca@linux.ibm.com>
+    s390/futex: add missing EX_TABLE entry to __futex_atomic_op()
+
+Adrian Hunter <adrian.hunter@intel.com>
+    perf auxtrace: Fix address filter symbol name match for modules
+
+Christian A. Ehrhardt <lk@c--e.de>
+    kernfs: fix use-after-free in __kernfs_remove
+
+Matthew Ma <mahongwei@zeku.com>
+    mmc: core: Fix kernel panic when remove non-standard SDIO card
+
+Johan Hovold <johan+linaro@kernel.org>
+    drm/msm/hdmi: fix memory corruption with too many bridges
+
+Johan Hovold <johan+linaro@kernel.org>
+    drm/msm/dsi: fix memory corruption with too many bridges
+
+Miquel Raynal <miquel.raynal@bootlin.com>
+    mac802154: Fix LQI recording
+
+Hyunwoo Kim <imv4bel@gmail.com>
+    fbdev: smscufx: Fix several use-after-free bugs
+
+Shreeya Patel <shreeya.patel@collabora.com>
+    iio: light: tsl2583: Fix module unloading
+
+Matti Vaittinen <mazziesaccount@gmail.com>
+    tools: iio: iio_utils: fix digit calculation
+
+Mathias Nyman <mathias.nyman@linux.intel.com>
+    xhci: Remove device endpoints from bandwidth list when freeing the device
+
+Jens Glathe <jens.glathe@oldschoolsolutions.biz>
+    usb: xhci: add XHCI_SPURIOUS_SUCCESS to ASM1042 despite being a V0.96 controller
+
+Justin Chen <justinpopo6@gmail.com>
+    usb: bdc: change state when port disconnected
+
+Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+    usb: dwc3: gadget: Don't set IMI for no_interrupt
+
+Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+    usb: dwc3: gadget: Stop processing more requests on IMI
+
+Hannu Hartikainen <hannu@hrtk.in>
+    USB: add RESET_RESUME quirk for NVIDIA Jetson devices in RCM
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    ALSA: au88x0: use explicitly signed char
+
+Steven Rostedt (Google) <rostedt@goodmis.org>
+    ALSA: Use del_timer_sync() before freeing timer
+
+Anssi Hannula <anssi.hannula@bitwise.fi>
+    can: kvaser_usb: Fix possible completions during init_completion
+
+Seth Jenkins <sethjenkins@google.com>
+    mm: /proc/pid/smaps_rollup: fix no vma's null-deref
+
+Gaurav Kohli <gauravkohli@linux.microsoft.com>
+    hv_netvsc: Fix race between VF offering and VF association message from host
+
+Nick Desaulniers <ndesaulniers@google.com>
+    Makefile.debug: re-enable debug info for .S files
+
+Werner Sembach <wse@tuxedocomputers.com>
+    ACPI: video: Force backlight native for more TongFang devices
+
+Chen-Yu Tsai <wenst@chromium.org>
+    media: v4l2-mem2mem: Apply DST_QUEUE_OFF_BASE on MMAP buffers across ioctls
+
+Jerry Snitselaar <jsnitsel@redhat.com>
+    iommu/vt-d: Clean up si_domain in the init_dmars() error path
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net: hns: fix possible memory leak in hnae_ae_register()
+
+Zhengchao Shao <shaozhengchao@huawei.com>
+    net: sched: cake: fix null pointer access issue when cake_init() fails
+
+Xiaobo Liu <cppcoffee@gmail.com>
+    net/atm: fix proc_mpc_write incorrect return value
+
+José Expósito <jose.exposito89@gmail.com>
+    HID: magicmouse: Do not set BTN_MOUSE on double report
+
+Alexander Potapenko <glider@google.com>
+    tipc: fix an information leak in tipc_topsrv_kern_subscr
+
+Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+    tipc: Fix recognition of trial period
+
+Tony Luck <tony.luck@intel.com>
+    ACPI: extlog: Handle multiple records
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix processing of delayed tree block refs during backref walking
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix processing of delayed data refs during backref walking
+
+Jean-Francois Le Fillatre <jflf_kernel@gmx.com>
+    r8152: add PID for the Lenovo OneLink+ Dock
+
+James Morse <james.morse@arm.com>
+    arm64: errata: Remove AES hwcap for COMPAT tasks
+
+Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+    media: venus: dec: Handle the case where find_format fails
+
+Eric Ren <renzhengeek@gmail.com>
+    KVM: arm64: vgic: Fix exit condition in scan_its_table()
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    ata: ahci: Match EM_MAX_SLOTS with SATA_PMP_MAX_PORTS
+
+Alexander Stein <alexander.stein@ew.tq-group.com>
+    ata: ahci-imx: Fix MODULE_ALIAS
+
+Zhang Rui <rui.zhang@intel.com>
+    hwmon/coretemp: Handle large core ID value
+
+Borislav Petkov <bp@suse.de>
+    x86/microcode/AMD: Apply the patch early on every logical thread
+
+Joseph Qi <joseph.qi@linux.alibaba.com>
+    ocfs2: fix BUG when iput after ocfs2_mknod fails
+
+Joseph Qi <joseph.qi@linux.alibaba.com>
+    ocfs2: clear dinode links count in case of error
+
+
+-------------
+
+Diffstat:
+
+ Documentation/arm64/silicon-errata.txt             |   2 +
+ Makefile                                           |   8 +-
+ arch/arc/include/asm/io.h                          |   2 +-
+ arch/arc/mm/ioremap.c                              |   2 +-
+ arch/arm64/Kconfig                                 |  16 ++++
+ arch/arm64/include/asm/cpucaps.h                   |   3 +-
+ arch/arm64/kernel/cpu_errata.c                     |  17 ++++
+ arch/arm64/kernel/cpufeature.c                     |  13 ++-
+ arch/s390/include/asm/futex.h                      |   3 +-
+ arch/x86/kernel/cpu/microcode/amd.c                |  16 +++-
+ arch/x86/kernel/unwind_orc.c                       |   2 +-
+ drivers/acpi/acpi_extlog.c                         |  33 ++++---
+ drivers/acpi/video_detect.c                        |  64 +++++++++++++
+ drivers/ata/ahci.h                                 |   2 +-
+ drivers/ata/ahci_imx.c                             |   2 +-
+ drivers/base/power/domain.c                        |   4 +
+ .../gpu/drm/msm/disp/mdp4/mdp4_lvds_connector.c    |   5 +-
+ drivers/gpu/drm/msm/dsi/dsi.c                      |   6 ++
+ drivers/gpu/drm/msm/hdmi/hdmi.c                    |   5 ++
+ drivers/hid/hid-magicmouse.c                       |   2 +-
+ drivers/hwmon/coretemp.c                           |  56 ++++++++----
+ drivers/iio/light/tsl2583.c                        |   2 +-
+ drivers/iommu/intel-iommu.c                        |   5 ++
+ drivers/media/platform/qcom/venus/vdec.c           |   2 +
+ drivers/media/platform/vivid/vivid-core.c          |  22 +++++
+ drivers/media/platform/vivid/vivid-core.h          |   2 +
+ drivers/media/platform/vivid/vivid-vid-cap.c       |  27 ++++--
+ drivers/media/v4l2-core/v4l2-dv-timings.c          |  14 +++
+ drivers/media/v4l2-core/v4l2-mem2mem.c             |  62 +++++++++----
+ drivers/mmc/core/sdio_bus.c                        |   3 +-
+ drivers/net/can/mscan/mpc5xxx_can.c                |   8 +-
+ drivers/net/can/rcar/rcar_canfd.c                  |   6 +-
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c  |   4 +-
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c   |   4 +-
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c        |  17 ++--
+ drivers/net/ethernet/hisilicon/hns/hnae.c          |   4 +-
+ drivers/net/ethernet/ibm/ehea/ehea_main.c          |   1 +
+ drivers/net/ethernet/intel/i40e/i40e_ethtool.c     | 100 ++++++++++++---------
+ drivers/net/ethernet/intel/i40e/i40e_type.h        |   4 +
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |  43 ++++++---
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h |   1 +
+ drivers/net/ethernet/lantiq_etop.c                 |   1 -
+ .../ethernet/mellanox/mlx5/core/en_accel/ipsec.c   |   3 -
+ drivers/net/ethernet/micrel/ksz884x.c              |   2 +-
+ drivers/net/ethernet/socionext/netsec.c            |   2 +
+ drivers/net/hyperv/hyperv_net.h                    |   3 +
+ drivers/net/hyperv/netvsc.c                        |   4 +
+ drivers/net/hyperv/netvsc_drv.c                    |  20 +++++
+ drivers/net/usb/cdc_ether.c                        |   7 ++
+ drivers/net/usb/r8152.c                            |   1 +
+ drivers/usb/core/quirks.c                          |   9 ++
+ drivers/usb/dwc3/gadget.c                          |   8 +-
+ drivers/usb/gadget/udc/bdc/bdc_udc.c               |   1 +
+ drivers/usb/host/xhci-mem.c                        |  20 +++--
+ drivers/usb/host/xhci-pci.c                        |   8 +-
+ drivers/video/fbdev/smscufx.c                      |  55 ++++++------
+ drivers/xen/gntdev.c                               |  30 +++++--
+ fs/btrfs/backref.c                                 |  46 ++++++----
+ fs/kernfs/dir.c                                    |   5 +-
+ fs/ocfs2/namei.c                                   |  23 +++--
+ fs/proc/task_mmu.c                                 |   2 +-
+ include/uapi/linux/videodev2.h                     |   3 +-
+ kernel/power/hibernate.c                           |   2 +-
+ mm/hugetlb.c                                       |   2 +-
+ net/atm/mpoa_proc.c                                |   3 +-
+ net/core/net_namespace.c                           |   7 ++
+ net/ieee802154/socket.c                            |   4 +-
+ net/ipv4/tcp_input.c                               |   3 +-
+ net/kcm/kcmsock.c                                  |  23 +++--
+ net/mac802154/rx.c                                 |   5 +-
+ net/openvswitch/datapath.c                         |   3 +-
+ net/sched/sch_cake.c                               |   4 +
+ net/tipc/discover.c                                |   2 +-
+ net/tipc/topsrv.c                                  |  18 ++--
+ sound/aoa/soundbus/i2sbus/core.c                   |   7 +-
+ sound/pci/ac97/ac97_codec.c                        |   1 +
+ sound/pci/au88x0/au88x0.h                          |   6 +-
+ sound/pci/au88x0/au88x0_core.c                     |   2 +-
+ sound/synth/emux/emux.c                            |   7 +-
+ tools/iio/iio_utils.c                              |   4 +
+ tools/perf/util/auxtrace.c                         |  10 ++-
+ virt/kvm/arm/vgic/vgic-its.c                       |   5 +-
+ 82 files changed, 718 insertions(+), 247 deletions(-)
 
 
