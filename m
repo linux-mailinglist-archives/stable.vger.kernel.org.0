@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C8026157D2
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:39:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AC706157D3
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:39:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230273AbiKBCji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:39:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58060 "EHLO
+        id S230267AbiKBCjm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:39:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230254AbiKBCje (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:39:34 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1814611441
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:39:34 -0700 (PDT)
+        with ESMTP id S230280AbiKBCji (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:39:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F9FA120B4
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:39:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6633CCE1F17
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:39:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9E70C433D7;
-        Wed,  2 Nov 2022 02:39:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BC16617A9
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:39:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4DD9C433D7;
+        Wed,  2 Nov 2022 02:39:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356770;
-        bh=Dnor4adkufRk++lfcAtgS5yKuVG7nGEmHiyDDMIs/1s=;
+        s=korg; t=1667356776;
+        bh=9Q64YjVt/D4q3Cb3bukav+scAsNK1wYNlBeye1ir72s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1CDnZeDnZ9kykN+qbP9UnnWFqLC9lK2Q838Oo/NRYOLioP9RnVt82Z1t0bTx+VaC9
-         rs0qy0Gc2EySMghiZHZRDk5UHxGOZ41P+3M+9vb2d/TX281Bnc9O5IC5tRNHXwgY1E
-         +6qMtQ+o8M/XKlcsFUef6OpRawEeam6qJ8vF5aLs=
+        b=bByHPErVdee1ZXHB7sfpgZDRH+7zaWGpG1IOWUz//kxpbrhpcsYQmDEF0O0sCGqxv
+         joU3QMzbMUeGQe5TL8nskHl7nFaNU6ihJ5ZhxuTICRcEa3cNiVFucibxcWu4AZSRZs
+         XBsJhZCUt7gmg4FU8ObBsnH5hKwNjnIYYKF7Bvmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 6.0 056/240] mac802154: Fix LQI recording
-Date:   Wed,  2 Nov 2022 03:30:31 +0100
-Message-Id: <20221102022112.666990490@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Manish Rangankar <mrangankar@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 6.0 057/240] scsi: qla2xxx: Use transport-defined speed mask for supported_speeds
+Date:   Wed,  2 Nov 2022 03:30:32 +0100
+Message-Id: <20221102022112.689497733@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -53,60 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Manish Rangankar <mrangankar@marvell.com>
 
-commit 5a5c4e06fd03b595542d5590f2bc05a6b7fc5c2b upstream.
+commit 0b863257c17c5f57a41e0a48de140ed026957a63 upstream.
 
-Back in 2014, the LQI was saved in the skb control buffer (skb->cb, or
-mac_cb(skb)) without any actual reset of this area prior to its use.
+One of the sysfs values reported for supported_speeds was not valid (20Gb/s
+reported instead of 64Gb/s).  Instead of driver internal speed mask
+definition, use speed mask defined in transport_fc for reporting
+host->supported_speeds.
 
-As part of a useful rework of the use of this region, 32edc40ae65c
-("ieee802154: change _cb handling slightly") introduced mac_cb_init() to
-basically memset the cb field to 0. In particular, this new function got
-called at the beginning of mac802154_parse_frame_start(), right before
-the location where the buffer got actually filled.
-
-What went through unnoticed however, is the fact that the very first
-helper called by device drivers in the receive path already used this
-area to save the LQI value for later extraction. Resetting the cb field
-"so late" led to systematically zeroing the LQI.
-
-If we consider the reset of the cb field needed, we can make it as soon
-as we get an skb from a device driver, right before storing the LQI,
-as is the very first time we need to write something there.
-
+Link: https://lore.kernel.org/r/20220927115946.17559-1-njavali@marvell.com
 Cc: stable@vger.kernel.org
-Fixes: 32edc40ae65c ("ieee802154: change _cb handling slightly")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20221020142535.1038885-1-miquel.raynal@bootlin.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac802154/rx.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_attr.c |   28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
 
---- a/net/mac802154/rx.c
-+++ b/net/mac802154/rx.c
-@@ -132,7 +132,7 @@ static int
- ieee802154_parse_frame_start(struct sk_buff *skb, struct ieee802154_hdr *hdr)
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -3330,11 +3330,34 @@ struct fc_function_template qla2xxx_tran
+ 	.bsg_timeout = qla24xx_bsg_timeout,
+ };
+ 
++static uint
++qla2x00_get_host_supported_speeds(scsi_qla_host_t *vha, uint speeds)
++{
++	uint supported_speeds = FC_PORTSPEED_UNKNOWN;
++
++	if (speeds & FDMI_PORT_SPEED_64GB)
++		supported_speeds |= FC_PORTSPEED_64GBIT;
++	if (speeds & FDMI_PORT_SPEED_32GB)
++		supported_speeds |= FC_PORTSPEED_32GBIT;
++	if (speeds & FDMI_PORT_SPEED_16GB)
++		supported_speeds |= FC_PORTSPEED_16GBIT;
++	if (speeds & FDMI_PORT_SPEED_8GB)
++		supported_speeds |= FC_PORTSPEED_8GBIT;
++	if (speeds & FDMI_PORT_SPEED_4GB)
++		supported_speeds |= FC_PORTSPEED_4GBIT;
++	if (speeds & FDMI_PORT_SPEED_2GB)
++		supported_speeds |= FC_PORTSPEED_2GBIT;
++	if (speeds & FDMI_PORT_SPEED_1GB)
++		supported_speeds |= FC_PORTSPEED_1GBIT;
++
++	return supported_speeds;
++}
++
+ void
+ qla2x00_init_host_attr(scsi_qla_host_t *vha)
  {
- 	int hlen;
--	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
-+	struct ieee802154_mac_cb *cb = mac_cb(skb);
+ 	struct qla_hw_data *ha = vha->hw;
+-	u32 speeds = FC_PORTSPEED_UNKNOWN;
++	u32 speeds = 0, fdmi_speed = 0;
  
- 	skb_reset_mac_header(skb);
+ 	fc_host_dev_loss_tmo(vha->host) = ha->port_down_retry_count;
+ 	fc_host_node_name(vha->host) = wwn_to_u64(vha->node_name);
+@@ -3344,7 +3367,8 @@ qla2x00_init_host_attr(scsi_qla_host_t *
+ 	fc_host_max_npiv_vports(vha->host) = ha->max_npiv_vports;
+ 	fc_host_npiv_vports_inuse(vha->host) = ha->cur_vport_count;
  
-@@ -294,8 +294,9 @@ void
- ieee802154_rx_irqsafe(struct ieee802154_hw *hw, struct sk_buff *skb, u8 lqi)
- {
- 	struct ieee802154_local *local = hw_to_local(hw);
-+	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
+-	speeds = qla25xx_fdmi_port_speed_capability(ha);
++	fdmi_speed = qla25xx_fdmi_port_speed_capability(ha);
++	speeds = qla2x00_get_host_supported_speeds(vha, fdmi_speed);
  
--	mac_cb(skb)->lqi = lqi;
-+	cb->lqi = lqi;
- 	skb->pkt_type = IEEE802154_RX_MSG;
- 	skb_queue_tail(&local->skb_queue, skb);
- 	tasklet_schedule(&local->tasklet);
+ 	fc_host_supported_speeds(vha->host) = speeds;
+ }
 
 
