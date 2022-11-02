@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46E8A615AB0
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:39:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57D13615A7D
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:32:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229907AbiKBDjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:39:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56298 "EHLO
+        id S231185AbiKBDcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:32:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230210AbiKBDjG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:39:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B9618B0C
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:39:01 -0700 (PDT)
+        with ESMTP id S231279AbiKBDcA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:32:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A65FD2613C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:31:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0ED9CB82071
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:39:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4A49C433D6;
-        Wed,  2 Nov 2022 03:38:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 442986172F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:31:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0099C433C1;
+        Wed,  2 Nov 2022 03:31:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360338;
-        bh=9X5aJwJlr+ihluMnQtX3wY7Hn5ANP+WCSlW8HgIurOU=;
+        s=korg; t=1667359918;
+        bh=GLfxLOc7/zR4YsW8Q8g/u5mi3Ze9DT6WKwfGCxCOjp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IaGhXTNrlKTGqL6xSJVbkYpaqLJn/Z18UafV6+48ts9De21u2jgic3KHcY8itrpll
-         89YaWceB0UoTTwNqbzDwdyixivPTg0ILRUgReVkaoeBqupNZRDkt02w31XAsthuzDK
-         HKxe9qcotxTK7m2MLxPdORa8VPKSzmLjFw+vYTmM=
+        b=X1Y9Hj7iB/lqg2GhY3Yuuka6IPGV6xbQ4/y/Yr3A+P7ngzV9xyihWG5eU9HPFrIKt
+         ofYAc23RBTWa/Uhwqt+nbY/GyWTV98vR07S9xL5m5xtwyVu6U4vI/LLnWgZ2+zm0jm
+         mzJSB5OVkbtmmD+mgD3+hrS18HgTYTVT5TL1m4e8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Jeff Vanhoof <jdv1029@gmail.com>
-Subject: [PATCH 4.14 20/60] usb: dwc3: gadget: Dont set IMI for no_interrupt
-Date:   Wed,  2 Nov 2022 03:34:41 +0100
-Message-Id: <20221102022051.738068660@linuxfoundation.org>
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 57/78] kcm: annotate data-races around kcm->rx_psock
+Date:   Wed,  2 Nov 2022 03:34:42 +0100
+Message-Id: <20221102022054.640636961@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 308c316d16cbad99bb834767382baa693ac42169 upstream.
+[ Upstream commit 15e4dabda11b0fa31d510a915d1a580f47dfc92e ]
 
-The gadget driver may have a certain expectation of how the request
-completion flow should be from to its configuration. Make sure the
-controller driver respect that. That is, don't set IMI (Interrupt on
-Missed Isoc) when usb_request->no_interrupt is set. Also, the driver
-should only set IMI to the last TRB of a chain.
+kcm->rx_psock can be read locklessly in kcm_rfree().
+Annotate the read and writes accordingly.
 
-Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Reviewed-by: Jeff Vanhoof <jdv1029@gmail.com>
-Tested-by: Jeff Vanhoof <jdv1029@gmail.com>
-Link: https://lore.kernel.org/r/ced336c84434571340c07994e3667a0ee284fefe.1666735451.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We do the same for kcm->rx_wait in the following patch.
+
+syzbot reported:
+BUG: KCSAN: data-race in kcm_rfree / unreserve_rx_kcm
+
+write to 0xffff888123d827b8 of 8 bytes by task 2758 on cpu 1:
+unreserve_rx_kcm+0x72/0x1f0 net/kcm/kcmsock.c:313
+kcm_rcv_strparser+0x2b5/0x3a0 net/kcm/kcmsock.c:373
+__strp_recv+0x64c/0xd20 net/strparser/strparser.c:301
+strp_recv+0x6d/0x80 net/strparser/strparser.c:335
+tcp_read_sock+0x13e/0x5a0 net/ipv4/tcp.c:1703
+strp_read_sock net/strparser/strparser.c:358 [inline]
+do_strp_work net/strparser/strparser.c:406 [inline]
+strp_work+0xe8/0x180 net/strparser/strparser.c:415
+process_one_work+0x3d3/0x720 kernel/workqueue.c:2289
+worker_thread+0x618/0xa70 kernel/workqueue.c:2436
+kthread+0x1a9/0x1e0 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+
+read to 0xffff888123d827b8 of 8 bytes by task 5859 on cpu 0:
+kcm_rfree+0x14c/0x220 net/kcm/kcmsock.c:181
+skb_release_head_state+0x8e/0x160 net/core/skbuff.c:841
+skb_release_all net/core/skbuff.c:852 [inline]
+__kfree_skb net/core/skbuff.c:868 [inline]
+kfree_skb_reason+0x5c/0x260 net/core/skbuff.c:891
+kfree_skb include/linux/skbuff.h:1216 [inline]
+kcm_recvmsg+0x226/0x2b0 net/kcm/kcmsock.c:1161
+____sys_recvmsg+0x16c/0x2e0
+___sys_recvmsg net/socket.c:2743 [inline]
+do_recvmmsg+0x2f1/0x710 net/socket.c:2837
+__sys_recvmmsg net/socket.c:2916 [inline]
+__do_sys_recvmmsg net/socket.c:2939 [inline]
+__se_sys_recvmmsg net/socket.c:2932 [inline]
+__x64_sys_recvmmsg+0xde/0x160 net/socket.c:2932
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+value changed: 0xffff88812971ce00 -> 0x0000000000000000
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 5859 Comm: syz-executor.3 Not tainted 6.0.0-syzkaller-12189-g19d17ab7c68b-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
+
+Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/kcm/kcmsock.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -965,8 +965,8 @@ static void __dwc3_prepare_one_trb(struc
- 			trb->ctrl = DWC3_TRBCTL_ISOCHRONOUS;
- 		}
+diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
+index ef2543a4c1fc..cfee2d130efd 100644
+--- a/net/kcm/kcmsock.c
++++ b/net/kcm/kcmsock.c
+@@ -180,7 +180,7 @@ static void kcm_rfree(struct sk_buff *skb)
+ 	/* For reading rx_wait and rx_psock without holding lock */
+ 	smp_mb__after_atomic();
  
--		/* always enable Interrupt on Missed ISOC */
--		trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
-+		if (!no_interrupt && !chain)
-+			trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
- 		break;
+-	if (!kcm->rx_wait && !kcm->rx_psock &&
++	if (!kcm->rx_wait && !READ_ONCE(kcm->rx_psock) &&
+ 	    sk_rmem_alloc_get(sk) < sk->sk_rcvlowat) {
+ 		spin_lock_bh(&mux->rx_lock);
+ 		kcm_rcv_ready(kcm);
+@@ -285,7 +285,8 @@ static struct kcm_sock *reserve_rx_kcm(struct kcm_psock *psock,
+ 	kcm->rx_wait = false;
  
- 	case USB_ENDPOINT_XFER_BULK:
+ 	psock->rx_kcm = kcm;
+-	kcm->rx_psock = psock;
++	/* paired with lockless reads in kcm_rfree() */
++	WRITE_ONCE(kcm->rx_psock, psock);
+ 
+ 	spin_unlock_bh(&mux->rx_lock);
+ 
+@@ -312,7 +313,8 @@ static void unreserve_rx_kcm(struct kcm_psock *psock,
+ 	spin_lock_bh(&mux->rx_lock);
+ 
+ 	psock->rx_kcm = NULL;
+-	kcm->rx_psock = NULL;
++	/* paired with lockless reads in kcm_rfree() */
++	WRITE_ONCE(kcm->rx_psock, NULL);
+ 
+ 	/* Commit kcm->rx_psock before sk_rmem_alloc_get to sync with
+ 	 * kcm_rfree
+-- 
+2.35.1
+
 
 
