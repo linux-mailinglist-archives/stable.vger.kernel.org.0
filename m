@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA787615AE4
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:43:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73877615AFD
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:45:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229817AbiKBDn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:43:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60008 "EHLO
+        id S230228AbiKBDpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:45:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230073AbiKBDnZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:43:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58751C48
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:43:21 -0700 (PDT)
+        with ESMTP id S230241AbiKBDpf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:45:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03CA626ADE
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:45:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E90576172F
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:43:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9082CC433D6;
-        Wed,  2 Nov 2022 03:43:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90F0061799
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:45:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CE48C433D6;
+        Wed,  2 Nov 2022 03:45:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360600;
-        bh=2wmwYwVfhI8cA8+mg7+tGbyhNEomvYPMRzUJTtUEHuA=;
+        s=korg; t=1667360733;
+        bh=jYgflrSnzv3bcQRLOZQCO3KRkw+nnTHSHCX69fpMQso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/kyQLxaZ53mDSN3zilZtfXBO1xXens+lqS2SgB/VduDa0NvLFrloUAG3Z/6VrNxL
-         woWFSC3VnTfY6/ras+SlXNYxSwTJAVZdOJvc11xtHSLEu/aehdQegj+Ba+to/g3XXT
-         Ts4D+z9iqBYPUMs/mnmnKTgzXAO47l3cVD4JmMfc=
+        b=zZ1jV+Hfa/6Km7pnUlIze+34DPgPTjBIj0qdlgUEoW19OzlxkzQ4QYQDVouj1j4io
+         upfjmzuuk6/tNoJiPBF7PMLSYfJITTj6G18E3m3Tzpcpasyc93IQkpekZ5NIDpH9tH
+         vmtZ8uG4+pkgiJT102eXM0bT6zrFEME22PuV//Es=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthew Ma <mahongwei@zeku.com>,
-        Weizhao Ouyang <ouyangweizhao@zeku.com>,
-        John Wang <wangdayu@zeku.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 29/60] mmc: core: Fix kernel panic when remove non-standard SDIO card
+        patches@lists.linux.dev,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 4.9 04/44] ata: ahci: Match EM_MAX_SLOTS with SATA_PMP_MAX_PORTS
 Date:   Wed,  2 Nov 2022 03:34:50 +0100
-Message-Id: <20221102022052.040221906@linuxfoundation.org>
+Message-Id: <20221102022049.170148219@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
+References: <20221102022049.017479464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Ma <mahongwei@zeku.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 9972e6b404884adae9eec7463e30d9b3c9a70b18 upstream.
+commit 1e41e693f458eef2d5728207dbd327cd3b16580a upstream.
 
-SDIO tuple is only allocated for standard SDIO card, especially it causes
-memory corruption issues when the non-standard SDIO card has removed, which
-is because the card device's reference counter does not increase for it at
-sdio_init_func(), but all SDIO card device reference counter gets decreased
-at sdio_release_func().
+UBSAN complains about array-index-out-of-bounds:
+[ 1.980703] kernel: UBSAN: array-index-out-of-bounds in /build/linux-9H675w/linux-5.15.0/drivers/ata/libahci.c:968:41
+[ 1.980709] kernel: index 15 is out of range for type 'ahci_em_priv [8]'
+[ 1.980713] kernel: CPU: 0 PID: 209 Comm: scsi_eh_8 Not tainted 5.15.0-25-generic #25-Ubuntu
+[ 1.980716] kernel: Hardware name: System manufacturer System Product Name/P5Q3, BIOS 1102 06/11/2010
+[ 1.980718] kernel: Call Trace:
+[ 1.980721] kernel: <TASK>
+[ 1.980723] kernel: show_stack+0x52/0x58
+[ 1.980729] kernel: dump_stack_lvl+0x4a/0x5f
+[ 1.980734] kernel: dump_stack+0x10/0x12
+[ 1.980736] kernel: ubsan_epilogue+0x9/0x45
+[ 1.980739] kernel: __ubsan_handle_out_of_bounds.cold+0x44/0x49
+[ 1.980742] kernel: ahci_qc_issue+0x166/0x170 [libahci]
+[ 1.980748] kernel: ata_qc_issue+0x135/0x240
+[ 1.980752] kernel: ata_exec_internal_sg+0x2c4/0x580
+[ 1.980754] kernel: ? vprintk_default+0x1d/0x20
+[ 1.980759] kernel: ata_exec_internal+0x67/0xa0
+[ 1.980762] kernel: sata_pmp_read+0x8d/0xc0
+[ 1.980765] kernel: sata_pmp_read_gscr+0x3c/0x90
+[ 1.980768] kernel: sata_pmp_attach+0x8b/0x310
+[ 1.980771] kernel: ata_eh_revalidate_and_attach+0x28c/0x4b0
+[ 1.980775] kernel: ata_eh_recover+0x6b6/0xb30
+[ 1.980778] kernel: ? ahci_do_hardreset+0x180/0x180 [libahci]
+[ 1.980783] kernel: ? ahci_stop_engine+0xb0/0xb0 [libahci]
+[ 1.980787] kernel: ? ahci_do_softreset+0x290/0x290 [libahci]
+[ 1.980792] kernel: ? trace_event_raw_event_ata_eh_link_autopsy_qc+0xe0/0xe0
+[ 1.980795] kernel: sata_pmp_eh_recover.isra.0+0x214/0x560
+[ 1.980799] kernel: sata_pmp_error_handler+0x23/0x40
+[ 1.980802] kernel: ahci_error_handler+0x43/0x80 [libahci]
+[ 1.980806] kernel: ata_scsi_port_error_handler+0x2b1/0x600
+[ 1.980810] kernel: ata_scsi_error+0x9c/0xd0
+[ 1.980813] kernel: scsi_error_handler+0xa1/0x180
+[ 1.980817] kernel: ? scsi_unjam_host+0x1c0/0x1c0
+[ 1.980820] kernel: kthread+0x12a/0x150
+[ 1.980823] kernel: ? set_kthread_struct+0x50/0x50
+[ 1.980826] kernel: ret_from_fork+0x22/0x30
+[ 1.980831] kernel: </TASK>
 
-Fixes: 6f51be3d37df ("sdio: allow non-standard SDIO cards")
-Signed-off-by: Matthew Ma <mahongwei@zeku.com>
-Reviewed-by: Weizhao Ouyang <ouyangweizhao@zeku.com>
-Reviewed-by: John Wang <wangdayu@zeku.com>
+This happens because sata_pmp_init_links() initialize link->pmp up to
+SATA_PMP_MAX_PORTS while em_priv is declared as 8 elements array.
+
+I can't find the maximum Enclosure Management ports specified in AHCI
+spec v1.3.1, but "12.2.1 LED message type" states that "Port Multiplier
+Information" can utilize 4 bits, which implies it can support up to 16
+ports. Hence, use SATA_PMP_MAX_PORTS as EM_MAX_SLOTS to resolve the
+issue.
+
+BugLink: https://bugs.launchpad.net/bugs/1970074
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221014034951.2300386-1-ouyangweizhao@zeku.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/sdio_bus.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/ata/ahci.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/core/sdio_bus.c
-+++ b/drivers/mmc/core/sdio_bus.c
-@@ -264,7 +264,8 @@ static void sdio_release_func(struct dev
- {
- 	struct sdio_func *func = dev_to_sdio_func(dev);
+--- a/drivers/ata/ahci.h
++++ b/drivers/ata/ahci.h
+@@ -257,7 +257,7 @@ enum {
+ 	ICH_MAP				= 0x90, /* ICH MAP register */
  
--	sdio_free_func_cis(func);
-+	if (!(func->card->quirks & MMC_QUIRK_NONSTD_SDIO))
-+		sdio_free_func_cis(func);
+ 	/* em constants */
+-	EM_MAX_SLOTS			= 8,
++	EM_MAX_SLOTS			= SATA_PMP_MAX_PORTS,
+ 	EM_MAX_RETRY			= 5,
  
- 	kfree(func->info);
- 	kfree(func->tmpbuf);
+ 	/* em_ctl bits */
 
 
