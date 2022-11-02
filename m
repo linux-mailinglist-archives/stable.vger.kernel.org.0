@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3216A6159D2
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:19:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C04DD615A1B
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:24:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229992AbiKBDS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:18:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38520 "EHLO
+        id S230381AbiKBDYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:24:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230012AbiKBDSx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:18:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D48791A81C
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:18:49 -0700 (PDT)
+        with ESMTP id S230280AbiKBDYp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:24:45 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3C7E24F19
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:24:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 710FA6177E
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:18:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A473C433D7;
-        Wed,  2 Nov 2022 03:18:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2A58CCE1F1A
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:24:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C173C433D6;
+        Wed,  2 Nov 2022 03:24:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359128;
-        bh=bFWFBUuYPngUo6d9O2zdnYb6j/QCBZl10/gk7Ww2Exw=;
+        s=korg; t=1667359481;
+        bh=2Q69VHV7Qs3astbh5E3nIqk+FeoMsKp+mDVKt46TVI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q9VdIag1iqXUuji/TLsld3gLMeNnZ2+1zj8GUvyDv/nY3zdjOClOlIuYugheFGzb6
-         CciC5SiD12332Xw+J/nAxmSTMRqiCm/2z4fDrtpbY321Ieam1e+5f2nSGlVEh8L/mU
-         GN2gRXly4XZVrovjRS9HrbzYPNDUixrLAOl2jZzY=
+        b=vEDEW7SHv6zXdWokfjKpmL78DwdiIhVh0g5gmPB2JnQ+eidKIIhtUponvNsfr8P9s
+         T98X8QiLIicz6ESqVDyJlcnCkKGIKRUHnlLC4j7pROuvUHadbs2lgvt4WtXftSVxi4
+         cWpWk3YAg/bOLpqVrkG7rGOOfw/TepNopeAzdCMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hyong Youb Kim <hyonkim@cisco.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Raju Rangoju <Raju.Rangoju@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 81/91] net/mlx5e: Do not increment ESN when updating IPsec ESN state
-Date:   Wed,  2 Nov 2022 03:34:04 +0100
-Message-Id: <20221102022057.352661087@linuxfoundation.org>
+Subject: [PATCH 5.4 39/64] amd-xgbe: add the bit rate quirk for Molex cables
+Date:   Wed,  2 Nov 2022 03:34:05 +0100
+Message-Id: <20221102022053.080101541@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyong Youb Kim <hyonkim@cisco.com>
+From: Raju Rangoju <Raju.Rangoju@amd.com>
 
-[ Upstream commit 888be6b279b7257b5f6e4c9527675bff0a335596 ]
+[ Upstream commit 170a9e341a3b02c0b2ea0df16ef14a33a4f41de8 ]
 
-An offloaded SA stops receiving after about 2^32 + replay_window
-packets. For example, when SA reaches <seq-hi 0x1, seq 0x2c>, all
-subsequent packets get dropped with SA-icv-failure (integrity_failed).
+The offset 12 (bit-rate) of EEPROM SFP DAC (passive) cables is expected
+to be in the range 0x64 to 0x68. However, the 5 meter and 7 meter Molex
+passive cables have the rate ceiling 0x78 at offset 12.
 
-To reproduce the bug:
-- ConnectX-6 Dx with crypto enabled (FW 22.30.1004)
-- ipsec.conf:
-  nic-offload = yes
-  replay-window = 32
-  esn = yes
-  salifetime=24h
-- Run netperf for a long time to send more than 2^32 packets
-  netperf -H <device-under-test> -t TCP_STREAM -l 20000
+Add a quirk for Molex passive cables to extend the rate ceiling to 0x78.
 
-When 2^32 + replay_window packets are received, the replay window
-moves from the 2nd half of subspace (overlap=1) to the 1st half
-(overlap=0). The driver then updates the 'esn' value in NIC
-(i.e. seq_hi) as follows.
-
- seq_hi = xfrm_replay_seqhi(seq_bottom)
- new esn in NIC = seq_hi + 1
-
-The +1 increment is wrong, as seq_hi already contains the correct
-seq_hi. For example, when seq_hi=1, the driver actually tells NIC to
-use seq_hi=2 (esn). This incorrect esn value causes all subsequent
-packets to fail integrity checks (SA-icv-failure). So, do not
-increment.
-
-Fixes: cb01008390bb ("net/mlx5: IPSec, Add support for ESN")
-Signed-off-by: Hyong Youb Kim <hyonkim@cisco.com>
-Acked-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/20221026135153.154807-2-saeed@kernel.org
+Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
+Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
-index 26f7fab109d9..d08bd22dc569 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
-@@ -113,7 +113,6 @@ static bool mlx5e_ipsec_update_esn_state(struct mlx5e_ipsec_sa_entry *sa_entry)
- 	struct xfrm_replay_state_esn *replay_esn;
- 	u32 seq_bottom = 0;
- 	u8 overlap;
--	u32 *esn;
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index 5069ae164ecf..b76138cd0935 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -238,6 +238,7 @@ enum xgbe_sfp_speed {
+ #define XGBE_SFP_BASE_BR_1GBE_MAX		0x0d
+ #define XGBE_SFP_BASE_BR_10GBE_MIN		0x64
+ #define XGBE_SFP_BASE_BR_10GBE_MAX		0x68
++#define XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX	0x78
  
- 	if (!(sa_entry->x->props.flags & XFRM_STATE_ESN)) {
- 		sa_entry->esn_state.trigger = 0;
-@@ -128,11 +127,9 @@ static bool mlx5e_ipsec_update_esn_state(struct mlx5e_ipsec_sa_entry *sa_entry)
+ #define XGBE_SFP_BASE_CU_CABLE_LEN		18
  
- 	sa_entry->esn_state.esn = xfrm_replay_seqhi(sa_entry->x,
- 						    htonl(seq_bottom));
--	esn = &sa_entry->esn_state.esn;
+@@ -283,6 +284,8 @@ struct xgbe_sfp_eeprom {
+ #define XGBE_BEL_FUSE_VENDOR	"BEL-FUSE        "
+ #define XGBE_BEL_FUSE_PARTNO	"1GBT-SFP06      "
  
- 	sa_entry->esn_state.trigger = 1;
- 	if (unlikely(overlap && seq_bottom < MLX5E_IPSEC_ESN_SCOPE_MID)) {
--		++(*esn);
- 		sa_entry->esn_state.overlap = 0;
- 		return true;
- 	} else if (unlikely(!overlap &&
++#define XGBE_MOLEX_VENDOR	"Molex Inc.      "
++
+ struct xgbe_sfp_ascii {
+ 	union {
+ 		char vendor[XGBE_SFP_BASE_VENDOR_NAME_LEN + 1];
+@@ -833,7 +836,11 @@ static bool xgbe_phy_sfp_bit_rate(struct xgbe_sfp_eeprom *sfp_eeprom,
+ 		break;
+ 	case XGBE_SFP_SPEED_10000:
+ 		min = XGBE_SFP_BASE_BR_10GBE_MIN;
+-		max = XGBE_SFP_BASE_BR_10GBE_MAX;
++		if (memcmp(&sfp_eeprom->base[XGBE_SFP_BASE_VENDOR_NAME],
++			   XGBE_MOLEX_VENDOR, XGBE_SFP_BASE_VENDOR_NAME_LEN) == 0)
++			max = XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX;
++		else
++			max = XGBE_SFP_BASE_BR_10GBE_MAX;
+ 		break;
+ 	default:
+ 		return false;
 -- 
 2.35.1
 
