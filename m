@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91DCB6159B0
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:16:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65B75615A14
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:24:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230165AbiKBDQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:16:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33972 "EHLO
+        id S230434AbiKBDYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:24:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229561AbiKBDQP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:16:15 -0400
+        with ESMTP id S230402AbiKBDYJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:24:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46DA624962
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:16:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8A5825C62
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:24:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC6E5B8206F
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:16:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6207C433D6;
-        Wed,  2 Nov 2022 03:16:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61FB4B82055
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:24:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 499EDC433C1;
+        Wed,  2 Nov 2022 03:23:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358970;
-        bh=NqFdfp1aSKg7RHIn5zzeLeOA/Asi8wAvSa0wUCX6h8Y=;
+        s=korg; t=1667359440;
+        bh=m1H/deQj2Kk1Zki8FnlO8SMKu5FQYkRneJ9opfgRlH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q960i8GzuybmuUoAYtj6g0SH/dS5NOZ4SH78fw2ChMpsrN/SAG56kfCMVwPoXl8uH
-         ptIky1xZM7HEiVzUFEgjpF2ML6CGz3PP2oYk0MP7gn4Thtg6hRqsPtUXfz+6yT65GE
-         7K0rbow2irfQwExrKM/S90ZUztlN1Hm+tp/D6DKc=
+        b=gyntpvpKt7hXabQp/eOdx85KeZhpnirQxvOFH6D0r7H8hfAjkLnbIA2qLtmsnjL1p
+         w/vcTJFCLTYGdO8BGTqjIfWh4rX8bXOQtHXv2qVirrEIPidAaXga8mYGhaa1BwLr9o
+         ALKrDuIsYFNEuGoEHUfDUjzHU8eMZ46EA3/eCTc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 55/91] kcm: annotate data-races around kcm->rx_wait
+        patches@lists.linux.dev,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 12/64] tools: iio: iio_utils: fix digit calculation
 Date:   Wed,  2 Nov 2022 03:33:38 +0100
-Message-Id: <20221102022056.596625259@linuxfoundation.org>
+Message-Id: <20221102022052.206929266@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,130 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Matti Vaittinen <mazziesaccount@gmail.com>
 
-[ Upstream commit 0c745b5141a45a076f1cb9772a399f7ebcb0948a ]
+commit 72b2aa38191bcba28389b0e20bf6b4f15017ff2b upstream.
 
-kcm->rx_psock can be read locklessly in kcm_rfree().
-Annotate the read and writes accordingly.
+The iio_utils uses a digit calculation in order to know length of the
+file name containing a buffer number. The digit calculation does not
+work for number 0.
 
-syzbot reported:
+This leads to allocation of one character too small buffer for the
+file-name when file name contains value '0'. (Eg. buffer0).
 
-BUG: KCSAN: data-race in kcm_rcv_strparser / kcm_rfree
+Fix digit calculation by returning one digit to be present for number
+'0'.
 
-write to 0xffff88810784e3d0 of 1 bytes by task 1823 on cpu 1:
-reserve_rx_kcm net/kcm/kcmsock.c:283 [inline]
-kcm_rcv_strparser+0x250/0x3a0 net/kcm/kcmsock.c:363
-__strp_recv+0x64c/0xd20 net/strparser/strparser.c:301
-strp_recv+0x6d/0x80 net/strparser/strparser.c:335
-tcp_read_sock+0x13e/0x5a0 net/ipv4/tcp.c:1703
-strp_read_sock net/strparser/strparser.c:358 [inline]
-do_strp_work net/strparser/strparser.c:406 [inline]
-strp_work+0xe8/0x180 net/strparser/strparser.c:415
-process_one_work+0x3d3/0x720 kernel/workqueue.c:2289
-worker_thread+0x618/0xa70 kernel/workqueue.c:2436
-kthread+0x1a9/0x1e0 kernel/kthread.c:376
-ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
-
-read to 0xffff88810784e3d0 of 1 bytes by task 17869 on cpu 0:
-kcm_rfree+0x121/0x220 net/kcm/kcmsock.c:181
-skb_release_head_state+0x8e/0x160 net/core/skbuff.c:841
-skb_release_all net/core/skbuff.c:852 [inline]
-__kfree_skb net/core/skbuff.c:868 [inline]
-kfree_skb_reason+0x5c/0x260 net/core/skbuff.c:891
-kfree_skb include/linux/skbuff.h:1216 [inline]
-kcm_recvmsg+0x226/0x2b0 net/kcm/kcmsock.c:1161
-____sys_recvmsg+0x16c/0x2e0
-___sys_recvmsg net/socket.c:2743 [inline]
-do_recvmmsg+0x2f1/0x710 net/socket.c:2837
-__sys_recvmmsg net/socket.c:2916 [inline]
-__do_sys_recvmmsg net/socket.c:2939 [inline]
-__se_sys_recvmmsg net/socket.c:2932 [inline]
-__x64_sys_recvmmsg+0xde/0x160 net/socket.c:2932
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-value changed: 0x01 -> 0x00
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 17869 Comm: syz-executor.2 Not tainted 6.1.0-rc1-syzkaller-00010-gbb1a1146467a-dirty #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
-
-Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 096f9b862e60 ("tools:iio:iio_utils: implement digit calculation")
+Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Link: https://lore.kernel.org/r/Y0f+tKCz+ZAIoroQ@dc75zzyyyyyyyyyyyyycy-3.rev.dnainternet.fi
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/kcm/kcmsock.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ tools/iio/iio_utils.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
-index a1dc2b74b52f..6b362b362f79 100644
---- a/net/kcm/kcmsock.c
-+++ b/net/kcm/kcmsock.c
-@@ -161,7 +161,8 @@ static void kcm_rcv_ready(struct kcm_sock *kcm)
- 	/* Buffer limit is okay now, add to ready list */
- 	list_add_tail(&kcm->wait_rx_list,
- 		      &kcm->mux->kcm_rx_waiters);
--	kcm->rx_wait = true;
-+	/* paired with lockless reads in kcm_rfree() */
-+	WRITE_ONCE(kcm->rx_wait, true);
- }
+--- a/tools/iio/iio_utils.c
++++ b/tools/iio/iio_utils.c
+@@ -543,6 +543,10 @@ static int calc_digits(int num)
+ {
+ 	int count = 0;
  
- static void kcm_rfree(struct sk_buff *skb)
-@@ -177,7 +178,7 @@ static void kcm_rfree(struct sk_buff *skb)
- 	/* For reading rx_wait and rx_psock without holding lock */
- 	smp_mb__after_atomic();
- 
--	if (!kcm->rx_wait && !READ_ONCE(kcm->rx_psock) &&
-+	if (!READ_ONCE(kcm->rx_wait) && !READ_ONCE(kcm->rx_psock) &&
- 	    sk_rmem_alloc_get(sk) < sk->sk_rcvlowat) {
- 		spin_lock_bh(&mux->rx_lock);
- 		kcm_rcv_ready(kcm);
-@@ -236,7 +237,8 @@ static void requeue_rx_msgs(struct kcm_mux *mux, struct sk_buff_head *head)
- 		if (kcm_queue_rcv_skb(&kcm->sk, skb)) {
- 			/* Should mean socket buffer full */
- 			list_del(&kcm->wait_rx_list);
--			kcm->rx_wait = false;
-+			/* paired with lockless reads in kcm_rfree() */
-+			WRITE_ONCE(kcm->rx_wait, false);
- 
- 			/* Commit rx_wait to read in kcm_free */
- 			smp_wmb();
-@@ -279,7 +281,8 @@ static struct kcm_sock *reserve_rx_kcm(struct kcm_psock *psock,
- 	kcm = list_first_entry(&mux->kcm_rx_waiters,
- 			       struct kcm_sock, wait_rx_list);
- 	list_del(&kcm->wait_rx_list);
--	kcm->rx_wait = false;
-+	/* paired with lockless reads in kcm_rfree() */
-+	WRITE_ONCE(kcm->rx_wait, false);
- 
- 	psock->rx_kcm = kcm;
- 	/* paired with lockless reads in kcm_rfree() */
-@@ -1241,7 +1244,8 @@ static void kcm_recv_disable(struct kcm_sock *kcm)
- 	if (!kcm->rx_psock) {
- 		if (kcm->rx_wait) {
- 			list_del(&kcm->wait_rx_list);
--			kcm->rx_wait = false;
-+			/* paired with lockless reads in kcm_rfree() */
-+			WRITE_ONCE(kcm->rx_wait, false);
- 		}
- 
- 		requeue_rx_msgs(mux, &kcm->sk.sk_receive_queue);
-@@ -1794,7 +1798,8 @@ static void kcm_done(struct kcm_sock *kcm)
- 
- 	if (kcm->rx_wait) {
- 		list_del(&kcm->wait_rx_list);
--		kcm->rx_wait = false;
-+		/* paired with lockless reads in kcm_rfree() */
-+		WRITE_ONCE(kcm->rx_wait, false);
- 	}
- 	/* Move any pending receive messages to other kcm sockets */
- 	requeue_rx_msgs(mux, &sk->sk_receive_queue);
--- 
-2.35.1
-
++	/* It takes a digit to represent zero */
++	if (!num)
++		return 1;
++
+ 	while (num != 0) {
+ 		num /= 10;
+ 		count++;
 
 
