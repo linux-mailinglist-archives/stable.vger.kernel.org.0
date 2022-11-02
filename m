@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 533696158B4
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:57:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F756158B5
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:57:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231169AbiKBC5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:57:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46530 "EHLO
+        id S231180AbiKBC5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:57:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231182AbiKBC5C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:57:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 770052251C
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:57:01 -0700 (PDT)
+        with ESMTP id S231182AbiKBC5G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:57:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8B522529
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:57:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20086B82064
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:57:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFB7DC43470;
-        Wed,  2 Nov 2022 02:56:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D263617CF
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:57:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1103CC433D6;
+        Wed,  2 Nov 2022 02:57:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357818;
-        bh=ZgoYFHppnwlavsrLCCZOr11z0yH40CKt/CouioHNACc=;
+        s=korg; t=1667357824;
+        bh=zNoWNIsqIlAx1Qtg0lQjL+y+lHnwc1gMUxU1O6NCZJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=opeUToBeX8VFfEJ1BdxFx2zCPysRf1leE8ohjBTjHHOLDkAh3X0M4+Lp3TmqftYFD
-         FYiXepg9goAlgaUdcJy3zeEa54QlEhC6NczuNXllyD3K73BN8h1SRPZSDPo7FhajV1
-         Mj0F+iLLBE8gxnXz8v5hx0uUUcJgjyguuQ/bu0fY=
+        b=pXhpCPUDANtEAyOAM3YaQuJmKeCjFzghEfFh/utdWkOYhy4vZ6FqO9dsPPVevXNoc
+         0wEZ1GI4IShrnYKJlCao/vIHxQQY/fMOYzLGVZAonr2xhmIxPtPU+uCevHcwYeNRaD
+         nGfuO9taEbS0fxVPlUvaVwXTuiHH4feLi0EshbwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Claudiu Manoil <claudiu.manoil@nxp.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 234/240] kcm: do not sense pfmemalloc status in kcm_sendpage()
-Date:   Wed,  2 Nov 2022 03:33:29 +0100
-Message-Id: <20221102022116.696335569@linuxfoundation.org>
+Subject: [PATCH 6.0 235/240] net: enetc: survive memory pressure without crashing
+Date:   Wed,  2 Nov 2022 03:33:30 +0100
+Message-Id: <20221102022116.719623665@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -53,35 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit ee15e1f38dc201fa7d63c13aa258b728dce27f4d ]
+[ Upstream commit 84ce1ca3fe9e1249bf21176ff162200f1c4e5ed1 ]
 
-Similar to changes done in TCP in blamed commit.
-We should not sense pfmemalloc status in sendpage() methods.
+Under memory pressure, enetc_refill_rx_ring() may fail, and when called
+during the enetc_open() -> enetc_setup_rxbdr() procedure, this is not
+checked for.
 
-Fixes: 326140063946 ("tcp: TX zerocopy should not sense pfmemalloc status")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20221027040637.1107703-1-edumazet@google.com
+An extreme case of memory pressure will result in exactly zero buffers
+being allocated for the RX ring, and in such a case it is expected that
+hardware drops all RX packets due to lack of buffers.
+
+This does not happen, because the reset-default value of the consumer
+and produces index is 0, and this makes the ENETC think that all buffers
+have been initialized and that it owns them (when in reality none were).
+
+The hardware guide explains this best:
+
+| Configure the receive ring producer index register RBaPIR with a value
+| of 0. The producer index is initially configured by software but owned
+| by hardware after the ring has been enabled. Hardware increments the
+| index when a frame is received which may consume one or more BDs.
+| Hardware is not allowed to increment the producer index to match the
+| consumer index since it is used to indicate an empty condition. The ring
+| can hold at most RBLENR[LENGTH]-1 received BDs.
+|
+| Configure the receive ring consumer index register RBaCIR. The
+| consumer index is owned by software and updated during operation of the
+| of the BD ring by software, to indicate that any receive data occupied
+| in the BD has been processed and it has been prepared for new data.
+| - If consumer index and producer index are initialized to the same
+|   value, it indicates that all BDs in the ring have been prepared and
+|   hardware owns all of the entries.
+| - If consumer index is initialized to producer index plus N, it would
+|   indicate N BDs have been prepared. Note that hardware cannot start if
+|   only a single buffer is prepared due to the restrictions described in
+|   (2).
+| - Software may write consumer index to match producer index anytime
+|   while the ring is operational to indicate all received BDs prior have
+|   been processed and new BDs prepared for hardware.
+
+Normally, the value of rx_ring->rcir (consumer index) is brought in sync
+with the rx_ring->next_to_use software index, but this only happens if
+page allocation ever succeeded.
+
+When PI==CI==0, the hardware appears to receive frames and write them to
+DMA address 0x0 (?!), then set the READY bit in the BD.
+
+The enetc_clean_rx_ring() function (and its XDP derivative) is naturally
+not prepared to handle such a condition. It will attempt to process
+those frames using the rx_swbd structure associated with index i of the
+RX ring, but that structure is not fully initialized (enetc_new_page()
+does all of that). So what happens next is undefined behavior.
+
+To operate using no buffer, we must initialize the CI to PI + 1, which
+will block the hardware from advancing the CI any further, and drop
+everything.
+
+The issue was seen while adding support for zero-copy AF_XDP sockets,
+where buffer memory comes from user space, which can even decide to
+supply no buffers at all (example: "xdpsock --txonly"). However, the bug
+is present also with the network stack code, even though it would take a
+very determined person to trigger a page allocation failure at the
+perfect time (a series of ifup/ifdown under memory pressure should
+eventually reproduce it given enough retries).
+
+Fixes: d4fd0404c1c9 ("enetc: Introduce basic PF and VF ENETC ethernet drivers")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Link: https://lore.kernel.org/r/20221027182925.3256653-1-vladimir.oltean@nxp.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/kcm/kcmsock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/enetc/enetc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
-index 90e0aeae9ff2..befc62606cdf 100644
---- a/net/kcm/kcmsock.c
-+++ b/net/kcm/kcmsock.c
-@@ -839,7 +839,7 @@ static ssize_t kcm_sendpage(struct socket *sock, struct page *page,
- 	}
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
+index 9f5b921039bd..d0fd3045ce11 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -2090,7 +2090,12 @@ static void enetc_setup_rxbdr(struct enetc_hw *hw, struct enetc_bdr *rx_ring)
+ 	else
+ 		enetc_rxbdr_wr(hw, idx, ENETC_RBBSR, ENETC_RXB_DMA_SIZE);
  
- 	get_page(page);
--	skb_fill_page_desc(skb, i, page, offset, size);
-+	skb_fill_page_desc_noacc(skb, i, page, offset, size);
- 	skb_shinfo(skb)->flags |= SKBFL_SHARED_FRAG;
++	/* Also prepare the consumer index in case page allocation never
++	 * succeeds. In that case, hardware will never advance producer index
++	 * to match consumer index, and will drop all frames.
++	 */
+ 	enetc_rxbdr_wr(hw, idx, ENETC_RBPIR, 0);
++	enetc_rxbdr_wr(hw, idx, ENETC_RBCIR, 1);
  
- coalesced:
+ 	/* enable Rx ints by setting pkt thr to 1 */
+ 	enetc_rxbdr_wr(hw, idx, ENETC_RBICR0, ENETC_RBICR0_ICEN | 0x1);
 -- 
 2.35.1
 
