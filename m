@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAB7061586F
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:52:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 940B36158E3
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:00:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230462AbiKBCwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:52:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41816 "EHLO
+        id S231253AbiKBDAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:00:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230499AbiKBCwJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:52:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46CA321E32
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:52:08 -0700 (PDT)
+        with ESMTP id S231279AbiKBDAU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:00:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AAE622BDA
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:00:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4BC4B82075
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:52:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC455C433D6;
-        Wed,  2 Nov 2022 02:52:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AAC34617BF
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:00:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5297CC433D6;
+        Wed,  2 Nov 2022 03:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357525;
-        bh=W9bXc9heI98ALU2/2XuqCf/9c2TQCgzVBOl/0vnzY4k=;
+        s=korg; t=1667358013;
+        bh=ZxXWc299PF1jZNZw5gSyS5gQA/nPIiCoqM7eF/TAaU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x5DZO+MWAQF/me3dOz+ktmvCgJwEU7tYrGIdjXU1YQBm9aTHBVSIPinKRKfTZ8nP+
-         S2PyAxqKWKsQIITekDdnKS72cYt1nHDlKQWRAJuG5J0g/9ctoSaGHJ12+unT9JhQtA
-         l4v1vamZltH85BFULoiRfPu2gnL1wKxmgWbl6UXk=
+        b=HgS9P+Ots1tV81G43pp+7AHZkdVLhaodGB8JRFu26R9/uiSxqgCisED9Y6i/MbCNz
+         d7vjcwlYjS2j4uktG9WxU41ReIpBodC9eaYT24qlZlaZ5kISrgCMSxIFhDYWjPZixm
+         uHQsM3eTLZlPG0s5/PSHj4CYiF0lYReH8X+GRks0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 157/240] ALSA: ac97: fix possible memory leak in snd_ac97_dev_register()
-Date:   Wed,  2 Nov 2022 03:32:12 +0100
-Message-Id: <20221102022114.932660105@linuxfoundation.org>
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.15 027/132] fs/binfmt_elf: Fix memory leak in load_elf_binary()
+Date:   Wed,  2 Nov 2022 03:32:13 +0100
+Message-Id: <20221102022100.347171634@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
-References: <20221102022111.398283374@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Li Zetao <lizetao1@huawei.com>
 
-[ Upstream commit 4881bda5ea05c8c240fc8afeaa928e2bc43f61fa ]
+commit 594d2a14f2168c09b13b114c3d457aa939403e52 upstream.
 
-If device_register() fails in snd_ac97_dev_register(), it should
-call put_device() to give up reference, or the name allocated in
-dev_set_name() is leaked.
+There is a memory leak reported by kmemleak:
 
-Fixes: 0ca06a00e206 ("[ALSA] AC97 bus interface for ad-hoc drivers")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221019093025.1179475-1-yangyingliang@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  unreferenced object 0xffff88817104ef80 (size 224):
+    comm "xfs_admin", pid 47165, jiffies 4298708825 (age 1333.476s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+      60 a8 b3 00 81 88 ff ff a8 10 5a 00 81 88 ff ff  `.........Z.....
+    backtrace:
+      [<ffffffff819171e1>] __alloc_file+0x21/0x250
+      [<ffffffff81918061>] alloc_empty_file+0x41/0xf0
+      [<ffffffff81948cda>] path_openat+0xea/0x3d30
+      [<ffffffff8194ec89>] do_filp_open+0x1b9/0x290
+      [<ffffffff8192660e>] do_open_execat+0xce/0x5b0
+      [<ffffffff81926b17>] open_exec+0x27/0x50
+      [<ffffffff81a69250>] load_elf_binary+0x510/0x3ed0
+      [<ffffffff81927759>] bprm_execve+0x599/0x1240
+      [<ffffffff8192a997>] do_execveat_common.isra.0+0x4c7/0x680
+      [<ffffffff8192b078>] __x64_sys_execve+0x88/0xb0
+      [<ffffffff83bbf0a5>] do_syscall_64+0x35/0x80
+
+If "interp_elf_ex" fails to allocate memory in load_elf_binary(),
+the program will take the "out_free_ph" error handing path,
+resulting in "interpreter" file resource is not released.
+
+Fix it by adding an error handing path "out_free_file", which will
+release the file resource when "interp_elf_ex" failed to allocate
+memory.
+
+Fixes: 0693ffebcfe5 ("fs/binfmt_elf.c: allocate less for static executable")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Reviewed-by: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221024154421.982230-1-lizetao1@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/ac97/ac97_codec.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/binfmt_elf.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/ac97/ac97_codec.c b/sound/pci/ac97/ac97_codec.c
-index ef03769dfcbd..ff685321f1a1 100644
---- a/sound/pci/ac97/ac97_codec.c
-+++ b/sound/pci/ac97/ac97_codec.c
-@@ -2009,6 +2009,7 @@ static int snd_ac97_dev_register(struct snd_device *device)
- 	err = device_register(&ac97->dev);
- 	if (err < 0) {
- 		ac97_err(ac97, "Can't register ac97 bus\n");
-+		put_device(&ac97->dev);
- 		ac97->dev.bus = NULL;
- 		return err;
- 	}
--- 
-2.35.1
-
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -910,7 +910,7 @@ static int load_elf_binary(struct linux_
+ 		interp_elf_ex = kmalloc(sizeof(*interp_elf_ex), GFP_KERNEL);
+ 		if (!interp_elf_ex) {
+ 			retval = -ENOMEM;
+-			goto out_free_ph;
++			goto out_free_file;
+ 		}
+ 
+ 		/* Get the exec headers */
+@@ -1331,6 +1331,7 @@ out:
+ out_free_dentry:
+ 	kfree(interp_elf_ex);
+ 	kfree(interp_elf_phdata);
++out_free_file:
+ 	allow_write_access(interpreter);
+ 	if (interpreter)
+ 		fput(interpreter);
 
 
