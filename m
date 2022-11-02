@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62AF36159BB
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:17:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C48615A18
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:24:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230288AbiKBDRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:17:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36800 "EHLO
+        id S230318AbiKBDY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:24:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230318AbiKBDQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:16:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD6B224F39
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:16:43 -0700 (PDT)
+        with ESMTP id S230283AbiKBDY1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:24:27 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECA8A24F17
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:24:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B5D9B8206F
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:16:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73012C433C1;
-        Wed,  2 Nov 2022 03:16:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6373ACE1F1A
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:24:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C292C433C1;
+        Wed,  2 Nov 2022 03:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359001;
-        bh=dF7YYbiPXqZBY1j3GEfIX9sfKnZtmHo6YRhVvpe1BH4=;
+        s=korg; t=1667359463;
+        bh=iPbouTqH6r4YJTyTitNNH29A6mQltrdGz1AnpNrkb+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NBRwUZ0JHH2++E1uWejhLVy32kiokg7BFZUORMcJxXua0NtWUh3A2wQ8JFduTra5q
-         q5Cr9ckzI28Amy5Go4XKYSgGRJx/u/1SrZtKwrvpLR95k77+NZtINhY28BU21OQ/xH
-         aFbAZwlGg38x4IVinSq/cLd65cWc3Y64EKaKyyzk=
+        b=FLjb7v1iz0qTPP0g6U/Pfw8cOa8Kj+l+L5sqMat+SItkXQMt7fhDnKJyaRAJMZy1W
+         SlX5v2AlRP5AmhHg4fWsxx3q78k779aHUxEQPMh9Tz7xIXOGgYGyWBj152UG8gqkRK
+         XtCzZdCe2ESkGsMf2w7RhEmngyG8Td8yGpUs812g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lu Wei <luwei32@huawei.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 59/91] tcp: fix a signed-integer-overflow bug in tcp_add_backlog()
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>
+Subject: [PATCH 5.4 16/64] drm/msm/dsi: fix memory corruption with too many bridges
 Date:   Wed,  2 Nov 2022 03:33:42 +0100
-Message-Id: <20221102022056.706569113@linuxfoundation.org>
+Message-Id: <20221102022052.329044241@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Wei <luwei32@huawei.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit ec791d8149ff60c40ad2074af3b92a39c916a03f ]
+commit 2e786eb2f9cebb07e317226b60054df510b60c65 upstream.
 
-The type of sk_rcvbuf and sk_sndbuf in struct sock is int, and
-in tcp_add_backlog(), the variable limit is caculated by adding
-sk_rcvbuf, sk_sndbuf and 64 * 1024, it may exceed the max value
-of int and overflow. This patch reduces the limit budget by
-halving the sndbuf to solve this issue since ACK packets are much
-smaller than the payload.
+Add the missing sanity check on the bridge counter to avoid corrupting
+data beyond the fixed-sized bridge array in case there are ever more
+than eight bridges.
 
-Fixes: c9c3321257e1 ("tcp: add tcp_add_backlog()")
-Signed-off-by: Lu Wei <luwei32@huawei.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a689554ba6ed ("drm/msm: Initial add DSI connector support")
+Cc: stable@vger.kernel.org	# 4.1
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Tested-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/502668/
+Link: https://lore.kernel.org/r/20220913085320.8577-4-johan+linaro@kernel.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_ipv4.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/dsi/dsi.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index 78cef6930484..31a8009f74ee 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -1873,11 +1873,13 @@ bool tcp_add_backlog(struct sock *sk, struct sk_buff *skb)
- 	__skb_push(skb, hdrlen);
+--- a/drivers/gpu/drm/msm/dsi/dsi.c
++++ b/drivers/gpu/drm/msm/dsi/dsi.c
+@@ -203,6 +203,12 @@ int msm_dsi_modeset_init(struct msm_dsi
+ 		return -EINVAL;
  
- no_coalesce:
-+	limit = (u32)READ_ONCE(sk->sk_rcvbuf) + (u32)(READ_ONCE(sk->sk_sndbuf) >> 1);
+ 	priv = dev->dev_private;
 +
- 	/* Only socket owner can try to collapse/prune rx queues
- 	 * to reduce memory overhead, so add a little headroom here.
- 	 * Few sockets backlog are possibly concurrently non empty.
- 	 */
--	limit = READ_ONCE(sk->sk_rcvbuf) + READ_ONCE(sk->sk_sndbuf) + 64*1024;
-+	limit += 64 * 1024;
++	if (priv->num_bridges == ARRAY_SIZE(priv->bridges)) {
++		DRM_DEV_ERROR(dev->dev, "too many bridges\n");
++		return -ENOSPC;
++	}
++
+ 	msm_dsi->dev = dev;
  
- 	if (unlikely(sk_add_backlog(sk, skb, limit))) {
- 		bh_unlock_sock(sk);
--- 
-2.35.1
-
+ 	ret = msm_dsi_host_modeset_init(msm_dsi->host, dev);
 
 
