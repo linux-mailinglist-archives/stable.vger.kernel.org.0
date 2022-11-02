@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58CFA615A75
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:31:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 180376159D8
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:19:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231216AbiKBDbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:31:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47512 "EHLO
+        id S230019AbiKBDTb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:19:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230258AbiKBDbQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:31:16 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD4431B792
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:31:14 -0700 (PDT)
+        with ESMTP id S230018AbiKBDT3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:19:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C51718B0C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:19:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 54819CE1E47
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:31:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B94AFC433D6;
-        Wed,  2 Nov 2022 03:31:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0EBF7B8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:19:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB58C433C1;
+        Wed,  2 Nov 2022 03:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359871;
-        bh=kzTkbS1/QtQ0QTfVsFS8+FSp6kHO+xlPLZQwPaS6I8A=;
+        s=korg; t=1667359165;
+        bh=sBM9+vFl3EEA41wOkKC4IfQrE07wefRdY/gTXSpvF9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C0y7CA4rudDGEYruL9UYzN1xYxDo+IK4PWv6VEq70rzbEUn20Fs4y4bXDYtnmZSk1
-         aipYfzCgCA5nD5xwGBPJuRk3neE5U3XbWz5/O8tLCnwQ0EKDDMeChgSVeGGkWeUMNY
-         gWnwT98hz0aoaFdaWPIHibuO15Gkavyp1GmvneDE=
+        b=Q8ASsKUsMAs9WX8g0JA31oqvLA9+J+1sw1HvMZiCvsLK3H0f3+pN0qWg462bPYGC1
+         YSPhHkPEfmUX0z58V+00t7qJTWIn3+roo4oniu9xmwgSAmR3mcPHk4+WctV8GnYnjU
+         fmFYQOGvb7VuN9epLA0pdlt9iUZFR/kZ4zUFxqZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Haiyang Zhang <haiyangz@microsoft.com>,
-        Gaurav Kohli <gauravkohli@linux.microsoft.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 24/78] hv_netvsc: Fix race between VF offering and VF association message from host
+        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
+        Bart Van Assche <bvanassche@acm.org>
+Subject: [PATCH 5.10 86/91] scsi: sd: Revert "scsi: sd: Remove a local variable"
 Date:   Wed,  2 Nov 2022 03:34:09 +0100
-Message-Id: <20221102022053.699818579@linuxfoundation.org>
+Message-Id: <20221102022057.495361135@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,109 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaurav Kohli <gauravkohli@linux.microsoft.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 365e1ececb2905f94cc10a5817c5b644a32a3ae2 upstream.
+This reverts commit 84f7a9de0602704bbec774a6c7f7c8c4994bee9c.
 
-During vm boot, there might be possibility that vf registration
-call comes before the vf association from host to vm.
+Because it introduces a problem that rq->__data_len is set to the wrong
+value.
 
-And this might break netvsc vf path, To prevent the same block
-vf registration until vf bind message comes from host.
+before the patch:
+1) nr_bytes = rq->__data_len
+2) rq->__data_len = sdp->sector_size
+3) scsi_init_io()
+4) rq->__data_len = nr_bytes
 
-Cc: stable@vger.kernel.org
-Fixes: 00d7ddba11436 ("hv_netvsc: pair VF based on serial number")
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: Gaurav Kohli <gauravkohli@linux.microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+after the patch:
+1) rq->__data_len = sdp->sector_size
+2) scsi_init_io()
+3) rq->__data_len = rq->__data_len -> __data_len is wrong
+
+It will cause that io can only complete one segment each time, and the io
+will requeue in scsi_io_completion_action(), which will cause severe
+performance degradation.
+
+Scsi write same is removed in commit e383e16e84e9 ("scsi: sd: Remove
+WRITE_SAME support") from mainline, hence this patch is only needed for
+stable kernels.
+
+Fixes: 84f7a9de0602 ("scsi: sd: Remove a local variable")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hyperv/hyperv_net.h |    3 +++
- drivers/net/hyperv/netvsc.c     |    4 ++++
- drivers/net/hyperv/netvsc_drv.c |   20 ++++++++++++++++++++
- 3 files changed, 27 insertions(+)
+ drivers/scsi/sd.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/hyperv/hyperv_net.h
-+++ b/drivers/net/hyperv/hyperv_net.h
-@@ -950,6 +950,9 @@ struct net_device_context {
- 	u32 vf_alloc;
- 	/* Serial number of the VF to team with */
- 	u32 vf_serial;
-+
-+	/* completion variable to confirm vf association */
-+	struct completion vf_add;
- };
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -1074,6 +1074,7 @@ static blk_status_t sd_setup_write_same_
+ 	struct bio *bio = rq->bio;
+ 	u64 lba = sectors_to_logical(sdp, blk_rq_pos(rq));
+ 	u32 nr_blocks = sectors_to_logical(sdp, blk_rq_sectors(rq));
++	unsigned int nr_bytes = blk_rq_bytes(rq);
+ 	blk_status_t ret;
  
- /* Per channel data */
---- a/drivers/net/hyperv/netvsc.c
-+++ b/drivers/net/hyperv/netvsc.c
-@@ -1227,6 +1227,10 @@ static void netvsc_send_vf(struct net_de
+ 	if (sdkp->device->no_write_same)
+@@ -1110,7 +1111,7 @@ static blk_status_t sd_setup_write_same_
+ 	 */
+ 	rq->__data_len = sdp->sector_size;
+ 	ret = scsi_alloc_sgtables(cmd);
+-	rq->__data_len = blk_rq_bytes(rq);
++	rq->__data_len = nr_bytes;
  
- 	net_device_ctx->vf_alloc = nvmsg->msg.v4_msg.vf_assoc.allocated;
- 	net_device_ctx->vf_serial = nvmsg->msg.v4_msg.vf_assoc.serial;
-+
-+	if (net_device_ctx->vf_alloc)
-+		complete(&net_device_ctx->vf_add);
-+
- 	netdev_info(ndev, "VF slot %u %s\n",
- 		    net_device_ctx->vf_serial,
- 		    net_device_ctx->vf_alloc ? "added" : "removed");
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -2121,6 +2121,7 @@ static struct net_device *get_netvsc_bys
- {
- 	struct device *parent = vf_netdev->dev.parent;
- 	struct net_device_context *ndev_ctx;
-+	struct net_device *ndev;
- 	struct pci_dev *pdev;
- 	u32 serial;
- 
-@@ -2147,6 +2148,18 @@ static struct net_device *get_netvsc_bys
- 			return hv_get_drvdata(ndev_ctx->device_ctx);
- 	}
- 
-+	/* Fallback path to check synthetic vf with
-+	 * help of mac addr
-+	 */
-+	list_for_each_entry(ndev_ctx, &netvsc_dev_list, list) {
-+		ndev = hv_get_drvdata(ndev_ctx->device_ctx);
-+		if (ether_addr_equal(vf_netdev->perm_addr, ndev->perm_addr)) {
-+			netdev_notice(vf_netdev,
-+				      "falling back to mac addr based matching\n");
-+			return ndev;
-+		}
-+	}
-+
- 	netdev_notice(vf_netdev,
- 		      "no netdev found for vf serial:%u\n", serial);
- 	return NULL;
-@@ -2216,6 +2229,11 @@ static int netvsc_vf_changed(struct net_
- 	if (!netvsc_dev)
- 		return NOTIFY_DONE;
- 
-+	if (vf_is_up && !net_device_ctx->vf_alloc) {
-+		netdev_info(ndev, "Waiting for the VF association from host\n");
-+		wait_for_completion(&net_device_ctx->vf_add);
-+	}
-+
- 	netvsc_switch_datapath(ndev, vf_is_up);
- 	netdev_info(ndev, "Data path switched %s VF: %s\n",
- 		    vf_is_up ? "to" : "from", vf_netdev->name);
-@@ -2237,6 +2255,7 @@ static int netvsc_unregister_vf(struct n
- 
- 	netdev_info(ndev, "VF unregistering: %s\n", vf_netdev->name);
- 
-+	reinit_completion(&net_device_ctx->vf_add);
- 	netdev_rx_handler_unregister(vf_netdev);
- 	netdev_upper_dev_unlink(vf_netdev, ndev);
- 	RCU_INIT_POINTER(net_device_ctx->vf_netdev, NULL);
-@@ -2274,6 +2293,7 @@ static int netvsc_probe(struct hv_device
- 
- 	INIT_DELAYED_WORK(&net_device_ctx->dwork, netvsc_link_change);
- 
-+	init_completion(&net_device_ctx->vf_add);
- 	spin_lock_init(&net_device_ctx->lock);
- 	INIT_LIST_HEAD(&net_device_ctx->reconfig_events);
- 	INIT_DELAYED_WORK(&net_device_ctx->vf_takeover, netvsc_vf_setup);
+ 	return ret;
+ }
 
 
