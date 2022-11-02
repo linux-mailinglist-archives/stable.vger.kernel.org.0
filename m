@@ -2,112 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2EAA616F4E
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 22:01:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B98616F50
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 22:02:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230468AbiKBVB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Nov 2022 17:01:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48960 "EHLO
+        id S230006AbiKBVC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Nov 2022 17:02:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230123AbiKBVB1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 17:01:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76D5DDEB0;
-        Wed,  2 Nov 2022 14:01:26 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 195BDB824F7;
-        Wed,  2 Nov 2022 21:01:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4349C433C1;
-        Wed,  2 Nov 2022 21:01:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1667422883;
-        bh=aQq+cyVtMbeIgLlYSHZEdBPWZyIZDLyl4Owce8UYD5Y=;
-        h=Date:To:From:Subject:From;
-        b=KnG4oXKi3NGTTXWIRLL8y0pKVH7m66ocySQjy3vgIl0smTZqS4svWrKNE7hKuC/NE
-         w1cVjgqQR3XmwvPSxf/teygbeTEP3amyC2JyI4IRNzsa5Zt15ufb07Tn7at0SLzcR8
-         DLmGBEvVfgXamCOd54czJU5lxe5nEK2bHBySh00g=
-Date:   Wed, 02 Nov 2022 14:01:22 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        songmuchun@bytedance.com, mike.kravetz@oracle.com, lkp@intel.com,
-        gerald.schaefer@linux.ibm.com, gor@linux.ibm.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-hugetlb_vmemmap-include-missing-linux-moduleparamh.patch added to mm-hotfixes-unstable branch
-Message-Id: <20221102210123.B4349C433C1@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S230123AbiKBVC0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 17:02:26 -0400
+Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8972FDF25
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 14:02:25 -0700 (PDT)
+Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
+        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id D8A3E1004C137
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 21:02:14 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id qKsHocU3FRLHCqKsIohXFp; Wed, 02 Nov 2022 21:02:14 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=C8QsdSD+ c=1 sm=1 tr=0 ts=6362dad6
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=9xFQ1JgjjksA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=kntjp5DhkGEbjfi4BGXgAHclj1vDWZR2bRChXXuNe5U=; b=neyrZhtSAXTjObqK7bhhXCcR5U
+        PLbJfplkS1LLsjNynztfV2fvN/BAwnPqQrLHDI/roMsMXMqNMwkbJS2Trt62qODUCN8Cg/2xEMp0z
+        63C43ZJKgAvBXpKkr9iyoeCLi6AgV44+8IWTH3OSUvP3MaDZ6sABo4eWBDAruL9SYLdODjdx9OTRx
+        6amO3i72d1gu25MjJ/kT5LiAXEVFFvd/8gm81FKjB2XuOfa4+J0t9zScUBZnNuWgLXwyXTzq+T7Jg
+        Uc/f5mWP7ZpiKYMSv+/sgMKMYuukqYqUsKXmx2p+VOTfZ8MOhuTXATBWUj1Lb8JxpRTzVxFonnxvA
+        Ig/XCknw==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:56362 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1oqKsF-0027q4-KR;
+        Wed, 02 Nov 2022 15:02:11 -0600
+Subject: Re: [PATCH 5.15 000/132] 5.15.77-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <bd31023f-e65d-0427-30cb-ce5b46093cf4@w6rz.net>
+Date:   Wed, 2 Nov 2022 14:02:07 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1oqKsF-0027q4-KR
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:56362
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 2
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 11/1/22 7:31 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.77 release.
+> There are 132 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 04 Nov 2022 02:20:38 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.77-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-The patch titled
-     Subject: mm: hugetlb_vmemmap: include missing linux/moduleparam.h
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-hugetlb_vmemmap-include-missing-linux-moduleparamh.patch
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-hugetlb_vmemmap-include-missing-linux-moduleparamh.patch
-
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: mm: hugetlb_vmemmap: include missing linux/moduleparam.h
-Date: Wed, 2 Nov 2022 19:09:17 +0100
-
-The kernel test robot reported build failures with a 'randconfig' on s390:
->> mm/hugetlb_vmemmap.c:421:11: error: a function declaration without a
-prototype is deprecated in all versions of C [-Werror,-Wstrict-prototypes]
-   core_param(hugetlb_free_vmemmap, vmemmap_optimize_enabled, bool, 0);
-             ^
-
-Link: https://lore.kernel.org/linux-mm/202210300751.rG3UDsuc-lkp@intel.com/
-Link: https://lkml.kernel.org/r/patch.git-296b83ca939b.your-ad-here.call-01667411912-ext-5073@work.hours
-Fixes: 30152245c63b ("mm: hugetlb_vmemmap: replace early_param() with core_param()")
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb_vmemmap.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/mm/hugetlb_vmemmap.c~mm-hugetlb_vmemmap-include-missing-linux-moduleparamh
-+++ a/mm/hugetlb_vmemmap.c
-@@ -11,6 +11,7 @@
- #define pr_fmt(fmt)	"HugeTLB: " fmt
- 
- #include <linux/pgtable.h>
-+#include <linux/moduleparam.h>
- #include <linux/bootmem_info.h>
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
-_
-
-Patches currently in -mm which might be from gor@linux.ibm.com are
-
-mm-hugetlb_vmemmap-include-missing-linux-moduleparamh.patch
+Tested-by: Ron Economos <re@w6rz.net>
 
