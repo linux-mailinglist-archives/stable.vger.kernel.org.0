@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2173615A7C
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:32:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46E8A615AB0
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:39:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231165AbiKBDcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:32:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50332 "EHLO
+        id S229907AbiKBDjV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:39:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231266AbiKBDby (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:31:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33AE2613F
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:31:53 -0700 (PDT)
+        with ESMTP id S230210AbiKBDjG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:39:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B9618B0C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:39:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70591617CB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:31:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15339C433C1;
-        Wed,  2 Nov 2022 03:31:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0ED9CB82071
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:39:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4A49C433D6;
+        Wed,  2 Nov 2022 03:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359912;
-        bh=dfrIfjvrpzCgUeo/7+3eBV5tJpkwI61l+wZ/lcgHcHE=;
+        s=korg; t=1667360338;
+        bh=9X5aJwJlr+ihluMnQtX3wY7Hn5ANP+WCSlW8HgIurOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g17ZWR6t4zW+NeKuEmb+MOx8A9zbW6luVVligeWD071H9JOHXDqA0dESaRu/ioF1S
-         xMJlBCVXFFB/1W1jcLvqbihI/uu/s5T7pNDxIMszhNzGy8phwTF9lhFNY/ZAnawwhe
-         gGloBLaoQCqbZDm/oq7agtom91np/x/z0h+2jetQ=
+        b=IaGhXTNrlKTGqL6xSJVbkYpaqLJn/Z18UafV6+48ts9De21u2jgic3KHcY8itrpll
+         89YaWceB0UoTTwNqbzDwdyixivPTg0ILRUgReVkaoeBqupNZRDkt02w31XAsthuzDK
+         HKxe9qcotxTK7m2MLxPdORa8VPKSzmLjFw+vYTmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Raju Rangoju <Raju.Rangoju@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 56/78] amd-xgbe: add the bit rate quirk for Molex cables
+        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Jeff Vanhoof <jdv1029@gmail.com>
+Subject: [PATCH 4.14 20/60] usb: dwc3: gadget: Dont set IMI for no_interrupt
 Date:   Wed,  2 Nov 2022 03:34:41 +0100
-Message-Id: <20221102022054.613870426@linuxfoundation.org>
+Message-Id: <20221102022051.738068660@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <Raju.Rangoju@amd.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 170a9e341a3b02c0b2ea0df16ef14a33a4f41de8 ]
+commit 308c316d16cbad99bb834767382baa693ac42169 upstream.
 
-The offset 12 (bit-rate) of EEPROM SFP DAC (passive) cables is expected
-to be in the range 0x64 to 0x68. However, the 5 meter and 7 meter Molex
-passive cables have the rate ceiling 0x78 at offset 12.
+The gadget driver may have a certain expectation of how the request
+completion flow should be from to its configuration. Make sure the
+controller driver respect that. That is, don't set IMI (Interrupt on
+Missed Isoc) when usb_request->no_interrupt is set. Also, the driver
+should only set IMI to the last TRB of a chain.
 
-Add a quirk for Molex passive cables to extend the rate ceiling to 0x78.
-
-Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
-Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Reviewed-by: Jeff Vanhoof <jdv1029@gmail.com>
+Tested-by: Jeff Vanhoof <jdv1029@gmail.com>
+Link: https://lore.kernel.org/r/ced336c84434571340c07994e3667a0ee284fefe.1666735451.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-index 5fd916ac59b5..d54e6e138aaf 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-@@ -238,6 +238,7 @@ enum xgbe_sfp_speed {
- #define XGBE_SFP_BASE_BR_1GBE_MAX		0x0d
- #define XGBE_SFP_BASE_BR_10GBE_MIN		0x64
- #define XGBE_SFP_BASE_BR_10GBE_MAX		0x68
-+#define XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX	0x78
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -965,8 +965,8 @@ static void __dwc3_prepare_one_trb(struc
+ 			trb->ctrl = DWC3_TRBCTL_ISOCHRONOUS;
+ 		}
  
- #define XGBE_SFP_BASE_CU_CABLE_LEN		18
- 
-@@ -283,6 +284,8 @@ struct xgbe_sfp_eeprom {
- #define XGBE_BEL_FUSE_VENDOR	"BEL-FUSE        "
- #define XGBE_BEL_FUSE_PARTNO	"1GBT-SFP06      "
- 
-+#define XGBE_MOLEX_VENDOR	"Molex Inc.      "
-+
- struct xgbe_sfp_ascii {
- 	union {
- 		char vendor[XGBE_SFP_BASE_VENDOR_NAME_LEN + 1];
-@@ -833,7 +836,11 @@ static bool xgbe_phy_sfp_bit_rate(struct xgbe_sfp_eeprom *sfp_eeprom,
+-		/* always enable Interrupt on Missed ISOC */
+-		trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
++		if (!no_interrupt && !chain)
++			trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
  		break;
- 	case XGBE_SFP_SPEED_10000:
- 		min = XGBE_SFP_BASE_BR_10GBE_MIN;
--		max = XGBE_SFP_BASE_BR_10GBE_MAX;
-+		if (memcmp(&sfp_eeprom->base[XGBE_SFP_BASE_VENDOR_NAME],
-+			   XGBE_MOLEX_VENDOR, XGBE_SFP_BASE_VENDOR_NAME_LEN) == 0)
-+			max = XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX;
-+		else
-+			max = XGBE_SFP_BASE_BR_10GBE_MAX;
- 		break;
- 	default:
- 		return false;
--- 
-2.35.1
-
+ 
+ 	case USB_ENDPOINT_XFER_BULK:
 
 
