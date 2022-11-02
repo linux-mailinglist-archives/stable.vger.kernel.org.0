@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CE9A6159B5
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:16:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD4D4615A17
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:24:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229871AbiKBDQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:16:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33298 "EHLO
+        id S230368AbiKBDYX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:24:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229962AbiKBDQb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:16:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2404333B
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:16:30 -0700 (PDT)
+        with ESMTP id S230323AbiKBDYT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:24:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DFF8252BE
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:24:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B599E60B72
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:16:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58D00C433D6;
-        Wed,  2 Nov 2022 03:16:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23D9F617CF
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:24:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C04BEC433C1;
+        Wed,  2 Nov 2022 03:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358989;
-        bh=cpwIGw+J94LnR/rVHNFl4xUn9OysZ2fFlwAXmCr93fY=;
+        s=korg; t=1667359457;
+        bh=Dnor4adkufRk++lfcAtgS5yKuVG7nGEmHiyDDMIs/1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ugsk0WH8dt4YchM6D07hT/B4uVd6Bz9dQBkwDwsKw4Qp+gyDSb435SPMobsvjp5Cs
-         TLZ8C5UjbrfNmWfIdX7TLqu6QC1Se2fcp+fOZOU4rlb1JjHnIscyygy0JYm61nsc9Z
-         RDXfO6IWSCGL/xKbvrT+lVKKLoFRS7JqW2ikk370=
+        b=uAjRAF9v61sWx/m277mZIlukLXDNTxvUZz9nDrz6kTJka6T9OSn6OHGa5eaeYEDCU
+         0YbMT9HbFbdPpbHElhiY+XsWe9XfyHhRXRszPmjrlxK/zui13N38QQylXTQh5R8eLn
+         CpJZFUkmbDpvDOxusZxWrLA0J4FQe7TnLEq+FpOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 57/91] net: lantiq_etop: dont free skb when returning NETDEV_TX_BUSY
-Date:   Wed,  2 Nov 2022 03:33:40 +0100
-Message-Id: <20221102022056.649666292@linuxfoundation.org>
+        patches@lists.linux.dev, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 5.4 15/64] mac802154: Fix LQI recording
+Date:   Wed,  2 Nov 2022 03:33:41 +0100
+Message-Id: <20221102022052.295036224@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 9c1eaa27ec599fcc25ed4970c0b73c247d147a2b ]
+commit 5a5c4e06fd03b595542d5590f2bc05a6b7fc5c2b upstream.
 
-The ndo_start_xmit() method must not free skb when returning
-NETDEV_TX_BUSY, since caller is going to requeue freed skb.
+Back in 2014, the LQI was saved in the skb control buffer (skb->cb, or
+mac_cb(skb)) without any actual reset of this area prior to its use.
 
-Fixes: 504d4721ee8e ("MIPS: Lantiq: Add ethernet driver")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As part of a useful rework of the use of this region, 32edc40ae65c
+("ieee802154: change _cb handling slightly") introduced mac_cb_init() to
+basically memset the cb field to 0. In particular, this new function got
+called at the beginning of mac802154_parse_frame_start(), right before
+the location where the buffer got actually filled.
+
+What went through unnoticed however, is the fact that the very first
+helper called by device drivers in the receive path already used this
+area to save the LQI value for later extraction. Resetting the cb field
+"so late" led to systematically zeroing the LQI.
+
+If we consider the reset of the cb field needed, we can make it as soon
+as we get an skb from a device driver, right before storing the LQI,
+as is the very first time we need to write something there.
+
+Cc: stable@vger.kernel.org
+Fixes: 32edc40ae65c ("ieee802154: change _cb handling slightly")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20221020142535.1038885-1-miquel.raynal@bootlin.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/lantiq_etop.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/mac802154/rx.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/lantiq_etop.c b/drivers/net/ethernet/lantiq_etop.c
-index 2d0c52f7106b..5ea626b1e578 100644
---- a/drivers/net/ethernet/lantiq_etop.c
-+++ b/drivers/net/ethernet/lantiq_etop.c
-@@ -466,7 +466,6 @@ ltq_etop_tx(struct sk_buff *skb, struct net_device *dev)
- 	len = skb->len < ETH_ZLEN ? ETH_ZLEN : skb->len;
+--- a/net/mac802154/rx.c
++++ b/net/mac802154/rx.c
+@@ -132,7 +132,7 @@ static int
+ ieee802154_parse_frame_start(struct sk_buff *skb, struct ieee802154_hdr *hdr)
+ {
+ 	int hlen;
+-	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
++	struct ieee802154_mac_cb *cb = mac_cb(skb);
  
- 	if ((desc->ctl & (LTQ_DMA_OWN | LTQ_DMA_C)) || ch->skb[ch->dma.desc]) {
--		dev_kfree_skb_any(skb);
- 		netdev_err(dev, "tx ring full\n");
- 		netif_tx_stop_queue(txq);
- 		return NETDEV_TX_BUSY;
--- 
-2.35.1
-
+ 	skb_reset_mac_header(skb);
+ 
+@@ -294,8 +294,9 @@ void
+ ieee802154_rx_irqsafe(struct ieee802154_hw *hw, struct sk_buff *skb, u8 lqi)
+ {
+ 	struct ieee802154_local *local = hw_to_local(hw);
++	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
+ 
+-	mac_cb(skb)->lqi = lqi;
++	cb->lqi = lqi;
+ 	skb->pkt_type = IEEE802154_RX_MSG;
+ 	skb_queue_tail(&local->skb_queue, skb);
+ 	tasklet_schedule(&local->tasklet);
 
 
