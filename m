@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B707B615AC1
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:40:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61C36615A2E
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:26:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229785AbiKBDkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:40:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57292 "EHLO
+        id S230312AbiKBD0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:26:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229993AbiKBDkQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:40:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAC3E26AC4
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:40:15 -0700 (PDT)
+        with ESMTP id S230464AbiKBD0T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:26:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD6FE25C74
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:26:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 679EF617D5
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:40:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ED3AC433D7;
-        Wed,  2 Nov 2022 03:40:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A0F4B82072
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:26:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F4A1C433C1;
+        Wed,  2 Nov 2022 03:26:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360414;
-        bh=Y6tWGqkDOCsfV4lMG6HIH4ObuFU+uJPGmZ6nX0VTb04=;
+        s=korg; t=1667359575;
+        bh=mEA1yAN1FuN2H6P0j1hq/fDyiQJN1i0+9vqp7EbbA8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xPs5o58LqIA+jilGwoFgz1ZISMSkG7Teaazbk8KjrxJYXBzHoNL18oPW6qa8vqVCf
-         PCqp0cwjFK1K/TXEBtwioyww2qAeqiFZsFUOcrnWnRu/IdCvNg8o2tsQgocYhwVe0E
-         FRGGBngAhC9oZLe/xeEgr7npfKawoCpxz0k2jlHM=
+        b=uJegDtR/lN8rQUpBgXLwH/QMNQ3l/i1kN5D7+FVok45Z7XZFybGpxFgGbKqaxTKB7
+         7Uu4hDHEqhkSZXJ48KtNEjAVpy1OEC+StW4JoU/kiQ42Q2c8IjkkCOiFGgdrsvHkuQ
+         uAxSmhDSHEgrxruqkFKBNWzsi380NrLFUsyVskrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 4.14 07/60] arm64: errata: Remove AES hwcap for COMPAT tasks
+        patches@lists.linux.dev, Tariq Toukan <tariqt@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 62/64] net/mlx5: Fix possible use-after-free in async command interface
 Date:   Wed,  2 Nov 2022 03:34:28 +0100
-Message-Id: <20221102022051.309918506@linuxfoundation.org>
+Message-Id: <20221102022053.820256280@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,154 +55,212 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-commit 44b3834b2eed595af07021b1c64e6f9bc396398b upstream.
+[ Upstream commit bacd22df95147ed673bec4692ab2d4d585935241 ]
 
-Cortex-A57 and Cortex-A72 have an erratum where an interrupt that
-occurs between a pair of AES instructions in aarch32 mode may corrupt
-the ELR. The task will subsequently produce the wrong AES result.
+mlx5_cmd_cleanup_async_ctx should return only after all its callback
+handlers were completed. Before this patch, the below race between
+mlx5_cmd_cleanup_async_ctx and mlx5_cmd_exec_cb_handler was possible and
+lead to a use-after-free:
 
-The AES instructions are part of the cryptographic extensions, which are
-optional. User-space software will detect the support for these
-instructions from the hwcaps. If the platform doesn't support these
-instructions a software implementation should be used.
+1. mlx5_cmd_cleanup_async_ctx is called while num_inflight is 2 (i.e.
+   elevated by 1, a single inflight callback).
+2. mlx5_cmd_cleanup_async_ctx decreases num_inflight to 1.
+3. mlx5_cmd_exec_cb_handler is called, decreases num_inflight to 0 and
+   is about to call wake_up().
+4. mlx5_cmd_cleanup_async_ctx calls wait_event, which returns
+   immediately as the condition (num_inflight == 0) holds.
+5. mlx5_cmd_cleanup_async_ctx returns.
+6. The caller of mlx5_cmd_cleanup_async_ctx frees the mlx5_async_ctx
+   object.
+7. mlx5_cmd_exec_cb_handler goes on and calls wake_up() on the freed
+   object.
 
-Remove the hwcap bits on affected parts to indicate user-space should
-not use the AES instructions.
+Fix it by syncing using a completion object. Mark it completed when
+num_inflight reaches 0.
 
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: James Morse <james.morse@arm.com>
-Link: https://lore.kernel.org/r/20220714161523.279570-3-james.morse@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-[florian: resolved conflicts in arch/arm64/tools/cpucaps and cpu_errata.c]
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Trace:
+
+BUG: KASAN: use-after-free in do_raw_spin_lock+0x23d/0x270
+Read of size 4 at addr ffff888139cd12f4 by task swapper/5/0
+
+CPU: 5 PID: 0 Comm: swapper/5 Not tainted 6.0.0-rc3_for_upstream_debug_2022_08_30_13_10 #1
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ <IRQ>
+ dump_stack_lvl+0x57/0x7d
+ print_report.cold+0x2d5/0x684
+ ? do_raw_spin_lock+0x23d/0x270
+ kasan_report+0xb1/0x1a0
+ ? do_raw_spin_lock+0x23d/0x270
+ do_raw_spin_lock+0x23d/0x270
+ ? rwlock_bug.part.0+0x90/0x90
+ ? __delete_object+0xb8/0x100
+ ? lock_downgrade+0x6e0/0x6e0
+ _raw_spin_lock_irqsave+0x43/0x60
+ ? __wake_up_common_lock+0xb9/0x140
+ __wake_up_common_lock+0xb9/0x140
+ ? __wake_up_common+0x650/0x650
+ ? destroy_tis_callback+0x53/0x70 [mlx5_core]
+ ? kasan_set_track+0x21/0x30
+ ? destroy_tis_callback+0x53/0x70 [mlx5_core]
+ ? kfree+0x1ba/0x520
+ ? do_raw_spin_unlock+0x54/0x220
+ mlx5_cmd_exec_cb_handler+0x136/0x1a0 [mlx5_core]
+ ? mlx5_cmd_cleanup_async_ctx+0x220/0x220 [mlx5_core]
+ ? mlx5_cmd_cleanup_async_ctx+0x220/0x220 [mlx5_core]
+ mlx5_cmd_comp_handler+0x65a/0x12b0 [mlx5_core]
+ ? dump_command+0xcc0/0xcc0 [mlx5_core]
+ ? lockdep_hardirqs_on_prepare+0x400/0x400
+ ? cmd_comp_notifier+0x7e/0xb0 [mlx5_core]
+ cmd_comp_notifier+0x7e/0xb0 [mlx5_core]
+ atomic_notifier_call_chain+0xd7/0x1d0
+ mlx5_eq_async_int+0x3ce/0xa20 [mlx5_core]
+ atomic_notifier_call_chain+0xd7/0x1d0
+ ? irq_release+0x140/0x140 [mlx5_core]
+ irq_int_handler+0x19/0x30 [mlx5_core]
+ __handle_irq_event_percpu+0x1f2/0x620
+ handle_irq_event+0xb2/0x1d0
+ handle_edge_irq+0x21e/0xb00
+ __common_interrupt+0x79/0x1a0
+ common_interrupt+0x78/0xa0
+ </IRQ>
+ <TASK>
+ asm_common_interrupt+0x22/0x40
+RIP: 0010:default_idle+0x42/0x60
+Code: c1 83 e0 07 48 c1 e9 03 83 c0 03 0f b6 14 11 38 d0 7c 04 84 d2 75 14 8b 05 eb 47 22 02 85 c0 7e 07 0f 00 2d e0 9f 48 00 fb f4 <c3> 48 c7 c7 80 08 7f 85 e8 d1 d3 3e fe eb de 66 66 2e 0f 1f 84 00
+RSP: 0018:ffff888100dbfdf0 EFLAGS: 00000242
+RAX: 0000000000000001 RBX: ffffffff84ecbd48 RCX: 1ffffffff0afe110
+RDX: 0000000000000004 RSI: 0000000000000000 RDI: ffffffff835cc9bc
+RBP: 0000000000000005 R08: 0000000000000001 R09: ffff88881dec4ac3
+R10: ffffed1103bd8958 R11: 0000017d0ca571c9 R12: 0000000000000005
+R13: ffffffff84f024e0 R14: 0000000000000000 R15: dffffc0000000000
+ ? default_idle_call+0xcc/0x450
+ default_idle_call+0xec/0x450
+ do_idle+0x394/0x450
+ ? arch_cpu_idle_exit+0x40/0x40
+ ? do_idle+0x17/0x450
+ cpu_startup_entry+0x19/0x20
+ start_secondary+0x221/0x2b0
+ ? set_cpu_sibling_map+0x2070/0x2070
+ secondary_startup_64_no_verify+0xcd/0xdb
+ </TASK>
+
+Allocated by task 49502:
+ kasan_save_stack+0x1e/0x40
+ __kasan_kmalloc+0x81/0xa0
+ kvmalloc_node+0x48/0xe0
+ mlx5e_bulk_async_init+0x35/0x110 [mlx5_core]
+ mlx5e_tls_priv_tx_list_cleanup+0x84/0x3e0 [mlx5_core]
+ mlx5e_ktls_cleanup_tx+0x38f/0x760 [mlx5_core]
+ mlx5e_cleanup_nic_tx+0xa7/0x100 [mlx5_core]
+ mlx5e_detach_netdev+0x1ca/0x2b0 [mlx5_core]
+ mlx5e_suspend+0xdb/0x140 [mlx5_core]
+ mlx5e_remove+0x89/0x190 [mlx5_core]
+ auxiliary_bus_remove+0x52/0x70
+ device_release_driver_internal+0x40f/0x650
+ driver_detach+0xc1/0x180
+ bus_remove_driver+0x125/0x2f0
+ auxiliary_driver_unregister+0x16/0x50
+ mlx5e_cleanup+0x26/0x30 [mlx5_core]
+ cleanup+0xc/0x4e [mlx5_core]
+ __x64_sys_delete_module+0x2b5/0x450
+ do_syscall_64+0x3d/0x90
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Freed by task 49502:
+ kasan_save_stack+0x1e/0x40
+ kasan_set_track+0x21/0x30
+ kasan_set_free_info+0x20/0x30
+ ____kasan_slab_free+0x11d/0x1b0
+ kfree+0x1ba/0x520
+ mlx5e_tls_priv_tx_list_cleanup+0x2e7/0x3e0 [mlx5_core]
+ mlx5e_ktls_cleanup_tx+0x38f/0x760 [mlx5_core]
+ mlx5e_cleanup_nic_tx+0xa7/0x100 [mlx5_core]
+ mlx5e_detach_netdev+0x1ca/0x2b0 [mlx5_core]
+ mlx5e_suspend+0xdb/0x140 [mlx5_core]
+ mlx5e_remove+0x89/0x190 [mlx5_core]
+ auxiliary_bus_remove+0x52/0x70
+ device_release_driver_internal+0x40f/0x650
+ driver_detach+0xc1/0x180
+ bus_remove_driver+0x125/0x2f0
+ auxiliary_driver_unregister+0x16/0x50
+ mlx5e_cleanup+0x26/0x30 [mlx5_core]
+ cleanup+0xc/0x4e [mlx5_core]
+ __x64_sys_delete_module+0x2b5/0x450
+ do_syscall_64+0x3d/0x90
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Fixes: e355477ed9e4 ("net/mlx5: Make mlx5_cmd_exec_cb() a safe API")
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Link: https://lore.kernel.org/r/20221026135153.154807-8-saeed@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/arm64/silicon-errata.txt |    2 ++
- arch/arm64/Kconfig                     |   16 ++++++++++++++++
- arch/arm64/include/asm/cpucaps.h       |    3 ++-
- arch/arm64/kernel/cpu_errata.c         |   16 ++++++++++++++++
- arch/arm64/kernel/cpufeature.c         |   13 ++++++++++++-
- 5 files changed, 48 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 10 +++++-----
+ include/linux/mlx5/driver.h                   |  2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/Documentation/arm64/silicon-errata.txt
-+++ b/Documentation/arm64/silicon-errata.txt
-@@ -53,7 +53,9 @@ stable kernels.
- | ARM            | Cortex-A57      | #832075         | ARM64_ERRATUM_832075        |
- | ARM            | Cortex-A57      | #852523         | N/A                         |
- | ARM            | Cortex-A57      | #834220         | ARM64_ERRATUM_834220        |
-+| ARM            | Cortex-A57      | #1742098        | ARM64_ERRATUM_1742098       |
- | ARM            | Cortex-A72      | #853709         | N/A                         |
-+| ARM            | Cortex-A72      | #1655431        | ARM64_ERRATUM_1742098       |
- | ARM            | Cortex-A73      | #858921         | ARM64_ERRATUM_858921        |
- | ARM            | Cortex-A55      | #1024718        | ARM64_ERRATUM_1024718       |
- | ARM            | Cortex-A76      | #1188873        | ARM64_ERRATUM_1188873       |
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -472,6 +472,22 @@ config ARM64_ERRATUM_1188873
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+index 6c7b364d0bf0..4fdc97304f69 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -1850,7 +1850,7 @@ void mlx5_cmd_init_async_ctx(struct mlx5_core_dev *dev,
+ 	ctx->dev = dev;
+ 	/* Starts at 1 to avoid doing wake_up if we are not cleaning up */
+ 	atomic_set(&ctx->num_inflight, 1);
+-	init_waitqueue_head(&ctx->wait);
++	init_completion(&ctx->inflight_done);
+ }
+ EXPORT_SYMBOL(mlx5_cmd_init_async_ctx);
  
- 	  If unsure, say Y.
+@@ -1864,8 +1864,8 @@ EXPORT_SYMBOL(mlx5_cmd_init_async_ctx);
+  */
+ void mlx5_cmd_cleanup_async_ctx(struct mlx5_async_ctx *ctx)
+ {
+-	atomic_dec(&ctx->num_inflight);
+-	wait_event(ctx->wait, atomic_read(&ctx->num_inflight) == 0);
++	if (!atomic_dec_and_test(&ctx->num_inflight))
++		wait_for_completion(&ctx->inflight_done);
+ }
+ EXPORT_SYMBOL(mlx5_cmd_cleanup_async_ctx);
  
-+config ARM64_ERRATUM_1742098
-+	bool "Cortex-A57/A72: 1742098: ELR recorded incorrectly on interrupt taken between cryptographic instructions in a sequence"
-+	depends on COMPAT
-+	default y
-+	help
-+	  This option removes the AES hwcap for aarch32 user-space to
-+	  workaround erratum 1742098 on Cortex-A57 and Cortex-A72.
-+
-+	  Affected parts may corrupt the AES state if an interrupt is
-+	  taken between a pair of AES instructions. These instructions
-+	  are only present if the cryptography extensions are present.
-+	  All software should have a fallback implementation for CPUs
-+	  that don't implement the cryptography extensions.
-+
-+	  If unsure, say Y.
-+
- config CAVIUM_ERRATUM_22375
- 	bool "Cavium erratum 22375, 24313"
- 	default y
---- a/arch/arm64/include/asm/cpucaps.h
-+++ b/arch/arm64/include/asm/cpucaps.h
-@@ -47,7 +47,8 @@
- #define ARM64_SSBS				27
- #define ARM64_WORKAROUND_1188873		28
- #define ARM64_SPECTRE_BHB			29
-+#define ARM64_WORKAROUND_1742098		30
+@@ -1876,7 +1876,7 @@ static void mlx5_cmd_exec_cb_handler(int status, void *_work)
  
--#define ARM64_NCAPS				30
-+#define ARM64_NCAPS				31
- 
- #endif /* __ASM_CPUCAPS_H */
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -576,6 +576,14 @@ check_branch_predictor(const struct arm6
- 	return (need_wa > 0);
+ 	work->user_callback(status, work);
+ 	if (atomic_dec_and_test(&ctx->num_inflight))
+-		wake_up(&ctx->wait);
++		complete(&ctx->inflight_done);
  }
  
-+#ifdef CONFIG_ARM64_ERRATUM_1742098
-+static struct midr_range broken_aarch32_aes[] = {
-+	MIDR_RANGE(MIDR_CORTEX_A57, 0, 1, 0xf, 0xf),
-+	MIDR_ALL_VERSIONS(MIDR_CORTEX_A72),
-+	{},
-+};
-+#endif
-+
- const struct arm64_cpu_capabilities arm64_errata[] = {
- #if	defined(CONFIG_ARM64_ERRATUM_826319) || \
- 	defined(CONFIG_ARM64_ERRATUM_827319) || \
-@@ -741,6 +749,14 @@ const struct arm64_cpu_capabilities arm6
- 		.matches = is_spectre_bhb_affected,
- 		.cpu_enable = spectre_bhb_enable_mitigation,
- 	},
-+#ifdef CONFIG_ARM64_ERRATUM_1742098
-+	{
-+		.desc = "ARM erratum 1742098",
-+		.capability = ARM64_WORKAROUND_1742098,
-+		CAP_MIDR_RANGE_LIST(broken_aarch32_aes),
-+		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
-+	},
-+#endif
- 	{
- 	}
+ int mlx5_cmd_exec_cb(struct mlx5_async_ctx *ctx, void *in, int in_size,
+@@ -1892,7 +1892,7 @@ int mlx5_cmd_exec_cb(struct mlx5_async_ctx *ctx, void *in, int in_size,
+ 	ret = cmd_exec(ctx->dev, in, in_size, out, out_size,
+ 		       mlx5_cmd_exec_cb_handler, work, false);
+ 	if (ret && atomic_dec_and_test(&ctx->num_inflight))
+-		wake_up(&ctx->wait);
++		complete(&ctx->inflight_done);
+ 
+ 	return ret;
+ }
+diff --git a/include/linux/mlx5/driver.h b/include/linux/mlx5/driver.h
+index 2b65ffb3bd76..3a19b9202a12 100644
+--- a/include/linux/mlx5/driver.h
++++ b/include/linux/mlx5/driver.h
+@@ -904,7 +904,7 @@ void mlx5_cmd_allowed_opcode(struct mlx5_core_dev *dev, u16 opcode);
+ struct mlx5_async_ctx {
+ 	struct mlx5_core_dev *dev;
+ 	atomic_t num_inflight;
+-	struct wait_queue_head wait;
++	struct completion inflight_done;
  };
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -30,6 +30,7 @@
- #include <asm/cpu.h>
- #include <asm/cpufeature.h>
- #include <asm/cpu_ops.h>
-+#include <asm/hwcap.h>
- #include <asm/mmu_context.h>
- #include <asm/processor.h>
- #include <asm/sysreg.h>
-@@ -1010,6 +1011,14 @@ static void cpu_enable_ssbs(const struct
- }
- #endif /* CONFIG_ARM64_SSBD */
  
-+static void elf_hwcap_fixup(void)
-+{
-+#ifdef CONFIG_ARM64_ERRATUM_1742098
-+	if (cpus_have_const_cap(ARM64_WORKAROUND_1742098))
-+		compat_elf_hwcap2 &= ~COMPAT_HWCAP2_AES;
-+#endif /* ARM64_ERRATUM_1742098 */
-+}
-+
- static const struct arm64_cpu_capabilities arm64_features[] = {
- 	{
- 		.desc = "GIC system register CPU interface",
-@@ -1588,8 +1597,10 @@ void __init setup_cpu_features(void)
- 	mark_const_caps_ready();
- 	setup_elf_hwcaps(arm64_elf_hwcaps);
- 
--	if (system_supports_32bit_el0())
-+	if (system_supports_32bit_el0()) {
- 		setup_elf_hwcaps(compat_elf_hwcaps);
-+		elf_hwcap_fixup();
-+	}
- 
- 	/* Advertise that we have computed the system capabilities */
- 	set_sys_caps_initialised();
+ struct mlx5_async_work;
+-- 
+2.35.1
+
 
 
