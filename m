@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2785F615A44
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:28:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D97B86159FD
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:22:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231179AbiKBD2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:28:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46412 "EHLO
+        id S230414AbiKBDWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:22:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231158AbiKBD17 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:27:59 -0400
+        with ESMTP id S230408AbiKBDWK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:22:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BCA32611C
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:27:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F0A25C64
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:22:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19918B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:27:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C9DFC433D6;
-        Wed,  2 Nov 2022 03:27:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93BCEB82055
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:22:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A90CC4314C;
+        Wed,  2 Nov 2022 03:22:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359673;
-        bh=8xDF6Uh/nippatPtjRyZiZM/3X6G5wz2vgqAZa0JQIU=;
+        s=korg; t=1667359326;
+        bh=6X4F1ImfmZP+i5s0+q25rL0TVqnHIkZJW2U9rHt5HtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z3Yw7ruwH9R0N8HXrlHppBwU0WBFzGL1ejePQUfxHWSpQ5wwoni9dkqxqu8vufOET
-         Izxqz9Ela9AN1z7L8he7ev5wL7Ltr+FOOYtX/3Pq9eL6+cNj+HxOwD3mrOW1CgWKro
-         fSYbQiV2Os4VWK/NktQFzfqEuBqPvsLsmoFmdaHU=
+        b=fe79xWks0gB3WwxOd+oawZTMFu3aWeU0Q9BRJbDgVHa+uA8UFdHQcc1tqD6Jv1VW4
+         4TEyPupaqFoTe4qChmMg+lAGhumMEoBxsiqDLkElzgzCwPM0wMH6+D/36QqiQuMU6+
+         5nNXVR9N7bNAc0MWkjooAEuRuBKYhja9sdtj33iA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Yan Wang <wangyan122@huawei.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 02/78] ocfs2: fix BUG when iput after ocfs2_mknod fails
+        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.4 21/64] s390/futex: add missing EX_TABLE entry to __futex_atomic_op()
 Date:   Wed,  2 Nov 2022 03:33:47 +0100
-Message-Id: <20221102022052.973087232@linuxfoundation.org>
+Message-Id: <20221102022052.488618799@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,60 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit 759a7c6126eef5635506453e9b9d55a6a3ac2084 upstream.
+commit a262d3ad6a433e4080cecd0a8841104a5906355e upstream.
 
-Commit b1529a41f777 "ocfs2: should reclaim the inode if
-'__ocfs2_mknod_locked' returns an error" tried to reclaim the claimed
-inode if __ocfs2_mknod_locked() fails later.  But this introduce a race,
-the freed bit may be reused immediately by another thread, which will
-update dinode, e.g.  i_generation.  Then iput this inode will lead to BUG:
-inode->i_generation != le32_to_cpu(fe->i_generation)
+For some exception types the instruction address points behind the
+instruction that caused the exception. Take that into account and add
+the missing exception table entry.
 
-We could make this inode as bad, but we did want to do operations like
-wipe in some cases.  Since the claimed inode bit can only affect that an
-dinode is missing and will return back after fsck, it seems not a big
-problem.  So just leave it as is by revert the reclaim logic.
-
-Link: https://lkml.kernel.org/r/20221017130227.234480-1-joseph.qi@linux.alibaba.com
-Fixes: b1529a41f777 ("ocfs2: should reclaim the inode if '__ocfs2_mknod_locked' returns an error")
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reported-by: Yan Wang <wangyan122@huawei.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/namei.c |   11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ arch/s390/include/asm/futex.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ocfs2/namei.c
-+++ b/fs/ocfs2/namei.c
-@@ -644,18 +644,9 @@ static int ocfs2_mknod_locked(struct ocf
- 		return status;
- 	}
- 
--	status = __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
-+	return __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
- 				    parent_fe_bh, handle, inode_ac,
- 				    fe_blkno, suballoc_loc, suballoc_bit);
--	if (status < 0) {
--		u64 bg_blkno = ocfs2_which_suballoc_group(fe_blkno, suballoc_bit);
--		int tmp = ocfs2_free_suballoc_bits(handle, inode_ac->ac_inode,
--				inode_ac->ac_bh, suballoc_bit, bg_blkno, 1);
--		if (tmp)
--			mlog_errno(tmp);
--	}
--
--	return status;
- }
- 
- static int ocfs2_mkdir(struct inode *dir,
+--- a/arch/s390/include/asm/futex.h
++++ b/arch/s390/include/asm/futex.h
+@@ -16,7 +16,8 @@
+ 		"3: jl    1b\n"						\
+ 		"   lhi   %0,0\n"					\
+ 		"4: sacf  768\n"					\
+-		EX_TABLE(0b,4b) EX_TABLE(2b,4b) EX_TABLE(3b,4b)		\
++		EX_TABLE(0b,4b) EX_TABLE(1b,4b)				\
++		EX_TABLE(2b,4b) EX_TABLE(3b,4b)				\
+ 		: "=d" (ret), "=&d" (oldval), "=&d" (newval),		\
+ 		  "=m" (*uaddr)						\
+ 		: "0" (-EFAULT), "d" (oparg), "a" (uaddr),		\
 
 
