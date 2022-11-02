@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEA4761570A
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 02:35:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6355615711
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 02:42:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229761AbiKBBfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 21:35:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52152 "EHLO
+        id S229533AbiKBBmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 21:42:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229516AbiKBBfx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 21:35:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C11981409E;
-        Tue,  1 Nov 2022 18:35:51 -0700 (PDT)
+        with ESMTP id S229516AbiKBBmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 21:42:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDD4FA1A6;
+        Tue,  1 Nov 2022 18:42:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5357D6179D;
-        Wed,  2 Nov 2022 01:35:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89D6AC433D6;
-        Wed,  2 Nov 2022 01:35:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C9B6617A4;
+        Wed,  2 Nov 2022 01:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9E20C433C1;
+        Wed,  2 Nov 2022 01:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667352950;
-        bh=FF8QHuSjxvOryJkhng34kc857KZgEPhuHFTpmH+0b94=;
+        s=korg; t=1667353322;
+        bh=+h1ieg0MXUfvfUIKkeABzyYb/mRio7rObzvwsIHvRxM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LFtVlHEoHqplTdWXgbtJ3seWBlKVRPeTYbaWgYrTUK4DaGFR8LnJek/xLV/eOBJQl
-         byDsNllzrEC9H42JhzBDrulogxavUVAuXrt4CuXKNBEzahyVGogeWYjIJ7Oc4TU4Qr
-         IEimBCCXzbDILokyblt/yqIQpZatZ0mnZT2DLMuU=
-Date:   Wed, 2 Nov 2022 02:36:43 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Biju Das <biju.das.jz@bp.renesas.com>
-Cc:     Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Pavel Machek <pavel@denx.de>, Sasha Levin <sashal@kernel.org>,
-        linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Chris Paterson <chris.paterson2@renesas.com>,
-        linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] can: rcar_canfd: rcar_canfd_handle_global_receive(): fix
- IRQ storm on global FIFO receive
-Message-ID: <Y2HJq/MLElPiN+Hb@kroah.com>
-References: <20221031090420.589386-1-biju.das.jz@bp.renesas.com>
+        b=QlZSjY+2wD76srEmnhL0/72Yobksx/MLezni/gHkvO+gqVIsp1U3TixAvlE4DdJWh
+         cJNw2dDKrB+8Xo3S8cXUKkUpZ74qmDBHXFjFbftuHxXoT769EE36gDrQEe5yI3sLCp
+         BpSDY09eaLsNuZhipJcDofG2oBqa8wKtfgpmwFOo=
+Date:   Wed, 2 Nov 2022 02:42:56 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Dominique Martinet <dominique.martinet@atmark-techno.com>
+Cc:     Lukas Wunner <lukas@wunner.de>, stable@vger.kernel.org,
+        Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Roosen Henri <Henri.Roosen@ginzinger.com>,
+        linux-serial@vger.kernel.org,
+        Lino Sanfilippo <LinoSanfilippo@gmx.de>,
+        Daisuke Mizobuchi <mizo@atmark-techno.com>
+Subject: Re: [PATCH 5.15 2/2] serial: Deassert Transmit Enable on probe in
+ driver-specific way
+Message-ID: <Y2HLIAoUYQt+okYw@kroah.com>
+References: <20221027001943.637449-1-dominique.martinet@atmark-techno.com>
+ <20221027001943.637449-2-dominique.martinet@atmark-techno.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20221031090420.589386-1-biju.das.jz@bp.renesas.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20221027001943.637449-2-dominique.martinet@atmark-techno.com>
 X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -56,45 +57,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 31, 2022 at 09:04:20AM +0000, Biju Das wrote:
-> commit 702de2c21eed04c67cefaaedc248ef16e5f6b293 upstream.
+On Thu, Oct 27, 2022 at 09:19:43AM +0900, Dominique Martinet wrote:
+> From: Lukas Wunner <lukas@wunner.de>
 > 
-> We are seeing an IRQ storm on the global receive IRQ line under heavy
-> CAN bus load conditions with both CAN channels enabled.
+> When a UART port is newly registered, uart_configure_port() seeks to
+> deassert RS485 Transmit Enable by setting the RTS bit in port->mctrl.
+> However a number of UART drivers interpret a set RTS bit as *assertion*
+> instead of deassertion:  Affected drivers include those using
+> serial8250_em485_config() (except 8250_bcm2835aux.c) and some using
+> mctrl_gpio (e.g. imx.c).
 > 
-> Conditions:
+> Since the interpretation of the RTS bit is driver-specific, it is not
+> suitable as a means to centrally deassert Transmit Enable in the serial
+> core.  Instead, the serial core must call on drivers to deassert it in
+> their driver-specific way.  One way to achieve that is to call
+> ->rs485_config().  It implicitly deasserts Transmit Enable.
 > 
-> The global receive IRQ line is shared between can0 and can1, either of
-> the channels can trigger interrupt while the other channel's IRQ line
-> is disabled (RFIE).
+> So amend uart_configure_port() and uart_resume_port() to invoke
+> uart_rs485_config().  That allows removing calls to uart_rs485_config()
+> from drivers' ->probe() hooks and declaring the function static.
 > 
-> When global a receive IRQ interrupt occurs, we mask the interrupt in
-> the IRQ handler. Clearing and unmasking of the interrupt is happening
-> in rx_poll(). There is a race condition where rx_poll() unmasks the
-> interrupt, but the next IRQ handler does not mask the IRQ due to
-> NAPIF_STATE_MISSED flag (e.g.: can0 RX FIFO interrupt is disabled and
-> can1 is triggering RX interrupt, the delay in rx_poll() processing
-> results in setting NAPIF_STATE_MISSED flag) leading to an IRQ storm.
+> Skip any invocation of ->set_mctrl() if RS485 is enabled.  RS485 has no
+> hardware flow control, so the modem control lines are irrelevant and
+> need not be touched.  When leaving RS485 mode, reset the modem control
+> lines to the state stored in port->mctrl.  That way, UARTs which are
+> muxed between RS485 and RS232 transceivers drive the lines correctly
+> when switched to RS232.  (serial8250_do_startup() historically raises
+> the OUT1 modem signal because otherwise interrupts are not signaled on
+> ancient PC UARTs, but I believe that no longer applies to modern,
+> RS485-capable UARTs and is thus safe to be skipped.)
 > 
-> This patch fixes the issue by checking IRQ active and enabled before
-> handling the IRQ on a particular channel.
+> imx.c modifies port->mctrl whenever Transmit Enable is asserted and
+> deasserted.  Stop it from doing that so port->mctrl reflects the RS232
+> line state.
 > 
-> Fixes: dd3bd23eb438 ("can: rcar_canfd: Add Renesas R-Car CAN FD driver")
-> Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
-> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-> Link: https://lore.kernel.org/all/20221025155657.1426948-2-biju.das.jz@bp.renesas.com
-> Cc: stable@vger.kernel.org # 4.9.x
-> [mkl: adjust commit message]
-> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-> [biju: removed gpriv from RCANFD_RFCC_RFIE macro]
-> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+> 8250_omap.c deasserts Transmit Enable on ->runtime_resume() by calling
+> ->set_mctrl().  Because that is now a no-op in RS485 mode, amend the
+> function to call serial8250_em485_stop_tx().
+> 
+> fsl_lpuart.c retrieves and applies the RS485 device tree properties
+> after registering the UART port.  Because applying now happens on
+> registration in uart_configure_port(), move retrieval of the properties
+> ahead of uart_add_one_port().
+> 
+> [ Upstream commit 7c7f9bc986e698873b489c371a08f206979d06b7 ]
+> Link: https://lkml.kernel.org/r/20221017051737.51727-2-dominique.martinet@atmark-techno.com
+> Link: https://lore.kernel.org/all/20220329085050.311408-1-matthias.schiffer@ew.tq-group.com/
+> Link: https://lore.kernel.org/all/8f538a8903795f22f9acc94a9a31b03c9c4ccacb.camel@ginzinger.com/
+> Fixes: d3b3404df318 ("serial: Fix incorrect rs485 polarity on uart open")
+> Cc: stable@vger.kernel.org # v4.14+
+> Reported-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+> Reported-by: Roosen Henri <Henri.Roosen@ginzinger.com>
+> Tested-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+> Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+> Signed-off-by: Lukas Wunner <lukas@wunner.de>
+> Link: https://lore.kernel.org/r/2de36eba3fbe11278d5002e4e501afe0ceaca039.1663863805.git.lukas@wunner.de
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Daisuke Mizobuchi <mizo@atmark-techno.com>
+> Signed-off-by: Dominique Martinet <dominique.martinet@atmark-techno.com>
 > ---
-> Resending to 4.9 with confilcts[1] fixed
-> [1] https://lore.kernel.org/stable/OS0PR01MB59226F2443DFCE7C5D73778786379@OS0PR01MB5922.jpnprd01.prod.outlook.com/T/#t
-> ---
->  drivers/net/can/rcar/rcar_canfd.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> 5.15 version of the 5.10 patch:
+> https://lkml.kernel.org/r/20221017051737.51727-2-dominique.martinet@atmark-techno.com
+> (only build tested)
 
-All now queued up, thanks.
+Both now queued up, thanks.
 
 greg k-h
