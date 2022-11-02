@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 192B0615991
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:14:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50A5C61592B
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:06:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229553AbiKBDOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:14:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33740 "EHLO
+        id S230045AbiKBDGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:06:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230451AbiKBDNQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:13:16 -0400
+        with ESMTP id S230002AbiKBDFt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:05:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4258823EAD
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:13:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B1423E84
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:05:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1B58B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:13:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA158C433D6;
-        Wed,  2 Nov 2022 03:13:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 531A0B8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:05:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35D2CC433C1;
+        Wed,  2 Nov 2022 03:05:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358791;
-        bh=tRZcVHVmm5dNZAqmrfclX6vtxKJFi3wKX0Sj3DZdJqI=;
+        s=korg; t=1667358345;
+        bh=F2k9i3Z9wTYDOfWagUFgQrNscVfLwtjEMUFci9uECdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UzzAX0LUw5mikvDEXMViLauyHzWhPcm7/We2p/1q26S1purr6bLI3sPXUado2vlmX
-         DmVuFGqKXIUr1Hm1bS4+YV1WqXquYAKM6HqyeMiLQabuvLRI0h8pkl3LwK57VPXoVe
-         qRFXd0iHY5JlrkNbBGAQSt+gOoQERsDF2+ZQ1940=
+        b=KFtDZyLlOHuQ2Ido9SsNFccCYWwMufr72RRDQFFJpdOLjv846zc6soZg6AcOCOd9t
+         MuXkMmI7Dmn/kLTHOc2CEmENNx2li8Dq2Taz07pgKl29qtDKVsGq6iTBcMmScHpcum
+         U7qQ/O07RwYTD3lE1wObIqQlYRK2eakyhDKytMgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthew Ma <mahongwei@zeku.com>,
-        Weizhao Ouyang <ouyangweizhao@zeku.com>,
-        John Wang <wangdayu@zeku.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 26/91] mmc: core: Fix kernel panic when remove non-standard SDIO card
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 083/132] net: fix UAF issue in nfqnl_nf_hook_drop() when ops_init() failed
 Date:   Wed,  2 Nov 2022 03:33:09 +0100
-Message-Id: <20221102022055.788137929@linuxfoundation.org>
+Message-Id: <20221102022101.801609016@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Ma <mahongwei@zeku.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-commit 9972e6b404884adae9eec7463e30d9b3c9a70b18 upstream.
+[ Upstream commit d266935ac43d57586e311a087510fe6a084af742 ]
 
-SDIO tuple is only allocated for standard SDIO card, especially it causes
-memory corruption issues when the non-standard SDIO card has removed, which
-is because the card device's reference counter does not increase for it at
-sdio_init_func(), but all SDIO card device reference counter gets decreased
-at sdio_release_func().
+When the ops_init() interface is invoked to initialize the net, but
+ops->init() fails, data is released. However, the ptr pointer in
+net->gen is invalid. In this case, when nfqnl_nf_hook_drop() is invoked
+to release the net, invalid address access occurs.
 
-Fixes: 6f51be3d37df ("sdio: allow non-standard SDIO cards")
-Signed-off-by: Matthew Ma <mahongwei@zeku.com>
-Reviewed-by: Weizhao Ouyang <ouyangweizhao@zeku.com>
-Reviewed-by: John Wang <wangdayu@zeku.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221014034951.2300386-1-ouyangweizhao@zeku.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The process is as follows:
+setup_net()
+	ops_init()
+		data = kzalloc(...)   ---> alloc "data"
+		net_assign_generic()  ---> assign "date" to ptr in net->gen
+		...
+		ops->init()           ---> failed
+		...
+		kfree(data);          ---> ptr in net->gen is invalid
+	...
+	ops_exit_list()
+		...
+		nfqnl_nf_hook_drop()
+			*q = nfnl_queue_pernet(net) ---> q is invalid
+
+The following is the Call Trace information:
+BUG: KASAN: use-after-free in nfqnl_nf_hook_drop+0x264/0x280
+Read of size 8 at addr ffff88810396b240 by task ip/15855
+Call Trace:
+<TASK>
+dump_stack_lvl+0x8e/0xd1
+print_report+0x155/0x454
+kasan_report+0xba/0x1f0
+nfqnl_nf_hook_drop+0x264/0x280
+nf_queue_nf_hook_drop+0x8b/0x1b0
+__nf_unregister_net_hook+0x1ae/0x5a0
+nf_unregister_net_hooks+0xde/0x130
+ops_exit_list+0xb0/0x170
+setup_net+0x7ac/0xbd0
+copy_net_ns+0x2e6/0x6b0
+create_new_namespaces+0x382/0xa50
+unshare_nsproxy_namespaces+0xa6/0x1c0
+ksys_unshare+0x3a4/0x7e0
+__x64_sys_unshare+0x2d/0x40
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+</TASK>
+
+Allocated by task 15855:
+kasan_save_stack+0x1e/0x40
+kasan_set_track+0x21/0x30
+__kasan_kmalloc+0xa1/0xb0
+__kmalloc+0x49/0xb0
+ops_init+0xe7/0x410
+setup_net+0x5aa/0xbd0
+copy_net_ns+0x2e6/0x6b0
+create_new_namespaces+0x382/0xa50
+unshare_nsproxy_namespaces+0xa6/0x1c0
+ksys_unshare+0x3a4/0x7e0
+__x64_sys_unshare+0x2d/0x40
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Freed by task 15855:
+kasan_save_stack+0x1e/0x40
+kasan_set_track+0x21/0x30
+kasan_save_free_info+0x2a/0x40
+____kasan_slab_free+0x155/0x1b0
+slab_free_freelist_hook+0x11b/0x220
+__kmem_cache_free+0xa4/0x360
+ops_init+0xb9/0x410
+setup_net+0x5aa/0xbd0
+copy_net_ns+0x2e6/0x6b0
+create_new_namespaces+0x382/0xa50
+unshare_nsproxy_namespaces+0xa6/0x1c0
+ksys_unshare+0x3a4/0x7e0
+__x64_sys_unshare+0x2d/0x40
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Fixes: f875bae06533 ("net: Automatically allocate per namespace data.")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sdio_bus.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/core/net_namespace.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/mmc/core/sdio_bus.c
-+++ b/drivers/mmc/core/sdio_bus.c
-@@ -292,7 +292,8 @@ static void sdio_release_func(struct dev
+diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
+index 9745cb6fdf51..982d06332007 100644
+--- a/net/core/net_namespace.c
++++ b/net/core/net_namespace.c
+@@ -117,6 +117,7 @@ static int net_assign_generic(struct net *net, unsigned int id, void *data)
+ 
+ static int ops_init(const struct pernet_operations *ops, struct net *net)
  {
- 	struct sdio_func *func = dev_to_sdio_func(dev);
++	struct net_generic *ng;
+ 	int err = -ENOMEM;
+ 	void *data = NULL;
  
--	sdio_free_func_cis(func);
-+	if (!(func->card->quirks & MMC_QUIRK_NONSTD_SDIO))
-+		sdio_free_func_cis(func);
+@@ -135,7 +136,13 @@ static int ops_init(const struct pernet_operations *ops, struct net *net)
+ 	if (!err)
+ 		return 0;
  
- 	kfree(func->info);
- 	kfree(func->tmpbuf);
++	if (ops->id && ops->size) {
+ cleanup:
++		ng = rcu_dereference_protected(net->gen,
++					       lockdep_is_held(&pernet_ops_rwsem));
++		ng->ptr[*ops->id] = NULL;
++	}
++
+ 	kfree(data);
+ 
+ out:
+-- 
+2.35.1
+
 
 
