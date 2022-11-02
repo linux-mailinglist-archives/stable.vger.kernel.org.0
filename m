@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 079216158C1
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:58:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEB116158C2
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:58:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231207AbiKBC6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:58:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47182 "EHLO
+        id S231199AbiKBC6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:58:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231214AbiKBC6E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:58:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10B1422B15
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:58:00 -0700 (PDT)
+        with ESMTP id S231210AbiKBC6J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:58:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB392253A
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:58:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACE67B82064
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:57:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FE17C433D6;
-        Wed,  2 Nov 2022 02:57:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFA00617BA
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:58:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C985C433D6;
+        Wed,  2 Nov 2022 02:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357877;
-        bh=bqehHflls64n42LnZiakoyhTtiMcgK0+4dREBSOyah4=;
+        s=korg; t=1667357883;
+        bh=Ipssz5fsqLq6JqOrIvz0LitNzM3XyZf0npGBV0xsWjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i0E3YjIjMFYUgoss2IOgeNn6LZd3RMQnr0/F/n9FtVuqjf0TMgg7QHJ4Ld1XW+oSK
-         72tUrpX4iRHK8hPdBrCGvX+9Vu1+gjpEsIyJxvBsWoScKsr3U7y4RUY/fYOxC0JbfN
-         su4mOI7Wejxpz5V9JL4j0Vmi/b94zSzIihrngTv4=
+        b=t3PP31XQ9aMnW+Mf42JsP4J22UYs9VilK2w0ipwMnBnfkABlYNBIbA4rASOqOsKoz
+         8IeNnaWGo5Z1WzCHh9KAzcicghaVHXa9uk9kL5biiZ6rs6Zh6q36cMrYSpAiGdxw2j
+         goOPKeowSsYUi1LiMvMMpvuz8hXlqGKWaBILLGFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 216/240] net: ehea: fix possible memory leak in ehea_register_port()
-Date:   Wed,  2 Nov 2022 03:33:11 +0100
-Message-Id: <20221102022116.286347407@linuxfoundation.org>
+Subject: [PATCH 6.0 217/240] net: bcmsysport: Indicate MAC is in charge of PHY PM
+Date:   Wed,  2 Nov 2022 03:33:12 +0100
+Message-Id: <20221102022116.308995456@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -53,37 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 0e7ce23a917a9cc83ca3c779fbba836bca3bcf1e ]
+[ Upstream commit 9f172134dde7e4f5bf4b9139f23a1e741ec1c36e ]
 
-If of_device_register() returns error, the of node and the
-name allocated in dev_set_name() is leaked, call put_device()
-to give up the reference that was set in device_initialize(),
-so that of node is put in logical_port_release() and the name
-is freed in kobject_cleanup().
+Avoid the PHY library call unnecessarily into the suspend/resume
+functions by setting phydev->mac_managed_pm to true. The SYSTEMPORT
+driver essentially does exactly what mdio_bus_phy_resume() does by
+calling phy_resume().
 
-Fixes: 1acf2318dd13 ("ehea: dynamic add / remove port")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221025130011.1071357-1-yangyingliang@huawei.com
+Fixes: fba863b81604 ("net: phy: make PHY PM ops a no-op if MAC driver manages PHY PM")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20221025234201.2549360-1-f.fainelli@gmail.com
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ehea/ehea_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/broadcom/bcmsysport.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/ibm/ehea/ehea_main.c b/drivers/net/ethernet/ibm/ehea/ehea_main.c
-index 5dc302880f5f..acecf25a6041 100644
---- a/drivers/net/ethernet/ibm/ehea/ehea_main.c
-+++ b/drivers/net/ethernet/ibm/ehea/ehea_main.c
-@@ -2900,6 +2900,7 @@ static struct device *ehea_register_port(struct ehea_port *port,
- 	ret = of_device_register(&port->ofdev);
- 	if (ret) {
- 		pr_err("failed to register device. ret=%d\n", ret);
-+		put_device(&port->ofdev.dev);
- 		goto out;
+diff --git a/drivers/net/ethernet/broadcom/bcmsysport.c b/drivers/net/ethernet/broadcom/bcmsysport.c
+index 47fc8e6963d5..2f01d4b0a9aa 100644
+--- a/drivers/net/ethernet/broadcom/bcmsysport.c
++++ b/drivers/net/ethernet/broadcom/bcmsysport.c
+@@ -1991,6 +1991,9 @@ static int bcm_sysport_open(struct net_device *dev)
+ 		goto out_clk_disable;
  	}
  
++	/* Indicate that the MAC is responsible for PHY PM */
++	phydev->mac_managed_pm = true;
++
+ 	/* Reset house keeping link status */
+ 	priv->old_duplex = -1;
+ 	priv->old_link = -1;
 -- 
 2.35.1
 
