@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5DC96158D6
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:59:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9343F6158C8
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:58:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231231AbiKBC72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:59:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48780 "EHLO
+        id S231209AbiKBC6g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:58:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231236AbiKBC71 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:59:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 980B3220E8
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:59:26 -0700 (PDT)
+        with ESMTP id S231208AbiKBC6f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:58:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9283D2F9
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:58:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3409F61729
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:59:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DEE1C433C1;
-        Wed,  2 Nov 2022 02:59:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4054B82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:58:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DD6BC433C1;
+        Wed,  2 Nov 2022 02:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357965;
-        bh=UPlBCDytGL6K7AIh8Bj348XOo71VKjaEn7zRWmXg+jw=;
+        s=korg; t=1667357912;
+        bh=1U1fbOu7QDKxhG+wFTJyPkD3M+OC0hsY6SlMz2jDoCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySJ5eU+Ka+N/FYJASW7WvtTVD7KHZ55d4Geh6MxH7Aq3P0G7tLelQz5Za6v9bc5mD
-         oJ4+/6BkXjAoKw1mMavjSCIO/HpqLF0g3cg3xq9b3gYnwPc2KDJBxn/5801njQ5iLV
-         DkSMFa/WnUw+HwKBPiXo0Cf9xMqj9EXJOHWvsRFA=
+        b=zH83gPhcr367mff0sAogH2+Ir6zMDKaOUwg+0yDaUGc1clqTKMlC3JDK0j+x6bNlg
+         H+UPUsrIK1ZFmaV+oXz2nE8Uw7oX18rO7l1mrr0e52+4Ut+V6/J7c7AkKupUCIOpSR
+         k8Qp7edrMW4P4Vfh5h8mpxs08lBHCUTBiDTZyiEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hannu Hartikainen <hannu@hrtk.in>,
-        stable <stable@kernel.org>
-Subject: [PATCH 5.15 009/132] USB: add RESET_RESUME quirk for NVIDIA Jetson devices in RCM
-Date:   Wed,  2 Nov 2022 03:31:55 +0100
-Message-Id: <20221102022059.863124047@linuxfoundation.org>
+        patches@lists.linux.dev, Dan Vacura <w36195@motorola.com>
+Subject: [PATCH 5.15 010/132] usb: gadget: uvc: fix sg handling in error case
+Date:   Wed,  2 Nov 2022 03:31:56 +0100
+Message-Id: <20221102022059.890674891@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
 References: <20221102022059.593236470@linuxfoundation.org>
@@ -52,48 +51,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannu Hartikainen <hannu@hrtk.in>
+From: Dan Vacura <w36195@motorola.com>
 
-commit fc4ade55c617dc73c7e9756b57f3230b4ff24540 upstream.
+commit 0a0a2760b04814428800d48281a447a7522470ad upstream.
 
-NVIDIA Jetson devices in Force Recovery mode (RCM) do not support
-suspending, ie. flashing fails if the device has been suspended. The
-devices are still visible in lsusb and seem to work otherwise, making
-the issue hard to debug. This has been discovered in various forum
-posts, eg. [1].
+If there is a transmission error the buffer will be returned too early,
+causing a memory fault as subsequent requests for that buffer are still
+queued up to be sent. Refactor the error handling to wait for the final
+request to come in before reporting back the buffer to userspace for all
+transfer types (bulk/isoc/isoc_sg). This ensures userspace knows if the
+frame was successfully sent.
 
-The patch has been tested on NVIDIA Jetson AGX Xavier, but I'm adding
-all the Jetson models listed in [2] on the assumption that they all
-behave similarly.
-
-[1]: https://forums.developer.nvidia.com/t/flashing-not-working/72365
-[2]: https://docs.nvidia.com/jetson/archives/l4t-archived/l4t-3271/index.html#page/Tegra%20Linux%20Driver%20Package%20Development%20Guide/quick_start.html
-
-Signed-off-by: Hannu Hartikainen <hannu@hrtk.in>
-Cc: stable <stable@kernel.org>  # after 6.1-rc3
-Link: https://lore.kernel.org/r/20220919171610.30484-1-hannu@hrtk.in
+Fixes: e81e7f9a0eb9 ("usb: gadget: uvc: add scatter gather support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dan Vacura <w36195@motorola.com>
+Link: https://lore.kernel.org/r/20221018215044.765044-4-w36195@motorola.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/usb/gadget/function/uvc_queue.c |    8 +++++---
+ drivers/usb/gadget/function/uvc_video.c |   18 ++++++++++++++----
+ 2 files changed, 19 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -388,6 +388,15 @@ static const struct usb_device_id usb_qu
- 	/* Kingston DataTraveler 3.0 */
- 	{ USB_DEVICE(0x0951, 0x1666), .driver_info = USB_QUIRK_NO_LPM },
+--- a/drivers/usb/gadget/function/uvc_queue.c
++++ b/drivers/usb/gadget/function/uvc_queue.c
+@@ -313,6 +313,7 @@ int uvcg_queue_enable(struct uvc_video_q
  
-+	/* NVIDIA Jetson devices in Force Recovery mode */
-+	{ USB_DEVICE(0x0955, 0x7018), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7019), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7418), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7721), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7c18), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7e19), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7f21), .driver_info = USB_QUIRK_RESET_RESUME },
+ 		queue->sequence = 0;
+ 		queue->buf_used = 0;
++		queue->flags &= ~UVC_QUEUE_DROP_INCOMPLETE;
+ 	} else {
+ 		ret = vb2_streamoff(&queue->queue, queue->queue.type);
+ 		if (ret < 0)
+@@ -338,10 +339,11 @@ int uvcg_queue_enable(struct uvc_video_q
+ void uvcg_complete_buffer(struct uvc_video_queue *queue,
+ 					  struct uvc_buffer *buf)
+ {
+-	if ((queue->flags & UVC_QUEUE_DROP_INCOMPLETE) &&
+-	     buf->length != buf->bytesused) {
+-		buf->state = UVC_BUF_STATE_QUEUED;
++	if (queue->flags & UVC_QUEUE_DROP_INCOMPLETE) {
++		queue->flags &= ~UVC_QUEUE_DROP_INCOMPLETE;
++		buf->state = UVC_BUF_STATE_ERROR;
+ 		vb2_set_plane_payload(&buf->buf.vb2_buf, 0, 0);
++		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
+ 		return;
+ 	}
+ 
+--- a/drivers/usb/gadget/function/uvc_video.c
++++ b/drivers/usb/gadget/function/uvc_video.c
+@@ -59,6 +59,7 @@ uvc_video_encode_bulk(struct usb_request
+ 		struct uvc_buffer *buf)
+ {
+ 	void *mem = req->buf;
++	struct uvc_request *ureq = req->context;
+ 	int len = video->req_size;
+ 	int ret;
+ 
+@@ -84,13 +85,14 @@ uvc_video_encode_bulk(struct usb_request
+ 		video->queue.buf_used = 0;
+ 		buf->state = UVC_BUF_STATE_DONE;
+ 		list_del(&buf->queue);
+-		uvcg_complete_buffer(&video->queue, buf);
+ 		video->fid ^= UVC_STREAM_FID;
++		ureq->last_buf = buf;
+ 
+ 		video->payload_size = 0;
+ 	}
+ 
+ 	if (video->payload_size == video->max_payload_size ||
++	    video->queue.flags & UVC_QUEUE_DROP_INCOMPLETE ||
+ 	    buf->bytesused == video->queue.buf_used)
+ 		video->payload_size = 0;
+ }
+@@ -151,7 +153,8 @@ uvc_video_encode_isoc_sg(struct usb_requ
+ 	req->length -= len;
+ 	video->queue.buf_used += req->length - header_len;
+ 
+-	if (buf->bytesused == video->queue.buf_used || !buf->sg) {
++	if (buf->bytesused == video->queue.buf_used || !buf->sg ||
++			video->queue.flags & UVC_QUEUE_DROP_INCOMPLETE) {
+ 		video->queue.buf_used = 0;
+ 		buf->state = UVC_BUF_STATE_DONE;
+ 		buf->offset = 0;
+@@ -166,6 +169,7 @@ uvc_video_encode_isoc(struct usb_request
+ 		struct uvc_buffer *buf)
+ {
+ 	void *mem = req->buf;
++	struct uvc_request *ureq = req->context;
+ 	int len = video->req_size;
+ 	int ret;
+ 
+@@ -180,12 +184,13 @@ uvc_video_encode_isoc(struct usb_request
+ 
+ 	req->length = video->req_size - len;
+ 
+-	if (buf->bytesused == video->queue.buf_used) {
++	if (buf->bytesused == video->queue.buf_used ||
++			video->queue.flags & UVC_QUEUE_DROP_INCOMPLETE) {
+ 		video->queue.buf_used = 0;
+ 		buf->state = UVC_BUF_STATE_DONE;
+ 		list_del(&buf->queue);
+-		uvcg_complete_buffer(&video->queue, buf);
+ 		video->fid ^= UVC_STREAM_FID;
++		ureq->last_buf = buf;
+ 	}
+ }
+ 
+@@ -222,6 +227,11 @@ uvc_video_complete(struct usb_ep *ep, st
+ 	case 0:
+ 		break;
+ 
++	case -EXDEV:
++		uvcg_dbg(&video->uvc->func, "VS request missed xfer.\n");
++		queue->flags |= UVC_QUEUE_DROP_INCOMPLETE;
++		break;
 +
- 	/* X-Rite/Gretag-Macbeth Eye-One Pro display colorimeter */
- 	{ USB_DEVICE(0x0971, 0x2000), .driver_info = USB_QUIRK_NO_SET_INTF },
- 
+ 	case -ESHUTDOWN:	/* disconnect from host. */
+ 		uvcg_dbg(&video->uvc->func, "VS request cancelled.\n");
+ 		uvcg_queue_cancel(queue, 1);
 
 
