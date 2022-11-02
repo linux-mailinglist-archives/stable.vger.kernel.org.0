@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ACCA6159B7
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:17:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1506615957
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:09:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230098AbiKBDRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:17:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36648 "EHLO
+        id S230280AbiKBDJf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:09:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230214AbiKBDQh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:16:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C07C324BE0
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:16:36 -0700 (PDT)
+        with ESMTP id S230326AbiKBDIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:08:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2691F17AA7
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:08:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB9B260B72
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:16:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C97FC433D6;
-        Wed,  2 Nov 2022 03:16:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6EAC617BB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:08:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59EB7C433D6;
+        Wed,  2 Nov 2022 03:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358995;
-        bh=94MnjSlwLSxtCna29xDvcbdO9jAWPlUqLMvPUqKIX28=;
+        s=korg; t=1667358532;
+        bh=JMNt0vNfbEM8ZGzj78BgA1AD3Q0jjv6YDBvo8TqRAEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jsxXhLhKuhnntY/seL/uTMpY72zIxEWb8w5l2vEb9/8ZM8FMwZI2e9ZUURBiIOfKr
-         ZV7DUx/JnDQ3A9TY+glij4Aa8JRQhmP27VIdOkJvJAmDPny3+bv0TsyAoC7YhIID7g
-         K7YzKVJqxroy5uxuN5Vo9NLTbJQzOcVGzpq0p5i8=
+        b=JwaCRnOQ13dhkjuI05LcLc+6Ft7wk4U5/7nr/jcDGJRFh6O8GPm6BVwFHmoNhuoMP
+         7IxF0b34JNS1lDHVhmwD68jj12Qk49IG/x8RDEAyb0jX23uEkuHf2RMVYVKd3txd4s
+         ED9Y/rOYjrK5jEswvT0obbdyjKB5gSSJHP4m/Azw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 58/91] tcp: minor optimization in tcp_add_backlog()
+Subject: [PATCH 5.15 115/132] net: broadcom: bcm4908_enet: update TX stats after actual transmission
 Date:   Wed,  2 Nov 2022 03:33:41 +0100
-Message-Id: <20221102022056.677367806@linuxfoundation.org>
+Message-Id: <20221102022102.688949244@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit d519f350967a60b85a574ad8aeac43f2b4384746 ]
+[ Upstream commit ef3556ee16c68735ec69bd08df41d1cd83b14ad3 ]
 
-If packet is going to be coalesced, sk_sndbuf/sk_rcvbuf values
-are not used. Defer their access to the point we need them.
+Queueing packets doesn't guarantee their transmission. Update TX stats
+after hardware confirms consuming submitted data.
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: ec791d8149ff ("tcp: fix a signed-integer-overflow bug in tcp_add_backlog()")
+This also fixes a possible race and NULL dereference.
+bcm4908_enet_start_xmit() could try to access skb after freeing it in
+the bcm4908_enet_poll_tx().
+
+Reported-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 4feffeadbcb2e ("net: broadcom: bcm4908enet: add BCM4908 controller driver")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20221027112430.8696-1-zajec5@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_ipv4.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/broadcom/bcm4908_enet.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index 5c1e6b0687e2..78cef6930484 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -1770,8 +1770,7 @@ int tcp_v4_early_demux(struct sk_buff *skb)
+diff --git a/drivers/net/ethernet/broadcom/bcm4908_enet.c b/drivers/net/ethernet/broadcom/bcm4908_enet.c
+index 994731a33e18..7e89664943ce 100644
+--- a/drivers/net/ethernet/broadcom/bcm4908_enet.c
++++ b/drivers/net/ethernet/broadcom/bcm4908_enet.c
+@@ -561,8 +561,6 @@ static int bcm4908_enet_start_xmit(struct sk_buff *skb, struct net_device *netde
  
- bool tcp_add_backlog(struct sock *sk, struct sk_buff *skb)
- {
--	u32 limit = READ_ONCE(sk->sk_rcvbuf) + READ_ONCE(sk->sk_sndbuf);
--	u32 tail_gso_size, tail_gso_segs;
-+	u32 limit, tail_gso_size, tail_gso_segs;
- 	struct skb_shared_info *shinfo;
- 	const struct tcphdr *th;
- 	struct tcphdr *thtail;
-@@ -1878,7 +1877,7 @@ bool tcp_add_backlog(struct sock *sk, struct sk_buff *skb)
- 	 * to reduce memory overhead, so add a little headroom here.
- 	 * Few sockets backlog are possibly concurrently non empty.
- 	 */
--	limit += 64*1024;
-+	limit = READ_ONCE(sk->sk_rcvbuf) + READ_ONCE(sk->sk_sndbuf) + 64*1024;
+ 	if (++ring->write_idx == ring->length - 1)
+ 		ring->write_idx = 0;
+-	enet->netdev->stats.tx_bytes += skb->len;
+-	enet->netdev->stats.tx_packets++;
  
- 	if (unlikely(sk_add_backlog(sk, skb, limit))) {
- 		bh_unlock_sock(sk);
+ 	return NETDEV_TX_OK;
+ }
+@@ -635,6 +633,7 @@ static int bcm4908_enet_poll_tx(struct napi_struct *napi, int weight)
+ 	struct bcm4908_enet_dma_ring_bd *buf_desc;
+ 	struct bcm4908_enet_dma_ring_slot *slot;
+ 	struct device *dev = enet->dev;
++	unsigned int bytes = 0;
+ 	int handled = 0;
+ 
+ 	while (handled < weight && tx_ring->read_idx != tx_ring->write_idx) {
+@@ -645,12 +644,17 @@ static int bcm4908_enet_poll_tx(struct napi_struct *napi, int weight)
+ 
+ 		dma_unmap_single(dev, slot->dma_addr, slot->len, DMA_TO_DEVICE);
+ 		dev_kfree_skb(slot->skb);
+-		if (++tx_ring->read_idx == tx_ring->length)
+-			tx_ring->read_idx = 0;
+ 
+ 		handled++;
++		bytes += slot->len;
++
++		if (++tx_ring->read_idx == tx_ring->length)
++			tx_ring->read_idx = 0;
+ 	}
+ 
++	enet->netdev->stats.tx_packets += handled;
++	enet->netdev->stats.tx_bytes += bytes;
++
+ 	if (handled < weight) {
+ 		napi_complete_done(napi, handled);
+ 		bcm4908_enet_dma_ring_intrs_on(enet, tx_ring);
 -- 
 2.35.1
 
