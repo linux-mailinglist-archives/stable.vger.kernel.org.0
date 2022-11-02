@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3731F615854
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:49:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E5CA6158E5
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:00:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230353AbiKBCtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:49:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39420 "EHLO
+        id S231225AbiKBDAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:00:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230468AbiKBCtl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:49:41 -0400
+        with ESMTP id S231328AbiKBDAa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:00:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E7B11C04
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:49:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81AF82314F
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:00:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55E70B8206D
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:49:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A7ABC433D6;
-        Wed,  2 Nov 2022 02:49:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D228B82064
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:00:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13D05C433C1;
+        Wed,  2 Nov 2022 03:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357378;
-        bh=iPTNaIOKOeogkoDNPgGoG5HMfFdyf9khzwDrNKMR8Oo=;
+        s=korg; t=1667358024;
+        bh=Dnor4adkufRk++lfcAtgS5yKuVG7nGEmHiyDDMIs/1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AhHxsZyBBYyN7eQ36xSYunJrehxhpbi4lmyk/88OTkJR+1qn1RKjBz7o/nD7wf3/R
-         W/Lvz+F713Bew9IMzSkH4gSZwPbc1+r+gEIjT6woxY+KVRmpQHf/O06dx5yFebv+94
-         qQtuVV+Nz30OIoK33UzgU2htMP8Yu4vW+HDi3D0I=
+        b=RMN82QoS8mQuvsNyTXmz1PXBX53LqlURNDL6AhOy0r3QkcSpw+tZmqOke3rIV5BD6
+         ShKiXaQspdDLfYDzi/tLq1CfJfuzVqs3491cE4CuniflnJPgL/EsRaLcRAYHunvLA7
+         Xdzt04qvsT+4D4lJ9SSbm+wC6E9FeED59qNDbgOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+c5ce866a8d30f4be0651@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 160/240] tipc: fix a null-ptr-deref in tipc_topsrv_accept
+        patches@lists.linux.dev, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 5.15 029/132] mac802154: Fix LQI recording
 Date:   Wed,  2 Nov 2022 03:32:15 +0100
-Message-Id: <20221102022115.001257838@linuxfoundation.org>
+Message-Id: <20221102022100.399614060@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
-References: <20221102022111.398283374@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,98 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 82cb4e4612c633a9ce320e1773114875604a3cce ]
+commit 5a5c4e06fd03b595542d5590f2bc05a6b7fc5c2b upstream.
 
-syzbot found a crash in tipc_topsrv_accept:
+Back in 2014, the LQI was saved in the skb control buffer (skb->cb, or
+mac_cb(skb)) without any actual reset of this area prior to its use.
 
-  KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-  Workqueue: tipc_rcv tipc_topsrv_accept
-  RIP: 0010:kernel_accept+0x22d/0x350 net/socket.c:3487
-  Call Trace:
-   <TASK>
-   tipc_topsrv_accept+0x197/0x280 net/tipc/topsrv.c:460
-   process_one_work+0x991/0x1610 kernel/workqueue.c:2289
-   worker_thread+0x665/0x1080 kernel/workqueue.c:2436
-   kthread+0x2e4/0x3a0 kernel/kthread.c:376
-   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+As part of a useful rework of the use of this region, 32edc40ae65c
+("ieee802154: change _cb handling slightly") introduced mac_cb_init() to
+basically memset the cb field to 0. In particular, this new function got
+called at the beginning of mac802154_parse_frame_start(), right before
+the location where the buffer got actually filled.
 
-It was caused by srv->listener that might be set to null by
-tipc_topsrv_stop() in net .exit whereas it's still used in
-tipc_topsrv_accept() worker.
+What went through unnoticed however, is the fact that the very first
+helper called by device drivers in the receive path already used this
+area to save the LQI value for later extraction. Resetting the cb field
+"so late" led to systematically zeroing the LQI.
 
-srv->listener is protected by srv->idr_lock in tipc_topsrv_stop(), so add
-a check for srv->listener under srv->idr_lock in tipc_topsrv_accept() to
-avoid the null-ptr-deref. To ensure the lsock is not released during the
-tipc_topsrv_accept(), move sock_release() after tipc_topsrv_work_stop()
-where it's waiting until the tipc_topsrv_accept worker to be done.
+If we consider the reset of the cb field needed, we can make it as soon
+as we get an skb from a device driver, right before storing the LQI,
+as is the very first time we need to write something there.
 
-Note that sk_callback_lock is used to protect sk->sk_user_data instead of
-srv->listener, and it should check srv in tipc_topsrv_listener_data_ready()
-instead. This also ensures that no more tipc_topsrv_accept worker will be
-started after tipc_conn_close() is called in tipc_topsrv_stop() where it
-sets sk->sk_user_data to null.
-
-Fixes: 0ef897be12b8 ("tipc: separate topology server listener socket from subcsriber sockets")
-Reported-by: syzbot+c5ce866a8d30f4be0651@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Link: https://lore.kernel.org/r/4eee264380c409c61c6451af1059b7fb271a7e7b.1666120790.git.lucien.xin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 32edc40ae65c ("ieee802154: change _cb handling slightly")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20221020142535.1038885-1-miquel.raynal@bootlin.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/topsrv.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ net/mac802154/rx.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/tipc/topsrv.c b/net/tipc/topsrv.c
-index 14fd05fd6107..d92ec92f0b71 100644
---- a/net/tipc/topsrv.c
-+++ b/net/tipc/topsrv.c
-@@ -450,12 +450,19 @@ static void tipc_conn_data_ready(struct sock *sk)
- static void tipc_topsrv_accept(struct work_struct *work)
+--- a/net/mac802154/rx.c
++++ b/net/mac802154/rx.c
+@@ -132,7 +132,7 @@ static int
+ ieee802154_parse_frame_start(struct sk_buff *skb, struct ieee802154_hdr *hdr)
  {
- 	struct tipc_topsrv *srv = container_of(work, struct tipc_topsrv, awork);
--	struct socket *lsock = srv->listener;
--	struct socket *newsock;
-+	struct socket *newsock, *lsock;
- 	struct tipc_conn *con;
- 	struct sock *newsk;
- 	int ret;
+ 	int hlen;
+-	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
++	struct ieee802154_mac_cb *cb = mac_cb(skb);
  
-+	spin_lock_bh(&srv->idr_lock);
-+	if (!srv->listener) {
-+		spin_unlock_bh(&srv->idr_lock);
-+		return;
-+	}
-+	lsock = srv->listener;
-+	spin_unlock_bh(&srv->idr_lock);
-+
- 	while (1) {
- 		ret = kernel_accept(lsock, &newsock, O_NONBLOCK);
- 		if (ret < 0)
-@@ -489,7 +496,7 @@ static void tipc_topsrv_listener_data_ready(struct sock *sk)
+ 	skb_reset_mac_header(skb);
  
- 	read_lock_bh(&sk->sk_callback_lock);
- 	srv = sk->sk_user_data;
--	if (srv->listener)
-+	if (srv)
- 		queue_work(srv->rcv_wq, &srv->awork);
- 	read_unlock_bh(&sk->sk_callback_lock);
- }
-@@ -699,8 +706,9 @@ static void tipc_topsrv_stop(struct net *net)
- 	__module_get(lsock->sk->sk_prot_creator->owner);
- 	srv->listener = NULL;
- 	spin_unlock_bh(&srv->idr_lock);
--	sock_release(lsock);
-+
- 	tipc_topsrv_work_stop(srv);
-+	sock_release(lsock);
- 	idr_destroy(&srv->conn_idr);
- 	kfree(srv);
- }
--- 
-2.35.1
-
+@@ -294,8 +294,9 @@ void
+ ieee802154_rx_irqsafe(struct ieee802154_hw *hw, struct sk_buff *skb, u8 lqi)
+ {
+ 	struct ieee802154_local *local = hw_to_local(hw);
++	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
+ 
+-	mac_cb(skb)->lqi = lqi;
++	cb->lqi = lqi;
+ 	skb->pkt_type = IEEE802154_RX_MSG;
+ 	skb_queue_tail(&local->skb_queue, skb);
+ 	tasklet_schedule(&local->tasklet);
 
 
