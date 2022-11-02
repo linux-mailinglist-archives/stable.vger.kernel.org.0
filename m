@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5744E615B16
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:47:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37C50615ADB
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:42:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230317AbiKBDrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:47:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34768 "EHLO
+        id S230221AbiKBDmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:42:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230324AbiKBDrc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:47:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B208F275DA
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:47:31 -0700 (PDT)
+        with ESMTP id S230300AbiKBDmi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:42:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B52B227157
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:42:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FE02617CB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:47:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E763BC433D6;
-        Wed,  2 Nov 2022 03:47:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75EAAB82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:42:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67C25C433C1;
+        Wed,  2 Nov 2022 03:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360850;
-        bh=2lPjOuFRWifCIOmcXD/w0f2RbP/GzAc0sbLE/nVdjPE=;
+        s=korg; t=1667360554;
+        bh=bdIHjjsiwmbEGzU3+LToiYoYtWRpY7SVFBlawYigmCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ustii15sklvEbpBMzeXYh/Anxsw6cuzjiXnWBnf/2F6EwdsJz3nqYg5pj2BJi0M0p
-         +MJy+zZKi82D2YizzG+bSEfz+VLWyrEeuHbPR3Ud2rIhWNGdMvrLtxSQF2tnzk+o6B
-         8eeQAmFzXuerYaEHgcqVSkEuYFR6XfrDYHMWQTkE=
+        b=A4fpIBRDDIZ/CdWb0VVIPjxv4SMToOEIEnnZ0pvz7pNI5CKkH62jkLgZvzXyU0Glv
+         yBkGVtsvJRI6kN+HwKpiQEWYQ1KvTcl0uoCt/2b+p8ApixJvp6anSgIeiL6GZxosWZ
+         JrHqbofeXBBXA43TUyCYl5F7NsK1kHEBX+jaYkr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 31/44] net: lantiq_etop: dont free skb when returning NETDEV_TX_BUSY
-Date:   Wed,  2 Nov 2022 03:35:17 +0100
-Message-Id: <20221102022050.168143305@linuxfoundation.org>
+Subject: [PATCH 4.14 57/60] ALSA: aoa: Fix I2S device accounting
+Date:   Wed,  2 Nov 2022 03:35:18 +0100
+Message-Id: <20221102022052.961543256@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
-References: <20221102022049.017479464@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 9c1eaa27ec599fcc25ed4970c0b73c247d147a2b ]
+[ Upstream commit f1fae475f10a26b7e34da4ff2e2f19b7feb3548e ]
 
-The ndo_start_xmit() method must not free skb when returning
-NETDEV_TX_BUSY, since caller is going to requeue freed skb.
+i2sbus_add_dev() is supposed to return the number of probed devices,
+i.e. either 1 or 0.  However, i2sbus_add_dev() has one error handling
+that returns -ENODEV; this will screw up the accumulation number
+counted in the caller, i2sbus_probe().
 
-Fixes: 504d4721ee8e ("MIPS: Lantiq: Add ethernet driver")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix the return value to 0 and add the comment for better understanding
+for readers.
+
+Fixes: f3d9478b2ce4 ("[ALSA] snd-aoa: add snd-aoa")
+Link: https://lore.kernel.org/r/20221027065233.13292-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/lantiq_etop.c | 1 -
- 1 file changed, 1 deletion(-)
+ sound/aoa/soundbus/i2sbus/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/lantiq_etop.c b/drivers/net/ethernet/lantiq_etop.c
-index a167fd7ee13e..1a2c1a309d22 100644
---- a/drivers/net/ethernet/lantiq_etop.c
-+++ b/drivers/net/ethernet/lantiq_etop.c
-@@ -488,7 +488,6 @@ ltq_etop_tx(struct sk_buff *skb, struct net_device *dev)
- 	len = skb->len < ETH_ZLEN ? ETH_ZLEN : skb->len;
+diff --git a/sound/aoa/soundbus/i2sbus/core.c b/sound/aoa/soundbus/i2sbus/core.c
+index c016df586992..2811e1f1e2fa 100644
+--- a/sound/aoa/soundbus/i2sbus/core.c
++++ b/sound/aoa/soundbus/i2sbus/core.c
+@@ -148,6 +148,7 @@ static int i2sbus_get_and_fixup_rsrc(struct device_node *np, int index,
+ 	return rc;
+ }
  
- 	if ((desc->ctl & (LTQ_DMA_OWN | LTQ_DMA_C)) || ch->skb[ch->dma.desc]) {
--		dev_kfree_skb_any(skb);
- 		netdev_err(dev, "tx ring full\n");
- 		netif_tx_stop_queue(txq);
- 		return NETDEV_TX_BUSY;
++/* Returns 1 if added, 0 for otherwise; don't return a negative value! */
+ /* FIXME: look at device node refcounting */
+ static int i2sbus_add_dev(struct macio_dev *macio,
+ 			  struct i2sbus_control *control,
+@@ -213,7 +214,7 @@ static int i2sbus_add_dev(struct macio_dev *macio,
+ 	 * either as the second one in that case is just a modem. */
+ 	if (!ok) {
+ 		kfree(dev);
+-		return -ENODEV;
++		return 0;
+ 	}
+ 
+ 	mutex_init(&dev->lock);
 -- 
 2.35.1
 
