@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78308615AD5
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:42:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7B4A615AFA
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:45:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230047AbiKBDmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:42:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58340 "EHLO
+        id S230116AbiKBDpT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:45:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229770AbiKBDmN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:42:13 -0400
+        with ESMTP id S230137AbiKBDpT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:45:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 240F926AFD
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:41:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5FC6171
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:45:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54997B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:41:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C4D6C433C1;
-        Wed,  2 Nov 2022 03:41:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2646AB80DA8
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:45:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A62C433D6;
+        Wed,  2 Nov 2022 03:45:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360507;
-        bh=A7SW7roT7uOe8WwpVxVfZUr3ypWDsfy9mPG+pcQKqdw=;
+        s=korg; t=1667360715;
+        bh=nfibOujb8CDCpAAkqQoNIZTWN/+WR4g+z4XJFx+EaS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ASgDeb6Cj33+Y1TNefCiS3xEiU8Cv0KUWcmcMM54hDgeDnDU7TTVBdZ04FPmuhy+g
-         z7uUF8XGxdeVYccZ3sTYxFbjlrf+M/P7t+mc1wasrw1BWtJ8iqQC5O4TAhgneV9Cgk
-         fMnQ2nW4X0FI/15GKnM9VzNiQstPBkuxWMZMjnsM=
+        b=UuOrFOWkKS7wYTjTGqRaAxwW1y5O5uxAADUH4IDA4hpgqtXUSG3YJ/x8KLRaf63PA
+         GnowmmPTr1bzVSZ7RS3cUFUlSzRHJBDcFj5V5eW7bqJKHMDIv423k1sdROwt5G6zbw
+         8gzgJ+MbGV5cuD6SrOuXgWCSgLk/A1o1mXU6AB6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 49/60] media: vivid: dev->bitmap_cap wasnt freed in all cases
+        patches@lists.linux.dev, Rik van Riel <riel@surriel.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Glen McCready <gkmccready@meta.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.9 24/44] mm,hugetlb: take hugetlb_lock before decrementing h->resv_huge_pages
 Date:   Wed,  2 Nov 2022 03:35:10 +0100
-Message-Id: <20221102022052.690966044@linuxfoundation.org>
+Message-Id: <20221102022049.910274368@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
+References: <20221102022049.017479464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Rik van Riel <riel@surriel.com>
 
-[ Upstream commit 1f65ea411cc7b6ff128d82a3493d7b5648054e6f ]
+commit 12df140f0bdfae5dcfc81800970dd7f6f632e00c upstream.
 
-Whenever the compose width/height values change, the dev->bitmap_cap
-vmalloc'ed array must be freed and dev->bitmap_cap set to NULL.
+The h->*_huge_pages counters are protected by the hugetlb_lock, but
+alloc_huge_page has a corner case where it can decrement the counter
+outside of the lock.
 
-This was done in some places, but not all. This is only an issue if
-overlay support is enabled and the bitmap clipping is used.
+This could lead to a corrupted value of h->resv_huge_pages, which we have
+observed on our systems.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: ef834f7836ec ([media] vivid: add the video capture and output parts)
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Take the hugetlb_lock before decrementing h->resv_huge_pages to avoid a
+potential race.
+
+Link: https://lkml.kernel.org/r/20221017202505.0e6a4fcd@imladris.surriel.com
+Fixes: a88c76954804 ("mm: hugetlb: fix hugepage memory leak caused by wrong reserve count")
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Glen McCready <gkmccready@meta.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/vivid/vivid-vid-cap.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ mm/hugetlb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/vivid/vivid-vid-cap.c b/drivers/media/platform/vivid/vivid-vid-cap.c
-index 182d8a2b3c98..459cff1626a6 100644
---- a/drivers/media/platform/vivid/vivid-vid-cap.c
-+++ b/drivers/media/platform/vivid/vivid-vid-cap.c
-@@ -458,6 +458,12 @@ void vivid_update_format_cap(struct vivid_dev *dev, bool keep_controls)
- 	tpg_reset_source(&dev->tpg, dev->src_rect.width, dev->src_rect.height, dev->field_cap);
- 	dev->crop_cap = dev->src_rect;
- 	dev->crop_bounds_cap = dev->src_rect;
-+	if (dev->bitmap_cap &&
-+	    (dev->compose_cap.width != dev->crop_cap.width ||
-+	     dev->compose_cap.height != dev->crop_cap.height)) {
-+		vfree(dev->bitmap_cap);
-+		dev->bitmap_cap = NULL;
-+	}
- 	dev->compose_cap = dev->crop_cap;
- 	if (V4L2_FIELD_HAS_T_OR_B(dev->field_cap))
- 		dev->compose_cap.height /= 2;
-@@ -886,6 +892,8 @@ int vivid_vid_cap_s_selection(struct file *file, void *fh, struct v4l2_selection
- 	struct vivid_dev *dev = video_drvdata(file);
- 	struct v4l2_rect *crop = &dev->crop_cap;
- 	struct v4l2_rect *compose = &dev->compose_cap;
-+	unsigned orig_compose_w = compose->width;
-+	unsigned orig_compose_h = compose->height;
- 	unsigned factor = V4L2_FIELD_HAS_T_OR_B(dev->field_cap) ? 2 : 1;
- 	int ret;
- 
-@@ -1002,17 +1010,17 @@ int vivid_vid_cap_s_selection(struct file *file, void *fh, struct v4l2_selection
- 			s->r.height /= factor;
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -2104,11 +2104,11 @@ struct page *alloc_huge_page(struct vm_a
+ 		page = __alloc_buddy_huge_page_with_mpol(h, vma, addr);
+ 		if (!page)
+ 			goto out_uncharge_cgroup;
++		spin_lock(&hugetlb_lock);
+ 		if (!avoid_reserve && vma_has_reserves(vma, gbl_chg)) {
+ 			SetPagePrivate(page);
+ 			h->resv_huge_pages--;
  		}
- 		v4l2_rect_map_inside(&s->r, &dev->fmt_cap_rect);
--		if (dev->bitmap_cap && (compose->width != s->r.width ||
--					compose->height != s->r.height)) {
--			vfree(dev->bitmap_cap);
--			dev->bitmap_cap = NULL;
--		}
- 		*compose = s->r;
- 		break;
- 	default:
- 		return -EINVAL;
+-		spin_lock(&hugetlb_lock);
+ 		list_move(&page->lru, &h->hugepage_activelist);
+ 		/* Fall through */
  	}
- 
-+	if (dev->bitmap_cap && (compose->width != orig_compose_w ||
-+				compose->height != orig_compose_h)) {
-+		vfree(dev->bitmap_cap);
-+		dev->bitmap_cap = NULL;
-+	}
- 	tpg_s_crop_compose(&dev->tpg, crop, compose);
- 	return 0;
- }
--- 
-2.35.1
-
 
 
