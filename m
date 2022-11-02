@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C50615ADB
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:42:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 966FB615B17
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:47:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230221AbiKBDmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:42:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58946 "EHLO
+        id S230309AbiKBDri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:47:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230300AbiKBDmi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:42:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B52B227157
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:42:36 -0700 (PDT)
+        with ESMTP id S230318AbiKBDri (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:47:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93F3B275C3
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:47:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75EAAB82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:42:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67C25C433C1;
-        Wed,  2 Nov 2022 03:42:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3480D617BA
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:47:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD601C433C1;
+        Wed,  2 Nov 2022 03:47:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360554;
-        bh=bdIHjjsiwmbEGzU3+LToiYoYtWRpY7SVFBlawYigmCE=;
+        s=korg; t=1667360856;
+        bh=mQEtd1uUCLo9UGwWZSDje2/cKPYENvGD435u1+VMm5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4fpIBRDDIZ/CdWb0VVIPjxv4SMToOEIEnnZ0pvz7pNI5CKkH62jkLgZvzXyU0Glv
-         yBkGVtsvJRI6kN+HwKpiQEWYQ1KvTcl0uoCt/2b+p8ApixJvp6anSgIeiL6GZxosWZ
-         JrHqbofeXBBXA43TUyCYl5F7NsK1kHEBX+jaYkr8=
+        b=Y4FIbHzKKjBJT5aZ0dn9JY03yAbgic6JilTwz4LCSQYcyw62EN6GShgmXhQDS9twv
+         b4OkFEL0reNZn9l1dbnHnQFRpDB2u4FRlo4cQFwjX+gONNZ+cbxoUhHspgLQQ4eD2l
+         kS2t2Lj5ru/eUX5guptMI3Oas3TQf3+IOIe+goZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
+        patches@lists.linux.dev, Jakub Kicinski <kuba@kernel.org>,
+        Neil Spring <ntspring@fb.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 57/60] ALSA: aoa: Fix I2S device accounting
+Subject: [PATCH 4.9 32/44] tcp: fix indefinite deferral of RTO with SACK reneging
 Date:   Wed,  2 Nov 2022 03:35:18 +0100
-Message-Id: <20221102022052.961543256@linuxfoundation.org>
+Message-Id: <20221102022050.198131320@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
+References: <20221102022049.017479464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Neal Cardwell <ncardwell@google.com>
 
-[ Upstream commit f1fae475f10a26b7e34da4ff2e2f19b7feb3548e ]
+[ Upstream commit 3d2af9cce3133b3bc596a9d065c6f9d93419ccfb ]
 
-i2sbus_add_dev() is supposed to return the number of probed devices,
-i.e. either 1 or 0.  However, i2sbus_add_dev() has one error handling
-that returns -ENODEV; this will screw up the accumulation number
-counted in the caller, i2sbus_probe().
+This commit fixes a bug that can cause a TCP data sender to repeatedly
+defer RTOs when encountering SACK reneging.
 
-Fix the return value to 0 and add the comment for better understanding
-for readers.
+The bug is that when we're in fast recovery in a scenario with SACK
+reneging, every time we get an ACK we call tcp_check_sack_reneging()
+and it can note the apparent SACK reneging and rearm the RTO timer for
+srtt/2 into the future. In some SACK reneging scenarios that can
+happen repeatedly until the receive window fills up, at which point
+the sender can't send any more, the ACKs stop arriving, and the RTO
+fires at srtt/2 after the last ACK. But that can take far too long
+(O(10 secs)), since the connection is stuck in fast recovery with a
+low cwnd that cannot grow beyond ssthresh, even if more bandwidth is
+available.
 
-Fixes: f3d9478b2ce4 ("[ALSA] snd-aoa: add snd-aoa")
-Link: https://lore.kernel.org/r/20221027065233.13292-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This fix changes the logic in tcp_check_sack_reneging() to only rearm
+the RTO timer if data is cumulatively ACKed, indicating forward
+progress. This avoids this kind of nearly infinite loop of RTO timer
+re-arming. In addition, this meets the goals of
+tcp_check_sack_reneging() in handling Windows TCP behavior that looks
+temporarily like SACK reneging but is not really.
+
+Many thanks to Jakub Kicinski and Neil Spring, who reported this issue
+and provided critical packet traces that enabled root-causing this
+issue. Also, many thanks to Jakub Kicinski for testing this fix.
+
+Fixes: 5ae344c949e7 ("tcp: reduce spurious retransmits due to transient SACK reneging")
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Neil Spring <ntspring@fb.com>
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Cc: Yuchung Cheng <ycheng@google.com>
+Tested-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20221021170821.1093930-1-ncardwell.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/aoa/soundbus/i2sbus/core.c | 3 ++-
+ net/ipv4/tcp_input.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/aoa/soundbus/i2sbus/core.c b/sound/aoa/soundbus/i2sbus/core.c
-index c016df586992..2811e1f1e2fa 100644
---- a/sound/aoa/soundbus/i2sbus/core.c
-+++ b/sound/aoa/soundbus/i2sbus/core.c
-@@ -148,6 +148,7 @@ static int i2sbus_get_and_fixup_rsrc(struct device_node *np, int index,
- 	return rc;
- }
- 
-+/* Returns 1 if added, 0 for otherwise; don't return a negative value! */
- /* FIXME: look at device node refcounting */
- static int i2sbus_add_dev(struct macio_dev *macio,
- 			  struct i2sbus_control *control,
-@@ -213,7 +214,7 @@ static int i2sbus_add_dev(struct macio_dev *macio,
- 	 * either as the second one in that case is just a modem. */
- 	if (!ok) {
- 		kfree(dev);
--		return -ENODEV;
-+		return 0;
- 	}
- 
- 	mutex_init(&dev->lock);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 9c7f716aab44..98ff1e34e04f 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -2053,7 +2053,8 @@ void tcp_enter_loss(struct sock *sk)
+  */
+ static bool tcp_check_sack_reneging(struct sock *sk, int flag)
+ {
+-	if (flag & FLAG_SACK_RENEGING) {
++	if (flag & FLAG_SACK_RENEGING &&
++	    flag & FLAG_SND_UNA_ADVANCED) {
+ 		struct tcp_sock *tp = tcp_sk(sk);
+ 		unsigned long delay = max(usecs_to_jiffies(tp->srtt_us >> 4),
+ 					  msecs_to_jiffies(10));
 -- 
 2.35.1
 
