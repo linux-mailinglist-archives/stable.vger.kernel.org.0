@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F096615A76
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:31:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6077F615A82
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:32:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230258AbiKBDbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:31:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50434 "EHLO
+        id S231166AbiKBDcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:32:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231208AbiKBDbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:31:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AB2B26119
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:31:24 -0700 (PDT)
+        with ESMTP id S231157AbiKBDca (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:32:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5830F2649F
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:32:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC0786172F
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:31:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 618E5C433D6;
-        Wed,  2 Nov 2022 03:31:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B790B8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:32:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09FF5C433D7;
+        Wed,  2 Nov 2022 03:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359883;
-        bh=crwB0hzofZsCPB1qDAKXqblFoqn1xrU0J9Bqgfn4Kf8=;
+        s=korg; t=1667359947;
+        bh=6X4F1ImfmZP+i5s0+q25rL0TVqnHIkZJW2U9rHt5HtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lNa/xbAtHEBzAyTGe6CEwfvwLPS6Myr6gn7STdra0dmo7noEBU1LZqESDdcphFW5X
-         R+Uyu+8fBxTsJrBvfkeoYeXO/UXUmjyWAEISI/4wC0gsZYt2nmfLhNkMLCT0Ggu1ry
-         m2Ef4/z8jqLACP5iSit5Syv0bt65A06jIB/imxtw=
+        b=Ihbypef7fCK9EjY+iMbZjpXA09sdZzVUuJ+spMkWq6dDSuuQmW0hS1lGueh/uCPMS
+         2scXkRRgCRpxbd2elYSOLggIt77FYpx9t7qIs/Z0Yo/Qspth49gw175j4EK+peMe8U
+         ckHWifdBXfVd6szQ+DXbLZ+Z3ciUhY+j+R/egnis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.19 43/78] perf auxtrace: Fix address filter symbol name match for modules
-Date:   Wed,  2 Nov 2022 03:34:28 +0100
-Message-Id: <20221102022054.259700507@linuxfoundation.org>
+        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 4.19 44/78] s390/futex: add missing EX_TABLE entry to __futex_atomic_op()
+Date:   Wed,  2 Nov 2022 03:34:29 +0100
+Message-Id: <20221102022054.290315128@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
 References: <20221102022052.895556444@linuxfoundation.org>
@@ -54,51 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit cba04f3136b658583adb191556f99d087589c1cc upstream.
+commit a262d3ad6a433e4080cecd0a8841104a5906355e upstream.
 
-For modules, names from kallsyms__parse() contain the module name which
-meant that module symbols did not match exactly by name.
+For some exception types the instruction address points behind the
+instruction that caused the exception. Take that into account and add
+the missing exception table entry.
 
-Fix by matching the name string up to the separating tab character.
-
-Fixes: 1b36c03e356936d6 ("perf record: Add support for using symbols in address filters")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221026072736.2982-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/auxtrace.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/futex.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/tools/perf/util/auxtrace.c
-+++ b/tools/perf/util/auxtrace.c
-@@ -1678,11 +1678,19 @@ struct sym_args {
- 	bool		near;
- };
- 
-+static bool kern_sym_name_match(const char *kname, const char *name)
-+{
-+	size_t n = strlen(name);
-+
-+	return !strcmp(kname, name) ||
-+	       (!strncmp(kname, name, n) && kname[n] == '\t');
-+}
-+
- static bool kern_sym_match(struct sym_args *args, const char *name, char type)
- {
- 	/* A function with the same name, and global or the n'th found or any */
- 	return kallsyms__is_function(type) &&
--	       !strcmp(name, args->name) &&
-+	       kern_sym_name_match(name, args->name) &&
- 	       ((args->global && isupper(type)) ||
- 		(args->selected && ++(args->cnt) == args->idx) ||
- 		(!args->global && !args->selected));
+--- a/arch/s390/include/asm/futex.h
++++ b/arch/s390/include/asm/futex.h
+@@ -16,7 +16,8 @@
+ 		"3: jl    1b\n"						\
+ 		"   lhi   %0,0\n"					\
+ 		"4: sacf  768\n"					\
+-		EX_TABLE(0b,4b) EX_TABLE(2b,4b) EX_TABLE(3b,4b)		\
++		EX_TABLE(0b,4b) EX_TABLE(1b,4b)				\
++		EX_TABLE(2b,4b) EX_TABLE(3b,4b)				\
+ 		: "=d" (ret), "=&d" (oldval), "=&d" (newval),		\
+ 		  "=m" (*uaddr)						\
+ 		: "0" (-EFAULT), "d" (oparg), "a" (uaddr),		\
 
 
