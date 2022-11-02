@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE0A8615915
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:04:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A93DB6159A4
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:16:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230283AbiKBDE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:04:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51990 "EHLO
+        id S230017AbiKBDQL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:16:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230216AbiKBDEG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:04:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C939423142
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:04:05 -0700 (PDT)
+        with ESMTP id S230431AbiKBDPb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:15:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84018240A3
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:15:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AA8A617C3
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:04:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2EEFC433D6;
-        Wed,  2 Nov 2022 03:04:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20CAB60B72
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:15:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C8CBC433D6;
+        Wed,  2 Nov 2022 03:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358244;
-        bh=AT3tSx49P2euq1EeMMUdLI/5ok+6uoQDFq3fBoThes0=;
+        s=korg; t=1667358903;
+        bh=MAoQKYuJO2UVtv5vL+xfA3/iOpD+eRoNRmFUwozXIAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2Ewi2zE2tgO+F20B7ZFhUiPmmwuSv4vZGYR0jmZhLGLAu47bYC5oX3pTz0Bkl8WI
-         WM2tspRiGLIEi/0lSuSNG91OSlHzAOCztfv4ya+Hg1QWYe1cHTwUEsWumWBJACIGqu
-         5ywTiiwd3H71TlTV8hZNyfGQDg5ii5Tcz9afvUpQ=
+        b=B9c4UeNpAzRQreUD9JVLKdLnJciA/Zh+bhkGvzTgE6Qh5LIUtyDx/u8gNXdzQaZrH
+         cmwKSVi8yJsM0auUY4fE8yBF/P4+O0ZzEhBlhJ94jAWLAf4dIbJ1+zx8gy5Suddbj1
+         GVTgP4JY9FWAIjHw//tHIqyN881q0cQ4YihBXGs4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 065/132] ASoC: qcom: lpass-cpu: Mark HDMI TX parity register as volatile
+        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Jeff Vanhoof <jdv1029@gmail.com>
+Subject: [PATCH 5.10 08/91] usb: dwc3: gadget: Dont set IMI for no_interrupt
 Date:   Wed,  2 Nov 2022 03:32:51 +0100
-Message-Id: <20221102022101.311677966@linuxfoundation.org>
+Message-Id: <20221102022055.283956513@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 1dd5166102e7ca91e8c5d833110333835e147ddb ]
+commit 308c316d16cbad99bb834767382baa693ac42169 upstream.
 
-Update LPASS_HDMI_TX_PARITY_ADDR register as volatile, to fix
-dp audio failures observed with some of external monitors.
+The gadget driver may have a certain expectation of how the request
+completion flow should be from to its configuration. Make sure the
+controller driver respect that. That is, don't set IMI (Interrupt on
+Missed Isoc) when usb_request->no_interrupt is set. Also, the driver
+should only set IMI to the last TRB of a chain.
 
-Fixes: 7cb37b7bd0d3 ("ASoC: qcom: Add support for lpass hdmi driver")
-
-Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/1665825530-7593-1-git-send-email-quic_srivasam@quicinc.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Reviewed-by: Jeff Vanhoof <jdv1029@gmail.com>
+Tested-by: Jeff Vanhoof <jdv1029@gmail.com>
+Link: https://lore.kernel.org/r/ced336c84434571340c07994e3667a0ee284fefe.1666735451.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/qcom/lpass-cpu.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/dwc3/gadget.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
-index b37f4736ee10..5e8d045c1a06 100644
---- a/sound/soc/qcom/lpass-cpu.c
-+++ b/sound/soc/qcom/lpass-cpu.c
-@@ -781,6 +781,8 @@ static bool lpass_hdmi_regmap_volatile(struct device *dev, unsigned int reg)
- 		return true;
- 	if (reg == LPASS_HDMI_TX_VBIT_CTL_ADDR(v))
- 		return true;
-+	if (reg == LPASS_HDMI_TX_PARITY_ADDR(v))
-+		return true;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1064,8 +1064,8 @@ static void dwc3_prepare_one_trb(struct
+ 			trb->ctrl = DWC3_TRBCTL_ISOCHRONOUS;
+ 		}
  
- 	for (i = 0; i < v->hdmi_rdma_channels; ++i) {
- 		if (reg == LPAIF_HDMI_RDMACURR_REG(v, i))
--- 
-2.35.1
-
+-		/* always enable Interrupt on Missed ISOC */
+-		trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
++		if (!no_interrupt && !chain)
++			trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
+ 		break;
+ 
+ 	case USB_ENDPOINT_XFER_BULK:
 
 
