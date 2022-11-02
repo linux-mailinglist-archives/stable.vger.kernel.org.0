@@ -2,97 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F3C616351
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 14:04:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA29B6163CC
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 14:26:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230219AbiKBNEz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Nov 2022 09:04:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44848 "EHLO
+        id S231378AbiKBNZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Nov 2022 09:25:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229557AbiKBNEz (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Wed, 2 Nov 2022 09:04:55 -0400
-Received: from mail-yw1-x1133.google.com (mail-yw1-x1133.google.com [IPv6:2607:f8b0:4864:20::1133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6164C18B15
-        for <Stable@vger.kernel.org>; Wed,  2 Nov 2022 06:04:54 -0700 (PDT)
-Received: by mail-yw1-x1133.google.com with SMTP id 00721157ae682-367cd2807f2so165606427b3.1
-        for <Stable@vger.kernel.org>; Wed, 02 Nov 2022 06:04:54 -0700 (PDT)
+        with ESMTP id S230085AbiKBNZb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 09:25:31 -0400
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69CCF2A958
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 06:25:30 -0700 (PDT)
+Received: by mail-ed1-x529.google.com with SMTP id u24so17192593edd.13
+        for <stable@vger.kernel.org>; Wed, 02 Nov 2022 06:25:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=77BwqRII9XCweQU8IJul6unijI/BEL+vUJmVmCRLxH4=;
-        b=Ar0uot5jl2tZgDuPdZeD8JCsYGzrDmGdFXtm8+Re70IA+SIkohY26dcmw1skHc045l
-         S+XlCb9XtVlzguwK3gsrmqjOZnmAASFeEcC8RmTUyG5JW9s+T5hcxYT/8qtJrB4PYkqN
-         20Rdj6wxy6Um+G6Cya/7FNeCmQal/MFzFNmZ0/cVke/1c8U5ni4J1lbcEw1wSuoyQCJa
-         RZuPjP7Yl3DDrEPc8yUq2GJM5eGbjXvqOnmiUZ+EeKWZNzZ49TuFoANoWofjVqVB6as9
-         wSHnTJal3G3q7/Ac8Uicc7bAlaHovjEykEDDFZwnaojcFbhgU+lJlE5JBwp8k6oLCcd0
-         Sd3Q==
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=KEANnS33bEO9OComS/RfvaYbha1mUhYu9cgHQ8+qg/0=;
+        b=FCQDy4HbShLeWvIZlbdkC2Q3p5fx7HFY/HXd8tx6GDkvFlRvBOPNpxWBtfIkz1mqN9
+         SOiJttinWCsV22FCARRdgrpkM/4ALl7nEZozp/qnSGDPMTW8CtKlqfupe5weq/q9P4xi
+         Pzz37MFLvww7+uKQpTmC5Y6mCFAgvVaUQaObG5E11NsvyOvzaIJ/F6q4q8B7B+MpG06g
+         CQkI9j9AFZKWoGruA5H7Qw3cQ8JU1jsNnarBNCcKxyN7EfpNFiK9A66TI7I401minacH
+         8phPXyr5gij6FtTuKT6cqf/N7g1Gj9YVNGLDVFZzRP1Uj73JOuphdrycfvs2iIfSmlJ1
+         Z9pQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=77BwqRII9XCweQU8IJul6unijI/BEL+vUJmVmCRLxH4=;
-        b=DSBbRnkuvqqyD+zMtYGuAF4SKtJNuC+WGc5oRDjO1FD5x8hAz9Z0n1pIsUj4y8n/27
-         ug/MRjX3rt3V4klQ4syadtY++YfGsBNioM0Zd9PMn6grlC1+y09KV6H6P0kYjxLCiKA2
-         c6bmGiA/e2igph1A1xln5PFLoS85jR/uKu9S9sA28T5EqBJDYWDgp0EpHdPgzOzizKN8
-         JUukmjYbj1M8qoRHkVyD0VtsTFr4Ls6SF2EwzjYaQae0WisoM55tFFheibuf+Pks8C/w
-         H5hK+5iDgqCN+ZKQkLW4mHIv5XTA2aHsshIBRJbODId3uoV0oO8GqF7DdeLvsFq3Ktd8
-         +dMQ==
-X-Gm-Message-State: ACrzQf0vKgu8uO7l1Z66i4r8KUD4swGCpZH15PJkXWvSDJqOAX6d+TV+
-        kPwugk2QcUZJJZ9OYA1AioZ9CdyB6NBKp9OoDno=
-X-Google-Smtp-Source: AMsMyM4EL2deKmL0QC9g+UTdtUxA71WxMXHlDst5Kxyg9LTgfTziAltRbfZ0D4O8B/QpUuP0cLJNI9NLEU6Yo+ph5I4=
-X-Received: by 2002:a81:57c9:0:b0:36c:dd56:ce58 with SMTP id
- l192-20020a8157c9000000b0036cdd56ce58mr21723328ywb.5.1667394293153; Wed, 02
- Nov 2022 06:04:53 -0700 (PDT)
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=KEANnS33bEO9OComS/RfvaYbha1mUhYu9cgHQ8+qg/0=;
+        b=7g/MzAp8Y0pBE7dGhCEsm76L2VI09mdK7WMznDj7Daalzg2cTxjT+jDZkS52nujCYd
+         9oKqAPdX+2SSqelqty359LKD2LBjPLZbtIk+I/lofCHKoPjqKNaxif9io8j8rVvhHf8O
+         vRnTmhmaX8hIulH8rFletgqQZb9kKDUy3E61NLy2Fdzqqkh5383N3JfdWz50mHCYpOxs
+         q7AXTpBzIcgO9p8OtOG8/j3cUFgZ9qcKaxR/VV/5w16F50WG7CK/la6vR09LBN+E0SZZ
+         EDJPJ6x93vT6zdoTRqzKVcY2Uqt0xrKsKDwIHxYf+Mo76CrTgLUzo58fGNg9vj1uHIrw
+         QSWg==
+X-Gm-Message-State: ACrzQf24t4U/aMmLPaHC7XTehg8RgYT8w85RSjbQS46vfDrMy8nxSHgx
+        2syq2pGrQo71GXwM5v496F/5soEw2yqeoeEimT5Vqw==
+X-Google-Smtp-Source: AMsMyM4xyAtrQjybBdpzAvkdZbmdZ+ueFu9DZG1carlBouNuAcheTbLP3cjnTJLDPbra1KE9cZDMXYtKBf2n4paFcDY=
+X-Received: by 2002:a05:6402:1c0a:b0:463:3cda:3750 with SMTP id
+ ck10-20020a0564021c0a00b004633cda3750mr18971921edb.341.1667395528856; Wed, 02
+ Nov 2022 06:25:28 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 2002:a05:7000:17c5:b0:3da:1e36:e3f4 with HTTP; Wed, 2 Nov 2022
- 06:04:52 -0700 (PDT)
-Reply-To: rihabmanyang1993@gmail.com
-From:   RM <awibrahima34@gmail.com>
-Date:   Wed, 2 Nov 2022 13:04:52 +0000
-Message-ID: <CAH=ybGFwjjFo406uH-apy0ocFvpyyDOYQOEJsw-YRBAGN0ebNg@mail.gmail.com>
-Subject: HI DEAR..
-To:     undisclosed-recipients:;
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 2 Nov 2022 18:55:17 +0530
+Message-ID: <CA+G9fYv_4MwuRWsejvf6rMGp3u2uZntvH5QKKYd+05Y0PmKQJw@mail.gmail.com>
+Subject: selftests: memfd: run_hugetlbfs_test.sh: invalid opcode: 0000 [#1]
+ PREEMPT SMP
+To:     open list <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        regressions@lists.linux.dev, lkft-triage@lists.linaro.org
+Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
+        Greg Thelen <gthelen@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        zhangyiru <zhangyiru3@huawei.com>, willy@infradead.org
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.1 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:1133 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4998]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [awibrahima34[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [rihabmanyang1993[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [awibrahima34[at]gmail.com]
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  3.0 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-How are you?I am miss.Rihab Manyang i will like to be your friend
-please write me back on my email for more details, Thanks.
+Following kernel crash noticed while running selftests: memfd:
+run_fuse_test.sh noticed on stable-rc 6.0.7-rc1 on qemu-i386
+the image is built with gcc-11.
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+# selftests: memfd: run_fuse_test.sh
+# opening: ./mnt/memfd
+# fuse: DONE
+ok 2 selftests: memfd: run_fuse_test.sh
+# selftests: memfd: run_hugetlbfs_test.sh
+[  131.233621] run_hugetlbfs_t (1230): drop_caches: 3
+[  131.455691] invalid opcode: 0000 [#1] PREEMPT SMP
+[  131.456932] CPU: 1 PID: 1234 Comm: memfd_test Tainted: G
+     N 6.0.7-rc1 #1
+[  131.459108] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+BIOS 1.12.0-1 04/01/2014
+[  131.461089] EIP: hugetlb_file_setup.cold+0x0/0x33
+[  131.462221] Code: b8 ea ff ff ff e9 b2 91 2b ff 0f 0b c7 04 24 40
+8a 3d de e8 a7 4a ff ff b8 ea ff ff ff e9 b7 9a 2b ff 0f 0b 0f 0b 0f
+0b 0f 0b <0f> 0b 64 a1 58 88 96 de c6 05 b5 db 7f de 01 8b 90 ec 03 00
+00 05
+[  131.466509] EAX: c405fe18 EBX: 00000000 ECX: 00000020 EDX: 00000000
+[  131.467628] ESI: 80000004 EDI: 00000005 EBP: c4433ecc ESP: c4433eac
+[  131.468489] DS: 007b ES: 007b FS: 00d8 GS: 0033 SS: 0068 EFLAGS: 00010212
+[  131.469378] CR0: 80050033 CR2: b7e123d0 CR3: 04e19000 CR4: 003506d0
+[  131.470205] Call Trace:
+[  131.470515]  __ia32_sys_memfd_create+0x196/0x220
+[  131.471079]  __do_fast_syscall_32+0x77/0xd0
+[  131.471589]  do_fast_syscall_32+0x32/0x70
+[  131.472075]  do_SYSENTER_32+0x15/0x20
+[  131.472524]  entry_SYSENTER_32+0x98/0xf6
+[  131.473095] EIP: 0xb7ed5549
+[  131.473459] Code: 03 74 c0 01 10 05 03 74 b8 01 10 06 03 74 b4 01
+10 07 03 74 b0 01 10 08 03 74 d8 01 00 00 00 00 00 51 52 55 89 e5 0f
+34 cd 80 <5d> 5a 59 c3 90 90 90 90 8d 76 00 58 b8 77 00 00 00 cd 80 90
+8d 76
+[  131.475774] EAX: ffffffda EBX: 0804b486 ECX: 80000004 EDX: 080493de
+[  131.476527] ESI: b7cb3220 EDI: b7da98e0 EBP: bfb06748 ESP: bfb066dc
+[  131.477299] DS: 007b ES: 007b FS: 0000 GS: 0033 SS: 007b EFLAGS: 00000296
+[  131.478100] Modules linked in: configfs fuse [last unloaded: test_strscpy(N)]
+[  131.478927] ---[ end trace 0000000000000000 ]---
+[  131.479606] EIP: hugetlb_file_setup.cold+0x0/0x33
+[  131.480192] Code: b8 ea ff ff ff e9 b2 91 2b ff 0f 0b c7 04 24 40
+8a 3d de e8 a7 4a ff ff b8 ea ff ff ff e9 b7 9a 2b ff 0f 0b 0f 0b 0f
+0b 0f 0b <0f> 0b 64 a1 58 88 96 de c6 05 b5 db 7f de 01 8b 90 ec 03 00
+00 05
+[  131.482391] EAX: c405fe18 EBX: 00000000 ECX: 00000020 EDX: 00000000
+[  131.483167] ESI: 80000004 EDI: 00000005 EBP: c4433ecc ESP: c4433eac
+[  131.483937] DS: 007b ES: 007b FS: 00d8 GS: 0033 SS: 0068 EFLAGS: 00010212
+[  131.484778] CR0: 80050033 CR2: b7e123d0 CR3: 04e19000 CR4: 003506d0
+# ./run_hugetlbfs_test.sh: line 60:  1234 Segmentation fault
+./memfd_test hugetlbfs
+# opening: ./mnt/memfd
+# fuse: DONE
+ok 3 selftests: memfd: run_hugetlbfs_test.sh
+
+
+metadata:
+  git_ref: linux-6.0.y
+  git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+  git_sha: 436175d0f780af8302164b3102ecf0ff99f7a376
+  git_describe: v6.0.6-241-g436175d0f780
+  kernel_version: 6.0.7-rc1
+  kernel-config: https://builds.tuxbuild.com/2GyMVgOGkjCgZnY68fHRZ9jp3Y4/config
+  build-url: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/pipelines/683032123
+  artifact-location: https://builds.tuxbuild.com/2GyMVgOGkjCgZnY68fHRZ9jp3Y4
+  toolchain: gcc-11
+
+
+full test log,
+https://lkft.validation.linaro.org/scheduler/job/5799502#L2038
+
+--
+Linaro LKFT
+https://lkft.linaro.org
