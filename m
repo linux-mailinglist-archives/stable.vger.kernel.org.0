@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05EEA61588A
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:53:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E3061588C
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:53:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231134AbiKBCxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:53:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42770 "EHLO
+        id S231131AbiKBCxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:53:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231139AbiKBCxb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:53:31 -0400
+        with ESMTP id S231172AbiKBCxk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:53:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D67311832
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:53:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECE81E0C9
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:53:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BAD3C617D8
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:53:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6302FC4314A;
-        Wed,  2 Nov 2022 02:53:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AAC1617CF
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:53:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11FA4C433C1;
+        Wed,  2 Nov 2022 02:53:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357607;
-        bh=xfdeAinQ0BM6WBYqRRUMStvX5R0hOlCufeC3h7c++e4=;
+        s=korg; t=1667357618;
+        bh=19xDhsaC5UrlZpHrXcpVr6Aseyo6Zptg8FwCO1FwENI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNJRhbmQNvrHhJJTo2umnrIoGX3oglyOX4QzHUbbvaXCjkAtnTnH5MaD6v2m/V5Ou
-         i3ElisZF6rVhwHqOBKngtm35VOY6NJP2BED20M0I182TivlYAtd+iz0E9tq8L1472Z
-         g5WYV2/ATA7n3vzpupfyOU/7sMWfIdKYTZ6gBm5E=
+        b=UaQF7TQej9ts+TqS869WZV/ZdnLoKfpivTQZG0hTQp4pekxoDPyCn2gGuneDlKsK+
+         sCnymeM9eBEHvhCFWF/5SfObF9aB6Ycq9yz4qQ7HgtE1lgkNoCx2jmVJNcXMBE8Q+T
+         0tmRH83QidMykUKadw0LxsF87QTw9i27guDUHeQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 199/240] media: videodev2.h: V4L2_DV_BT_BLANKING_HEIGHT should check interlaced
-Date:   Wed,  2 Nov 2022 03:32:54 +0100
-Message-Id: <20221102022115.896435752@linuxfoundation.org>
+Subject: [PATCH 6.0 200/240] media: vivid: set num_in/outputs to 0 if not supported
+Date:   Wed,  2 Nov 2022 03:32:55 +0100
+Message-Id: <20221102022115.919740560@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,33 +55,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 8da7f0976b9071b528c545008de9d10cc81883b1 ]
+[ Upstream commit 69d78a80da4ef12faf2a6f9cfa2097ab4ac43983 ]
 
-If it is a progressive (non-interlaced) format, then ignore the
-interlaced timing values.
+If node_types does not have video/vbi/meta inputs or outputs,
+then set num_inputs/num_outputs to 0 instead of 1.
 
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 7f68127fa11f ([media] videodev2.h: defines to calculate blanking and frame sizes)
+Fixes: 0c90f649d2f5 (media: vivid: add vivid_create_queue() helper)
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/videodev2.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/test-drivers/vivid/vivid-core.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
-index 01e630f2ec78..fbe40307934d 100644
---- a/include/uapi/linux/videodev2.h
-+++ b/include/uapi/linux/videodev2.h
-@@ -1602,7 +1602,8 @@ struct v4l2_bt_timings {
- 	((bt)->width + V4L2_DV_BT_BLANKING_WIDTH(bt))
- #define V4L2_DV_BT_BLANKING_HEIGHT(bt) \
- 	((bt)->vfrontporch + (bt)->vsync + (bt)->vbackporch + \
--	 (bt)->il_vfrontporch + (bt)->il_vsync + (bt)->il_vbackporch)
-+	 ((bt)->interlaced ? \
-+	  ((bt)->il_vfrontporch + (bt)->il_vsync + (bt)->il_vbackporch) : 0))
- #define V4L2_DV_BT_FRAME_HEIGHT(bt) \
- 	((bt)->height + V4L2_DV_BT_BLANKING_HEIGHT(bt))
+diff --git a/drivers/media/test-drivers/vivid/vivid-core.c b/drivers/media/test-drivers/vivid/vivid-core.c
+index 61d48fbc3d15..f28440e6c9f8 100644
+--- a/drivers/media/test-drivers/vivid/vivid-core.c
++++ b/drivers/media/test-drivers/vivid/vivid-core.c
+@@ -942,8 +942,12 @@ static int vivid_detect_feature_set(struct vivid_dev *dev, int inst,
  
+ 	/* how many inputs do we have and of what type? */
+ 	dev->num_inputs = num_inputs[inst];
+-	if (dev->num_inputs < 1)
+-		dev->num_inputs = 1;
++	if (node_type & 0x20007) {
++		if (dev->num_inputs < 1)
++			dev->num_inputs = 1;
++	} else {
++		dev->num_inputs = 0;
++	}
+ 	if (dev->num_inputs >= MAX_INPUTS)
+ 		dev->num_inputs = MAX_INPUTS;
+ 	for (i = 0; i < dev->num_inputs; i++) {
+@@ -960,8 +964,12 @@ static int vivid_detect_feature_set(struct vivid_dev *dev, int inst,
+ 
+ 	/* how many outputs do we have and of what type? */
+ 	dev->num_outputs = num_outputs[inst];
+-	if (dev->num_outputs < 1)
+-		dev->num_outputs = 1;
++	if (node_type & 0x40300) {
++		if (dev->num_outputs < 1)
++			dev->num_outputs = 1;
++	} else {
++		dev->num_outputs = 0;
++	}
+ 	if (dev->num_outputs >= MAX_OUTPUTS)
+ 		dev->num_outputs = MAX_OUTPUTS;
+ 	for (i = 0; i < dev->num_outputs; i++) {
 -- 
 2.35.1
 
