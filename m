@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D412F615AE9
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:43:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99285615AB7
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:39:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230048AbiKBDnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:43:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60520 "EHLO
+        id S229950AbiKBDji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:39:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230086AbiKBDnr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:43:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BBDC25E7
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:43:46 -0700 (PDT)
+        with ESMTP id S229882AbiKBDjh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:39:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C18C264A3
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:39:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4EA0EB8205C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:43:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF652C433C1;
-        Wed,  2 Nov 2022 03:43:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A0E7B8205C
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:39:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E106BC433C1;
+        Wed,  2 Nov 2022 03:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360624;
-        bh=gROtz7cPMClv71/QWlxuYzkaHBeG2OpK3JmfvdIBzfk=;
+        s=korg; t=1667360373;
+        bh=cyE5GLqld2atVkPvarvnzfCB9HT1k+9aCFeCb0mitls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kp5xFQRMoOyNhkImKPu7XQggL+c9xhy8a51/ONZ3JUR+5Ap8QEfs/NjClvg1Tbjow
-         roCUnoRGgypqkaiQ6p0waCkzGhoaYsyNpKu1jGr7cEukkOY1wxeyhSoBJnlN0nngjI
-         CCFTmOOIoLYptY76uzM8XQZ+fh280x0nW1myN1QE=
+        b=qrHma/DCRrWCaJ2YG1HNmZA23Gy0XLhRLeJrnfIId/kovrV74c5OwmWDzm2ZYNDdR
+         8yJOAah+hLteEqv51S5T9y0tIwg7sJrwD5AtAJBLKG51i/exkBW5euR+obj4V9dDbI
+         RwJd4mOG48P+l/FL+hmgi+wqN+cWrEglcEDqY0jQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Yan Wang <wangyan122@huawei.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.9 01/44] ocfs2: clear dinode links count in case of error
+        patches@lists.linux.dev, Hyunwoo Kim <imv4bel@gmail.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.14 26/60] fbdev: smscufx: Fix several use-after-free bugs
 Date:   Wed,  2 Nov 2022 03:34:47 +0100
-Message-Id: <20221102022049.066510869@linuxfoundation.org>
+Message-Id: <20221102022051.940941588@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
-References: <20221102022049.017479464@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -60,77 +52,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
+From: Hyunwoo Kim <imv4bel@gmail.com>
 
-commit 28f4821b1b53e0649706912e810c6c232fc506f9 upstream.
+commit cc67482c9e5f2c80d62f623bcc347c29f9f648e1 upstream.
 
-In ocfs2_mknod(), if error occurs after dinode successfully allocated,
-ocfs2 i_links_count will not be 0.
+Several types of UAFs can occur when physically removing a USB device.
 
-So even though we clear inode i_nlink before iput in error handling, it
-still won't wipe inode since we'll refresh inode from dinode during inode
-lock.  So just like clear inode i_nlink, we clear ocfs2 i_links_count as
-well.  Also do the same change for ocfs2_symlink().
+Adds ufx_ops_destroy() function to .fb_destroy of fb_ops, and
+in this function, there is kref_put() that finally calls ufx_free().
 
-Link: https://lkml.kernel.org/r/20221017130227.234480-2-joseph.qi@linux.alibaba.com
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reported-by: Yan Wang <wangyan122@huawei.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
+This fix prevents multiple UAFs.
+
+Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
+Link: https://lore.kernel.org/linux-fbdev/20221011153436.GA4446@ubuntu/
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/namei.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/smscufx.c |   55 ++++++++++++++++++++++--------------------
+ 1 file changed, 30 insertions(+), 25 deletions(-)
 
---- a/fs/ocfs2/namei.c
-+++ b/fs/ocfs2/namei.c
-@@ -244,6 +244,7 @@ static int ocfs2_mknod(struct inode *dir
- 	handle_t *handle = NULL;
- 	struct ocfs2_super *osb;
- 	struct ocfs2_dinode *dirfe;
-+	struct ocfs2_dinode *fe = NULL;
- 	struct buffer_head *new_fe_bh = NULL;
- 	struct inode *inode = NULL;
- 	struct ocfs2_alloc_context *inode_ac = NULL;
-@@ -394,6 +395,7 @@ static int ocfs2_mknod(struct inode *dir
- 		goto leave;
+--- a/drivers/video/fbdev/smscufx.c
++++ b/drivers/video/fbdev/smscufx.c
+@@ -100,7 +100,6 @@ struct ufx_data {
+ 	struct kref kref;
+ 	int fb_count;
+ 	bool virtualized; /* true when physical usb device not present */
+-	struct delayed_work free_framebuffer_work;
+ 	atomic_t usb_active; /* 0 = update virtual buffer, but no usb traffic */
+ 	atomic_t lost_pixels; /* 1 = a render op failed. Need screen refresh */
+ 	u8 *edid; /* null until we read edid from hw or get from sysfs */
+@@ -1120,15 +1119,24 @@ static void ufx_free(struct kref *kref)
+ {
+ 	struct ufx_data *dev = container_of(kref, struct ufx_data, kref);
+ 
+-	/* this function will wait for all in-flight urbs to complete */
+-	if (dev->urbs.count > 0)
+-		ufx_free_urb_list(dev);
++	kfree(dev);
++}
+ 
+-	pr_debug("freeing ufx_data %p", dev);
++static void ufx_ops_destory(struct fb_info *info)
++{
++	struct ufx_data *dev = info->par;
++	int node = info->node;
+ 
+-	kfree(dev);
++	/* Assume info structure is freed after this point */
++	framebuffer_release(info);
++
++	pr_debug("fb_info for /dev/fb%d has been freed", node);
++
++	/* release reference taken by kref_init in probe() */
++	kref_put(&dev->kref, ufx_free);
+ }
+ 
++
+ static void ufx_release_urb_work(struct work_struct *work)
+ {
+ 	struct urb_node *unode = container_of(work, struct urb_node,
+@@ -1137,14 +1145,9 @@ static void ufx_release_urb_work(struct
+ 	up(&unode->dev->urbs.limit_sem);
+ }
+ 
+-static void ufx_free_framebuffer_work(struct work_struct *work)
++static void ufx_free_framebuffer(struct ufx_data *dev)
+ {
+-	struct ufx_data *dev = container_of(work, struct ufx_data,
+-					    free_framebuffer_work.work);
+ 	struct fb_info *info = dev->info;
+-	int node = info->node;
+-
+-	unregister_framebuffer(info);
+ 
+ 	if (info->cmap.len != 0)
+ 		fb_dealloc_cmap(&info->cmap);
+@@ -1156,11 +1159,6 @@ static void ufx_free_framebuffer_work(st
+ 
+ 	dev->info = NULL;
+ 
+-	/* Assume info structure is freed after this point */
+-	framebuffer_release(info);
+-
+-	pr_debug("fb_info for /dev/fb%d has been freed", node);
+-
+ 	/* ref taken in probe() as part of registering framebfufer */
+ 	kref_put(&dev->kref, ufx_free);
+ }
+@@ -1172,11 +1170,13 @@ static int ufx_ops_release(struct fb_inf
+ {
+ 	struct ufx_data *dev = info->par;
+ 
++	mutex_lock(&disconnect_mutex);
++
+ 	dev->fb_count--;
+ 
+ 	/* We can't free fb_info here - fbmem will touch it when we return */
+ 	if (dev->virtualized && (dev->fb_count == 0))
+-		schedule_delayed_work(&dev->free_framebuffer_work, HZ);
++		ufx_free_framebuffer(dev);
+ 
+ 	if ((dev->fb_count == 0) && (info->fbdefio)) {
+ 		fb_deferred_io_cleanup(info);
+@@ -1190,6 +1190,8 @@ static int ufx_ops_release(struct fb_inf
+ 
+ 	kref_put(&dev->kref, ufx_free);
+ 
++	mutex_unlock(&disconnect_mutex);
++
+ 	return 0;
+ }
+ 
+@@ -1296,6 +1298,7 @@ static struct fb_ops ufx_ops = {
+ 	.fb_blank = ufx_ops_blank,
+ 	.fb_check_var = ufx_ops_check_var,
+ 	.fb_set_par = ufx_ops_set_par,
++	.fb_destroy = ufx_ops_destory,
+ };
+ 
+ /* Assumes &info->lock held by caller
+@@ -1688,9 +1691,6 @@ static int ufx_usb_probe(struct usb_inte
+ 		goto error;
  	}
  
-+	fe = (struct ocfs2_dinode *) new_fe_bh->b_data;
- 	if (S_ISDIR(mode)) {
- 		status = ocfs2_fill_new_dir(osb, handle, dir, inode,
- 					    new_fe_bh, data_ac, meta_ac);
-@@ -459,8 +461,11 @@ static int ocfs2_mknod(struct inode *dir
- leave:
- 	if (status < 0 && did_quota_inode)
- 		dquot_free_inode(inode);
--	if (handle)
-+	if (handle) {
-+		if (status < 0 && fe)
-+			ocfs2_set_links_count(fe, 0);
- 		ocfs2_commit_trans(osb, handle);
-+	}
+-	INIT_DELAYED_WORK(&dev->free_framebuffer_work,
+-			  ufx_free_framebuffer_work);
+-
+ 	retval = ufx_reg_read(dev, 0x3000, &id_rev);
+ 	check_warn_goto_error(retval, "error %d reading 0x3000 register from device", retval);
+ 	dev_dbg(dev->gdev, "ID_REV register value 0x%08x", id_rev);
+@@ -1769,10 +1769,12 @@ error:
+ static void ufx_usb_disconnect(struct usb_interface *interface)
+ {
+ 	struct ufx_data *dev;
++	struct fb_info *info;
  
- 	ocfs2_inode_unlock(dir, 1);
- 	if (did_block_signals)
-@@ -2028,8 +2033,11 @@ bail:
- 					ocfs2_clusters_to_bytes(osb->sb, 1));
- 	if (status < 0 && did_quota_inode)
- 		dquot_free_inode(inode);
--	if (handle)
-+	if (handle) {
-+		if (status < 0 && fe)
-+			ocfs2_set_links_count(fe, 0);
- 		ocfs2_commit_trans(osb, handle);
-+	}
+ 	mutex_lock(&disconnect_mutex);
  
- 	ocfs2_inode_unlock(dir, 1);
- 	if (did_block_signals)
+ 	dev = usb_get_intfdata(interface);
++	info = dev->info;
+ 
+ 	pr_debug("USB disconnect starting\n");
+ 
+@@ -1786,12 +1788,15 @@ static void ufx_usb_disconnect(struct us
+ 
+ 	/* if clients still have us open, will be freed on last close */
+ 	if (dev->fb_count == 0)
+-		schedule_delayed_work(&dev->free_framebuffer_work, 0);
++		ufx_free_framebuffer(dev);
+ 
+-	/* release reference taken by kref_init in probe() */
+-	kref_put(&dev->kref, ufx_free);
++	/* this function will wait for all in-flight urbs to complete */
++	if (dev->urbs.count > 0)
++		ufx_free_urb_list(dev);
++
++	pr_debug("freeing ufx_data %p", dev);
+ 
+-	/* consider ufx_data freed */
++	unregister_framebuffer(info);
+ 
+ 	mutex_unlock(&disconnect_mutex);
+ }
 
 
