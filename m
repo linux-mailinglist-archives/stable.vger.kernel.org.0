@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73C3B61586C
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:51:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D6A36158DF
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:00:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231124AbiKBCvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:51:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41264 "EHLO
+        id S231267AbiKBDAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:00:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230505AbiKBCvu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:51:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C93C220C1
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:51:48 -0700 (PDT)
+        with ESMTP id S231273AbiKBC7x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:59:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 958B322B23
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:59:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62782617CE
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:51:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E053BC433D6;
-        Wed,  2 Nov 2022 02:51:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52F2EB82064
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:59:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23A66C433C1;
+        Wed,  2 Nov 2022 02:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357507;
-        bh=7eNAxHjqmbdzlR+y/8EKTF6GC+1dFMQ9C3KxS6SEJvM=;
+        s=korg; t=1667357990;
+        bh=7TpWGaSSnfb4VvfJN18uJ736Am1D1eC9A9UNJRPcBU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UcoOkavOAHSJoSVWVyyjfhNGzK+fS/Gu8u5bURpk0PZrRCUtNRPJc2JcWGzefJ4IQ
-         SoUaEnd6S/DzCdTerVr9bwVcWf/KUl/3T2ab50NbTVeRNUyX2lHirruI81a6qKWAJ3
-         X/Z1Q6hZYcNiP0WwddvOysIdGd//Y3YmTR1bctvY=
+        b=KH1mqONz/wcovqlmreBTG6w8ndzuqVDIrA/PUW6OtS1jAFMfSoKnRPYe12g9pzkHr
+         hrgcoHK9twgCR7aulzGbNWzuzsTMyYh68UAoitXT5BagSQId5Tipc6PldEYVadTR7t
+         VqS9Z+HIHKRW0E5yOQ1/vH49JbuXkyWESLx7Q+uw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Gopal Vamshi Krishna <vamshi.krishna.gopal@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 154/240] ASoC: Intel: common: add ACPI matching tables for Raptor Lake
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.15 023/132] iio: adxl372: Fix unsafe buffer attributes
 Date:   Wed,  2 Nov 2022 03:32:09 +0100
-Message-Id: <20221102022114.863562381@linuxfoundation.org>
+Message-Id: <20221102022100.236864143@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
-References: <20221102022111.398283374@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,119 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Matti Vaittinen <mazziesaccount@gmail.com>
 
-[ Upstream commit 5f3db54cfbc21772d984372fdcc5bb17b57f425f ]
+commit ab0ee36e90f611f32c3a53afe9dc743de48138e2 upstream.
 
-Initial support for RPL w/ RT711
+The iio_triggered_buffer_setup_ext() was changed by
+commit 15097c7a1adc ("iio: buffer: wrap all buffer attributes into iio_dev_attr")
+to silently expect that all attributes given in buffer_attrs array are
+device-attributes. This expectation was not forced by the API - and some
+drivers did register attributes created by IIO_CONST_ATTR().
 
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Tested-by: Gopal Vamshi Krishna <vamshi.krishna.gopal@intel.com>
-Link: https://lore.kernel.org/r/20220816130510.190427-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Stable-dep-of: 05de5cf6fb7d ("ASoC: SOF: Intel: pci-tgl: fix ADL-N descriptor")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The added attribute "wrapping" does not copy the pointer to stored
+string constant and when the sysfs file is read the kernel will access
+to invalid location.
+
+Change the IIO_CONST_ATTRs from the driver to IIO_DEVICE_ATTR in order
+to prevent the invalid memory access.
+
+Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Fixes: 15097c7a1adc ("iio: buffer: wrap all buffer attributes into iio_dev_attr")
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/19158499623cdf7f9c5efae1f13c9f1a918ff75f.1664782676.git.mazziesaccount@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/sound/soc-acpi-intel-match.h          |  2 +
- sound/soc/intel/common/Makefile               |  2 +-
- .../intel/common/soc-acpi-intel-rpl-match.c   | 51 +++++++++++++++++++
- 3 files changed, 54 insertions(+), 1 deletion(-)
- create mode 100644 sound/soc/intel/common/soc-acpi-intel-rpl-match.c
+ drivers/iio/accel/adxl372.c | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/include/sound/soc-acpi-intel-match.h b/include/sound/soc-acpi-intel-match.h
-index bc7fd46ec2bc..ac750afa7bc6 100644
---- a/include/sound/soc-acpi-intel-match.h
-+++ b/include/sound/soc-acpi-intel-match.h
-@@ -30,6 +30,7 @@ extern struct snd_soc_acpi_mach snd_soc_acpi_intel_tgl_machines[];
- extern struct snd_soc_acpi_mach snd_soc_acpi_intel_ehl_machines[];
- extern struct snd_soc_acpi_mach snd_soc_acpi_intel_jsl_machines[];
- extern struct snd_soc_acpi_mach snd_soc_acpi_intel_adl_machines[];
-+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_rpl_machines[];
- extern struct snd_soc_acpi_mach snd_soc_acpi_intel_mtl_machines[];
+diff --git a/drivers/iio/accel/adxl372.c b/drivers/iio/accel/adxl372.c
+index e3ecbaee61f7..bc53af809d5d 100644
+--- a/drivers/iio/accel/adxl372.c
++++ b/drivers/iio/accel/adxl372.c
+@@ -998,17 +998,30 @@ static ssize_t adxl372_get_fifo_watermark(struct device *dev,
+ 	return sprintf(buf, "%d\n", st->watermark);
+ }
  
- extern struct snd_soc_acpi_mach snd_soc_acpi_intel_cnl_sdw_machines[];
-@@ -38,6 +39,7 @@ extern struct snd_soc_acpi_mach snd_soc_acpi_intel_cml_sdw_machines[];
- extern struct snd_soc_acpi_mach snd_soc_acpi_intel_icl_sdw_machines[];
- extern struct snd_soc_acpi_mach snd_soc_acpi_intel_tgl_sdw_machines[];
- extern struct snd_soc_acpi_mach snd_soc_acpi_intel_adl_sdw_machines[];
-+extern struct snd_soc_acpi_mach snd_soc_acpi_intel_rpl_sdw_machines[];
- extern struct snd_soc_acpi_mach snd_soc_acpi_intel_mtl_sdw_machines[];
+-static IIO_CONST_ATTR(hwfifo_watermark_min, "1");
+-static IIO_CONST_ATTR(hwfifo_watermark_max,
+-		      __stringify(ADXL372_FIFO_SIZE));
++static ssize_t hwfifo_watermark_min_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
++{
++	return sysfs_emit(buf, "%s\n", "1");
++}
++
++static ssize_t hwfifo_watermark_max_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
++{
++	return sysfs_emit(buf, "%s\n", __stringify(ADXL372_FIFO_SIZE));
++}
++
++static IIO_DEVICE_ATTR_RO(hwfifo_watermark_min, 0);
++static IIO_DEVICE_ATTR_RO(hwfifo_watermark_max, 0);
+ static IIO_DEVICE_ATTR(hwfifo_watermark, 0444,
+ 		       adxl372_get_fifo_watermark, NULL, 0);
+ static IIO_DEVICE_ATTR(hwfifo_enabled, 0444,
+ 		       adxl372_get_fifo_enabled, NULL, 0);
  
- /*
-diff --git a/sound/soc/intel/common/Makefile b/sound/soc/intel/common/Makefile
-index 8ca8f872ec80..41054cf09ec9 100644
---- a/sound/soc/intel/common/Makefile
-+++ b/sound/soc/intel/common/Makefile
-@@ -9,7 +9,7 @@ snd-soc-acpi-intel-match-objs := soc-acpi-intel-byt-match.o soc-acpi-intel-cht-m
- 	soc-acpi-intel-cml-match.o soc-acpi-intel-icl-match.o \
- 	soc-acpi-intel-tgl-match.o soc-acpi-intel-ehl-match.o \
- 	soc-acpi-intel-jsl-match.o soc-acpi-intel-adl-match.o \
--	soc-acpi-intel-mtl-match.o \
-+	soc-acpi-intel-rpl-match.o soc-acpi-intel-mtl-match.o \
- 	soc-acpi-intel-hda-match.o \
- 	soc-acpi-intel-sdw-mockup-match.o
- 
-diff --git a/sound/soc/intel/common/soc-acpi-intel-rpl-match.c b/sound/soc/intel/common/soc-acpi-intel-rpl-match.c
-new file mode 100644
-index 000000000000..0b77401e4e6f
---- /dev/null
-+++ b/sound/soc/intel/common/soc-acpi-intel-rpl-match.c
-@@ -0,0 +1,51 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * soc-apci-intel-rpl-match.c - tables and support for RPL ACPI enumeration.
-+ *
-+ * Copyright (c) 2022 Intel Corporation.
-+ */
-+
-+#include <sound/soc-acpi.h>
-+#include <sound/soc-acpi-intel-match.h>
-+
-+static const struct snd_soc_acpi_endpoint single_endpoint = {
-+	.num = 0,
-+	.aggregated = 0,
-+	.group_position = 0,
-+	.group_id = 0,
-+};
-+
-+static const struct snd_soc_acpi_adr_device rt711_0_adr[] = {
-+	{
-+		.adr = 0x000020025D071100ull,
-+		.num_endpoints = 1,
-+		.endpoints = &single_endpoint,
-+		.name_prefix = "rt711"
-+	}
-+};
-+
-+static const struct snd_soc_acpi_link_adr rpl_rvp[] = {
-+	{
-+		.mask = BIT(0),
-+		.num_adr = ARRAY_SIZE(rt711_0_adr),
-+		.adr_d = rt711_0_adr,
-+	},
-+	{}
-+};
-+
-+struct snd_soc_acpi_mach snd_soc_acpi_intel_rpl_machines[] = {
-+	{},
-+};
-+EXPORT_SYMBOL_GPL(snd_soc_acpi_intel_rpl_machines);
-+
-+/* this table is used when there is no I2S codec present */
-+struct snd_soc_acpi_mach snd_soc_acpi_intel_rpl_sdw_machines[] = {
-+	{
-+		.link_mask = 0x1, /* link0 required */
-+		.links = rpl_rvp,
-+		.drv_name = "sof_sdw",
-+		.sof_tplg_filename = "sof-rpl-rt711.tplg",
-+	},
-+	{},
-+};
-+EXPORT_SYMBOL_GPL(snd_soc_acpi_intel_rpl_sdw_machines);
+ static const struct attribute *adxl372_fifo_attributes[] = {
+-	&iio_const_attr_hwfifo_watermark_min.dev_attr.attr,
+-	&iio_const_attr_hwfifo_watermark_max.dev_attr.attr,
++	&iio_dev_attr_hwfifo_watermark_min.dev_attr.attr,
++	&iio_dev_attr_hwfifo_watermark_max.dev_attr.attr,
+ 	&iio_dev_attr_hwfifo_watermark.dev_attr.attr,
+ 	&iio_dev_attr_hwfifo_enabled.dev_attr.attr,
+ 	NULL,
 -- 
-2.35.1
+2.38.1
 
 
 
