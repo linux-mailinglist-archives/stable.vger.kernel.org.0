@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9D506158B0
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:56:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72CA56158B1
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:56:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231164AbiKBC4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:56:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46312 "EHLO
+        id S231162AbiKBC4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:56:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231135AbiKBC4j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:56:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 820EF22512
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:56:38 -0700 (PDT)
+        with ESMTP id S231135AbiKBC4o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:56:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 136C422513
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:56:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 292B0B82071
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:56:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF328C433D6;
-        Wed,  2 Nov 2022 02:56:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9AF3B82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:56:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BBD9C433C1;
+        Wed,  2 Nov 2022 02:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357795;
-        bh=987/RewX/79lrIDQuSxRtlCPNZrHT4NilLbUh1Z/8vw=;
+        s=korg; t=1667357801;
+        bh=TwwWxJWYRhXpg2nnu3IkxG4kXRsEg8DkVan1/qYEypA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vow+rSQmRL/HKa7vyw0SeyRpFk7p7H+qyROWPreKacU4AtgzOvShcYsGSPSr9JATI
-         mSoSVjn7Yuz3eGIbzBwuV9dDVtF0KKJM3nU+oL2ow7LVbDNbzuEfnMCGqgrsvWWL7r
-         8KjQv7l2trHv8ecp26uDCOnfKhY0Ii8QbWk2GkiY=
+        b=qFPZGFMzLt76++MvI8BzBXIfj7yF/z7fJaOD7bvk8gWWR0LGL/hJ+5i7WBGE7WkSO
+         q6a+A9+3EWSAYi9HniCyaijAZjXqC3CaLT5zONsNy72Gjxr5KbOqb/vnMqpdZKHq6a
+         y78HhBD7z+HuBCHFELihXZNJylAkW58qHU5xkBLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ariel Levkovich <lariel@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
+        patches@lists.linux.dev, Roy Novich <royno@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>, Aya Levin <ayal@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 230/240] net/mlx5e: TC, Reject forwarding from internal port to internal port
-Date:   Wed,  2 Nov 2022 03:33:25 +0100
-Message-Id: <20221102022116.604752952@linuxfoundation.org>
+Subject: [PATCH 6.0 231/240] net/mlx5: Update fw fatal reporter state on PCI handlers successful recover
+Date:   Wed,  2 Nov 2022 03:33:26 +0100
+Message-Id: <20221102022116.626955023@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,72 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ariel Levkovich <lariel@nvidia.com>
+From: Roy Novich <royno@nvidia.com>
 
-[ Upstream commit f382a2413dae8c855226a72600812a4b37432c48 ]
+[ Upstream commit 416ef713631937cf5452476a7f1041a3ae7b06c6 ]
 
-Reject TC rules that forward from internal port to internal port
-as it is not supported.
+Update devlink health fw fatal reporter state to "healthy" is needed by
+strictly calling devlink_health_reporter_state_update() after recovery
+was done by PCI error handler. This is needed when fw_fatal reporter was
+triggered due to PCI error. Poll health is called and set reporter state
+to error. Health recovery failed (since EEH didn't re-enable the PCI).
+PCI handlers keep on recover flow and succeed later without devlink
+acknowledgment. Fix this by adding devlink state update at the end of
+the PCI handler recovery process.
 
-This include rules that are explicitly have internal port as
-the filter device as well as rules that apply on tunnel interfaces
-as the route device for the tunnel interface can be an internal
-port.
-
-Fixes: 27484f7170ed ("net/mlx5e: Offload tc rules that redirect to ovs internal port")
-Signed-off-by: Ariel Levkovich <lariel@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
+Fixes: 6181e5cb752e ("devlink: add support for reporter recovery completion")
+Signed-off-by: Roy Novich <royno@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Reviewed-by: Aya Levin <ayal@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/20221026135153.154807-9-saeed@kernel.org
+Link: https://lore.kernel.org/r/20221026135153.154807-11-saeed@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index 6a0df046064f..a687f047e3ae 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -4052,6 +4052,7 @@ parse_tc_fdb_actions(struct mlx5e_priv *priv,
- 	struct mlx5e_tc_flow_parse_attr *parse_attr;
- 	struct mlx5_flow_attr *attr = flow->attr;
- 	struct mlx5_esw_flow_attr *esw_attr;
-+	struct net_device *filter_dev;
- 	int err;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index 89b2d9cea33f..e5e32430b6af 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -1833,6 +1833,10 @@ static void mlx5_pci_resume(struct pci_dev *pdev)
  
- 	err = flow_action_supported(flow_action, extack);
-@@ -4060,6 +4061,7 @@ parse_tc_fdb_actions(struct mlx5e_priv *priv,
+ 	err = mlx5_load_one(dev, false);
  
- 	esw_attr = attr->esw_attr;
- 	parse_attr = attr->parse_attr;
-+	filter_dev = parse_attr->filter_dev;
- 	parse_state = &parse_attr->parse_state;
- 	mlx5e_tc_act_init_parse_state(parse_state, flow, flow_action, extack);
- 	parse_state->ct_priv = get_ct_priv(priv);
-@@ -4069,13 +4071,21 @@ parse_tc_fdb_actions(struct mlx5e_priv *priv,
- 		return err;
- 
- 	/* Forward to/from internal port can only have 1 dest */
--	if ((netif_is_ovs_master(parse_attr->filter_dev) || esw_attr->dest_int_port) &&
-+	if ((netif_is_ovs_master(filter_dev) || esw_attr->dest_int_port) &&
- 	    esw_attr->out_count > 1) {
- 		NL_SET_ERR_MSG_MOD(extack,
- 				   "Rules with internal port can have only one destination");
- 		return -EOPNOTSUPP;
- 	}
- 
-+	/* Forward from tunnel/internal port to internal port is not supported */
-+	if ((mlx5e_get_tc_tun(filter_dev) || netif_is_ovs_master(filter_dev)) &&
-+	    esw_attr->dest_int_port) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "Forwarding from tunnel/internal port to internal port is not supported");
-+		return -EOPNOTSUPP;
-+	}
++	if (!err)
++		devlink_health_reporter_state_update(dev->priv.health.fw_fatal_reporter,
++						     DEVLINK_HEALTH_REPORTER_STATE_HEALTHY);
 +
- 	err = actions_prepare_mod_hdr_actions(priv, flow, attr, extack);
- 	if (err)
- 		return err;
+ 	mlx5_pci_trace(dev, "Done, err = %d, device %s\n", err,
+ 		       !err ? "recovered" : "Failed");
+ }
 -- 
 2.35.1
 
