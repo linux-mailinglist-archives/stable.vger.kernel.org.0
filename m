@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47C48615A18
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:24:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C4BA615A19
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:24:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230318AbiKBDY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:24:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44526 "EHLO
+        id S230369AbiKBDYd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:24:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230283AbiKBDY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:24:27 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECA8A24F17
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:24:26 -0700 (PDT)
+        with ESMTP id S230283AbiKBDYc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:24:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9B5824F19
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:24:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6373ACE1F1A
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:24:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C292C433C1;
-        Wed,  2 Nov 2022 03:24:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A41B4B8205C
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:24:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86DDAC433C1;
+        Wed,  2 Nov 2022 03:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359463;
-        bh=iPbouTqH6r4YJTyTitNNH29A6mQltrdGz1AnpNrkb+8=;
+        s=korg; t=1667359469;
+        bh=S/S8Ac/of6DLveMK+E1Zq4/1umkkLunRcOxcyerIbXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FLjb7v1iz0qTPP0g6U/Pfw8cOa8Kj+l+L5sqMat+SItkXQMt7fhDnKJyaRAJMZy1W
-         SlX5v2AlRP5AmhHg4fWsxx3q78k779aHUxEQPMh9Tz7xIXOGgYGyWBj152UG8gqkRK
-         XtCzZdCe2ESkGsMf2w7RhEmngyG8Td8yGpUs812g=
+        b=Tm4Tt+yn05jGjbScyavUoCfuZ+UjvGwqQ0HYsA3/m+BXqhjN4E/cMq3end993uGf8
+         WaRpuQOBb/DKP6hAE9NzZZdJ9yvE4bZFpNitOu8OU2DT+5x+NduaiCAgxLImvg1tXc
+         KsszQFkd9Aw/gKrMm3MCMYwlu2hOAxG5bBziJO58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Kuogee Hsieh <quic_khsieh@quicinc.com>,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Abhinav Kumar <quic_abhinavk@quicinc.com>
-Subject: [PATCH 5.4 16/64] drm/msm/dsi: fix memory corruption with too many bridges
-Date:   Wed,  2 Nov 2022 03:33:42 +0100
-Message-Id: <20221102022052.329044241@linuxfoundation.org>
+Subject: [PATCH 5.4 17/64] drm/msm/hdmi: fix memory corruption with too many bridges
+Date:   Wed,  2 Nov 2022 03:33:43 +0100
+Message-Id: <20221102022052.359712406@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
 References: <20221102022051.821538553@linuxfoundation.org>
@@ -56,40 +56,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 2e786eb2f9cebb07e317226b60054df510b60c65 upstream.
+commit 4c1294da6aed1f16d47a417dcfe6602833c3c95c upstream.
 
 Add the missing sanity check on the bridge counter to avoid corrupting
 data beyond the fixed-sized bridge array in case there are ever more
 than eight bridges.
 
-Fixes: a689554ba6ed ("drm/msm: Initial add DSI connector support")
-Cc: stable@vger.kernel.org	# 4.1
+Fixes: a3376e3ec81c ("drm/msm: convert to drm_bridge")
+Cc: stable@vger.kernel.org	# 3.12
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 Tested-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
 Reviewed-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
 Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/502668/
-Link: https://lore.kernel.org/r/20220913085320.8577-4-johan+linaro@kernel.org
+Patchwork: https://patchwork.freedesktop.org/patch/502670/
+Link: https://lore.kernel.org/r/20220913085320.8577-5-johan+linaro@kernel.org
 Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/msm/hdmi/hdmi.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/gpu/drm/msm/dsi/dsi.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi.c
-@@ -203,6 +203,12 @@ int msm_dsi_modeset_init(struct msm_dsi
- 		return -EINVAL;
+--- a/drivers/gpu/drm/msm/hdmi/hdmi.c
++++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
+@@ -293,6 +293,11 @@ int msm_hdmi_modeset_init(struct hdmi *h
+ 	struct platform_device *pdev = hdmi->pdev;
+ 	int ret;
  
- 	priv = dev->dev_private;
-+
 +	if (priv->num_bridges == ARRAY_SIZE(priv->bridges)) {
 +		DRM_DEV_ERROR(dev->dev, "too many bridges\n");
 +		return -ENOSPC;
 +	}
 +
- 	msm_dsi->dev = dev;
+ 	hdmi->dev = dev;
+ 	hdmi->encoder = encoder;
  
- 	ret = msm_dsi_host_modeset_init(msm_dsi->host, dev);
 
 
