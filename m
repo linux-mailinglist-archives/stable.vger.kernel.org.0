@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 279D5615A34
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:26:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C74C46159DC
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:20:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230472AbiKBD0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:26:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45704 "EHLO
+        id S230196AbiKBDTz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:19:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230474AbiKBD0w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:26:52 -0400
+        with ESMTP id S230159AbiKBDTo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:19:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1839825EA0
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:26:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617C81A83B;
+        Tue,  1 Nov 2022 20:19:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A989D61799
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:26:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FA13C433C1;
-        Wed,  2 Nov 2022 03:26:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A3F461799;
+        Wed,  2 Nov 2022 03:19:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9690AC433C1;
+        Wed,  2 Nov 2022 03:19:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359610;
-        bh=PJ3He9POhooDWWIp3bsBgbCtCRfAebGGrEVw2VhN8NQ=;
+        s=korg; t=1667359178;
+        bh=VkO2kVt+Sc2OavXLWzRmHCXFLPmUkduyKof1p+g4S7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eLd2tjFauJmtk8NlBwANMe8PC/GndX1fsOapXX7RndsfRv1ieGr2ZKanUu5AhWhwj
-         anh6zDPiK0eCGDC7xjNDCe73IG6L9QCo/prBRD1HacjtQTTcxWQrmCt5X7b7kkeNCE
-         2Slovqg8dLCeZ2QNrBv9YRk1MPDJShIyBtWmEH9Y=
+        b=Eo1DME8VipSPQpXp+m86/deweiR7k0+3CvxAb+8yZfQkUJOpCEaX8I7CpEgeijr+I
+         1hVl9ouNKm+bcHI3o5tgvzFX5mdJwOJJyx1YeKaQY+Vczlg5XiCpDo9ckmhN1ceyoi
+         f4iPj9SKQ+HK+vN8uSZVLjQvo4vG1dxld9yNYPSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jakub Kicinski <kuba@kernel.org>,
-        Neil Spring <ntspring@fb.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 44/64] tcp: fix indefinite deferral of RTO with SACK reneging
-Date:   Wed,  2 Nov 2022 03:34:10 +0100
-Message-Id: <20221102022053.235866555@linuxfoundation.org>
+        patches@lists.linux.dev, Will Deacon <will@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Zenghui Yu <yuzenghui@huawei.com>
+Subject: [PATCH 5.10 88/91] arm64/kexec: Test page size support with new TGRAN range values
+Date:   Wed,  2 Nov 2022 03:34:11 +0100
+Message-Id: <20221102022057.553634951@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
-References: <20221102022051.821538553@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +56,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 
-[ Upstream commit 3d2af9cce3133b3bc596a9d065c6f9d93419ccfb ]
+commit 79d82cbcbb3d2a56c009ad6a6df92c5dee061dad upstream.
 
-This commit fixes a bug that can cause a TCP data sender to repeatedly
-defer RTOs when encountering SACK reneging.
+The commit 26f55386f964 ("arm64/mm: Fix __enable_mmu() for new TGRAN range
+values") had already switched into testing ID_AA64MMFR0_TGRAN range values.
+This just changes system_supports_[4|16|64]kb_granule() helpers to perform
+similar range tests as well. While here, it standardizes page size specific
+supported min and max TGRAN values.
 
-The bug is that when we're in fast recovery in a scenario with SACK
-reneging, every time we get an ACK we call tcp_check_sack_reneging()
-and it can note the apparent SACK reneging and rearm the RTO timer for
-srtt/2 into the future. In some SACK reneging scenarios that can
-happen repeatedly until the receive window fills up, at which point
-the sender can't send any more, the ACKs stop arriving, and the RTO
-fires at srtt/2 after the last ACK. But that can take far too long
-(O(10 secs)), since the connection is stuck in fast recovery with a
-low cwnd that cannot grow beyond ssthresh, even if more bandwidth is
-available.
-
-This fix changes the logic in tcp_check_sack_reneging() to only rearm
-the RTO timer if data is cumulatively ACKed, indicating forward
-progress. This avoids this kind of nearly infinite loop of RTO timer
-re-arming. In addition, this meets the goals of
-tcp_check_sack_reneging() in handling Windows TCP behavior that looks
-temporarily like SACK reneging but is not really.
-
-Many thanks to Jakub Kicinski and Neil Spring, who reported this issue
-and provided critical packet traces that enabled root-causing this
-issue. Also, many thanks to Jakub Kicinski for testing this fix.
-
-Fixes: 5ae344c949e7 ("tcp: reduce spurious retransmits due to transient SACK reneging")
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Reported-by: Neil Spring <ntspring@fb.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Cc: Yuchung Cheng <ycheng@google.com>
-Tested-by: Jakub Kicinski <kuba@kernel.org>
-Link: https://lore.kernel.org/r/20221021170821.1093930-1-ncardwell.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Link: https://lore.kernel.org/r/1626237975-1909-1-git-send-email-anshuman.khandual@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_input.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/cpufeature.h |    9 ++++++---
+ arch/arm64/include/asm/sysreg.h     |   28 ++++++++++++++++------------
+ 2 files changed, 22 insertions(+), 15 deletions(-)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 12585546ed15..44398317f033 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -2047,7 +2047,8 @@ void tcp_enter_loss(struct sock *sk)
-  */
- static bool tcp_check_sack_reneging(struct sock *sk, int flag)
- {
--	if (flag & FLAG_SACK_RENEGING) {
-+	if (flag & FLAG_SACK_RENEGING &&
-+	    flag & FLAG_SND_UNA_ADVANCED) {
- 		struct tcp_sock *tp = tcp_sk(sk);
- 		unsigned long delay = max(usecs_to_jiffies(tp->srtt_us >> 4),
- 					  msecs_to_jiffies(10));
--- 
-2.35.1
-
+--- a/arch/arm64/include/asm/cpufeature.h
++++ b/arch/arm64/include/asm/cpufeature.h
+@@ -648,7 +648,8 @@ static inline bool system_supports_4kb_g
+ 	val = cpuid_feature_extract_unsigned_field(mmfr0,
+ 						ID_AA64MMFR0_TGRAN4_SHIFT);
+ 
+-	return val == ID_AA64MMFR0_TGRAN4_SUPPORTED;
++	return (val >= ID_AA64MMFR0_TGRAN4_SUPPORTED_MIN) &&
++	       (val <= ID_AA64MMFR0_TGRAN4_SUPPORTED_MAX);
+ }
+ 
+ static inline bool system_supports_64kb_granule(void)
+@@ -660,7 +661,8 @@ static inline bool system_supports_64kb_
+ 	val = cpuid_feature_extract_unsigned_field(mmfr0,
+ 						ID_AA64MMFR0_TGRAN64_SHIFT);
+ 
+-	return val == ID_AA64MMFR0_TGRAN64_SUPPORTED;
++	return (val >= ID_AA64MMFR0_TGRAN64_SUPPORTED_MIN) &&
++	       (val <= ID_AA64MMFR0_TGRAN64_SUPPORTED_MAX);
+ }
+ 
+ static inline bool system_supports_16kb_granule(void)
+@@ -672,7 +674,8 @@ static inline bool system_supports_16kb_
+ 	val = cpuid_feature_extract_unsigned_field(mmfr0,
+ 						ID_AA64MMFR0_TGRAN16_SHIFT);
+ 
+-	return val == ID_AA64MMFR0_TGRAN16_SUPPORTED;
++	return (val >= ID_AA64MMFR0_TGRAN16_SUPPORTED_MIN) &&
++	       (val <= ID_AA64MMFR0_TGRAN16_SUPPORTED_MAX);
+ }
+ 
+ static inline bool system_supports_mixed_endian_el0(void)
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -786,12 +786,16 @@
+ #define ID_AA64MMFR0_ASID_SHIFT		4
+ #define ID_AA64MMFR0_PARANGE_SHIFT	0
+ 
+-#define ID_AA64MMFR0_TGRAN4_NI		0xf
+-#define ID_AA64MMFR0_TGRAN4_SUPPORTED	0x0
+-#define ID_AA64MMFR0_TGRAN64_NI		0xf
+-#define ID_AA64MMFR0_TGRAN64_SUPPORTED	0x0
+-#define ID_AA64MMFR0_TGRAN16_NI		0x0
+-#define ID_AA64MMFR0_TGRAN16_SUPPORTED	0x1
++#define ID_AA64MMFR0_TGRAN4_NI			0xf
++#define ID_AA64MMFR0_TGRAN4_SUPPORTED_MIN	0x0
++#define ID_AA64MMFR0_TGRAN4_SUPPORTED_MAX	0x7
++#define ID_AA64MMFR0_TGRAN64_NI			0xf
++#define ID_AA64MMFR0_TGRAN64_SUPPORTED_MIN	0x0
++#define ID_AA64MMFR0_TGRAN64_SUPPORTED_MAX	0x7
++#define ID_AA64MMFR0_TGRAN16_NI			0x0
++#define ID_AA64MMFR0_TGRAN16_SUPPORTED_MIN	0x1
++#define ID_AA64MMFR0_TGRAN16_SUPPORTED_MAX	0xf
++
+ #define ID_AA64MMFR0_PARANGE_48		0x5
+ #define ID_AA64MMFR0_PARANGE_52		0x6
+ 
+@@ -961,16 +965,16 @@
+ 
+ #if defined(CONFIG_ARM64_4K_PAGES)
+ #define ID_AA64MMFR0_TGRAN_SHIFT		ID_AA64MMFR0_TGRAN4_SHIFT
+-#define ID_AA64MMFR0_TGRAN_SUPPORTED_MIN	ID_AA64MMFR0_TGRAN4_SUPPORTED
+-#define ID_AA64MMFR0_TGRAN_SUPPORTED_MAX	0x7
++#define ID_AA64MMFR0_TGRAN_SUPPORTED_MIN	ID_AA64MMFR0_TGRAN4_SUPPORTED_MIN
++#define ID_AA64MMFR0_TGRAN_SUPPORTED_MAX	ID_AA64MMFR0_TGRAN4_SUPPORTED_MAX
+ #elif defined(CONFIG_ARM64_16K_PAGES)
+ #define ID_AA64MMFR0_TGRAN_SHIFT		ID_AA64MMFR0_TGRAN16_SHIFT
+-#define ID_AA64MMFR0_TGRAN_SUPPORTED_MIN	ID_AA64MMFR0_TGRAN16_SUPPORTED
+-#define ID_AA64MMFR0_TGRAN_SUPPORTED_MAX	0xF
++#define ID_AA64MMFR0_TGRAN_SUPPORTED_MIN	ID_AA64MMFR0_TGRAN16_SUPPORTED_MIN
++#define ID_AA64MMFR0_TGRAN_SUPPORTED_MAX	ID_AA64MMFR0_TGRAN16_SUPPORTED_MAX
+ #elif defined(CONFIG_ARM64_64K_PAGES)
+ #define ID_AA64MMFR0_TGRAN_SHIFT		ID_AA64MMFR0_TGRAN64_SHIFT
+-#define ID_AA64MMFR0_TGRAN_SUPPORTED_MIN	ID_AA64MMFR0_TGRAN64_SUPPORTED
+-#define ID_AA64MMFR0_TGRAN_SUPPORTED_MAX	0x7
++#define ID_AA64MMFR0_TGRAN_SUPPORTED_MIN	ID_AA64MMFR0_TGRAN64_SUPPORTED_MIN
++#define ID_AA64MMFR0_TGRAN_SUPPORTED_MAX	ID_AA64MMFR0_TGRAN64_SUPPORTED_MAX
+ #endif
+ 
+ #define MVFR2_FPMISC_SHIFT		4
 
 
