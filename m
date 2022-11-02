@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EE51615A84
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:32:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9C3A615AF5
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:44:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231204AbiKBDcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:32:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51632 "EHLO
+        id S230008AbiKBDov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:44:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231174AbiKBDcm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:32:42 -0400
+        with ESMTP id S229772AbiKBDou (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:44:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374C02613B
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:32:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B21736346
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:44:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDBC7B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:32:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF119C433C1;
-        Wed,  2 Nov 2022 03:32:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 73262B82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:44:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3246C433D7;
+        Wed,  2 Nov 2022 03:44:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359959;
-        bh=KXT9Owt7K6y8POFgy36IytbcDlCUjllD2cAwnYgifWY=;
+        s=korg; t=1667360687;
+        bh=wGZ5/47vXoXvpAAJTeZYx2lsDZ6pg0SmgsEYeSb37Pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LNic2OvlDRy+kuOIgE45NFvgXN/qMEIiEuOfaL3xU+u43miQ90rva/3sevFXpgudV
-         IdtFXLravGdO6jc98mHW6dIKiosGUjwCNViom2L7JBrbp9xeu0top+k25u9BrF+EK/
-         poSTmC1n15JkmTc+3AFXsyq4zQ3ibcwpQ3kfm5E8=
+        b=Gl7dB+0bTJ7EVSKgSKQNOyQTN8U6nRabs1tWllb+ERyI4xkDCIZTGT/TgLE8mOdzm
+         fdfMLkHa7iuHOwrJtLJfxgHOsu3EnG5UqnrfjUREdnQffH6V2jNAcNKwou1pWvX3pR
+         yYmvfihdgKTI9VqTixaupMzUw1ikm42MtknMNYm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        kolAflash <kolAflash@kolahilft.de>
-Subject: [PATCH 4.19 63/78] PM: hibernate: Allow hybrid sleep to work with s2idle
+        patches@lists.linux.dev, Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Yan Wang <wangyan122@huawei.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.9 02/44] ocfs2: fix BUG when iput after ocfs2_mknod fails
 Date:   Wed,  2 Nov 2022 03:34:48 +0100
-Message-Id: <20221102022054.803654731@linuxfoundation.org>
+Message-Id: <20221102022049.100444447@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
+References: <20221102022049.017479464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +58,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Joseph Qi <joseph.qi@linux.alibaba.com>
 
-[ Upstream commit 85850af4fc47132f3f2f0dd698b90f67906600b4 ]
+commit 759a7c6126eef5635506453e9b9d55a6a3ac2084 upstream.
 
-Hybrid sleep is currently hardcoded to only operate with S3 even
-on systems that might not support it.
+Commit b1529a41f777 "ocfs2: should reclaim the inode if
+'__ocfs2_mknod_locked' returns an error" tried to reclaim the claimed
+inode if __ocfs2_mknod_locked() fails later.  But this introduce a race,
+the freed bit may be reused immediately by another thread, which will
+update dinode, e.g.  i_generation.  Then iput this inode will lead to BUG:
+inode->i_generation != le32_to_cpu(fe->i_generation)
 
-Instead of assuming this mode is what the user wants to use, for
-hybrid sleep follow the setting of `mem_sleep_current` which
-will respect mem_sleep_default kernel command line and policy
-decisions made by the presence of the FADT low power idle bit.
+We could make this inode as bad, but we did want to do operations like
+wipe in some cases.  Since the claimed inode bit can only affect that an
+dinode is missing and will return back after fsck, it seems not a big
+problem.  So just leave it as is by revert the reclaim logic.
 
-Fixes: 81d45bdf8913 ("PM / hibernate: Untangle power_down()")
-Reported-and-tested-by: kolAflash <kolAflash@kolahilft.de>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216574
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20221017130227.234480-1-joseph.qi@linux.alibaba.com
+Fixes: b1529a41f777 ("ocfs2: should reclaim the inode if '__ocfs2_mknod_locked' returns an error")
+Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Reported-by: Yan Wang <wangyan122@huawei.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/power/hibernate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ocfs2/namei.c |   11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
-index 6abdfdf571ee..6737ae6ffbae 100644
---- a/kernel/power/hibernate.c
-+++ b/kernel/power/hibernate.c
-@@ -626,7 +626,7 @@ static void power_down(void)
- 	int error;
+--- a/fs/ocfs2/namei.c
++++ b/fs/ocfs2/namei.c
+@@ -641,18 +641,9 @@ static int ocfs2_mknod_locked(struct ocf
+ 		return status;
+ 	}
  
- 	if (hibernation_mode == HIBERNATION_SUSPEND) {
--		error = suspend_devices_and_enter(PM_SUSPEND_MEM);
-+		error = suspend_devices_and_enter(mem_sleep_current);
- 		if (error) {
- 			hibernation_mode = hibernation_ops ?
- 						HIBERNATION_PLATFORM :
--- 
-2.35.1
-
+-	status = __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
++	return __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
+ 				    parent_fe_bh, handle, inode_ac,
+ 				    fe_blkno, suballoc_loc, suballoc_bit);
+-	if (status < 0) {
+-		u64 bg_blkno = ocfs2_which_suballoc_group(fe_blkno, suballoc_bit);
+-		int tmp = ocfs2_free_suballoc_bits(handle, inode_ac->ac_inode,
+-				inode_ac->ac_bh, suballoc_bit, bg_blkno, 1);
+-		if (tmp)
+-			mlog_errno(tmp);
+-	}
+-
+-	return status;
+ }
+ 
+ static int ocfs2_mkdir(struct inode *dir,
 
 
