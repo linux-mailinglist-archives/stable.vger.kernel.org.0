@@ -2,65 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C1A616B5E
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 19:02:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BB78616B6B
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 19:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230102AbiKBSCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Nov 2022 14:02:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58882 "EHLO
+        id S229591AbiKBSDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Nov 2022 14:03:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230006AbiKBSCC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 14:02:02 -0400
+        with ESMTP id S231160AbiKBSCu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 14:02:50 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A8920BE3
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 11:01:03 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2824629C92
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 11:01:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667412062;
+        s=mimecast20190719; t=1667412070;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=rCufs503dpXhujdx2ITwJq82yoPCeWyuDZvhe6M3z5g=;
-        b=VW5DeW+Y/8WH3cx4xXPr7hLEQBz+EoNffDI68pF354AxwL/S+Yd3u9i20Jpx6u9eUS+Ipc
-        jAx2fUTmReW/bv6t8larlul/AaGVifTfKonrOEUHGI78t1AblvqXCQeJMmjId1hf+y82WM
-        dNfiDCmJh81Hx/3v3AAeBuH0TIV7iqU=
+        bh=1RvRC0SBdFOJn30TlRHeijUE+uZFovyhqvtp0pHaQFo=;
+        b=WDZBgqNHnDaNu7W0lQVTzcWTUycuVXzXctTP/eCG1OHOr5CH1oGdUqNHFLj3RjQo2DKEvg
+        skiyC8z9HUcbApGkuI/aa2cL7IwqlAjLVdsdWtRkxZElnp9JdjIZkYdX3UH+AuBvVphT2c
+        Hfy+sMnp1KtECb1MnNupuht+FKWewVs=
 Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
  [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-50-6Mdtf2TZP3-yC7imo0kuTw-1; Wed, 02 Nov 2022 14:01:00 -0400
-X-MC-Unique: 6Mdtf2TZP3-yC7imo0kuTw-1
-Received: by mail-ed1-f71.google.com with SMTP id z11-20020a056402274b00b00461dba91468so12387638edd.6
-        for <stable@vger.kernel.org>; Wed, 02 Nov 2022 11:01:00 -0700 (PDT)
+ us-mta-86-UklDo1FcOLqEnZC-pAMqRA-1; Wed, 02 Nov 2022 14:01:08 -0400
+X-MC-Unique: UklDo1FcOLqEnZC-pAMqRA-1
+Received: by mail-ed1-f71.google.com with SMTP id i17-20020a05640242d100b0044f18a5379aso12846628edc.21
+        for <stable@vger.kernel.org>; Wed, 02 Nov 2022 11:01:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rCufs503dpXhujdx2ITwJq82yoPCeWyuDZvhe6M3z5g=;
-        b=t7VnqOkCZ6E3fDGl2iED7/O11BmW1CcSUmgCZOyeLRdyRj++ypncJNmlhq6Hx1e7OH
-         YeaqLAy4ARXs3IMITN/mXrgV1Osg4nbuJ6ejHgN8+w3hxaQNHzzybvZy1jpU2rtllFHw
-         mqPE4AY5m6U1wYd/XGaSaE2JpBrgigki76Lf8Evy02vpBuiED6WYhM3mK0enmXSj/rVW
-         +Ns/tkcFpb8j6tJ5QLwNTInKRSiE4rtpvBZEZb4+f+7wpsP9p15xjlyX0GDkxtiEpyo/
-         xQ+GKSzBrZA0k1zkoYB4JWOgLqPn1DgVA/HPDilXpuN9xs3THdTy01Uy3Q0APZxzJRzI
-         Tasg==
-X-Gm-Message-State: ACrzQf2iWp+ypgPmZCVZqq15GAFaDp+PpjWAhgzJu7qq5Id/ktXT0T2X
-        CETCz4fd+2z6JImpw5u4CnshU2zPnUbNmi+Wvi3eMHIHyzr9ZxYLMB6B7rdh47DupRR8BcIJ+GZ
-        HxzzrNaHuLrXdLERm
-X-Received: by 2002:a17:907:162a:b0:7a9:9875:3147 with SMTP id hb42-20020a170907162a00b007a998753147mr24811956ejc.546.1667412059711;
-        Wed, 02 Nov 2022 11:00:59 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM6+k26jt8P0meTC5cvtxOQG2A16cOuUyN4Zb9NbzYoBjeJ+Gwhk+kLVvmXBfhREPPfCCMEb7A==
-X-Received: by 2002:a17:907:162a:b0:7a9:9875:3147 with SMTP id hb42-20020a170907162a00b007a998753147mr24811931ejc.546.1667412059484;
-        Wed, 02 Nov 2022 11:00:59 -0700 (PDT)
+        bh=1RvRC0SBdFOJn30TlRHeijUE+uZFovyhqvtp0pHaQFo=;
+        b=atcuaT9h15n7tkpbdPurShgV0xU7gEqTgz3TPDkITo3HNF2910fJOCYxVROnkUjrJ3
+         s7wdPU9BuXF7U4jmR+2ocFiu4yuL66MpcIO+b2O3tSAVejRImPwQ/X+tM6Nr7RH2fFNR
+         jB3rwYzd7j94tARkg2wgm0B7oW5G1Ya5BLgoEJzKC+F7CIfzmdBdwpklTPWanHEhrt5n
+         ovgdFZdvkMzKrHgRlatsXTWZPcrp+NI32thH/S8rRpziBfxzYcXoFS80W7g91qwvkstS
+         sZq3w+T0GwQkyRXeS8X72u31PnEI1koGZeVZ5wcO1BOMSqBFIiNs0m9RvWz8n/PByzdH
+         xcow==
+X-Gm-Message-State: ACrzQf35OLsa23RGjKZDTU11nycWqERhVqCfzu7qvC/EU5M8QkmDKJY+
+        HH4RuETN0HtenXIi1/80k6ZzOExjrLtyBLAye+Gh/sUOYhNwsusV0VX+JPR+gQryG93xICzWtux
+        lNKy6UemGwg+zU8i8
+X-Received: by 2002:a05:6402:4441:b0:454:8a74:5459 with SMTP id o1-20020a056402444100b004548a745459mr25327364edb.155.1667412064844;
+        Wed, 02 Nov 2022 11:01:04 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM57hTgvEfvojkgJ8KYcHKTN9VaUPnKu2iAGaKHsefUDp7ok0INXb6ztlZx81bz1ij1AbEgveA==
+X-Received: by 2002:a05:6402:4441:b0:454:8a74:5459 with SMTP id o1-20020a056402444100b004548a745459mr25327335edb.155.1667412064616;
+        Wed, 02 Nov 2022 11:01:04 -0700 (PDT)
 Received: from ?IPV6:2001:b07:add:ec09:c399:bc87:7b6c:fb2a? ([2001:b07:add:ec09:c399:bc87:7b6c:fb2a])
-        by smtp.googlemail.com with ESMTPSA id q16-20020a17090676d000b007ae035374a0sm1016781ejn.214.2022.11.02.11.00.57
+        by smtp.googlemail.com with ESMTPSA id be8-20020a0564021a2800b0045c3f6ad4c7sm5974668edb.62.2022.11.02.11.01.03
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Nov 2022 11:00:57 -0700 (PDT)
-Message-ID: <28116f0b-4acd-d72c-aaee-c2fc63ad8190@redhat.com>
-Date:   Wed, 2 Nov 2022 19:00:56 +0100
+        Wed, 02 Nov 2022 11:01:03 -0700 (PDT)
+Message-ID: <a9f099ee-3608-b68c-b089-057bcd9bc4dc@redhat.com>
+Date:   Wed, 2 Nov 2022 19:01:02 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.4.0
-Subject: Re: [PATCH AUTOSEL 6.0 03/11] kvm: x86: Do proper cleanup if
+Subject: Re: [PATCH AUTOSEL 5.19 03/10] kvm: x86: Do proper cleanup if
  kvm_x86_ops->vm_init() fails
 Content-Language: en-US
 To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
@@ -69,23 +69,23 @@ Cc:     Junaid Shahid <junaids@google.com>,
         Sean Christopherson <seanjc@google.com>, tglx@linutronix.de,
         mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
         x86@kernel.org, kvm@vger.kernel.org
-References: <20221014135139.2109024-1-sashal@kernel.org>
- <20221014135139.2109024-3-sashal@kernel.org>
+References: <20221014135222.2109334-1-sashal@kernel.org>
+ <20221014135222.2109334-3-sashal@kernel.org>
 From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20221014135139.2109024-3-sashal@kernel.org>
+In-Reply-To: <20221014135222.2109334-3-sashal@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/14/22 15:51, Sasha Levin wrote:
+On 10/14/22 15:52, Sasha Levin wrote:
 > From: Junaid Shahid <junaids@google.com>
 > 
 > [ Upstream commit b24ede22538b4d984cbe20532bbcb303692e7f52 ]
@@ -103,10 +103,10 @@ On 10/14/22 15:51, Sasha Levin wrote:
 >   1 file changed, 7 insertions(+), 1 deletion(-)
 > 
 > diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> index b0c47b41c264..11fbd42100be 100644
+> index 8c2815151864..8d2211b22ff3 100644
 > --- a/arch/x86/kvm/x86.c
 > +++ b/arch/x86/kvm/x86.c
-> @@ -12080,6 +12080,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+> @@ -11842,6 +11842,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
 >   	if (ret)
 >   		goto out_page_track;
 >   
@@ -117,7 +117,7 @@ On 10/14/22 15:51, Sasha Levin wrote:
 >   	INIT_HLIST_HEAD(&kvm->arch.mask_notifier_list);
 >   	INIT_LIST_HEAD(&kvm->arch.assigned_dev_head);
 >   	atomic_set(&kvm->arch.noncoherent_dma_count, 0);
-> @@ -12115,8 +12119,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+> @@ -11877,8 +11881,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
 >   	kvm_hv_init_vm(kvm);
 >   	kvm_xen_init_vm(kvm);
 >   
