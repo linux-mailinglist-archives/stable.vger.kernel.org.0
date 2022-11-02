@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70C84615893
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:54:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E107615894
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:54:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231136AbiKBCyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:54:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44568 "EHLO
+        id S230519AbiKBCyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:54:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230519AbiKBCyR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:54:17 -0400
+        with ESMTP id S231139AbiKBCyX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:54:23 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B218020F61
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:54:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B128420344
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:54:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DF6CB82064
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:54:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D42AC433D6;
-        Wed,  2 Nov 2022 02:54:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 639C2B82064
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:54:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45036C433D6;
+        Wed,  2 Nov 2022 02:54:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357654;
-        bh=o3I0NHbsuKemuTmVYQc65dNqUoW6f9y+a6tTBUbsyFY=;
+        s=korg; t=1667357660;
+        bh=pTB3XpaNHUcDahn1akS+6FzvmE53iFv5AHfHQrcv1u0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yP0A1x6hs5e4bBXaVb4xoB8Pth/0LwQQyFqjfM6QzoseY+fhr47NTLNNEcoSdx+Tb
-         odxW/0tFF+7uIv+7V0l+wrByPM7xrn82CmaeRWsRXbtnPBZQfUWuXxRVcO971yH7Wd
-         Kq+FuUxZK5m0JFqFLjUaBtT2Tq5r8i1Y/WU8QHWw=
+        b=K4rFgrS1v27UMnQ2TyumfIEYJPXu8i0IaVtXVHgMXKtE+ijZXvoffJ/P0l9ua2Ya2
+         3MHd0oQyKQuhXoSTOii+gfZye18CVflny1+leZUeIT2uKF8bjxGtFU9ibEEM3t5wvi
+         Me6XhhtyADSmW0N9660Z8zRMVbFZdsroNJFJjCBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Slawomir Laba <slawomirx.laba@intel.com>,
-        Michal Jaron <michalx.jaron@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 206/240] i40e: Fix flow-type by setting GL_HASH_INSET registers
-Date:   Wed,  2 Nov 2022 03:33:01 +0100
-Message-Id: <20221102022116.057062285@linuxfoundation.org>
+Subject: [PATCH 6.0 207/240] net: ksz884x: fix missing pci_disable_device() on error in pcidev_init()
+Date:   Wed,  2 Nov 2022 03:33:02 +0100
+Message-Id: <20221102022116.080402923@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -56,142 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 3b32c9932853e11d71f9db012d69e92e4669ba23 ]
+[ Upstream commit 5da6d65590a0698199df44d095e54b0ed1708178 ]
 
-Fix setting bits for specific flow_type for GLQF_HASH_INSET register.
-In previous version all of the bits were set only in hena register, while
-in inset only one bit was set. In order for this working correctly on all
-types of cards these bits needs to be set correctly for both hena and inset
-registers.
+pci_disable_device() need be called while module exiting, switch to use
+pcim_enable(), pci_disable_device() will be called in pcim_release()
+while unbinding device.
 
-Fixes: eb0dd6e4a3b3 ("i40e: Allow RSS Hash set with less than four parameters")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Link: https://lore.kernel.org/r/20221024100526.1874914-3-jacob.e.keller@intel.com
+Fixes: 8ca86fd83eae ("net: Micrel KSZ8841/2 PCI Ethernet driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221024131338.2848959-1-yangyingliang@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/intel/i40e/i40e_ethtool.c    | 71 ++++++++++---------
- 1 file changed, 38 insertions(+), 33 deletions(-)
+ drivers/net/ethernet/micrel/ksz884x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index 0f2042f1597c..6f0d4160ff82 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -3604,6 +3604,7 @@ static u64 i40e_get_rss_hash_bits(struct i40e_hw *hw,
- 	return i_set;
- }
+diff --git a/drivers/net/ethernet/micrel/ksz884x.c b/drivers/net/ethernet/micrel/ksz884x.c
+index 2b3eb5ed8233..97839f1b456c 100644
+--- a/drivers/net/ethernet/micrel/ksz884x.c
++++ b/drivers/net/ethernet/micrel/ksz884x.c
+@@ -6851,7 +6851,7 @@ static int pcidev_init(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	char banner[sizeof(version)];
+ 	struct ksz_switch *sw = NULL;
  
-+#define FLOW_PCTYPES_SIZE 64
- /**
-  * i40e_set_rss_hash_opt - Enable/Disable flow types for RSS hash
-  * @pf: pointer to the physical function struct
-@@ -3616,9 +3617,11 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
- 	struct i40e_hw *hw = &pf->hw;
- 	u64 hena = (u64)i40e_read_rx_ctl(hw, I40E_PFQF_HENA(0)) |
- 		   ((u64)i40e_read_rx_ctl(hw, I40E_PFQF_HENA(1)) << 32);
--	u8 flow_pctype = 0;
-+	DECLARE_BITMAP(flow_pctypes, FLOW_PCTYPES_SIZE);
- 	u64 i_set, i_setc;
+-	result = pci_enable_device(pdev);
++	result = pcim_enable_device(pdev);
+ 	if (result)
+ 		return result;
  
-+	bitmap_zero(flow_pctypes, FLOW_PCTYPES_SIZE);
-+
- 	if (pf->flags & I40E_FLAG_MFP_ENABLED) {
- 		dev_err(&pf->pdev->dev,
- 			"Change of RSS hash input set is not supported when MFP mode is enabled\n");
-@@ -3634,36 +3637,35 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
- 
- 	switch (nfc->flow_type) {
- 	case TCP_V4_FLOW:
--		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV4_TCP;
-+		set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_TCP, flow_pctypes);
- 		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK);
-+			set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK,
-+				flow_pctypes);
- 		break;
- 	case TCP_V6_FLOW:
--		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV6_TCP;
--		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK);
-+		set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_TCP, flow_pctypes);
- 		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV6_TCP_SYN_NO_ACK);
-+			set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_TCP_SYN_NO_ACK,
-+				flow_pctypes);
- 		break;
- 	case UDP_V4_FLOW:
--		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV4_UDP;
--		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV4_UDP) |
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV4_UDP);
--
-+		set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_UDP, flow_pctypes);
-+		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE) {
-+			set_bit(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV4_UDP,
-+				flow_pctypes);
-+			set_bit(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV4_UDP,
-+				flow_pctypes);
-+		}
- 		hena |= BIT_ULL(I40E_FILTER_PCTYPE_FRAG_IPV4);
- 		break;
- 	case UDP_V6_FLOW:
--		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV6_UDP;
--		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV6_UDP) |
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV6_UDP);
--
-+		set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_UDP, flow_pctypes);
-+		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE) {
-+			set_bit(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV6_UDP,
-+				flow_pctypes);
-+			set_bit(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV6_UDP,
-+				flow_pctypes);
-+		}
- 		hena |= BIT_ULL(I40E_FILTER_PCTYPE_FRAG_IPV6);
- 		break;
- 	case AH_ESP_V4_FLOW:
-@@ -3696,17 +3698,20 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
- 		return -EINVAL;
- 	}
- 
--	if (flow_pctype) {
--		i_setc = (u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(0,
--					       flow_pctype)) |
--			((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1,
--					       flow_pctype)) << 32);
--		i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
--		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_pctype),
--				  (u32)i_set);
--		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_pctype),
--				  (u32)(i_set >> 32));
--		hena |= BIT_ULL(flow_pctype);
-+	if (bitmap_weight(flow_pctypes, FLOW_PCTYPES_SIZE)) {
-+		u8 flow_id;
-+
-+		for_each_set_bit(flow_id, flow_pctypes, FLOW_PCTYPES_SIZE) {
-+			i_setc = (u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_id)) |
-+				 ((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_id)) << 32);
-+			i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
-+
-+			i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_id),
-+					  (u32)i_set);
-+			i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_id),
-+					  (u32)(i_set >> 32));
-+			hena |= BIT_ULL(flow_id);
-+		}
- 	}
- 
- 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(0), (u32)hena);
 -- 
 2.35.1
 
