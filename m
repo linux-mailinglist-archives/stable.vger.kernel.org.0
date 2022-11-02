@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2336159EB
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:21:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE2AD615966
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:10:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230216AbiKBDVC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:21:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40246 "EHLO
+        id S230161AbiKBDKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:10:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230232AbiKBDVA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:21:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58C98205C0
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:21:00 -0700 (PDT)
+        with ESMTP id S230208AbiKBDKS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:10:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E988122B1F
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:10:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E026F61729
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:20:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FDEDC433D6;
-        Wed,  2 Nov 2022 03:20:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7CA2CB8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:10:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F3BFC433D6;
+        Wed,  2 Nov 2022 03:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359259;
-        bh=pqSnykMIfQxwmzSq2JcY8DwL0vLvZnQpAXlCjQHnWo4=;
+        s=korg; t=1667358614;
+        bh=Q3PPMdMxnRf35kOEdSCi0Rsp1HqIgKjBMUA7NWi3B4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=paqNR3r/5Pgm/cklsy6bfJmmvzKM6453lMHlGpJV7NqMlHrI8tpqEzUXH8iKK9yMo
-         0WUR47cQLy7/ghTccGmCCDzlDNXixHi88yv/ggXgPG+AB7aqNjenvdw5D68VhSyAu6
-         I5HmCueT2focTnkvz/ekcJa5l5pLsKEWXAZlqnB4=
+        b=h/au4Ohz66cFer+2inITgAGRv+7ia9BCUOZt7uRsy2q//O++293Pt3RH01m7v82eF
+         e/tdqDRtk+tgobrgIB/x5W2cidBrRbRpyeOiaAL8pCg0xHFpG0cD1FYcdl7UaGfELc
+         FZiBfWKE+YTzSLecLSlwrxaTazpmRy4OA8ca7/ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jimmy Assarsson <extja@kvaser.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 02/64] can: kvaser_usb: Fix possible completions during init_completion
+        patches@lists.linux.dev, Slawomir Laba <slawomirx.laba@intel.com>,
+        Michal Jaron <michalx.jaron@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 102/132] i40e: Fix flow-type by setting GL_HASH_INSET registers
 Date:   Wed,  2 Nov 2022 03:33:28 +0100
-Message-Id: <20221102022051.899341119@linuxfoundation.org>
+Message-Id: <20221102022102.329373511@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
-References: <20221102022051.821538553@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +56,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Slawomir Laba <slawomirx.laba@intel.com>
 
-commit 2871edb32f4622c3a25ce4b3977bad9050b91974 upstream.
+[ Upstream commit 3b32c9932853e11d71f9db012d69e92e4669ba23 ]
 
-kvaser_usb uses completions to signal when a response event is received
-for outgoing commands.
+Fix setting bits for specific flow_type for GLQF_HASH_INSET register.
+In previous version all of the bits were set only in hena register, while
+in inset only one bit was set. In order for this working correctly on all
+types of cards these bits needs to be set correctly for both hena and inset
+registers.
 
-However, it uses init_completion() to reinitialize the start_comp and
-stop_comp completions before sending the start/stop commands.
-
-In case the device sends the corresponding response just before the
-actual command is sent, complete() may be called concurrently with
-init_completion() which is not safe.
-
-This might be triggerable even with a properly functioning device by
-stopping the interface (CMD_STOP_CHIP) just after it goes bus-off (which
-also causes the driver to send CMD_STOP_CHIP when restart-ms is off),
-but that was not tested.
-
-Fix the issue by using reinit_completion() instead.
-
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Tested-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010185237.319219-2-extja@kvaser.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: eb0dd6e4a3b3 ("i40e: Allow RSS Hash set with less than four parameters")
+Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Link: https://lore.kernel.org/r/20221024100526.1874914-3-jacob.e.keller@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c |    4 ++--
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c  |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ .../net/ethernet/intel/i40e/i40e_ethtool.c    | 71 ++++++++++---------
+ 1 file changed, 38 insertions(+), 33 deletions(-)
 
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
-@@ -1845,7 +1845,7 @@ static int kvaser_usb_hydra_start_chip(s
- {
- 	int err;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index 6d94255bea5f..4e3243287805 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -3504,6 +3504,7 @@ static u64 i40e_get_rss_hash_bits(struct i40e_hw *hw,
+ 	return i_set;
+ }
  
--	init_completion(&priv->start_comp);
-+	reinit_completion(&priv->start_comp);
++#define FLOW_PCTYPES_SIZE 64
+ /**
+  * i40e_set_rss_hash_opt - Enable/Disable flow types for RSS hash
+  * @pf: pointer to the physical function struct
+@@ -3516,9 +3517,11 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
+ 	struct i40e_hw *hw = &pf->hw;
+ 	u64 hena = (u64)i40e_read_rx_ctl(hw, I40E_PFQF_HENA(0)) |
+ 		   ((u64)i40e_read_rx_ctl(hw, I40E_PFQF_HENA(1)) << 32);
+-	u8 flow_pctype = 0;
++	DECLARE_BITMAP(flow_pctypes, FLOW_PCTYPES_SIZE);
+ 	u64 i_set, i_setc;
  
- 	err = kvaser_usb_hydra_send_simple_cmd(priv->dev, CMD_START_CHIP_REQ,
- 					       priv->channel);
-@@ -1863,7 +1863,7 @@ static int kvaser_usb_hydra_stop_chip(st
- {
- 	int err;
++	bitmap_zero(flow_pctypes, FLOW_PCTYPES_SIZE);
++
+ 	if (pf->flags & I40E_FLAG_MFP_ENABLED) {
+ 		dev_err(&pf->pdev->dev,
+ 			"Change of RSS hash input set is not supported when MFP mode is enabled\n");
+@@ -3534,36 +3537,35 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
  
--	init_completion(&priv->stop_comp);
-+	reinit_completion(&priv->stop_comp);
+ 	switch (nfc->flow_type) {
+ 	case TCP_V4_FLOW:
+-		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV4_TCP;
++		set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_TCP, flow_pctypes);
+ 		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
+-			hena |=
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK);
++			set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK,
++				flow_pctypes);
+ 		break;
+ 	case TCP_V6_FLOW:
+-		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV6_TCP;
+-		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
+-			hena |=
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK);
++		set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_TCP, flow_pctypes);
+ 		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
+-			hena |=
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV6_TCP_SYN_NO_ACK);
++			set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_TCP_SYN_NO_ACK,
++				flow_pctypes);
+ 		break;
+ 	case UDP_V4_FLOW:
+-		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV4_UDP;
+-		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
+-			hena |=
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV4_UDP) |
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV4_UDP);
+-
++		set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_UDP, flow_pctypes);
++		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE) {
++			set_bit(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV4_UDP,
++				flow_pctypes);
++			set_bit(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV4_UDP,
++				flow_pctypes);
++		}
+ 		hena |= BIT_ULL(I40E_FILTER_PCTYPE_FRAG_IPV4);
+ 		break;
+ 	case UDP_V6_FLOW:
+-		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV6_UDP;
+-		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
+-			hena |=
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV6_UDP) |
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV6_UDP);
+-
++		set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_UDP, flow_pctypes);
++		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE) {
++			set_bit(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV6_UDP,
++				flow_pctypes);
++			set_bit(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV6_UDP,
++				flow_pctypes);
++		}
+ 		hena |= BIT_ULL(I40E_FILTER_PCTYPE_FRAG_IPV6);
+ 		break;
+ 	case AH_ESP_V4_FLOW:
+@@ -3596,17 +3598,20 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
+ 		return -EINVAL;
+ 	}
  
- 	/* Make sure we do not report invalid BUS_OFF from CMD_CHIP_STATE_EVENT
- 	 * see comment in kvaser_usb_hydra_update_state()
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -1324,7 +1324,7 @@ static int kvaser_usb_leaf_start_chip(st
- {
- 	int err;
+-	if (flow_pctype) {
+-		i_setc = (u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(0,
+-					       flow_pctype)) |
+-			((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1,
+-					       flow_pctype)) << 32);
+-		i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
+-		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_pctype),
+-				  (u32)i_set);
+-		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_pctype),
+-				  (u32)(i_set >> 32));
+-		hena |= BIT_ULL(flow_pctype);
++	if (bitmap_weight(flow_pctypes, FLOW_PCTYPES_SIZE)) {
++		u8 flow_id;
++
++		for_each_set_bit(flow_id, flow_pctypes, FLOW_PCTYPES_SIZE) {
++			i_setc = (u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_id)) |
++				 ((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_id)) << 32);
++			i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
++
++			i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_id),
++					  (u32)i_set);
++			i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_id),
++					  (u32)(i_set >> 32));
++			hena |= BIT_ULL(flow_id);
++		}
+ 	}
  
--	init_completion(&priv->start_comp);
-+	reinit_completion(&priv->start_comp);
- 
- 	err = kvaser_usb_leaf_send_simple_cmd(priv->dev, CMD_START_CHIP,
- 					      priv->channel);
-@@ -1342,7 +1342,7 @@ static int kvaser_usb_leaf_stop_chip(str
- {
- 	int err;
- 
--	init_completion(&priv->stop_comp);
-+	reinit_completion(&priv->stop_comp);
- 
- 	err = kvaser_usb_leaf_send_simple_cmd(priv->dev, CMD_STOP_CHIP,
- 					      priv->channel);
+ 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(0), (u32)hena);
+-- 
+2.35.1
+
 
 
