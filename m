@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6894C615AC6
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:40:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92F7A615A9F
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:37:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230013AbiKBDkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:40:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57606 "EHLO
+        id S229846AbiKBDhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:37:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229841AbiKBDkq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:40:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FC3B26AC9
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:40:44 -0700 (PDT)
+        with ESMTP id S229553AbiKBDhX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:37:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6824026557
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:37:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C0F6617D5
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:40:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6436C433C1;
-        Wed,  2 Nov 2022 03:40:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2630AB82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:37:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E337C433D6;
+        Wed,  2 Nov 2022 03:37:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360443;
-        bh=SW5saS4kX+mEMtLu1S0TcchHw/Kwtw43s7IutD5RPWo=;
+        s=korg; t=1667360239;
+        bh=sCjPoqlJxEnvZZ1AYDrsTn4BFSMmHSskmkOmwRVLe6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dsvKUoHndZibVLx7mRUrJfhWs/aA7/Dy7FvP2us20wjPN3bKNlE4lPo6kwQgwuo7f
-         WcvhjX0DMHd3RvTS3NSherbzmmyFioS9QnmKX7QfU4z2U2r6iCCBmJFWnp/mAsi1DF
-         n3AOH92J1nzUlXFrjLCthjBI33T5Q9O0b3Ofuh5E=
+        b=dR3SVxB5YBlVoiRv7+Vpfd0rArJJZhl48bCEH7dHT8mu+iGyLLCnrYmmH7QeQfsRw
+         vXB+xOHDp8AXeyZZMVw9dlROxJuIjFJpmWs5ph3o41uS1tkq7QzcsGgwxOshl29lGZ
+         R/PIsELaQj9ka9bC6iMsrmolrCuRMTVYsYZrRB4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+        patches@lists.linux.dev,
+        syzbot+31cde0bef4bbf8ba2d86@syzkaller.appspotmail.com,
+        Thomas Graf <tgraf@suug.ch>, Aaron Conole <aconole@redhat.com>,
+        Ilya Maximets <i.maximets@ovn.org>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 39/60] x86/unwind/orc: Fix unreliable stack dump with gcov
+Subject: [PATCH 4.19 75/78] openvswitch: switch from WARN to pr_warn
 Date:   Wed,  2 Nov 2022 03:35:00 +0100
-Message-Id: <20221102022052.361709430@linuxfoundation.org>
+Message-Id: <20221102022055.130825370@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Aaron Conole <aconole@redhat.com>
 
-[ Upstream commit 230db82413c091bc16acee72650f48d419cebe49 ]
+[ Upstream commit fd954cc1919e35cb92f78671cab6e42d661945a3 ]
 
-When a console stack dump is initiated with CONFIG_GCOV_PROFILE_ALL
-enabled, show_trace_log_lvl() gets out of sync with the ORC unwinder,
-causing the stack trace to show all text addresses as unreliable:
+As noted by Paolo Abeni, pr_warn doesn't generate any splat and can still
+preserve the warning to the user that feature downgrade occurred.  We
+likely cannot introduce other kinds of checks / enforcement here because
+syzbot can generate different genl versions to the datapath.
 
-  # echo l > /proc/sysrq-trigger
-  [  477.521031] sysrq: Show backtrace of all active CPUs
-  [  477.523813] NMI backtrace for cpu 0
-  [  477.524492] CPU: 0 PID: 1021 Comm: bash Not tainted 6.0.0 #65
-  [  477.525295] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-1.fc36 04/01/2014
-  [  477.526439] Call Trace:
-  [  477.526854]  <TASK>
-  [  477.527216]  ? dump_stack_lvl+0xc7/0x114
-  [  477.527801]  ? dump_stack+0x13/0x1f
-  [  477.528331]  ? nmi_cpu_backtrace.cold+0xb5/0x10d
-  [  477.528998]  ? lapic_can_unplug_cpu+0xa0/0xa0
-  [  477.529641]  ? nmi_trigger_cpumask_backtrace+0x16a/0x1f0
-  [  477.530393]  ? arch_trigger_cpumask_backtrace+0x1d/0x30
-  [  477.531136]  ? sysrq_handle_showallcpus+0x1b/0x30
-  [  477.531818]  ? __handle_sysrq.cold+0x4e/0x1ae
-  [  477.532451]  ? write_sysrq_trigger+0x63/0x80
-  [  477.533080]  ? proc_reg_write+0x92/0x110
-  [  477.533663]  ? vfs_write+0x174/0x530
-  [  477.534265]  ? handle_mm_fault+0x16f/0x500
-  [  477.534940]  ? ksys_write+0x7b/0x170
-  [  477.535543]  ? __x64_sys_write+0x1d/0x30
-  [  477.536191]  ? do_syscall_64+0x6b/0x100
-  [  477.536809]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
-  [  477.537609]  </TASK>
-
-This happens when the compiled code for show_stack() has a single word
-on the stack, and doesn't use a tail call to show_stack_log_lvl().
-(CONFIG_GCOV_PROFILE_ALL=y is the only known case of this.)  Then the
-__unwind_start() skip logic hits an off-by-one bug and fails to unwind
-all the way to the intended starting frame.
-
-Fix it by reverting the following commit:
-
-  f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
-
-The original justification for that commit no longer exists.  That
-original issue was later fixed in a different way, with the following
-commit:
-
-  f2ac57a4c49d ("x86/unwind/orc: Fix inactive tasks with stack pointer in %sp on GCC 10 compiled kernels")
-
-Fixes: f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-[jpoimboe: rewrite commit log]
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
+Reported-by: syzbot+31cde0bef4bbf8ba2d86@syzkaller.appspotmail.com
+Fixes: 44da5ae5fbea ("openvswitch: Drop user features if old user space attempted to create datapath")
+Cc: Thomas Graf <tgraf@suug.ch>
+Signed-off-by: Aaron Conole <aconole@redhat.com>
+Acked-by: Ilya Maximets <i.maximets@ovn.org>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/unwind_orc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/openvswitch/datapath.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
-index e64c5b78fbfd..350f40f9a0bf 100644
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -579,7 +579,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
- 	/* Otherwise, skip ahead to the user-specified starting frame: */
- 	while (!unwind_done(state) &&
- 	       (!on_stack(&state->stack_info, first_frame, sizeof(long)) ||
--			state->sp < (unsigned long)first_frame))
-+			state->sp <= (unsigned long)first_frame))
- 		unwind_next_frame(state);
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index b4e3db194140..e9a10a66b4ca 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -1551,7 +1551,8 @@ static void ovs_dp_reset_user_features(struct sk_buff *skb, struct genl_info *in
+ 	if (IS_ERR(dp))
+ 		return;
  
- 	return;
+-	WARN(dp->user_features, "Dropping previously announced user features\n");
++	pr_warn("%s: Dropping previously announced user features\n",
++		ovs_dp_name(dp));
+ 	dp->user_features = 0;
+ }
+ 
 -- 
 2.35.1
 
