@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF6CC615AC3
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:40:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9481B615A30
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:26:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229993AbiKBDkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:40:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57564 "EHLO
+        id S230465AbiKBD0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:26:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230333AbiKBDka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:40:30 -0400
+        with ESMTP id S230449AbiKBD0b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:26:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1970A26AD6
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:40:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FC6425E95
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:26:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A950B82071
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:40:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84A74C433C1;
-        Wed,  2 Nov 2022 03:40:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13004B8205C
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:26:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7333C433C1;
+        Wed,  2 Nov 2022 03:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360426;
-        bh=qFwXidjMN9SjQ4MfouGT3W3jeksu2gzPNcjm7LSfsrI=;
+        s=korg; t=1667359586;
+        bh=aSc4AwdUZEsX8bRKJnIl4GKSd9tHAGfStVbM1pY2QHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hldCjNaSuHpg/E8hm2ilsXZmCQruWnL1e4KKu1HKYxvv3dKfGO8fUhdaPnzDAV0ov
-         m5a5ogPaRKduhNBpnBFDgMngzHtRlWwNPdG70PKjBvJRQ9UNnYXPYdxKk8QY9G9Xl1
-         stqIX3UEBgWQaoVNYgALcqkmShWCg+CkQQzKdLM4=
+        b=V1VU75kNNhwPvmWtiMTNkd189hieOV/8239glZ4jO1IHXw9aSgoc83srBS5X0R4jt
+         QUbORAzGfk91JNxV241e0QaP7imQQF8maHJkhfdbcVtHYyxOYoChPUQqpT9sha9xpw
+         mBlQGBcuABdA2/vWAdWn9lwiEdG3Xyhgwu5/7EeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/60] btrfs: fix processing of delayed data refs during backref walking
+        patches@lists.linux.dev, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Biju Das <biju.das.jz@bp.renesas.com>
+Subject: [PATCH 5.4 64/64] can: rcar_canfd: rcar_canfd_handle_global_receive(): fix IRQ storm on global FIFO receive
 Date:   Wed,  2 Nov 2022 03:34:30 +0100
-Message-Id: <20221102022051.373479482@linuxfoundation.org>
+Message-Id: <20221102022053.887210745@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,249 +52,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit 4fc7b57228243d09c0d878873bf24fa64a90fa01 ]
+commit 702de2c21eed04c67cefaaedc248ef16e5f6b293 upstream.
 
-When processing delayed data references during backref walking and we are
-using a share context (we are being called through fiemap), whenever we
-find a delayed data reference for an inode different from the one we are
-interested in, then we immediately exit and consider the data extent as
-shared. This is wrong, because:
+We are seeing an IRQ storm on the global receive IRQ line under heavy
+CAN bus load conditions with both CAN channels enabled.
 
-1) This might be a DROP reference that will cancel out a reference in the
-   extent tree;
+Conditions:
 
-2) Even if it's an ADD reference, it may be followed by a DROP reference
-   that cancels it out.
+The global receive IRQ line is shared between can0 and can1, either of
+the channels can trigger interrupt while the other channel's IRQ line
+is disabled (RFIE).
 
-In either case we should not exit immediately.
+When global a receive IRQ interrupt occurs, we mask the interrupt in
+the IRQ handler. Clearing and unmasking of the interrupt is happening
+in rx_poll(). There is a race condition where rx_poll() unmasks the
+interrupt, but the next IRQ handler does not mask the IRQ due to
+NAPIF_STATE_MISSED flag (e.g.: can0 RX FIFO interrupt is disabled and
+can1 is triggering RX interrupt, the delay in rx_poll() processing
+results in setting NAPIF_STATE_MISSED flag) leading to an IRQ storm.
 
-Fix this by never exiting when we find a delayed data reference for
-another inode - instead add the reference and if it does not cancel out
-other delayed reference, we will exit early when we call
-extent_is_shared() after processing all delayed references. If we find
-a drop reference, then signal the code that processes references from
-the extent tree (add_inline_refs() and add_keyed_refs()) to not exit
-immediately if it finds there a reference for another inode, since we
-have delayed drop references that may cancel it out. In this later case
-we exit once we don't have references in the rb trees that cancel out
-each other and have two references for different inodes.
+This patch fixes the issue by checking IRQ active and enabled before
+handling the IRQ on a particular channel.
 
-Example reproducer for case 1):
-
-   $ cat test-1.sh
-   #!/bin/bash
-
-   DEV=/dev/sdj
-   MNT=/mnt/sdj
-
-   mkfs.btrfs -f $DEV
-   mount $DEV $MNT
-
-   xfs_io -f -c "pwrite 0 64K" $MNT/foo
-   cp --reflink=always $MNT/foo $MNT/bar
-
-   echo
-   echo "fiemap after cloning:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   rm -f $MNT/bar
-   echo
-   echo "fiemap after removing file bar:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   umount $MNT
-
-Running it before this patch, the extent is still listed as shared, it has
-the flag 0x2000 (FIEMAP_EXTENT_SHARED) set:
-
-   $ ./test-1.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-Example reproducer for case 2):
-
-   $ cat test-2.sh
-   #!/bin/bash
-
-   DEV=/dev/sdj
-   MNT=/mnt/sdj
-
-   mkfs.btrfs -f $DEV
-   mount $DEV $MNT
-
-   xfs_io -f -c "pwrite 0 64K" $MNT/foo
-   cp --reflink=always $MNT/foo $MNT/bar
-
-   # Flush delayed references to the extent tree and commit current
-   # transaction.
-   sync
-
-   echo
-   echo "fiemap after cloning:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   rm -f $MNT/bar
-   echo
-   echo "fiemap after removing file bar:"
-   xfs_io -c "fiemap -v" $MNT/foo
-
-   umount $MNT
-
-Running it before this patch, the extent is still listed as shared, it has
-the flag 0x2000 (FIEMAP_EXTENT_SHARED) set:
-
-   $ ./test-2.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-After this patch, after deleting bar in both tests, the extent is not
-reported with the 0x2000 flag anymore, it gets only the flag 0x1
-(which is FIEMAP_EXTENT_LAST):
-
-   $ ./test-1.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128   0x1
-
-   $ ./test-2.sh
-   fiemap after cloning:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128 0x2001
-
-   fiemap after removing file bar:
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [0..127]:        26624..26751       128   0x1
-
-These tests will later be converted to a test case for fstests.
-
-Fixes: dc046b10c8b7d4 ("Btrfs: make fiemap not blow when you have lots of snapshots")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: dd3bd23eb438 ("can: rcar_canfd: Add Renesas R-Car CAN FD driver")
+Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/all/20221025155657.1426948-2-biju.das.jz@bp.renesas.com
+Cc: stable@vger.kernel.org
+[mkl: adjust commit message]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+[biju: removed gpriv from RCANFD_RFCC_RFIE macro]
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/backref.c | 33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ drivers/net/can/rcar/rcar_canfd.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 58dc96d7ecaf..93cfbdada40f 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -146,6 +146,7 @@ struct share_check {
- 	u64 root_objectid;
- 	u64 inum;
- 	int share_count;
-+	bool have_delayed_delete_refs;
- };
+diff --git a/drivers/net/can/rcar/rcar_canfd.c b/drivers/net/can/rcar/rcar_canfd.c
+index 67f0f14e2bf4..c61534a2a2d3 100644
+--- a/drivers/net/can/rcar/rcar_canfd.c
++++ b/drivers/net/can/rcar/rcar_canfd.c
+@@ -1075,7 +1075,7 @@ static irqreturn_t rcar_canfd_global_interrupt(int irq, void *dev_id)
+ 	struct rcar_canfd_global *gpriv = dev_id;
+ 	struct net_device *ndev;
+ 	struct rcar_canfd_channel *priv;
+-	u32 sts, gerfl;
++	u32 sts, cc, gerfl;
+ 	u32 ch, ridx;
  
- static inline int extent_is_shared(struct share_check *sc)
-@@ -832,13 +833,22 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
- 			key.offset = ref->offset;
+ 	/* Global error interrupts still indicate a condition specific
+@@ -1093,7 +1093,9 @@ static irqreturn_t rcar_canfd_global_interrupt(int irq, void *dev_id)
  
- 			/*
--			 * Found a inum that doesn't match our known inum, we
--			 * know it's shared.
-+			 * If we have a share check context and a reference for
-+			 * another inode, we can't exit immediately. This is
-+			 * because even if this is a BTRFS_ADD_DELAYED_REF
-+			 * reference we may find next a BTRFS_DROP_DELAYED_REF
-+			 * which cancels out this ADD reference.
-+			 *
-+			 * If this is a DROP reference and there was no previous
-+			 * ADD reference, then we need to signal that when we
-+			 * process references from the extent tree (through
-+			 * add_inline_refs() and add_keyed_refs()), we should
-+			 * not exit early if we find a reference for another
-+			 * inode, because one of the delayed DROP references
-+			 * may cancel that reference in the extent tree.
- 			 */
--			if (sc && sc->inum && ref->objectid != sc->inum) {
--				ret = BACKREF_FOUND_SHARED;
--				goto out;
--			}
-+			if (sc && count < 0)
-+				sc->have_delayed_delete_refs = true;
- 
- 			ret = add_indirect_ref(fs_info, preftrees, ref->root,
- 					       &key, 0, node->bytenr, count, sc,
-@@ -868,7 +878,7 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
- 	}
- 	if (!ret)
- 		ret = extent_is_shared(sc);
--out:
-+
- 	spin_unlock(&head->lock);
- 	return ret;
- }
-@@ -972,7 +982,8 @@ static int add_inline_refs(const struct btrfs_fs_info *fs_info,
- 			key.type = BTRFS_EXTENT_DATA_KEY;
- 			key.offset = btrfs_extent_data_ref_offset(leaf, dref);
- 
--			if (sc && sc->inum && key.objectid != sc->inum) {
-+			if (sc && sc->inum && key.objectid != sc->inum &&
-+			    !sc->have_delayed_delete_refs) {
- 				ret = BACKREF_FOUND_SHARED;
- 				break;
- 			}
-@@ -982,6 +993,7 @@ static int add_inline_refs(const struct btrfs_fs_info *fs_info,
- 			ret = add_indirect_ref(fs_info, preftrees, root,
- 					       &key, 0, bytenr, count,
- 					       sc, GFP_NOFS);
-+
- 			break;
- 		}
- 		default:
-@@ -1071,7 +1083,8 @@ static int add_keyed_refs(struct btrfs_fs_info *fs_info,
- 			key.type = BTRFS_EXTENT_DATA_KEY;
- 			key.offset = btrfs_extent_data_ref_offset(leaf, dref);
- 
--			if (sc && sc->inum && key.objectid != sc->inum) {
-+			if (sc && sc->inum && key.objectid != sc->inum &&
-+			    !sc->have_delayed_delete_refs) {
- 				ret = BACKREF_FOUND_SHARED;
- 				break;
- 			}
-@@ -1490,6 +1503,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr)
- 		.root_objectid = root->objectid,
- 		.inum = inum,
- 		.share_count = 0,
-+		.have_delayed_delete_refs = false,
- 	};
- 
- 	tmp = ulist_alloc(GFP_NOFS);
-@@ -1528,6 +1542,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr)
- 			break;
- 		bytenr = node->val;
- 		shared.share_count = 0;
-+		shared.have_delayed_delete_refs = false;
- 		cond_resched();
- 	}
- 
+ 		/* Handle Rx interrupts */
+ 		sts = rcar_canfd_read(priv->base, RCANFD_RFSTS(ridx));
+-		if (likely(sts & RCANFD_RFSTS_RFIF)) {
++		cc = rcar_canfd_read(priv->base, RCANFD_RFCC(ridx));
++		if (likely(sts & RCANFD_RFSTS_RFIF &&
++			   cc & RCANFD_RFCC_RFIE)) {
+ 			if (napi_schedule_prep(&priv->napi)) {
+ 				/* Disable Rx FIFO interrupts */
+ 				rcar_canfd_clear_bit(priv->base,
 -- 
-2.35.1
+2.25.1
 
 
 
