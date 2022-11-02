@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D24796158EF
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:01:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12F426158F0
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:01:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231266AbiKBDB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:01:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50640 "EHLO
+        id S231284AbiKBDBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:01:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231259AbiKBDBX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:01:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BD4F22BCC
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:01:19 -0700 (PDT)
+        with ESMTP id S231271AbiKBDBb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:01:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F13422BDD
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:01:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C02C3617BF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:01:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F0A5C433C1;
-        Wed,  2 Nov 2022 03:01:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D682B8206C
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:01:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25F66C433C1;
+        Wed,  2 Nov 2022 03:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358078;
-        bh=FK8TleZkWiiDYtG1brzuZFZzsJn8Jc5gMYkykPo53Rs=;
+        s=korg; t=1667358083;
+        bh=syo4KOhjJrsSf4qkVFJjChOD4MS5LUWT+ntRqqpVvCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SDlBC2Wd3BaQyk1kV7xFvQqKX9Eb2xtuCRgj1ycSopLTAVaFHXYGKEXQjpg0jDKoo
-         gzpHp2jp8X42HvzLWofFLiLIi0uydSFcSsTRgyrjIMnxnLmpRaSK3YTCgGXe5wcTzx
-         xVI+uNklyQxwLqiT2KgHzt6D4S1SweumlbgwqJOM=
+        b=z4HxdpcC4QHo00Mp1+vwIEWG7XzqkAQvdpsLn0yyFfwEukE0M+ozOc6ExGloyzY66
+         lrrpgt/Tr3SRh6EiI/O6qogS+OeNExbxYiTTwIK7lQmaJ/i3h749ulXZKpyXCgkFH6
+         egmpBViwP4NQVhHZSj716yeRXJ4wnXoFBl/Fcc8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthew Ma <mahongwei@zeku.com>,
-        Weizhao Ouyang <ouyangweizhao@zeku.com>,
-        John Wang <wangdayu@zeku.com>,
+        patches@lists.linux.dev, Patrick Thompson <ptf@google.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 037/132] mmc: core: Fix kernel panic when remove non-standard SDIO card
-Date:   Wed,  2 Nov 2022 03:32:23 +0100
-Message-Id: <20221102022100.607712365@linuxfoundation.org>
+Subject: [PATCH 5.15 038/132] mmc: sdhci-pci-core: Disable ES for ASUS BIOS on Jasper Lake
+Date:   Wed,  2 Nov 2022 03:32:24 +0100
+Message-Id: <20221102022100.632662730@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
 References: <20221102022059.593236470@linuxfoundation.org>
@@ -54,39 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Ma <mahongwei@zeku.com>
+From: Patrick Thompson <ptf@google.com>
 
-commit 9972e6b404884adae9eec7463e30d9b3c9a70b18 upstream.
+commit 9dc0033e4658d6f9d9952c3c0c6be3ec25bc2985 upstream.
 
-SDIO tuple is only allocated for standard SDIO card, especially it causes
-memory corruption issues when the non-standard SDIO card has removed, which
-is because the card device's reference counter does not increase for it at
-sdio_init_func(), but all SDIO card device reference counter gets decreased
-at sdio_release_func().
+Enhanced Strobe (ES) does not work correctly on the ASUS 1100 series of
+devices. Jasper Lake eMMCs (pci_id 8086:4dc4) are supposed to support
+ES. There are also two system families under the series, thus this is
+being scoped to the ASUS BIOS.
 
-Fixes: 6f51be3d37df ("sdio: allow non-standard SDIO cards")
-Signed-off-by: Matthew Ma <mahongwei@zeku.com>
-Reviewed-by: Weizhao Ouyang <ouyangweizhao@zeku.com>
-Reviewed-by: John Wang <wangdayu@zeku.com>
+The failing ES prevents the installer from writing to disk. Falling back
+to HS400 without ES fixes the issue.
+
+Signed-off-by: Patrick Thompson <ptf@google.com>
+Fixes: 315e3bd7ac19 ("mmc: sdhci-pci: Add support for Intel JSL")
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221014034951.2300386-1-ouyangweizhao@zeku.com
+Link: https://lore.kernel.org/r/20221013210017.3751025-1-ptf@google.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/sdio_bus.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-pci-core.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/core/sdio_bus.c
-+++ b/drivers/mmc/core/sdio_bus.c
-@@ -290,7 +290,8 @@ static void sdio_release_func(struct dev
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -978,6 +978,12 @@ static bool glk_broken_cqhci(struct sdhc
+ 		dmi_match(DMI_SYS_VENDOR, "IRBIS"));
+ }
+ 
++static bool jsl_broken_hs400es(struct sdhci_pci_slot *slot)
++{
++	return slot->chip->pdev->device == PCI_DEVICE_ID_INTEL_JSL_EMMC &&
++			dmi_match(DMI_BIOS_VENDOR, "ASUSTeK COMPUTER INC.");
++}
++
+ static int glk_emmc_probe_slot(struct sdhci_pci_slot *slot)
  {
- 	struct sdio_func *func = dev_to_sdio_func(dev);
+ 	int ret = byt_emmc_probe_slot(slot);
+@@ -986,9 +992,11 @@ static int glk_emmc_probe_slot(struct sd
+ 		slot->host->mmc->caps2 |= MMC_CAP2_CQE;
  
--	sdio_free_func_cis(func);
-+	if (!(func->card->quirks & MMC_QUIRK_NONSTD_SDIO))
-+		sdio_free_func_cis(func);
+ 	if (slot->chip->pdev->device != PCI_DEVICE_ID_INTEL_GLK_EMMC) {
+-		slot->host->mmc->caps2 |= MMC_CAP2_HS400_ES;
+-		slot->host->mmc_host_ops.hs400_enhanced_strobe =
+-						intel_hs400_enhanced_strobe;
++		if (!jsl_broken_hs400es(slot)) {
++			slot->host->mmc->caps2 |= MMC_CAP2_HS400_ES;
++			slot->host->mmc_host_ops.hs400_enhanced_strobe =
++							intel_hs400_enhanced_strobe;
++		}
+ 		slot->host->mmc->caps2 |= MMC_CAP2_CQE_DCMD;
+ 	}
  
- 	kfree(func->info);
- 	kfree(func->tmpbuf);
 
 
