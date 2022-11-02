@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB462615AED
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:44:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18738615A9E
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:37:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230187AbiKBDoL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:44:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60850 "EHLO
+        id S230124AbiKBDhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:37:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230086AbiKBDoK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:44:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C9E726CD
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:44:09 -0700 (PDT)
+        with ESMTP id S229553AbiKBDhQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:37:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44BCC26551
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:37:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3FE96B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:44:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33C08C433C1;
-        Wed,  2 Nov 2022 03:44:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECBD6B8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:37:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D555BC433D6;
+        Wed,  2 Nov 2022 03:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360647;
-        bh=WU9ukT8HbcXcDJwuBLa+/Uz00o+if7Q/xKF4SC+Hc2Q=;
+        s=korg; t=1667360233;
+        bh=bdIHjjsiwmbEGzU3+LToiYoYtWRpY7SVFBlawYigmCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DuOfPWIEBKeqEatge2KIufpxDxae8/CmG7mFfjb9P69H9EyLk4yMBnLrMuw6vSsBV
-         JrxqpeIBl8jhNEhpVrbkNEr0m8IEuPGtJc08gv0nQB9xX0BFyW3njN2yJUZJ83YmIJ
-         gk5uif2du9Qlewm/7SQ/gHM5Mq+SABeKzBHTUArk=
+        b=Fv3rBjEeHFZAT2/5ApAd6xUD/zjqqWQy7/nug/J4VPURbD3M0KnXfHbVa1PHyeQSD
+         1YeCqeotTR5ockIhCKbEIYWK1Ah+7cJ6wTHF44IELAx6iFKNFLHGzqieOqxTaeaOQn
+         r5bJA3CEcO/olvV0vRdBM/wR/ECuYjaiZgoatlvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Justin Chen <justinpopo6@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        stable <stable@kernel.org>
-Subject: [PATCH 4.9 13/44] usb: bdc: change state when port disconnected
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 74/78] ALSA: aoa: Fix I2S device accounting
 Date:   Wed,  2 Nov 2022 03:34:59 +0100
-Message-Id: <20221102022049.510555383@linuxfoundation.org>
+Message-Id: <20221102022055.104107365@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
-References: <20221102022049.017479464@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Chen <justinpopo6@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit fb8f60dd1b67520e0e0d7978ef17d015690acfc1 upstream.
+[ Upstream commit f1fae475f10a26b7e34da4ff2e2f19b7feb3548e ]
 
-When port is connected and then disconnected, the state stays as
-configured. Which is incorrect as the port is no longer configured,
-but in a not attached state.
+i2sbus_add_dev() is supposed to return the number of probed devices,
+i.e. either 1 or 0.  However, i2sbus_add_dev() has one error handling
+that returns -ENODEV; this will screw up the accumulation number
+counted in the caller, i2sbus_probe().
 
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Fixes: efed421a94e6 ("usb: gadget: Add UDC driver for Broadcom USB3.0 device controller IP BDC")
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/1664997235-18198-1-git-send-email-justinpopo6@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix the return value to 0 and add the comment for better understanding
+for readers.
+
+Fixes: f3d9478b2ce4 ("[ALSA] snd-aoa: add snd-aoa")
+Link: https://lore.kernel.org/r/20221027065233.13292-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/bdc/bdc_udc.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/aoa/soundbus/i2sbus/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/udc/bdc/bdc_udc.c
-+++ b/drivers/usb/gadget/udc/bdc/bdc_udc.c
-@@ -156,6 +156,7 @@ static void bdc_uspc_disconnected(struct
- 	bdc->delayed_status = false;
- 	bdc->reinit = reinit;
- 	bdc->test_mode = false;
-+	usb_gadget_set_state(&bdc->gadget, USB_STATE_NOTATTACHED);
+diff --git a/sound/aoa/soundbus/i2sbus/core.c b/sound/aoa/soundbus/i2sbus/core.c
+index c016df586992..2811e1f1e2fa 100644
+--- a/sound/aoa/soundbus/i2sbus/core.c
++++ b/sound/aoa/soundbus/i2sbus/core.c
+@@ -148,6 +148,7 @@ static int i2sbus_get_and_fixup_rsrc(struct device_node *np, int index,
+ 	return rc;
  }
  
- /* TNotify wkaeup timer */
++/* Returns 1 if added, 0 for otherwise; don't return a negative value! */
+ /* FIXME: look at device node refcounting */
+ static int i2sbus_add_dev(struct macio_dev *macio,
+ 			  struct i2sbus_control *control,
+@@ -213,7 +214,7 @@ static int i2sbus_add_dev(struct macio_dev *macio,
+ 	 * either as the second one in that case is just a modem. */
+ 	if (!ok) {
+ 		kfree(dev);
+-		return -ENODEV;
++		return 0;
+ 	}
+ 
+ 	mutex_init(&dev->lock);
+-- 
+2.35.1
+
 
 
