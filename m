@@ -2,75 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E49C616CB2
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 19:42:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9B72616DC6
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 20:25:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231357AbiKBSmp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Nov 2022 14:42:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36740 "EHLO
+        id S230380AbiKBTZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Nov 2022 15:25:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230086AbiKBSmo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 14:42:44 -0400
-Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB32A657E;
-        Wed,  2 Nov 2022 11:42:43 -0700 (PDT)
-Received: by mail-qk1-x72c.google.com with SMTP id k26so7862298qkg.2;
-        Wed, 02 Nov 2022 11:42:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=UnB/iiYCoj9JxhGUlWNmGFpgfzGIDKnr6BfjYADidfM=;
-        b=mgZDbBqMlbMh24yUr68+4lerWRJfeVoKfI2iv82gSDPWwx/LVdWnJStgX/Ka/iotY2
-         utIv4j7In63e5ngwgX3ylMqRBSG+ZlS2uXVPIOypL6hIdur3q9FL/OihkE+j6moRJWyp
-         h3mLySPrO/cH24MG6TlkusGDAER5WGvxtRfeBHKum718fAxuwjJSx5lUPMbCWhV1yl/R
-         sXf+BGqUaR7VNqRYG2vfmkcdEXg2fSDKOWx3l+BLeRhmJVTQqXsAY8M0uy2i3x0O0AsG
-         /bnqaJsxFW2IluthjPeY+0Uc0EfJwLkKPRg4lC/evCE73VNe0Lmkl/JUkd0C4Y+PskGz
-         CXaQ==
+        with ESMTP id S229561AbiKBTZD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 15:25:03 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69F86E9
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 12:24:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667417049;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=OnGbVU+pdLQrWU/4yKB9jRj3Qh2itknh7OkU6ci+FdA=;
+        b=XNb06Dt4TYIrucqq5jXHrUhyC7N4it+zLR+BzctHrHmlPWdTyYKsv6/+/v7D8g/hdtK8a4
+        WSfuHbu7tqBgjSz7seLp4XDhINsM7mNTSdN/Ho09IEvxHgknJNiCHXAsbY389OqOYfj07W
+        Dg23g1WsmKaZAprUBarVBELA2kvmdWw=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-625-1SHQ61deOtmI4Slmzk3WFw-1; Wed, 02 Nov 2022 15:24:08 -0400
+X-MC-Unique: 1SHQ61deOtmI4Slmzk3WFw-1
+Received: by mail-qv1-f71.google.com with SMTP id 71-20020a0c804d000000b004b2fb260447so10600856qva.10
+        for <stable@vger.kernel.org>; Wed, 02 Nov 2022 12:24:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=UnB/iiYCoj9JxhGUlWNmGFpgfzGIDKnr6BfjYADidfM=;
-        b=Zp8y5te4Df6eBvbEYvJPBALhI7tPfcfY6sUrDuGBpY3+HGu2xq5/89Ma9loMsbCjDU
-         Ocvf2j/HnMStcabFFuowGqAGOXuf1qgPHQ1s2KyXqCtw3+85ui+7oFlT+zIvd1ZzGg7t
-         prB9+gK6J4GsRs3sYNMWrkh0IAU8x92o8fnI3W2IQI1L1wRsvMlFiFLfesTJSaucCDdW
-         70akcmsdxi/CC77aGVHEkRe8HD5abw9ZvdV5oM7QlorfHHA8xgXOahkWa3Gv21ZJY4Hb
-         dYmgB2cfCqV+bYKeDceM8Jo3wMfXkjTxASQUhX4Qzf2xmwa1pl7StQhV36YgPM9+cnOw
-         byoQ==
-X-Gm-Message-State: ACrzQf3Nv0o0VTEuIgzOdHZ6YkfYAWFT43L7PT7A1KLwy7G0wUwz3V4A
-        0/fs9+LnxFdVlkZrBTO1/ZQ=
-X-Google-Smtp-Source: AMsMyM4yYZQoPSoricm6jRD97DoXPAV8DxOXgAY0RZ6i0gSA3F4L+U9CDZ/vSWBUORa0fdRnenQX6Q==
-X-Received: by 2002:a37:5e41:0:b0:6ce:79e2:68af with SMTP id s62-20020a375e41000000b006ce79e268afmr18698594qkb.239.1667414562785;
-        Wed, 02 Nov 2022 11:42:42 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id w10-20020a05620a444a00b006cfc01b4461sm9189729qkp.118.2022.11.02.11.42.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Nov 2022 11:42:42 -0700 (PDT)
-Message-ID: <2bf50933-802b-8340-4146-cc6c409d372c@gmail.com>
-Date:   Wed, 2 Nov 2022 11:42:36 -0700
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OnGbVU+pdLQrWU/4yKB9jRj3Qh2itknh7OkU6ci+FdA=;
+        b=1S4aMfk47L1A4YMlI/2qFIMb/gj1wTI4AUbbcFu91zPz436Xzh2GhM6n1LxB74jt3J
+         BAMkChxXHTmK7butosqOWhyozph70C/Uhr8T27HtAxTYu03cu8kchX2e7EWB/9J48DXX
+         Xy748ZWIuYnGJeLOb0I/aRQTmEDB4yyvhm1CteGRQDH99TSI4CbZZvEGbq9e2lM/tXov
+         OaW9XOx/jxtvgbYEM49GYww4SQXxRNtRCpAuJWl+uMXeezembzSfT83zfUzIK8SgJN5K
+         Gf4UQY1B4E0Gq/pMGJIlqOWIR8lPzQrPVGt4nlIXn5IM6yAGRo4PsA2150sL8xwsBHyZ
+         UH0Q==
+X-Gm-Message-State: ACrzQf14LMGMH+BRvZKhGZseMwPSH4cAd0rJDsWF8u82Pe212FBvu897
+        5uNkfBh1qf8MRfmT//msrckuGClruLbVBgpq3SKRGLd3i+IEO8lSZjPdkyTuy6gw4Tj2MKmoP+Z
+        1/tgVNXMZDtl+MZPq
+X-Received: by 2002:a05:622a:650:b0:39c:fa98:2de9 with SMTP id a16-20020a05622a065000b0039cfa982de9mr21087118qtb.535.1667417047834;
+        Wed, 02 Nov 2022 12:24:07 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM7uiQZAjRp0CGfRjAPj7RfUT9NoUSAoNE0Xwu/NemCkgaG2/DG20QwO4j35n5PAKhn2onbQfA==
+X-Received: by 2002:a05:622a:650:b0:39c:fa98:2de9 with SMTP id a16-20020a05622a065000b0039cfa982de9mr21087096qtb.535.1667417047578;
+        Wed, 02 Nov 2022 12:24:07 -0700 (PDT)
+Received: from x1n (bras-base-aurron9127w-grc-46-70-31-27-79.dsl.bell.ca. [70.31.27.79])
+        by smtp.gmail.com with ESMTPSA id m17-20020ae9e711000000b006e42a8e9f9bsm2788884qka.121.2022.11.02.12.24.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Nov 2022 12:24:07 -0700 (PDT)
+Date:   Wed, 2 Nov 2022 15:24:05 -0400
+From:   Peter Xu <peterx@redhat.com>
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+Cc:     Nadav Amit <nadav.amit@gmail.com>, Linux-MM <linux-mm@kvack.org>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        Naoya Horiguchi <naoya.horiguchi@linux.dev>,
+        David Hildenbrand <david@redhat.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Mina Almasry <almasrymina@google.com>,
+        Rik van Riel <riel@surriel.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Wei Chen <harperchen1110@gmail.com>,
+        "# 5 . 10+" <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH v2] hugetlb: don't delete vma_lock in hugetlb
+ MADV_DONTNEED processing
+Message-ID: <Y2LD1Vxt3vbChUyD@x1n>
+References: <Y1nbErXmHkyrzt8F@x1n>
+ <Y1vz7VvQ5zg5KTxk@monkey>
+ <Y1v/x5RRpRjU4b/W@x1n>
+ <Y1xGzR/nHQTJxTCj@monkey>
+ <Y1xjyLWNCK7p0XSv@x1n>
+ <Y13CO8iIGfDnV24u@monkey>
+ <7048D2B5-5FA5-4F72-8FDC-A02411CFD71D@gmail.com>
+ <Y17F50ktT9fZw4do@x1n>
+ <3232338E-77BB-42A8-9A25-5A4AD61FD4B2@gmail.com>
+ <Y18oagswntNCEszs@monkey>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH 6.0 000/240] 6.0.7-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-References: <20221102022111.398283374@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Y18oagswntNCEszs@monkey>
+X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,29 +97,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/1/22 19:29, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.7 release.
-> There are 240 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Sun, Oct 30, 2022 at 06:44:10PM -0700, Mike Kravetz wrote:
+> On 10/30/22 11:52, Nadav Amit wrote:
+> > On Oct 30, 2022, at 11:43 AM, Peter Xu <peterx@redhat.com> wrote:
+> > 
+> > > The loop comes from 7e027b14d53e ("vm: simplify unmap_vmas() calling
+> > > convention", 2012-05-06), where zap_page_range() was used to replace a call
+> > > to unmap_vmas() because the patch wanted to eliminate the zap details
+> > > pointer for unmap_vmas(), which makes sense.
+> > > 
+> > > I didn't check the old code, but from what I can tell (and also as Mike
+> > > pointed out) I don't think zap_page_range() in the lastest code base is
+> > > ever used on multi-vma at all.  Otherwise the mmu notifier is already
+> > > broken - see mmu_notifier_range_init() where the vma pointer is also part
+> > > of the notification.
+> > > 
+> > > Perhaps we should just remove the loop?
+> > 
+> > There is already zap_page_range_single() that does exactly that. Just need
+> > to export it.
 > 
-> Responses should be made by Fri, 04 Nov 2022 02:20:38 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.7-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> I was thinking that zap_page_range() should perform a notification call for
+> each vma within the loop.  Something like this?
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+I'm boldly guessing what Nadav suggested was using zap_page_range_single()
+and export it for MADV_DONTNEED.  Hopefully that's also the easiest for
+stable?
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+For the long term, I really think we should just get rid of the loop..
+
+> 
+> @@ -1704,15 +1704,21 @@ void zap_page_range(struct vm_area_struct *vma, unsigned long start,
+>  	MA_STATE(mas, mt, vma->vm_end, vma->vm_end);
+>  
+>  	lru_add_drain();
+> -	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
+> -				start, start + size);
+>  	tlb_gather_mmu(&tlb, vma->vm_mm);
+>  	update_hiwater_rss(vma->vm_mm);
+> -	mmu_notifier_invalidate_range_start(&range);
+>  	do {
+> -		unmap_single_vma(&tlb, vma, start, range.end, NULL);
+> +		mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma,
+> +				vma->vm_mm,
+> +				max(start, vma->vm_start),
+> +				min(start + size, vma->vm_end));
+> +		if (is_vm_hugetlb_page(vma))
+> +			adjust_range_if_pmd_sharing_possible(vma,
+> +				&range.start,
+> +				&range.end);
+> +		mmu_notifier_invalidate_range_start(&range);
+> +		unmap_single_vma(&tlb, vma, start, start + size, NULL);
+> +		mmu_notifier_invalidate_range_end(&range);
+>  	} while ((vma = mas_find(&mas, end - 1)) != NULL);
+> -	mmu_notifier_invalidate_range_end(&range);
+>  	tlb_finish_mmu(&tlb);
+>  }
+>  
+> 
+> One thing to keep in mind is that this patch is a fix that must be
+> backported to stable.  Therefore, I do not think we want to add too
+> many changes out of the direct scope of the fix.
+> 
+> We can always change things like this in follow up patches.
+> -- 
+> Mike Kravetz
+> 
+
 -- 
-Florian
+Peter Xu
 
