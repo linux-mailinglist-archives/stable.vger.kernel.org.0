@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDE75615AF1
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:44:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B85B615AC9
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:41:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229967AbiKBDo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:44:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32942 "EHLO
+        id S230262AbiKBDlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:41:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230045AbiKBDo0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:44:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 370882733
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:44:25 -0700 (PDT)
+        with ESMTP id S230280AbiKBDk6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:40:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C825326AE1
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:40:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B280C617CF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:44:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5676CC433D6;
-        Wed,  2 Nov 2022 03:44:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81CB2B82072
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:40:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62D98C433C1;
+        Wed,  2 Nov 2022 03:40:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360664;
-        bh=TCaKWLxHSCr3Hua0ZM+lN0lCTGk5fYDyL6k/phW7WWQ=;
+        s=korg; t=1667360455;
+        bh=7Q/8lB7kqGBjqnBx70Ljn6dTVNGucEVm/BYyYPDivRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJWdNNjxu7fdEGL2phGxV7wqDJW5PPrzsZ9Mp8spDDhgZ+ZtZipqTVoCtdZuHn+dd
-         OflhJ3ZnSd4BfDCwBvNchKrskeBYIUsktvbmi/f6ZIr5QMganrQSlq/NDfmiiVZqO7
-         JeppRy/PGJKNBR4M3W65y0FWrq77rlcTdKsyURK4=
+        b=S3Lxs0TjeHtQB11XCu29yzwPQ+bgLwnF14AzP5OA6ta+E+kOpT1/AJ+2dQrZB/DxI
+         hzzh1Bg26mdliZfVpUQ4Sr0LrlFy3Xn1ttrtkw6LL6R7+Qwwvs4NgrsunUvymD2fyW
+         1Wrvq6PKoPFkiezfZDdkxnzszgQXRbO+V9aIJe8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hyunwoo Kim <imv4bel@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.9 16/44] fbdev: smscufx: Fix several use-after-free bugs
+        patches@lists.linux.dev, Raju Rangoju <Raju.Rangoju@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 41/60] amd-xgbe: add the bit rate quirk for Molex cables
 Date:   Wed,  2 Nov 2022 03:35:02 +0100
-Message-Id: <20221102022049.614531483@linuxfoundation.org>
+Message-Id: <20221102022052.431461879@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
-References: <20221102022049.017479464@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,168 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <imv4bel@gmail.com>
+From: Raju Rangoju <Raju.Rangoju@amd.com>
 
-commit cc67482c9e5f2c80d62f623bcc347c29f9f648e1 upstream.
+[ Upstream commit 170a9e341a3b02c0b2ea0df16ef14a33a4f41de8 ]
 
-Several types of UAFs can occur when physically removing a USB device.
+The offset 12 (bit-rate) of EEPROM SFP DAC (passive) cables is expected
+to be in the range 0x64 to 0x68. However, the 5 meter and 7 meter Molex
+passive cables have the rate ceiling 0x78 at offset 12.
 
-Adds ufx_ops_destroy() function to .fb_destroy of fb_ops, and
-in this function, there is kref_put() that finally calls ufx_free().
+Add a quirk for Molex passive cables to extend the rate ceiling to 0x78.
 
-This fix prevents multiple UAFs.
-
-Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
-Link: https://lore.kernel.org/linux-fbdev/20221011153436.GA4446@ubuntu/
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
+Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/smscufx.c |   55 ++++++++++++++++++++++--------------------
- 1 file changed, 30 insertions(+), 25 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/smscufx.c
-+++ b/drivers/video/fbdev/smscufx.c
-@@ -100,7 +100,6 @@ struct ufx_data {
- 	struct kref kref;
- 	int fb_count;
- 	bool virtualized; /* true when physical usb device not present */
--	struct delayed_work free_framebuffer_work;
- 	atomic_t usb_active; /* 0 = update virtual buffer, but no usb traffic */
- 	atomic_t lost_pixels; /* 1 = a render op failed. Need screen refresh */
- 	u8 *edid; /* null until we read edid from hw or get from sysfs */
-@@ -1120,15 +1119,24 @@ static void ufx_free(struct kref *kref)
- {
- 	struct ufx_data *dev = container_of(kref, struct ufx_data, kref);
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index d432489c093a..3ccdac464cf5 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -237,6 +237,7 @@ enum xgbe_sfp_speed {
+ #define XGBE_SFP_BASE_BR_1GBE_MAX		0x0d
+ #define XGBE_SFP_BASE_BR_10GBE_MIN		0x64
+ #define XGBE_SFP_BASE_BR_10GBE_MAX		0x68
++#define XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX	0x78
  
--	/* this function will wait for all in-flight urbs to complete */
--	if (dev->urbs.count > 0)
--		ufx_free_urb_list(dev);
-+	kfree(dev);
-+}
+ #define XGBE_SFP_BASE_CU_CABLE_LEN		18
  
--	pr_debug("freeing ufx_data %p", dev);
-+static void ufx_ops_destory(struct fb_info *info)
-+{
-+	struct ufx_data *dev = info->par;
-+	int node = info->node;
+@@ -273,6 +274,8 @@ struct xgbe_sfp_eeprom {
+ #define XGBE_BEL_FUSE_VENDOR	"BEL-FUSE        "
+ #define XGBE_BEL_FUSE_PARTNO	"1GBT-SFP06      "
  
--	kfree(dev);
-+	/* Assume info structure is freed after this point */
-+	framebuffer_release(info);
++#define XGBE_MOLEX_VENDOR	"Molex Inc.      "
 +
-+	pr_debug("fb_info for /dev/fb%d has been freed", node);
-+
-+	/* release reference taken by kref_init in probe() */
-+	kref_put(&dev->kref, ufx_free);
- }
- 
-+
- static void ufx_release_urb_work(struct work_struct *work)
- {
- 	struct urb_node *unode = container_of(work, struct urb_node,
-@@ -1137,14 +1145,9 @@ static void ufx_release_urb_work(struct
- 	up(&unode->dev->urbs.limit_sem);
- }
- 
--static void ufx_free_framebuffer_work(struct work_struct *work)
-+static void ufx_free_framebuffer(struct ufx_data *dev)
- {
--	struct ufx_data *dev = container_of(work, struct ufx_data,
--					    free_framebuffer_work.work);
- 	struct fb_info *info = dev->info;
--	int node = info->node;
--
--	unregister_framebuffer(info);
- 
- 	if (info->cmap.len != 0)
- 		fb_dealloc_cmap(&info->cmap);
-@@ -1156,11 +1159,6 @@ static void ufx_free_framebuffer_work(st
- 
- 	dev->info = NULL;
- 
--	/* Assume info structure is freed after this point */
--	framebuffer_release(info);
--
--	pr_debug("fb_info for /dev/fb%d has been freed", node);
--
- 	/* ref taken in probe() as part of registering framebfufer */
- 	kref_put(&dev->kref, ufx_free);
- }
-@@ -1172,11 +1170,13 @@ static int ufx_ops_release(struct fb_inf
- {
- 	struct ufx_data *dev = info->par;
- 
-+	mutex_lock(&disconnect_mutex);
-+
- 	dev->fb_count--;
- 
- 	/* We can't free fb_info here - fbmem will touch it when we return */
- 	if (dev->virtualized && (dev->fb_count == 0))
--		schedule_delayed_work(&dev->free_framebuffer_work, HZ);
-+		ufx_free_framebuffer(dev);
- 
- 	if ((dev->fb_count == 0) && (info->fbdefio)) {
- 		fb_deferred_io_cleanup(info);
-@@ -1190,6 +1190,8 @@ static int ufx_ops_release(struct fb_inf
- 
- 	kref_put(&dev->kref, ufx_free);
- 
-+	mutex_unlock(&disconnect_mutex);
-+
- 	return 0;
- }
- 
-@@ -1296,6 +1298,7 @@ static struct fb_ops ufx_ops = {
- 	.fb_blank = ufx_ops_blank,
- 	.fb_check_var = ufx_ops_check_var,
- 	.fb_set_par = ufx_ops_set_par,
-+	.fb_destroy = ufx_ops_destory,
- };
- 
- /* Assumes &info->lock held by caller
-@@ -1687,9 +1690,6 @@ static int ufx_usb_probe(struct usb_inte
- 		goto error;
- 	}
- 
--	INIT_DELAYED_WORK(&dev->free_framebuffer_work,
--			  ufx_free_framebuffer_work);
--
- 	retval = ufx_reg_read(dev, 0x3000, &id_rev);
- 	check_warn_goto_error(retval, "error %d reading 0x3000 register from device", retval);
- 	dev_dbg(dev->gdev, "ID_REV register value 0x%08x", id_rev);
-@@ -1768,10 +1768,12 @@ error:
- static void ufx_usb_disconnect(struct usb_interface *interface)
- {
- 	struct ufx_data *dev;
-+	struct fb_info *info;
- 
- 	mutex_lock(&disconnect_mutex);
- 
- 	dev = usb_get_intfdata(interface);
-+	info = dev->info;
- 
- 	pr_debug("USB disconnect starting\n");
- 
-@@ -1785,12 +1787,15 @@ static void ufx_usb_disconnect(struct us
- 
- 	/* if clients still have us open, will be freed on last close */
- 	if (dev->fb_count == 0)
--		schedule_delayed_work(&dev->free_framebuffer_work, 0);
-+		ufx_free_framebuffer(dev);
- 
--	/* release reference taken by kref_init in probe() */
--	kref_put(&dev->kref, ufx_free);
-+	/* this function will wait for all in-flight urbs to complete */
-+	if (dev->urbs.count > 0)
-+		ufx_free_urb_list(dev);
-+
-+	pr_debug("freeing ufx_data %p", dev);
- 
--	/* consider ufx_data freed */
-+	unregister_framebuffer(info);
- 
- 	mutex_unlock(&disconnect_mutex);
- }
+ struct xgbe_sfp_ascii {
+ 	union {
+ 		char vendor[XGBE_SFP_BASE_VENDOR_NAME_LEN + 1];
+@@ -840,7 +843,11 @@ static bool xgbe_phy_sfp_bit_rate(struct xgbe_sfp_eeprom *sfp_eeprom,
+ 		break;
+ 	case XGBE_SFP_SPEED_10000:
+ 		min = XGBE_SFP_BASE_BR_10GBE_MIN;
+-		max = XGBE_SFP_BASE_BR_10GBE_MAX;
++		if (memcmp(&sfp_eeprom->base[XGBE_SFP_BASE_VENDOR_NAME],
++			   XGBE_MOLEX_VENDOR, XGBE_SFP_BASE_VENDOR_NAME_LEN) == 0)
++			max = XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX;
++		else
++			max = XGBE_SFP_BASE_BR_10GBE_MAX;
+ 		break;
+ 	default:
+ 		return false;
+-- 
+2.35.1
+
 
 
