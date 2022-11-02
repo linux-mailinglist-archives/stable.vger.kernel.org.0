@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 966FB615B17
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:47:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45C85615AE8
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230309AbiKBDri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:47:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34786 "EHLO
+        id S230073AbiKBDnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:43:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230318AbiKBDri (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:47:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93F3B275C3
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:47:37 -0700 (PDT)
+        with ESMTP id S230179AbiKBDnm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:43:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBBE021BF
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:43:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3480D617BA
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:47:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD601C433C1;
-        Wed,  2 Nov 2022 03:47:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B9B2B82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:43:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C267C433C1;
+        Wed,  2 Nov 2022 03:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360856;
-        bh=mQEtd1uUCLo9UGwWZSDje2/cKPYENvGD435u1+VMm5A=;
+        s=korg; t=1667360618;
+        bh=WA6paHZOI8+WiypjmJm7UxsfIvG2OegMbcDCjawvcsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y4FIbHzKKjBJT5aZ0dn9JY03yAbgic6JilTwz4LCSQYcyw62EN6GShgmXhQDS9twv
-         b4OkFEL0reNZn9l1dbnHnQFRpDB2u4FRlo4cQFwjX+gONNZ+cbxoUhHspgLQQ4eD2l
-         kS2t2Lj5ru/eUX5guptMI3Oas3TQf3+IOIe+goZg=
+        b=o0pTLzq55y+UbPVmJ5VNa4CBkk/FVAexcFq5Q6xTeFDRYw3iK+NYzh0yjDeINFcxz
+         g0nSW/+L8X30EvekQYCjoKeEDNMe4WVF48ktzHNvd+HVAa0JYoe7lYmF5mYsehdqG2
+         WtMzxnkGbGdqngHbeiZXIe6ArAsj+Uoct4ShBFM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jakub Kicinski <kuba@kernel.org>,
-        Neil Spring <ntspring@fb.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
+        patches@lists.linux.dev,
+        syzbot+31cde0bef4bbf8ba2d86@syzkaller.appspotmail.com,
+        Thomas Graf <tgraf@suug.ch>, Aaron Conole <aconole@redhat.com>,
+        Ilya Maximets <i.maximets@ovn.org>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 32/44] tcp: fix indefinite deferral of RTO with SACK reneging
-Date:   Wed,  2 Nov 2022 03:35:18 +0100
-Message-Id: <20221102022050.198131320@linuxfoundation.org>
+Subject: [PATCH 4.14 58/60] openvswitch: switch from WARN to pr_warn
+Date:   Wed,  2 Nov 2022 03:35:19 +0100
+Message-Id: <20221102022052.996016503@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
-References: <20221102022049.017479464@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Aaron Conole <aconole@redhat.com>
 
-[ Upstream commit 3d2af9cce3133b3bc596a9d065c6f9d93419ccfb ]
+[ Upstream commit fd954cc1919e35cb92f78671cab6e42d661945a3 ]
 
-This commit fixes a bug that can cause a TCP data sender to repeatedly
-defer RTOs when encountering SACK reneging.
+As noted by Paolo Abeni, pr_warn doesn't generate any splat and can still
+preserve the warning to the user that feature downgrade occurred.  We
+likely cannot introduce other kinds of checks / enforcement here because
+syzbot can generate different genl versions to the datapath.
 
-The bug is that when we're in fast recovery in a scenario with SACK
-reneging, every time we get an ACK we call tcp_check_sack_reneging()
-and it can note the apparent SACK reneging and rearm the RTO timer for
-srtt/2 into the future. In some SACK reneging scenarios that can
-happen repeatedly until the receive window fills up, at which point
-the sender can't send any more, the ACKs stop arriving, and the RTO
-fires at srtt/2 after the last ACK. But that can take far too long
-(O(10 secs)), since the connection is stuck in fast recovery with a
-low cwnd that cannot grow beyond ssthresh, even if more bandwidth is
-available.
-
-This fix changes the logic in tcp_check_sack_reneging() to only rearm
-the RTO timer if data is cumulatively ACKed, indicating forward
-progress. This avoids this kind of nearly infinite loop of RTO timer
-re-arming. In addition, this meets the goals of
-tcp_check_sack_reneging() in handling Windows TCP behavior that looks
-temporarily like SACK reneging but is not really.
-
-Many thanks to Jakub Kicinski and Neil Spring, who reported this issue
-and provided critical packet traces that enabled root-causing this
-issue. Also, many thanks to Jakub Kicinski for testing this fix.
-
-Fixes: 5ae344c949e7 ("tcp: reduce spurious retransmits due to transient SACK reneging")
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Reported-by: Neil Spring <ntspring@fb.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Cc: Yuchung Cheng <ycheng@google.com>
-Tested-by: Jakub Kicinski <kuba@kernel.org>
-Link: https://lore.kernel.org/r/20221021170821.1093930-1-ncardwell.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: syzbot+31cde0bef4bbf8ba2d86@syzkaller.appspotmail.com
+Fixes: 44da5ae5fbea ("openvswitch: Drop user features if old user space attempted to create datapath")
+Cc: Thomas Graf <tgraf@suug.ch>
+Signed-off-by: Aaron Conole <aconole@redhat.com>
+Acked-by: Ilya Maximets <i.maximets@ovn.org>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_input.c | 3 ++-
+ net/openvswitch/datapath.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 9c7f716aab44..98ff1e34e04f 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -2053,7 +2053,8 @@ void tcp_enter_loss(struct sock *sk)
-  */
- static bool tcp_check_sack_reneging(struct sock *sk, int flag)
- {
--	if (flag & FLAG_SACK_RENEGING) {
-+	if (flag & FLAG_SACK_RENEGING &&
-+	    flag & FLAG_SND_UNA_ADVANCED) {
- 		struct tcp_sock *tp = tcp_sk(sk);
- 		unsigned long delay = max(usecs_to_jiffies(tp->srtt_us >> 4),
- 					  msecs_to_jiffies(10));
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index 8319628ab428..a57a3755611d 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -1578,7 +1578,8 @@ static void ovs_dp_reset_user_features(struct sk_buff *skb, struct genl_info *in
+ 	if (IS_ERR(dp))
+ 		return;
+ 
+-	WARN(dp->user_features, "Dropping previously announced user features\n");
++	pr_warn("%s: Dropping previously announced user features\n",
++		ovs_dp_name(dp));
+ 	dp->user_features = 0;
+ }
+ 
 -- 
 2.35.1
 
