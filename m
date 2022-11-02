@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9296B6158E8
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:01:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C9C2615844
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:48:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231230AbiKBDBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:01:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49512 "EHLO
+        id S230434AbiKBCsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:48:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231239AbiKBDAp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:00:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEA6621807
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:00:43 -0700 (PDT)
+        with ESMTP id S230418AbiKBCsX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:48:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129E2E8E
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:48:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B921617C8
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:00:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0128C433D6;
-        Wed,  2 Nov 2022 03:00:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85318601C6
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:48:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C6BEC433D7;
+        Wed,  2 Nov 2022 02:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358042;
-        bh=3To5j5enuhG1lOVJ7Z8kTMk0Kw7z3PjmXhUbIrsSzz0=;
+        s=korg; t=1667357301;
+        bh=hkhbXcCo2X15dwth/wZlV+Ef61jpj0QmUAa1PqGlrJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0YPuqn+z3MhzkXOQEdsupDPdP/URtV45C9Tol8XwFuN1JQkTPgeHoLEiZ0ZKcy0sL
-         bhfVZvgg7uEWaBzasObHbqkgSbpLe5PXwld9UkRvtp9GNN2hRb/FanykFCyNWAKVGH
-         I2LTG3KADzZx9DoLkCefUP530/vfpLa6QvBe5xGw=
+        b=DWRvstMn1wmgnS9+GnjDj59ZO1kdijdIT0/L8a/LW4Ki/gjA5EO/kCtBu612YEPwM
+         DjlUvp+cz7XCpouop4xHviXgQPQ4kt/8YC6femVfUzEx/JZDWjv3iQRlfaJbjVG2oS
+         tGZvUKjq03Exy9qI4/EA4U4l8cz6dm5dcjOE4zg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Justin Chen <justinpopo6@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        stable <stable@kernel.org>
-Subject: [PATCH 5.15 014/132] usb: bdc: change state when port disconnected
-Date:   Wed,  2 Nov 2022 03:32:00 +0100
-Message-Id: <20221102022100.001576596@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 146/240] mtd: rawnand: intel: Use devm_platform_ioremap_resource_byname()
+Date:   Wed,  2 Nov 2022 03:32:01 +0100
+Message-Id: <20221102022114.678983484@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
+References: <20221102022111.398283374@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Chen <justinpopo6@gmail.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit fb8f60dd1b67520e0e0d7978ef17d015690acfc1 upstream.
+[ Upstream commit 7471a53ddce54cee9b7a340dc930eb35b02c9eed ]
 
-When port is connected and then disconnected, the state stays as
-configured. Which is incorrect as the port is no longer configured,
-but in a not attached state.
+Switch from open-coded platform_get_resource_byname() and
+devm_ioremap_resource() to devm_platform_ioremap_resource_byname() where
+possible to simplify the code.
 
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Fixes: efed421a94e6 ("usb: gadget: Add UDC driver for Broadcom USB3.0 device controller IP BDC")
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/1664997235-18198-1-git-send-email-justinpopo6@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220702231227.1579176-9-martin.blumenstingl@googlemail.com
+Stable-dep-of: 1f3b494d1fc1 ("mtd: rawnand: intel: Add missing of_node_put() in ebu_nand_probe()")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/bdc/bdc_udc.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/nand/raw/intel-nand-controller.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/gadget/udc/bdc/bdc_udc.c
-+++ b/drivers/usb/gadget/udc/bdc/bdc_udc.c
-@@ -151,6 +151,7 @@ static void bdc_uspc_disconnected(struct
- 	bdc->delayed_status = false;
- 	bdc->reinit = reinit;
- 	bdc->test_mode = false;
-+	usb_gadget_set_state(&bdc->gadget, USB_STATE_NOTATTACHED);
- }
+diff --git a/drivers/mtd/nand/raw/intel-nand-controller.c b/drivers/mtd/nand/raw/intel-nand-controller.c
+index 8c78a05099bf..bd821e435329 100644
+--- a/drivers/mtd/nand/raw/intel-nand-controller.c
++++ b/drivers/mtd/nand/raw/intel-nand-controller.c
+@@ -595,13 +595,11 @@ static int ebu_nand_probe(struct platform_device *pdev)
+ 	ebu_host->dev = dev;
+ 	nand_controller_init(&ebu_host->controller);
  
- /* TNotify wkaeup timer */
+-	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "ebunand");
+-	ebu_host->ebu = devm_ioremap_resource(&pdev->dev, res);
++	ebu_host->ebu = devm_platform_ioremap_resource_byname(pdev, "ebunand");
+ 	if (IS_ERR(ebu_host->ebu))
+ 		return PTR_ERR(ebu_host->ebu);
+ 
+-	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "hsnand");
+-	ebu_host->hsnand = devm_ioremap_resource(&pdev->dev, res);
++	ebu_host->hsnand = devm_platform_ioremap_resource_byname(pdev, "hsnand");
+ 	if (IS_ERR(ebu_host->hsnand))
+ 		return PTR_ERR(ebu_host->hsnand);
+ 
+@@ -623,8 +621,8 @@ static int ebu_nand_probe(struct platform_device *pdev)
+ 	ebu_host->cs_num = cs;
+ 
+ 	resname = devm_kasprintf(dev, GFP_KERNEL, "nand_cs%d", cs);
+-	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, resname);
+-	ebu_host->cs[cs].chipaddr = devm_ioremap_resource(dev, res);
++	ebu_host->cs[cs].chipaddr = devm_platform_ioremap_resource_byname(pdev,
++									  resname);
+ 	if (IS_ERR(ebu_host->cs[cs].chipaddr))
+ 		return PTR_ERR(ebu_host->cs[cs].chipaddr);
+ 
+-- 
+2.35.1
+
 
 
