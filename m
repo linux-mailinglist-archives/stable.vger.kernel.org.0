@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6077F615A82
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:32:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DFC8615A2F
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:26:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231166AbiKBDcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:32:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51462 "EHLO
+        id S230464AbiKBD00 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:26:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231157AbiKBDca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:32:30 -0400
+        with ESMTP id S230449AbiKBD0Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:26:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5830F2649F
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:32:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A22E25E8F
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:26:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B790B8206F
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:32:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09FF5C433D7;
-        Wed,  2 Nov 2022 03:32:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45D94B8205C
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:26:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3859CC433D6;
+        Wed,  2 Nov 2022 03:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359947;
-        bh=6X4F1ImfmZP+i5s0+q25rL0TVqnHIkZJW2U9rHt5HtY=;
+        s=korg; t=1667359581;
+        bh=Nq4SZ0pPZa1ai9u9FzPKWEyxm7n0ShJ53DPG7YYUOzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ihbypef7fCK9EjY+iMbZjpXA09sdZzVUuJ+spMkWq6dDSuuQmW0hS1lGueh/uCPMS
-         2scXkRRgCRpxbd2elYSOLggIt77FYpx9t7qIs/Z0Yo/Qspth49gw175j4EK+peMe8U
-         ckHWifdBXfVd6szQ+DXbLZ+Z3ciUhY+j+R/egnis=
+        b=nGw0ibB9Qxbt3VmFqU61qAh7TA7CIVN63WZhjvHXOfmy5kXM2mkrU89rOSouqpkBm
+         yFc/3fEC5obPTv70jkUWGKl+nq7DxitdZ0u6FXYiI2GqHnpSQq2GW/j/SZucy8slx+
+         XYxZ2P2EvAA634hHeowybpjaH1UtY+XCCiUhhTpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 4.19 44/78] s390/futex: add missing EX_TABLE entry to __futex_atomic_op()
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Claudiu Manoil <claudiu.manoil@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 63/64] net: enetc: survive memory pressure without crashing
 Date:   Wed,  2 Nov 2022 03:34:29 +0100
-Message-Id: <20221102022054.290315128@linuxfoundation.org>
+Message-Id: <20221102022053.852968401@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit a262d3ad6a433e4080cecd0a8841104a5906355e upstream.
+[ Upstream commit 84ce1ca3fe9e1249bf21176ff162200f1c4e5ed1 ]
 
-For some exception types the instruction address points behind the
-instruction that caused the exception. Take that into account and add
-the missing exception table entry.
+Under memory pressure, enetc_refill_rx_ring() may fail, and when called
+during the enetc_open() -> enetc_setup_rxbdr() procedure, this is not
+checked for.
 
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+An extreme case of memory pressure will result in exactly zero buffers
+being allocated for the RX ring, and in such a case it is expected that
+hardware drops all RX packets due to lack of buffers.
+
+This does not happen, because the reset-default value of the consumer
+and produces index is 0, and this makes the ENETC think that all buffers
+have been initialized and that it owns them (when in reality none were).
+
+The hardware guide explains this best:
+
+| Configure the receive ring producer index register RBaPIR with a value
+| of 0. The producer index is initially configured by software but owned
+| by hardware after the ring has been enabled. Hardware increments the
+| index when a frame is received which may consume one or more BDs.
+| Hardware is not allowed to increment the producer index to match the
+| consumer index since it is used to indicate an empty condition. The ring
+| can hold at most RBLENR[LENGTH]-1 received BDs.
+|
+| Configure the receive ring consumer index register RBaCIR. The
+| consumer index is owned by software and updated during operation of the
+| of the BD ring by software, to indicate that any receive data occupied
+| in the BD has been processed and it has been prepared for new data.
+| - If consumer index and producer index are initialized to the same
+|   value, it indicates that all BDs in the ring have been prepared and
+|   hardware owns all of the entries.
+| - If consumer index is initialized to producer index plus N, it would
+|   indicate N BDs have been prepared. Note that hardware cannot start if
+|   only a single buffer is prepared due to the restrictions described in
+|   (2).
+| - Software may write consumer index to match producer index anytime
+|   while the ring is operational to indicate all received BDs prior have
+|   been processed and new BDs prepared for hardware.
+
+Normally, the value of rx_ring->rcir (consumer index) is brought in sync
+with the rx_ring->next_to_use software index, but this only happens if
+page allocation ever succeeded.
+
+When PI==CI==0, the hardware appears to receive frames and write them to
+DMA address 0x0 (?!), then set the READY bit in the BD.
+
+The enetc_clean_rx_ring() function (and its XDP derivative) is naturally
+not prepared to handle such a condition. It will attempt to process
+those frames using the rx_swbd structure associated with index i of the
+RX ring, but that structure is not fully initialized (enetc_new_page()
+does all of that). So what happens next is undefined behavior.
+
+To operate using no buffer, we must initialize the CI to PI + 1, which
+will block the hardware from advancing the CI any further, and drop
+everything.
+
+The issue was seen while adding support for zero-copy AF_XDP sockets,
+where buffer memory comes from user space, which can even decide to
+supply no buffers at all (example: "xdpsock --txonly"). However, the bug
+is present also with the network stack code, even though it would take a
+very determined person to trigger a page allocation failure at the
+perfect time (a series of ifup/ifdown under memory pressure should
+eventually reproduce it given enough retries).
+
+Fixes: d4fd0404c1c9 ("enetc: Introduce basic PF and VF ENETC ethernet drivers")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Link: https://lore.kernel.org/r/20221027182925.3256653-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/futex.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/enetc/enetc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/s390/include/asm/futex.h
-+++ b/arch/s390/include/asm/futex.h
-@@ -16,7 +16,8 @@
- 		"3: jl    1b\n"						\
- 		"   lhi   %0,0\n"					\
- 		"4: sacf  768\n"					\
--		EX_TABLE(0b,4b) EX_TABLE(2b,4b) EX_TABLE(3b,4b)		\
-+		EX_TABLE(0b,4b) EX_TABLE(1b,4b)				\
-+		EX_TABLE(2b,4b) EX_TABLE(3b,4b)				\
- 		: "=d" (ret), "=&d" (oldval), "=&d" (newval),		\
- 		  "=m" (*uaddr)						\
- 		: "0" (-EFAULT), "d" (oparg), "a" (uaddr),		\
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
+index cee77326e7e8..d6df2dd885c5 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -1146,7 +1146,12 @@ static void enetc_setup_rxbdr(struct enetc_hw *hw, struct enetc_bdr *rx_ring)
+ 
+ 	enetc_rxbdr_wr(hw, idx, ENETC_RBBSR, ENETC_RXB_DMA_SIZE);
+ 
++	/* Also prepare the consumer index in case page allocation never
++	 * succeeds. In that case, hardware will never advance producer index
++	 * to match consumer index, and will drop all frames.
++	 */
+ 	enetc_rxbdr_wr(hw, idx, ENETC_RBPIR, 0);
++	enetc_rxbdr_wr(hw, idx, ENETC_RBCIR, 1);
+ 
+ 	/* enable Rx ints by setting pkt thr to 1 */
+ 	enetc_rxbdr_wr(hw, idx, ENETC_RBICIR0, ENETC_RBICIR0_ICEN | 0x1);
+-- 
+2.35.1
+
 
 
