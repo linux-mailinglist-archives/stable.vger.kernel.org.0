@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18ACB615A9A
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:36:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D4B615AAA
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:38:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229850AbiKBDgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:36:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55060 "EHLO
+        id S230019AbiKBDiV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:38:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229992AbiKBDgy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:36:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8176B26549
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:36:51 -0700 (PDT)
+        with ESMTP id S229517AbiKBDiU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:38:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6107526561
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:38:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F419617CB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:36:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49EB6C433C1;
-        Wed,  2 Nov 2022 03:36:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0C7F617CB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:38:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93E41C433C1;
+        Wed,  2 Nov 2022 03:38:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360210;
-        bh=EGgt/f4egVDDTJ1p5uzb0miQFFnQ4Z5q5N2Epy+h1h8=;
+        s=korg; t=1667360298;
+        bh=t7M5AJXtpIFXTuuWeolEQ63HxkTsw2/XJMik04sC8pI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QBZe/vdRCTvZ5tzZDfR4sry9CmslgTwi5lIi2DTwJ5UQba1zpwcxtMAK2vA/De3+H
-         plfDUJi/y5AOePswqaeHP+pWLOggEBXq7GdBKjGjfML4ul+7oe9yhqMUqwrhHb6EJ0
-         QcbCg8D7PLkJD7PR4P+9Uj5LcRfe0MSgojQ68kTc=
+        b=r3ElxGjBlkdaNinnGGSAtXr676cutYkAaQayemDfDeFKFZGgQvubRjhEzC+MOXOk3
+         fVAzbfxiVrZoV0qSzbV/7gYYUc104b6Udf67wYmnI+4J0OzQE2/1mQ0U9tLLwQYFNq
+         IkvM1hvVJzZGOt/vJj6u3YvrmunKZLMFg3Vpish8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Vineet Gupta <vgupta@kernel.org>,
-        linux-snps-arc@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 50/78] arc: iounmap() arg is volatile
+        patches@lists.linux.dev, Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 14/60] iommu/vt-d: Clean up si_domain in the init_dmars() error path
 Date:   Wed,  2 Nov 2022 03:34:35 +0100
-Message-Id: <20221102022054.450865242@linuxfoundation.org>
+Message-Id: <20221102022051.535792375@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jerry Snitselaar <jsnitsel@redhat.com>
 
-[ Upstream commit c44f15c1c09481d50fd33478ebb5b8284f8f5edb ]
+[ Upstream commit 620bf9f981365c18cc2766c53d92bf8131c63f32 ]
 
-Add 'volatile' to iounmap()'s argument to prevent build warnings.
-This make it the same as other major architectures.
+A splat from kmem_cache_destroy() was seen with a kernel prior to
+commit ee2653bbe89d ("iommu/vt-d: Remove domain and devinfo mempool")
+when there was a failure in init_dmars(), because the iommu_domain
+cache still had objects. While the mempool code is now gone, there
+still is a leak of the si_domain memory if init_dmars() fails. So
+clean up si_domain in the init_dmars() error path.
 
-Placates these warnings: (12 such warnings)
-
-../drivers/video/fbdev/riva/fbdev.c: In function 'rivafb_probe':
-../drivers/video/fbdev/riva/fbdev.c:2067:42: error: passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type [-Werror=discarded-qualifiers]
- 2067 |                 iounmap(default_par->riva.PRAMIN);
-
-Fixes: 1162b0701b14b ("ARC: I/O and DMA Mappings")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Vineet Gupta <vgupta@kernel.org>
-Cc: linux-snps-arc@lists.infradead.org
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Vineet Gupta <vgupta@kernel.org>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Fixes: 86080ccc223a ("iommu/vt-d: Allocate si_domain in init_dmars()")
+Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Link: https://lore.kernel.org/r/20221010144842.308890-1-jsnitsel@redhat.com
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/include/asm/io.h | 2 +-
- arch/arc/mm/ioremap.c     | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/intel-iommu.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arc/include/asm/io.h b/arch/arc/include/asm/io.h
-index 2f39d9b3886e..19d0cab60a39 100644
---- a/arch/arc/include/asm/io.h
-+++ b/arch/arc/include/asm/io.h
-@@ -35,7 +35,7 @@ static inline void ioport_unmap(void __iomem *addr)
- {
- }
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 74bfd7d29338..a04d4664edb4 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -2785,6 +2785,7 @@ static int __init si_domain_init(int hw)
  
--extern void iounmap(const void __iomem *addr);
-+extern void iounmap(const volatile void __iomem *addr);
+ 	if (md_domain_init(si_domain, DEFAULT_DOMAIN_ADDRESS_WIDTH)) {
+ 		domain_exit(si_domain);
++		si_domain = NULL;
+ 		return -EFAULT;
+ 	}
  
- #define ioremap_nocache(phy, sz)	ioremap(phy, sz)
- #define ioremap_wc(phy, sz)		ioremap(phy, sz)
-diff --git a/arch/arc/mm/ioremap.c b/arch/arc/mm/ioremap.c
-index 9881bd740ccc..0719b1280ef8 100644
---- a/arch/arc/mm/ioremap.c
-+++ b/arch/arc/mm/ioremap.c
-@@ -95,7 +95,7 @@ void __iomem *ioremap_prot(phys_addr_t paddr, unsigned long size,
- EXPORT_SYMBOL(ioremap_prot);
+@@ -3475,6 +3476,10 @@ static int __init init_dmars(void)
+ 		disable_dmar_iommu(iommu);
+ 		free_dmar_iommu(iommu);
+ 	}
++	if (si_domain) {
++		domain_exit(si_domain);
++		si_domain = NULL;
++	}
  
+ 	kfree(g_iommus);
  
--void iounmap(const void __iomem *addr)
-+void iounmap(const volatile void __iomem *addr)
- {
- 	/* weird double cast to handle phys_addr_t > 32 bits */
- 	if (arc_uncached_addr_space((phys_addr_t)(u32)addr))
 -- 
 2.35.1
 
