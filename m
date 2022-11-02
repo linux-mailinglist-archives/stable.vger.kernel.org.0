@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 204A261590E
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:04:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6829E61597A
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:12:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbiKBDES (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:04:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49146 "EHLO
+        id S230290AbiKBDM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:12:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230106AbiKBDDn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:03:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9398A20355
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:03:30 -0700 (PDT)
+        with ESMTP id S230303AbiKBDMK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:12:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC54C23EBD
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:11:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FA25617C3
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:03:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0FE0C433D6;
-        Wed,  2 Nov 2022 03:03:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C66A61799
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:11:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11EC8C433C1;
+        Wed,  2 Nov 2022 03:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358209;
-        bh=iKGK/GthN4kOlqdEnNGn7TuhJCouqT48wyBlyHJELzo=;
+        s=korg; t=1667358701;
+        bh=x9r6tYA3+3uSr9xQoaPHfp9Oc8suWSMO/Xz7qB+H8jQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mq/kh7GneYZzNKWxSVMDPgzrWnJcu30hhEdty61G5/tz8bWgqUk60NnYP1SjLqUyh
-         krBs0d7UvYrNI/RD5EAiM4qzxU69m5vkZR5sigCX2+KJbUS0slQMmxYwIYSt30bgeG
-         OoipD1yBGz+hTiX50b2Ns2OvsiYYqbCqnlrWoXvY=
+        b=XT2Fu539hlH8yrhKkI76/d5HgzibTKJdyzjr0ccfvXXa6WAwKuvuJuAST1wzPtooX
+         YK+v3czR/v+HrhRGB6uwvw/K9oVkn9WLj5nXEkg7KbQ42g5x8yYe7SrKTTVUqLJg4s
+         sDZEEYDAMrunCfFjqL80Vzuz3llLc8ERS7imIOTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
-        Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/132] ASoC: qcom: lpass-cpu: mark HDMI TX registers as volatile
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 03/91] ALSA: Use del_timer_sync() before freeing timer
 Date:   Wed,  2 Nov 2022 03:32:46 +0100
-Message-Id: <20221102022101.187665380@linuxfoundation.org>
+Message-Id: <20221102022055.137723586@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit c9a3545b1d771fb7b06a487796c40288c02c41c5 ]
+commit f0a868788fcbf63cdab51f5adcf73b271ede8164 upstream.
 
-Update HDMI volatile registers list as DMA, Channel Selection registers,
-vbit control registers are being reflected by hardware DP port
-disconnection.
+The current code for freeing the emux timer is extremely dangerous:
 
-This update is required to fix no display and no sound issue observed
-after reconnecting TAMA/SANWA DP cables.
-Once DP cable is unplugged, DMA control registers are being reset by
-hardware, however at second plugin, new dma control values does not
-updated to the dma hardware registers since new register value and
-cached values at the time of first plugin are same.
+  CPU0				CPU1
+  ----				----
+snd_emux_timer_callback()
+			    snd_emux_free()
+			      spin_lock(&emu->voice_lock)
+			      del_timer(&emu->tlist); <-- returns immediately
+			      spin_unlock(&emu->voice_lock);
+			      [..]
+			      kfree(emu);
 
-Fixes: 7cb37b7bd0d3 ("ASoC: qcom: Add support for lpass hdmi driver")
+  spin_lock(&emu->voice_lock);
 
-Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
-Reported-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Link: https://lore.kernel.org/r/1665637711-13300-1-git-send-email-quic_srivasam@quicinc.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ [BOOM!]
+
+Instead just use del_timer_sync() which will wait for the timer to finish
+before continuing. No need to check if the timer is active or not when
+doing so.
+
+This doesn't fix the race of a possible re-arming of the timer, but at
+least it won't use the data that has just been freed.
+
+[ Fixed unused variable warning by tiwai ]
+
+Cc: stable@vger.kernel.org
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221026231236.6834b551@gandalf.local.home
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/qcom/lpass-cpu.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/synth/emux/emux.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
-index 5e89d280e355..b37f4736ee10 100644
---- a/sound/soc/qcom/lpass-cpu.c
-+++ b/sound/soc/qcom/lpass-cpu.c
-@@ -779,10 +779,18 @@ static bool lpass_hdmi_regmap_volatile(struct device *dev, unsigned int reg)
- 		return true;
- 	if (reg == LPASS_HDMI_TX_LEGACY_ADDR(v))
- 		return true;
-+	if (reg == LPASS_HDMI_TX_VBIT_CTL_ADDR(v))
-+		return true;
+--- a/sound/synth/emux/emux.c
++++ b/sound/synth/emux/emux.c
+@@ -125,15 +125,10 @@ EXPORT_SYMBOL(snd_emux_register);
+  */
+ int snd_emux_free(struct snd_emux *emu)
+ {
+-	unsigned long flags;
+-
+ 	if (! emu)
+ 		return -EINVAL;
  
- 	for (i = 0; i < v->hdmi_rdma_channels; ++i) {
- 		if (reg == LPAIF_HDMI_RDMACURR_REG(v, i))
- 			return true;
-+		if (reg == LPASS_HDMI_TX_DMA_ADDR(v, i))
-+			return true;
-+		if (reg == LPASS_HDMI_TX_CH_LSB_ADDR(v, i))
-+			return true;
-+		if (reg == LPASS_HDMI_TX_CH_MSB_ADDR(v, i))
-+			return true;
- 	}
- 	return false;
- }
--- 
-2.35.1
-
+-	spin_lock_irqsave(&emu->voice_lock, flags);
+-	if (emu->timer_active)
+-		del_timer(&emu->tlist);
+-	spin_unlock_irqrestore(&emu->voice_lock, flags);
++	del_timer_sync(&emu->tlist);
+ 
+ 	snd_emux_proc_free(emu);
+ 	snd_emux_delete_virmidi(emu);
 
 
