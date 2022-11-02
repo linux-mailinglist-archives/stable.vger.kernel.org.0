@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D7706158A4
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:55:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A29C66158A5
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:55:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231171AbiKBCzl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:55:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45676 "EHLO
+        id S231172AbiKBCzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:55:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231166AbiKBCzk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:55:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B0452229E
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:55:39 -0700 (PDT)
+        with ESMTP id S231166AbiKBCzo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:55:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A10C0222A3
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:55:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3CA32B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:55:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25280C433C1;
-        Wed,  2 Nov 2022 02:55:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C54D617D0
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:55:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2B12C433D6;
+        Wed,  2 Nov 2022 02:55:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357736;
-        bh=hthi5zfPFDWaMr1k6x5wja4+oyIfPRIQ6Ny6Cw9Wo1M=;
+        s=korg; t=1667357742;
+        bh=8Y8AzjG7v7sq0h+3JMehWrm5Nq8Q8KYGoQWJbathEfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YHrVLNaYIfDGM7/1hX7OJSPOiqGeiFE9My12tBH5IGmaR89O9FSpnh/WdfdaljFsj
-         4MhMpWFHDpJn4rLOsTXRXtZeqOPsIO6XgSezaPheIedK4PAoBOhUAaZnX29UIbGcmI
-         LfNXfpI2750HddodWqnTuC2jPYjtz0zSxG1Sj6+U=
+        b=TPdo8t/uyN7ao0sfEnZkySV2HCpF2qxAmLKZfDtEAHdP9FoqHqmoiXoH3LDp2/lSR
+         i23dsD77ZHF1f/zhAhslcdzGYc6aOobLMZi2866xHcBGvtinNxOa5W6FTEFwxXuKkQ
+         J02MBsFk6FLhQN2MqfXJXQKw33ZX5NACFVFaKLJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 221/240] netdevsim: fix memory leak in nsim_drv_probe() when nsim_dev_resources_register() failed
-Date:   Wed,  2 Nov 2022 03:33:16 +0100
-Message-Id: <20221102022116.400179831@linuxfoundation.org>
+Subject: [PATCH 6.0 222/240] netdevsim: remove dir in nsim_dev_debugfs_init() when creating ports dir failed
+Date:   Wed,  2 Nov 2022 03:33:17 +0100
+Message-Id: <20221102022116.422636387@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,116 +55,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 6b1da9f7126f05e857da6db24c6a04aa7974d644 ]
+[ Upstream commit a6aa8d0ce2cfba57ac0f23293fcb3be0b9f53fba ]
 
-If some items in nsim_dev_resources_register() fail, memory leak will
-occur. The following is the memory leak information.
+Remove dir in nsim_dev_debugfs_init() when creating ports dir failed.
+Otherwise, the netdevsim device will not be created next time. Kernel
+reports an error: debugfs: Directory 'netdevsim1' with parent 'netdevsim'
+already present!
 
-unreferenced object 0xffff888074c02600 (size 128):
-  comm "echo", pid 8159, jiffies 4294945184 (age 493.530s)
-  hex dump (first 32 bytes):
-    40 47 ea 89 ff ff ff ff 01 00 00 00 00 00 00 00  @G..............
-    ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
-  backtrace:
-    [<0000000011a31c98>] kmalloc_trace+0x22/0x60
-    [<0000000027384c69>] devl_resource_register+0x144/0x4e0
-    [<00000000a16db248>] nsim_drv_probe+0x37a/0x1260
-    [<000000007d1f448c>] really_probe+0x20b/0xb10
-    [<00000000c416848a>] __driver_probe_device+0x1b3/0x4a0
-    [<00000000077e0351>] driver_probe_device+0x49/0x140
-    [<0000000054f2465a>] __device_attach_driver+0x18c/0x2a0
-    [<000000008538f359>] bus_for_each_drv+0x151/0x1d0
-    [<0000000038e09747>] __device_attach+0x1c9/0x4e0
-    [<00000000dd86e533>] bus_probe_device+0x1d5/0x280
-    [<00000000839bea35>] device_add+0xae0/0x1cb0
-    [<000000009c2abf46>] new_device_store+0x3b6/0x5f0
-    [<00000000fb823d7f>] bus_attr_store+0x72/0xa0
-    [<000000007acc4295>] sysfs_kf_write+0x106/0x160
-    [<000000005f50cb4d>] kernfs_fop_write_iter+0x3a8/0x5a0
-    [<0000000075eb41bf>] vfs_write+0x8f0/0xc80
-
-Fixes: 37923ed6b8ce ("netdevsim: Add simple FIB resource controller via devlink")
+Fixes: ab1d0cc004d7 ("netdevsim: change debugfs tree topology")
 Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/netdevsim/dev.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/net/netdevsim/dev.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/netdevsim/dev.c b/drivers/net/netdevsim/dev.c
-index e88f783c297e..f31af8f0c0d6 100644
+index f31af8f0c0d6..b17e4e94a060 100644
 --- a/drivers/net/netdevsim/dev.c
 +++ b/drivers/net/netdevsim/dev.c
-@@ -442,7 +442,7 @@ static int nsim_dev_resources_register(struct devlink *devlink)
- 				     &params);
- 	if (err) {
- 		pr_err("Failed to register IPv4 top resource\n");
--		goto out;
-+		goto err_out;
- 	}
- 
- 	err = devl_resource_register(devlink, "fib", (u64)-1,
-@@ -450,7 +450,7 @@ static int nsim_dev_resources_register(struct devlink *devlink)
- 				     NSIM_RESOURCE_IPV4, &params);
- 	if (err) {
- 		pr_err("Failed to register IPv4 FIB resource\n");
--		return err;
-+		goto err_out;
- 	}
- 
- 	err = devl_resource_register(devlink, "fib-rules", (u64)-1,
-@@ -458,7 +458,7 @@ static int nsim_dev_resources_register(struct devlink *devlink)
- 				     NSIM_RESOURCE_IPV4, &params);
- 	if (err) {
- 		pr_err("Failed to register IPv4 FIB rules resource\n");
--		return err;
-+		goto err_out;
- 	}
- 
- 	/* Resources for IPv6 */
-@@ -468,7 +468,7 @@ static int nsim_dev_resources_register(struct devlink *devlink)
- 				     &params);
- 	if (err) {
- 		pr_err("Failed to register IPv6 top resource\n");
--		goto out;
-+		goto err_out;
- 	}
- 
- 	err = devl_resource_register(devlink, "fib", (u64)-1,
-@@ -476,7 +476,7 @@ static int nsim_dev_resources_register(struct devlink *devlink)
- 				     NSIM_RESOURCE_IPV6, &params);
- 	if (err) {
- 		pr_err("Failed to register IPv6 FIB resource\n");
--		return err;
-+		goto err_out;
- 	}
- 
- 	err = devl_resource_register(devlink, "fib-rules", (u64)-1,
-@@ -484,7 +484,7 @@ static int nsim_dev_resources_register(struct devlink *devlink)
- 				     NSIM_RESOURCE_IPV6, &params);
- 	if (err) {
- 		pr_err("Failed to register IPv6 FIB rules resource\n");
--		return err;
-+		goto err_out;
- 	}
- 
- 	/* Resources for nexthops */
-@@ -492,8 +492,14 @@ static int nsim_dev_resources_register(struct devlink *devlink)
- 				     NSIM_RESOURCE_NEXTHOPS,
- 				     DEVLINK_RESOURCE_ID_PARENT_TOP,
- 				     &params);
-+	if (err) {
-+		pr_err("Failed to register NEXTHOPS resource\n");
-+		goto err_out;
+@@ -309,8 +309,10 @@ static int nsim_dev_debugfs_init(struct nsim_dev *nsim_dev)
+ 	if (IS_ERR(nsim_dev->ddir))
+ 		return PTR_ERR(nsim_dev->ddir);
+ 	nsim_dev->ports_ddir = debugfs_create_dir("ports", nsim_dev->ddir);
+-	if (IS_ERR(nsim_dev->ports_ddir))
+-		return PTR_ERR(nsim_dev->ports_ddir);
++	if (IS_ERR(nsim_dev->ports_ddir)) {
++		err = PTR_ERR(nsim_dev->ports_ddir);
++		goto err_ddir;
 +	}
-+	return 0;
+ 	debugfs_create_bool("fw_update_status", 0600, nsim_dev->ddir,
+ 			    &nsim_dev->fw_update_status);
+ 	debugfs_create_u32("fw_update_overwrite_mask", 0600, nsim_dev->ddir,
+@@ -346,7 +348,7 @@ static int nsim_dev_debugfs_init(struct nsim_dev *nsim_dev)
+ 	nsim_dev->nodes_ddir = debugfs_create_dir("rate_nodes", nsim_dev->ddir);
+ 	if (IS_ERR(nsim_dev->nodes_ddir)) {
+ 		err = PTR_ERR(nsim_dev->nodes_ddir);
+-		goto err_out;
++		goto err_ports_ddir;
+ 	}
+ 	debugfs_create_bool("fail_trap_drop_counter_get", 0600,
+ 			    nsim_dev->ddir,
+@@ -354,8 +356,9 @@ static int nsim_dev_debugfs_init(struct nsim_dev *nsim_dev)
+ 	nsim_udp_tunnels_debugfs_create(nsim_dev);
+ 	return 0;
  
--out:
-+err_out:
-+	devl_resources_unregister(devlink);
+-err_out:
++err_ports_ddir:
+ 	debugfs_remove_recursive(nsim_dev->ports_ddir);
++err_ddir:
+ 	debugfs_remove_recursive(nsim_dev->ddir);
  	return err;
  }
- 
 -- 
 2.35.1
 
