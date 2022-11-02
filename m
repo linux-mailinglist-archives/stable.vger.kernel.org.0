@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73877615AFD
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:45:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D11E1615AFE
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:45:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230228AbiKBDpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:45:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33784 "EHLO
+        id S230202AbiKBDps (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:45:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230241AbiKBDpf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:45:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03CA626ADE
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:45:34 -0700 (PDT)
+        with ESMTP id S230241AbiKBDpn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:45:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 454A42714B
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:45:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90F0061799
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:45:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CE48C433D6;
-        Wed,  2 Nov 2022 03:45:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0696EB82072
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:45:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7914FC433D6;
+        Wed,  2 Nov 2022 03:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360733;
-        bh=jYgflrSnzv3bcQRLOZQCO3KRkw+nnTHSHCX69fpMQso=;
+        s=korg; t=1667360739;
+        bh=znfFYWBeS8sfXKf8SoHesNi4AzH/hVyaytqYNgzyq5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zZ1jV+Hfa/6Km7pnUlIze+34DPgPTjBIj0qdlgUEoW19OzlxkzQ4QYQDVouj1j4io
-         upfjmzuuk6/tNoJiPBF7PMLSYfJITTj6G18E3m3Tzpcpasyc93IQkpekZ5NIDpH9tH
-         vmtZ8uG4+pkgiJT102eXM0bT6zrFEME22PuV//Es=
+        b=1c4BqiK4db2f/W9g99rOhph1uixnsX84ninbu0ypZvcelUnzaNnO66pZb/BVjCh1Q
+         e2LkhQ84x0iHzVcZMxNKwaODTx27rCFJNSroUvhl66RtDKVqKpqu/1usgBgHu4OlEB
+         SO53YfCj3WDc2dZNhQihhv38+rwUhrg499r/Kq5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 4.9 04/44] ata: ahci: Match EM_MAX_SLOTS with SATA_PMP_MAX_PORTS
-Date:   Wed,  2 Nov 2022 03:34:50 +0100
-Message-Id: <20221102022049.170148219@linuxfoundation.org>
+        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.9 05/44] arm64: errata: Remove AES hwcap for COMPAT tasks
+Date:   Wed,  2 Nov 2022 03:34:51 +0100
+Message-Id: <20221102022049.203937367@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
 References: <20221102022049.017479464@linuxfoundation.org>
@@ -53,76 +54,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: James Morse <james.morse@arm.com>
 
-commit 1e41e693f458eef2d5728207dbd327cd3b16580a upstream.
+commit 44b3834b2eed595af07021b1c64e6f9bc396398b upstream.
 
-UBSAN complains about array-index-out-of-bounds:
-[ 1.980703] kernel: UBSAN: array-index-out-of-bounds in /build/linux-9H675w/linux-5.15.0/drivers/ata/libahci.c:968:41
-[ 1.980709] kernel: index 15 is out of range for type 'ahci_em_priv [8]'
-[ 1.980713] kernel: CPU: 0 PID: 209 Comm: scsi_eh_8 Not tainted 5.15.0-25-generic #25-Ubuntu
-[ 1.980716] kernel: Hardware name: System manufacturer System Product Name/P5Q3, BIOS 1102 06/11/2010
-[ 1.980718] kernel: Call Trace:
-[ 1.980721] kernel: <TASK>
-[ 1.980723] kernel: show_stack+0x52/0x58
-[ 1.980729] kernel: dump_stack_lvl+0x4a/0x5f
-[ 1.980734] kernel: dump_stack+0x10/0x12
-[ 1.980736] kernel: ubsan_epilogue+0x9/0x45
-[ 1.980739] kernel: __ubsan_handle_out_of_bounds.cold+0x44/0x49
-[ 1.980742] kernel: ahci_qc_issue+0x166/0x170 [libahci]
-[ 1.980748] kernel: ata_qc_issue+0x135/0x240
-[ 1.980752] kernel: ata_exec_internal_sg+0x2c4/0x580
-[ 1.980754] kernel: ? vprintk_default+0x1d/0x20
-[ 1.980759] kernel: ata_exec_internal+0x67/0xa0
-[ 1.980762] kernel: sata_pmp_read+0x8d/0xc0
-[ 1.980765] kernel: sata_pmp_read_gscr+0x3c/0x90
-[ 1.980768] kernel: sata_pmp_attach+0x8b/0x310
-[ 1.980771] kernel: ata_eh_revalidate_and_attach+0x28c/0x4b0
-[ 1.980775] kernel: ata_eh_recover+0x6b6/0xb30
-[ 1.980778] kernel: ? ahci_do_hardreset+0x180/0x180 [libahci]
-[ 1.980783] kernel: ? ahci_stop_engine+0xb0/0xb0 [libahci]
-[ 1.980787] kernel: ? ahci_do_softreset+0x290/0x290 [libahci]
-[ 1.980792] kernel: ? trace_event_raw_event_ata_eh_link_autopsy_qc+0xe0/0xe0
-[ 1.980795] kernel: sata_pmp_eh_recover.isra.0+0x214/0x560
-[ 1.980799] kernel: sata_pmp_error_handler+0x23/0x40
-[ 1.980802] kernel: ahci_error_handler+0x43/0x80 [libahci]
-[ 1.980806] kernel: ata_scsi_port_error_handler+0x2b1/0x600
-[ 1.980810] kernel: ata_scsi_error+0x9c/0xd0
-[ 1.980813] kernel: scsi_error_handler+0xa1/0x180
-[ 1.980817] kernel: ? scsi_unjam_host+0x1c0/0x1c0
-[ 1.980820] kernel: kthread+0x12a/0x150
-[ 1.980823] kernel: ? set_kthread_struct+0x50/0x50
-[ 1.980826] kernel: ret_from_fork+0x22/0x30
-[ 1.980831] kernel: </TASK>
+Cortex-A57 and Cortex-A72 have an erratum where an interrupt that
+occurs between a pair of AES instructions in aarch32 mode may corrupt
+the ELR. The task will subsequently produce the wrong AES result.
 
-This happens because sata_pmp_init_links() initialize link->pmp up to
-SATA_PMP_MAX_PORTS while em_priv is declared as 8 elements array.
+The AES instructions are part of the cryptographic extensions, which are
+optional. User-space software will detect the support for these
+instructions from the hwcaps. If the platform doesn't support these
+instructions a software implementation should be used.
 
-I can't find the maximum Enclosure Management ports specified in AHCI
-spec v1.3.1, but "12.2.1 LED message type" states that "Port Multiplier
-Information" can utilize 4 bits, which implies it can support up to 16
-ports. Hence, use SATA_PMP_MAX_PORTS as EM_MAX_SLOTS to resolve the
-issue.
+Remove the hwcap bits on affected parts to indicate user-space should
+not use the AES instructions.
 
-BugLink: https://bugs.launchpad.net/bugs/1970074
-Cc: stable@vger.kernel.org
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: James Morse <james.morse@arm.com>
+Link: https://lore.kernel.org/r/20220714161523.279570-3-james.morse@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
+[florian: resolved conflicts in arch/arm64/tools/cpucaps and cpu_errata.c]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/ahci.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/arm64/silicon-errata.txt |    2 ++
+ arch/arm64/Kconfig                     |   16 ++++++++++++++++
+ arch/arm64/include/asm/cpucaps.h       |    3 ++-
+ arch/arm64/kernel/cpu_errata.c         |   16 ++++++++++++++++
+ arch/arm64/kernel/cpufeature.c         |   13 ++++++++++++-
+ 5 files changed, 48 insertions(+), 2 deletions(-)
 
---- a/drivers/ata/ahci.h
-+++ b/drivers/ata/ahci.h
-@@ -257,7 +257,7 @@ enum {
- 	ICH_MAP				= 0x90, /* ICH MAP register */
+--- a/Documentation/arm64/silicon-errata.txt
++++ b/Documentation/arm64/silicon-errata.txt
+@@ -53,7 +53,9 @@ stable kernels.
+ | ARM            | Cortex-A57      | #832075         | ARM64_ERRATUM_832075        |
+ | ARM            | Cortex-A57      | #852523         | N/A                         |
+ | ARM            | Cortex-A57      | #834220         | ARM64_ERRATUM_834220        |
++| ARM            | Cortex-A57      | #1742098        | ARM64_ERRATUM_1742098       |
+ | ARM            | Cortex-A72      | #853709         | N/A                         |
++| ARM            | Cortex-A72      | #1655431        | ARM64_ERRATUM_1742098       |
+ | ARM            | Cortex-A55      | #1024718        | ARM64_ERRATUM_1024718       |
+ | ARM            | Cortex-A76      | #1188873        | ARM64_ERRATUM_1188873       |
+ | ARM            | MMU-500         | #841119,#826419 | N/A                         |
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -455,6 +455,22 @@ config ARM64_ERRATUM_1188873
  
- 	/* em constants */
--	EM_MAX_SLOTS			= 8,
-+	EM_MAX_SLOTS			= SATA_PMP_MAX_PORTS,
- 	EM_MAX_RETRY			= 5,
+ 	  If unsure, say Y.
  
- 	/* em_ctl bits */
++config ARM64_ERRATUM_1742098
++	bool "Cortex-A57/A72: 1742098: ELR recorded incorrectly on interrupt taken between cryptographic instructions in a sequence"
++	depends on COMPAT
++	default y
++	help
++	  This option removes the AES hwcap for aarch32 user-space to
++	  workaround erratum 1742098 on Cortex-A57 and Cortex-A72.
++
++	  Affected parts may corrupt the AES state if an interrupt is
++	  taken between a pair of AES instructions. These instructions
++	  are only present if the cryptography extensions are present.
++	  All software should have a fallback implementation for CPUs
++	  that don't implement the cryptography extensions.
++
++	  If unsure, say Y.
++
+ config CAVIUM_ERRATUM_22375
+ 	bool "Cavium erratum 22375, 24313"
+ 	default y
+--- a/arch/arm64/include/asm/cpucaps.h
++++ b/arch/arm64/include/asm/cpucaps.h
+@@ -40,7 +40,8 @@
+ #define ARM64_MISMATCHED_CACHE_TYPE		19
+ #define ARM64_WORKAROUND_1188873		20
+ #define ARM64_SPECTRE_BHB			21
++#define ARM64_WORKAROUND_1742098		22
+ 
+-#define ARM64_NCAPS				22
++#define ARM64_NCAPS				23
+ 
+ #endif /* __ASM_CPUCAPS_H */
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -448,6 +448,14 @@ static const struct midr_range arm64_bp_
+ 
+ #endif
+ 
++#ifdef CONFIG_ARM64_ERRATUM_1742098
++static struct midr_range broken_aarch32_aes[] = {
++	MIDR_RANGE(MIDR_CORTEX_A57, 0, 1, 0xf, 0xf),
++	MIDR_ALL_VERSIONS(MIDR_CORTEX_A72),
++	{},
++};
++#endif
++
+ const struct arm64_cpu_capabilities arm64_errata[] = {
+ #if	defined(CONFIG_ARM64_ERRATUM_826319) || \
+ 	defined(CONFIG_ARM64_ERRATUM_827319) || \
+@@ -567,6 +575,14 @@ const struct arm64_cpu_capabilities arm6
+ 		.cpu_enable = spectre_bhb_enable_mitigation,
+ #endif
+ 	},
++#ifdef CONFIG_ARM64_ERRATUM_1742098
++	{
++		.desc = "ARM erratum 1742098",
++		.capability = ARM64_WORKAROUND_1742098,
++		CAP_MIDR_RANGE_LIST(broken_aarch32_aes),
++		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
++	},
++#endif
+ 	{
+ 	}
+ };
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -28,6 +28,7 @@
+ #include <asm/cpu.h>
+ #include <asm/cpufeature.h>
+ #include <asm/cpu_ops.h>
++#include <asm/hwcap.h>
+ #include <asm/mmu_context.h>
+ #include <asm/processor.h>
+ #include <asm/sysreg.h>
+@@ -885,6 +886,14 @@ static void cpu_copy_el2regs(const struc
+ 		write_sysreg(read_sysreg(tpidr_el1), tpidr_el2);
+ }
+ 
++static void elf_hwcap_fixup(void)
++{
++#ifdef CONFIG_ARM64_ERRATUM_1742098
++	if (cpus_have_const_cap(ARM64_WORKAROUND_1742098))
++		compat_elf_hwcap2 &= ~COMPAT_HWCAP2_AES;
++#endif /* ARM64_ERRATUM_1742098 */
++}
++
+ static const struct arm64_cpu_capabilities arm64_features[] = {
+ 	{
+ 		.desc = "GIC system register CPU interface",
+@@ -1304,8 +1313,10 @@ void __init setup_cpu_features(void)
+ 	mark_const_caps_ready();
+ 	setup_elf_hwcaps(arm64_elf_hwcaps);
+ 
+-	if (system_supports_32bit_el0())
++	if (system_supports_32bit_el0()) {
+ 		setup_elf_hwcaps(compat_elf_hwcaps);
++		elf_hwcap_fixup();
++	}
+ 
+ 	/* Advertise that we have computed the system capabilities */
+ 	set_sys_caps_initialised();
 
 
