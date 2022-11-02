@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6141E615943
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:08:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCDB06159C1
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:17:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230139AbiKBDIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:08:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56420 "EHLO
+        id S229785AbiKBDRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:17:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230182AbiKBDH0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:07:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B1B23EB1
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:07:07 -0700 (PDT)
+        with ESMTP id S230374AbiKBDRT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:17:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBBD32529F
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:17:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4079A617D2
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:07:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA749C433C1;
-        Wed,  2 Nov 2022 03:07:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5827D61799
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:17:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E801BC433D6;
+        Wed,  2 Nov 2022 03:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358426;
-        bh=vpsjCLBxG6GdT70fkBE8PkvMhm0BMDZeq8rsmJHTd4M=;
+        s=korg; t=1667359037;
+        bh=ecGe0/heA4x1GLBlCq441VKs30458MMVnntfAbfs4fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3acwv9H/kGrlshXmugiPWBdOfF2T/CJ13bsrmP07BzQX8BSsbyUxJBBzUOobKEU8
-         YgrNr1UjZ2P4JW+dpXlxuVb1vqkklp4CNcCXc8TJZWS9PrI5vyTN6JHUIKYN1SH0/Z
-         Ic38MPNepa/eoF5HzgETnQOy6ozVEsCbxyGyio6Q=
+        b=xp88gadrJ7Xg587dO/9bXpIVOIyuoDoa+z97di5a8cbFldTvb99w8DkJVd3eBOhQx
+         Zh00TFf7b0taXsQ60u9eTAwCk/mzuhO1p17UDS8Af2/giV5rPLZlM7+I5VxMbNANWK
+         FiXZVrUZdEKZC7wsd97Y+KvbR3uEsEYFlHV/upAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev,
+        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
+        Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 096/132] media: videodev2.h: V4L2_DV_BT_BLANKING_HEIGHT should check interlaced
+Subject: [PATCH 5.10 39/91] ASoC: qcom: lpass-cpu: mark HDMI TX registers as volatile
 Date:   Wed,  2 Nov 2022 03:33:22 +0100
-Message-Id: <20221102022102.156131854@linuxfoundation.org>
+Message-Id: <20221102022056.145020263@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
 
-[ Upstream commit 8da7f0976b9071b528c545008de9d10cc81883b1 ]
+[ Upstream commit c9a3545b1d771fb7b06a487796c40288c02c41c5 ]
 
-If it is a progressive (non-interlaced) format, then ignore the
-interlaced timing values.
+Update HDMI volatile registers list as DMA, Channel Selection registers,
+vbit control registers are being reflected by hardware DP port
+disconnection.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 7f68127fa11f ([media] videodev2.h: defines to calculate blanking and frame sizes)
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+This update is required to fix no display and no sound issue observed
+after reconnecting TAMA/SANWA DP cables.
+Once DP cable is unplugged, DMA control registers are being reset by
+hardware, however at second plugin, new dma control values does not
+updated to the dma hardware registers since new register value and
+cached values at the time of first plugin are same.
+
+Fixes: 7cb37b7bd0d3 ("ASoC: qcom: Add support for lpass hdmi driver")
+
+Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+Reported-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Link: https://lore.kernel.org/r/1665637711-13300-1-git-send-email-quic_srivasam@quicinc.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/videodev2.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/qcom/lpass-cpu.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
-index 9260791b8438..61c5011dfc13 100644
---- a/include/uapi/linux/videodev2.h
-+++ b/include/uapi/linux/videodev2.h
-@@ -1560,7 +1560,8 @@ struct v4l2_bt_timings {
- 	((bt)->width + V4L2_DV_BT_BLANKING_WIDTH(bt))
- #define V4L2_DV_BT_BLANKING_HEIGHT(bt) \
- 	((bt)->vfrontporch + (bt)->vsync + (bt)->vbackporch + \
--	 (bt)->il_vfrontporch + (bt)->il_vsync + (bt)->il_vbackporch)
-+	 ((bt)->interlaced ? \
-+	  ((bt)->il_vfrontporch + (bt)->il_vsync + (bt)->il_vbackporch) : 0))
- #define V4L2_DV_BT_FRAME_HEIGHT(bt) \
- 	((bt)->height + V4L2_DV_BT_BLANKING_HEIGHT(bt))
+diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
+index 03abb3d719d0..9aa7c445b6b0 100644
+--- a/sound/soc/qcom/lpass-cpu.c
++++ b/sound/soc/qcom/lpass-cpu.c
+@@ -745,10 +745,18 @@ static bool lpass_hdmi_regmap_volatile(struct device *dev, unsigned int reg)
+ 		return true;
+ 	if (reg == LPASS_HDMI_TX_LEGACY_ADDR(v))
+ 		return true;
++	if (reg == LPASS_HDMI_TX_VBIT_CTL_ADDR(v))
++		return true;
  
+ 	for (i = 0; i < v->hdmi_rdma_channels; ++i) {
+ 		if (reg == LPAIF_HDMI_RDMACURR_REG(v, i))
+ 			return true;
++		if (reg == LPASS_HDMI_TX_DMA_ADDR(v, i))
++			return true;
++		if (reg == LPASS_HDMI_TX_CH_LSB_ADDR(v, i))
++			return true;
++		if (reg == LPASS_HDMI_TX_CH_MSB_ADDR(v, i))
++			return true;
+ 	}
+ 	return false;
+ }
 -- 
 2.35.1
 
