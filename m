@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBA4B615B1A
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:47:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E455615AE7
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:43:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230327AbiKBDr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:47:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34858 "EHLO
+        id S229996AbiKBDnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:43:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230323AbiKBDrz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:47:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B11275DF
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:47:55 -0700 (PDT)
+        with ESMTP id S230179AbiKBDnd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:43:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED3DBE03
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:43:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4FBE617BA
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:47:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78EBDC433C1;
-        Wed,  2 Nov 2022 03:47:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89CB86172F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:43:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D131C433C1;
+        Wed,  2 Nov 2022 03:43:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360874;
-        bh=4ZUFj+dRzHGKVZyeomkZuS2/yNCTEOIZeDudOqzK1qU=;
+        s=korg; t=1667360612;
+        bh=IAuN8HgsS8djbMM1EszhX61MUlFv8xCXtDc38DKOo6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTOIinhPXwOoT5tLog+Y8kD5KBXcparYWRqiLp5mQb//yd7kkzFik2y/RY5OEy1Zs
-         stRgOla7516AC0nAohaijagdvWwpxTev9sDJN7lNR6mmm5mvXlvOh5Sy+nKTGNoYtA
-         2i01c1/z4qJ2E+bZQKpLvYldvRgzTWjSo+Mjc7zU=
+        b=kYbbsBwlihp2ZULXvS3ac1oTk0s/+b88N2TdEBnOongrvAqG641bRmLjWiCWCL0dN
+         HAXFvq8IKIIsOgUzjE+myK+SUEmyAYPjpO2XY1lVmfwoAr27Rh2XdT00yJo24SCeZo
+         FASRWjwPw2zmvYKl5e/NKgBz7jMxQjM2brP9J6UY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 35/44] media: vivid: dev->bitmap_cap wasnt freed in all cases
+        patches@lists.linux.dev, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Biju Das <biju.das.jz@bp.renesas.com>
+Subject: [PATCH 4.14 60/60] can: rcar_canfd: rcar_canfd_handle_global_receive(): fix IRQ storm on global FIFO receive
 Date:   Wed,  2 Nov 2022 03:35:21 +0100
-Message-Id: <20221102022050.296981432@linuxfoundation.org>
+Message-Id: <20221102022053.066250654@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
-References: <20221102022049.017479464@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +52,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit 1f65ea411cc7b6ff128d82a3493d7b5648054e6f ]
+commit 702de2c21eed04c67cefaaedc248ef16e5f6b293 upstream.
 
-Whenever the compose width/height values change, the dev->bitmap_cap
-vmalloc'ed array must be freed and dev->bitmap_cap set to NULL.
+We are seeing an IRQ storm on the global receive IRQ line under heavy
+CAN bus load conditions with both CAN channels enabled.
 
-This was done in some places, but not all. This is only an issue if
-overlay support is enabled and the bitmap clipping is used.
+Conditions:
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: ef834f7836ec ([media] vivid: add the video capture and output parts)
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The global receive IRQ line is shared between can0 and can1, either of
+the channels can trigger interrupt while the other channel's IRQ line
+is disabled (RFIE).
+
+When global a receive IRQ interrupt occurs, we mask the interrupt in
+the IRQ handler. Clearing and unmasking of the interrupt is happening
+in rx_poll(). There is a race condition where rx_poll() unmasks the
+interrupt, but the next IRQ handler does not mask the IRQ due to
+NAPIF_STATE_MISSED flag (e.g.: can0 RX FIFO interrupt is disabled and
+can1 is triggering RX interrupt, the delay in rx_poll() processing
+results in setting NAPIF_STATE_MISSED flag) leading to an IRQ storm.
+
+This patch fixes the issue by checking IRQ active and enabled before
+handling the IRQ on a particular channel.
+
+Fixes: dd3bd23eb438 ("can: rcar_canfd: Add Renesas R-Car CAN FD driver")
+Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/all/20221025155657.1426948-2-biju.das.jz@bp.renesas.com
+Cc: stable@vger.kernel.org
+[mkl: adjust commit message]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+[biju: removed gpriv from RCANFD_RFCC_RFIE macro]
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/vivid/vivid-vid-cap.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/net/can/rcar/rcar_canfd.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/vivid/vivid-vid-cap.c b/drivers/media/platform/vivid/vivid-vid-cap.c
-index a32910ac90bd..198b26687b57 100644
---- a/drivers/media/platform/vivid/vivid-vid-cap.c
-+++ b/drivers/media/platform/vivid/vivid-vid-cap.c
-@@ -455,6 +455,12 @@ void vivid_update_format_cap(struct vivid_dev *dev, bool keep_controls)
- 	tpg_reset_source(&dev->tpg, dev->src_rect.width, dev->src_rect.height, dev->field_cap);
- 	dev->crop_cap = dev->src_rect;
- 	dev->crop_bounds_cap = dev->src_rect;
-+	if (dev->bitmap_cap &&
-+	    (dev->compose_cap.width != dev->crop_cap.width ||
-+	     dev->compose_cap.height != dev->crop_cap.height)) {
-+		vfree(dev->bitmap_cap);
-+		dev->bitmap_cap = NULL;
-+	}
- 	dev->compose_cap = dev->crop_cap;
- 	if (V4L2_FIELD_HAS_T_OR_B(dev->field_cap))
- 		dev->compose_cap.height /= 2;
-@@ -863,6 +869,8 @@ int vivid_vid_cap_s_selection(struct file *file, void *fh, struct v4l2_selection
- 	struct vivid_dev *dev = video_drvdata(file);
- 	struct v4l2_rect *crop = &dev->crop_cap;
- 	struct v4l2_rect *compose = &dev->compose_cap;
-+	unsigned orig_compose_w = compose->width;
-+	unsigned orig_compose_h = compose->height;
- 	unsigned factor = V4L2_FIELD_HAS_T_OR_B(dev->field_cap) ? 2 : 1;
- 	int ret;
+--- a/drivers/net/can/rcar/rcar_canfd.c
++++ b/drivers/net/can/rcar/rcar_canfd.c
+@@ -1079,7 +1079,7 @@ static irqreturn_t rcar_canfd_global_int
+ 	struct rcar_canfd_global *gpriv = dev_id;
+ 	struct net_device *ndev;
+ 	struct rcar_canfd_channel *priv;
+-	u32 sts, gerfl;
++	u32 sts, cc, gerfl;
+ 	u32 ch, ridx;
  
-@@ -979,17 +987,17 @@ int vivid_vid_cap_s_selection(struct file *file, void *fh, struct v4l2_selection
- 			s->r.height /= factor;
- 		}
- 		v4l2_rect_map_inside(&s->r, &dev->fmt_cap_rect);
--		if (dev->bitmap_cap && (compose->width != s->r.width ||
--					compose->height != s->r.height)) {
--			vfree(dev->bitmap_cap);
--			dev->bitmap_cap = NULL;
--		}
- 		*compose = s->r;
- 		break;
- 	default:
- 		return -EINVAL;
- 	}
+ 	/* Global error interrupts still indicate a condition specific
+@@ -1097,7 +1097,9 @@ static irqreturn_t rcar_canfd_global_int
  
-+	if (dev->bitmap_cap && (compose->width != orig_compose_w ||
-+				compose->height != orig_compose_h)) {
-+		vfree(dev->bitmap_cap);
-+		dev->bitmap_cap = NULL;
-+	}
- 	tpg_s_crop_compose(&dev->tpg, crop, compose);
- 	return 0;
- }
--- 
-2.35.1
-
+ 		/* Handle Rx interrupts */
+ 		sts = rcar_canfd_read(priv->base, RCANFD_RFSTS(ridx));
+-		if (likely(sts & RCANFD_RFSTS_RFIF)) {
++		cc = rcar_canfd_read(priv->base, RCANFD_RFCC(ridx));
++		if (likely(sts & RCANFD_RFSTS_RFIF &&
++			   cc & RCANFD_RFCC_RFIE)) {
+ 			if (napi_schedule_prep(&priv->napi)) {
+ 				/* Disable Rx FIFO interrupts */
+ 				rcar_canfd_clear_bit(priv->base,
 
 
