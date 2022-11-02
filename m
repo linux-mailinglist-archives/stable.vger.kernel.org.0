@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9606E615ADC
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:42:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EBB7615B01
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:45:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229528AbiKBDmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:42:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59116 "EHLO
+        id S230241AbiKBDpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:45:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229996AbiKBDmo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:42:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 991FB26AF4
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:42:42 -0700 (PDT)
+        with ESMTP id S230256AbiKBDpx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:45:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6A2A27160
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:45:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 450B6B8205C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:42:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F7F2C433D6;
-        Wed,  2 Nov 2022 03:42:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3252861799
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:45:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CCAEC433D7;
+        Wed,  2 Nov 2022 03:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360560;
-        bh=rWmhyPN8g80MCR5Vc1sJtPebq3e3r91FGcW4wvs1F3A=;
+        s=korg; t=1667360751;
+        bh=dJwsqbzpbFdI4eAGn1PpslzuvGBgkS8Xp3H/SXUQuow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=giyEfdKPLACJGvcw31wxNYwrjHU+9oY9dxrnGvk/xXmmtsLzy2ZXS91TocicHReJ7
-         Uu/EWcMb3t7Bxgq/fcm/6dwV0SfhY5oBdz1zy8HI5IPKGC9b1CQeEhDtBfO+AAyPjt
-         XISfCaOAeDghoV/mZ79m7ugmIUokLncReYCNQpY4=
+        b=UbyZ8KaA4EPvZ+gDPm7cpKHa6Jd+BIoF0f9QReNS8PArcLtA92TU1QRzx3mFHXTeC
+         MzHdRX34ttc5VjHgD5rr1p5LlqyZyMVDL73y8VYC7z23cTgtDvBa1cjCWsuomCAY8h
+         6TpuVaovX5oJdLCf8LghJX587hfzC8vKO+D/exdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>,
-        Demi Marie Obenour <demi@invisiblethingslab.com>
-Subject: [PATCH 4.14 32/60] Xen/gntdev: dont ignore kernel unmapping error
+        patches@lists.linux.dev, Xiaobo Liu <cppcoffee@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 07/44] net/atm: fix proc_mpc_write incorrect return value
 Date:   Wed,  2 Nov 2022 03:34:53 +0100
-Message-Id: <20221102022052.133025149@linuxfoundation.org>
+Message-Id: <20221102022049.275966642@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
+References: <20221102022049.017479464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Xiaobo Liu <cppcoffee@gmail.com>
 
-commit f28347cc66395e96712f5c2db0a302ee75bafce6 upstream.
+[ Upstream commit d8bde3bf7f82dac5fc68a62c2816793a12cafa2a ]
 
-While working on XSA-361 and its follow-ups, I failed to spot another
-place where the kernel mapping part of an operation was not treated the
-same as the user space part. Detect and propagate errors and add a 2nd
-pr_debug().
+Then the input contains '\0' or '\n', proc_mpc_write has read them,
+so the return value needs +1.
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/c2513395-74dc-aea3-9192-fd265aa44e35@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Co-authored-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xiaobo Liu <cppcoffee@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/gntdev.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/atm/mpoa_proc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -399,6 +399,14 @@ static void __unmap_grant_pages_done(int
- 			map->unmap_ops[offset+i].handle,
- 			map->unmap_ops[offset+i].status);
- 		map->unmap_ops[offset+i].handle = -1;
-+		if (use_ptemod) {
-+			WARN_ON(map->kunmap_ops[offset+i].status &&
-+				map->kunmap_ops[offset+i].handle != -1);
-+			pr_debug("kunmap handle=%u st=%d\n",
-+				 map->kunmap_ops[offset+i].handle,
-+				 map->kunmap_ops[offset+i].status);
-+			map->kunmap_ops[offset+i].handle = -1;
-+		}
+diff --git a/net/atm/mpoa_proc.c b/net/atm/mpoa_proc.c
+index 2df34eb5d65f..3fd2aafa9a9e 100644
+--- a/net/atm/mpoa_proc.c
++++ b/net/atm/mpoa_proc.c
+@@ -219,11 +219,12 @@ static ssize_t proc_mpc_write(struct file *file, const char __user *buff,
+ 	if (!page)
+ 		return -ENOMEM;
+ 
+-	for (p = page, len = 0; len < nbytes; p++, len++) {
++	for (p = page, len = 0; len < nbytes; p++) {
+ 		if (get_user(*p, buff++)) {
+ 			free_page((unsigned long)page);
+ 			return -EFAULT;
+ 		}
++		len += 1;
+ 		if (*p == '\0' || *p == '\n')
+ 			break;
  	}
- 	/*
- 	 * Decrease the live-grant counter.  This must happen after the loop to
+-- 
+2.35.1
+
 
 
