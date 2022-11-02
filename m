@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80FF5615ADD
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:42:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 600C9615B02
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:46:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229533AbiKBDmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:42:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59240 "EHLO
+        id S230258AbiKBDqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:46:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbiKBDmt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:42:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4105626AE1
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:42:48 -0700 (PDT)
+        with ESMTP id S230256AbiKBDp6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:45:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 406A72714B
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:45:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F17CFB82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:42:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E458DC433C1;
-        Wed,  2 Nov 2022 03:42:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1B7361799
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:45:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B115C433D6;
+        Wed,  2 Nov 2022 03:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360565;
-        bh=hIWu7RLTcSirr5fWnnaYuNxioX80rsC0tNevsjMKfZs=;
+        s=korg; t=1667360757;
+        bh=s++WPitG/TfJW1XMLPGbGF6DOrGj+WxHWoTDmc13YlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QY5kDBOqrwOzPAqCJCo8lNjUG6TuOy5C90mk5A/MMW3bPbl40Vwn4m7TTS6JK5i4R
-         jT0D4RsyLhCeNT2zlm9Iku6Izbyr78FaIqROiNzH6enrO6Pip+R5BEJF9iXQfAxX9i
-         +1IUqMJREbwRhYLXBSaHVAehZlwncsWFJhuC3ORM=
+        b=LoiY3nXjfrRFmdNlfAvhz1XVm0ENvwhOhJaOGvnGaWIe/+mdqBa+IE3q8BYlnAl34
+         8opZYHTqRaNLYMt4qw1SK+iBoDvHoU233RZqL5dW+fp0KghO9LHf8vR/+z7qRToXoQ
+         AV4TXNON9DCxvMnsPdKtXtVcTBz9KcRonw226fJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "M. Vefa Bicakci" <m.v.b@runbox.com>,
-        Demi Marie Obenour <demi@invisiblethingslab.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.14 33/60] xen/gntdev: Prevent leaking grants
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 08/44] net: hns: fix possible memory leak in hnae_ae_register()
 Date:   Wed,  2 Nov 2022 03:34:54 +0100
-Message-Id: <20221102022052.165161861@linuxfoundation.org>
+Message-Id: <20221102022049.318885815@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
+References: <20221102022049.017479464@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,155 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: M. Vefa Bicakci <m.v.b@runbox.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 0991028cd49567d7016d1b224fe0117c35059f86 upstream.
+[ Upstream commit ff2f5ec5d009844ec28f171123f9e58750cef4bf ]
 
-Prior to this commit, if a grant mapping operation failed partially,
-some of the entries in the map_ops array would be invalid, whereas all
-of the entries in the kmap_ops array would be valid. This in turn would
-cause the following logic in gntdev_map_grant_pages to become invalid:
+Inject fault while probing module, if device_register() fails,
+but the refcount of kobject is not decreased to 0, the name
+allocated in dev_set_name() is leaked. Fix this by calling
+put_device(), so that name can be freed in callback function
+kobject_cleanup().
 
-  for (i = 0; i < map->count; i++) {
-    if (map->map_ops[i].status == GNTST_okay) {
-      map->unmap_ops[i].handle = map->map_ops[i].handle;
-      if (!use_ptemod)
-        alloced++;
-    }
-    if (use_ptemod) {
-      if (map->kmap_ops[i].status == GNTST_okay) {
-        if (map->map_ops[i].status == GNTST_okay)
-          alloced++;
-        map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
-      }
-    }
-  }
-  ...
-  atomic_add(alloced, &map->live_grants);
+unreferenced object 0xffff00c01aba2100 (size 128):
+  comm "systemd-udevd", pid 1259, jiffies 4294903284 (age 294.152s)
+  hex dump (first 32 bytes):
+    68 6e 61 65 30 00 00 00 18 21 ba 1a c0 00 ff ff  hnae0....!......
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000034783f26>] slab_post_alloc_hook+0xa0/0x3e0
+    [<00000000748188f2>] __kmem_cache_alloc_node+0x164/0x2b0
+    [<00000000ab0743e8>] __kmalloc_node_track_caller+0x6c/0x390
+    [<000000006c0ffb13>] kvasprintf+0x8c/0x118
+    [<00000000fa27bfe1>] kvasprintf_const+0x60/0xc8
+    [<0000000083e10ed7>] kobject_set_name_vargs+0x3c/0xc0
+    [<000000000b87affc>] dev_set_name+0x7c/0xa0
+    [<000000003fd8fe26>] hnae_ae_register+0xcc/0x190 [hnae]
+    [<00000000fe97edc9>] hns_dsaf_ae_init+0x9c/0x108 [hns_dsaf]
+    [<00000000c36ff1eb>] hns_dsaf_probe+0x548/0x748 [hns_dsaf]
 
-Assume that use_ptemod is true (i.e., the domain mapping the granted
-pages is a paravirtualized domain). In the code excerpt above, note that
-the "alloced" variable is only incremented when both kmap_ops[i].status
-and map_ops[i].status are set to GNTST_okay (i.e., both mapping
-operations are successful).  However, as also noted above, there are
-cases where a grant mapping operation fails partially, breaking the
-assumption of the code excerpt above.
-
-The aforementioned causes map->live_grants to be incorrectly set. In
-some cases, all of the map_ops mappings fail, but all of the kmap_ops
-mappings succeed, meaning that live_grants may remain zero. This in turn
-makes it impossible to unmap the successfully grant-mapped pages pointed
-to by kmap_ops, because unmap_grant_pages has the following snippet of
-code at its beginning:
-
-  if (atomic_read(&map->live_grants) == 0)
-    return; /* Nothing to do */
-
-In other cases where only some of the map_ops mappings fail but all
-kmap_ops mappings succeed, live_grants is made positive, but when the
-user requests unmapping the grant-mapped pages, __unmap_grant_pages_done
-will then make map->live_grants negative, because the latter function
-does not check if all of the pages that were requested to be unmapped
-were actually unmapped, and the same function unconditionally subtracts
-"data->count" (i.e., a value that can be greater than map->live_grants)
-from map->live_grants. The side effects of a negative live_grants value
-have not been studied.
-
-The net effect of all of this is that grant references are leaked in one
-of the above conditions. In Qubes OS v4.1 (which uses Xen's grant
-mechanism extensively for X11 GUI isolation), this issue manifests
-itself with warning messages like the following to be printed out by the
-Linux kernel in the VM that had granted pages (that contain X11 GUI
-window data) to dom0: "g.e. 0x1234 still pending", especially after the
-user rapidly resizes GUI VM windows (causing some grant-mapping
-operations to partially or completely fail, due to the fact that the VM
-unshares some of the pages as part of the window resizing, making the
-pages impossible to grant-map from dom0).
-
-The fix for this issue involves counting all successful map_ops and
-kmap_ops mappings separately, and then adding the sum to live_grants.
-During unmapping, only the number of successfully unmapped grants is
-subtracted from live_grants. The code is also modified to check for
-negative live_grants values after the subtraction and warn the user.
-
-Link: https://github.com/QubesOS/qubes-issues/issues/7631
-Fixes: dbe97cff7dd9 ("xen/gntdev: Avoid blocking in unmap_grant_pages()")
-Cc: stable@vger.kernel.org
-Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
-Acked-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221002222006.2077-2-m.v.b@runbox.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Demi Marie Obenour <demi@invisiblethingslab.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6fe6611ff275 ("net: add Hisilicon Network Subsystem hnae framework support")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20221018122451.1749171-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/gntdev.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/hisilicon/hns/hnae.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -364,8 +364,7 @@ static int map_grant_pages(struct grant_
- 	for (i = 0; i < map->count; i++) {
- 		if (map->map_ops[i].status == GNTST_okay) {
- 			map->unmap_ops[i].handle = map->map_ops[i].handle;
--			if (!use_ptemod)
--				alloced++;
-+			alloced++;
- 		} else if (!err)
- 			err = -EINVAL;
+diff --git a/drivers/net/ethernet/hisilicon/hns/hnae.c b/drivers/net/ethernet/hisilicon/hns/hnae.c
+index 66e7a5fd4249..87ce15a12135 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hnae.c
++++ b/drivers/net/ethernet/hisilicon/hns/hnae.c
+@@ -418,8 +418,10 @@ int hnae_ae_register(struct hnae_ae_dev *hdev, struct module *owner)
+ 	hdev->cls_dev.release = hnae_release;
+ 	(void)dev_set_name(&hdev->cls_dev, "hnae%d", hdev->id);
+ 	ret = device_register(&hdev->cls_dev);
+-	if (ret)
++	if (ret) {
++		put_device(&hdev->cls_dev);
+ 		return ret;
++	}
  
-@@ -374,8 +373,7 @@ static int map_grant_pages(struct grant_
+ 	__module_get(THIS_MODULE);
  
- 		if (use_ptemod) {
- 			if (map->kmap_ops[i].status == GNTST_okay) {
--				if (map->map_ops[i].status == GNTST_okay)
--					alloced++;
-+				alloced++;
- 				map->kunmap_ops[i].handle = map->kmap_ops[i].handle;
- 			} else if (!err)
- 				err = -EINVAL;
-@@ -391,8 +389,14 @@ static void __unmap_grant_pages_done(int
- 	unsigned int i;
- 	struct grant_map *map = data->data;
- 	unsigned int offset = data->unmap_ops - map->unmap_ops;
-+	int successful_unmaps = 0;
-+	int live_grants;
- 
- 	for (i = 0; i < data->count; i++) {
-+		if (map->unmap_ops[offset + i].status == GNTST_okay &&
-+		    map->unmap_ops[offset + i].handle != -1)
-+			successful_unmaps++;
-+
- 		WARN_ON(map->unmap_ops[offset+i].status &&
- 			map->unmap_ops[offset+i].handle != -1);
- 		pr_debug("unmap handle=%d st=%d\n",
-@@ -400,6 +404,10 @@ static void __unmap_grant_pages_done(int
- 			map->unmap_ops[offset+i].status);
- 		map->unmap_ops[offset+i].handle = -1;
- 		if (use_ptemod) {
-+			if (map->kunmap_ops[offset + i].status == GNTST_okay &&
-+			    map->kunmap_ops[offset + i].handle != -1)
-+				successful_unmaps++;
-+
- 			WARN_ON(map->kunmap_ops[offset+i].status &&
- 				map->kunmap_ops[offset+i].handle != -1);
- 			pr_debug("kunmap handle=%u st=%d\n",
-@@ -408,11 +416,15 @@ static void __unmap_grant_pages_done(int
- 			map->kunmap_ops[offset+i].handle = -1;
- 		}
- 	}
-+
- 	/*
- 	 * Decrease the live-grant counter.  This must happen after the loop to
- 	 * prevent premature reuse of the grants by gnttab_mmap().
- 	 */
--	atomic_sub(data->count, &map->live_grants);
-+	live_grants = atomic_sub_return(successful_unmaps, &map->live_grants);
-+	if (WARN_ON(live_grants < 0))
-+		pr_err("%s: live_grants became negative (%d) after unmapping %d pages!\n",
-+		       __func__, live_grants, successful_unmaps);
- 
- 	/* Release reference taken by unmap_grant_pages */
- 	gntdev_put_map(NULL, map);
+-- 
+2.35.1
+
 
 
