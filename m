@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCCF1615AB8
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:39:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EE51615A84
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:32:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229882AbiKBDjo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:39:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56880 "EHLO
+        id S231204AbiKBDcn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:32:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230103AbiKBDjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:39:42 -0400
+        with ESMTP id S231174AbiKBDcm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:32:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FE782656E
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:39:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374C02613B
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:32:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C044DB8205C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:39:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B17CDC433D6;
-        Wed,  2 Nov 2022 03:39:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EDBC7B82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:32:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF119C433C1;
+        Wed,  2 Nov 2022 03:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360379;
-        bh=dymtWmbAw2K873+g42pvLr+y0fCYwofUpmXE5EwcFVc=;
+        s=korg; t=1667359959;
+        bh=KXT9Owt7K6y8POFgy36IytbcDlCUjllD2cAwnYgifWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mGkBUjcX86MsQW4qiyCd5AyM9k/OHpRdKXIFIxylsCIaI1wj2ByzPPc+mVk57NFjd
-         cquCCcTUIkDtcBqU5oOBUaeBB+6wzpMcKbOeYZPzzVMF+IxpdHtTgsqXN2kXPUfwCS
-         /KyAtqRSYLvkweiKlkyrq+80udof1To2ivnKhFfE=
+        b=LNic2OvlDRy+kuOIgE45NFvgXN/qMEIiEuOfaL3xU+u43miQ90rva/3sevFXpgudV
+         IdtFXLravGdO6jc98mHW6dIKiosGUjwCNViom2L7JBrbp9xeu0top+k25u9BrF+EK/
+         poSTmC1n15JkmTc+3AFXsyq4zQ3ibcwpQ3kfm5E8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 4.14 27/60] mac802154: Fix LQI recording
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        kolAflash <kolAflash@kolahilft.de>
+Subject: [PATCH 4.19 63/78] PM: hibernate: Allow hybrid sleep to work with s2idle
 Date:   Wed,  2 Nov 2022 03:34:48 +0100
-Message-Id: <20221102022051.974360059@linuxfoundation.org>
+Message-Id: <20221102022054.803654731@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit 5a5c4e06fd03b595542d5590f2bc05a6b7fc5c2b upstream.
+[ Upstream commit 85850af4fc47132f3f2f0dd698b90f67906600b4 ]
 
-Back in 2014, the LQI was saved in the skb control buffer (skb->cb, or
-mac_cb(skb)) without any actual reset of this area prior to its use.
+Hybrid sleep is currently hardcoded to only operate with S3 even
+on systems that might not support it.
 
-As part of a useful rework of the use of this region, 32edc40ae65c
-("ieee802154: change _cb handling slightly") introduced mac_cb_init() to
-basically memset the cb field to 0. In particular, this new function got
-called at the beginning of mac802154_parse_frame_start(), right before
-the location where the buffer got actually filled.
+Instead of assuming this mode is what the user wants to use, for
+hybrid sleep follow the setting of `mem_sleep_current` which
+will respect mem_sleep_default kernel command line and policy
+decisions made by the presence of the FADT low power idle bit.
 
-What went through unnoticed however, is the fact that the very first
-helper called by device drivers in the receive path already used this
-area to save the LQI value for later extraction. Resetting the cb field
-"so late" led to systematically zeroing the LQI.
-
-If we consider the reset of the cb field needed, we can make it as soon
-as we get an skb from a device driver, right before storing the LQI,
-as is the very first time we need to write something there.
-
-Cc: stable@vger.kernel.org
-Fixes: 32edc40ae65c ("ieee802154: change _cb handling slightly")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20221020142535.1038885-1-miquel.raynal@bootlin.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 81d45bdf8913 ("PM / hibernate: Untangle power_down()")
+Reported-and-tested-by: kolAflash <kolAflash@kolahilft.de>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216574
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac802154/rx.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/power/hibernate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/mac802154/rx.c
-+++ b/net/mac802154/rx.c
-@@ -140,7 +140,7 @@ static int
- ieee802154_parse_frame_start(struct sk_buff *skb, struct ieee802154_hdr *hdr)
- {
- 	int hlen;
--	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
-+	struct ieee802154_mac_cb *cb = mac_cb(skb);
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index 6abdfdf571ee..6737ae6ffbae 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -626,7 +626,7 @@ static void power_down(void)
+ 	int error;
  
- 	skb_reset_mac_header(skb);
- 
-@@ -302,8 +302,9 @@ void
- ieee802154_rx_irqsafe(struct ieee802154_hw *hw, struct sk_buff *skb, u8 lqi)
- {
- 	struct ieee802154_local *local = hw_to_local(hw);
-+	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
- 
--	mac_cb(skb)->lqi = lqi;
-+	cb->lqi = lqi;
- 	skb->pkt_type = IEEE802154_RX_MSG;
- 	skb_queue_tail(&local->skb_queue, skb);
- 	tasklet_schedule(&local->tasklet);
+ 	if (hibernation_mode == HIBERNATION_SUSPEND) {
+-		error = suspend_devices_and_enter(PM_SUSPEND_MEM);
++		error = suspend_devices_and_enter(mem_sleep_current);
+ 		if (error) {
+ 			hibernation_mode = hibernation_ops ?
+ 						HIBERNATION_PLATFORM :
+-- 
+2.35.1
+
 
 
