@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0382615A21
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:25:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E6DD615A61
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:30:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230383AbiKBDZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:25:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44850 "EHLO
+        id S231310AbiKBDaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:30:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230398AbiKBDZU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:25:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14B3525C65
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:25:19 -0700 (PDT)
+        with ESMTP id S231195AbiKBD3w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:29:52 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3AB226548
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:29:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3D4BB82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:25:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A666BC433C1;
-        Wed,  2 Nov 2022 03:25:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1EE92CE1F1A
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:29:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDFD5C433C1;
+        Wed,  2 Nov 2022 03:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359516;
-        bh=b55pKpPQ2hTXXoh+bTGjk2LMTEOoC3Ipwd7YA1aakMA=;
+        s=korg; t=1667359784;
+        bh=KQ0ILCBF95crunhVPhanK+hdHxSqvh5/cnv0qZ4OAnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cl5Rw9XTjo/85dBBQLLHHGJ0Oqrik1aVMP27ylAHUlINKpM2enRDF+ascY+C7utxY
-         DuXmNdemxpHgSG+ESeOqqCRSTGcn/vqnxH3u5d9Qzxr8dHt7ls5UCownsvgY9T/5b7
-         1HgvLNGMFEjcnTfKRmd0tlcgnp5Zrem1t1TttIDs=
+        b=qJSEWVFDEfAQf0puO06nRZ66wGAY8draPZH5gP1Hya7evqnveoG40pWhoJBiS63rR
+         xgdkWRLpTvEG2x9g+6eLLJyz7ttqL/PJCntgqvvnbS6mGO9TZqzMdoq6HIzYiSU/ER
+         BbjApzUClXkUnqUxoB/b4f5KBdwmLJR5nLQS7uxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Slawomir Laba <slawomirx.laba@intel.com>,
-        Michal Jaron <michalx.jaron@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 53/64] i40e: Fix flow-type by setting GL_HASH_INSET registers
+        patches@lists.linux.dev,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 34/78] xhci: Remove device endpoints from bandwidth list when freeing the device
 Date:   Wed,  2 Nov 2022 03:34:19 +0100
-Message-Id: <20221102022053.529416797@linuxfoundation.org>
+Message-Id: <20221102022053.997370718@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
-References: <20221102022051.821538553@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,144 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit 3b32c9932853e11d71f9db012d69e92e4669ba23 ]
+commit 5aed5b7c2430ce318a8e62f752f181e66f0d1053 upstream.
 
-Fix setting bits for specific flow_type for GLQF_HASH_INSET register.
-In previous version all of the bits were set only in hena register, while
-in inset only one bit was set. In order for this working correctly on all
-types of cards these bits needs to be set correctly for both hena and inset
-registers.
+Endpoints are normally deleted from the bandwidth list when they are
+dropped, before the virt device is freed.
 
-Fixes: eb0dd6e4a3b3 ("i40e: Allow RSS Hash set with less than four parameters")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Link: https://lore.kernel.org/r/20221024100526.1874914-3-jacob.e.keller@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If xHC host is dying or being removed then the endpoints aren't dropped
+cleanly due to functions returning early to avoid interacting with a
+non-accessible host controller.
+
+So check and delete endpoints that are still on the bandwidth list when
+freeing the virt device.
+
+Solves a list_del corruption kernel crash when unbinding xhci-pci,
+caused by xhci_mem_cleanup() when it later tried to delete already freed
+endpoints from the bandwidth list.
+
+This only affects hosts that use software bandwidth checking, which
+currenty is only the xHC in intel Panther Point PCH (Ivy Bridge)
+
+Cc: stable@vger.kernel.org
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20221024142720.4122053-5-mathias.nyman@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/intel/i40e/i40e_ethtool.c    | 71 ++++++++++---------
- 1 file changed, 38 insertions(+), 33 deletions(-)
+ drivers/usb/host/xhci-mem.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index b9efd379a447..7059ced24739 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -3450,6 +3450,7 @@ static u64 i40e_get_rss_hash_bits(struct i40e_hw *hw,
- 	return i_set;
- }
- 
-+#define FLOW_PCTYPES_SIZE 64
- /**
-  * i40e_set_rss_hash_opt - Enable/Disable flow types for RSS hash
-  * @pf: pointer to the physical function struct
-@@ -3462,9 +3463,11 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
- 	struct i40e_hw *hw = &pf->hw;
- 	u64 hena = (u64)i40e_read_rx_ctl(hw, I40E_PFQF_HENA(0)) |
- 		   ((u64)i40e_read_rx_ctl(hw, I40E_PFQF_HENA(1)) << 32);
--	u8 flow_pctype = 0;
-+	DECLARE_BITMAP(flow_pctypes, FLOW_PCTYPES_SIZE);
- 	u64 i_set, i_setc;
- 
-+	bitmap_zero(flow_pctypes, FLOW_PCTYPES_SIZE);
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -906,15 +906,19 @@ void xhci_free_virt_device(struct xhci_h
+ 		if (dev->eps[i].stream_info)
+ 			xhci_free_stream_info(xhci,
+ 					dev->eps[i].stream_info);
+-		/* Endpoints on the TT/root port lists should have been removed
+-		 * when usb_disable_device() was called for the device.
+-		 * We can't drop them anyway, because the udev might have gone
+-		 * away by this point, and we can't tell what speed it was.
++		/*
++		 * Endpoints are normally deleted from the bandwidth list when
++		 * endpoints are dropped, before device is freed.
++		 * If host is dying or being removed then endpoints aren't
++		 * dropped cleanly, so delete the endpoint from list here.
++		 * Only applicable for hosts with software bandwidth checking.
+ 		 */
+-		if (!list_empty(&dev->eps[i].bw_endpoint_list))
+-			xhci_warn(xhci, "Slot %u endpoint %u "
+-					"not removed from BW list!\n",
+-					slot_id, i);
 +
- 	if (pf->flags & I40E_FLAG_MFP_ENABLED) {
- 		dev_err(&pf->pdev->dev,
- 			"Change of RSS hash input set is not supported when MFP mode is enabled\n");
-@@ -3480,36 +3483,35 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
- 
- 	switch (nfc->flow_type) {
- 	case TCP_V4_FLOW:
--		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV4_TCP;
-+		set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_TCP, flow_pctypes);
- 		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK);
-+			set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK,
-+				flow_pctypes);
- 		break;
- 	case TCP_V6_FLOW:
--		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV6_TCP;
--		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK);
-+		set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_TCP, flow_pctypes);
- 		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV6_TCP_SYN_NO_ACK);
-+			set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_TCP_SYN_NO_ACK,
-+				flow_pctypes);
- 		break;
- 	case UDP_V4_FLOW:
--		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV4_UDP;
--		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV4_UDP) |
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV4_UDP);
--
-+		set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_UDP, flow_pctypes);
-+		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE) {
-+			set_bit(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV4_UDP,
-+				flow_pctypes);
-+			set_bit(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV4_UDP,
-+				flow_pctypes);
-+		}
- 		hena |= BIT_ULL(I40E_FILTER_PCTYPE_FRAG_IPV4);
- 		break;
- 	case UDP_V6_FLOW:
--		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV6_UDP;
--		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV6_UDP) |
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV6_UDP);
--
-+		set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_UDP, flow_pctypes);
-+		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE) {
-+			set_bit(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV6_UDP,
-+				flow_pctypes);
-+			set_bit(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV6_UDP,
-+				flow_pctypes);
-+		}
- 		hena |= BIT_ULL(I40E_FILTER_PCTYPE_FRAG_IPV6);
- 		break;
- 	case AH_ESP_V4_FLOW:
-@@ -3542,17 +3544,20 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
- 		return -EINVAL;
- 	}
- 
--	if (flow_pctype) {
--		i_setc = (u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(0,
--					       flow_pctype)) |
--			((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1,
--					       flow_pctype)) << 32);
--		i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
--		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_pctype),
--				  (u32)i_set);
--		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_pctype),
--				  (u32)(i_set >> 32));
--		hena |= BIT_ULL(flow_pctype);
-+	if (bitmap_weight(flow_pctypes, FLOW_PCTYPES_SIZE)) {
-+		u8 flow_id;
-+
-+		for_each_set_bit(flow_id, flow_pctypes, FLOW_PCTYPES_SIZE) {
-+			i_setc = (u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_id)) |
-+				 ((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_id)) << 32);
-+			i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
-+
-+			i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_id),
-+					  (u32)i_set);
-+			i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_id),
-+					  (u32)(i_set >> 32));
-+			hena |= BIT_ULL(flow_id);
++		if (!list_empty(&dev->eps[i].bw_endpoint_list)) {
++			list_del_init(&dev->eps[i].bw_endpoint_list);
++			xhci_dbg(xhci, "Slot %u endpoint %u not removed from BW list!\n",
++				 slot_id, i);
 +		}
  	}
- 
- 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(0), (u32)hena);
--- 
-2.35.1
-
+ 	/* If this is a hub, free the TT(s) from the TT list */
+ 	xhci_free_tt_info(xhci, dev, slot_id);
 
 
