@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C7E36157E5
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:41:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5136157E6
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:41:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230280AbiKBClM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:41:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59450 "EHLO
+        id S230283AbiKBClU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:41:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230290AbiKBClM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:41:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3466F20993
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:41:11 -0700 (PDT)
+        with ESMTP id S230281AbiKBClU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:41:20 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44961205FA
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:41:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6BF4616DB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:41:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71376C433D6;
-        Wed,  2 Nov 2022 02:41:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 96770CE1F13
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:41:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ABD7C433D7;
+        Wed,  2 Nov 2022 02:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356870;
-        bh=WBmEIrdnw6PO+mDDbNpMUaeTjs2zaWtdWZVaJG6oYj0=;
+        s=korg; t=1667356876;
+        bh=3BCjV++MlhYYn690Oz8DQMbCgZXuWB9HQc9lM+gA0Tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHYtMg7VyD73ldfr1Q/A66xdqD59pZJ3umTnfUaVjFNqv1yII2KUDCJQLzJEPjrhP
-         eSiMwpaQ3yoEqCfAMg/iNEdP3mo5m3kF7WBrvZlslwW7DZNSya0jFks/PhKCOUnZ1g
-         tuamPnhtt4xVWd1X4SnChtSeNxtM2sZbtEf4EOwg=
+        b=Y+g6ZdXXJw28g6A3GrNxw5PAxqkSHNTAD2/uzrUe9yb+Tmm3bZ75Je6EOIqGbJozM
+         Z6/MGr4nT1IP1HR3Qbnj64LJmVDMxsnEhi1xkmnaTw0DQPlB+Mup7iXwgYQ1dR4v5O
+         SJiigf/yLYtkyyGejhg5hfcyM+ngf3sNO38/lLmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>
-Subject: [PATCH 6.0 074/240] drm/msm/dp: fix bridge lifetime
-Date:   Wed,  2 Nov 2022 03:30:49 +0100
-Message-Id: <20221102022113.076874642@linuxfoundation.org>
+        patches@lists.linux.dev, Bruno Goncalves <bgoncalv@redhat.com>,
+        Nathan Huckleberry <nhuck@google.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 6.0 075/240] crypto: x86/polyval - Fix crashes when keys are not 16-byte aligned
+Date:   Wed,  2 Nov 2022 03:30:50 +0100
+Message-Id: <20221102022113.099901833@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,96 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Nathan Huckleberry <nhuck@google.com>
 
-commit 16194958f888d63839042d1190f7001e5ddec47b upstream.
+commit 9f6035af06b526e678808d492fc0830aef6cfbd8 upstream.
 
-Device-managed resources allocated post component bind must be tied to
-the lifetime of the aggregate DRM device or they will not necessarily be
-released when binding of the aggregate device is deferred.
+crypto_tfm::__crt_ctx is not guaranteed to be 16-byte aligned on x86-64.
+This causes crashes due to movaps instructions in clmul_polyval_update.
 
-This can lead resource leaks or failure to bind the aggregate device
-when binding is later retried and a second attempt to allocate the
-resources is made.
+Add logic to align polyval_tfm_ctx to 16 bytes.
 
-For the DP bridges, previously allocated bridges will leak on probe
-deferral.
-
-Fix this by amending the DP parser interface and tying the lifetime of
-the bridge device to the DRM device rather than DP platform device.
-
-Fixes: c3bf8e21b38a ("drm/msm/dp: Add eDP support via aux_bus")
-Cc: stable@vger.kernel.org      # 5.19
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Tested-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/502667/
-Link: https://lore.kernel.org/r/20220913085320.8577-8-johan+linaro@kernel.org
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 34f7f6c30112 ("crypto: x86/polyval - Add PCLMULQDQ accelerated implementation of POLYVAL")
+Reported-by: Bruno Goncalves <bgoncalv@redhat.com>
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 2 +-
- drivers/gpu/drm/msm/dp/dp_parser.c  | 6 +++---
- drivers/gpu/drm/msm/dp/dp_parser.h  | 5 +++--
- 3 files changed, 7 insertions(+), 6 deletions(-)
+ arch/x86/crypto/polyval-clmulni_glue.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index 42de690132cf..a49f6dbbe888 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -1579,7 +1579,7 @@ static int dp_display_get_next_bridge(struct msm_dp *dp)
- 	 * For DisplayPort interfaces external bridges are optional, so
- 	 * silently ignore an error if one is not present (-ENODEV).
+diff --git a/arch/x86/crypto/polyval-clmulni_glue.c b/arch/x86/crypto/polyval-clmulni_glue.c
+index b7664d018851..8fa58b0f3cb3 100644
+--- a/arch/x86/crypto/polyval-clmulni_glue.c
++++ b/arch/x86/crypto/polyval-clmulni_glue.c
+@@ -27,13 +27,17 @@
+ #include <asm/cpu_device_id.h>
+ #include <asm/simd.h>
+ 
++#define POLYVAL_ALIGN	16
++#define POLYVAL_ALIGN_ATTR __aligned(POLYVAL_ALIGN)
++#define POLYVAL_ALIGN_EXTRA ((POLYVAL_ALIGN - 1) & ~(CRYPTO_MINALIGN - 1))
++#define POLYVAL_CTX_SIZE (sizeof(struct polyval_tfm_ctx) + POLYVAL_ALIGN_EXTRA)
+ #define NUM_KEY_POWERS	8
+ 
+ struct polyval_tfm_ctx {
+ 	/*
+ 	 * These powers must be in the order h^8, ..., h^1.
  	 */
--	rc = dp_parser_find_next_bridge(dp_priv->parser);
-+	rc = devm_dp_parser_find_next_bridge(dp->drm_dev->dev, dp_priv->parser);
- 	if (!dp->is_edp && rc == -ENODEV)
- 		return 0;
+-	u8 key_powers[NUM_KEY_POWERS][POLYVAL_BLOCK_SIZE];
++	u8 key_powers[NUM_KEY_POWERS][POLYVAL_BLOCK_SIZE] POLYVAL_ALIGN_ATTR;
+ };
  
-diff --git a/drivers/gpu/drm/msm/dp/dp_parser.c b/drivers/gpu/drm/msm/dp/dp_parser.c
-index dd732215d55b..dcbe893d66d7 100644
---- a/drivers/gpu/drm/msm/dp/dp_parser.c
-+++ b/drivers/gpu/drm/msm/dp/dp_parser.c
-@@ -240,12 +240,12 @@ static int dp_parser_clock(struct dp_parser *parser)
- 	return 0;
- }
+ struct polyval_desc_ctx {
+@@ -45,6 +49,11 @@ asmlinkage void clmul_polyval_update(const struct polyval_tfm_ctx *keys,
+ 	const u8 *in, size_t nblocks, u8 *accumulator);
+ asmlinkage void clmul_polyval_mul(u8 *op1, const u8 *op2);
  
--int dp_parser_find_next_bridge(struct dp_parser *parser)
-+int devm_dp_parser_find_next_bridge(struct device *dev, struct dp_parser *parser)
++static inline struct polyval_tfm_ctx *polyval_tfm_ctx(struct crypto_shash *tfm)
++{
++	return PTR_ALIGN(crypto_shash_ctx(tfm), POLYVAL_ALIGN);
++}
++
+ static void internal_polyval_update(const struct polyval_tfm_ctx *keys,
+ 	const u8 *in, size_t nblocks, u8 *accumulator)
  {
--	struct device *dev = &parser->pdev->dev;
-+	struct platform_device *pdev = parser->pdev;
- 	struct drm_bridge *bridge;
+@@ -72,7 +81,7 @@ static void internal_polyval_mul(u8 *op1, const u8 *op2)
+ static int polyval_x86_setkey(struct crypto_shash *tfm,
+ 			const u8 *key, unsigned int keylen)
+ {
+-	struct polyval_tfm_ctx *tctx = crypto_shash_ctx(tfm);
++	struct polyval_tfm_ctx *tctx = polyval_tfm_ctx(tfm);
+ 	int i;
  
--	bridge = devm_drm_of_get_bridge(dev, dev->of_node, 1, 0);
-+	bridge = devm_drm_of_get_bridge(dev, pdev->dev.of_node, 1, 0);
- 	if (IS_ERR(bridge))
- 		return PTR_ERR(bridge);
+ 	if (keylen != POLYVAL_BLOCK_SIZE)
+@@ -102,7 +111,7 @@ static int polyval_x86_update(struct shash_desc *desc,
+ 			 const u8 *src, unsigned int srclen)
+ {
+ 	struct polyval_desc_ctx *dctx = shash_desc_ctx(desc);
+-	const struct polyval_tfm_ctx *tctx = crypto_shash_ctx(desc->tfm);
++	const struct polyval_tfm_ctx *tctx = polyval_tfm_ctx(desc->tfm);
+ 	u8 *pos;
+ 	unsigned int nblocks;
+ 	unsigned int n;
+@@ -143,7 +152,7 @@ static int polyval_x86_update(struct shash_desc *desc,
+ static int polyval_x86_final(struct shash_desc *desc, u8 *dst)
+ {
+ 	struct polyval_desc_ctx *dctx = shash_desc_ctx(desc);
+-	const struct polyval_tfm_ctx *tctx = crypto_shash_ctx(desc->tfm);
++	const struct polyval_tfm_ctx *tctx = polyval_tfm_ctx(desc->tfm);
  
-diff --git a/drivers/gpu/drm/msm/dp/dp_parser.h b/drivers/gpu/drm/msm/dp/dp_parser.h
-index 866c1a82bf1a..d30ab773db46 100644
---- a/drivers/gpu/drm/msm/dp/dp_parser.h
-+++ b/drivers/gpu/drm/msm/dp/dp_parser.h
-@@ -138,8 +138,9 @@ struct dp_parser {
- struct dp_parser *dp_parser_get(struct platform_device *pdev);
- 
- /**
-- * dp_parser_find_next_bridge() - find an additional bridge to DP
-+ * devm_dp_parser_find_next_bridge() - find an additional bridge to DP
-  *
-+ * @dev: device to tie bridge lifetime to
-  * @parser: dp_parser data from client
-  *
-  * This function is used to find any additional bridge attached to
-@@ -147,6 +148,6 @@ struct dp_parser *dp_parser_get(struct platform_device *pdev);
-  *
-  * Return: 0 if able to get the bridge, otherwise negative errno for failure.
-  */
--int dp_parser_find_next_bridge(struct dp_parser *parser);
-+int devm_dp_parser_find_next_bridge(struct device *dev, struct dp_parser *parser);
- 
- #endif
+ 	if (dctx->bytes) {
+ 		internal_polyval_mul(dctx->buffer,
+@@ -167,7 +176,7 @@ static struct shash_alg polyval_alg = {
+ 		.cra_driver_name	= "polyval-clmulni",
+ 		.cra_priority		= 200,
+ 		.cra_blocksize		= POLYVAL_BLOCK_SIZE,
+-		.cra_ctxsize		= sizeof(struct polyval_tfm_ctx),
++		.cra_ctxsize		= POLYVAL_CTX_SIZE,
+ 		.cra_module		= THIS_MODULE,
+ 	},
+ };
 -- 
 2.38.1
 
