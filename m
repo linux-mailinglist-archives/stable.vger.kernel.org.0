@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D6A36158DF
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:00:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB276158E0
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:00:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231267AbiKBDAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:00:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48952 "EHLO
+        id S231224AbiKBDAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:00:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231273AbiKBC7x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:59:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 958B322B23
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:59:52 -0700 (PDT)
+        with ESMTP id S231265AbiKBC75 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:59:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B774822B30
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:59:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52F2EB82064
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:59:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23A66C433C1;
-        Wed,  2 Nov 2022 02:59:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55B80617BF
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:59:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00093C433D7;
+        Wed,  2 Nov 2022 02:59:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357990;
-        bh=7TpWGaSSnfb4VvfJN18uJ736Am1D1eC9A9UNJRPcBU4=;
+        s=korg; t=1667357995;
+        bh=IqmBM0HAGhJEdx6mYnai/iA+TzVwaZ6WAtObasYbluw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KH1mqONz/wcovqlmreBTG6w8ndzuqVDIrA/PUW6OtS1jAFMfSoKnRPYe12g9pzkHr
-         hrgcoHK9twgCR7aulzGbNWzuzsTMyYh68UAoitXT5BagSQId5Tipc6PldEYVadTR7t
-         VqS9Z+HIHKRW0E5yOQ1/vH49JbuXkyWESLx7Q+uw=
+        b=1hJNbTICrmJ8FOUOcuOgZ4wl++4mrpUqh8It77/22wNmGHsMnNf/0V/eOsJNHRA45
+         ZL0Cnwvnq4YXroi52gFEen98K2qSur5Eja/4Ho0QZlWxeOMnTzA8rx7qUhOGyehGN0
+         RefhC9bq75m3KIGYzNI8Fhm9IKCEu+X8DWFXxmuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matti Vaittinen <mazziesaccount@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 023/132] iio: adxl372: Fix unsafe buffer attributes
-Date:   Wed,  2 Nov 2022 03:32:09 +0100
-Message-Id: <20221102022100.236864143@linuxfoundation.org>
+        patches@lists.linux.dev, Hyunwoo Kim <imv4bel@gmail.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.15 024/132] fbdev: smscufx: Fix several use-after-free bugs
+Date:   Wed,  2 Nov 2022 03:32:10 +0100
+Message-Id: <20221102022100.264818118@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
 References: <20221102022059.593236470@linuxfoundation.org>
@@ -54,75 +52,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matti Vaittinen <mazziesaccount@gmail.com>
+From: Hyunwoo Kim <imv4bel@gmail.com>
 
-commit ab0ee36e90f611f32c3a53afe9dc743de48138e2 upstream.
+commit cc67482c9e5f2c80d62f623bcc347c29f9f648e1 upstream.
 
-The iio_triggered_buffer_setup_ext() was changed by
-commit 15097c7a1adc ("iio: buffer: wrap all buffer attributes into iio_dev_attr")
-to silently expect that all attributes given in buffer_attrs array are
-device-attributes. This expectation was not forced by the API - and some
-drivers did register attributes created by IIO_CONST_ATTR().
+Several types of UAFs can occur when physically removing a USB device.
 
-The added attribute "wrapping" does not copy the pointer to stored
-string constant and when the sysfs file is read the kernel will access
-to invalid location.
+Adds ufx_ops_destroy() function to .fb_destroy of fb_ops, and
+in this function, there is kref_put() that finally calls ufx_free().
 
-Change the IIO_CONST_ATTRs from the driver to IIO_DEVICE_ATTR in order
-to prevent the invalid memory access.
+This fix prevents multiple UAFs.
 
-Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
-Fixes: 15097c7a1adc ("iio: buffer: wrap all buffer attributes into iio_dev_attr")
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/19158499623cdf7f9c5efae1f13c9f1a918ff75f.1664782676.git.mazziesaccount@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
+Link: https://lore.kernel.org/linux-fbdev/20221011153436.GA4446@ubuntu/
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/adxl372.c | 23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ drivers/video/fbdev/smscufx.c |   55 ++++++++++++++++++++++--------------------
+ 1 file changed, 30 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/iio/accel/adxl372.c b/drivers/iio/accel/adxl372.c
-index e3ecbaee61f7..bc53af809d5d 100644
---- a/drivers/iio/accel/adxl372.c
-+++ b/drivers/iio/accel/adxl372.c
-@@ -998,17 +998,30 @@ static ssize_t adxl372_get_fifo_watermark(struct device *dev,
- 	return sprintf(buf, "%d\n", st->watermark);
+--- a/drivers/video/fbdev/smscufx.c
++++ b/drivers/video/fbdev/smscufx.c
+@@ -97,7 +97,6 @@ struct ufx_data {
+ 	struct kref kref;
+ 	int fb_count;
+ 	bool virtualized; /* true when physical usb device not present */
+-	struct delayed_work free_framebuffer_work;
+ 	atomic_t usb_active; /* 0 = update virtual buffer, but no usb traffic */
+ 	atomic_t lost_pixels; /* 1 = a render op failed. Need screen refresh */
+ 	u8 *edid; /* null until we read edid from hw or get from sysfs */
+@@ -1116,15 +1115,24 @@ static void ufx_free(struct kref *kref)
+ {
+ 	struct ufx_data *dev = container_of(kref, struct ufx_data, kref);
+ 
+-	/* this function will wait for all in-flight urbs to complete */
+-	if (dev->urbs.count > 0)
+-		ufx_free_urb_list(dev);
++	kfree(dev);
++}
+ 
+-	pr_debug("freeing ufx_data %p", dev);
++static void ufx_ops_destory(struct fb_info *info)
++{
++	struct ufx_data *dev = info->par;
++	int node = info->node;
+ 
+-	kfree(dev);
++	/* Assume info structure is freed after this point */
++	framebuffer_release(info);
++
++	pr_debug("fb_info for /dev/fb%d has been freed", node);
++
++	/* release reference taken by kref_init in probe() */
++	kref_put(&dev->kref, ufx_free);
  }
  
--static IIO_CONST_ATTR(hwfifo_watermark_min, "1");
--static IIO_CONST_ATTR(hwfifo_watermark_max,
--		      __stringify(ADXL372_FIFO_SIZE));
-+static ssize_t hwfifo_watermark_min_show(struct device *dev,
-+					 struct device_attribute *attr,
-+					 char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", "1");
-+}
 +
-+static ssize_t hwfifo_watermark_max_show(struct device *dev,
-+					 struct device_attribute *attr,
-+					 char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", __stringify(ADXL372_FIFO_SIZE));
-+}
-+
-+static IIO_DEVICE_ATTR_RO(hwfifo_watermark_min, 0);
-+static IIO_DEVICE_ATTR_RO(hwfifo_watermark_max, 0);
- static IIO_DEVICE_ATTR(hwfifo_watermark, 0444,
- 		       adxl372_get_fifo_watermark, NULL, 0);
- static IIO_DEVICE_ATTR(hwfifo_enabled, 0444,
- 		       adxl372_get_fifo_enabled, NULL, 0);
+ static void ufx_release_urb_work(struct work_struct *work)
+ {
+ 	struct urb_node *unode = container_of(work, struct urb_node,
+@@ -1133,14 +1141,9 @@ static void ufx_release_urb_work(struct
+ 	up(&unode->dev->urbs.limit_sem);
+ }
  
- static const struct attribute *adxl372_fifo_attributes[] = {
--	&iio_const_attr_hwfifo_watermark_min.dev_attr.attr,
--	&iio_const_attr_hwfifo_watermark_max.dev_attr.attr,
-+	&iio_dev_attr_hwfifo_watermark_min.dev_attr.attr,
-+	&iio_dev_attr_hwfifo_watermark_max.dev_attr.attr,
- 	&iio_dev_attr_hwfifo_watermark.dev_attr.attr,
- 	&iio_dev_attr_hwfifo_enabled.dev_attr.attr,
- 	NULL,
--- 
-2.38.1
-
+-static void ufx_free_framebuffer_work(struct work_struct *work)
++static void ufx_free_framebuffer(struct ufx_data *dev)
+ {
+-	struct ufx_data *dev = container_of(work, struct ufx_data,
+-					    free_framebuffer_work.work);
+ 	struct fb_info *info = dev->info;
+-	int node = info->node;
+-
+-	unregister_framebuffer(info);
+ 
+ 	if (info->cmap.len != 0)
+ 		fb_dealloc_cmap(&info->cmap);
+@@ -1152,11 +1155,6 @@ static void ufx_free_framebuffer_work(st
+ 
+ 	dev->info = NULL;
+ 
+-	/* Assume info structure is freed after this point */
+-	framebuffer_release(info);
+-
+-	pr_debug("fb_info for /dev/fb%d has been freed", node);
+-
+ 	/* ref taken in probe() as part of registering framebfufer */
+ 	kref_put(&dev->kref, ufx_free);
+ }
+@@ -1168,11 +1166,13 @@ static int ufx_ops_release(struct fb_inf
+ {
+ 	struct ufx_data *dev = info->par;
+ 
++	mutex_lock(&disconnect_mutex);
++
+ 	dev->fb_count--;
+ 
+ 	/* We can't free fb_info here - fbmem will touch it when we return */
+ 	if (dev->virtualized && (dev->fb_count == 0))
+-		schedule_delayed_work(&dev->free_framebuffer_work, HZ);
++		ufx_free_framebuffer(dev);
+ 
+ 	if ((dev->fb_count == 0) && (info->fbdefio)) {
+ 		fb_deferred_io_cleanup(info);
+@@ -1185,6 +1185,8 @@ static int ufx_ops_release(struct fb_inf
+ 
+ 	kref_put(&dev->kref, ufx_free);
+ 
++	mutex_unlock(&disconnect_mutex);
++
+ 	return 0;
+ }
+ 
+@@ -1291,6 +1293,7 @@ static const struct fb_ops ufx_ops = {
+ 	.fb_blank = ufx_ops_blank,
+ 	.fb_check_var = ufx_ops_check_var,
+ 	.fb_set_par = ufx_ops_set_par,
++	.fb_destroy = ufx_ops_destory,
+ };
+ 
+ /* Assumes &info->lock held by caller
+@@ -1672,9 +1675,6 @@ static int ufx_usb_probe(struct usb_inte
+ 		goto destroy_modedb;
+ 	}
+ 
+-	INIT_DELAYED_WORK(&dev->free_framebuffer_work,
+-			  ufx_free_framebuffer_work);
+-
+ 	retval = ufx_reg_read(dev, 0x3000, &id_rev);
+ 	check_warn_goto_error(retval, "error %d reading 0x3000 register from device", retval);
+ 	dev_dbg(dev->gdev, "ID_REV register value 0x%08x", id_rev);
+@@ -1747,10 +1747,12 @@ e_nomem:
+ static void ufx_usb_disconnect(struct usb_interface *interface)
+ {
+ 	struct ufx_data *dev;
++	struct fb_info *info;
+ 
+ 	mutex_lock(&disconnect_mutex);
+ 
+ 	dev = usb_get_intfdata(interface);
++	info = dev->info;
+ 
+ 	pr_debug("USB disconnect starting\n");
+ 
+@@ -1764,12 +1766,15 @@ static void ufx_usb_disconnect(struct us
+ 
+ 	/* if clients still have us open, will be freed on last close */
+ 	if (dev->fb_count == 0)
+-		schedule_delayed_work(&dev->free_framebuffer_work, 0);
++		ufx_free_framebuffer(dev);
+ 
+-	/* release reference taken by kref_init in probe() */
+-	kref_put(&dev->kref, ufx_free);
++	/* this function will wait for all in-flight urbs to complete */
++	if (dev->urbs.count > 0)
++		ufx_free_urb_list(dev);
+ 
+-	/* consider ufx_data freed */
++	pr_debug("freeing ufx_data %p", dev);
++
++	unregister_framebuffer(info);
+ 
+ 	mutex_unlock(&disconnect_mutex);
+ }
 
 
