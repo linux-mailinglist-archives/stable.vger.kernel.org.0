@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D05AA6158F5
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:02:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE84E6158F2
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:02:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231289AbiKBDCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:02:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51510 "EHLO
+        id S231264AbiKBDCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:02:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231334AbiKBDCE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:02:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72A802317F
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:01:42 -0700 (PDT)
+        with ESMTP id S231273AbiKBDBz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:01:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 519DD22BDE
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:01:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8F00617BF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:01:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89C2DC433C1;
-        Wed,  2 Nov 2022 03:01:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C3EBB82076
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:01:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AE79C4347C;
+        Wed,  2 Nov 2022 03:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358101;
-        bh=S4iKR3j3/dPQLiL7T3FJY6bIoN0XSCrny/AqU6Y9218=;
+        s=korg; t=1667358107;
+        bh=VETqd/5F8XEHDagoaqcVuEzhl7+XurcS5g0ILeS5oOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIBdCNbgqlSDwT5/bnncRi4H507rnByzMi5aiEBI0gVfWcGs8BBIvjms06p5wuyc6
-         ASKoICJB40HVZRQZ+xpEEhyFcjjzzbaM7GYKqz3sKpnmEdVyFG8Yfj6wqr+T5L43mF
-         bWKPw2B4eLV+hd1NiCUNJloJY8HHe8DzBCVV+o1M=
+        b=2IcFESEe1ii6jyytYpvcnUSkiZ5ebRmgWONUjzN78YY53w4pAE9M/NFTi3W80KAt+
+         7Xdl0J9Je92dO14dfommTJ0g30l35SJDjiH29FdpPt91w6KL0VhG91C+R5UEsJq1aG
+         NQXxbHwjIYWBuLLSiDVE8QCJD/DEtsICYHrId/Js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Jens Glathe <jens.glathe@oldschoolsolutions.biz>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.15 015/132] usb: xhci: add XHCI_SPURIOUS_SUCCESS to ASM1042 despite being a V0.96 controller
-Date:   Wed,  2 Nov 2022 03:32:01 +0100
-Message-Id: <20221102022100.026895598@linuxfoundation.org>
+        Tony OBrien <tony.obrien@alliedtelesis.co.nz>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.15 016/132] mtd: rawnand: marvell: Use correct logic for nand-keep-config
+Date:   Wed,  2 Nov 2022 03:32:02 +0100
+Message-Id: <20221102022100.052871197@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
 References: <20221102022059.593236470@linuxfoundation.org>
@@ -53,45 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Glathe <jens.glathe@oldschoolsolutions.biz>
+From: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
 
-commit 4f547472380136718b56064ea5689a61e135f904 upstream.
+commit ce107713b722af57c4b7f2477594d445b496420e upstream.
 
-This appears to fix the error:
-"xhci_hcd <address>; ERROR Transfer event TRB DMA ptr not part of
-current TD ep_index 2 comp_code 13" that appear spuriously (or pretty
-often) when using a r8152 USB3 ethernet adapter with integrated hub.
-
-ASM1042 reports as a 0.96 controller, but appears to behave more like 1.0
-
-Inspired by this email thread: https://markmail.org/thread/7vzqbe7t6du6qsw3
+Originally the absence of the marvell,nand-keep-config property caused
+the setup_data_interface function to be provided. However when
+setup_data_interface was moved into nand_controller_ops the logic was
+unintentionally inverted. Update the logic so that only if the
+marvell,nand-keep-config property is present the bootloader NAND config
+kept.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Jens Glathe <jens.glathe@oldschoolsolutions.biz>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20221024142720.4122053-2-mathias.nyman@intel.com
+Fixes: 7a08dbaedd36 ("mtd: rawnand: Move ->setup_data_interface() to nand_controller_ops")
+Signed-off-by: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220927024728.28447-1-chris.packham@alliedtelesis.co.nz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-pci.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/marvell_nand.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -307,8 +307,14 @@ static void xhci_pci_quirks(struct devic
- 	}
+--- a/drivers/mtd/nand/raw/marvell_nand.c
++++ b/drivers/mtd/nand/raw/marvell_nand.c
+@@ -2672,7 +2672,7 @@ static int marvell_nand_chip_init(struct
+ 	chip->controller = &nfc->controller;
+ 	nand_set_flash_node(chip, np);
  
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
--		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042_XHCI)
-+		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042_XHCI) {
-+		/*
-+		 * try to tame the ASMedia 1042 controller which reports 0.96
-+		 * but appears to behave more like 1.0
-+		 */
-+		xhci->quirks |= XHCI_SPURIOUS_SUCCESS;
- 		xhci->quirks |= XHCI_BROKEN_STREAMS;
-+	}
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
- 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI) {
- 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
+-	if (!of_property_read_bool(np, "marvell,nand-keep-config"))
++	if (of_property_read_bool(np, "marvell,nand-keep-config"))
+ 		chip->options |= NAND_KEEP_TIMINGS;
+ 
+ 	mtd = nand_to_mtd(chip);
 
 
