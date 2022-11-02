@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99CA06159E3
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:20:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC7E3615963
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:10:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230317AbiKBDUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:20:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39716 "EHLO
+        id S229968AbiKBDKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:10:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230232AbiKBDUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:20:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDCC61D65D
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:20:05 -0700 (PDT)
+        with ESMTP id S230087AbiKBDJ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:09:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABDE315815
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:09:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A755B82077
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:20:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7774C433D6;
-        Wed,  2 Nov 2022 03:20:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A6FD616DB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:09:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8064C433D6;
+        Wed,  2 Nov 2022 03:09:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359203;
-        bh=oyjrOxPhIVbcOY1tmzWJaqYu7495FSYHYMvTzskb8sU=;
+        s=korg; t=1667358596;
+        bh=cnsgT2/vDiQOSkj2uy0XSxVAILurhRmOQnRQAEX8BAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVT8rO1URL1+LbA/vzqZ1AyDFC0D8d5qf/gqW9Ct1Vdo3UC6Ua1D+btBAgCTqfNr/
-         yyEf4XJPE6df9JesZDaclAn8SLY2CHrQnE509a/MlBnlHYFUFSm6iwGYdoL8pCXBcS
-         pH1rrfzgR2dL1pHoawT2N7OdC41eczr8/RiJPemE=
+        b=oFOabYTk0HxhbuA/rtQCQxUSQpIKnXq1mGgu6CZvn3oOo+FRu9Y0WFzIe9wD6KABk
+         n0rPtStDdUy/Mn4Ic/jZkINe6r5dmbIVMlKEUPY0XrFEyzYTU21n+yzrOb1WqQIqZK
+         jSFs4SQJB/aFZ0wGBECt0BFezjNs0d5BeKAbafhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Claudiu Manoil <claudiu.manoil@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 68/91] media: vivid: set num_in/outputs to 0 if not supported
+Subject: [PATCH 5.15 125/132] net: enetc: survive memory pressure without crashing
 Date:   Wed,  2 Nov 2022 03:33:51 +0100
-Message-Id: <20221102022056.967281804@linuxfoundation.org>
+Message-Id: <20221102022102.957079104@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 69d78a80da4ef12faf2a6f9cfa2097ab4ac43983 ]
+[ Upstream commit 84ce1ca3fe9e1249bf21176ff162200f1c4e5ed1 ]
 
-If node_types does not have video/vbi/meta inputs or outputs,
-then set num_inputs/num_outputs to 0 instead of 1.
+Under memory pressure, enetc_refill_rx_ring() may fail, and when called
+during the enetc_open() -> enetc_setup_rxbdr() procedure, this is not
+checked for.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 0c90f649d2f5 (media: vivid: add vivid_create_queue() helper)
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+An extreme case of memory pressure will result in exactly zero buffers
+being allocated for the RX ring, and in such a case it is expected that
+hardware drops all RX packets due to lack of buffers.
+
+This does not happen, because the reset-default value of the consumer
+and produces index is 0, and this makes the ENETC think that all buffers
+have been initialized and that it owns them (when in reality none were).
+
+The hardware guide explains this best:
+
+| Configure the receive ring producer index register RBaPIR with a value
+| of 0. The producer index is initially configured by software but owned
+| by hardware after the ring has been enabled. Hardware increments the
+| index when a frame is received which may consume one or more BDs.
+| Hardware is not allowed to increment the producer index to match the
+| consumer index since it is used to indicate an empty condition. The ring
+| can hold at most RBLENR[LENGTH]-1 received BDs.
+|
+| Configure the receive ring consumer index register RBaCIR. The
+| consumer index is owned by software and updated during operation of the
+| of the BD ring by software, to indicate that any receive data occupied
+| in the BD has been processed and it has been prepared for new data.
+| - If consumer index and producer index are initialized to the same
+|   value, it indicates that all BDs in the ring have been prepared and
+|   hardware owns all of the entries.
+| - If consumer index is initialized to producer index plus N, it would
+|   indicate N BDs have been prepared. Note that hardware cannot start if
+|   only a single buffer is prepared due to the restrictions described in
+|   (2).
+| - Software may write consumer index to match producer index anytime
+|   while the ring is operational to indicate all received BDs prior have
+|   been processed and new BDs prepared for hardware.
+
+Normally, the value of rx_ring->rcir (consumer index) is brought in sync
+with the rx_ring->next_to_use software index, but this only happens if
+page allocation ever succeeded.
+
+When PI==CI==0, the hardware appears to receive frames and write them to
+DMA address 0x0 (?!), then set the READY bit in the BD.
+
+The enetc_clean_rx_ring() function (and its XDP derivative) is naturally
+not prepared to handle such a condition. It will attempt to process
+those frames using the rx_swbd structure associated with index i of the
+RX ring, but that structure is not fully initialized (enetc_new_page()
+does all of that). So what happens next is undefined behavior.
+
+To operate using no buffer, we must initialize the CI to PI + 1, which
+will block the hardware from advancing the CI any further, and drop
+everything.
+
+The issue was seen while adding support for zero-copy AF_XDP sockets,
+where buffer memory comes from user space, which can even decide to
+supply no buffers at all (example: "xdpsock --txonly"). However, the bug
+is present also with the network stack code, even though it would take a
+very determined person to trigger a page allocation failure at the
+perfect time (a series of ifup/ifdown under memory pressure should
+eventually reproduce it given enough retries).
+
+Fixes: d4fd0404c1c9 ("enetc: Introduce basic PF and VF ENETC ethernet drivers")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Link: https://lore.kernel.org/r/20221027182925.3256653-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/test-drivers/vivid/vivid-core.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/freescale/enetc/enetc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/media/test-drivers/vivid/vivid-core.c b/drivers/media/test-drivers/vivid/vivid-core.c
-index f69c64e5a149..761d2abd4006 100644
---- a/drivers/media/test-drivers/vivid/vivid-core.c
-+++ b/drivers/media/test-drivers/vivid/vivid-core.c
-@@ -872,8 +872,12 @@ static int vivid_detect_feature_set(struct vivid_dev *dev, int inst,
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
+index c0265a6f10c0..77d765809c1e 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -1800,7 +1800,12 @@ static void enetc_setup_rxbdr(struct enetc_hw *hw, struct enetc_bdr *rx_ring)
+ 	else
+ 		enetc_rxbdr_wr(hw, idx, ENETC_RBBSR, ENETC_RXB_DMA_SIZE);
  
- 	/* how many inputs do we have and of what type? */
- 	dev->num_inputs = num_inputs[inst];
--	if (dev->num_inputs < 1)
--		dev->num_inputs = 1;
-+	if (node_type & 0x20007) {
-+		if (dev->num_inputs < 1)
-+			dev->num_inputs = 1;
-+	} else {
-+		dev->num_inputs = 0;
-+	}
- 	if (dev->num_inputs >= MAX_INPUTS)
- 		dev->num_inputs = MAX_INPUTS;
- 	for (i = 0; i < dev->num_inputs; i++) {
-@@ -890,8 +894,12 @@ static int vivid_detect_feature_set(struct vivid_dev *dev, int inst,
++	/* Also prepare the consumer index in case page allocation never
++	 * succeeds. In that case, hardware will never advance producer index
++	 * to match consumer index, and will drop all frames.
++	 */
+ 	enetc_rxbdr_wr(hw, idx, ENETC_RBPIR, 0);
++	enetc_rxbdr_wr(hw, idx, ENETC_RBCIR, 1);
  
- 	/* how many outputs do we have and of what type? */
- 	dev->num_outputs = num_outputs[inst];
--	if (dev->num_outputs < 1)
--		dev->num_outputs = 1;
-+	if (node_type & 0x40300) {
-+		if (dev->num_outputs < 1)
-+			dev->num_outputs = 1;
-+	} else {
-+		dev->num_outputs = 0;
-+	}
- 	if (dev->num_outputs >= MAX_OUTPUTS)
- 		dev->num_outputs = MAX_OUTPUTS;
- 	for (i = 0; i < dev->num_outputs; i++) {
+ 	/* enable Rx ints by setting pkt thr to 1 */
+ 	enetc_rxbdr_wr(hw, idx, ENETC_RBICR0, ENETC_RBICR0_ICEN | 0x1);
 -- 
 2.35.1
 
