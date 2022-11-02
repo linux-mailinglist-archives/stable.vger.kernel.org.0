@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71D84615A1F
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:25:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1B1D615A5E
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:30:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230386AbiKBDZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:25:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44746 "EHLO
+        id S231249AbiKBD35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:29:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230323AbiKBDZG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:25:06 -0400
+        with ESMTP id S231269AbiKBD3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:29:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BE0B24F3A
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:25:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AE491F2F2
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:29:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E24361799
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:25:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40091C433D6;
-        Wed,  2 Nov 2022 03:25:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD0ED61799
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:29:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4120CC433D6;
+        Wed,  2 Nov 2022 03:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359505;
-        bh=oQpk/KdYp0yS3f54um8Aue8j6NVrVN8gj/iHWqEIARE=;
+        s=korg; t=1667359773;
+        bh=3To5j5enuhG1lOVJ7Z8kTMk0Kw7z3PjmXhUbIrsSzz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2Pyh9DVhvAIKTGAI89dz10zESwFhMs3/4P+O2xj/CLpJ2LgZ+ZX+DqQ+C18VBO8z
-         xfgCjAJv5MeK7ikSpSVXEVQnhpS3jFnHStUak8l29dtdkwtKXv0dgzOAScJONBc7+E
-         B/8LN+0MzjddD8aCguLudlfk4wpKR4SnFPC3n9ak=
+        b=y/S11s1YgoAZgw+8sQBircyFFZBAKqki0bgDltaZOfJYbjeo2UqB//9Sc6/l+p6oW
+         7nPKDSL+sSU5oC86JvaUk1rZ5rfWq2pZJX5a9LEhc+rke70VPG4gQn8Wrl5eN9gLPd
+         e2h5u1LPvfViZbY7HMK4bcd8aJ3CXkipAUamjPVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Slawomir Laba <slawomirx.laba@intel.com>,
-        Michal Jaron <michalx.jaron@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.4 51/64] i40e: Fix ethtool rx-flow-hash setting for X722
+        patches@lists.linux.dev, Justin Chen <justinpopo6@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 4.19 32/78] usb: bdc: change state when port disconnected
 Date:   Wed,  2 Nov 2022 03:34:17 +0100
-Message-Id: <20221102022053.463671290@linuxfoundation.org>
+Message-Id: <20221102022053.938126304@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
-References: <20221102022051.821538553@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,129 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: Justin Chen <justinpopo6@gmail.com>
 
-[ Upstream commit 54b5af5a438076082d482cab105b1bd484ab5074 ]
+commit fb8f60dd1b67520e0e0d7978ef17d015690acfc1 upstream.
 
-When enabling flow type for RSS hash via ethtool:
+When port is connected and then disconnected, the state stays as
+configured. Which is incorrect as the port is no longer configured,
+but in a not attached state.
 
-ethtool -N $pf rx-flow-hash tcp4|tcp6|udp4|udp6 s|d
-
-the driver would fail to setup this setting on X722
-device since it was using the mask on the register
-dedicated for X710 devices.
-
-Apply a different mask on the register when setting the
-RSS hash for the X722 device.
-
-When displaying the flow types enabled via ethtool:
-
-ethtool -n $pf rx-flow-hash tcp4|tcp6|udp4|udp6
-
-the driver would print wrong values for X722 device.
-
-Fix this issue by testing masks for X722 device in
-i40e_get_rss_hash_opts function.
-
-Fixes: eb0dd6e4a3b3 ("i40e: Allow RSS Hash set with less than four parameters")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Link: https://lore.kernel.org/r/20221024100526.1874914-1-jacob.e.keller@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: efed421a94e6 ("usb: gadget: Add UDC driver for Broadcom USB3.0 device controller IP BDC")
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/1664997235-18198-1-git-send-email-justinpopo6@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/intel/i40e/i40e_ethtool.c    | 31 ++++++++++++++-----
- drivers/net/ethernet/intel/i40e/i40e_type.h   |  4 +++
- 2 files changed, 27 insertions(+), 8 deletions(-)
+ drivers/usb/gadget/udc/bdc/bdc_udc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index 689deecb4e1a..b9efd379a447 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -3082,10 +3082,17 @@ static int i40e_get_rss_hash_opts(struct i40e_pf *pf, struct ethtool_rxnfc *cmd)
+--- a/drivers/usb/gadget/udc/bdc/bdc_udc.c
++++ b/drivers/usb/gadget/udc/bdc/bdc_udc.c
+@@ -151,6 +151,7 @@ static void bdc_uspc_disconnected(struct
+ 	bdc->delayed_status = false;
+ 	bdc->reinit = reinit;
+ 	bdc->test_mode = false;
++	usb_gadget_set_state(&bdc->gadget, USB_STATE_NOTATTACHED);
+ }
  
- 		if (cmd->flow_type == TCP_V4_FLOW ||
- 		    cmd->flow_type == UDP_V4_FLOW) {
--			if (i_set & I40E_L3_SRC_MASK)
--				cmd->data |= RXH_IP_SRC;
--			if (i_set & I40E_L3_DST_MASK)
--				cmd->data |= RXH_IP_DST;
-+			if (hw->mac.type == I40E_MAC_X722) {
-+				if (i_set & I40E_X722_L3_SRC_MASK)
-+					cmd->data |= RXH_IP_SRC;
-+				if (i_set & I40E_X722_L3_DST_MASK)
-+					cmd->data |= RXH_IP_DST;
-+			} else {
-+				if (i_set & I40E_L3_SRC_MASK)
-+					cmd->data |= RXH_IP_SRC;
-+				if (i_set & I40E_L3_DST_MASK)
-+					cmd->data |= RXH_IP_DST;
-+			}
- 		} else if (cmd->flow_type == TCP_V6_FLOW ||
- 			  cmd->flow_type == UDP_V6_FLOW) {
- 			if (i_set & I40E_L3_V6_SRC_MASK)
-@@ -3392,12 +3399,15 @@ static int i40e_get_rxnfc(struct net_device *netdev, struct ethtool_rxnfc *cmd,
- 
- /**
-  * i40e_get_rss_hash_bits - Read RSS Hash bits from register
-+ * @hw: hw structure
-  * @nfc: pointer to user request
-  * @i_setc: bits currently set
-  *
-  * Returns value of bits to be set per user request
-  **/
--static u64 i40e_get_rss_hash_bits(struct ethtool_rxnfc *nfc, u64 i_setc)
-+static u64 i40e_get_rss_hash_bits(struct i40e_hw *hw,
-+				  struct ethtool_rxnfc *nfc,
-+				  u64 i_setc)
- {
- 	u64 i_set = i_setc;
- 	u64 src_l3 = 0, dst_l3 = 0;
-@@ -3416,8 +3426,13 @@ static u64 i40e_get_rss_hash_bits(struct ethtool_rxnfc *nfc, u64 i_setc)
- 		dst_l3 = I40E_L3_V6_DST_MASK;
- 	} else if (nfc->flow_type == TCP_V4_FLOW ||
- 		  nfc->flow_type == UDP_V4_FLOW) {
--		src_l3 = I40E_L3_SRC_MASK;
--		dst_l3 = I40E_L3_DST_MASK;
-+		if (hw->mac.type == I40E_MAC_X722) {
-+			src_l3 = I40E_X722_L3_SRC_MASK;
-+			dst_l3 = I40E_X722_L3_DST_MASK;
-+		} else {
-+			src_l3 = I40E_L3_SRC_MASK;
-+			dst_l3 = I40E_L3_DST_MASK;
-+		}
- 	} else {
- 		/* Any other flow type are not supported here */
- 		return i_set;
-@@ -3532,7 +3547,7 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
- 					       flow_pctype)) |
- 			((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1,
- 					       flow_pctype)) << 32);
--		i_set = i40e_get_rss_hash_bits(nfc, i_setc);
-+		i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
- 		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_pctype),
- 				  (u32)i_set);
- 		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_pctype),
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_type.h b/drivers/net/ethernet/intel/i40e/i40e_type.h
-index 666a251e8c72..047068120ba7 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_type.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e_type.h
-@@ -1470,6 +1470,10 @@ struct i40e_lldp_variables {
- #define I40E_PFQF_CTL_0_HASHLUTSIZE_512	0x00010000
- 
- /* INPUT SET MASK for RSS, flow director, and flexible payload */
-+#define I40E_X722_L3_SRC_SHIFT		49
-+#define I40E_X722_L3_SRC_MASK		(0x3ULL << I40E_X722_L3_SRC_SHIFT)
-+#define I40E_X722_L3_DST_SHIFT		41
-+#define I40E_X722_L3_DST_MASK		(0x3ULL << I40E_X722_L3_DST_SHIFT)
- #define I40E_L3_SRC_SHIFT		47
- #define I40E_L3_SRC_MASK		(0x3ULL << I40E_L3_SRC_SHIFT)
- #define I40E_L3_V6_SRC_SHIFT		43
--- 
-2.35.1
-
+ /* TNotify wkaeup timer */
 
 
