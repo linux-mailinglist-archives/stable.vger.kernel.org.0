@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0EF16159DE
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:20:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3209A615A37
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:27:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229823AbiKBDUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:20:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39252 "EHLO
+        id S230478AbiKBD1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:27:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230187AbiKBDTt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:19:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C78351ADAE
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:19:45 -0700 (PDT)
+        with ESMTP id S230480AbiKBD1M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:27:12 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DDA225EA5
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:27:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F25376177E
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:19:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91207C433C1;
-        Wed,  2 Nov 2022 03:19:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E1B16CE1F1A
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:27:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BC49C433C1;
+        Wed,  2 Nov 2022 03:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359184;
-        bh=o8EWPaIDDGNAXP1ehBnIB/bxKL2is2BHiHJBC4F24Ks=;
+        s=korg; t=1667359627;
+        bh=DNtgqV1ztDx28Kqrz1ZQ3x82sAqEXj1o5nWLt3UAah4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qafGNRyThuKAbeP85VAsYqtqnAbwx08kmOzI7V5g+mBtTdnDRatyI9aYYA47nmtsh
-         5V4SMZH1+DaVQBxZmlOR4998KVfo54MPxM9yNqwgUnqseaS8XKKz7srClcGNzmf6e9
-         VqqmGVBLMcZ0JCaHt1P2cf63Y1FRX8bUer0rsCHY=
+        b=wKBOwUaBp4koK6rVbgAYaAlVhqEDQHSn96SXYZNxZBFE3su/DeUMOVqUArfuk5Nox
+         q96MBK9/R3l9rjcYQZKSU8XTY77TiS9zfIa4aHXAVw3CuDxDtx9JvGoFFxnV+vs1O1
+         6AeqbffrOB6pY8TyInEgdJ/RV+aVpfH0bEQ1PMso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Biju Das <biju.das.jz@bp.renesas.com>
-Subject: [PATCH 5.10 89/91] can: rcar_canfd: rcar_canfd_handle_global_receive(): fix IRQ storm on global FIFO receive
-Date:   Wed,  2 Nov 2022 03:34:12 +0100
-Message-Id: <20221102022057.580238273@linuxfoundation.org>
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 47/64] media: vivid: s_fbuf: add more sanity checks
+Date:   Wed,  2 Nov 2022 03:34:13 +0100
+Message-Id: <20221102022053.331950441@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,65 +53,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit 702de2c21eed04c67cefaaedc248ef16e5f6b293 upstream.
+[ Upstream commit f8bcaf714abfc94818dff8c0db84d750433984f4 ]
 
-We are seeing an IRQ storm on the global receive IRQ line under heavy
-CAN bus load conditions with both CAN channels enabled.
+VIDIOC_S_FBUF is by definition a scary ioctl, which is why only root
+can use it. But at least check if the framebuffer parameters match that
+of one of the framebuffer created by vivid, and reject anything else.
 
-Conditions:
-
-The global receive IRQ line is shared between can0 and can1, either of
-the channels can trigger interrupt while the other channel's IRQ line
-is disabled (RFIE).
-
-When global a receive IRQ interrupt occurs, we mask the interrupt in
-the IRQ handler. Clearing and unmasking of the interrupt is happening
-in rx_poll(). There is a race condition where rx_poll() unmasks the
-interrupt, but the next IRQ handler does not mask the IRQ due to
-NAPIF_STATE_MISSED flag (e.g.: can0 RX FIFO interrupt is disabled and
-can1 is triggering RX interrupt, the delay in rx_poll() processing
-results in setting NAPIF_STATE_MISSED flag) leading to an IRQ storm.
-
-This patch fixes the issue by checking IRQ active and enabled before
-handling the IRQ on a particular channel.
-
-Fixes: dd3bd23eb438 ("can: rcar_canfd: Add Renesas R-Car CAN FD driver")
-Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/all/20221025155657.1426948-2-biju.das.jz@bp.renesas.com
-Cc: stable@vger.kernel.org
-[mkl: adjust commit message]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[biju: removed gpriv from RCANFD_RFCC_RFIE macro]
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: ef834f7836ec ([media] vivid: add the video capture and output parts)
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/rcar/rcar_canfd.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/platform/vivid/vivid-core.c    | 22 ++++++++++++++++++++
+ drivers/media/platform/vivid/vivid-core.h    |  2 ++
+ drivers/media/platform/vivid/vivid-vid-cap.c |  9 +++++++-
+ 3 files changed, 32 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/rcar/rcar_canfd.c
-+++ b/drivers/net/can/rcar/rcar_canfd.c
-@@ -1075,7 +1075,7 @@ static irqreturn_t rcar_canfd_global_int
- 	struct rcar_canfd_global *gpriv = dev_id;
- 	struct net_device *ndev;
- 	struct rcar_canfd_channel *priv;
--	u32 sts, gerfl;
-+	u32 sts, cc, gerfl;
- 	u32 ch, ridx;
+diff --git a/drivers/media/platform/vivid/vivid-core.c b/drivers/media/platform/vivid/vivid-core.c
+index cc71aa425597..f6dc2b69b62e 100644
+--- a/drivers/media/platform/vivid/vivid-core.c
++++ b/drivers/media/platform/vivid/vivid-core.c
+@@ -297,6 +297,28 @@ static int vidioc_g_fbuf(struct file *file, void *fh, struct v4l2_framebuffer *a
+ 	return vivid_vid_out_g_fbuf(file, fh, a);
+ }
  
- 	/* Global error interrupts still indicate a condition specific
-@@ -1093,7 +1093,9 @@ static irqreturn_t rcar_canfd_global_int
++/*
++ * Only support the framebuffer of one of the vivid instances.
++ * Anything else is rejected.
++ */
++bool vivid_validate_fb(const struct v4l2_framebuffer *a)
++{
++	struct vivid_dev *dev;
++	int i;
++
++	for (i = 0; i < n_devs; i++) {
++		dev = vivid_devs[i];
++		if (!dev || !dev->video_pbase)
++			continue;
++		if ((unsigned long)a->base == dev->video_pbase &&
++		    a->fmt.width <= dev->display_width &&
++		    a->fmt.height <= dev->display_height &&
++		    a->fmt.bytesperline <= dev->display_byte_stride)
++			return true;
++	}
++	return false;
++}
++
+ static int vidioc_s_fbuf(struct file *file, void *fh, const struct v4l2_framebuffer *a)
+ {
+ 	struct video_device *vdev = video_devdata(file);
+diff --git a/drivers/media/platform/vivid/vivid-core.h b/drivers/media/platform/vivid/vivid-core.h
+index 7ebb14673c75..0ab4051327d6 100644
+--- a/drivers/media/platform/vivid/vivid-core.h
++++ b/drivers/media/platform/vivid/vivid-core.h
+@@ -564,4 +564,6 @@ static inline bool vivid_is_hdmi_out(const struct vivid_dev *dev)
+ 	return dev->output_type[dev->output] == HDMI;
+ }
  
- 		/* Handle Rx interrupts */
- 		sts = rcar_canfd_read(priv->base, RCANFD_RFSTS(ridx));
--		if (likely(sts & RCANFD_RFSTS_RFIF)) {
-+		cc = rcar_canfd_read(priv->base, RCANFD_RFCC(ridx));
-+		if (likely(sts & RCANFD_RFSTS_RFIF &&
-+			   cc & RCANFD_RFCC_RFIE)) {
- 			if (napi_schedule_prep(&priv->napi)) {
- 				/* Disable Rx FIFO interrupts */
- 				rcar_canfd_clear_bit(priv->base,
++bool vivid_validate_fb(const struct v4l2_framebuffer *a);
++
+ #endif
+diff --git a/drivers/media/platform/vivid/vivid-vid-cap.c b/drivers/media/platform/vivid/vivid-vid-cap.c
+index 2d030732feac..fe7b8591f113 100644
+--- a/drivers/media/platform/vivid/vivid-vid-cap.c
++++ b/drivers/media/platform/vivid/vivid-vid-cap.c
+@@ -1250,7 +1250,14 @@ int vivid_vid_cap_s_fbuf(struct file *file, void *fh,
+ 		return -EINVAL;
+ 	if (a->fmt.bytesperline < (a->fmt.width * fmt->bit_depth[0]) / 8)
+ 		return -EINVAL;
+-	if (a->fmt.height * a->fmt.bytesperline < a->fmt.sizeimage)
++	if (a->fmt.bytesperline > a->fmt.sizeimage / a->fmt.height)
++		return -EINVAL;
++
++	/*
++	 * Only support the framebuffer of one of the vivid instances.
++	 * Anything else is rejected.
++	 */
++	if (!vivid_validate_fb(a))
+ 		return -EINVAL;
+ 
+ 	dev->fb_vbase_cap = phys_to_virt((unsigned long)a->base);
+-- 
+2.35.1
+
 
 
