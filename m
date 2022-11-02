@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3209A615A37
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:27:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 569AB6159E0
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:20:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230478AbiKBD1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:27:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45886 "EHLO
+        id S230056AbiKBDUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:20:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230480AbiKBD1M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:27:12 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DDA225EA5
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:27:10 -0700 (PDT)
+        with ESMTP id S230221AbiKBDT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:19:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1836A1B9FA
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:19:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E1B16CE1F1A
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:27:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BC49C433C1;
-        Wed,  2 Nov 2022 03:27:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BEB79B82062
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:19:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A79DDC433D6;
+        Wed,  2 Nov 2022 03:19:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359627;
-        bh=DNtgqV1ztDx28Kqrz1ZQ3x82sAqEXj1o5nWLt3UAah4=;
+        s=korg; t=1667359190;
+        bh=SR6wxlow1kMyqFdPSkHrArKVqnvetOh1gYLFtcs5nrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wKBOwUaBp4koK6rVbgAYaAlVhqEDQHSn96SXYZNxZBFE3su/DeUMOVqUArfuk5Nox
-         q96MBK9/R3l9rjcYQZKSU8XTY77TiS9zfIa4aHXAVw3CuDxDtx9JvGoFFxnV+vs1O1
-         6AeqbffrOB6pY8TyInEgdJ/RV+aVpfH0bEQ1PMso=
+        b=0PBHY07McGYG0zm2Rv+r1sIHV1zfvEoiLY2pFHUle4vJIOJnWCKNydRTmmdq3rbgT
+         sgRUuf2Xz+mbfWMYELNUWUYB+YRb88kpIRJh0WGgymhJy0D0PL13Ez2fGqM4eSG+64
+         Iemk5xetWvslJmix8nuHdh4KxShb3oUxpLDC87Q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 47/64] media: vivid: s_fbuf: add more sanity checks
+        patches@lists.linux.dev, Lino Sanfilippo <LinoSanfilippo@gmx.de>,
+        Daisuke Mizobuchi <mizo@atmark-techno.com>,
+        Dominique Martinet <dominique.martinet@atmark-techno.com>
+Subject: [PATCH 5.10 90/91] serial: core: move RS485 configuration tasks from drivers into core
 Date:   Wed,  2 Nov 2022 03:34:13 +0100
-Message-Id: <20221102022053.331950441@linuxfoundation.org>
+Message-Id: <20221102022057.605226414@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
-References: <20221102022051.821538553@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,90 +53,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
 
-[ Upstream commit f8bcaf714abfc94818dff8c0db84d750433984f4 ]
+commit 0ed12afa5655512ee418047fb3546d229df20aa1 upstream.
 
-VIDIOC_S_FBUF is by definition a scary ioctl, which is why only root
-can use it. But at least check if the framebuffer parameters match that
-of one of the framebuffer created by vivid, and reject anything else.
+Several drivers that support setting the RS485 configuration via userspace
+implement one or more of the following tasks:
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: ef834f7836ec ([media] vivid: add the video capture and output parts)
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+- in case of an invalid RTS configuration (both RTS after send and RTS on
+  send set or both unset) fall back to enable RTS on send and disable RTS
+  after send
+
+- nullify the padding field of the returned serial_rs485 struct
+
+- copy the configuration into the uart port struct
+
+- limit RTS delays to 100 ms
+
+Move these tasks into the serial core to make them generic and to provide
+a consistent behaviour among all drivers.
+
+Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Link: https://lore.kernel.org/r/20220410104642.32195-2-LinoSanfilippo@gmx.de
+Signed-off-by: Daisuke Mizobuchi <mizo@atmark-techno.com>
+Signed-off-by: Dominique Martinet <dominique.martinet@atmark-techno.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/vivid/vivid-core.c    | 22 ++++++++++++++++++++
- drivers/media/platform/vivid/vivid-core.h    |  2 ++
- drivers/media/platform/vivid/vivid-vid-cap.c |  9 +++++++-
- 3 files changed, 32 insertions(+), 1 deletion(-)
+ drivers/tty/serial/serial_core.c |   33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-diff --git a/drivers/media/platform/vivid/vivid-core.c b/drivers/media/platform/vivid/vivid-core.c
-index cc71aa425597..f6dc2b69b62e 100644
---- a/drivers/media/platform/vivid/vivid-core.c
-+++ b/drivers/media/platform/vivid/vivid-core.c
-@@ -297,6 +297,28 @@ static int vidioc_g_fbuf(struct file *file, void *fh, struct v4l2_framebuffer *a
- 	return vivid_vid_out_g_fbuf(file, fh, a);
- }
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -42,6 +42,11 @@ static struct lock_class_key port_lock_k
+ 
+ #define HIGH_BITS_OFFSET	((sizeof(long)-sizeof(int))*8)
  
 +/*
-+ * Only support the framebuffer of one of the vivid instances.
-+ * Anything else is rejected.
++ * Max time with active RTS before/after data is sent.
 + */
-+bool vivid_validate_fb(const struct v4l2_framebuffer *a)
-+{
-+	struct vivid_dev *dev;
-+	int i;
++#define RS485_MAX_RTS_DELAY	100 /* msecs */
 +
-+	for (i = 0; i < n_devs; i++) {
-+		dev = vivid_devs[i];
-+		if (!dev || !dev->video_pbase)
-+			continue;
-+		if ((unsigned long)a->base == dev->video_pbase &&
-+		    a->fmt.width <= dev->display_width &&
-+		    a->fmt.height <= dev->display_height &&
-+		    a->fmt.bytesperline <= dev->display_byte_stride)
-+			return true;
+ static void uart_change_speed(struct tty_struct *tty, struct uart_state *state,
+ 					struct ktermios *old_termios);
+ static void uart_wait_until_sent(struct tty_struct *tty, int timeout);
+@@ -1326,8 +1331,36 @@ static int uart_set_rs485_config(struct
+ 	if (copy_from_user(&rs485, rs485_user, sizeof(*rs485_user)))
+ 		return -EFAULT;
+ 
++	/* pick sane settings if the user hasn't */
++	if (!(rs485.flags & SER_RS485_RTS_ON_SEND) ==
++	    !(rs485.flags & SER_RS485_RTS_AFTER_SEND)) {
++		dev_warn_ratelimited(port->dev,
++			"%s (%d): invalid RTS setting, using RTS_ON_SEND instead\n",
++			port->name, port->line);
++		rs485.flags |= SER_RS485_RTS_ON_SEND;
++		rs485.flags &= ~SER_RS485_RTS_AFTER_SEND;
 +	}
-+	return false;
-+}
 +
- static int vidioc_s_fbuf(struct file *file, void *fh, const struct v4l2_framebuffer *a)
- {
- 	struct video_device *vdev = video_devdata(file);
-diff --git a/drivers/media/platform/vivid/vivid-core.h b/drivers/media/platform/vivid/vivid-core.h
-index 7ebb14673c75..0ab4051327d6 100644
---- a/drivers/media/platform/vivid/vivid-core.h
-+++ b/drivers/media/platform/vivid/vivid-core.h
-@@ -564,4 +564,6 @@ static inline bool vivid_is_hdmi_out(const struct vivid_dev *dev)
- 	return dev->output_type[dev->output] == HDMI;
- }
- 
-+bool vivid_validate_fb(const struct v4l2_framebuffer *a);
++	if (rs485.delay_rts_before_send > RS485_MAX_RTS_DELAY) {
++		rs485.delay_rts_before_send = RS485_MAX_RTS_DELAY;
++		dev_warn_ratelimited(port->dev,
++			"%s (%d): RTS delay before sending clamped to %u ms\n",
++			port->name, port->line, rs485.delay_rts_before_send);
++	}
 +
- #endif
-diff --git a/drivers/media/platform/vivid/vivid-vid-cap.c b/drivers/media/platform/vivid/vivid-vid-cap.c
-index 2d030732feac..fe7b8591f113 100644
---- a/drivers/media/platform/vivid/vivid-vid-cap.c
-+++ b/drivers/media/platform/vivid/vivid-vid-cap.c
-@@ -1250,7 +1250,14 @@ int vivid_vid_cap_s_fbuf(struct file *file, void *fh,
- 		return -EINVAL;
- 	if (a->fmt.bytesperline < (a->fmt.width * fmt->bit_depth[0]) / 8)
- 		return -EINVAL;
--	if (a->fmt.height * a->fmt.bytesperline < a->fmt.sizeimage)
-+	if (a->fmt.bytesperline > a->fmt.sizeimage / a->fmt.height)
-+		return -EINVAL;
++	if (rs485.delay_rts_after_send > RS485_MAX_RTS_DELAY) {
++		rs485.delay_rts_after_send = RS485_MAX_RTS_DELAY;
++		dev_warn_ratelimited(port->dev,
++			"%s (%d): RTS delay after sending clamped to %u ms\n",
++			port->name, port->line, rs485.delay_rts_after_send);
++	}
++	/* Return clean padding area to userspace */
++	memset(rs485.padding, 0, sizeof(rs485.padding));
 +
-+	/*
-+	 * Only support the framebuffer of one of the vivid instances.
-+	 * Anything else is rejected.
-+	 */
-+	if (!vivid_validate_fb(a))
- 		return -EINVAL;
- 
- 	dev->fb_vbase_cap = phys_to_virt((unsigned long)a->base);
--- 
-2.35.1
-
+ 	spin_lock_irqsave(&port->lock, flags);
+ 	ret = port->rs485_config(port, &rs485);
++	if (!ret)
++		port->rs485 = rs485;
+ 	spin_unlock_irqrestore(&port->lock, flags);
+ 	if (ret)
+ 		return ret;
 
 
