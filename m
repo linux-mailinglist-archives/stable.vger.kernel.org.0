@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66D826157F2
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D432D6157F4
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:42:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230294AbiKBCmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:42:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60250 "EHLO
+        id S230304AbiKBCmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:42:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230295AbiKBCmB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:42:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B96E20BCA
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:42:00 -0700 (PDT)
+        with ESMTP id S230308AbiKBCmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:42:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25226209BA
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:42:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3439B82070
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:41:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9143FC433D6;
-        Wed,  2 Nov 2022 02:41:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B447C617AD
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59A97C433D6;
+        Wed,  2 Nov 2022 02:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356917;
-        bh=VIYmTO7129Ehej4QcrX4tOHl3tE5Rp101pMff4isPTo=;
+        s=korg; t=1667356923;
+        bh=sxKMD5EUoNDvq9r/9csw9mekqWcWIfegZEhsz1W7AH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDBgv95ThZmTHQg3N1jzQ5A7bWJB7HjLXLvCc+0cFE64b6adRTaHza9VZnf8sTOWa
-         zHOda16QnrPRSEHSpwUTnzq1fi879zuQ7EG//lJY/vs0eixn8QE32wHFnksZZHt5sS
-         FV3Ix9TmiPL5weW5DhBlF2OceM8ATbcWQO1pCpOo=
+        b=1iz5M9X0SeWbddJIPmPVEWsYPt81hGsXjM9iuIOJbRfsXitT8i5nsqlyq0ZAgzZno
+         /9NP6oQFx/3a1WDTrAHkYfODT4aT5K+SNhcu+dm1/sBBkBTanApcCzZK0hVcT9Ozqi
+         ssj6TvVU/JAPp0U+qKdZk5A3YOJ/5dgmOj/O+m8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthew Ma <mahongwei@zeku.com>,
-        Weizhao Ouyang <ouyangweizhao@zeku.com>,
-        John Wang <wangdayu@zeku.com>,
+        patches@lists.linux.dev, Jon Hunter <jonathanh@nvidia.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Avri Altman <avri.altman@wdc.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.0 081/240] mmc: core: Fix kernel panic when remove non-standard SDIO card
-Date:   Wed,  2 Nov 2022 03:30:56 +0100
-Message-Id: <20221102022113.233353245@linuxfoundation.org>
+Subject: [PATCH 6.0 082/240] mmc: core: Fix WRITE_ZEROES CQE handling
+Date:   Wed,  2 Nov 2022 03:30:57 +0100
+Message-Id: <20221102022113.255363068@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -54,39 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Ma <mahongwei@zeku.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-commit 9972e6b404884adae9eec7463e30d9b3c9a70b18 upstream.
+commit 028822b714bd3a159d65416c53f1549345b53d9e upstream.
 
-SDIO tuple is only allocated for standard SDIO card, especially it causes
-memory corruption issues when the non-standard SDIO card has removed, which
-is because the card device's reference counter does not increase for it at
-sdio_init_func(), but all SDIO card device reference counter gets decreased
-at sdio_release_func().
+WRITE_ZEROES requests use TRIM, so mark them as needing to be issued
+synchronously even when a CQE is being used.  Without this,
+mmc_blk_mq_issue_rq() triggers a WARN_ON_ONCE() and fails the request
+since we don't have any handling for issuing this asynchronously.
 
-Fixes: 6f51be3d37df ("sdio: allow non-standard SDIO cards")
-Signed-off-by: Matthew Ma <mahongwei@zeku.com>
-Reviewed-by: Weizhao Ouyang <ouyangweizhao@zeku.com>
-Reviewed-by: John Wang <wangdayu@zeku.com>
+Fixes: f7b6fc327327 ("mmc: core: Support zeroout using TRIM for eMMC")
+Reported-by: Jon Hunter <jonathanh@nvidia.com>
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221014034951.2300386-1-ouyangweizhao@zeku.com
+Link: https://lore.kernel.org/r/20221020130123.4033218-1-vincent.whitchurch@axis.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/sdio_bus.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/core/queue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mmc/core/sdio_bus.c
-+++ b/drivers/mmc/core/sdio_bus.c
-@@ -291,7 +291,8 @@ static void sdio_release_func(struct dev
- {
- 	struct sdio_func *func = dev_to_sdio_func(dev);
- 
--	sdio_free_func_cis(func);
-+	if (!(func->card->quirks & MMC_QUIRK_NONSTD_SDIO))
-+		sdio_free_func_cis(func);
- 
- 	kfree(func->info);
- 	kfree(func->tmpbuf);
+diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
+index 86be55d7cf55..b396e3900717 100644
+--- a/drivers/mmc/core/queue.c
++++ b/drivers/mmc/core/queue.c
+@@ -48,6 +48,7 @@ static enum mmc_issue_type mmc_cqe_issue_type(struct mmc_host *host,
+ 	case REQ_OP_DRV_OUT:
+ 	case REQ_OP_DISCARD:
+ 	case REQ_OP_SECURE_ERASE:
++	case REQ_OP_WRITE_ZEROES:
+ 		return MMC_ISSUE_SYNC;
+ 	case REQ_OP_FLUSH:
+ 		return mmc_cqe_can_dcmd(host) ? MMC_ISSUE_DCMD : MMC_ISSUE_SYNC;
+-- 
+2.38.1
+
 
 
