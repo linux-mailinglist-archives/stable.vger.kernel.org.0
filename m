@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 638B761595F
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:10:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2785F615A44
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:28:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230056AbiKBDJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:09:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56612 "EHLO
+        id S231179AbiKBD2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:28:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230281AbiKBDJg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:09:36 -0400
+        with ESMTP id S231158AbiKBD17 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:27:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8663167E1
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:09:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BCA32611C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:27:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B226B82062
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:09:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FB46C433C1;
-        Wed,  2 Nov 2022 03:09:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19918B82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:27:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C9DFC433D6;
+        Wed,  2 Nov 2022 03:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358573;
-        bh=N6pjIRAHpOp7CkqwnuOZtJ4ze5BKwfga0c+OtAQxIno=;
+        s=korg; t=1667359673;
+        bh=8xDF6Uh/nippatPtjRyZiZM/3X6G5wz2vgqAZa0JQIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FdGNp+xZJFaoJinxfCR+HDTjqv+2iUgxc2q1nI37usejT63fPEUrro4bVcl8WJfoW
-         Yz8fRKhVyaVgMZVSmVk92HhS9w0dynm/hb6y/M79z0NXDE080MqxiqbQhyV9tznfib
-         SPCHDxDLwLHd7lqbNWK8cCpODHCUoUVssDa2ARGQ=
+        b=z3Yw7ruwH9R0N8HXrlHppBwU0WBFzGL1ejePQUfxHWSpQ5wwoni9dkqxqu8vufOET
+         Izxqz9Ela9AN1z7L8he7ev5wL7Ltr+FOOYtX/3Pq9eL6+cNj+HxOwD3mrOW1CgWKro
+         fSYbQiV2Os4VWK/NktQFzfqEuBqPvsLsmoFmdaHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roy Novich <royno@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>, Aya Levin <ayal@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 121/132] net/mlx5: Update fw fatal reporter state on PCI handlers successful recover
+        patches@lists.linux.dev, Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Yan Wang <wangyan122@huawei.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.19 02/78] ocfs2: fix BUG when iput after ocfs2_mknod fails
 Date:   Wed,  2 Nov 2022 03:33:47 +0100
-Message-Id: <20221102022102.851598814@linuxfoundation.org>
+Message-Id: <20221102022052.973087232@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +58,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roy Novich <royno@nvidia.com>
+From: Joseph Qi <joseph.qi@linux.alibaba.com>
 
-[ Upstream commit 416ef713631937cf5452476a7f1041a3ae7b06c6 ]
+commit 759a7c6126eef5635506453e9b9d55a6a3ac2084 upstream.
 
-Update devlink health fw fatal reporter state to "healthy" is needed by
-strictly calling devlink_health_reporter_state_update() after recovery
-was done by PCI error handler. This is needed when fw_fatal reporter was
-triggered due to PCI error. Poll health is called and set reporter state
-to error. Health recovery failed (since EEH didn't re-enable the PCI).
-PCI handlers keep on recover flow and succeed later without devlink
-acknowledgment. Fix this by adding devlink state update at the end of
-the PCI handler recovery process.
+Commit b1529a41f777 "ocfs2: should reclaim the inode if
+'__ocfs2_mknod_locked' returns an error" tried to reclaim the claimed
+inode if __ocfs2_mknod_locked() fails later.  But this introduce a race,
+the freed bit may be reused immediately by another thread, which will
+update dinode, e.g.  i_generation.  Then iput this inode will lead to BUG:
+inode->i_generation != le32_to_cpu(fe->i_generation)
 
-Fixes: 6181e5cb752e ("devlink: add support for reporter recovery completion")
-Signed-off-by: Roy Novich <royno@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Aya Levin <ayal@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/20221026135153.154807-11-saeed@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We could make this inode as bad, but we did want to do operations like
+wipe in some cases.  Since the claimed inode bit can only affect that an
+dinode is missing and will return back after fsck, it seems not a big
+problem.  So just leave it as is by revert the reclaim logic.
+
+Link: https://lkml.kernel.org/r/20221017130227.234480-1-joseph.qi@linux.alibaba.com
+Fixes: b1529a41f777 ("ocfs2: should reclaim the inode if '__ocfs2_mknod_locked' returns an error")
+Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Reported-by: Yan Wang <wangyan122@huawei.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/ocfs2/namei.c |   11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index 1f0156efe255..d092261e96c3 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1682,6 +1682,10 @@ static void mlx5_pci_resume(struct pci_dev *pdev)
+--- a/fs/ocfs2/namei.c
++++ b/fs/ocfs2/namei.c
+@@ -644,18 +644,9 @@ static int ocfs2_mknod_locked(struct ocf
+ 		return status;
+ 	}
  
- 	err = mlx5_load_one(dev);
- 
-+	if (!err)
-+		devlink_health_reporter_state_update(dev->priv.health.fw_fatal_reporter,
-+						     DEVLINK_HEALTH_REPORTER_STATE_HEALTHY);
-+
- 	mlx5_pci_trace(dev, "Done, err = %d, device %s\n", err,
- 		       !err ? "recovered" : "Failed");
+-	status = __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
++	return __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
+ 				    parent_fe_bh, handle, inode_ac,
+ 				    fe_blkno, suballoc_loc, suballoc_bit);
+-	if (status < 0) {
+-		u64 bg_blkno = ocfs2_which_suballoc_group(fe_blkno, suballoc_bit);
+-		int tmp = ocfs2_free_suballoc_bits(handle, inode_ac->ac_inode,
+-				inode_ac->ac_bh, suballoc_bit, bg_blkno, 1);
+-		if (tmp)
+-			mlog_errno(tmp);
+-	}
+-
+-	return status;
  }
--- 
-2.35.1
-
+ 
+ static int ocfs2_mkdir(struct inode *dir,
 
 
