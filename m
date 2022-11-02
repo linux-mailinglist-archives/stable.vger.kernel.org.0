@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7768161593F
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FED361599C
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:15:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230165AbiKBDHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:07:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56054 "EHLO
+        id S230387AbiKBDP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:15:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230176AbiKBDGo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:06:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50C532408A
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:06:44 -0700 (PDT)
+        with ESMTP id S230446AbiKBDPB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:15:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5EC624F36
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:14:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C90FB616DB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:06:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D739C433C1;
-        Wed,  2 Nov 2022 03:06:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E626B82055
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:14:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CDCAC433C1;
+        Wed,  2 Nov 2022 03:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358403;
-        bh=PQBL8nkxy7cSnSsNYzmZgEjNWbTjfbRbwftVcdyW3gg=;
+        s=korg; t=1667358854;
+        bh=UU7OOtBB8RWMDrzU9n8YlLXCb8UKEGPIgdIJkTP0e+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TPp6YwOWTU/9AznFOxKqY3P6sNtUdD6m7HEuIhtTmaPHFxOIpWRQ0ofzV2yY0UBEu
-         MRkWPOV2UKyW1fNvaWxf3UAjic/Zj8LODNVe4s4U2GoOx6A9E6TWOGCl/NCO/kErpK
-         7eHf+Jxnq6uhSsRFkPp+d6GPygmGxroikUwpW54Q=
+        b=DBauYqeT51GEBjGhpc7EUpVCJQROUWS+FVnobZact8fA7Km1RRp/qD6sTlFp/mPzT
+         70KjIJ76uNoBQSci6b1PZmxrKjahgM2xSudBTa1Pb9PiFLaGzE2L5Ga6Sgkb89XBHE
+         mNwZgUS1M3nJP0NUNmU5GNp5WQZmUSiklfFn075o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        kolAflash <kolAflash@kolahilft.de>
-Subject: [PATCH 5.15 092/132] PM: hibernate: Allow hybrid sleep to work with s2idle
+        patches@lists.linux.dev, Rik van Riel <riel@surriel.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Glen McCready <gkmccready@meta.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 35/91] mm,hugetlb: take hugetlb_lock before decrementing h->resv_huge_pages
 Date:   Wed,  2 Nov 2022 03:33:18 +0100
-Message-Id: <20221102022102.045951282@linuxfoundation.org>
+Message-Id: <20221102022056.035195654@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Rik van Riel <riel@surriel.com>
 
-[ Upstream commit 85850af4fc47132f3f2f0dd698b90f67906600b4 ]
+commit 12df140f0bdfae5dcfc81800970dd7f6f632e00c upstream.
 
-Hybrid sleep is currently hardcoded to only operate with S3 even
-on systems that might not support it.
+The h->*_huge_pages counters are protected by the hugetlb_lock, but
+alloc_huge_page has a corner case where it can decrement the counter
+outside of the lock.
 
-Instead of assuming this mode is what the user wants to use, for
-hybrid sleep follow the setting of `mem_sleep_current` which
-will respect mem_sleep_default kernel command line and policy
-decisions made by the presence of the FADT low power idle bit.
+This could lead to a corrupted value of h->resv_huge_pages, which we have
+observed on our systems.
 
-Fixes: 81d45bdf8913 ("PM / hibernate: Untangle power_down()")
-Reported-and-tested-by: kolAflash <kolAflash@kolahilft.de>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216574
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Take the hugetlb_lock before decrementing h->resv_huge_pages to avoid a
+potential race.
+
+Link: https://lkml.kernel.org/r/20221017202505.0e6a4fcd@imladris.surriel.com
+Fixes: a88c76954804 ("mm: hugetlb: fix hugepage memory leak caused by wrong reserve count")
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Glen McCready <gkmccready@meta.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/power/hibernate.c | 2 +-
+ mm/hugetlb.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
-index d926852f8119..9abc73d500fb 100644
---- a/kernel/power/hibernate.c
-+++ b/kernel/power/hibernate.c
-@@ -640,7 +640,7 @@ static void power_down(void)
- 	int error;
- 
- 	if (hibernation_mode == HIBERNATION_SUSPEND) {
--		error = suspend_devices_and_enter(PM_SUSPEND_MEM);
-+		error = suspend_devices_and_enter(mem_sleep_current);
- 		if (error) {
- 			hibernation_mode = hibernation_ops ?
- 						HIBERNATION_PLATFORM :
--- 
-2.35.1
-
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -2387,11 +2387,11 @@ struct page *alloc_huge_page(struct vm_a
+ 		page = alloc_buddy_huge_page_with_mpol(h, vma, addr);
+ 		if (!page)
+ 			goto out_uncharge_cgroup;
++		spin_lock(&hugetlb_lock);
+ 		if (!avoid_reserve && vma_has_reserves(vma, gbl_chg)) {
+ 			SetPagePrivate(page);
+ 			h->resv_huge_pages--;
+ 		}
+-		spin_lock(&hugetlb_lock);
+ 		list_add(&page->lru, &h->hugepage_activelist);
+ 		/* Fall through */
+ 	}
 
 
