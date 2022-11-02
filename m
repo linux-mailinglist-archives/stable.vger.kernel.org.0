@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A0B46159CA
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:18:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B78F615A40
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:27:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229968AbiKBDSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:18:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36758 "EHLO
+        id S231145AbiKBD1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:27:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbiKBDSO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:18:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97C7424943
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:18:13 -0700 (PDT)
+        with ESMTP id S230515AbiKBD1q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:27:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2B7525EBF
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:27:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 341106177E
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:18:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5003C433D7;
-        Wed,  2 Nov 2022 03:18:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54B0FB82072
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:27:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3860BC433D6;
+        Wed,  2 Nov 2022 03:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359092;
-        bh=tCQAPJM8Fr+fc1ZIDFj6vtXvCSkUoZKqH3iKCbAlKiU=;
+        s=korg; t=1667359662;
+        bh=yWjvjiQRi+6N1F9RucyPok34JUDZXBqiUoAckQcTlSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvKKW4dZIJT3g3KotnAVprmmREierzSYvQZl0i8N3iYDyBAWydFk60lWDUmcMKlpH
-         +A3sqo1bGBc11KOIsEgyJLsjy0wcxBqEeaa+FIg07+0NxE76KW4YbjqXyTU6r17J18
-         7dal3fG00wCxf88eTlJFGfQjQcitFzNfuGrnx/Z4=
+        b=e2N1ESgpoKPyUTpCwrupqcW3pMBHJnk8Ia6x9gEqcN5L05v3KsZ1TxHStZMLeAd7+
+         4JPgG9uc20gA+0LAEXVf4nx7bh1eWFowu8itoZhAw+9VU7GkI6Ih84PcJbEwRVHwvc
+         y019N2MQjNSHzAlG9C8asxXIL4+lNVt/v6e2Fm/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juergen Borleis <jbe@pengutronix.de>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Tony Luck <tony.luck@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 75/91] net: fec: limit register access on i.MX6UL
+Subject: [PATCH 4.19 13/78] ACPI: extlog: Handle multiple records
 Date:   Wed,  2 Nov 2022 03:33:58 +0100
-Message-Id: <20221102022057.177463393@linuxfoundation.org>
+Message-Id: <20221102022053.331037781@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,100 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Borleis <jbe@pengutronix.de>
+From: Tony Luck <tony.luck@intel.com>
 
-[ Upstream commit 0a8b43b12dd78daa77a7dc007b92770d262a2714 ]
+[ Upstream commit f6ec01da40e4139b41179f046044ee7c4f6370dc ]
 
-Using 'ethtool -d […]' on an i.MX6UL leads to a kernel crash:
+If there is no user space consumer of extlog_mem trace records, then
+Linux properly handles multiple error records in an ELOG block
 
-   Unhandled fault: external abort on non-linefetch (0x1008) at […]
+	extlog_print()
+	  print_extlog_rcd()
+	    __print_extlog_rcd()
+	      cper_estatus_print()
+		apei_estatus_for_each_section()
 
-due to this SoC has less registers in its FEC implementation compared to other
-i.MX6 variants. Thus, a run-time decision is required to avoid access to
-non-existing registers.
+But the other code path hard codes looking for a single record to
+output a trace record.
 
-Fixes: a51d3ab50702 ("net: fec: use a more proper compatible string for i.MX6UL type device")
-Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20221024080552.21004-1-jbe@pengutronix.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix by using the same apei_estatus_for_each_section() iterator
+to step over all records.
+
+Fixes: 2dfb7d51a61d ("trace, RAS: Add eMCA trace event interface")
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 46 ++++++++++++++++++++++-
- 1 file changed, 44 insertions(+), 2 deletions(-)
+ drivers/acpi/acpi_extlog.c | 33 ++++++++++++++++++++-------------
+ 1 file changed, 20 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index d8bdaf2e5365..e183caf38176 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -2251,6 +2251,31 @@ static u32 fec_enet_register_offset[] = {
- 	IEEE_R_DROP, IEEE_R_FRAME_OK, IEEE_R_CRC, IEEE_R_ALIGN, IEEE_R_MACERR,
- 	IEEE_R_FDXFC, IEEE_R_OCTETS_OK
- };
-+/* for i.MX6ul */
-+static u32 fec_enet_register_offset_6ul[] = {
-+	FEC_IEVENT, FEC_IMASK, FEC_R_DES_ACTIVE_0, FEC_X_DES_ACTIVE_0,
-+	FEC_ECNTRL, FEC_MII_DATA, FEC_MII_SPEED, FEC_MIB_CTRLSTAT, FEC_R_CNTRL,
-+	FEC_X_CNTRL, FEC_ADDR_LOW, FEC_ADDR_HIGH, FEC_OPD, FEC_TXIC0, FEC_RXIC0,
-+	FEC_HASH_TABLE_HIGH, FEC_HASH_TABLE_LOW, FEC_GRP_HASH_TABLE_HIGH,
-+	FEC_GRP_HASH_TABLE_LOW, FEC_X_WMRK, FEC_R_DES_START_0,
-+	FEC_X_DES_START_0, FEC_R_BUFF_SIZE_0, FEC_R_FIFO_RSFL, FEC_R_FIFO_RSEM,
-+	FEC_R_FIFO_RAEM, FEC_R_FIFO_RAFL, FEC_RACC,
-+	RMON_T_DROP, RMON_T_PACKETS, RMON_T_BC_PKT, RMON_T_MC_PKT,
-+	RMON_T_CRC_ALIGN, RMON_T_UNDERSIZE, RMON_T_OVERSIZE, RMON_T_FRAG,
-+	RMON_T_JAB, RMON_T_COL, RMON_T_P64, RMON_T_P65TO127, RMON_T_P128TO255,
-+	RMON_T_P256TO511, RMON_T_P512TO1023, RMON_T_P1024TO2047,
-+	RMON_T_P_GTE2048, RMON_T_OCTETS,
-+	IEEE_T_DROP, IEEE_T_FRAME_OK, IEEE_T_1COL, IEEE_T_MCOL, IEEE_T_DEF,
-+	IEEE_T_LCOL, IEEE_T_EXCOL, IEEE_T_MACERR, IEEE_T_CSERR, IEEE_T_SQE,
-+	IEEE_T_FDXFC, IEEE_T_OCTETS_OK,
-+	RMON_R_PACKETS, RMON_R_BC_PKT, RMON_R_MC_PKT, RMON_R_CRC_ALIGN,
-+	RMON_R_UNDERSIZE, RMON_R_OVERSIZE, RMON_R_FRAG, RMON_R_JAB,
-+	RMON_R_RESVD_O, RMON_R_P64, RMON_R_P65TO127, RMON_R_P128TO255,
-+	RMON_R_P256TO511, RMON_R_P512TO1023, RMON_R_P1024TO2047,
-+	RMON_R_P_GTE2048, RMON_R_OCTETS,
-+	IEEE_R_DROP, IEEE_R_FRAME_OK, IEEE_R_CRC, IEEE_R_ALIGN, IEEE_R_MACERR,
-+	IEEE_R_FDXFC, IEEE_R_OCTETS_OK
-+};
- #else
- static __u32 fec_enet_register_version = 1;
- static u32 fec_enet_register_offset[] = {
-@@ -2275,7 +2300,24 @@ static void fec_enet_get_regs(struct net_device *ndev,
- 	u32 *buf = (u32 *)regbuf;
- 	u32 i, off;
- 	int ret;
-+#if defined(CONFIG_M523x) || defined(CONFIG_M527x) || defined(CONFIG_M528x) || \
-+	defined(CONFIG_M520x) || defined(CONFIG_M532x) || defined(CONFIG_ARM) || \
-+	defined(CONFIG_ARM64) || defined(CONFIG_COMPILE_TEST)
-+	u32 *reg_list;
-+	u32 reg_cnt;
+diff --git a/drivers/acpi/acpi_extlog.c b/drivers/acpi/acpi_extlog.c
+index 943b1dc2d0b3..e05309bc41cc 100644
+--- a/drivers/acpi/acpi_extlog.c
++++ b/drivers/acpi/acpi_extlog.c
+@@ -13,6 +13,7 @@
+ #include <linux/ratelimit.h>
+ #include <linux/edac.h>
+ #include <linux/ras.h>
++#include <acpi/ghes.h>
+ #include <asm/cpu.h>
+ #include <asm/mce.h>
  
-+	if (!of_machine_is_compatible("fsl,imx6ul")) {
-+		reg_list = fec_enet_register_offset;
-+		reg_cnt = ARRAY_SIZE(fec_enet_register_offset);
-+	} else {
-+		reg_list = fec_enet_register_offset_6ul;
-+		reg_cnt = ARRAY_SIZE(fec_enet_register_offset_6ul);
-+	}
-+#else
-+	/* coldfire */
-+	static u32 *reg_list = fec_enet_register_offset;
-+	static const u32 reg_cnt = ARRAY_SIZE(fec_enet_register_offset);
-+#endif
- 	ret = pm_runtime_resume_and_get(dev);
- 	if (ret < 0)
- 		return;
-@@ -2284,8 +2326,8 @@ static void fec_enet_get_regs(struct net_device *ndev,
+@@ -141,8 +142,8 @@ static int extlog_print(struct notifier_block *nb, unsigned long val,
+ 	int	cpu = mce->extcpu;
+ 	struct acpi_hest_generic_status *estatus, *tmp;
+ 	struct acpi_hest_generic_data *gdata;
+-	const guid_t *fru_id = &guid_null;
+-	char *fru_text = "";
++	const guid_t *fru_id;
++	char *fru_text;
+ 	guid_t *sec_type;
+ 	static u32 err_seq;
  
- 	memset(buf, 0, regs->len);
+@@ -163,17 +164,23 @@ static int extlog_print(struct notifier_block *nb, unsigned long val,
  
--	for (i = 0; i < ARRAY_SIZE(fec_enet_register_offset); i++) {
--		off = fec_enet_register_offset[i];
-+	for (i = 0; i < reg_cnt; i++) {
-+		off = reg_list[i];
+ 	/* log event via trace */
+ 	err_seq++;
+-	gdata = (struct acpi_hest_generic_data *)(tmp + 1);
+-	if (gdata->validation_bits & CPER_SEC_VALID_FRU_ID)
+-		fru_id = (guid_t *)gdata->fru_id;
+-	if (gdata->validation_bits & CPER_SEC_VALID_FRU_TEXT)
+-		fru_text = gdata->fru_text;
+-	sec_type = (guid_t *)gdata->section_type;
+-	if (guid_equal(sec_type, &CPER_SEC_PLATFORM_MEM)) {
+-		struct cper_sec_mem_err *mem = (void *)(gdata + 1);
+-		if (gdata->error_data_length >= sizeof(*mem))
+-			trace_extlog_mem_event(mem, err_seq, fru_id, fru_text,
+-					       (u8)gdata->error_severity);
++	apei_estatus_for_each_section(tmp, gdata) {
++		if (gdata->validation_bits & CPER_SEC_VALID_FRU_ID)
++			fru_id = (guid_t *)gdata->fru_id;
++		else
++			fru_id = &guid_null;
++		if (gdata->validation_bits & CPER_SEC_VALID_FRU_TEXT)
++			fru_text = gdata->fru_text;
++		else
++			fru_text = "";
++		sec_type = (guid_t *)gdata->section_type;
++		if (guid_equal(sec_type, &CPER_SEC_PLATFORM_MEM)) {
++			struct cper_sec_mem_err *mem = (void *)(gdata + 1);
++
++			if (gdata->error_data_length >= sizeof(*mem))
++				trace_extlog_mem_event(mem, err_seq, fru_id, fru_text,
++						       (u8)gdata->error_severity);
++		}
+ 	}
  
- 		if ((off == FEC_R_BOUND || off == FEC_R_FSTART) &&
- 		    !(fep->quirks & FEC_QUIRK_HAS_FRREG))
+ out:
 -- 
 2.35.1
 
