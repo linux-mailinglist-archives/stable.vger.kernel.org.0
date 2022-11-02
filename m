@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7F4A6157FC
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:42:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82F786157FD
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:42:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230306AbiKBCmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:42:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60984 "EHLO
+        id S230313AbiKBCm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:42:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230313AbiKBCmv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:42:51 -0400
+        with ESMTP id S230307AbiKBCm5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:42:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C180820BEA
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:42:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F56620BEA
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:42:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 615C8617A9
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:42:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF34C433B5;
-        Wed,  2 Nov 2022 02:42:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FEA1617AD
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:42:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9293C433C1;
+        Wed,  2 Nov 2022 02:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356969;
-        bh=U2T86J8ZZ4B0gpMm7P4fsgsUkAS5ufR7pARU+HDSYxY=;
+        s=korg; t=1667356975;
+        bh=bJYMRcVIEi1FpU1D+tJm6qSZsCPP7yT7x1c4wKmEBTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BPvlC2j7IayAKd8j5ANZMS6odzv40yXJ6yF3/fgzf+/jX8pz1FOUZxYX8V6jCfTEA
-         vP+qE/yeo9AEGMnCdrEOPwgwxFW/jkF3KyiuMUS6LQLK4rALBa/D7sB+T9ANIfIWgo
-         IdXcRI0ErZdLldoTh/qYTyTMwVpLh681fdK5sAVM=
+        b=f1yBzYE7vPVbpdnAjaG5oeo6IsRlAVGSbcG2L3icKw4xShsD7mv3r0DpZis/VZhGZ
+         2hOqH2GF1sX6toLr/iv/2bXywLKTbd4yNBr6kgxzNpzVV5qvFM5HSGXLSIK4HZCLzt
+         bvtdI70O7VTKz8RmNRbNS+tmZ7LIFELeau4kCRFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Joaqu=C3=ADn=20Ignacio=20Aramend=C3=ADa?= 
-        <samsagax@gmail.com>, Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        patches@lists.linux.dev, Prike Liang <Prike.Liang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 064/240] drm/amd/display: Revert logic for plane modifiers
-Date:   Wed,  2 Nov 2022 03:30:39 +0100
-Message-Id: <20221102022112.849768860@linuxfoundation.org>
+Subject: [PATCH 6.0 065/240] drm/amdkfd: update gfx1037 Lx cache setting
+Date:   Wed,  2 Nov 2022 03:30:40 +0100
+Message-Id: <20221102022112.872580320@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -54,106 +52,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joaquín Ignacio Aramendía <samsagax@gmail.com>
+From: Prike Liang <Prike.Liang@amd.com>
 
-commit 809734c110548dca410fb0cca52e6b1540319f5e upstream.
+commit 9656db1b933caf6ffaaef10322093fe018359090 upstream.
 
-This file was split in commit 5d945cbcd4b16a29d6470a80dfb19738f9a4319f
-("drm/amd/display: Create a file dedicated to planes") and the logic in
-dm_plane_format_mod_supported() function got changed by a switch logic.
-That change broke drm_plane modifiers setting on series 5000 APUs
-(tested on OXP mini AMD 5800U and HP Dev One 5850U PRO)
-leading to Gamescope not working as reported on GitHub[1]
+Update the gfx1037 L1/L2 cache setting.
 
-To reproduce the issue, enter a TTY and run:
-
-$ gamescope -- vkcube
-
-With said commit applied it will abort. This one restores the old logic,
-fixing the issue that affects Gamescope.
-
-[1](https://github.com/Plagman/gamescope/issues/624)
-
-Cc: <stable@vger.kernel.org> # 6.0.x
-Signed-off-by: Joaquín Ignacio Aramendía <samsagax@gmail.com>
-Reviewed-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+Signed-off-by: Prike Liang <Prike.Liang@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../amd/display/amdgpu_dm/amdgpu_dm_plane.c   | 50 +++----------------
- 1 file changed, 7 insertions(+), 43 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_crat.c |   53 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 52 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_plane.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_plane.c
-index dfd3be49eac8..e6854f7270a6 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_plane.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_plane.c
-@@ -1369,7 +1369,7 @@ static bool dm_plane_format_mod_supported(struct drm_plane *plane,
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
+@@ -795,6 +795,54 @@ static struct kfd_gpu_cache_info yellow_
+ 	},
+ };
+ 
++static struct kfd_gpu_cache_info gfx1037_cache_info[] = {
++	{
++		/* TCP L1 Cache per CU */
++		.cache_size = 16,
++		.cache_level = 1,
++		.flags = (CRAT_CACHE_FLAGS_ENABLED |
++				CRAT_CACHE_FLAGS_DATA_CACHE |
++				CRAT_CACHE_FLAGS_SIMD_CACHE),
++		.num_cu_shared = 1,
++	},
++	{
++		/* Scalar L1 Instruction Cache per SQC */
++		.cache_size = 32,
++		.cache_level = 1,
++		.flags = (CRAT_CACHE_FLAGS_ENABLED |
++				CRAT_CACHE_FLAGS_INST_CACHE |
++				CRAT_CACHE_FLAGS_SIMD_CACHE),
++		.num_cu_shared = 2,
++	},
++	{
++		/* Scalar L1 Data Cache per SQC */
++		.cache_size = 16,
++		.cache_level = 1,
++		.flags = (CRAT_CACHE_FLAGS_ENABLED |
++				CRAT_CACHE_FLAGS_DATA_CACHE |
++				CRAT_CACHE_FLAGS_SIMD_CACHE),
++		.num_cu_shared = 2,
++	},
++	{
++		/* GL1 Data Cache per SA */
++		.cache_size = 128,
++		.cache_level = 1,
++		.flags = (CRAT_CACHE_FLAGS_ENABLED |
++				CRAT_CACHE_FLAGS_DATA_CACHE |
++				CRAT_CACHE_FLAGS_SIMD_CACHE),
++		.num_cu_shared = 2,
++	},
++	{
++		/* L2 Data Cache per GPU (Total Tex Cache) */
++		.cache_size = 256,
++		.cache_level = 2,
++		.flags = (CRAT_CACHE_FLAGS_ENABLED |
++				CRAT_CACHE_FLAGS_DATA_CACHE |
++				CRAT_CACHE_FLAGS_SIMD_CACHE),
++		.num_cu_shared = 2,
++	},
++};
++
+ static void kfd_populated_cu_info_cpu(struct kfd_topology_device *dev,
+ 		struct crat_subtype_computeunit *cu)
  {
- 	struct amdgpu_device *adev = drm_to_adev(plane->dev);
- 	const struct drm_format_info *info = drm_format_info(format);
--	struct hw_asic_id asic_id = adev->dm.dc->ctx->asic_id;
-+	int i;
- 
- 	enum dm_micro_swizzle microtile = modifier_gfx9_swizzle_mode(modifier) & 3;
- 
-@@ -1386,49 +1386,13 @@ static bool dm_plane_format_mod_supported(struct drm_plane *plane,
- 		return true;
- 	}
- 
--	/* check if swizzle mode is supported by this version of DCN */
--	switch (asic_id.chip_family) {
--	case FAMILY_SI:
--	case FAMILY_CI:
--	case FAMILY_KV:
--	case FAMILY_CZ:
--	case FAMILY_VI:
--		/* asics before AI does not have modifier support */
--		return false;
--	case FAMILY_AI:
--	case FAMILY_RV:
--	case FAMILY_NV:
--	case FAMILY_VGH:
--	case FAMILY_YELLOW_CARP:
--	case AMDGPU_FAMILY_GC_10_3_6:
--	case AMDGPU_FAMILY_GC_10_3_7:
--		switch (AMD_FMT_MOD_GET(TILE, modifier)) {
--		case AMD_FMT_MOD_TILE_GFX9_64K_R_X:
--		case AMD_FMT_MOD_TILE_GFX9_64K_D_X:
--		case AMD_FMT_MOD_TILE_GFX9_64K_S_X:
--		case AMD_FMT_MOD_TILE_GFX9_64K_D:
--			return true;
--		default:
--			return false;
--		}
--		break;
--	case AMDGPU_FAMILY_GC_11_0_0:
--	case AMDGPU_FAMILY_GC_11_0_1:
--		switch (AMD_FMT_MOD_GET(TILE, modifier)) {
--		case AMD_FMT_MOD_TILE_GFX11_256K_R_X:
--		case AMD_FMT_MOD_TILE_GFX9_64K_R_X:
--		case AMD_FMT_MOD_TILE_GFX9_64K_D_X:
--		case AMD_FMT_MOD_TILE_GFX9_64K_S_X:
--		case AMD_FMT_MOD_TILE_GFX9_64K_D:
--			return true;
--		default:
--			return false;
--		}
--		break;
--	default:
--		ASSERT(0); /* Unknown asic */
--		break;
-+	/* Check that the modifier is on the list of the plane's supported modifiers. */
-+	for (i = 0; i < plane->modifier_count; i++) {
-+		if (modifier == plane->modifiers[i])
+@@ -1515,10 +1563,13 @@ static int kfd_fill_gpu_cache_info(struc
+ 			break;
+ 		case IP_VERSION(10, 3, 3):
+ 		case IP_VERSION(10, 3, 6): /* TODO: Double check these on production silicon */
+-		case IP_VERSION(10, 3, 7): /* TODO: Double check these on production silicon */
+ 			pcache_info = yellow_carp_cache_info;
+ 			num_of_cache_types = ARRAY_SIZE(yellow_carp_cache_info);
+ 			break;
++		case IP_VERSION(10, 3, 7):
++			pcache_info = gfx1037_cache_info;
++			num_of_cache_types = ARRAY_SIZE(gfx1037_cache_info);
 +			break;
- 	}
-+	if (i == plane->modifier_count)
-+		return false;
- 
- 	/*
- 	 * For D swizzle the canonical modifier depends on the bpp, so check
--- 
-2.38.1
-
+ 		case IP_VERSION(11, 0, 0):
+ 		case IP_VERSION(11, 0, 1):
+ 		case IP_VERSION(11, 0, 2):
 
 
