@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AB55615A1E
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:25:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7DFE615A5D
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:29:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230402AbiKBDZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:25:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44710 "EHLO
+        id S231229AbiKBD34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:29:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230323AbiKBDZC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:25:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 606A024962
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:25:01 -0700 (PDT)
+        with ESMTP id S231249AbiKBD3a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:29:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B94C9644C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:29:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17A80B8205C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:25:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CADAC433D6;
-        Wed,  2 Nov 2022 03:24:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64540B82055
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:29:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A974C433B5;
+        Wed,  2 Nov 2022 03:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359498;
-        bh=SdT3todHNvgD1zKgt1D90KfGhK406q4k0OY43WF3OVo=;
+        s=korg; t=1667359767;
+        bh=9W6ezmOLbDz3LqOieQLvDR3IxuUFZE/rinyiVnz/dOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vyjZeV4hCg9eIByt+nR5IiV5tFQZkuD5gsPwgTbwgEQWnrOC/FFVgSrDQVLI4d9k2
-         5sWL901/7YKqa9IjAX+9Js+Ds/1nbNYcHAiiIwQhNPfeLSny7ROBvsTbLuNQtEjtPc
-         nYjVJDegTyO8ofPC4Ul4r2ZtA/qfcCI0/9Ap1jZE=
+        b=qNrN8eMSrHbo1zOutPwD2jwlrLPQN95181e+R8zjwn3g0DAUUTWid8rcS0xjvz5oA
+         PpxzrzZDZ/LNFZIXGR7ayW4GMHtJ43Mq2qNQvFbnGEghLp7/zhyWDZ5LeTwKB7MYP3
+         tHmlmdorzrWUu3z8Eso/kHuTr3ZM0EMRewvzu2n8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/64] media: videodev2.h: V4L2_DV_BT_BLANKING_HEIGHT should check interlaced
+        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Jeff Vanhoof <jdv1029@gmail.com>
+Subject: [PATCH 4.19 31/78] usb: dwc3: gadget: Dont set IMI for no_interrupt
 Date:   Wed,  2 Nov 2022 03:34:16 +0100
-Message-Id: <20221102022053.435538258@linuxfoundation.org>
+Message-Id: <20221102022053.907236681@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
-References: <20221102022051.821538553@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 8da7f0976b9071b528c545008de9d10cc81883b1 ]
+commit 308c316d16cbad99bb834767382baa693ac42169 upstream.
 
-If it is a progressive (non-interlaced) format, then ignore the
-interlaced timing values.
+The gadget driver may have a certain expectation of how the request
+completion flow should be from to its configuration. Make sure the
+controller driver respect that. That is, don't set IMI (Interrupt on
+Missed Isoc) when usb_request->no_interrupt is set. Also, the driver
+should only set IMI to the last TRB of a chain.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 7f68127fa11f ([media] videodev2.h: defines to calculate blanking and frame sizes)
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Reviewed-by: Jeff Vanhoof <jdv1029@gmail.com>
+Tested-by: Jeff Vanhoof <jdv1029@gmail.com>
+Link: https://lore.kernel.org/r/ced336c84434571340c07994e3667a0ee284fefe.1666735451.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/videodev2.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
-index 3210b3c82a4a..9c89429f3113 100644
---- a/include/uapi/linux/videodev2.h
-+++ b/include/uapi/linux/videodev2.h
-@@ -1496,7 +1496,8 @@ struct v4l2_bt_timings {
- 	((bt)->width + V4L2_DV_BT_BLANKING_WIDTH(bt))
- #define V4L2_DV_BT_BLANKING_HEIGHT(bt) \
- 	((bt)->vfrontporch + (bt)->vsync + (bt)->vbackporch + \
--	 (bt)->il_vfrontporch + (bt)->il_vsync + (bt)->il_vbackporch)
-+	 ((bt)->interlaced ? \
-+	  ((bt)->il_vfrontporch + (bt)->il_vsync + (bt)->il_vbackporch) : 0))
- #define V4L2_DV_BT_FRAME_HEIGHT(bt) \
- 	((bt)->height + V4L2_DV_BT_BLANKING_HEIGHT(bt))
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -981,8 +981,8 @@ static void __dwc3_prepare_one_trb(struc
+ 			trb->ctrl = DWC3_TRBCTL_ISOCHRONOUS;
+ 		}
  
--- 
-2.35.1
-
+-		/* always enable Interrupt on Missed ISOC */
+-		trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
++		if (!no_interrupt && !chain)
++			trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
+ 		break;
+ 
+ 	case USB_ENDPOINT_XFER_BULK:
 
 
