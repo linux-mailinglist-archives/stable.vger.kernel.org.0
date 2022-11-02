@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5A06615AF7
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:45:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77F0D615ACE
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:41:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229772AbiKBDpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:45:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33566 "EHLO
+        id S229880AbiKBDlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:41:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230137AbiKBDpC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:45:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58CDC63E4
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:45:01 -0700 (PDT)
+        with ESMTP id S230364AbiKBDl0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:41:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 228B326AE7
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:41:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14605B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:45:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0145EC433D6;
-        Wed,  2 Nov 2022 03:44:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF093617CB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:41:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59718C433D6;
+        Wed,  2 Nov 2022 03:41:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360698;
-        bh=aizyVLVC5Myyi06l7SOovTut+Our62V/J0xLLVLWFN0=;
+        s=korg; t=1667360484;
+        bh=ulI99lG6pLWyzxAqvw4lwZcYfWEfRcpWIjb3LWVaKwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rKQbXK3M5FdhbqwgEv9BW9deBMIRCoOoldjxSSg4D7H8S25sl2uUFOjwJfAIXz9EJ
-         IKelH0G76SOcKbfQfh9rAQT/pDkWnjVh9dTSgVyJZ5qCNyxRuHKFhMn63jBf+BK/FC
-         9eNk7ra6EcLyjxWZgdHF8zhAGKTNUXol+ACqIAXM=
+        b=c+kMQ2vLj7kRBFlE5o+iPOA02y5kr7I3uow7vPW5ZGWxw0j4bf4qjNMPVLBsXn0v3
+         ZzqfKtHrussNcxQfTOehtH4WtricqKI3OYE3/6xGdgeO3YIuypdUUYa6Hxk4Wh8cSz
+         3TYfd+W3Pzg4UmaCAE/8iOpFUiRVw6jSYpfbbTLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 4.9 21/44] s390/futex: add missing EX_TABLE entry to __futex_atomic_op()
+        patches@lists.linux.dev, Dongliang Mu <dzm91@hust.edu.cn>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 46/60] can: mscan: mpc5xxx: mpc5xxx_can_probe(): add missing put_clock() in error path
 Date:   Wed,  2 Nov 2022 03:35:07 +0100
-Message-Id: <20221102022049.798871614@linuxfoundation.org>
+Message-Id: <20221102022052.595978439@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
-References: <20221102022049.017479464@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Dongliang Mu <dzm91@hust.edu.cn>
 
-commit a262d3ad6a433e4080cecd0a8841104a5906355e upstream.
+[ Upstream commit 3e5b3418827cefb5e1cc658806f02965791b8f07 ]
 
-For some exception types the instruction address points behind the
-instruction that caused the exception. Take that into account and add
-the missing exception table entry.
+The commit 1149108e2fbf ("can: mscan: improve clock API use") only
+adds put_clock() in mpc5xxx_can_remove() function, forgetting to add
+put_clock() in the error handling code.
 
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this bug by adding put_clock() in the error handling code.
+
+Fixes: 1149108e2fbf ("can: mscan: improve clock API use")
+Signed-off-by: Dongliang Mu <dzm91@hust.edu.cn>
+Link: https://lore.kernel.org/all/20221024133828.35881-1-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/futex.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/can/mscan/mpc5xxx_can.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/arch/s390/include/asm/futex.h
-+++ b/arch/s390/include/asm/futex.h
-@@ -15,7 +15,8 @@
- 		"3: jl    1b\n"						\
- 		"   lhi   %0,0\n"					\
- 		"4: sacf  768\n"					\
--		EX_TABLE(0b,4b) EX_TABLE(2b,4b) EX_TABLE(3b,4b)		\
-+		EX_TABLE(0b,4b) EX_TABLE(1b,4b)				\
-+		EX_TABLE(2b,4b) EX_TABLE(3b,4b)				\
- 		: "=d" (ret), "=&d" (oldval), "=&d" (newval),		\
- 		  "=m" (*uaddr)						\
- 		: "0" (-EFAULT), "d" (oparg), "a" (uaddr),		\
+diff --git a/drivers/net/can/mscan/mpc5xxx_can.c b/drivers/net/can/mscan/mpc5xxx_can.c
+index 2949a381a94d..21993ba7ae2a 100644
+--- a/drivers/net/can/mscan/mpc5xxx_can.c
++++ b/drivers/net/can/mscan/mpc5xxx_can.c
+@@ -336,14 +336,14 @@ static int mpc5xxx_can_probe(struct platform_device *ofdev)
+ 					       &mscan_clksrc);
+ 	if (!priv->can.clock.freq) {
+ 		dev_err(&ofdev->dev, "couldn't get MSCAN clock properties\n");
+-		goto exit_free_mscan;
++		goto exit_put_clock;
+ 	}
+ 
+ 	err = register_mscandev(dev, mscan_clksrc);
+ 	if (err) {
+ 		dev_err(&ofdev->dev, "registering %s failed (err=%d)\n",
+ 			DRV_NAME, err);
+-		goto exit_free_mscan;
++		goto exit_put_clock;
+ 	}
+ 
+ 	dev_info(&ofdev->dev, "MSCAN at 0x%p, irq %d, clock %d Hz\n",
+@@ -351,7 +351,9 @@ static int mpc5xxx_can_probe(struct platform_device *ofdev)
+ 
+ 	return 0;
+ 
+-exit_free_mscan:
++exit_put_clock:
++	if (data->put_clock)
++		data->put_clock(ofdev);
+ 	free_candev(dev);
+ exit_dispose_irq:
+ 	irq_dispose_mapping(irq);
+-- 
+2.35.1
+
 
 
