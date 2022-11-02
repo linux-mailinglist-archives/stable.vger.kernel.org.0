@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12F426158F0
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:01:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E94D61585D
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:50:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231284AbiKBDBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:01:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50758 "EHLO
+        id S230420AbiKBCug (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:50:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231271AbiKBDBb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:01:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F13422BDD
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:01:26 -0700 (PDT)
+        with ESMTP id S230473AbiKBCue (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:50:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A2C321839
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:50:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D682B8206C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:01:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25F66C433C1;
-        Wed,  2 Nov 2022 03:01:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 07535617CA
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:50:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 976FFC433C1;
+        Wed,  2 Nov 2022 02:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358083;
-        bh=syo4KOhjJrsSf4qkVFJjChOD4MS5LUWT+ntRqqpVvCs=;
+        s=korg; t=1667357431;
+        bh=W1ZpoRNWEMTo3kqn1wDXRuxS8quDMamBop1Whnnbais=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z4HxdpcC4QHo00Mp1+vwIEWG7XzqkAQvdpsLn0yyFfwEukE0M+ozOc6ExGloyzY66
-         lrrpgt/Tr3SRh6EiI/O6qogS+OeNExbxYiTTwIK7lQmaJ/i3h749ulXZKpyXCgkFH6
-         egmpBViwP4NQVhHZSj716yeRXJ4wnXoFBl/Fcc8Y=
+        b=KMQPTu0b13705VH22M8Dvv0ayWfYSO1ZLJuS74pEZSeKf5hy1NmqPEnfQa7Q459wp
+         95xpSD9jIN/ifxuW5B6kAfJdqi9nUcSJYP1TuBiGrI2iPxHjowNKp1qKrlxm/IX1s/
+         Y6G8qnOBX5cBgIxbA/S/+ihvzCNxPmNC5vxbLxzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Patrick Thompson <ptf@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 038/132] mmc: sdhci-pci-core: Disable ES for ASUS BIOS on Jasper Lake
+        patches@lists.linux.dev, Sergiu Moga <sergiu.moga@microchip.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 169/240] net: macb: Specify PHY PM management done by MAC
 Date:   Wed,  2 Nov 2022 03:32:24 +0100
-Message-Id: <20221102022100.632662730@linuxfoundation.org>
+Message-Id: <20221102022115.207835463@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
+References: <20221102022111.398283374@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Thompson <ptf@google.com>
+From: Sergiu Moga <sergiu.moga@microchip.com>
 
-commit 9dc0033e4658d6f9d9952c3c0c6be3ec25bc2985 upstream.
+[ Upstream commit 15a9dbec631cd69dfbbfc4e2cbf90c9dd8432a8f ]
 
-Enhanced Strobe (ES) does not work correctly on the ASUS 1100 series of
-devices. Jasper Lake eMMCs (pci_id 8086:4dc4) are supposed to support
-ES. There are also two system families under the series, thus this is
-being scoped to the ASUS BIOS.
+The `macb_resume`/`macb_suspend` methods already call the
+`phylink_start`/`phylink_stop` methods during their execution so
+explicitly say that the PM of the PHY is done by MAC by using the
+`mac_managed_pm` flag of the `struct phylink_config`.
 
-The failing ES prevents the installer from writing to disk. Falling back
-to HS400 without ES fixes the issue.
+This also fixes the warning message issued during resume:
+WARNING: CPU: 0 PID: 237 at drivers/net/phy/phy_device.c:323 mdio_bus_phy_resume+0x144/0x148
 
-Signed-off-by: Patrick Thompson <ptf@google.com>
-Fixes: 315e3bd7ac19 ("mmc: sdhci-pci: Add support for Intel JSL")
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221013210017.3751025-1-ptf@google.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Depends-on: 96de900ae78e ("net: phylink: add mac_managed_pm in phylink_config structure")
+Fixes: 744d23c71af3 ("net: phy: Warn about incorrect mdio_bus_phy_resume() state")
+Signed-off-by: Sergiu Moga <sergiu.moga@microchip.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20221019120929.63098-1-sergiu.moga@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-pci-core.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/cadence/macb_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -978,6 +978,12 @@ static bool glk_broken_cqhci(struct sdhc
- 		dmi_match(DMI_SYS_VENDOR, "IRBIS"));
- }
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index a2897549f9c4..aa1b03f8bfe9 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -805,6 +805,7 @@ static int macb_mii_probe(struct net_device *dev)
  
-+static bool jsl_broken_hs400es(struct sdhci_pci_slot *slot)
-+{
-+	return slot->chip->pdev->device == PCI_DEVICE_ID_INTEL_JSL_EMMC &&
-+			dmi_match(DMI_BIOS_VENDOR, "ASUSTeK COMPUTER INC.");
-+}
-+
- static int glk_emmc_probe_slot(struct sdhci_pci_slot *slot)
- {
- 	int ret = byt_emmc_probe_slot(slot);
-@@ -986,9 +992,11 @@ static int glk_emmc_probe_slot(struct sd
- 		slot->host->mmc->caps2 |= MMC_CAP2_CQE;
+ 	bp->phylink_config.dev = &dev->dev;
+ 	bp->phylink_config.type = PHYLINK_NETDEV;
++	bp->phylink_config.mac_managed_pm = true;
  
- 	if (slot->chip->pdev->device != PCI_DEVICE_ID_INTEL_GLK_EMMC) {
--		slot->host->mmc->caps2 |= MMC_CAP2_HS400_ES;
--		slot->host->mmc_host_ops.hs400_enhanced_strobe =
--						intel_hs400_enhanced_strobe;
-+		if (!jsl_broken_hs400es(slot)) {
-+			slot->host->mmc->caps2 |= MMC_CAP2_HS400_ES;
-+			slot->host->mmc_host_ops.hs400_enhanced_strobe =
-+							intel_hs400_enhanced_strobe;
-+		}
- 		slot->host->mmc->caps2 |= MMC_CAP2_CQE_DCMD;
- 	}
- 
+ 	if (bp->phy_interface == PHY_INTERFACE_MODE_SGMII) {
+ 		bp->phylink_config.poll_fixed_state = true;
+-- 
+2.35.1
+
 
 
