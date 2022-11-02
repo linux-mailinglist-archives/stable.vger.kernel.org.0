@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19CAB6159CB
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:18:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97F5C6159CC
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:18:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229531AbiKBDSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:18:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37290 "EHLO
+        id S229533AbiKBDSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:18:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbiKBDSU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:18:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B29AC24BD4
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:18:19 -0700 (PDT)
+        with ESMTP id S229826AbiKBDSa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:18:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E5296455
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:18:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51D64617BC
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:18:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E43E1C433D6;
-        Wed,  2 Nov 2022 03:18:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DBFEB82076
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:18:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0C53C433D7;
+        Wed,  2 Nov 2022 03:18:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359098;
-        bh=lt4ODK7q561exU9L7glSBJMdspMOqRXaoq3qZoLUqps=;
+        s=korg; t=1667359104;
+        bh=y8wbJnZO5L3qevi0tnu7t30gZ1x9q2I8yM9+QTbLngk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YpZ4/Mnoztcb+4FEg0GYide7rMgDIZFQwIqE5HmiLwV67WNjULHAbAY0S4XTwHnRA
-         p/v94NmS70A19b517n+UJVp/xn72+hkYOEruw9buBMEvc5J7XqXQCRsvuMDjMYWqwK
-         BcKuvJAlxwynalg4eUfoD0Xty5jwMSU76cWt8FSk=
+        b=WMhMqzcZCuuurwNLtaD0LtkUsmzi+ZdZE6zH/+EdGqAjej7okZV7eeoFlJFfdxlA8
+         dfT54UOkUqg5drPG4IzgVbkzWhUDzx12/KejKE2JkM7rJqxCEFCY72vD9gQ3bdMk9v
+         OA0hgWKRwN2KCZycJIG1MutMY+rQmA/GpVpPWBKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 76/91] ALSA: aoa: i2sbus: fix possible memory leak in i2sbus_add_dev()
-Date:   Wed,  2 Nov 2022 03:33:59 +0100
-Message-Id: <20221102022057.206822635@linuxfoundation.org>
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 77/91] ALSA: aoa: Fix I2S device accounting
+Date:   Wed,  2 Nov 2022 03:34:00 +0100
+Message-Id: <20221102022057.238267026@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
 References: <20221102022055.039689234@linuxfoundation.org>
@@ -52,40 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 4a4c8482e370d697738a78dcd7bf2780832cb712 ]
+[ Upstream commit f1fae475f10a26b7e34da4ff2e2f19b7feb3548e ]
 
-dev_set_name() in soundbus_add_one() allocates memory for name, it need be
-freed when of_device_register() fails, call soundbus_dev_put() to give up
-the reference that hold in device_initialize(), so that it can be freed in
-kobject_cleanup() when the refcount hit to 0. And other resources are also
-freed in i2sbus_release_dev(), so it can return 0 directly.
+i2sbus_add_dev() is supposed to return the number of probed devices,
+i.e. either 1 or 0.  However, i2sbus_add_dev() has one error handling
+that returns -ENODEV; this will screw up the accumulation number
+counted in the caller, i2sbus_probe().
+
+Fix the return value to 0 and add the comment for better understanding
+for readers.
 
 Fixes: f3d9478b2ce4 ("[ALSA] snd-aoa: add snd-aoa")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221027013438.991920-1-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20221027065233.13292-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/aoa/soundbus/i2sbus/core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/aoa/soundbus/i2sbus/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/sound/aoa/soundbus/i2sbus/core.c b/sound/aoa/soundbus/i2sbus/core.c
-index faf6b03131ee..f6841daf9e3b 100644
+index f6841daf9e3b..51ed2f34b276 100644
 --- a/sound/aoa/soundbus/i2sbus/core.c
 +++ b/sound/aoa/soundbus/i2sbus/core.c
-@@ -302,6 +302,10 @@ static int i2sbus_add_dev(struct macio_dev *macio,
+@@ -147,6 +147,7 @@ static int i2sbus_get_and_fixup_rsrc(struct device_node *np, int index,
+ 	return rc;
+ }
  
- 	if (soundbus_add_one(&dev->sound)) {
- 		printk(KERN_DEBUG "i2sbus: device registration error!\n");
-+		if (dev->sound.ofdev.dev.kobj.state_initialized) {
-+			soundbus_dev_put(&dev->sound);
-+			return 0;
-+		}
- 		goto err;
++/* Returns 1 if added, 0 for otherwise; don't return a negative value! */
+ /* FIXME: look at device node refcounting */
+ static int i2sbus_add_dev(struct macio_dev *macio,
+ 			  struct i2sbus_control *control,
+@@ -213,7 +214,7 @@ static int i2sbus_add_dev(struct macio_dev *macio,
+ 	 * either as the second one in that case is just a modem. */
+ 	if (!ok) {
+ 		kfree(dev);
+-		return -ENODEV;
++		return 0;
  	}
  
+ 	mutex_init(&dev->lock);
 -- 
 2.35.1
 
