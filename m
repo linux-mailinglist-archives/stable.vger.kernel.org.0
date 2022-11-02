@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A93DB6159A4
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:16:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F648615916
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:04:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230017AbiKBDQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:16:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35672 "EHLO
+        id S229650AbiKBDEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:04:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230431AbiKBDPb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:15:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84018240A3
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:15:04 -0700 (PDT)
+        with ESMTP id S229992AbiKBDEO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:04:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 525E63A6
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:04:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20CAB60B72
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:15:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C8CBC433D6;
-        Wed,  2 Nov 2022 03:15:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AF5AB82076
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:04:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE6C4C433C1;
+        Wed,  2 Nov 2022 03:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358903;
-        bh=MAoQKYuJO2UVtv5vL+xfA3/iOpD+eRoNRmFUwozXIAg=;
+        s=korg; t=1667358250;
+        bh=/64A47Zois16J6kKGY2wZR1mJEK/7BKHL4FDGvGucDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B9c4UeNpAzRQreUD9JVLKdLnJciA/Zh+bhkGvzTgE6Qh5LIUtyDx/u8gNXdzQaZrH
-         cmwKSVi8yJsM0auUY4fE8yBF/P4+O0ZzEhBlhJ94jAWLAf4dIbJ1+zx8gy5Suddbj1
-         GVTgP4JY9FWAIjHw//tHIqyN881q0cQ4YihBXGs4=
+        b=WXAGT+lrbd+DwfuoDYkLBVYBlzA7loeOUN2BArjnjGc6U4vuv2dz2wwhx4laM9ZHj
+         I12Mv30aTNfP5nrqu8tfT4gQ5meyJFU3HghBO/cl2ThMWVdLTN/0KubEofrsOjcq8L
+         xaUmJL7pZprDl8OyTE+lxm+ovb4WwW8CCBcHfhuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Jeff Vanhoof <jdv1029@gmail.com>
-Subject: [PATCH 5.10 08/91] usb: dwc3: gadget: Dont set IMI for no_interrupt
-Date:   Wed,  2 Nov 2022 03:32:51 +0100
-Message-Id: <20221102022055.283956513@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 066/132] ALSA: ac97: fix possible memory leak in snd_ac97_dev_register()
+Date:   Wed,  2 Nov 2022 03:32:52 +0100
+Message-Id: <20221102022101.336975803@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 308c316d16cbad99bb834767382baa693ac42169 upstream.
+[ Upstream commit 4881bda5ea05c8c240fc8afeaa928e2bc43f61fa ]
 
-The gadget driver may have a certain expectation of how the request
-completion flow should be from to its configuration. Make sure the
-controller driver respect that. That is, don't set IMI (Interrupt on
-Missed Isoc) when usb_request->no_interrupt is set. Also, the driver
-should only set IMI to the last TRB of a chain.
+If device_register() fails in snd_ac97_dev_register(), it should
+call put_device() to give up reference, or the name allocated in
+dev_set_name() is leaked.
 
-Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Reviewed-by: Jeff Vanhoof <jdv1029@gmail.com>
-Tested-by: Jeff Vanhoof <jdv1029@gmail.com>
-Link: https://lore.kernel.org/r/ced336c84434571340c07994e3667a0ee284fefe.1666735451.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0ca06a00e206 ("[ALSA] AC97 bus interface for ad-hoc drivers")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221019093025.1179475-1-yangyingliang@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/ac97/ac97_codec.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1064,8 +1064,8 @@ static void dwc3_prepare_one_trb(struct
- 			trb->ctrl = DWC3_TRBCTL_ISOCHRONOUS;
- 		}
- 
--		/* always enable Interrupt on Missed ISOC */
--		trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
-+		if (!no_interrupt && !chain)
-+			trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
- 		break;
- 
- 	case USB_ENDPOINT_XFER_BULK:
+diff --git a/sound/pci/ac97/ac97_codec.c b/sound/pci/ac97/ac97_codec.c
+index cb60a07d39a8..ceead55f13ab 100644
+--- a/sound/pci/ac97/ac97_codec.c
++++ b/sound/pci/ac97/ac97_codec.c
+@@ -2009,6 +2009,7 @@ static int snd_ac97_dev_register(struct snd_device *device)
+ 	err = device_register(&ac97->dev);
+ 	if (err < 0) {
+ 		ac97_err(ac97, "Can't register ac97 bus\n");
++		put_device(&ac97->dev);
+ 		ac97->dev.bus = NULL;
+ 		return err;
+ 	}
+-- 
+2.35.1
+
 
 
