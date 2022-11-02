@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 016E261594B
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:09:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 867FC615986
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:13:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229846AbiKBDJL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:09:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56644 "EHLO
+        id S230208AbiKBDNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:13:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230216AbiKBDI0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:08:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C27FE248D5
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:07:48 -0700 (PDT)
+        with ESMTP id S230315AbiKBDMz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:12:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A858240AB
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:12:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E3158617BB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:07:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DD97C433D7;
-        Wed,  2 Nov 2022 03:07:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16382B82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:12:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEB67C433C1;
+        Wed,  2 Nov 2022 03:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358467;
-        bh=GqIBl5vA8F5cosTxBITAhVlx45qP69AqbUG5hXaBO7k=;
+        s=korg; t=1667358760;
+        bh=0HCelZooEodEbL641BqQHPhtY9tucXG2kL0Y7PlCB4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JqCXN7Dh+WC16h8lpmf171sGbo6jKPAM5t6y/JYnslrpHy0npSOb++Rhp4V4YJyw+
-         7V6OLrorXNqwdxqCM6gKWNHGgBTsOjG/mjbu/wclDo+SZzgtLFlYX8V7lPv7Jmna1F
-         VRqedmn01aiE75hIHZDA84qhGNmdFies15x+C0LI=
+        b=vbW558O8xcr76KSMNIproPOA1gQ60pa6d/DVP6DyWn+ASmgPKN3PAOwrrRAtEVYSN
+         pz0jXkcrMiwhFXT/ICKPh2bai6wLNMq/Wo4a88YYYvfKTqKmJLBG47TeV3SCtNQn5O
+         Dg/7ghrPUVk5Y2r2/KOC96jyuf2W7ob1Vv+qHsCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Raju Rangoju <Raju.Rangoju@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 078/132] amd-xgbe: add the bit rate quirk for Molex cables
+        patches@lists.linux.dev,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Manish Rangankar <mrangankar@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 21/91] scsi: qla2xxx: Use transport-defined speed mask for supported_speeds
 Date:   Wed,  2 Nov 2022 03:33:04 +0100
-Message-Id: <20221102022101.662970012@linuxfoundation.org>
+Message-Id: <20221102022055.651717856@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <Raju.Rangoju@amd.com>
+From: Manish Rangankar <mrangankar@marvell.com>
 
-[ Upstream commit 170a9e341a3b02c0b2ea0df16ef14a33a4f41de8 ]
+commit 0b863257c17c5f57a41e0a48de140ed026957a63 upstream.
 
-The offset 12 (bit-rate) of EEPROM SFP DAC (passive) cables is expected
-to be in the range 0x64 to 0x68. However, the 5 meter and 7 meter Molex
-passive cables have the rate ceiling 0x78 at offset 12.
+One of the sysfs values reported for supported_speeds was not valid (20Gb/s
+reported instead of 64Gb/s).  Instead of driver internal speed mask
+definition, use speed mask defined in transport_fc for reporting
+host->supported_speeds.
 
-Add a quirk for Molex passive cables to extend the rate ceiling to 0x78.
-
-Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
-Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220927115946.17559-1-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_attr.c |   28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-index 21e38b720d87..a7166cd1179f 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-@@ -239,6 +239,7 @@ enum xgbe_sfp_speed {
- #define XGBE_SFP_BASE_BR_1GBE_MAX		0x0d
- #define XGBE_SFP_BASE_BR_10GBE_MIN		0x64
- #define XGBE_SFP_BASE_BR_10GBE_MAX		0x68
-+#define XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX	0x78
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -3262,11 +3262,34 @@ struct fc_function_template qla2xxx_tran
+ 	.bsg_timeout = qla24xx_bsg_timeout,
+ };
  
- #define XGBE_SFP_BASE_CU_CABLE_LEN		18
- 
-@@ -284,6 +285,8 @@ struct xgbe_sfp_eeprom {
- #define XGBE_BEL_FUSE_VENDOR	"BEL-FUSE        "
- #define XGBE_BEL_FUSE_PARTNO	"1GBT-SFP06      "
- 
-+#define XGBE_MOLEX_VENDOR	"Molex Inc.      "
++static uint
++qla2x00_get_host_supported_speeds(scsi_qla_host_t *vha, uint speeds)
++{
++	uint supported_speeds = FC_PORTSPEED_UNKNOWN;
 +
- struct xgbe_sfp_ascii {
- 	union {
- 		char vendor[XGBE_SFP_BASE_VENDOR_NAME_LEN + 1];
-@@ -834,7 +837,11 @@ static bool xgbe_phy_sfp_bit_rate(struct xgbe_sfp_eeprom *sfp_eeprom,
- 		break;
- 	case XGBE_SFP_SPEED_10000:
- 		min = XGBE_SFP_BASE_BR_10GBE_MIN;
--		max = XGBE_SFP_BASE_BR_10GBE_MAX;
-+		if (memcmp(&sfp_eeprom->base[XGBE_SFP_BASE_VENDOR_NAME],
-+			   XGBE_MOLEX_VENDOR, XGBE_SFP_BASE_VENDOR_NAME_LEN) == 0)
-+			max = XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX;
-+		else
-+			max = XGBE_SFP_BASE_BR_10GBE_MAX;
- 		break;
- 	default:
- 		return false;
--- 
-2.35.1
-
++	if (speeds & FDMI_PORT_SPEED_64GB)
++		supported_speeds |= FC_PORTSPEED_64GBIT;
++	if (speeds & FDMI_PORT_SPEED_32GB)
++		supported_speeds |= FC_PORTSPEED_32GBIT;
++	if (speeds & FDMI_PORT_SPEED_16GB)
++		supported_speeds |= FC_PORTSPEED_16GBIT;
++	if (speeds & FDMI_PORT_SPEED_8GB)
++		supported_speeds |= FC_PORTSPEED_8GBIT;
++	if (speeds & FDMI_PORT_SPEED_4GB)
++		supported_speeds |= FC_PORTSPEED_4GBIT;
++	if (speeds & FDMI_PORT_SPEED_2GB)
++		supported_speeds |= FC_PORTSPEED_2GBIT;
++	if (speeds & FDMI_PORT_SPEED_1GB)
++		supported_speeds |= FC_PORTSPEED_1GBIT;
++
++	return supported_speeds;
++}
++
+ void
+ qla2x00_init_host_attr(scsi_qla_host_t *vha)
+ {
+ 	struct qla_hw_data *ha = vha->hw;
+-	u32 speeds = FC_PORTSPEED_UNKNOWN;
++	u32 speeds = 0, fdmi_speed = 0;
+ 
+ 	fc_host_dev_loss_tmo(vha->host) = ha->port_down_retry_count;
+ 	fc_host_node_name(vha->host) = wwn_to_u64(vha->node_name);
+@@ -3276,7 +3299,8 @@ qla2x00_init_host_attr(scsi_qla_host_t *
+ 	fc_host_max_npiv_vports(vha->host) = ha->max_npiv_vports;
+ 	fc_host_npiv_vports_inuse(vha->host) = ha->cur_vport_count;
+ 
+-	speeds = qla25xx_fdmi_port_speed_capability(ha);
++	fdmi_speed = qla25xx_fdmi_port_speed_capability(ha);
++	speeds = qla2x00_get_host_supported_speeds(vha, fdmi_speed);
+ 
+ 	fc_host_supported_speeds(vha->host) = speeds;
+ }
 
 
