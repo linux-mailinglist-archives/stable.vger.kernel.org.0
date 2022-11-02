@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A1F0615A80
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:32:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23E3C615AB5
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230202AbiKBDcX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:32:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51354 "EHLO
+        id S229823AbiKBDj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:39:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231157AbiKBDcT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:32:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8580764EE
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:32:18 -0700 (PDT)
+        with ESMTP id S229457AbiKBDjX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:39:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96F8B18B0C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:39:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4108CB8206F
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:32:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34C3BC433C1;
-        Wed,  2 Nov 2022 03:32:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 343AA617D4
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:39:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE686C433D6;
+        Wed,  2 Nov 2022 03:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359936;
-        bh=yct8t3Mv2PAB6Pu9H41jVgSdlNi6U0YdsMahzh5A9C4=;
+        s=korg; t=1667360361;
+        bh=JjeIzlE8eQaGHGfa3JuPbJB+POP7qOf0td7u3hlJGZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kfLe4Zf5jbj8YbBeQ4JQmkgOUO1sf6mQTrEEExwHMdCufqckG4s8SfLJ5oSpdugsF
-         MadUMmhsg1BKSQEL2xDN7/OMbLbfwaKU0VrBSu511aVLmfcBuu+Zcstyy8rOc0xjwW
-         cF/cs8WNMVNgOTcJ9T3QilURGaCmWBIbfzoiKlYw=
+        b=0jq72rObyD2zyxB9sFIQuEWHmSB0KJQIsY1J4nC7qNpeDer0C2wPnnkpHN8fmb56B
+         chg4OFWDemBvU0uCCg1LmoI8+E3uIlt+oLxvnZDnLMuRKDdW6BqRQSW/T2AF3iXlpM
+         1yGEtc9ScjA6Liy3Mbu6gh3SxflWQSolxOkEbFaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 60/78] net: lantiq_etop: dont free skb when returning NETDEV_TX_BUSY
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 24/60] tools: iio: iio_utils: fix digit calculation
 Date:   Wed,  2 Nov 2022 03:34:45 +0100
-Message-Id: <20221102022054.725245196@linuxfoundation.org>
+Message-Id: <20221102022051.879232689@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Matti Vaittinen <mazziesaccount@gmail.com>
 
-[ Upstream commit 9c1eaa27ec599fcc25ed4970c0b73c247d147a2b ]
+commit 72b2aa38191bcba28389b0e20bf6b4f15017ff2b upstream.
 
-The ndo_start_xmit() method must not free skb when returning
-NETDEV_TX_BUSY, since caller is going to requeue freed skb.
+The iio_utils uses a digit calculation in order to know length of the
+file name containing a buffer number. The digit calculation does not
+work for number 0.
 
-Fixes: 504d4721ee8e ("MIPS: Lantiq: Add ethernet driver")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This leads to allocation of one character too small buffer for the
+file-name when file name contains value '0'. (Eg. buffer0).
+
+Fix digit calculation by returning one digit to be present for number
+'0'.
+
+Fixes: 096f9b862e60 ("tools:iio:iio_utils: implement digit calculation")
+Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Link: https://lore.kernel.org/r/Y0f+tKCz+ZAIoroQ@dc75zzyyyyyyyyyyyyycy-3.rev.dnainternet.fi
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/lantiq_etop.c | 1 -
- 1 file changed, 1 deletion(-)
+ tools/iio/iio_utils.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/lantiq_etop.c b/drivers/net/ethernet/lantiq_etop.c
-index e08301d833e2..8c58ae565073 100644
---- a/drivers/net/ethernet/lantiq_etop.c
-+++ b/drivers/net/ethernet/lantiq_etop.c
-@@ -480,7 +480,6 @@ ltq_etop_tx(struct sk_buff *skb, struct net_device *dev)
- 	len = skb->len < ETH_ZLEN ? ETH_ZLEN : skb->len;
+--- a/tools/iio/iio_utils.c
++++ b/tools/iio/iio_utils.c
+@@ -546,6 +546,10 @@ static int calc_digits(int num)
+ {
+ 	int count = 0;
  
- 	if ((desc->ctl & (LTQ_DMA_OWN | LTQ_DMA_C)) || ch->skb[ch->dma.desc]) {
--		dev_kfree_skb_any(skb);
- 		netdev_err(dev, "tx ring full\n");
- 		netif_tx_stop_queue(txq);
- 		return NETDEV_TX_BUSY;
--- 
-2.35.1
-
++	/* It takes a digit to represent zero */
++	if (!num)
++		return 1;
++
+ 	while (num != 0) {
+ 		num /= 10;
+ 		count++;
 
 
