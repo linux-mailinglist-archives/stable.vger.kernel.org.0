@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1017F6159F3
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:22:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABF6561594F
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:09:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230266AbiKBDV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:21:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40862 "EHLO
+        id S229974AbiKBDJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:09:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230369AbiKBDVk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:21:40 -0400
+        with ESMTP id S229975AbiKBDIl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:08:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 380C825C5E
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:21:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42EEC240BD
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:08:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D87B0B82055
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:21:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2B01C433D7;
-        Wed,  2 Nov 2022 03:21:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D34ACB82072
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:08:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9798FC433C1;
+        Wed,  2 Nov 2022 03:08:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359289;
-        bh=9W6ezmOLbDz3LqOieQLvDR3IxuUFZE/rinyiVnz/dOw=;
+        s=korg; t=1667358485;
+        bh=jOp5mXCO9S2nJDVHWZhgBoDcRWcljJpQnQ4IusRblF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FSYVdICOQR2N6ngC1bJbv72RH8JxjQbCMJ1KsRYYaxiJE/w2OEvuc51H53bOVXvvz
-         avMruE8Swuj5bgtJCOKpUVhXZSZ0yFaVh2VY5Z9dkVOGX1SX/UsXQR/Cp480/QN6Y8
-         Acy+/Vjy6cRMWup4ReTr2tPk6gQVaft8zxXvVsjY=
+        b=hSgzUpwHAFm/KEYERvM9Bc4WN+CmmksqPIRmX0bNceRMYdSy5EFU1smLljGPfd7EO
+         jPgv2a9UeaudcBuIjqPKfvzhAiZFe1LSWd6rKxhf3sWUDZSm8OwuKMonc+QnrbX9Vc
+         XwGk/KQquIGyTd4F/Lsn3Vt3Aao4Yy6BE/4Ki4+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Jeff Vanhoof <jdv1029@gmail.com>
-Subject: [PATCH 5.4 07/64] usb: dwc3: gadget: Dont set IMI for no_interrupt
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 107/132] net: ethernet: ave: Fix MAC to be in charge of PHY PM
 Date:   Wed,  2 Nov 2022 03:33:33 +0100
-Message-Id: <20221102022052.057727826@linuxfoundation.org>
+Message-Id: <20221102022102.476720424@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
-References: <20221102022051.821538553@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-commit 308c316d16cbad99bb834767382baa693ac42169 upstream.
+[ Upstream commit e2badb4bd33abe13ddc35975bd7f7f8693955a4b ]
 
-The gadget driver may have a certain expectation of how the request
-completion flow should be from to its configuration. Make sure the
-controller driver respect that. That is, don't set IMI (Interrupt on
-Missed Isoc) when usb_request->no_interrupt is set. Also, the driver
-should only set IMI to the last TRB of a chain.
+The phylib callback is called after MAC driver's own resume callback is
+called. For AVE driver, after resuming immediately, PHY state machine is
+in PHY_NOLINK because there is a time lag from link-down to link-up due to
+autoneg. The result is WARN_ON() dump in mdio_bus_phy_resume().
 
-Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Reviewed-by: Jeff Vanhoof <jdv1029@gmail.com>
-Tested-by: Jeff Vanhoof <jdv1029@gmail.com>
-Link: https://lore.kernel.org/r/ced336c84434571340c07994e3667a0ee284fefe.1666735451.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since ave_resume() itself calls phy_resume(), AVE driver should manage
+PHY PM. To indicate that MAC driver manages PHY PM, set
+phydev->mac_managed_pm to true to avoid the unnecessary phylib call and
+add missing phy_init_hw() to ave_resume().
+
+Suggested-by: Heiner Kallweit <hkallweit1@gmail.com>
+Fixes: fba863b81604 ("net: phy: make PHY PM ops a no-op if MAC driver manages PHY PM")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Link: https://lore.kernel.org/r/20221024072227.24769-1-hayashi.kunihiko@socionext.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/socionext/sni_ave.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -981,8 +981,8 @@ static void __dwc3_prepare_one_trb(struc
- 			trb->ctrl = DWC3_TRBCTL_ISOCHRONOUS;
- 		}
+diff --git a/drivers/net/ethernet/socionext/sni_ave.c b/drivers/net/ethernet/socionext/sni_ave.c
+index ae31ed93aaf0..57dc9680ad50 100644
+--- a/drivers/net/ethernet/socionext/sni_ave.c
++++ b/drivers/net/ethernet/socionext/sni_ave.c
+@@ -1229,6 +1229,8 @@ static int ave_init(struct net_device *ndev)
  
--		/* always enable Interrupt on Missed ISOC */
--		trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
-+		if (!no_interrupt && !chain)
-+			trb->ctrl |= DWC3_TRB_CTRL_ISP_IMI;
- 		break;
+ 	phy_support_asym_pause(phydev);
  
- 	case USB_ENDPOINT_XFER_BULK:
++	phydev->mac_managed_pm = true;
++
+ 	phy_attached_info(phydev);
+ 
+ 	return 0;
+@@ -1758,6 +1760,10 @@ static int ave_resume(struct device *dev)
+ 
+ 	ave_global_reset(ndev);
+ 
++	ret = phy_init_hw(ndev->phydev);
++	if (ret)
++		return ret;
++
+ 	ave_ethtool_get_wol(ndev, &wol);
+ 	wol.wolopts = priv->wolopts;
+ 	__ave_ethtool_set_wol(ndev, &wol);
+-- 
+2.35.1
+
 
 
