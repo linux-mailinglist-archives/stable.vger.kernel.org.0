@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FA286158F4
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:02:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7917615861
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:50:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231277AbiKBDCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:02:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51380 "EHLO
+        id S230478AbiKBCu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:50:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231315AbiKBDCB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:02:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1DC2315B
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:01:38 -0700 (PDT)
+        with ESMTP id S230474AbiKBCu5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:50:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5505A2183C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:50:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8B97B8206C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:01:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B711EC433C1;
-        Wed,  2 Nov 2022 03:01:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8E9E617CA
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:50:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70B7FC433D7;
+        Wed,  2 Nov 2022 02:50:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358095;
-        bh=0BEUI3eToLJ3v8OyESkT1kMG5CoOsCroTUEPLE7vMno=;
+        s=korg; t=1667357455;
+        bh=nQmNK7cIDwdp+8LRM131tJovgao5hJz6DQCbmVSzgTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIzd8uP0PAt1y8MB/s4ldeBZAetQrz5tPx3QlfXeJmbQUKBN7wFEuM158A8gkHWTJ
-         Pe4YciT4MG6r+yknLoO1jmCM3LeEN9jMXbxZhLgGhR8jHenOvfxrJGjat7bqpWQEYm
-         NK1JdVfmKj6ZJ7x/QSLtTh4lXZif1Zd8o22RYM+8=
+        b=FfYbHvrec0VNqRDxZgGvesu19lOBILVujnO4r89JL6pp0u0v7sMWUAHnSGgxvNwpv
+         Ah0zBNpeaJ/V8C0U7lAZhVwkyfvKsn/bZ/72fzIj+I4azN6XHc6MUJL3iZMg2jy0yb
+         m2XlQMXDJTDOTBq4rYwmcb9UKY4StAl8KLYrRdjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kamel Bouhara <kamel.bouhara@bootlin.com>,
-        William Breathitt Gray <william.gray@linaro.org>
-Subject: [PATCH 5.15 040/132] counter: microchip-tcb-capture: Handle Signal1 read and Synapse
-Date:   Wed,  2 Nov 2022 03:32:26 +0100
-Message-Id: <20221102022100.681708162@linuxfoundation.org>
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Andrew Jones <ajones@ventanamicro.com>,
+        Anup Patel <apatel@ventanamicro.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Anup Patel <anup@brainfault.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 172/240] RISC-V: Fix compilation without RISCV_ISA_ZICBOM
+Date:   Wed,  2 Nov 2022 03:32:27 +0100
+Message-Id: <20221102022115.276745986@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
+References: <20221102022111.398283374@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,75 +57,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Breathitt Gray <william.gray@linaro.org>
+From: Andrew Jones <ajones@ventanamicro.com>
 
-commit d917a62af81b133f35f627e7936e193c842a7947 upstream.
+[ Upstream commit 5c20a3a9df19811051441214e7f5091cb3546db0 ]
 
-The signal_read(), action_read(), and action_write() callbacks have been
-assuming Signal0 is requested without checking. This results in requests
-for Signal1 returning data for Signal0. This patch fixes these
-oversights by properly checking for the Signal's id in the respective
-callbacks and handling accordingly based on the particular Signal
-requested. The trig_inverted member of the mchp_tc_data is removed as
-superfluous.
+riscv_cbom_block_size and riscv_init_cbom_blocksize() should always
+be available and riscv_init_cbom_blocksize() should always be
+invoked, even when compiling without RISCV_ISA_ZICBOM enabled. This
+is because disabling RISCV_ISA_ZICBOM means "don't use zicbom
+instructions in the kernel" not "pretend there isn't zicbom, even
+when there is". When zicbom is available, whether the kernel enables
+its use with RISCV_ISA_ZICBOM or not, KVM will offer it to guests.
+Ensure we can build KVM and that the block size is initialized even
+when compiling without RISCV_ISA_ZICBOM.
 
-Fixes: 106b104137fd ("counter: Add microchip TCB capture counter")
-Cc: stable@vger.kernel.org
-Reviewed-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
-Link: https://lore.kernel.org/r/20221018121014.7368-1-william.gray@linaro.org/
-Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8f7e001e0325 ("RISC-V: Clean up the Zicbom block size probing")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
+Signed-off-by: Anup Patel <apatel@ventanamicro.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Anup Patel <anup@brainfault.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/counter/microchip-tcb-capture.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ arch/riscv/include/asm/cacheflush.h |  8 ------
+ arch/riscv/mm/cacheflush.c          | 38 ++++++++++++++++++++++++++
+ arch/riscv/mm/dma-noncoherent.c     | 41 -----------------------------
+ 3 files changed, 38 insertions(+), 49 deletions(-)
 
---- a/drivers/counter/microchip-tcb-capture.c
-+++ b/drivers/counter/microchip-tcb-capture.c
-@@ -29,7 +29,6 @@ struct mchp_tc_data {
- 	int qdec_mode;
- 	int num_channels;
- 	int channel[2];
--	bool trig_inverted;
- };
+diff --git a/arch/riscv/include/asm/cacheflush.h b/arch/riscv/include/asm/cacheflush.h
+index 273ece6b622f..1470e556cdb1 100644
+--- a/arch/riscv/include/asm/cacheflush.h
++++ b/arch/riscv/include/asm/cacheflush.h
+@@ -42,16 +42,8 @@ void flush_icache_mm(struct mm_struct *mm, bool local);
  
- enum mchp_tc_count_function {
-@@ -166,7 +165,7 @@ static int mchp_tc_count_signal_read(str
+ #endif /* CONFIG_SMP */
  
- 	regmap_read(priv->regmap, ATMEL_TC_REG(priv->channel[0], SR), &sr);
+-/*
+- * The T-Head CMO errata internally probe the CBOM block size, but otherwise
+- * don't depend on Zicbom.
+- */
+ extern unsigned int riscv_cbom_block_size;
+-#ifdef CONFIG_RISCV_ISA_ZICBOM
+ void riscv_init_cbom_blocksize(void);
+-#else
+-static inline void riscv_init_cbom_blocksize(void) { }
+-#endif
  
--	if (priv->trig_inverted)
-+	if (signal->id == 1)
- 		sigstatus = (sr & ATMEL_TC_MTIOB);
- 	else
- 		sigstatus = (sr & ATMEL_TC_MTIOA);
-@@ -184,6 +183,17 @@ static int mchp_tc_count_action_get(stru
- 	struct mchp_tc_data *const priv = counter->priv;
- 	u32 cmr;
+ #ifdef CONFIG_RISCV_DMA_NONCOHERENT
+ void riscv_noncoherent_supported(void);
+diff --git a/arch/riscv/mm/cacheflush.c b/arch/riscv/mm/cacheflush.c
+index 6cb7d96ad9c7..57b40a350420 100644
+--- a/arch/riscv/mm/cacheflush.c
++++ b/arch/riscv/mm/cacheflush.c
+@@ -3,6 +3,7 @@
+  * Copyright (C) 2017 SiFive
+  */
  
-+	if (priv->qdec_mode) {
-+		*action = COUNTER_SYNAPSE_ACTION_BOTH_EDGES;
-+		return 0;
++#include <linux/of.h>
+ #include <asm/cacheflush.h>
+ 
+ #ifdef CONFIG_SMP
+@@ -86,3 +87,40 @@ void flush_icache_pte(pte_t pte)
+ 		flush_icache_all();
+ }
+ #endif /* CONFIG_MMU */
++
++unsigned int riscv_cbom_block_size;
++EXPORT_SYMBOL_GPL(riscv_cbom_block_size);
++
++void riscv_init_cbom_blocksize(void)
++{
++	struct device_node *node;
++	unsigned long cbom_hartid;
++	u32 val, probed_block_size;
++	int ret;
++
++	probed_block_size = 0;
++	for_each_of_cpu_node(node) {
++		unsigned long hartid;
++
++		ret = riscv_of_processor_hartid(node, &hartid);
++		if (ret)
++			continue;
++
++		/* set block-size for cbom extension if available */
++		ret = of_property_read_u32(node, "riscv,cbom-block-size", &val);
++		if (ret)
++			continue;
++
++		if (!probed_block_size) {
++			probed_block_size = val;
++			cbom_hartid = hartid;
++		} else {
++			if (probed_block_size != val)
++				pr_warn("cbom-block-size mismatched between harts %lu and %lu\n",
++					cbom_hartid, hartid);
++		}
 +	}
 +
-+	/* Only TIOA signal is evaluated in non-QDEC mode */
-+	if (synapse->signal->id != 0) {
-+		*action = COUNTER_SYNAPSE_ACTION_NONE;
-+		return 0;
-+	}
-+
- 	regmap_read(priv->regmap, ATMEL_TC_REG(priv->channel[0], CMR), &cmr);
++	if (probed_block_size)
++		riscv_cbom_block_size = probed_block_size;
++}
+diff --git a/arch/riscv/mm/dma-noncoherent.c b/arch/riscv/mm/dma-noncoherent.c
+index b0add983530a..d919efab6eba 100644
+--- a/arch/riscv/mm/dma-noncoherent.c
++++ b/arch/riscv/mm/dma-noncoherent.c
+@@ -8,13 +8,8 @@
+ #include <linux/dma-direct.h>
+ #include <linux/dma-map-ops.h>
+ #include <linux/mm.h>
+-#include <linux/of.h>
+-#include <linux/of_device.h>
+ #include <asm/cacheflush.h>
  
- 	switch (cmr & ATMEL_TC_ETRGEDG) {
-@@ -212,8 +222,8 @@ static int mchp_tc_count_action_set(stru
- 	struct mchp_tc_data *const priv = counter->priv;
- 	u32 edge = ATMEL_TC_ETRGEDG_NONE;
+-unsigned int riscv_cbom_block_size;
+-EXPORT_SYMBOL_GPL(riscv_cbom_block_size);
+-
+ static bool noncoherent_supported;
  
--	/* QDEC mode is rising edge only */
--	if (priv->qdec_mode)
-+	/* QDEC mode is rising edge only; only TIOA handled in non-QDEC mode */
-+	if (priv->qdec_mode || synapse->signal->id != 0)
- 		return -EINVAL;
+ void arch_sync_dma_for_device(phys_addr_t paddr, size_t size,
+@@ -77,42 +72,6 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
+ 	dev->dma_coherent = coherent;
+ }
  
- 	switch (action) {
+-#ifdef CONFIG_RISCV_ISA_ZICBOM
+-void riscv_init_cbom_blocksize(void)
+-{
+-	struct device_node *node;
+-	unsigned long cbom_hartid;
+-	u32 val, probed_block_size;
+-	int ret;
+-
+-	probed_block_size = 0;
+-	for_each_of_cpu_node(node) {
+-		unsigned long hartid;
+-
+-		ret = riscv_of_processor_hartid(node, &hartid);
+-		if (ret)
+-			continue;
+-
+-		/* set block-size for cbom extension if available */
+-		ret = of_property_read_u32(node, "riscv,cbom-block-size", &val);
+-		if (ret)
+-			continue;
+-
+-		if (!probed_block_size) {
+-			probed_block_size = val;
+-			cbom_hartid = hartid;
+-		} else {
+-			if (probed_block_size != val)
+-				pr_warn("cbom-block-size mismatched between harts %lu and %lu\n",
+-					cbom_hartid, hartid);
+-		}
+-	}
+-
+-	if (probed_block_size)
+-		riscv_cbom_block_size = probed_block_size;
+-}
+-#endif
+-
+ void riscv_noncoherent_supported(void)
+ {
+ 	WARN(!riscv_cbom_block_size,
+-- 
+2.35.1
+
 
 
