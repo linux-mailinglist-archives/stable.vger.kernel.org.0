@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE8426158D4
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:59:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFCC36158D5
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:59:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230498AbiKBC7T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:59:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48640 "EHLO
+        id S231147AbiKBC7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:59:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231239AbiKBC7R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:59:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5CE221E07
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:59:15 -0700 (PDT)
+        with ESMTP id S231239AbiKBC7V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:59:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51FAD2229C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:59:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 794B9B82071
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:59:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E85DC433D7;
-        Wed,  2 Nov 2022 02:59:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4784617BB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:59:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67EBDC433D6;
+        Wed,  2 Nov 2022 02:59:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357953;
-        bh=9YE8xNRwQ1S/L6+fnhltSfnHxtdI6bfsQfhQFrF1GS0=;
+        s=korg; t=1667357959;
+        bh=9jzEtb2oie9UtzRGratLlMeBODDl5lGcW6Q6zGcFnlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0JlZiQ5aLiUd8Ugwhnx+SWLEZzrDRbM1+7AKtNdtMSKNWS8fW3HbZLXvG/mpmkdhB
-         TFh7s27V9S/A3LLc5tth7N+yABBOc6BT9chTZ0Nbh8vwXfWId3SEA9MVId9kqYK/KN
-         x5nBHw13aZfmrENq9uQmTin4LuLX8DEoCiK0dbE0=
+        b=e34JEv+htRkQDup6wgDJ7gp/IdXzOAXSu2+SAjQjW9/L+fYPwNb84y1S1LBLR6d6k
+         IKWB5h4rz441BwgTUdVkNkz0ugL+PLo1/NqizZrvrXFXrTtv6yA1EnLxaTZALTdQsD
+         BAHbtZgwI8/+9BijhJhXCRJmlxTlD3zqPE9exISk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 007/132] ALSA: au88x0: use explicitly signed char
-Date:   Wed,  2 Nov 2022 03:31:53 +0100
-Message-Id: <20221102022059.806967263@linuxfoundation.org>
+Subject: [PATCH 5.15 008/132] ALSA: rme9652: use explicitly signed char
+Date:   Wed,  2 Nov 2022 03:31:54 +0100
+Message-Id: <20221102022059.836226330@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
 References: <20221102022059.593236470@linuxfoundation.org>
@@ -54,62 +54,242 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit ee03c0f200eb0d9f22dd8732d9fb7956d91019c2 upstream.
+commit 50895a55bcfde8ac6f22a37c6bc8cff506b3c7c6 upstream.
 
 With char becoming unsigned by default, and with `char` alone being
 ambiguous and based on architecture, signed chars need to be marked
 explicitly as such. This fixes warnings like:
 
-sound/pci/au88x0/au88x0_core.c:2029 vortex_adb_checkinout() warn: signedness bug returning '(-22)'
-sound/pci/au88x0/au88x0_core.c:2046 vortex_adb_checkinout() warn: signedness bug returning '(-12)'
-sound/pci/au88x0/au88x0_core.c:2125 vortex_adb_allocroute() warn: 'vortex_adb_checkinout(vortex, (0), en, 0)' is unsigned
-sound/pci/au88x0/au88x0_core.c:2170 vortex_adb_allocroute() warn: 'vortex_adb_checkinout(vortex, stream->resources, en, 4)' is unsigned
-
-As well, since one function returns errnos, return an `int` rather than
-a `signed char`.
+sound/pci/rme9652/hdsp.c:3953 hdsp_channel_buffer_location() warn: 'hdsp->channel_map[channel]' is unsigned
+sound/pci/rme9652/hdsp.c:4153 snd_hdsp_channel_info() warn: impossible condition '(hdsp->channel_map[channel] < 0) => (0-255 < 0)'
+sound/pci/rme9652/rme9652.c:1833 rme9652_channel_buffer_location() warn: 'rme9652->channel_map[channel]' is unsigned
 
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221024162929.536004-1-Jason@zx2c4.com
+Link: https://lore.kernel.org/r/20221025000313.546261-1-Jason@zx2c4.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/au88x0/au88x0.h      |    6 +++---
- sound/pci/au88x0/au88x0_core.c |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ sound/pci/rme9652/hdsp.c    |   26 +++++++++++++-------------
+ sound/pci/rme9652/rme9652.c |   22 +++++++++++-----------
+ 2 files changed, 24 insertions(+), 24 deletions(-)
 
---- a/sound/pci/au88x0/au88x0.h
-+++ b/sound/pci/au88x0/au88x0.h
-@@ -141,7 +141,7 @@ struct snd_vortex {
- #ifndef CHIP_AU8810
- 	stream_t dma_wt[NR_WT];
- 	wt_voice_t wt_voice[NR_WT];	/* WT register cache. */
--	char mixwt[(NR_WT / NR_WTPB) * 6];	/* WT mixin objects */
-+	s8 mixwt[(NR_WT / NR_WTPB) * 6];	/* WT mixin objects */
- #endif
- 
- 	/* Global resources */
-@@ -235,8 +235,8 @@ static int vortex_alsafmt_aspfmt(snd_pcm
- static void vortex_connect_default(vortex_t * vortex, int en);
- static int vortex_adb_allocroute(vortex_t * vortex, int dma, int nr_ch,
- 				 int dir, int type, int subdev);
--static char vortex_adb_checkinout(vortex_t * vortex, int resmap[], int out,
--				  int restype);
-+static int vortex_adb_checkinout(vortex_t * vortex, int resmap[], int out,
-+				 int restype);
- #ifndef CHIP_AU8810
- static int vortex_wt_allocroute(vortex_t * vortex, int dma, int nr_ch);
- static void vortex_wt_connect(vortex_t * vortex, int en);
---- a/sound/pci/au88x0/au88x0_core.c
-+++ b/sound/pci/au88x0/au88x0_core.c
-@@ -1998,7 +1998,7 @@ static const int resnum[VORTEX_RESOURCE_
-  out: Mean checkout if != 0. Else mean Checkin resource.
-  restype: Indicates type of resource to be checked in or out.
+--- a/sound/pci/rme9652/hdsp.c
++++ b/sound/pci/rme9652/hdsp.c
+@@ -433,7 +433,7 @@ struct hdsp_midi {
+     struct snd_rawmidi           *rmidi;
+     struct snd_rawmidi_substream *input;
+     struct snd_rawmidi_substream *output;
+-    char                     istimer; /* timer in use */
++    signed char		     istimer; /* timer in use */
+     struct timer_list	     timer;
+     spinlock_t               lock;
+     int			     pending;
+@@ -480,7 +480,7 @@ struct hdsp {
+ 	pid_t                 playback_pid;
+ 	int                   running;
+ 	int                   system_sample_rate;
+-	const char           *channel_map;
++	const signed char    *channel_map;
+ 	int                   dev;
+ 	int                   irq;
+ 	unsigned long         port;
+@@ -502,7 +502,7 @@ struct hdsp {
+    where the data for that channel can be read/written from/to.
  */
--static char
-+static int
- vortex_adb_checkinout(vortex_t * vortex, int resmap[], int out, int restype)
+ 
+-static const char channel_map_df_ss[HDSP_MAX_CHANNELS] = {
++static const signed char channel_map_df_ss[HDSP_MAX_CHANNELS] = {
+ 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+ 	18, 19, 20, 21, 22, 23, 24, 25
+ };
+@@ -517,7 +517,7 @@ static const char channel_map_mf_ss[HDSP
+ 	-1, -1, -1, -1, -1, -1, -1, -1
+ };
+ 
+-static const char channel_map_ds[HDSP_MAX_CHANNELS] = {
++static const signed char channel_map_ds[HDSP_MAX_CHANNELS] = {
+ 	/* ADAT channels are remapped */
+ 	1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23,
+ 	/* channels 12 and 13 are S/PDIF */
+@@ -526,7 +526,7 @@ static const char channel_map_ds[HDSP_MA
+ 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+ };
+ 
+-static const char channel_map_H9632_ss[HDSP_MAX_CHANNELS] = {
++static const signed char channel_map_H9632_ss[HDSP_MAX_CHANNELS] = {
+ 	/* ADAT channels */
+ 	0, 1, 2, 3, 4, 5, 6, 7,
+ 	/* SPDIF */
+@@ -540,7 +540,7 @@ static const char channel_map_H9632_ss[H
+ 	-1, -1
+ };
+ 
+-static const char channel_map_H9632_ds[HDSP_MAX_CHANNELS] = {
++static const signed char channel_map_H9632_ds[HDSP_MAX_CHANNELS] = {
+ 	/* ADAT */
+ 	1, 3, 5, 7,
+ 	/* SPDIF */
+@@ -554,7 +554,7 @@ static const char channel_map_H9632_ds[H
+ 	-1, -1, -1, -1, -1, -1
+ };
+ 
+-static const char channel_map_H9632_qs[HDSP_MAX_CHANNELS] = {
++static const signed char channel_map_H9632_qs[HDSP_MAX_CHANNELS] = {
+ 	/* ADAT is disabled in this mode */
+ 	/* SPDIF */
+ 	8, 9,
+@@ -3939,7 +3939,7 @@ static snd_pcm_uframes_t snd_hdsp_hw_poi
+ 	return hdsp_hw_pointer(hdsp);
+ }
+ 
+-static char *hdsp_channel_buffer_location(struct hdsp *hdsp,
++static signed char *hdsp_channel_buffer_location(struct hdsp *hdsp,
+ 					     int stream,
+ 					     int channel)
+ 
+@@ -3964,7 +3964,7 @@ static int snd_hdsp_playback_copy(struct
+ 				  void __user *src, unsigned long count)
  {
- 	int i, qty = resnum[restype], resinuse = 0;
+ 	struct hdsp *hdsp = snd_pcm_substream_chip(substream);
+-	char *channel_buf;
++	signed char *channel_buf;
+ 
+ 	if (snd_BUG_ON(pos + count > HDSP_CHANNEL_BUFFER_BYTES))
+ 		return -EINVAL;
+@@ -3982,7 +3982,7 @@ static int snd_hdsp_playback_copy_kernel
+ 					 void *src, unsigned long count)
+ {
+ 	struct hdsp *hdsp = snd_pcm_substream_chip(substream);
+-	char *channel_buf;
++	signed char *channel_buf;
+ 
+ 	channel_buf = hdsp_channel_buffer_location(hdsp, substream->pstr->stream, channel);
+ 	if (snd_BUG_ON(!channel_buf))
+@@ -3996,7 +3996,7 @@ static int snd_hdsp_capture_copy(struct
+ 				 void __user *dst, unsigned long count)
+ {
+ 	struct hdsp *hdsp = snd_pcm_substream_chip(substream);
+-	char *channel_buf;
++	signed char *channel_buf;
+ 
+ 	if (snd_BUG_ON(pos + count > HDSP_CHANNEL_BUFFER_BYTES))
+ 		return -EINVAL;
+@@ -4014,7 +4014,7 @@ static int snd_hdsp_capture_copy_kernel(
+ 					void *dst, unsigned long count)
+ {
+ 	struct hdsp *hdsp = snd_pcm_substream_chip(substream);
+-	char *channel_buf;
++	signed char *channel_buf;
+ 
+ 	channel_buf = hdsp_channel_buffer_location(hdsp, substream->pstr->stream, channel);
+ 	if (snd_BUG_ON(!channel_buf))
+@@ -4028,7 +4028,7 @@ static int snd_hdsp_hw_silence(struct sn
+ 			       unsigned long count)
+ {
+ 	struct hdsp *hdsp = snd_pcm_substream_chip(substream);
+-	char *channel_buf;
++	signed char *channel_buf;
+ 
+ 	channel_buf = hdsp_channel_buffer_location (hdsp, substream->pstr->stream, channel);
+ 	if (snd_BUG_ON(!channel_buf))
+--- a/sound/pci/rme9652/rme9652.c
++++ b/sound/pci/rme9652/rme9652.c
+@@ -230,7 +230,7 @@ struct snd_rme9652 {
+ 	int last_spdif_sample_rate;	/* so that we can catch externally ... */
+ 	int last_adat_sample_rate;	/* ... induced rate changes            */
+ 
+-	const char *channel_map;
++	const signed char *channel_map;
+ 
+ 	struct snd_card *card;
+ 	struct snd_pcm *pcm;
+@@ -247,12 +247,12 @@ struct snd_rme9652 {
+    where the data for that channel can be read/written from/to.
+ */
+ 
+-static const char channel_map_9652_ss[26] = {
++static const signed char channel_map_9652_ss[26] = {
+ 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+ 	18, 19, 20, 21, 22, 23, 24, 25
+ };
+ 
+-static const char channel_map_9636_ss[26] = {
++static const signed char channel_map_9636_ss[26] = {
+ 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
+ 	/* channels 16 and 17 are S/PDIF */
+ 	24, 25,
+@@ -260,7 +260,7 @@ static const char channel_map_9636_ss[26
+ 	-1, -1, -1, -1, -1, -1, -1, -1
+ };
+ 
+-static const char channel_map_9652_ds[26] = {
++static const signed char channel_map_9652_ds[26] = {
+ 	/* ADAT channels are remapped */
+ 	1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23,
+ 	/* channels 12 and 13 are S/PDIF */
+@@ -269,7 +269,7 @@ static const char channel_map_9652_ds[26
+ 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+ };
+ 
+-static const char channel_map_9636_ds[26] = {
++static const signed char channel_map_9636_ds[26] = {
+ 	/* ADAT channels are remapped */
+ 	1, 3, 5, 7, 9, 11, 13, 15,
+ 	/* channels 8 and 9 are S/PDIF */
+@@ -1819,7 +1819,7 @@ static snd_pcm_uframes_t snd_rme9652_hw_
+ 	return rme9652_hw_pointer(rme9652);
+ }
+ 
+-static char *rme9652_channel_buffer_location(struct snd_rme9652 *rme9652,
++static signed char *rme9652_channel_buffer_location(struct snd_rme9652 *rme9652,
+ 					     int stream,
+ 					     int channel)
+ 
+@@ -1847,7 +1847,7 @@ static int snd_rme9652_playback_copy(str
+ 				     void __user *src, unsigned long count)
+ {
+ 	struct snd_rme9652 *rme9652 = snd_pcm_substream_chip(substream);
+-	char *channel_buf;
++	signed char *channel_buf;
+ 
+ 	if (snd_BUG_ON(pos + count > RME9652_CHANNEL_BUFFER_BYTES))
+ 		return -EINVAL;
+@@ -1867,7 +1867,7 @@ static int snd_rme9652_playback_copy_ker
+ 					    void *src, unsigned long count)
+ {
+ 	struct snd_rme9652 *rme9652 = snd_pcm_substream_chip(substream);
+-	char *channel_buf;
++	signed char *channel_buf;
+ 
+ 	channel_buf = rme9652_channel_buffer_location(rme9652,
+ 						      substream->pstr->stream,
+@@ -1883,7 +1883,7 @@ static int snd_rme9652_capture_copy(stru
+ 				    void __user *dst, unsigned long count)
+ {
+ 	struct snd_rme9652 *rme9652 = snd_pcm_substream_chip(substream);
+-	char *channel_buf;
++	signed char *channel_buf;
+ 
+ 	if (snd_BUG_ON(pos + count > RME9652_CHANNEL_BUFFER_BYTES))
+ 		return -EINVAL;
+@@ -1903,7 +1903,7 @@ static int snd_rme9652_capture_copy_kern
+ 					   void *dst, unsigned long count)
+ {
+ 	struct snd_rme9652 *rme9652 = snd_pcm_substream_chip(substream);
+-	char *channel_buf;
++	signed char *channel_buf;
+ 
+ 	channel_buf = rme9652_channel_buffer_location(rme9652,
+ 						      substream->pstr->stream,
+@@ -1919,7 +1919,7 @@ static int snd_rme9652_hw_silence(struct
+ 				  unsigned long count)
+ {
+ 	struct snd_rme9652 *rme9652 = snd_pcm_substream_chip(substream);
+-	char *channel_buf;
++	signed char *channel_buf;
+ 
+ 	channel_buf = rme9652_channel_buffer_location (rme9652,
+ 						       substream->pstr->stream,
 
 
