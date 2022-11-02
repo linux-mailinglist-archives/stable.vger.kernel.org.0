@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DABA36159EA
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:20:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 968996159C6
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:18:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230176AbiKBDU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:20:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40172 "EHLO
+        id S230046AbiKBDSK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:18:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230280AbiKBDUy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:20:54 -0400
+        with ESMTP id S230292AbiKBDRu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:17:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 565A81AD9F
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:20:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C2E124F39
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:17:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E73FE61729
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:20:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81C6FC433C1;
-        Wed,  2 Nov 2022 03:20:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE0F260B72
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:17:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73EDCC433C1;
+        Wed,  2 Nov 2022 03:17:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359253;
-        bh=46JCP7KOjFIz6FGBsSpPrxIOv01lrZlj9sSeTPItX3I=;
+        s=korg; t=1667359068;
+        bh=K37V8rp61SKq3iIz4d4PC3jlAAjJf6+SQ5MYnWwYXMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZtiECcyJA6k6bwh6K7yNmII824KyHzR3g8Fm3kvPhLRnuJ3ElaY3YP67T5qQ0/Rnj
-         fQCq8LalroX2LtNfV0x+uV/DcjDG1clIcLF082tk/J2V++KopKXzZ1LJ20/6BoRJe/
-         YiTF7SmBJu9KkmZ26KAvCDaM5b6LmcIF3M5f76Wk=
+        b=ozsxKI0UliQnmpAJZdnQRiO1OxzvcwVkmPxatrK6fE3+Ocjcq2/IEqGMvac4/Iw8R
+         DYU+StljX3yi81vZNe2MaiUEB31o7MMKsKvMO4jdC1buEj6R0IXJjqWU0Hy5tHAEMO
+         A1fjoEMP6E15/xkI4b41+8bktLIMv8DFAukKLV34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 01/64] can: j1939: transport: j1939_session_skb_drop_old(): spin_unlock_irqrestore() before kfree_skb()
+        patches@lists.linux.dev,
+        syzbot+c5ce866a8d30f4be0651@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 44/91] tipc: fix a null-ptr-deref in tipc_topsrv_accept
 Date:   Wed,  2 Nov 2022 03:33:27 +0100
-Message-Id: <20221102022051.868081068@linuxfoundation.org>
+Message-Id: <20221102022056.285082084@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
-References: <20221102022051.821538553@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,41 +55,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit c3c06c61890da80494bb196f75d89b791adda87f upstream.
+[ Upstream commit 82cb4e4612c633a9ce320e1773114875604a3cce ]
 
-It is not allowed to call kfree_skb() from hardware interrupt context
-or with interrupts being disabled. The skb is unlinked from the queue,
-so it can be freed after spin_unlock_irqrestore().
+syzbot found a crash in tipc_topsrv_accept:
 
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/all/20221027091237.2290111-1-yangyingliang@huawei.com
-Cc: stable@vger.kernel.org
-[mkl: adjust subject]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+  Workqueue: tipc_rcv tipc_topsrv_accept
+  RIP: 0010:kernel_accept+0x22d/0x350 net/socket.c:3487
+  Call Trace:
+   <TASK>
+   tipc_topsrv_accept+0x197/0x280 net/tipc/topsrv.c:460
+   process_one_work+0x991/0x1610 kernel/workqueue.c:2289
+   worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+   kthread+0x2e4/0x3a0 kernel/kthread.c:376
+   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+
+It was caused by srv->listener that might be set to null by
+tipc_topsrv_stop() in net .exit whereas it's still used in
+tipc_topsrv_accept() worker.
+
+srv->listener is protected by srv->idr_lock in tipc_topsrv_stop(), so add
+a check for srv->listener under srv->idr_lock in tipc_topsrv_accept() to
+avoid the null-ptr-deref. To ensure the lsock is not released during the
+tipc_topsrv_accept(), move sock_release() after tipc_topsrv_work_stop()
+where it's waiting until the tipc_topsrv_accept worker to be done.
+
+Note that sk_callback_lock is used to protect sk->sk_user_data instead of
+srv->listener, and it should check srv in tipc_topsrv_listener_data_ready()
+instead. This also ensures that no more tipc_topsrv_accept worker will be
+started after tipc_conn_close() is called in tipc_topsrv_stop() where it
+sets sk->sk_user_data to null.
+
+Fixes: 0ef897be12b8 ("tipc: separate topology server listener socket from subcsriber sockets")
+Reported-by: syzbot+c5ce866a8d30f4be0651@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Link: https://lore.kernel.org/r/4eee264380c409c61c6451af1059b7fb271a7e7b.1666120790.git.lucien.xin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/transport.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/tipc/topsrv.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -338,10 +338,12 @@ static void j1939_session_skb_drop_old(s
- 		__skb_unlink(do_skb, &session->skb_queue);
- 		/* drop ref taken in j1939_session_skb_queue() */
- 		skb_unref(do_skb);
-+		spin_unlock_irqrestore(&session->skb_queue.lock, flags);
+diff --git a/net/tipc/topsrv.c b/net/tipc/topsrv.c
+index d9e2c0fea3f2..561e709ae06a 100644
+--- a/net/tipc/topsrv.c
++++ b/net/tipc/topsrv.c
+@@ -450,12 +450,19 @@ static void tipc_conn_data_ready(struct sock *sk)
+ static void tipc_topsrv_accept(struct work_struct *work)
+ {
+ 	struct tipc_topsrv *srv = container_of(work, struct tipc_topsrv, awork);
+-	struct socket *lsock = srv->listener;
+-	struct socket *newsock;
++	struct socket *newsock, *lsock;
+ 	struct tipc_conn *con;
+ 	struct sock *newsk;
+ 	int ret;
  
- 		kfree_skb(do_skb);
-+	} else {
-+		spin_unlock_irqrestore(&session->skb_queue.lock, flags);
- 	}
--	spin_unlock_irqrestore(&session->skb_queue.lock, flags);
++	spin_lock_bh(&srv->idr_lock);
++	if (!srv->listener) {
++		spin_unlock_bh(&srv->idr_lock);
++		return;
++	}
++	lsock = srv->listener;
++	spin_unlock_bh(&srv->idr_lock);
++
+ 	while (1) {
+ 		ret = kernel_accept(lsock, &newsock, O_NONBLOCK);
+ 		if (ret < 0)
+@@ -489,7 +496,7 @@ static void tipc_topsrv_listener_data_ready(struct sock *sk)
+ 
+ 	read_lock_bh(&sk->sk_callback_lock);
+ 	srv = sk->sk_user_data;
+-	if (srv->listener)
++	if (srv)
+ 		queue_work(srv->rcv_wq, &srv->awork);
+ 	read_unlock_bh(&sk->sk_callback_lock);
  }
- 
- void j1939_session_skb_queue(struct j1939_session *session,
+@@ -699,8 +706,9 @@ static void tipc_topsrv_stop(struct net *net)
+ 	__module_get(lsock->sk->sk_prot_creator->owner);
+ 	srv->listener = NULL;
+ 	spin_unlock_bh(&srv->idr_lock);
+-	sock_release(lsock);
++
+ 	tipc_topsrv_work_stop(srv);
++	sock_release(lsock);
+ 	idr_destroy(&srv->conn_idr);
+ 	kfree(srv);
+ }
+-- 
+2.35.1
+
 
 
