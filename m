@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84FA26157C4
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:38:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9069F6157C7
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:38:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230222AbiKBCif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:38:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57306 "EHLO
+        id S230214AbiKBCir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:38:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230214AbiKBCie (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:38:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632A12196
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:38:33 -0700 (PDT)
+        with ESMTP id S230216AbiKBCip (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:38:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D98B325EE
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:38:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 005B3617A9
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:38:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90766C433D7;
-        Wed,  2 Nov 2022 02:38:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75569601C6
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:38:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1766BC433B5;
+        Wed,  2 Nov 2022 02:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356712;
-        bh=ja0JimqdW4TMH7TLYodbe0GvY1mY0mOo8q1nhKTaaH4=;
+        s=korg; t=1667356723;
+        bh=ufmK7QAQIWRFrhmuZwLvXfSAyOEeoGm+E9qhiqhCTRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PlOVJ18DhNSPWVsdhyvKhN4lhqoM+p4l8iKBnORa5zvcTVY+leJHP/EXD4if0Axrf
-         Ne8IjEIgCfR3NfHqJJJxUeOapwPN+xGyXmbgbT7FBVt1XQpGkX2rEJBd2ofulgIUs7
-         gFBP/NcQANSy5nHJPc7GsEoi23tfLZ39creYAoi8=
+        b=1FIju772Wh5oUD7209dTQAHLZ23BfLFLJlfJAhwGQJPfRXO7MbkFoDllC/8AkJB6A
+         LtOz3ETwFI/p8OmwdfTuajHMskOgR3LxKDUKVTcfAo5Inqpkq6//satyaLOHN87oxu
+         tPvnlzpUjELpLl6mjNLwNXtVoNURK+3y5M71AMN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Cosmin Tanislav <cosmin.tanislav@analog.com>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.0 047/240] iio: temperature: ltc2983: allocate iio channels once
-Date:   Wed,  2 Nov 2022 03:30:22 +0100
-Message-Id: <20221102022112.464775586@linuxfoundation.org>
+Subject: [PATCH 6.0 048/240] iio: adxl372: Fix unsafe buffer attributes
+Date:   Wed,  2 Nov 2022 03:30:23 +0100
+Message-Id: <20221102022112.487017762@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -54,54 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cosmin Tanislav <cosmin.tanislav@analog.com>
+From: Matti Vaittinen <mazziesaccount@gmail.com>
 
-commit 4132f19173211856d35180958d2754f5c56d520a upstream.
+commit ab0ee36e90f611f32c3a53afe9dc743de48138e2 upstream.
 
-Currently, every time the device wakes up from sleep, the
-iio_chan array is reallocated, leaking the previous one
-until the device is removed (basically never).
+The iio_triggered_buffer_setup_ext() was changed by
+commit 15097c7a1adc ("iio: buffer: wrap all buffer attributes into iio_dev_attr")
+to silently expect that all attributes given in buffer_attrs array are
+device-attributes. This expectation was not forced by the API - and some
+drivers did register attributes created by IIO_CONST_ATTR().
 
-Move the allocation to the probe function to avoid this.
+The added attribute "wrapping" does not copy the pointer to stored
+string constant and when the sysfs file is read the kernel will access
+to invalid location.
 
-Signed-off-by: Cosmin Tanislav <cosmin.tanislav@analog.com>
-Fixes: f110f3188e563 ("iio: temperature: Add support for LTC2983")
+Change the IIO_CONST_ATTRs from the driver to IIO_DEVICE_ATTR in order
+to prevent the invalid memory access.
+
+Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Fixes: 15097c7a1adc ("iio: buffer: wrap all buffer attributes into iio_dev_attr")
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221014123724.1401011-2-demonsingur@gmail.com
+Link: https://lore.kernel.org/r/19158499623cdf7f9c5efae1f13c9f1a918ff75f.1664782676.git.mazziesaccount@gmail.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/temperature/ltc2983.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/iio/accel/adxl372.c |   23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
---- a/drivers/iio/temperature/ltc2983.c
-+++ b/drivers/iio/temperature/ltc2983.c
-@@ -1385,13 +1385,6 @@ static int ltc2983_setup(struct ltc2983_
- 		return ret;
- 	}
+--- a/drivers/iio/accel/adxl372.c
++++ b/drivers/iio/accel/adxl372.c
+@@ -998,17 +998,30 @@ static ssize_t adxl372_get_fifo_watermar
+ 	return sprintf(buf, "%d\n", st->watermark);
+ }
  
--	st->iio_chan = devm_kzalloc(&st->spi->dev,
--				    st->iio_channels * sizeof(*st->iio_chan),
--				    GFP_KERNEL);
--
--	if (!st->iio_chan)
--		return -ENOMEM;
--
- 	ret = regmap_update_bits(st->regmap, LTC2983_GLOBAL_CONFIG_REG,
- 				 LTC2983_NOTCH_FREQ_MASK,
- 				 LTC2983_NOTCH_FREQ(st->filter_notch_freq));
-@@ -1514,6 +1507,12 @@ static int ltc2983_probe(struct spi_devi
- 		gpiod_set_value_cansleep(gpio, 0);
- 	}
- 
-+	st->iio_chan = devm_kzalloc(&spi->dev,
-+				    st->iio_channels * sizeof(*st->iio_chan),
-+				    GFP_KERNEL);
-+	if (!st->iio_chan)
-+		return -ENOMEM;
+-static IIO_CONST_ATTR(hwfifo_watermark_min, "1");
+-static IIO_CONST_ATTR(hwfifo_watermark_max,
+-		      __stringify(ADXL372_FIFO_SIZE));
++static ssize_t hwfifo_watermark_min_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
++{
++	return sysfs_emit(buf, "%s\n", "1");
++}
 +
- 	ret = ltc2983_setup(st, true);
- 	if (ret)
- 		return ret;
++static ssize_t hwfifo_watermark_max_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
++{
++	return sysfs_emit(buf, "%s\n", __stringify(ADXL372_FIFO_SIZE));
++}
++
++static IIO_DEVICE_ATTR_RO(hwfifo_watermark_min, 0);
++static IIO_DEVICE_ATTR_RO(hwfifo_watermark_max, 0);
+ static IIO_DEVICE_ATTR(hwfifo_watermark, 0444,
+ 		       adxl372_get_fifo_watermark, NULL, 0);
+ static IIO_DEVICE_ATTR(hwfifo_enabled, 0444,
+ 		       adxl372_get_fifo_enabled, NULL, 0);
+ 
+ static const struct attribute *adxl372_fifo_attributes[] = {
+-	&iio_const_attr_hwfifo_watermark_min.dev_attr.attr,
+-	&iio_const_attr_hwfifo_watermark_max.dev_attr.attr,
++	&iio_dev_attr_hwfifo_watermark_min.dev_attr.attr,
++	&iio_dev_attr_hwfifo_watermark_max.dev_attr.attr,
+ 	&iio_dev_attr_hwfifo_watermark.dev_attr.attr,
+ 	&iio_dev_attr_hwfifo_enabled.dev_attr.attr,
+ 	NULL,
 
 
