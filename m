@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDCCF615952
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:09:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A7966159AF
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:16:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230072AbiKBDJa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:09:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55920 "EHLO
+        id S229517AbiKBDQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:16:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230397AbiKBDIq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:08:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72D4813F07
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:08:31 -0700 (PDT)
+        with ESMTP id S230307AbiKBDQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:16:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9250A24F0C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:16:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28235B82062
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:08:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17227C433C1;
-        Wed,  2 Nov 2022 03:08:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3131E61799
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:16:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C55D5C433D6;
+        Wed,  2 Nov 2022 03:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358508;
-        bh=2sUBNV0BIE1PbFY9K1Eu5yZwFElzNLpXHkq5ZZcwsqc=;
+        s=korg; t=1667358964;
+        bh=YNpFSAn4DQ86DcQWVPFxfco9iuB9qLYxOb4BjBhxxeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AMkW70+OQ1FHUNg2eKPp/1NuaEm2iAX6uoG94YseMlgoIxIreFhMVL9BfQn3PXJRp
-         cUdfjLnqoyMtWH3gHAZrrzDJMC8L/KmEkn+Q8GMg0Z5W01OTurzPgY3qEZCw4Clkgo
-         nCXoPGCqKXFJwAkUWdxIMTxPtfYBJObI3+YMq7iI=
+        b=iPRzUWIdhDkW4rlhRuTxLbo+KG/ngtyJgx5EFh4xJcbXz7fx22N1bkLzv46HF6d9h
+         bpE6/VCYPoPyJaUMTHcMcnP5miAhtgT8BwR0OTIgGz4rU0kiDyy9O8LLaj8tY+/75a
+         KIZeiKtUdbrga9tNpy5UY5vo7fCYz4eC+BSoBfaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 111/132] net: ehea: fix possible memory leak in ehea_register_port()
+Subject: [PATCH 5.10 54/91] kcm: annotate data-races around kcm->rx_psock
 Date:   Wed,  2 Nov 2022 03:33:37 +0100
-Message-Id: <20221102022102.584235101@linuxfoundation.org>
+Message-Id: <20221102022056.560986190@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 0e7ce23a917a9cc83ca3c779fbba836bca3bcf1e ]
+[ Upstream commit 15e4dabda11b0fa31d510a915d1a580f47dfc92e ]
 
-If of_device_register() returns error, the of node and the
-name allocated in dev_set_name() is leaked, call put_device()
-to give up the reference that was set in device_initialize(),
-so that of node is put in logical_port_release() and the name
-is freed in kobject_cleanup().
+kcm->rx_psock can be read locklessly in kcm_rfree().
+Annotate the read and writes accordingly.
 
-Fixes: 1acf2318dd13 ("ehea: dynamic add / remove port")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221025130011.1071357-1-yangyingliang@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+We do the same for kcm->rx_wait in the following patch.
+
+syzbot reported:
+BUG: KCSAN: data-race in kcm_rfree / unreserve_rx_kcm
+
+write to 0xffff888123d827b8 of 8 bytes by task 2758 on cpu 1:
+unreserve_rx_kcm+0x72/0x1f0 net/kcm/kcmsock.c:313
+kcm_rcv_strparser+0x2b5/0x3a0 net/kcm/kcmsock.c:373
+__strp_recv+0x64c/0xd20 net/strparser/strparser.c:301
+strp_recv+0x6d/0x80 net/strparser/strparser.c:335
+tcp_read_sock+0x13e/0x5a0 net/ipv4/tcp.c:1703
+strp_read_sock net/strparser/strparser.c:358 [inline]
+do_strp_work net/strparser/strparser.c:406 [inline]
+strp_work+0xe8/0x180 net/strparser/strparser.c:415
+process_one_work+0x3d3/0x720 kernel/workqueue.c:2289
+worker_thread+0x618/0xa70 kernel/workqueue.c:2436
+kthread+0x1a9/0x1e0 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+
+read to 0xffff888123d827b8 of 8 bytes by task 5859 on cpu 0:
+kcm_rfree+0x14c/0x220 net/kcm/kcmsock.c:181
+skb_release_head_state+0x8e/0x160 net/core/skbuff.c:841
+skb_release_all net/core/skbuff.c:852 [inline]
+__kfree_skb net/core/skbuff.c:868 [inline]
+kfree_skb_reason+0x5c/0x260 net/core/skbuff.c:891
+kfree_skb include/linux/skbuff.h:1216 [inline]
+kcm_recvmsg+0x226/0x2b0 net/kcm/kcmsock.c:1161
+____sys_recvmsg+0x16c/0x2e0
+___sys_recvmsg net/socket.c:2743 [inline]
+do_recvmmsg+0x2f1/0x710 net/socket.c:2837
+__sys_recvmmsg net/socket.c:2916 [inline]
+__do_sys_recvmmsg net/socket.c:2939 [inline]
+__se_sys_recvmmsg net/socket.c:2932 [inline]
+__x64_sys_recvmmsg+0xde/0x160 net/socket.c:2932
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+value changed: 0xffff88812971ce00 -> 0x0000000000000000
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 5859 Comm: syz-executor.3 Not tainted 6.0.0-syzkaller-12189-g19d17ab7c68b-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
+
+Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ehea/ehea_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/kcm/kcmsock.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ehea/ehea_main.c b/drivers/net/ethernet/ibm/ehea/ehea_main.c
-index d5df131b183c..6c534b92aeed 100644
---- a/drivers/net/ethernet/ibm/ehea/ehea_main.c
-+++ b/drivers/net/ethernet/ibm/ehea/ehea_main.c
-@@ -2898,6 +2898,7 @@ static struct device *ehea_register_port(struct ehea_port *port,
- 	ret = of_device_register(&port->ofdev);
- 	if (ret) {
- 		pr_err("failed to register device. ret=%d\n", ret);
-+		put_device(&port->ofdev.dev);
- 		goto out;
- 	}
+diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
+index 18469f1f707e..a1dc2b74b52f 100644
+--- a/net/kcm/kcmsock.c
++++ b/net/kcm/kcmsock.c
+@@ -177,7 +177,7 @@ static void kcm_rfree(struct sk_buff *skb)
+ 	/* For reading rx_wait and rx_psock without holding lock */
+ 	smp_mb__after_atomic();
  
+-	if (!kcm->rx_wait && !kcm->rx_psock &&
++	if (!kcm->rx_wait && !READ_ONCE(kcm->rx_psock) &&
+ 	    sk_rmem_alloc_get(sk) < sk->sk_rcvlowat) {
+ 		spin_lock_bh(&mux->rx_lock);
+ 		kcm_rcv_ready(kcm);
+@@ -282,7 +282,8 @@ static struct kcm_sock *reserve_rx_kcm(struct kcm_psock *psock,
+ 	kcm->rx_wait = false;
+ 
+ 	psock->rx_kcm = kcm;
+-	kcm->rx_psock = psock;
++	/* paired with lockless reads in kcm_rfree() */
++	WRITE_ONCE(kcm->rx_psock, psock);
+ 
+ 	spin_unlock_bh(&mux->rx_lock);
+ 
+@@ -309,7 +310,8 @@ static void unreserve_rx_kcm(struct kcm_psock *psock,
+ 	spin_lock_bh(&mux->rx_lock);
+ 
+ 	psock->rx_kcm = NULL;
+-	kcm->rx_psock = NULL;
++	/* paired with lockless reads in kcm_rfree() */
++	WRITE_ONCE(kcm->rx_psock, NULL);
+ 
+ 	/* Commit kcm->rx_psock before sk_rmem_alloc_get to sync with
+ 	 * kcm_rfree
 -- 
 2.35.1
 
