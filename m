@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0628615AB1
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:39:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D83BD615A67
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:30:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229927AbiKBDjW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:39:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55994 "EHLO
+        id S231137AbiKBDar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:30:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230165AbiKBDjC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:39:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D840C111E
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:38:53 -0700 (PDT)
+        with ESMTP id S231314AbiKBDaT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:30:19 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A84A264BD
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:30:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74C1861729
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:38:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0DDCC433D6;
-        Wed,  2 Nov 2022 03:38:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 48438CE102E
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:30:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3E1EC433D6;
+        Wed,  2 Nov 2022 03:30:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360332;
-        bh=tHYriPXeR/vh7j+XWYtLF7zUN8HD65zHtxKcarQ20hM=;
+        s=korg; t=1667359813;
+        bh=dymtWmbAw2K873+g42pvLr+y0fCYwofUpmXE5EwcFVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rEnHxsICv/wgE6Pnpo8a5GfzBEhMl2mrsS0wlUnGGc/O57IjrTZpNSYoTZ2axbQIk
-         4hzc9YGFBbFqistzyHKn8vmI0p+l8F69XxWpKzOanZkhLgRgnD7MXGvRvh9vVNwIfu
-         HnmHdk9I+/wAum0Iwo8EZZu27m3JWk8H8IODKcWE=
+        b=Aj2VQCa5YbtHORr0A/BpCHo5lMLB2vLYUZGRcYEDDwijKd5z+litXQ+4j6Uy7x6Pu
+         rxvH4M7tgtmP/stniefwErMi/iMYmd1cW3//67wPzt9TJYjqF1BB1RjFcs0s2ajyLp
+         e2wpdCkHhO+YjzonaAqkk6Rn9UxnHr3OgIDwgooI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Yan Wang <wangyan122@huawei.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 02/60] ocfs2: fix BUG when iput after ocfs2_mknod fails
+        patches@lists.linux.dev, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 4.19 38/78] mac802154: Fix LQI recording
 Date:   Wed,  2 Nov 2022 03:34:23 +0100
-Message-Id: <20221102022051.154387133@linuxfoundation.org>
+Message-Id: <20221102022054.109168316@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,60 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 759a7c6126eef5635506453e9b9d55a6a3ac2084 upstream.
+commit 5a5c4e06fd03b595542d5590f2bc05a6b7fc5c2b upstream.
 
-Commit b1529a41f777 "ocfs2: should reclaim the inode if
-'__ocfs2_mknod_locked' returns an error" tried to reclaim the claimed
-inode if __ocfs2_mknod_locked() fails later.  But this introduce a race,
-the freed bit may be reused immediately by another thread, which will
-update dinode, e.g.  i_generation.  Then iput this inode will lead to BUG:
-inode->i_generation != le32_to_cpu(fe->i_generation)
+Back in 2014, the LQI was saved in the skb control buffer (skb->cb, or
+mac_cb(skb)) without any actual reset of this area prior to its use.
 
-We could make this inode as bad, but we did want to do operations like
-wipe in some cases.  Since the claimed inode bit can only affect that an
-dinode is missing and will return back after fsck, it seems not a big
-problem.  So just leave it as is by revert the reclaim logic.
+As part of a useful rework of the use of this region, 32edc40ae65c
+("ieee802154: change _cb handling slightly") introduced mac_cb_init() to
+basically memset the cb field to 0. In particular, this new function got
+called at the beginning of mac802154_parse_frame_start(), right before
+the location where the buffer got actually filled.
 
-Link: https://lkml.kernel.org/r/20221017130227.234480-1-joseph.qi@linux.alibaba.com
-Fixes: b1529a41f777 ("ocfs2: should reclaim the inode if '__ocfs2_mknod_locked' returns an error")
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reported-by: Yan Wang <wangyan122@huawei.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+What went through unnoticed however, is the fact that the very first
+helper called by device drivers in the receive path already used this
+area to save the LQI value for later extraction. Resetting the cb field
+"so late" led to systematically zeroing the LQI.
+
+If we consider the reset of the cb field needed, we can make it as soon
+as we get an skb from a device driver, right before storing the LQI,
+as is the very first time we need to write something there.
+
+Cc: stable@vger.kernel.org
+Fixes: 32edc40ae65c ("ieee802154: change _cb handling slightly")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20221020142535.1038885-1-miquel.raynal@bootlin.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/namei.c |   11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ net/mac802154/rx.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/ocfs2/namei.c
-+++ b/fs/ocfs2/namei.c
-@@ -643,18 +643,9 @@ static int ocfs2_mknod_locked(struct ocf
- 		return status;
- 	}
+--- a/net/mac802154/rx.c
++++ b/net/mac802154/rx.c
+@@ -140,7 +140,7 @@ static int
+ ieee802154_parse_frame_start(struct sk_buff *skb, struct ieee802154_hdr *hdr)
+ {
+ 	int hlen;
+-	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
++	struct ieee802154_mac_cb *cb = mac_cb(skb);
  
--	status = __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
-+	return __ocfs2_mknod_locked(dir, inode, dev, new_fe_bh,
- 				    parent_fe_bh, handle, inode_ac,
- 				    fe_blkno, suballoc_loc, suballoc_bit);
--	if (status < 0) {
--		u64 bg_blkno = ocfs2_which_suballoc_group(fe_blkno, suballoc_bit);
--		int tmp = ocfs2_free_suballoc_bits(handle, inode_ac->ac_inode,
--				inode_ac->ac_bh, suballoc_bit, bg_blkno, 1);
--		if (tmp)
--			mlog_errno(tmp);
--	}
--
--	return status;
- }
+ 	skb_reset_mac_header(skb);
  
- static int ocfs2_mkdir(struct inode *dir,
+@@ -302,8 +302,9 @@ void
+ ieee802154_rx_irqsafe(struct ieee802154_hw *hw, struct sk_buff *skb, u8 lqi)
+ {
+ 	struct ieee802154_local *local = hw_to_local(hw);
++	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
+ 
+-	mac_cb(skb)->lqi = lqi;
++	cb->lqi = lqi;
+ 	skb->pkt_type = IEEE802154_RX_MSG;
+ 	skb_queue_tail(&local->skb_queue, skb);
+ 	tasklet_schedule(&local->tasklet);
 
 
