@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CFAA615968
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BA096159A7
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:16:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230182AbiKBDKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:10:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59414 "EHLO
+        id S229817AbiKBDQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:16:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229823AbiKBDKY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:10:24 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7256D183A0
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:10:23 -0700 (PDT)
+        with ESMTP id S230018AbiKBDPh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:15:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F9824BE2
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:15:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C1B90CE1E2F
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:10:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E4FDC433D6;
-        Wed,  2 Nov 2022 03:10:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0840617D5
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:15:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C33EC433D6;
+        Wed,  2 Nov 2022 03:15:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358620;
-        bh=4KZZYevzx2CQ/IWWV3Ac3ItqjxZ9Q2n3KTyqmsxFaKo=;
+        s=korg; t=1667358922;
+        bh=sOInzPtP8lXgKqDmoe2QjiMo59HXozo9QBb+wiglYG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GFgXWF/k4OFUD0wlvcpl/bNWbiuBVRBPgGanUqgUHyixfg/JVTM7vuum9m+/nsgF8
-         YaPpukr03BEHJ0GYLwbYItJpf+Y8wrcR1PtE7f1ueZiqjQRSB1B74ghk2fe51lfmJ5
-         kXwn1OFSVK1dW7MmHUc/wt4GkPaydjqE36uzkFXU=
+        b=kVSu+igi8dS2ttAX5X/vVkC6BITc4PCu+4Xwr2c7zkFPq5vifv/g1X4WaSM+UGflI
+         EkmAOmFxxwJ+DWWBhwzmhqwRdBi8Xwo/1FqGxFwfmkHO3gBQDJE5JfD14NCxG/urh5
+         /7KcalmbBXjpOuGFhIwTm57CqgZ2GO7R50nGtJv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 103/132] net: ksz884x: fix missing pci_disable_device() on error in pcidev_init()
-Date:   Wed,  2 Nov 2022 03:33:29 +0100
-Message-Id: <20221102022102.357336593@linuxfoundation.org>
+Subject: [PATCH 5.10 47/91] net: hinic: fix memory leak when reading function table
+Date:   Wed,  2 Nov 2022 03:33:30 +0100
+Message-Id: <20221102022056.364086928@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 5da6d65590a0698199df44d095e54b0ed1708178 ]
+[ Upstream commit 4c1f602df8956bc0decdafd7e4fc7eef50c550b1 ]
 
-pci_disable_device() need be called while module exiting, switch to use
-pcim_enable(), pci_disable_device() will be called in pcim_release()
-while unbinding device.
+When the input parameter idx meets the expected case option in
+hinic_dbg_get_func_table(), read_data is not released. Fix it.
 
-Fixes: 8ca86fd83eae ("net: Micrel KSZ8841/2 PCI Ethernet driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221024131338.2848959-1-yangyingliang@huawei.com
+Fixes: 5215e16244ee ("hinic: add support to query function table")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ksz884x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/huawei/hinic/hinic_debugfs.c  | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/micrel/ksz884x.c b/drivers/net/ethernet/micrel/ksz884x.c
-index a0ee155f9f51..f56bcd3e36d2 100644
---- a/drivers/net/ethernet/micrel/ksz884x.c
-+++ b/drivers/net/ethernet/micrel/ksz884x.c
-@@ -6848,7 +6848,7 @@ static int pcidev_init(struct pci_dev *pdev, const struct pci_device_id *id)
- 	char banner[sizeof(version)];
- 	struct ksz_switch *sw = NULL;
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_debugfs.c b/drivers/net/ethernet/huawei/hinic/hinic_debugfs.c
+index 19eb839177ec..061952c6c21a 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_debugfs.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_debugfs.c
+@@ -85,6 +85,7 @@ static int hinic_dbg_get_func_table(struct hinic_dev *nic_dev, int idx)
+ 	struct tag_sml_funcfg_tbl *funcfg_table_elem;
+ 	struct hinic_cmd_lt_rd *read_data;
+ 	u16 out_size = sizeof(*read_data);
++	int ret = ~0;
+ 	int err;
  
--	result = pci_enable_device(pdev);
-+	result = pcim_enable_device(pdev);
- 	if (result)
- 		return result;
+ 	read_data = kzalloc(sizeof(*read_data), GFP_KERNEL);
+@@ -111,20 +112,25 @@ static int hinic_dbg_get_func_table(struct hinic_dev *nic_dev, int idx)
  
+ 	switch (idx) {
+ 	case VALID:
+-		return funcfg_table_elem->dw0.bs.valid;
++		ret = funcfg_table_elem->dw0.bs.valid;
++		break;
+ 	case RX_MODE:
+-		return funcfg_table_elem->dw0.bs.nic_rx_mode;
++		ret = funcfg_table_elem->dw0.bs.nic_rx_mode;
++		break;
+ 	case MTU:
+-		return funcfg_table_elem->dw1.bs.mtu;
++		ret = funcfg_table_elem->dw1.bs.mtu;
++		break;
+ 	case RQ_DEPTH:
+-		return funcfg_table_elem->dw13.bs.cfg_rq_depth;
++		ret = funcfg_table_elem->dw13.bs.cfg_rq_depth;
++		break;
+ 	case QUEUE_NUM:
+-		return funcfg_table_elem->dw13.bs.cfg_q_num;
++		ret = funcfg_table_elem->dw13.bs.cfg_q_num;
++		break;
+ 	}
+ 
+ 	kfree(read_data);
+ 
+-	return ~0;
++	return ret;
+ }
+ 
+ static ssize_t hinic_dbg_cmd_read(struct file *filp, char __user *buffer, size_t count,
 -- 
 2.35.1
 
