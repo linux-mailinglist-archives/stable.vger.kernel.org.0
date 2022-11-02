@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B893B61596F
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:11:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC0556159E5
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:20:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230244AbiKBDLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:11:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60022 "EHLO
+        id S230295AbiKBDUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:20:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229823AbiKBDLJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:11:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658F1FD2F
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:11:03 -0700 (PDT)
+        with ESMTP id S230363AbiKBDUh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:20:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3C3E24F15
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:20:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D286B82062
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:11:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBCD6C433D6;
-        Wed,  2 Nov 2022 03:10:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8744D617D5
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:20:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B345FC433D6;
+        Wed,  2 Nov 2022 03:20:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358660;
-        bh=D6eSAMPsbYbN8Or4q8IP9FC5yWZnlYFKTEJzMRHBOdA=;
+        s=korg; t=1667359228;
+        bh=me1oE2ZbWcHX8XKjbO6m6tqPNjlfsBpv/eXCN8618yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BFnMwG2ys+bM10lkVw7onmoj21tZBq4OdfxRtF3eGo9vbh14Dq+688DHbKNxKY1BP
-         RIEISS9OtrOyxbY4phoHQmldNf3K4ukYPZrNpqZauq//36fwL4TM2E6NT/Soz4qxNh
-         nLBhxCNIgdOPKduixQBYLlTcu10rlMR1pvCap1A8=
+        b=jW1vZVrZQ+2GQMrwDClk/arcSSRsPczs5Rumjd92OpiCFz20hR/+WilV+31RA+pQU
+         lJOFYc9EMgO/Ahdw6pW+P4wFfEeeOmafWHS69gBUwDOURwYFszpLqgGskS4pDMp8ad
+         j7b4oAhrMGtwIlGCeTSJteWvNOnfgFN7VS4QMH1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Biju Das <biju.das.jz@bp.renesas.com>
-Subject: [PATCH 5.15 129/132] can: rcar_canfd: rcar_canfd_handle_global_receive(): fix IRQ storm on global FIFO receive
+        patches@lists.linux.dev, Slawomir Laba <slawomirx.laba@intel.com>,
+        Michal Jaron <michalx.jaron@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 72/91] i40e: Fix flow-type by setting GL_HASH_INSET registers
 Date:   Wed,  2 Nov 2022 03:33:55 +0100
-Message-Id: <20221102022103.061845507@linuxfoundation.org>
+Message-Id: <20221102022057.085180593@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,61 +56,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Slawomir Laba <slawomirx.laba@intel.com>
 
-commit 702de2c21eed04c67cefaaedc248ef16e5f6b293 upstream.
+[ Upstream commit 3b32c9932853e11d71f9db012d69e92e4669ba23 ]
 
-We are seeing an IRQ storm on the global receive IRQ line under heavy
-CAN bus load conditions with both CAN channels enabled.
+Fix setting bits for specific flow_type for GLQF_HASH_INSET register.
+In previous version all of the bits were set only in hena register, while
+in inset only one bit was set. In order for this working correctly on all
+types of cards these bits needs to be set correctly for both hena and inset
+registers.
 
-Conditions:
-
-The global receive IRQ line is shared between can0 and can1, either of
-the channels can trigger interrupt while the other channel's IRQ line
-is disabled (RFIE).
-
-When global a receive IRQ interrupt occurs, we mask the interrupt in
-the IRQ handler. Clearing and unmasking of the interrupt is happening
-in rx_poll(). There is a race condition where rx_poll() unmasks the
-interrupt, but the next IRQ handler does not mask the IRQ due to
-NAPIF_STATE_MISSED flag (e.g.: can0 RX FIFO interrupt is disabled and
-can1 is triggering RX interrupt, the delay in rx_poll() processing
-results in setting NAPIF_STATE_MISSED flag) leading to an IRQ storm.
-
-This patch fixes the issue by checking IRQ active and enabled before
-handling the IRQ on a particular channel.
-
-Fixes: dd3bd23eb438 ("can: rcar_canfd: Add Renesas R-Car CAN FD driver")
-Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/all/20221025155657.1426948-2-biju.das.jz@bp.renesas.com
-Cc: stable@vger.kernel.org
-[mkl: adjust commit message]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[biju: removed gpriv from RCANFD_RFCC_RFIE macro]
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: eb0dd6e4a3b3 ("i40e: Allow RSS Hash set with less than four parameters")
+Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Link: https://lore.kernel.org/r/20221024100526.1874914-3-jacob.e.keller@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/rcar/rcar_canfd.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ .../net/ethernet/intel/i40e/i40e_ethtool.c    | 71 ++++++++++---------
+ 1 file changed, 38 insertions(+), 33 deletions(-)
 
---- a/drivers/net/can/rcar/rcar_canfd.c
-+++ b/drivers/net/can/rcar/rcar_canfd.c
-@@ -1106,11 +1106,13 @@ static void rcar_canfd_handle_global_rec
- {
- 	struct rcar_canfd_channel *priv = gpriv->ch[ch];
- 	u32 ridx = ch + RCANFD_RFFIFO_IDX;
--	u32 sts;
-+	u32 sts, cc;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index bcc22b374b4a..144c4824b5e8 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -3451,6 +3451,7 @@ static u64 i40e_get_rss_hash_bits(struct i40e_hw *hw,
+ 	return i_set;
+ }
  
- 	/* Handle Rx interrupts */
- 	sts = rcar_canfd_read(priv->base, RCANFD_RFSTS(ridx));
--	if (likely(sts & RCANFD_RFSTS_RFIF)) {
-+	cc = rcar_canfd_read(priv->base, RCANFD_RFCC(ridx));
-+	if (likely(sts & RCANFD_RFSTS_RFIF &&
-+		   cc & RCANFD_RFCC_RFIE)) {
- 		if (napi_schedule_prep(&priv->napi)) {
- 			/* Disable Rx FIFO interrupts */
- 			rcar_canfd_clear_bit(priv->base,
++#define FLOW_PCTYPES_SIZE 64
+ /**
+  * i40e_set_rss_hash_opt - Enable/Disable flow types for RSS hash
+  * @pf: pointer to the physical function struct
+@@ -3463,9 +3464,11 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
+ 	struct i40e_hw *hw = &pf->hw;
+ 	u64 hena = (u64)i40e_read_rx_ctl(hw, I40E_PFQF_HENA(0)) |
+ 		   ((u64)i40e_read_rx_ctl(hw, I40E_PFQF_HENA(1)) << 32);
+-	u8 flow_pctype = 0;
++	DECLARE_BITMAP(flow_pctypes, FLOW_PCTYPES_SIZE);
+ 	u64 i_set, i_setc;
+ 
++	bitmap_zero(flow_pctypes, FLOW_PCTYPES_SIZE);
++
+ 	if (pf->flags & I40E_FLAG_MFP_ENABLED) {
+ 		dev_err(&pf->pdev->dev,
+ 			"Change of RSS hash input set is not supported when MFP mode is enabled\n");
+@@ -3481,36 +3484,35 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
+ 
+ 	switch (nfc->flow_type) {
+ 	case TCP_V4_FLOW:
+-		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV4_TCP;
++		set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_TCP, flow_pctypes);
+ 		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
+-			hena |=
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK);
++			set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK,
++				flow_pctypes);
+ 		break;
+ 	case TCP_V6_FLOW:
+-		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV6_TCP;
+-		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
+-			hena |=
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK);
++		set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_TCP, flow_pctypes);
+ 		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
+-			hena |=
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV6_TCP_SYN_NO_ACK);
++			set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_TCP_SYN_NO_ACK,
++				flow_pctypes);
+ 		break;
+ 	case UDP_V4_FLOW:
+-		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV4_UDP;
+-		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
+-			hena |=
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV4_UDP) |
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV4_UDP);
+-
++		set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_UDP, flow_pctypes);
++		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE) {
++			set_bit(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV4_UDP,
++				flow_pctypes);
++			set_bit(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV4_UDP,
++				flow_pctypes);
++		}
+ 		hena |= BIT_ULL(I40E_FILTER_PCTYPE_FRAG_IPV4);
+ 		break;
+ 	case UDP_V6_FLOW:
+-		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV6_UDP;
+-		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
+-			hena |=
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV6_UDP) |
+-			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV6_UDP);
+-
++		set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_UDP, flow_pctypes);
++		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE) {
++			set_bit(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV6_UDP,
++				flow_pctypes);
++			set_bit(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV6_UDP,
++				flow_pctypes);
++		}
+ 		hena |= BIT_ULL(I40E_FILTER_PCTYPE_FRAG_IPV6);
+ 		break;
+ 	case AH_ESP_V4_FLOW:
+@@ -3543,17 +3545,20 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
+ 		return -EINVAL;
+ 	}
+ 
+-	if (flow_pctype) {
+-		i_setc = (u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(0,
+-					       flow_pctype)) |
+-			((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1,
+-					       flow_pctype)) << 32);
+-		i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
+-		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_pctype),
+-				  (u32)i_set);
+-		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_pctype),
+-				  (u32)(i_set >> 32));
+-		hena |= BIT_ULL(flow_pctype);
++	if (bitmap_weight(flow_pctypes, FLOW_PCTYPES_SIZE)) {
++		u8 flow_id;
++
++		for_each_set_bit(flow_id, flow_pctypes, FLOW_PCTYPES_SIZE) {
++			i_setc = (u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_id)) |
++				 ((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_id)) << 32);
++			i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
++
++			i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_id),
++					  (u32)i_set);
++			i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_id),
++					  (u32)(i_set >> 32));
++			hena |= BIT_ULL(flow_id);
++		}
+ 	}
+ 
+ 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(0), (u32)hena);
+-- 
+2.35.1
+
 
 
