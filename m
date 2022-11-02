@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57F526157C8
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:38:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EB4D6157C9
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:39:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230139AbiKBCiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:38:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57538 "EHLO
+        id S230216AbiKBCi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:38:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230216AbiKBCix (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:38:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53FB92196
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:38:52 -0700 (PDT)
+        with ESMTP id S230202AbiKBCi7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:38:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 396E7AE7C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:38:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10D65B82072
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:38:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3642C433D7;
-        Wed,  2 Nov 2022 02:38:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D734FB82070
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:38:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA15CC433D7;
+        Wed,  2 Nov 2022 02:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356729;
-        bh=6e2B2Fpm+4EEyqKvAY+Jxe6QJNBtvvtIXHdHliXM77U=;
+        s=korg; t=1667356735;
+        bh=+hfvyKi5N180oQ54BjCvZNQRNkkZq+Rxdwv/dumIUwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIoa0PRZGsx/7UbvpvZ/Xs579NiUiE7mSwOog1Q46r/e+Ga3b6xcy8oWeVq+QIW8q
-         dVaq+lXeQrIkl3SoOXUG9Uk6brcfyU93YJSi6MJ3WeaE5QLlI8LFS38y/Do4MOcocn
-         /jhLGXnbe0V+otpmPSlfj5wL/g2xmY0QILmYWQVk=
+        b=lSY4DOLhXf0NMpawblASL3kzg+vr4Bz97uml9RONCQZ8T2W/NuYuUOfuaSGyo5HGy
+         F8Y+PqJKLox78QUPtFjxxB9ULpNtsnwj7jNX5w8/l7P3X3aYxmXoiytDjE89IcMyRX
+         pyXECaPL5rL9ueMGln0vZFTwGEejgvypXoJgWurE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matti Vaittinen <mazziesaccount@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.0 049/240] iio: adxl367: Fix unsafe buffer attributes
-Date:   Wed,  2 Nov 2022 03:30:24 +0100
-Message-Id: <20221102022112.510167970@linuxfoundation.org>
+        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
+Subject: [PATCH 6.0 050/240] fbdev: stifb: Fall back to cfb_fillrect() on 32-bit HCRX cards
+Date:   Wed,  2 Nov 2022 03:30:25 +0100
+Message-Id: <20221102022112.532391799@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -54,70 +51,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matti Vaittinen <mazziesaccount@gmail.com>
+From: Helge Deller <deller@gmx.de>
 
-commit 5e23b33d1e84f04c80da6f1d89cbb3d3a3f81e01 upstream.
+commit 776d875fd4cbb3884860ea7f63c3958f02b0c80e upstream.
 
-The devm_iio_kfifo_buffer_setup_ext() was changed by
-commit 15097c7a1adc ("iio: buffer: wrap all buffer attributes into iio_dev_attr")
-to silently expect that all attributes given in buffer_attrs array are
-device-attributes. This expectation was not forced by the API - and some
-drivers did register attributes created by IIO_CONST_ATTR().
+When the text console is scrolling text upwards it calls the fillrect()
+function to empty the new line. The current implementation doesn't seem
+to work correctly on HCRX cards in 32-bit mode and leave garbage in that
+line instead. Fix it by falling back to standard cfb_fillrect() in that
+case.
 
-The added attribute "wrapping" does not copy the pointer to stored
-string constant and when the sysfs file is read the kernel will access
-to invalid location.
-
-Change the IIO_CONST_ATTRs from the driver to IIO_DEVICE_ATTR in order
-to prevent the invalid memory access.
-
-Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
-Fixes: 15097c7a1adc ("iio: buffer: wrap all buffer attributes into iio_dev_attr")
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/2e2d9ec34fb1df8ab8e2749199822db8cc91d302.1664782676.git.mazziesaccount@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/adxl367.c |   23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ drivers/video/fbdev/stifb.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/accel/adxl367.c
-+++ b/drivers/iio/accel/adxl367.c
-@@ -1185,17 +1185,30 @@ static ssize_t adxl367_get_fifo_watermar
- 	return sysfs_emit(buf, "%d\n", fifo_watermark);
- }
+--- a/drivers/video/fbdev/stifb.c
++++ b/drivers/video/fbdev/stifb.c
+@@ -1055,7 +1055,8 @@ stifb_fillrect(struct fb_info *info, con
+ {
+ 	struct stifb_info *fb = container_of(info, struct stifb_info, info);
  
--static IIO_CONST_ATTR(hwfifo_watermark_min, "1");
--static IIO_CONST_ATTR(hwfifo_watermark_max,
--		      __stringify(ADXL367_FIFO_MAX_WATERMARK));
-+static ssize_t hwfifo_watermark_min_show(struct device *dev,
-+					 struct device_attribute *attr,
-+					 char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", "1");
-+}
-+
-+static ssize_t hwfifo_watermark_max_show(struct device *dev,
-+					 struct device_attribute *attr,
-+					 char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", __stringify(ADXL367_FIFO_MAX_WATERMARK));
-+}
-+
-+static IIO_DEVICE_ATTR_RO(hwfifo_watermark_min, 0);
-+static IIO_DEVICE_ATTR_RO(hwfifo_watermark_max, 0);
- static IIO_DEVICE_ATTR(hwfifo_watermark, 0444,
- 		       adxl367_get_fifo_watermark, NULL, 0);
- static IIO_DEVICE_ATTR(hwfifo_enabled, 0444,
- 		       adxl367_get_fifo_enabled, NULL, 0);
+-	if (rect->rop != ROP_COPY)
++	if (rect->rop != ROP_COPY ||
++	    (fb->id == S9000_ID_HCRX && fb->info.var.bits_per_pixel == 32))
+ 		return cfb_fillrect(info, rect);
  
- static const struct attribute *adxl367_fifo_attributes[] = {
--	&iio_const_attr_hwfifo_watermark_min.dev_attr.attr,
--	&iio_const_attr_hwfifo_watermark_max.dev_attr.attr,
-+	&iio_dev_attr_hwfifo_watermark_min.dev_attr.attr,
-+	&iio_dev_attr_hwfifo_watermark_max.dev_attr.attr,
- 	&iio_dev_attr_hwfifo_watermark.dev_attr.attr,
- 	&iio_dev_attr_hwfifo_enabled.dev_attr.attr,
- 	NULL,
+ 	SETUP_HW(fb);
 
 
