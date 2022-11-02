@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1198C615A55
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:29:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBCDF6159CD
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:18:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231146AbiKBD3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:29:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47158 "EHLO
+        id S229826AbiKBDSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:18:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231153AbiKBD2s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:28:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67F51D97
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:28:47 -0700 (PDT)
+        with ESMTP id S229932AbiKBDSh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:18:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B111DE8A
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:18:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 043E5617DA
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:28:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B428C433D6;
-        Wed,  2 Nov 2022 03:28:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15748B8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:18:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E28D9C433D6;
+        Wed,  2 Nov 2022 03:18:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359726;
-        bh=jPrkWBJ/QSj+z5L997aHH0mqCNWcRBSmRzKwqbOD/sw=;
+        s=korg; t=1667359110;
+        bh=BC9llXGMgYJL2UJGeItO5ja0G+0kITW83xkY1uXo+8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2hc6rcNsP/TjDRPDzdzdIHAeFzqJEsbPhcLmnxHRDyh+7Z028J2TRsUx3vPPb4eLP
-         8doS4KKRfQipQTC8wjQGCwBqL0SmSwr7SxPwG96pCWnRuosYW9ffMDg7SpUtSTA522
-         beKDEeaC3pcHrTQYz3QdTIT6EFFS4F+YD0+Z/Rx0=
+        b=o7t+B4d9rZ6IWRQlt5sWfp47Y+9CyeAyjsiBqhgxRUfoO7jPkHaNLOF7m2zMdY5ny
+         iKgOHCVU3/CefxR8+MJ6519HUJlhKYpkx2M/LqnzaDN0IeAsOxeBHOYzk5r4GyXhol
+         wlOlP4amAkf1+6cb8wWA8PNobjg7EgF+M3yxUpS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nulo <git@nulo.in>,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        patches@lists.linux.dev,
+        syzbot+31cde0bef4bbf8ba2d86@syzkaller.appspotmail.com,
+        Thomas Graf <tgraf@suug.ch>, Aaron Conole <aconole@redhat.com>,
+        Ilya Maximets <i.maximets@ovn.org>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/78] HID: magicmouse: Do not set BTN_MOUSE on double report
+Subject: [PATCH 5.10 78/91] openvswitch: switch from WARN to pr_warn
 Date:   Wed,  2 Nov 2022 03:34:01 +0100
-Message-Id: <20221102022053.441147898@linuxfoundation.org>
+Message-Id: <20221102022057.270704515@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Aaron Conole <aconole@redhat.com>
 
-[ Upstream commit bb5f0c855dcfc893ae5ed90e4c646bde9e4498bf ]
+[ Upstream commit fd954cc1919e35cb92f78671cab6e42d661945a3 ]
 
-Under certain conditions the Magic Trackpad can group 2 reports in a
-single packet. The packet is split and the raw event function is
-invoked recursively for each part.
+As noted by Paolo Abeni, pr_warn doesn't generate any splat and can still
+preserve the warning to the user that feature downgrade occurred.  We
+likely cannot introduce other kinds of checks / enforcement here because
+syzbot can generate different genl versions to the datapath.
 
-However, after processing each part, the BTN_MOUSE status is updated,
-sending multiple click events. [1]
-
-Return after processing double reports to avoid this issue.
-
-Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/811  # [1]
-Fixes: a462230e16ac ("HID: magicmouse: enable Magic Trackpad support")
-Reported-by: Nulo <git@nulo.in>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20221009182747.90730-1-jose.exposito89@gmail.com
+Reported-by: syzbot+31cde0bef4bbf8ba2d86@syzkaller.appspotmail.com
+Fixes: 44da5ae5fbea ("openvswitch: Drop user features if old user space attempted to create datapath")
+Cc: Thomas Graf <tgraf@suug.ch>
+Signed-off-by: Aaron Conole <aconole@redhat.com>
+Acked-by: Ilya Maximets <i.maximets@ovn.org>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-magicmouse.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/openvswitch/datapath.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index 8af62696f2ca..5604175c0661 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -343,7 +343,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
- 		magicmouse_raw_event(hdev, report, data + 2, data[1]);
- 		magicmouse_raw_event(hdev, report, data + 2 + data[1],
- 			size - 2 - data[1]);
--		break;
-+		return 0;
- 	default:
- 		return 0;
- 	}
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index 6b5c0abf7f1b..7ed97dc0b561 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -1592,7 +1592,8 @@ static void ovs_dp_reset_user_features(struct sk_buff *skb,
+ 	if (IS_ERR(dp))
+ 		return;
+ 
+-	WARN(dp->user_features, "Dropping previously announced user features\n");
++	pr_warn("%s: Dropping previously announced user features\n",
++		ovs_dp_name(dp));
+ 	dp->user_features = 0;
+ }
+ 
 -- 
 2.35.1
 
