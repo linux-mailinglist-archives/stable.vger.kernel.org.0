@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F756158B5
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:57:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88E396158B6
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:57:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231180AbiKBC5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:57:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46602 "EHLO
+        id S231182AbiKBC5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:57:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231182AbiKBC5G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:57:06 -0400
+        with ESMTP id S231183AbiKBC5M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:57:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8B522529
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:57:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 827FB2251C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:57:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D263617CF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:57:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1103CC433D6;
-        Wed,  2 Nov 2022 02:57:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2014D617D0
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:57:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBB09C433C1;
+        Wed,  2 Nov 2022 02:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357824;
-        bh=zNoWNIsqIlAx1Qtg0lQjL+y+lHnwc1gMUxU1O6NCZJY=;
+        s=korg; t=1667357830;
+        bh=u80g+fW4XlpYj3oS7L/JqPYcpuAhjIGvzeXfRrCxzD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pXhpCPUDANtEAyOAM3YaQuJmKeCjFzghEfFh/utdWkOYhy4vZ6FqO9dsPPVevXNoc
-         0wEZ1GI4IShrnYKJlCao/vIHxQQY/fMOYzLGVZAonr2xhmIxPtPU+uCevHcwYeNRaD
-         nGfuO9taEbS0fxVPlUvaVwXTuiHH4feLi0EshbwY=
+        b=oI23VgXwXmZ7kHy/EVZc50UEi8KkZiVskOHEGWS/KCRQgR17LbN+gcQ8M3ktt4Swn
+         2qdK6IdZ2JxdPwPWokMvWj7w+0/9d6fluZzaF0ZKvIY7v2fIJp2b57uBtnj58AS38i
+         TH+5EdQ+I/8o6ZDzTW0zZYUFPaUPVSS5WjbZs6oU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Qinglin Pan <panqinglin2020@iscas.ac.cn>,
+        Atish Patra <atishp@rivosinc.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 235/240] net: enetc: survive memory pressure without crashing
-Date:   Wed,  2 Nov 2022 03:33:30 +0100
-Message-Id: <20221102022116.719623665@linuxfoundation.org>
+Subject: [PATCH 6.0 236/240] riscv: mm: add missing memcpy in kasan_init
+Date:   Wed,  2 Nov 2022 03:33:31 +0100
+Message-Id: <20221102022116.741944321@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -54,99 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Qinglin Pan <panqinglin2020@iscas.ac.cn>
 
-[ Upstream commit 84ce1ca3fe9e1249bf21176ff162200f1c4e5ed1 ]
+[ Upstream commit 9f2ac64d6ca60db99132e08628ac2899f956a0ec ]
 
-Under memory pressure, enetc_refill_rx_ring() may fail, and when called
-during the enetc_open() -> enetc_setup_rxbdr() procedure, this is not
-checked for.
+Hi Atish,
 
-An extreme case of memory pressure will result in exactly zero buffers
-being allocated for the RX ring, and in such a case it is expected that
-hardware drops all RX packets due to lack of buffers.
+It seems that the panic is due to the missing memcpy during kasan_init.
+Could you please check whether this patch is helpful?
 
-This does not happen, because the reset-default value of the consumer
-and produces index is 0, and this makes the ENETC think that all buffers
-have been initialized and that it owns them (when in reality none were).
+When doing kasan_populate, the new allocated base_pud/base_p4d should
+contain kasan_early_shadow_{pud, p4d}'s content. Add the missing memcpy
+to avoid page fault when read/write kasan shadow region.
 
-The hardware guide explains this best:
+Tested on:
+ - qemu with sv57 and CONFIG_KASAN on.
+ - qemu with sv48 and CONFIG_KASAN on.
 
-| Configure the receive ring producer index register RBaPIR with a value
-| of 0. The producer index is initially configured by software but owned
-| by hardware after the ring has been enabled. Hardware increments the
-| index when a frame is received which may consume one or more BDs.
-| Hardware is not allowed to increment the producer index to match the
-| consumer index since it is used to indicate an empty condition. The ring
-| can hold at most RBLENR[LENGTH]-1 received BDs.
-|
-| Configure the receive ring consumer index register RBaCIR. The
-| consumer index is owned by software and updated during operation of the
-| of the BD ring by software, to indicate that any receive data occupied
-| in the BD has been processed and it has been prepared for new data.
-| - If consumer index and producer index are initialized to the same
-|   value, it indicates that all BDs in the ring have been prepared and
-|   hardware owns all of the entries.
-| - If consumer index is initialized to producer index plus N, it would
-|   indicate N BDs have been prepared. Note that hardware cannot start if
-|   only a single buffer is prepared due to the restrictions described in
-|   (2).
-| - Software may write consumer index to match producer index anytime
-|   while the ring is operational to indicate all received BDs prior have
-|   been processed and new BDs prepared for hardware.
-
-Normally, the value of rx_ring->rcir (consumer index) is brought in sync
-with the rx_ring->next_to_use software index, but this only happens if
-page allocation ever succeeded.
-
-When PI==CI==0, the hardware appears to receive frames and write them to
-DMA address 0x0 (?!), then set the READY bit in the BD.
-
-The enetc_clean_rx_ring() function (and its XDP derivative) is naturally
-not prepared to handle such a condition. It will attempt to process
-those frames using the rx_swbd structure associated with index i of the
-RX ring, but that structure is not fully initialized (enetc_new_page()
-does all of that). So what happens next is undefined behavior.
-
-To operate using no buffer, we must initialize the CI to PI + 1, which
-will block the hardware from advancing the CI any further, and drop
-everything.
-
-The issue was seen while adding support for zero-copy AF_XDP sockets,
-where buffer memory comes from user space, which can even decide to
-supply no buffers at all (example: "xdpsock --txonly"). However, the bug
-is present also with the network stack code, even though it would take a
-very determined person to trigger a page allocation failure at the
-perfect time (a series of ifup/ifdown under memory pressure should
-eventually reproduce it given enough retries).
-
-Fixes: d4fd0404c1c9 ("enetc: Introduce basic PF and VF ENETC ethernet drivers")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Link: https://lore.kernel.org/r/20221027182925.3256653-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Qinglin Pan <panqinglin2020@iscas.ac.cn>
+Tested-by: Atish Patra <atishp@rivosinc.com>
+Fixes: 8fbdccd2b173 ("riscv: mm: Support kasan for sv57")
+Link: https://lore.kernel.org/r/20221009083050.3814850-1-panqinglin2020@iscas.ac.cn
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/riscv/mm/kasan_init.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
-index 9f5b921039bd..d0fd3045ce11 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.c
-@@ -2090,7 +2090,12 @@ static void enetc_setup_rxbdr(struct enetc_hw *hw, struct enetc_bdr *rx_ring)
- 	else
- 		enetc_rxbdr_wr(hw, idx, ENETC_RBBSR, ENETC_RXB_DMA_SIZE);
+diff --git a/arch/riscv/mm/kasan_init.c b/arch/riscv/mm/kasan_init.c
+index a22e418dbd82..e1226709490f 100644
+--- a/arch/riscv/mm/kasan_init.c
++++ b/arch/riscv/mm/kasan_init.c
+@@ -113,6 +113,8 @@ static void __init kasan_populate_pud(pgd_t *pgd,
+ 		base_pud = pt_ops.get_pud_virt(pfn_to_phys(_pgd_pfn(*pgd)));
+ 	} else if (pgd_none(*pgd)) {
+ 		base_pud = memblock_alloc(PTRS_PER_PUD * sizeof(pud_t), PAGE_SIZE);
++		memcpy(base_pud, (void *)kasan_early_shadow_pud,
++			sizeof(pud_t) * PTRS_PER_PUD);
+ 	} else {
+ 		base_pud = (pud_t *)pgd_page_vaddr(*pgd);
+ 		if (base_pud == lm_alias(kasan_early_shadow_pud)) {
+@@ -173,8 +175,11 @@ static void __init kasan_populate_p4d(pgd_t *pgd,
+ 		base_p4d = pt_ops.get_p4d_virt(pfn_to_phys(_pgd_pfn(*pgd)));
+ 	} else {
+ 		base_p4d = (p4d_t *)pgd_page_vaddr(*pgd);
+-		if (base_p4d == lm_alias(kasan_early_shadow_p4d))
++		if (base_p4d == lm_alias(kasan_early_shadow_p4d)) {
+ 			base_p4d = memblock_alloc(PTRS_PER_PUD * sizeof(p4d_t), PAGE_SIZE);
++			memcpy(base_p4d, (void *)kasan_early_shadow_p4d,
++				sizeof(p4d_t) * PTRS_PER_P4D);
++		}
+ 	}
  
-+	/* Also prepare the consumer index in case page allocation never
-+	 * succeeds. In that case, hardware will never advance producer index
-+	 * to match consumer index, and will drop all frames.
-+	 */
- 	enetc_rxbdr_wr(hw, idx, ENETC_RBPIR, 0);
-+	enetc_rxbdr_wr(hw, idx, ENETC_RBCIR, 1);
- 
- 	/* enable Rx ints by setting pkt thr to 1 */
- 	enetc_rxbdr_wr(hw, idx, ENETC_RBICR0, ENETC_RBICR0_ICEN | 0x1);
+ 	p4dp = base_p4d + p4d_index(vaddr);
 -- 
 2.35.1
 
