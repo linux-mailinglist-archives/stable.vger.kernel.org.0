@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54B98615903
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:03:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B940461590F
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:04:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230137AbiKBDDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:03:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51598 "EHLO
+        id S230106AbiKBDEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:04:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231302AbiKBDCb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:02:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 895142315E
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:02:30 -0700 (PDT)
+        with ESMTP id S230303AbiKBDDt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:03:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C31023171
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:03:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26D8161729
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:02:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1FB2C433C1;
-        Wed,  2 Nov 2022 03:02:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4B14B8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:03:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C625AC433C1;
+        Wed,  2 Nov 2022 03:03:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358149;
-        bh=lDIkfRgyBjqjJPmFXGxT3WN29RcDiAPSZod1ghkW/tI=;
+        s=korg; t=1667358215;
+        bh=5z+WWxV37n8tjAplfXjiNL5OX9ke76Hi03W6Y8nzYTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zdHtXkDuKk6L8ktpP3NH//0oDKs1SU9tuUGJOs9fJMChu8IZ4Q84bFRdrpGU3YDe6
-         EtGnEd7CD4irh9BVbE/ApTo6NGWhUHDuYVAhxRK8QkpKhmK+az5q/Z29d8RVzo1DTm
-         F3+Gl++VtPPyV7JnBDHmAD7E7HESu5dLqkd7ORBY=
+        b=A+MlhQ05qtFBbNX2Yk1kTY9WIhcDkAPBUdEu6mUBtFqppU9VP6ZZplHK7FmkZOCDq
+         cLKC663r47Tal3Wkdw9NvMs9r4/MeGmCgtMmYXM0QeSjfrzLrULp8uO9+FXV7UT6PU
+         9GmFEdyUTefCctH4xDBghDApG2htRBokHtwqtY+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Siarhei Volkau <lis8215@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.15 042/132] pinctrl: Ingenic: JZ4755 bug fixes
-Date:   Wed,  2 Nov 2022 03:32:28 +0100
-Message-Id: <20221102022100.733293545@linuxfoundation.org>
+        patches@lists.linux.dev, Mike Rapoport <rppt@kernel.org>,
+        Pavel Kozlov <pavel.kozlov@synopsys.com>,
+        Vineet Gupta <vgupta@kernel.org>
+Subject: [PATCH 5.15 043/132] ARC: mm: fix leakage of memory allocated for PTE
+Date:   Wed,  2 Nov 2022 03:32:29 +0100
+Message-Id: <20221102022100.758207080@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
 References: <20221102022059.593236470@linuxfoundation.org>
@@ -52,49 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siarhei Volkau <lis8215@gmail.com>
+From: Pavel Kozlov <pavel.kozlov@synopsys.com>
 
-commit 17747577bbcb496e1b1c4096d64c2fc1e7bc0fef upstream.
+commit 4fd9df10cb7a9289fbd22d669f9f98164d95a1ce upstream.
 
-Fixes UART1 function bits and MMC groups typo.
+Since commit d9820ff ("ARC: mm: switch pgtable_t back to struct page *")
+a memory leakage problem occurs. Memory allocated for page table entries
+not released during process termination. This issue can be reproduced by
+a small program that allocates a large amount of memory. After several
+runs, you'll see that the amount of free memory has reduced and will
+continue to reduce after each run. All ARC CPUs are effected by this
+issue. The issue was introduced since the kernel stable release v5.15-rc1.
 
-For pins 0x97,0x99 function 0 is designated to PWM3/PWM5
-respectively, function is 1 designated to the UART1.
+As described in commit d9820ff after switch pgtable_t back to struct
+page *, a pointer to "struct page" and appropriate functions are used to
+allocate and free a memory page for PTEs, but the pmd_pgtable macro hasn't
+changed and returns the direct virtual address from the PMD (PGD) entry.
+Than this address used as a parameter in the __pte_free() and as a result
+this function couldn't release memory page allocated for PTEs.
 
-Diff from v1:
- - sent separately
- - added tag Fixes
+Fix this issue by changing the pmd_pgtable macro and returning pointer to
+struct page.
 
-Cc: stable@vger.kernel.org
-Fixes: b582b5a434d3 ("pinctrl: Ingenic: Add pinctrl driver for JZ4755.")
-Tested-by: Siarhei Volkau <lis8215@gmail.com>
-Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
-Link: https://lore.kernel.org/r/20221016153548.3024209-1-lis8215@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: d9820ff76f95 ("ARC: mm: switch pgtable_t back to struct page *")
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: <stable@vger.kernel.org> # 5.15.x
+Signed-off-by: Pavel Kozlov <pavel.kozlov@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-ingenic.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arc/include/asm/pgtable-levels.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-ingenic.c
-+++ b/drivers/pinctrl/pinctrl-ingenic.c
-@@ -643,7 +643,7 @@ static u8 jz4755_lcd_24bit_funcs[] = { 1
- static const struct group_desc jz4755_groups[] = {
- 	INGENIC_PIN_GROUP("uart0-data", jz4755_uart0_data, 0),
- 	INGENIC_PIN_GROUP("uart0-hwflow", jz4755_uart0_hwflow, 0),
--	INGENIC_PIN_GROUP("uart1-data", jz4755_uart1_data, 0),
-+	INGENIC_PIN_GROUP("uart1-data", jz4755_uart1_data, 1),
- 	INGENIC_PIN_GROUP("uart2-data", jz4755_uart2_data, 1),
- 	INGENIC_PIN_GROUP("ssi-dt-b", jz4755_ssi_dt_b, 0),
- 	INGENIC_PIN_GROUP("ssi-dt-f", jz4755_ssi_dt_f, 0),
-@@ -697,7 +697,7 @@ static const char *jz4755_ssi_groups[] =
- 	"ssi-ce1-b", "ssi-ce1-f",
- };
- static const char *jz4755_mmc0_groups[] = { "mmc0-1bit", "mmc0-4bit", };
--static const char *jz4755_mmc1_groups[] = { "mmc0-1bit", "mmc0-4bit", };
-+static const char *jz4755_mmc1_groups[] = { "mmc1-1bit", "mmc1-4bit", };
- static const char *jz4755_i2c_groups[] = { "i2c-data", };
- static const char *jz4755_cim_groups[] = { "cim-data", };
- static const char *jz4755_lcd_groups[] = {
+--- a/arch/arc/include/asm/pgtable-levels.h
++++ b/arch/arc/include/asm/pgtable-levels.h
+@@ -163,7 +163,7 @@
+ #define pmd_page_vaddr(pmd)	(pmd_val(pmd) & PAGE_MASK)
+ #define pmd_page(pmd)		virt_to_page(pmd_page_vaddr(pmd))
+ #define set_pmd(pmdp, pmd)	(*(pmdp) = pmd)
+-#define pmd_pgtable(pmd)	((pgtable_t) pmd_page_vaddr(pmd))
++#define pmd_pgtable(pmd)	((pgtable_t) pmd_page(pmd))
+ 
+ /*
+  * 4th level paging: pte
 
 
