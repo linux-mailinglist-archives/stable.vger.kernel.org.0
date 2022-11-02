@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D83BD615A67
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:30:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49BC0615A25
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:25:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231137AbiKBDar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:30:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46978 "EHLO
+        id S230418AbiKBDZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:25:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231314AbiKBDaT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:30:19 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A84A264BD
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:30:16 -0700 (PDT)
+        with ESMTP id S230397AbiKBDZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:25:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0F6925C63
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:25:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 48438CE102E
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:30:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3E1EC433D6;
-        Wed,  2 Nov 2022 03:30:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C60CB82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:25:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09ECDC433C1;
+        Wed,  2 Nov 2022 03:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359813;
-        bh=dymtWmbAw2K873+g42pvLr+y0fCYwofUpmXE5EwcFVc=;
+        s=korg; t=1667359540;
+        bh=+b6VJPonBh3qqb0jVY+f5reKcq2Rb6fNzWOkZMt2STk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aj2VQCa5YbtHORr0A/BpCHo5lMLB2vLYUZGRcYEDDwijKd5z+litXQ+4j6Uy7x6Pu
-         rxvH4M7tgtmP/stniefwErMi/iMYmd1cW3//67wPzt9TJYjqF1BB1RjFcs0s2ajyLp
-         e2wpdCkHhO+YjzonaAqkk6Rn9UxnHr3OgIDwgooI=
+        b=2vAH62RDAVvouSGn90QQMHbYCtmpeIGN1GnRTer70F2XwEaDOybnE5FXiL+7n69fK
+         rXxHpHgwoG1K0OuEzfPlYkMN22xv4NjmCKNmHJcfeNHfJv7zbKBmJlvcAaPhONVymr
+         oMbM5VYaAEh5enQBPiCjzGqkuEvqZEWIwLbev9tg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 4.19 38/78] mac802154: Fix LQI recording
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 57/64] ALSA: aoa: Fix I2S device accounting
 Date:   Wed,  2 Nov 2022 03:34:23 +0100
-Message-Id: <20221102022054.109168316@linuxfoundation.org>
+Message-Id: <20221102022053.661244664@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 5a5c4e06fd03b595542d5590f2bc05a6b7fc5c2b upstream.
+[ Upstream commit f1fae475f10a26b7e34da4ff2e2f19b7feb3548e ]
 
-Back in 2014, the LQI was saved in the skb control buffer (skb->cb, or
-mac_cb(skb)) without any actual reset of this area prior to its use.
+i2sbus_add_dev() is supposed to return the number of probed devices,
+i.e. either 1 or 0.  However, i2sbus_add_dev() has one error handling
+that returns -ENODEV; this will screw up the accumulation number
+counted in the caller, i2sbus_probe().
 
-As part of a useful rework of the use of this region, 32edc40ae65c
-("ieee802154: change _cb handling slightly") introduced mac_cb_init() to
-basically memset the cb field to 0. In particular, this new function got
-called at the beginning of mac802154_parse_frame_start(), right before
-the location where the buffer got actually filled.
+Fix the return value to 0 and add the comment for better understanding
+for readers.
 
-What went through unnoticed however, is the fact that the very first
-helper called by device drivers in the receive path already used this
-area to save the LQI value for later extraction. Resetting the cb field
-"so late" led to systematically zeroing the LQI.
-
-If we consider the reset of the cb field needed, we can make it as soon
-as we get an skb from a device driver, right before storing the LQI,
-as is the very first time we need to write something there.
-
-Cc: stable@vger.kernel.org
-Fixes: 32edc40ae65c ("ieee802154: change _cb handling slightly")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20221020142535.1038885-1-miquel.raynal@bootlin.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f3d9478b2ce4 ("[ALSA] snd-aoa: add snd-aoa")
+Link: https://lore.kernel.org/r/20221027065233.13292-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac802154/rx.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/aoa/soundbus/i2sbus/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/mac802154/rx.c
-+++ b/net/mac802154/rx.c
-@@ -140,7 +140,7 @@ static int
- ieee802154_parse_frame_start(struct sk_buff *skb, struct ieee802154_hdr *hdr)
- {
- 	int hlen;
--	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
-+	struct ieee802154_mac_cb *cb = mac_cb(skb);
+diff --git a/sound/aoa/soundbus/i2sbus/core.c b/sound/aoa/soundbus/i2sbus/core.c
+index 4b01c51fbd33..3f5ee9f96ef1 100644
+--- a/sound/aoa/soundbus/i2sbus/core.c
++++ b/sound/aoa/soundbus/i2sbus/core.c
+@@ -147,6 +147,7 @@ static int i2sbus_get_and_fixup_rsrc(struct device_node *np, int index,
+ 	return rc;
+ }
  
- 	skb_reset_mac_header(skb);
++/* Returns 1 if added, 0 for otherwise; don't return a negative value! */
+ /* FIXME: look at device node refcounting */
+ static int i2sbus_add_dev(struct macio_dev *macio,
+ 			  struct i2sbus_control *control,
+@@ -213,7 +214,7 @@ static int i2sbus_add_dev(struct macio_dev *macio,
+ 	 * either as the second one in that case is just a modem. */
+ 	if (!ok) {
+ 		kfree(dev);
+-		return -ENODEV;
++		return 0;
+ 	}
  
-@@ -302,8 +302,9 @@ void
- ieee802154_rx_irqsafe(struct ieee802154_hw *hw, struct sk_buff *skb, u8 lqi)
- {
- 	struct ieee802154_local *local = hw_to_local(hw);
-+	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
- 
--	mac_cb(skb)->lqi = lqi;
-+	cb->lqi = lqi;
- 	skb->pkt_type = IEEE802154_RX_MSG;
- 	skb_queue_tail(&local->skb_queue, skb);
- 	tasklet_schedule(&local->tasklet);
+ 	mutex_init(&dev->lock);
+-- 
+2.35.1
+
 
 
