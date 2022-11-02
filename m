@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0CC2615A71
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:31:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 456976159D4
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:19:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231224AbiKBDbU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:31:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48724 "EHLO
+        id S229974AbiKBDTR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:19:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231226AbiKBDa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:30:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF53E26481
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:30:54 -0700 (PDT)
+        with ESMTP id S230187AbiKBDTG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:19:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A65F5DEF5
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:19:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8747D61729
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:30:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30F26C43141;
-        Wed,  2 Nov 2022 03:30:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5443AB82076
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:19:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22F15C433D6;
+        Wed,  2 Nov 2022 03:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359854;
-        bh=4L5afp2iBOY29Y/hQwLTqhSkVs8Wa9v+bPu0UIttJHk=;
+        s=korg; t=1667359141;
+        bh=4uJPfMeB9S5ogt1uSlC+xl8SGodLN9/5GsgFN8KcdU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KsN47nh0ax8FH01DlUfL2C5xd4j1Stok16pma36igB4tj/Uztno6aqgGtT5jTuZoh
-         ykXMGy3Y5JWTbCRTWGwjZw21SvQKp59u1fTB3CDw8b9BEPAw4X4vLbNkX94Ae/maWl
-         3HWWtdWg1+8gzkcQf2YGg3xuCl171ZsBwunzXNJI=
+        b=c/lDqthJYLq1se7cwqAKKkVlAUvAZTDeRzA+jCBrffLKQUEO4TBtHwKntfSSjFmBv
+         7IW5APIoAk+MEfCVujught/dH+OjXSF+LPCH09cJ2zPcICA4Nb5BbWALR1IsVdawWg
+         wdigDV9EJY1EHR+xg8IwDwqis6H1JmUG5qN4JXKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen-Yu Tsai <wenst@chromium.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 21/78] media: v4l2-mem2mem: Apply DST_QUEUE_OFF_BASE on MMAP buffers across ioctls
+        patches@lists.linux.dev, Suresh Devarakonda <ramad@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Bodong Wang <bodong@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 83/91] net/mlx5: Fix crash during sync firmware reset
 Date:   Wed,  2 Nov 2022 03:34:06 +0100
-Message-Id: <20221102022053.602910713@linuxfoundation.org>
+Message-Id: <20221102022057.410993625@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,141 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Suresh Devarakonda <ramad@nvidia.com>
 
-commit 8310ca94075e784bbb06593cd6c068ee6b6e4ca6 upstream.
+[ Upstream commit aefb62a9988749703435e941704624949a80a2a9 ]
 
-DST_QUEUE_OFF_BASE is applied to offset/mem_offset on MMAP capture buffers
-only for the VIDIOC_QUERYBUF ioctl, while the userspace fields (including
-offset/mem_offset) are filled in for VIDIOC_{QUERY,PREPARE,Q,DQ}BUF
-ioctls. This leads to differences in the values presented to userspace.
-If userspace attempts to mmap the capture buffer directly using values
-from DQBUF, it will fail.
+When setting Bluefield to DPU NIC mode using mlxconfig tool +  sync
+firmware reset flow, we run into scenario where the host was not
+eswitch manager at the time of mlx5 driver load but becomes eswitch manager
+after the sync firmware reset flow. This results in null pointer
+access of mpfs structure during mac filter add. This change prevents null
+pointer access but mpfs table entries will not be added.
 
-Move the code that applies the magic offset into a helper, and call
-that helper from all four ioctl entry points.
-
-[hverkuil: drop unnecessary '= 0' in v4l2_m2m_querybuf() for ret]
-
-Fixes: 7f98639def42 ("V4L/DVB: add memory-to-memory device helper framework for videobuf")
-Fixes: 908a0d7c588e ("[media] v4l: mem2mem: port to videobuf2")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-[OP: adjusted return logic for 4.19]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5ec697446f46 ("net/mlx5: Add support for devlink reload action fw activate")
+Signed-off-by: Suresh Devarakonda <ramad@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Reviewed-by: Bodong Wang <bodong@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Link: https://lore.kernel.org/r/20221026135153.154807-12-saeed@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-mem2mem.c |   62 +++++++++++++++++++++++----------
- 1 file changed, 45 insertions(+), 17 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/media/v4l2-core/v4l2-mem2mem.c
-+++ b/drivers/media/v4l2-core/v4l2-mem2mem.c
-@@ -445,19 +445,14 @@ int v4l2_m2m_reqbufs(struct file *file,
- }
- EXPORT_SYMBOL_GPL(v4l2_m2m_reqbufs);
- 
--int v4l2_m2m_querybuf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
--		      struct v4l2_buffer *buf)
-+static void v4l2_m2m_adjust_mem_offset(struct vb2_queue *vq,
-+				       struct v4l2_buffer *buf)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c
+index 839a01da110f..8ff16318e32d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c
+@@ -122,7 +122,7 @@ void mlx5_mpfs_cleanup(struct mlx5_core_dev *dev)
  {
--	struct vb2_queue *vq;
--	int ret = 0;
--	unsigned int i;
--
--	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
--	ret = vb2_querybuf(vq, buf);
--
- 	/* Adjust MMAP memory offsets for the CAPTURE queue */
- 	if (buf->memory == V4L2_MEMORY_MMAP && !V4L2_TYPE_IS_OUTPUT(vq->type)) {
- 		if (V4L2_TYPE_IS_MULTIPLANAR(vq->type)) {
-+			unsigned int i;
-+
- 			for (i = 0; i < buf->length; ++i)
- 				buf->m.planes[i].m.mem_offset
- 					+= DST_QUEUE_OFF_BASE;
-@@ -465,8 +460,23 @@ int v4l2_m2m_querybuf(struct file *file,
- 			buf->m.offset += DST_QUEUE_OFF_BASE;
- 		}
- 	}
-+}
-+
-+int v4l2_m2m_querybuf(struct file *file, struct v4l2_m2m_ctx *m2m_ctx,
-+		      struct v4l2_buffer *buf)
-+{
-+	struct vb2_queue *vq;
-+	int ret;
+ 	struct mlx5_mpfs *mpfs = dev->priv.mpfs;
  
--	return ret;
-+	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
-+	ret = vb2_querybuf(vq, buf);
-+	if (ret)
-+		return ret;
-+
-+	/* Adjust MMAP memory offsets for the CAPTURE queue */
-+	v4l2_m2m_adjust_mem_offset(vq, buf);
-+
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(v4l2_m2m_querybuf);
+-	if (!MLX5_ESWITCH_MANAGER(dev))
++	if (!mpfs)
+ 		return;
  
-@@ -478,10 +488,15 @@ int v4l2_m2m_qbuf(struct file *file, str
+ 	WARN_ON(!hlist_empty(mpfs->hash));
+@@ -137,7 +137,7 @@ int mlx5_mpfs_add_mac(struct mlx5_core_dev *dev, u8 *mac)
+ 	int err = 0;
+ 	u32 index;
  
- 	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
- 	ret = vb2_qbuf(vq, buf);
--	if (!ret)
--		v4l2_m2m_try_schedule(m2m_ctx);
-+	if (ret)
-+		return ret;
-+
-+	/* Adjust MMAP memory offsets for the CAPTURE queue */
-+	v4l2_m2m_adjust_mem_offset(vq, buf);
-+
-+	v4l2_m2m_try_schedule(m2m_ctx);
+-	if (!MLX5_ESWITCH_MANAGER(dev))
++	if (!mpfs)
+ 		return 0;
  
--	return ret;
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(v4l2_m2m_qbuf);
+ 	mutex_lock(&mpfs->lock);
+@@ -185,7 +185,7 @@ int mlx5_mpfs_del_mac(struct mlx5_core_dev *dev, u8 *mac)
+ 	int err = 0;
+ 	u32 index;
  
-@@ -489,9 +504,17 @@ int v4l2_m2m_dqbuf(struct file *file, st
- 		   struct v4l2_buffer *buf)
- {
- 	struct vb2_queue *vq;
-+	int ret;
+-	if (!MLX5_ESWITCH_MANAGER(dev))
++	if (!mpfs)
+ 		return 0;
  
- 	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
--	return vb2_dqbuf(vq, buf, file->f_flags & O_NONBLOCK);
-+	ret = vb2_dqbuf(vq, buf, file->f_flags & O_NONBLOCK);
-+	if (ret)
-+		return ret;
-+
-+	/* Adjust MMAP memory offsets for the CAPTURE queue */
-+	v4l2_m2m_adjust_mem_offset(vq, buf);
-+
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(v4l2_m2m_dqbuf);
- 
-@@ -503,10 +526,15 @@ int v4l2_m2m_prepare_buf(struct file *fi
- 
- 	vq = v4l2_m2m_get_vq(m2m_ctx, buf->type);
- 	ret = vb2_prepare_buf(vq, buf);
--	if (!ret)
--		v4l2_m2m_try_schedule(m2m_ctx);
-+	if (ret)
-+		return ret;
-+
-+	/* Adjust MMAP memory offsets for the CAPTURE queue */
-+	v4l2_m2m_adjust_mem_offset(vq, buf);
-+
-+	v4l2_m2m_try_schedule(m2m_ctx);
- 
--	return ret;
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(v4l2_m2m_prepare_buf);
- 
+ 	mutex_lock(&mpfs->lock);
+-- 
+2.35.1
+
 
 
