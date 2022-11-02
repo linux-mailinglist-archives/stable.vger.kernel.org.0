@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5771615A74
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:31:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6504615A32
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:26:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231307AbiKBDbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:31:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48494 "EHLO
+        id S230466AbiKBD0l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:26:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231280AbiKBDbK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:31:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CCFE644C
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:31:08 -0700 (PDT)
+        with ESMTP id S230449AbiKBD0k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:26:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69C5925E95
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:26:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A74FB8205C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:31:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09B81C433D6;
-        Wed,  2 Nov 2022 03:31:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06D03617BA
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:26:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FB41C433D6;
+        Wed,  2 Nov 2022 03:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359865;
-        bh=6vsnFrj4QkMyEu1BoXGfX6S0+ttc6x5EMOUd+7r9q8w=;
+        s=korg; t=1667359598;
+        bh=JU0dgYvgeFc+Ke94xxGjhDKNvfu77n8LVTBB7PSzecY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oqVYEP5t9OJf5i8x7lRZwDHqGkr8fMJfXusBcABpgbbAxhk76Rsyt7zebHM03XYel
-         lj2W6yI/JlHNyh2isthHjPp/wa01t06EyIqyidtfrbA4282Qqqg5E741IDbdJrRItR
-         A1SOeY71OmezcFRcfpH43Sa+gfLbb4RmR5924DJk=
+        b=P1mj+giKJa7fkdRF7uESFCuPSO50g5zl3iKzpqpW3B8udxalHyYqWl0UC2hcIYK9M
+         lSvIOFYiipXq9r+LzAcueveHGZC4ROi6Ki9FoEFRV50r4CfyAxLD0j8hbE2kQXFdrV
+         SYsTJfTAEMFJkaxOPGe5O/LQHLPGlecnl6pnWj1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 4.19 23/78] Makefile.debug: re-enable debug info for .S files
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 42/64] net: fix UAF issue in nfqnl_nf_hook_drop() when ops_init() failed
 Date:   Wed,  2 Nov 2022 03:34:08 +0100
-Message-Id: <20221102022053.666879382@linuxfoundation.org>
+Message-Id: <20221102022053.177402464@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,41 +53,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-This is _not_ an upstream commit and just for 4.19.y only. It is based
-on commit 32ef9e5054ec0321b9336058c58ec749e9c6b0fe upstream.
+[ Upstream commit d266935ac43d57586e311a087510fe6a084af742 ]
 
-Alexey reported that the fraction of unknown filename instances in
-kallsyms grew from ~0.3% to ~10% recently; Bill and Greg tracked it down
-to assembler defined symbols, which regressed as a result of:
+When the ops_init() interface is invoked to initialize the net, but
+ops->init() fails, data is released. However, the ptr pointer in
+net->gen is invalid. In this case, when nfqnl_nf_hook_drop() is invoked
+to release the net, invalid address access occurs.
 
-commit b8a9092330da ("Kbuild: do not emit debug info for assembly with LLVM_IAS=1")
+The process is as follows:
+setup_net()
+	ops_init()
+		data = kzalloc(...)   ---> alloc "data"
+		net_assign_generic()  ---> assign "date" to ptr in net->gen
+		...
+		ops->init()           ---> failed
+		...
+		kfree(data);          ---> ptr in net->gen is invalid
+	...
+	ops_exit_list()
+		...
+		nfqnl_nf_hook_drop()
+			*q = nfnl_queue_pernet(net) ---> q is invalid
 
-In that commit, I allude to restoring debug info for assembler defined
-symbols in a follow up patch, but it seems I forgot to do so in
+The following is the Call Trace information:
+BUG: KASAN: use-after-free in nfqnl_nf_hook_drop+0x264/0x280
+Read of size 8 at addr ffff88810396b240 by task ip/15855
+Call Trace:
+<TASK>
+dump_stack_lvl+0x8e/0xd1
+print_report+0x155/0x454
+kasan_report+0xba/0x1f0
+nfqnl_nf_hook_drop+0x264/0x280
+nf_queue_nf_hook_drop+0x8b/0x1b0
+__nf_unregister_net_hook+0x1ae/0x5a0
+nf_unregister_net_hooks+0xde/0x130
+ops_exit_list+0xb0/0x170
+setup_net+0x7ac/0xbd0
+copy_net_ns+0x2e6/0x6b0
+create_new_namespaces+0x382/0xa50
+unshare_nsproxy_namespaces+0xa6/0x1c0
+ksys_unshare+0x3a4/0x7e0
+__x64_sys_unshare+0x2d/0x40
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+</TASK>
 
-commit a66049e2cf0e ("Kbuild: make DWARF version a choice")
+Allocated by task 15855:
+kasan_save_stack+0x1e/0x40
+kasan_set_track+0x21/0x30
+__kasan_kmalloc+0xa1/0xb0
+__kmalloc+0x49/0xb0
+ops_init+0xe7/0x410
+setup_net+0x5aa/0xbd0
+copy_net_ns+0x2e6/0x6b0
+create_new_namespaces+0x382/0xa50
+unshare_nsproxy_namespaces+0xa6/0x1c0
+ksys_unshare+0x3a4/0x7e0
+__x64_sys_unshare+0x2d/0x40
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Fixes: b8a9092330da ("Kbuild: do not emit debug info for assembly with LLVM_IAS=1")
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Freed by task 15855:
+kasan_save_stack+0x1e/0x40
+kasan_set_track+0x21/0x30
+kasan_save_free_info+0x2a/0x40
+____kasan_slab_free+0x155/0x1b0
+slab_free_freelist_hook+0x11b/0x220
+__kmem_cache_free+0xa4/0x360
+ops_init+0xb9/0x410
+setup_net+0x5aa/0xbd0
+copy_net_ns+0x2e6/0x6b0
+create_new_namespaces+0x382/0xa50
+unshare_nsproxy_namespaces+0xa6/0x1c0
+ksys_unshare+0x3a4/0x7e0
+__x64_sys_unshare+0x2d/0x40
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Fixes: f875bae06533 ("net: Automatically allocate per namespace data.")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/core/net_namespace.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/Makefile
-+++ b/Makefile
-@@ -744,7 +744,9 @@ KBUILD_CFLAGS   += $(call cc-option, -gs
- else
- KBUILD_CFLAGS	+= -g
- endif
--ifneq ($(LLVM_IAS),1)
-+ifeq ($(LLVM_IAS),1)
-+KBUILD_AFLAGS	+= -g
-+else
- KBUILD_AFLAGS	+= -Wa,-gdwarf-2
- endif
- endif
+diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
+index 62a972f04cef..b96df54d0036 100644
+--- a/net/core/net_namespace.c
++++ b/net/core/net_namespace.c
+@@ -120,6 +120,7 @@ static int net_assign_generic(struct net *net, unsigned int id, void *data)
+ 
+ static int ops_init(const struct pernet_operations *ops, struct net *net)
+ {
++	struct net_generic *ng;
+ 	int err = -ENOMEM;
+ 	void *data = NULL;
+ 
+@@ -138,7 +139,13 @@ static int ops_init(const struct pernet_operations *ops, struct net *net)
+ 	if (!err)
+ 		return 0;
+ 
++	if (ops->id && ops->size) {
+ cleanup:
++		ng = rcu_dereference_protected(net->gen,
++					       lockdep_is_held(&pernet_ops_rwsem));
++		ng->ptr[*ops->id] = NULL;
++	}
++
+ 	kfree(data);
+ 
+ out:
+-- 
+2.35.1
+
 
 
