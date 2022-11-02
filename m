@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51279615AB4
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:39:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BF19615A7F
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:32:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230098AbiKBDjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:39:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56502 "EHLO
+        id S231200AbiKBDcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:32:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231299AbiKBDjU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:39:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBE5518B29
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:39:16 -0700 (PDT)
+        with ESMTP id S231264AbiKBDcN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:32:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E89D72610E
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:32:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A55561729
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:39:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12E56C433D6;
-        Wed,  2 Nov 2022 03:39:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2ACBB8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:32:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C532C433C1;
+        Wed,  2 Nov 2022 03:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360355;
-        bh=12LgcmT017woH4tMBS7Fo2QQY14KAHEDk7TBgZCEe3Q=;
+        s=korg; t=1667359930;
+        bh=iQA7LojZ8SdF6ScyMhlvicfmys9qnjXLKVasnmiZGkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aaGVEQpl1ZIVv+Dlbp611WmDUKlHNIbnqM2m0khAuzV5uS23B2Pbv06eL7v+a6ZZA
-         b6f0vU8rxz9MyqmP0c0EsQU2tnkKnjm49/cL0HZ+SjsdMTURhKM94ZNMGnFMKZ63/p
-         tbUjsBuDErNuSbXDvWJ1bWtOR0OK7l3OWFmC9JII=
+        b=IapDS4sa2Xg3owZCm2FJuwIiiTqsW+aRERO6TqM2sgbtWhAnJTRr+fA5CLAGqwnhL
+         n+683jECNb01jHdqzspbwBzTgfE0cVtXUJLGWurWLRc7ll1lD/ETDuX72JhaSY8SJI
+         q1ag0nPUE2NtuBWp8Xod/i8V0vNEZRjqtay+ImWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.14 23/60] xhci: Remove device endpoints from bandwidth list when freeing the device
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 59/78] net: fix UAF issue in nfqnl_nf_hook_drop() when ops_init() failed
 Date:   Wed,  2 Nov 2022 03:34:44 +0100
-Message-Id: <20221102022051.842739715@linuxfoundation.org>
+Message-Id: <20221102022054.695124234@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
-References: <20221102022051.081761052@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +53,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-commit 5aed5b7c2430ce318a8e62f752f181e66f0d1053 upstream.
+[ Upstream commit d266935ac43d57586e311a087510fe6a084af742 ]
 
-Endpoints are normally deleted from the bandwidth list when they are
-dropped, before the virt device is freed.
+When the ops_init() interface is invoked to initialize the net, but
+ops->init() fails, data is released. However, the ptr pointer in
+net->gen is invalid. In this case, when nfqnl_nf_hook_drop() is invoked
+to release the net, invalid address access occurs.
 
-If xHC host is dying or being removed then the endpoints aren't dropped
-cleanly due to functions returning early to avoid interacting with a
-non-accessible host controller.
+The process is as follows:
+setup_net()
+	ops_init()
+		data = kzalloc(...)   ---> alloc "data"
+		net_assign_generic()  ---> assign "date" to ptr in net->gen
+		...
+		ops->init()           ---> failed
+		...
+		kfree(data);          ---> ptr in net->gen is invalid
+	...
+	ops_exit_list()
+		...
+		nfqnl_nf_hook_drop()
+			*q = nfnl_queue_pernet(net) ---> q is invalid
 
-So check and delete endpoints that are still on the bandwidth list when
-freeing the virt device.
+The following is the Call Trace information:
+BUG: KASAN: use-after-free in nfqnl_nf_hook_drop+0x264/0x280
+Read of size 8 at addr ffff88810396b240 by task ip/15855
+Call Trace:
+<TASK>
+dump_stack_lvl+0x8e/0xd1
+print_report+0x155/0x454
+kasan_report+0xba/0x1f0
+nfqnl_nf_hook_drop+0x264/0x280
+nf_queue_nf_hook_drop+0x8b/0x1b0
+__nf_unregister_net_hook+0x1ae/0x5a0
+nf_unregister_net_hooks+0xde/0x130
+ops_exit_list+0xb0/0x170
+setup_net+0x7ac/0xbd0
+copy_net_ns+0x2e6/0x6b0
+create_new_namespaces+0x382/0xa50
+unshare_nsproxy_namespaces+0xa6/0x1c0
+ksys_unshare+0x3a4/0x7e0
+__x64_sys_unshare+0x2d/0x40
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
+</TASK>
 
-Solves a list_del corruption kernel crash when unbinding xhci-pci,
-caused by xhci_mem_cleanup() when it later tried to delete already freed
-endpoints from the bandwidth list.
+Allocated by task 15855:
+kasan_save_stack+0x1e/0x40
+kasan_set_track+0x21/0x30
+__kasan_kmalloc+0xa1/0xb0
+__kmalloc+0x49/0xb0
+ops_init+0xe7/0x410
+setup_net+0x5aa/0xbd0
+copy_net_ns+0x2e6/0x6b0
+create_new_namespaces+0x382/0xa50
+unshare_nsproxy_namespaces+0xa6/0x1c0
+ksys_unshare+0x3a4/0x7e0
+__x64_sys_unshare+0x2d/0x40
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-This only affects hosts that use software bandwidth checking, which
-currenty is only the xHC in intel Panther Point PCH (Ivy Bridge)
+Freed by task 15855:
+kasan_save_stack+0x1e/0x40
+kasan_set_track+0x21/0x30
+kasan_save_free_info+0x2a/0x40
+____kasan_slab_free+0x155/0x1b0
+slab_free_freelist_hook+0x11b/0x220
+__kmem_cache_free+0xa4/0x360
+ops_init+0xb9/0x410
+setup_net+0x5aa/0xbd0
+copy_net_ns+0x2e6/0x6b0
+create_new_namespaces+0x382/0xa50
+unshare_nsproxy_namespaces+0xa6/0x1c0
+ksys_unshare+0x3a4/0x7e0
+__x64_sys_unshare+0x2d/0x40
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Cc: stable@vger.kernel.org
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20221024142720.4122053-5-mathias.nyman@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f875bae06533 ("net: Automatically allocate per namespace data.")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-mem.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ net/core/net_namespace.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -911,15 +911,19 @@ void xhci_free_virt_device(struct xhci_h
- 		if (dev->eps[i].stream_info)
- 			xhci_free_stream_info(xhci,
- 					dev->eps[i].stream_info);
--		/* Endpoints on the TT/root port lists should have been removed
--		 * when usb_disable_device() was called for the device.
--		 * We can't drop them anyway, because the udev might have gone
--		 * away by this point, and we can't tell what speed it was.
-+		/*
-+		 * Endpoints are normally deleted from the bandwidth list when
-+		 * endpoints are dropped, before device is freed.
-+		 * If host is dying or being removed then endpoints aren't
-+		 * dropped cleanly, so delete the endpoint from list here.
-+		 * Only applicable for hosts with software bandwidth checking.
- 		 */
--		if (!list_empty(&dev->eps[i].bw_endpoint_list))
--			xhci_warn(xhci, "Slot %u endpoint %u "
--					"not removed from BW list!\n",
--					slot_id, i);
+diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
+index 3368624be5ec..56c240c98a56 100644
+--- a/net/core/net_namespace.c
++++ b/net/core/net_namespace.c
+@@ -112,6 +112,7 @@ static int net_assign_generic(struct net *net, unsigned int id, void *data)
+ 
+ static int ops_init(const struct pernet_operations *ops, struct net *net)
+ {
++	struct net_generic *ng;
+ 	int err = -ENOMEM;
+ 	void *data = NULL;
+ 
+@@ -130,7 +131,13 @@ static int ops_init(const struct pernet_operations *ops, struct net *net)
+ 	if (!err)
+ 		return 0;
+ 
++	if (ops->id && ops->size) {
+ cleanup:
++		ng = rcu_dereference_protected(net->gen,
++					       lockdep_is_held(&pernet_ops_rwsem));
++		ng->ptr[*ops->id] = NULL;
++	}
 +
-+		if (!list_empty(&dev->eps[i].bw_endpoint_list)) {
-+			list_del_init(&dev->eps[i].bw_endpoint_list);
-+			xhci_dbg(xhci, "Slot %u endpoint %u not removed from BW list!\n",
-+				 slot_id, i);
-+		}
- 	}
- 	/* If this is a hub, free the TT(s) from the TT list */
- 	xhci_free_tt_info(xhci, dev, slot_id);
+ 	kfree(data);
+ 
+ out:
+-- 
+2.35.1
+
 
 
