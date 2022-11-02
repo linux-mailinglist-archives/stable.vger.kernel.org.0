@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84000615960
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:10:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E3666159FE
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:22:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230196AbiKBDKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:10:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59026 "EHLO
+        id S230451AbiKBDWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:22:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230331AbiKBDJm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:09:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D839178BF
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:09:41 -0700 (PDT)
+        with ESMTP id S230464AbiKBDWZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:22:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A9625EA4
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:22:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3CC33B8206F
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:09:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2671EC433C1;
-        Wed,  2 Nov 2022 03:09:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BA44B8205C
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:22:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65A3AC433C1;
+        Wed,  2 Nov 2022 03:22:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358578;
-        bh=4uJPfMeB9S5ogt1uSlC+xl8SGodLN9/5GsgFN8KcdU0=;
+        s=korg; t=1667359332;
+        bh=xA5oCvTwEMfqJ+t/NR+nIwMUhrqa//i4HzYnmZegDAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M/Vb/qgHSbe08kfH5zGADaa281pyF1D6If25GOhNBjlJdiuvh36TfUozGqcv2+ivH
-         qbFIpUrkDs3bsPdpT6nEqsPWCMj6pacs97qcnfM6XyJwmT00tBQEJFNaSH+UT2jS5h
-         iBdfURgeyMJQx5MAFK3nHaA7KdGmLbCh1Azf8TH8=
+        b=dFu6zvuZ3XYJqhEXcRrYyi7fYReV0n7AuQPoycPWIsZ0J5b4Iyqwh4pYjSixZexpr
+         n02UKCYUBGjpKuiQqmkdr3P3yUBV0lT1YntsVcRVnCjlsuqTapCWqFBlUV8G3KWPOB
+         uhcg4MyZh9BDYngBg/vKnRzlhwZd2VP8Gn2e3hxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Suresh Devarakonda <ramad@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Bodong Wang <bodong@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 122/132] net/mlx5: Fix crash during sync firmware reset
+        patches@lists.linux.dev, Niklas Schnelle <schnelle@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 22/64] s390/pci: add missing EX_TABLE entries to __pcistg_mio_inuser()/__pcilg_mio_inuser()
 Date:   Wed,  2 Nov 2022 03:33:48 +0100
-Message-Id: <20221102022102.877127794@linuxfoundation.org>
+Message-Id: <20221102022052.524922118@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,62 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suresh Devarakonda <ramad@nvidia.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit aefb62a9988749703435e941704624949a80a2a9 ]
+commit 6ec803025cf3173a57222e4411097166bd06fa98 upstream.
 
-When setting Bluefield to DPU NIC mode using mlxconfig tool +  sync
-firmware reset flow, we run into scenario where the host was not
-eswitch manager at the time of mlx5 driver load but becomes eswitch manager
-after the sync firmware reset flow. This results in null pointer
-access of mpfs structure during mac filter add. This change prevents null
-pointer access but mpfs table entries will not be added.
+For some exception types the instruction address points behind the
+instruction that caused the exception. Take that into account and add
+the missing exception table entry.
 
-Fixes: 5ec697446f46 ("net/mlx5: Add support for devlink reload action fw activate")
-Signed-off-by: Suresh Devarakonda <ramad@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Bodong Wang <bodong@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/20221026135153.154807-12-saeed@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: f058599e22d5 ("s390/pci: Fix s390_mmio_read/write with MIO")
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/pci/pci_mmio.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c
-index 839a01da110f..8ff16318e32d 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/mpfs.c
-@@ -122,7 +122,7 @@ void mlx5_mpfs_cleanup(struct mlx5_core_dev *dev)
- {
- 	struct mlx5_mpfs *mpfs = dev->priv.mpfs;
- 
--	if (!MLX5_ESWITCH_MANAGER(dev))
-+	if (!mpfs)
- 		return;
- 
- 	WARN_ON(!hlist_empty(mpfs->hash));
-@@ -137,7 +137,7 @@ int mlx5_mpfs_add_mac(struct mlx5_core_dev *dev, u8 *mac)
- 	int err = 0;
- 	u32 index;
- 
--	if (!MLX5_ESWITCH_MANAGER(dev))
-+	if (!mpfs)
- 		return 0;
- 
- 	mutex_lock(&mpfs->lock);
-@@ -185,7 +185,7 @@ int mlx5_mpfs_del_mac(struct mlx5_core_dev *dev, u8 *mac)
- 	int err = 0;
- 	u32 index;
- 
--	if (!MLX5_ESWITCH_MANAGER(dev))
-+	if (!mpfs)
- 		return 0;
- 
- 	mutex_lock(&mpfs->lock);
--- 
-2.35.1
-
+--- a/arch/s390/pci/pci_mmio.c
++++ b/arch/s390/pci/pci_mmio.c
+@@ -64,7 +64,7 @@ static inline int __pcistg_mio_inuser(
+ 	asm volatile (
+ 		"       sacf    256\n"
+ 		"0:     llgc    %[tmp],0(%[src])\n"
+-		"       sllg    %[val],%[val],8\n"
++		"4:	sllg	%[val],%[val],8\n"
+ 		"       aghi    %[src],1\n"
+ 		"       ogr     %[val],%[tmp]\n"
+ 		"       brctg   %[cnt],0b\n"
+@@ -72,7 +72,7 @@ static inline int __pcistg_mio_inuser(
+ 		"2:     ipm     %[cc]\n"
+ 		"       srl     %[cc],28\n"
+ 		"3:     sacf    768\n"
+-		EX_TABLE(0b, 3b) EX_TABLE(1b, 3b) EX_TABLE(2b, 3b)
++		EX_TABLE(0b, 3b) EX_TABLE(4b, 3b) EX_TABLE(1b, 3b) EX_TABLE(2b, 3b)
+ 		:
+ 		[src] "+a" (src), [cnt] "+d" (cnt),
+ 		[val] "+d" (val), [tmp] "=d" (tmp),
+@@ -220,10 +220,10 @@ static inline int __pcilg_mio_inuser(
+ 		"2:     ahi     %[shift],-8\n"
+ 		"       srlg    %[tmp],%[val],0(%[shift])\n"
+ 		"3:     stc     %[tmp],0(%[dst])\n"
+-		"       aghi    %[dst],1\n"
++		"5:	aghi	%[dst],1\n"
+ 		"       brctg   %[cnt],2b\n"
+ 		"4:     sacf    768\n"
+-		EX_TABLE(0b, 4b) EX_TABLE(1b, 4b) EX_TABLE(3b, 4b)
++		EX_TABLE(0b, 4b) EX_TABLE(1b, 4b) EX_TABLE(3b, 4b) EX_TABLE(5b, 4b)
+ 		:
+ 		[cc] "+d" (cc), [val] "=d" (val), [len] "+d" (len),
+ 		[dst] "+a" (dst), [cnt] "+d" (cnt), [tmp] "=d" (tmp),
 
 
