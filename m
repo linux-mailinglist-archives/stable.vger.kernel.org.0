@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87C2161582B
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:46:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51BEE615802
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:43:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230305AbiKBCq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:46:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35986 "EHLO
+        id S230317AbiKBCna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:43:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230395AbiKBCqZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:46:25 -0400
+        with ESMTP id S230320AbiKBCn3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:43:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F5921241
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:46:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3DD81154
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:43:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DC66B82075
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:46:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DC6BC433D6;
-        Wed,  2 Nov 2022 02:46:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7134FB82075
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:43:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B205C433D7;
+        Wed,  2 Nov 2022 02:43:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357182;
-        bh=Qg9lWVXq7yJb7vVPri8TU1sffzvuAUBOyLMcgv0X2I8=;
+        s=korg; t=1667357005;
+        bh=vUyht6DAVYUdK2f3KtZP8O/w9PQLCthvU2aQYG94Uq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aI07km4AyPUG+Xr5FQJNlph1P/9Z1Wh0anK623KhZ+LzUn3HLM6+uP/m3eXm5ilNr
-         76LX0bX/RsfkEU/uLZwyyTbohkN51nNvTYsL8N6eKbjqW8h5aXdetwCYlsrsncGPvS
-         yegPYjmqh1qWPq72zTn8MmwgHJaLLyVk5eUV9p6c=
+        b=IYyRaBi0OJpqHqzR+PPUQo0x4KisBiX6AT0UvMlORLHFWasJwZ46+Vq5FvEjKRrOU
+         pR3zKgX63uoXV0gSY/6sjGo6FLT8LLvpPWD5BGVT2SOqs+0gjU5POuwVEXXuN26qfn
+         B6blAGh76IVY1JhVKjJqCcWkaPpEA/Pme+fHB3iQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Yang Shi <shy828301@gmail.com>,
+        patches@lists.linux.dev, Rik van Riel <riel@surriel.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
         David Hildenbrand <david@redhat.com>,
-        "Huang, Ying" <ying.huang@intel.com>, Zi Yan <ziy@nvidia.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.0 088/240] mm: migrate: fix return value if all subpages of THPs are migrated successfully
-Date:   Wed,  2 Nov 2022 03:31:03 +0100
-Message-Id: <20221102022113.388362601@linuxfoundation.org>
+Subject: [PATCH 6.0 089/240] mm,madvise,hugetlb: fix unexpected data loss with MADV_DONTNEED on hugetlbfs
+Date:   Wed,  2 Nov 2022 03:31:04 +0100
+Message-Id: <20221102022113.410496793@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -57,49 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
+From: Rik van Riel <riel@surriel.com>
 
-commit 03e5f82ea632af329e32ec03d952b2d99497eeaa upstream.
+commit 8ebe0a5eaaeb099de03d09ad20f54ed962e2261e upstream.
 
-During THP migration, if THPs are not migrated but they are split and all
-subpages are migrated successfully, migrate_pages() will still return the
-number of THP pages that were not migrated.  This will confuse the callers
-of migrate_pages().  For example, the longterm pinning will failed though
-all pages are migrated successfully.
+A common use case for hugetlbfs is for the application to create
+memory pools backed by huge pages, which then get handed over to
+some malloc library (eg. jemalloc) for further management.
 
-Thus we should return 0 to indicate that all pages are migrated in this
-case
+That malloc library may be doing MADV_DONTNEED calls on memory
+that is no longer needed, expecting those calls to happen on
+PAGE_SIZE boundaries.
 
-Link: https://lkml.kernel.org/r/de386aa864be9158d2f3b344091419ea7c38b2f7.1666599848.git.baolin.wang@linux.alibaba.com
-Fixes: b5bade978e9b ("mm: migrate: fix the return value of migrate_pages()")
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Reviewed-by: Alistair Popple <apopple@nvidia.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
+However, currently the MADV_DONTNEED code rounds up any such
+requests to HPAGE_PMD_SIZE boundaries. This leads to undesired
+outcomes when jemalloc expects a 4kB MADV_DONTNEED, but 2MB of
+memory get zeroed out, instead.
+
+Use of pre-built shared libraries means that user code does not
+always know the page size of every memory arena in use.
+
+Avoid unexpected data loss with MADV_DONTNEED by rounding up
+only to PAGE_SIZE (in do_madvise), and rounding down to huge
+page granularity.
+
+That way programs will only get as much memory zeroed out as
+they requested.
+
+Link: https://lkml.kernel.org/r/20221021192805.366ad573@imladris.surriel.com
+Fixes: 90e7e7f5ef3f ("mm: enable MADV_DONTNEED for hugetlb mappings")
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: David Hildenbrand <david@redhat.com>
-Cc: "Huang, Ying" <ying.huang@intel.com>
-Cc: Zi Yan <ziy@nvidia.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/migrate.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ mm/madvise.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -1558,6 +1558,13 @@ out:
- 	 */
- 	list_splice(&ret_pages, from);
+--- a/mm/madvise.c
++++ b/mm/madvise.c
+@@ -811,7 +811,14 @@ static bool madvise_dontneed_free_valid_
+ 	if (start & ~huge_page_mask(hstate_vma(vma)))
+ 		return false;
  
+-	*end = ALIGN(*end, huge_page_size(hstate_vma(vma)));
 +	/*
-+	 * Return 0 in case all subpages of fail-to-migrate THPs are
-+	 * migrated successfully.
++	 * Madvise callers expect the length to be rounded up to PAGE_SIZE
++	 * boundaries, and may be unaware that this VMA uses huge pages.
++	 * Avoid unexpected data loss by rounding down the number of
++	 * huge pages freed.
 +	 */
-+	if (list_empty(from))
-+		rc = 0;
++	*end = ALIGN_DOWN(*end, huge_page_size(hstate_vma(vma)));
 +
- 	count_vm_events(PGMIGRATE_SUCCESS, nr_succeeded);
- 	count_vm_events(PGMIGRATE_FAIL, nr_failed_pages);
- 	count_vm_events(THP_MIGRATION_SUCCESS, nr_thp_succeeded);
+ 	return true;
+ }
+ 
+@@ -826,6 +833,9 @@ static long madvise_dontneed_free(struct
+ 	if (!madvise_dontneed_free_valid_vma(vma, start, &end, behavior))
+ 		return -EINVAL;
+ 
++	if (start == end)
++		return 0;
++
+ 	if (!userfaultfd_remove(vma, start, end)) {
+ 		*prev = NULL; /* mmap_lock has been dropped, prev is stale */
+ 
 
 
