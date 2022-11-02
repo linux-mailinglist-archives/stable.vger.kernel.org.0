@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC7FC615A58
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:29:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D49BF615A1C
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:24:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231127AbiKBD3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:29:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48212 "EHLO
+        id S230374AbiKBDYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:24:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231289AbiKBD3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:29:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5A7426127
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:29:10 -0700 (PDT)
+        with ESMTP id S230280AbiKBDYv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:24:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16CD424962
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:24:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 52843617D4
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:29:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE06DC433C1;
-        Wed,  2 Nov 2022 03:29:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6659B8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:24:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E080C433C1;
+        Wed,  2 Nov 2022 03:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359749;
-        bh=ptvkwQKb25ivCpVpyBCURsEHb1mgYcBTtEl9MN0u4yY=;
+        s=korg; t=1667359487;
+        bh=cjSQw3d0SkRxbZftTOBgo4J/LG1H3H2HoXw9+5KTxOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e3opjP3FrTFvDpEt3OlJHC8MRxOTuSHbyGw5iuV0i7aIaENGYxjHP3Vs0g4EybACi
-         KU3Bxq16S0vdyMVYnTqewuXpNsz3FVObsMahFjitmRYV+eZ6MuFa1aQ8aAUxiilJt5
-         Zo76QA1mKGa+1ck9HBrPduGwm7FDjx1Yzorjv/ME=
+        b=MdvIFMtk5NEvNiN6oKyGzQ5+g9Zvyxc8lMfYuozSdbQVKeRbLzoNQtj9F6n8w1zeH
+         e7ifWSuRmxgy6LeCr66Mp/OWm5iYscLpiR7lCy38u8abzZdFs9eWPHeFABXQfkI0/R
+         qJu9JOIn3Tf1fhK69Nt+24Iw8w7G9bIVBubecaCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 28/78] ALSA: au88x0: use explicitly signed char
-Date:   Wed,  2 Nov 2022 03:34:13 +0100
-Message-Id: <20221102022053.825106154@linuxfoundation.org>
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 48/64] media: vivid: dev->bitmap_cap wasnt freed in all cases
+Date:   Wed,  2 Nov 2022 03:34:14 +0100
+Message-Id: <20221102022053.367689971@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,64 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit ee03c0f200eb0d9f22dd8732d9fb7956d91019c2 upstream.
+[ Upstream commit 1f65ea411cc7b6ff128d82a3493d7b5648054e6f ]
 
-With char becoming unsigned by default, and with `char` alone being
-ambiguous and based on architecture, signed chars need to be marked
-explicitly as such. This fixes warnings like:
+Whenever the compose width/height values change, the dev->bitmap_cap
+vmalloc'ed array must be freed and dev->bitmap_cap set to NULL.
 
-sound/pci/au88x0/au88x0_core.c:2029 vortex_adb_checkinout() warn: signedness bug returning '(-22)'
-sound/pci/au88x0/au88x0_core.c:2046 vortex_adb_checkinout() warn: signedness bug returning '(-12)'
-sound/pci/au88x0/au88x0_core.c:2125 vortex_adb_allocroute() warn: 'vortex_adb_checkinout(vortex, (0), en, 0)' is unsigned
-sound/pci/au88x0/au88x0_core.c:2170 vortex_adb_allocroute() warn: 'vortex_adb_checkinout(vortex, stream->resources, en, 4)' is unsigned
+This was done in some places, but not all. This is only an issue if
+overlay support is enabled and the bitmap clipping is used.
 
-As well, since one function returns errnos, return an `int` rather than
-a `signed char`.
-
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221024162929.536004-1-Jason@zx2c4.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: ef834f7836ec ([media] vivid: add the video capture and output parts)
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/au88x0/au88x0.h      |    6 +++---
- sound/pci/au88x0/au88x0_core.c |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/platform/vivid/vivid-vid-cap.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
---- a/sound/pci/au88x0/au88x0.h
-+++ b/sound/pci/au88x0/au88x0.h
-@@ -153,7 +153,7 @@ struct snd_vortex {
- #ifndef CHIP_AU8810
- 	stream_t dma_wt[NR_WT];
- 	wt_voice_t wt_voice[NR_WT];	/* WT register cache. */
--	char mixwt[(NR_WT / NR_WTPB) * 6];	/* WT mixin objects */
-+	s8 mixwt[(NR_WT / NR_WTPB) * 6];	/* WT mixin objects */
- #endif
+diff --git a/drivers/media/platform/vivid/vivid-vid-cap.c b/drivers/media/platform/vivid/vivid-vid-cap.c
+index fe7b8591f113..208807d3733f 100644
+--- a/drivers/media/platform/vivid/vivid-vid-cap.c
++++ b/drivers/media/platform/vivid/vivid-vid-cap.c
+@@ -452,6 +452,12 @@ void vivid_update_format_cap(struct vivid_dev *dev, bool keep_controls)
+ 	tpg_reset_source(&dev->tpg, dev->src_rect.width, dev->src_rect.height, dev->field_cap);
+ 	dev->crop_cap = dev->src_rect;
+ 	dev->crop_bounds_cap = dev->src_rect;
++	if (dev->bitmap_cap &&
++	    (dev->compose_cap.width != dev->crop_cap.width ||
++	     dev->compose_cap.height != dev->crop_cap.height)) {
++		vfree(dev->bitmap_cap);
++		dev->bitmap_cap = NULL;
++	}
+ 	dev->compose_cap = dev->crop_cap;
+ 	if (V4L2_FIELD_HAS_T_OR_B(dev->field_cap))
+ 		dev->compose_cap.height /= 2;
+@@ -883,6 +889,8 @@ int vivid_vid_cap_s_selection(struct file *file, void *fh, struct v4l2_selection
+ 	struct vivid_dev *dev = video_drvdata(file);
+ 	struct v4l2_rect *crop = &dev->crop_cap;
+ 	struct v4l2_rect *compose = &dev->compose_cap;
++	unsigned orig_compose_w = compose->width;
++	unsigned orig_compose_h = compose->height;
+ 	unsigned factor = V4L2_FIELD_HAS_T_OR_B(dev->field_cap) ? 2 : 1;
+ 	int ret;
  
- 	/* Global resources */
-@@ -247,8 +247,8 @@ static int vortex_alsafmt_aspfmt(snd_pcm
- static void vortex_connect_default(vortex_t * vortex, int en);
- static int vortex_adb_allocroute(vortex_t * vortex, int dma, int nr_ch,
- 				 int dir, int type, int subdev);
--static char vortex_adb_checkinout(vortex_t * vortex, int resmap[], int out,
--				  int restype);
-+static int vortex_adb_checkinout(vortex_t * vortex, int resmap[], int out,
-+				 int restype);
- #ifndef CHIP_AU8810
- static int vortex_wt_allocroute(vortex_t * vortex, int dma, int nr_ch);
- static void vortex_wt_connect(vortex_t * vortex, int en);
---- a/sound/pci/au88x0/au88x0_core.c
-+++ b/sound/pci/au88x0/au88x0_core.c
-@@ -2004,7 +2004,7 @@ static int resnum[VORTEX_RESOURCE_LAST]
-  out: Mean checkout if != 0. Else mean Checkin resource.
-  restype: Indicates type of resource to be checked in or out.
- */
--static char
-+static int
- vortex_adb_checkinout(vortex_t * vortex, int resmap[], int out, int restype)
- {
- 	int i, qty = resnum[restype], resinuse = 0;
+@@ -999,17 +1007,17 @@ int vivid_vid_cap_s_selection(struct file *file, void *fh, struct v4l2_selection
+ 			s->r.height /= factor;
+ 		}
+ 		v4l2_rect_map_inside(&s->r, &dev->fmt_cap_rect);
+-		if (dev->bitmap_cap && (compose->width != s->r.width ||
+-					compose->height != s->r.height)) {
+-			vfree(dev->bitmap_cap);
+-			dev->bitmap_cap = NULL;
+-		}
+ 		*compose = s->r;
+ 		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
+ 
++	if (dev->bitmap_cap && (compose->width != orig_compose_w ||
++				compose->height != orig_compose_h)) {
++		vfree(dev->bitmap_cap);
++		dev->bitmap_cap = NULL;
++	}
+ 	tpg_s_crop_compose(&dev->tpg, crop, compose);
+ 	return 0;
+ }
+-- 
+2.35.1
+
 
 
