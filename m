@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F2F616F0C
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 21:46:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42AB0616F10
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 21:46:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231360AbiKBUqH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Nov 2022 16:46:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37422 "EHLO
+        id S229962AbiKBUqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Nov 2022 16:46:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231296AbiKBUqF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 16:46:05 -0400
-Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C900895BC;
-        Wed,  2 Nov 2022 13:46:03 -0700 (PDT)
-Received: by mail-ot1-x330.google.com with SMTP id 16-20020a9d0490000000b0066938311495so10945924otm.4;
-        Wed, 02 Nov 2022 13:46:03 -0700 (PDT)
+        with ESMTP id S231218AbiKBUqe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 16:46:34 -0400
+Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B71969FD3;
+        Wed,  2 Nov 2022 13:46:33 -0700 (PDT)
+Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-13c2cfd1126so21611539fac.10;
+        Wed, 02 Nov 2022 13:46:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=4aG3HGUNyt0DwZjjpAuTJy3w3YBkMNz9bVnWWoE5yxo=;
-        b=mfGOuVFr9mYTrrD4fJ6eUxcXNsu/7ZbadNCdYERyIVRHIbU9VX6YiOjiBixVFxgoFd
-         Uuig9VXG1k0xYSoCEDqjY8L/DrvyK5xt3GIEpyh6Xjr58WpH+wuwMfce3O3p1TlND7rJ
-         4sDfYt4ug35saReS2gSuDXjaAvvwarpHeOCej8QWULwBX9sJl/Joz3utLkdDkuFF8snq
-         gjd0Yg2f3c9WLPmeeuM708ziCL97lDMwdOicl6bL91C9brf61oSAv97Ezv4AAaO1Z3nR
-         RnJG/hE6D3vdRVa+VbL0KDH2qcNgiKg1/FFe82brEJHYn3/UFfXiIdXpCgZCcu4cC3Ub
-         wWEQ==
+        bh=1iyjE6WDAbekX6e3y9HLJeDLn7vVbZJppc4i/AAHGEE=;
+        b=DplGn1y0YD9umK2stnXyO4LvAEXPlNUS0ACG5cIUkiVwW2ksxzcv81XolVe9gPq5do
+         bi2bhXeW9YEP+8pguqzq2Fq+og67oLoxlmdcLLEedIn0dtGQoflbov/wFmykuoEYSde7
+         Amd2qRYsUrl/E2+ibIIkLTvrn7wMY1r9CfraSYaIstfx2WLIDhJrlTBbjcVHTKJ9WLfb
+         XIuYdtXYYGfhza9HUA0WK0bCQtbma927eE3RPKBHf3UnJt2CqVNpPRtaqecDeY/BbMRv
+         a/oEQ0r2dsnQ6YebAp3gLW7RrXNRTQCq8zNQfge4ayjhMNgLbsa1RBrNOuaxGOxxahi3
+         +i4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=4aG3HGUNyt0DwZjjpAuTJy3w3YBkMNz9bVnWWoE5yxo=;
-        b=uTo4Z9XnkF9eMJsVeVgRe+WpMNtdJ0fTCKUS6tpdZHKd2gohgcWYXVj+tFgVMfkCYk
-         La/PH2tApcUo1EKfCxesTG6Nf6C4rZ3zUhwh767CWD++RUYH8zDKcx00chl45vi9s+Hg
-         QYR3fABl6DG8PbMWh4MFR6FXpI3tElOHyLjF0M+/zWeN8x/YHh+Unxz6Yu6RDNMqvcq4
-         RBFw9HCh1OEgTkr5P6t0iX2DSlhgDqZF/+muoMztDsffxW2ewrMXtIeh6JjlVYV8N63U
-         AwYkurrWsBkOyfM9c/9D6ARuhzA8WRYc6UAMheR8BtxyopDJOXomuIXQhcanQcR7nMO9
-         QCJw==
-X-Gm-Message-State: ACrzQf1a8j5mvwibqe/HMCBRNkefkVh+k88b7v11JWCgn3uFoEEvwt+S
-        j3o99xQ0MkZhRmEIq2LEiCQ=
-X-Google-Smtp-Source: AMsMyM7DFmD1zxRjWQ8b6Se5pEik4ZuRNeplTN9G/2+VqDX+VDDjf4dczm+fSbKd/dTF0QdkuXU/Ng==
-X-Received: by 2002:a05:6830:6019:b0:66a:f955:4548 with SMTP id bx25-20020a056830601900b0066af9554548mr13508765otb.176.1667421963185;
-        Wed, 02 Nov 2022 13:46:03 -0700 (PDT)
+        bh=1iyjE6WDAbekX6e3y9HLJeDLn7vVbZJppc4i/AAHGEE=;
+        b=l7ZtI30GPjjsmkxMNxo0qO5Z1weJiySvEZqe+GkHoxaIi6JiQk1OdQ/SRgVa6js9Xt
+         GD4kB6bqJcM+XSbskBxyWbTbYaUF53mRzLsO5OeXqqfLl0Xkdvz644h29u5wJnfvDvqD
+         sjRWkkNjjBwmhjuGUa6t8cEnwA07zFsnZA+0Sh39J9VgAjd4/xrw2Z5ZLx3v7+YrgBu/
+         XppSdvwOoHG20KOOLnpcl2LaDiO8XFXSn9+eZwX0uUPvuMkiJpP1nWYQ2ercOekmBjWr
+         EsnzD7bz5VfG12bnkHK5Fct27ZTe3m0emSUIkwD7aAz8GnXCBgHX1HvZOVnoP3tkZChv
+         bGHA==
+X-Gm-Message-State: ACrzQf0/T8ZWuM+rsszOpE8rXtVuGfgmkbBZCZ9HUngLuw4D8lBniowz
+        3OuF7bol/rYYyU5g+OTNleg=
+X-Google-Smtp-Source: AMsMyM5xNWlVOlwbbFKTebSgdpXXHqnAiBdz6fB3CewAL5qdNNnPv2T5x0wfV/AjH7kfauW9JCxw3g==
+X-Received: by 2002:a05:6870:51f:b0:130:fee6:8295 with SMTP id j31-20020a056870051f00b00130fee68295mr15972296oao.49.1667421993088;
+        Wed, 02 Nov 2022 13:46:33 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y37-20020a9d22a8000000b0065c2c46077dsm5328617ota.67.2022.11.02.13.46.02
+        by smtp.gmail.com with ESMTPSA id n63-20020acabd42000000b003458d346a60sm4878370oif.25.2022.11.02.13.46.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Nov 2022 13:46:02 -0700 (PDT)
+        Wed, 02 Nov 2022 13:46:32 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 2 Nov 2022 13:46:01 -0700
+Date:   Wed, 2 Nov 2022 13:46:31 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
@@ -59,13 +59,13 @@ Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
         srw@sladewatkins.net
-Subject: Re: [PATCH 4.19 00/78] 4.19.264-rc1 review
-Message-ID: <20221102204601.GD2089083@roeck-us.net>
-References: <20221102022052.895556444@linuxfoundation.org>
+Subject: Re: [PATCH 5.4 00/64] 5.4.223-rc1 review
+Message-ID: <20221102204631.GE2089083@roeck-us.net>
+References: <20221102022051.821538553@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
 X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
         FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
@@ -77,9 +77,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 02, 2022 at 03:33:45AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.264 release.
-> There are 78 patches in this series, all will be posted as a response
+On Wed, Nov 02, 2022 at 03:33:26AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.223 release.
+> There are 64 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -88,9 +88,9 @@ On Wed, Nov 02, 2022 at 03:33:45AM +0100, Greg Kroah-Hartman wrote:
 > 
 
 Build results:
-	total: 157 pass: 157 fail: 0
+	total: 161 pass: 161 fail: 0
 Qemu test results:
-	total: 423 pass: 423 fail: 0
+	total: 447 pass: 447 fail: 0
 
 Tested-by: Guenter Roeck <linux@roeck-us.net>
 
