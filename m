@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F3161587D
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:52:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AFAC615883
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:53:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230509AbiKBCwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:52:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42350 "EHLO
+        id S231128AbiKBCxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:53:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230504AbiKBCwy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:52:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F344B220DD
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:52:52 -0700 (PDT)
+        with ESMTP id S230525AbiKBCxB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:53:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5806220D3
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:53:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9013F617BB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:52:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EEC4C433B5;
-        Wed,  2 Nov 2022 02:52:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B8A0B8206C
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:52:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4830C433D6;
+        Wed,  2 Nov 2022 02:52:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357572;
-        bh=V9ocWL0ZD6uzr67A/9HOCoIXN7e79PMKOp70/oFtmy4=;
+        s=korg; t=1667357578;
+        bh=XOuvILKTkimY5M2z3UtxUPN6aDF1lIhZGjQikq3NpXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TbrztDUp6isxoD8jDIaydUf6qnUqpS2e8M9C70dAsLr6Pq4VVd+5zYPeOstTjG1aX
-         opwoIsgcmeFGtoLMG42nZWsgCuE6CUCp2JutX68EUgGUEqA2qEaGIso2OKGGygjX5j
-         SlS5Eitac3wnNFUywZ731p/7kRBCLGxoZtZUua3s=
+        b=x5w2aoYldISE5IOqcZw1R36LyYdGhU3T/58TMyL2I/sAD7CBBnpy55EwYVTMKhjfh
+         5BHRs1CavdfMjZz7O8yZBSnb76zi61etK3R3+1awSRTGtbeHpgiMmop7hkBFfTeFgG
+         kK41jMqOO9YPhTyIzk3qGVPcUMOs9E0PEm2Vj2mQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Dongliang Mu <dzm91@hust.edu.cn>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 193/240] can: mscan: mpc5xxx: mpc5xxx_can_probe(): add missing put_clock() in error path
-Date:   Wed,  2 Nov 2022 03:32:48 +0100
-Message-Id: <20221102022115.760001343@linuxfoundation.org>
+Subject: [PATCH 6.0 194/240] can: mcp251x: mcp251x_can_probe(): add missing unregister_candev() in error path
+Date:   Wed,  2 Nov 2022 03:32:49 +0100
+Message-Id: <20221102022115.781959432@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,55 +55,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dongliang Mu <dzm91@hust.edu.cn>
 
-[ Upstream commit 3e5b3418827cefb5e1cc658806f02965791b8f07 ]
+[ Upstream commit b1a09b63684cea56774786ca14c13b7041ffee63 ]
 
-The commit 1149108e2fbf ("can: mscan: improve clock API use") only
-adds put_clock() in mpc5xxx_can_remove() function, forgetting to add
-put_clock() in the error handling code.
+In mcp251x_can_probe(), if mcp251x_gpio_setup() fails, it forgets to
+unregister the CAN device.
 
-Fix this bug by adding put_clock() in the error handling code.
+Fix this by unregistering can device in mcp251x_can_probe().
 
-Fixes: 1149108e2fbf ("can: mscan: improve clock API use")
+Fixes: 2d52dabbef60 ("can: mcp251x: add GPIO support")
 Signed-off-by: Dongliang Mu <dzm91@hust.edu.cn>
-Link: https://lore.kernel.org/all/20221024133828.35881-1-mkl@pengutronix.de
+Link: https://lore.kernel.org/all/20221024090256.717236-1-dzm91@hust.edu.cn
+[mkl: adjust label]
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/mscan/mpc5xxx_can.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/can/spi/mcp251x.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/mscan/mpc5xxx_can.c b/drivers/net/can/mscan/mpc5xxx_can.c
-index c469b2f3e57d..b0ed798ae70f 100644
---- a/drivers/net/can/mscan/mpc5xxx_can.c
-+++ b/drivers/net/can/mscan/mpc5xxx_can.c
-@@ -322,14 +322,14 @@ static int mpc5xxx_can_probe(struct platform_device *ofdev)
- 					       &mscan_clksrc);
- 	if (!priv->can.clock.freq) {
- 		dev_err(&ofdev->dev, "couldn't get MSCAN clock properties\n");
--		goto exit_free_mscan;
-+		goto exit_put_clock;
- 	}
+diff --git a/drivers/net/can/spi/mcp251x.c b/drivers/net/can/spi/mcp251x.c
+index c320de474f40..24883a65ca66 100644
+--- a/drivers/net/can/spi/mcp251x.c
++++ b/drivers/net/can/spi/mcp251x.c
+@@ -1415,11 +1415,14 @@ static int mcp251x_can_probe(struct spi_device *spi)
  
- 	err = register_mscandev(dev, mscan_clksrc);
- 	if (err) {
- 		dev_err(&ofdev->dev, "registering %s failed (err=%d)\n",
- 			DRV_NAME, err);
--		goto exit_free_mscan;
-+		goto exit_put_clock;
- 	}
+ 	ret = mcp251x_gpio_setup(priv);
+ 	if (ret)
+-		goto error_probe;
++		goto out_unregister_candev;
  
- 	dev_info(&ofdev->dev, "MSCAN at 0x%p, irq %d, clock %d Hz\n",
-@@ -337,7 +337,9 @@ static int mpc5xxx_can_probe(struct platform_device *ofdev)
- 
+ 	netdev_info(net, "MCP%x successfully initialized.\n", priv->model);
  	return 0;
  
--exit_free_mscan:
-+exit_put_clock:
-+	if (data->put_clock)
-+		data->put_clock(ofdev);
- 	free_candev(dev);
- exit_dispose_irq:
- 	irq_dispose_mapping(irq);
++out_unregister_candev:
++	unregister_candev(net);
++
+ error_probe:
+ 	destroy_workqueue(priv->wq);
+ 	priv->wq = NULL;
 -- 
 2.35.1
 
