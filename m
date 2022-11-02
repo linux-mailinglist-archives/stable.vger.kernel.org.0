@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABDD66159EF
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:21:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D71856159A9
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:16:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230281AbiKBDVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:21:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40496 "EHLO
+        id S229996AbiKBDQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:16:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230259AbiKBDVV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:21:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F9F25295
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:21:20 -0700 (PDT)
+        with ESMTP id S230222AbiKBDPm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:15:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00DC624BEF
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:15:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A575B82062
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:21:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF7B8C433D7;
-        Wed,  2 Nov 2022 03:21:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9DDC0B82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:15:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76002C433C1;
+        Wed,  2 Nov 2022 03:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359277;
-        bh=UPlBCDytGL6K7AIh8Bj348XOo71VKjaEn7zRWmXg+jw=;
+        s=korg; t=1667358934;
+        bh=4zCCEprtMmqynw5l30ROvAT4mXd1UaHS/SC7WUkiGwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGBvkHr7ilosCO1fmtZR/s8yBMHBCIdeJ6skdOWhqhZ+Gpb6nrjYOGhdBDzSOLrcb
-         6IwnyAnw5l1MtgaCzEqwg+pPC6oC8yAGsyCDjaOB4rHKootLRtOus8oI9XqJz7gqpc
-         d+bMjxEFRiapg4q8ODDRfL8ZGbXuqUwqHqK8s3WI=
+        b=sqBCjO0k98sn2Z41WdBSoA0JkwsV525AVwaFluy8eZftW94I2EzrzACaEuYG1Qt3Q
+         XvicZDLva4sP53AqLJYrxBjlzUwI2Rym94OM3tWTTfYUSW5OKurnUNkdLOvOKnlX5z
+         vec+Vmiv9kFuFSD/UR5EyfRxTEaBY+q8Q/efoxM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hannu Hartikainen <hannu@hrtk.in>,
-        stable <stable@kernel.org>
-Subject: [PATCH 5.4 05/64] USB: add RESET_RESUME quirk for NVIDIA Jetson devices in RCM
-Date:   Wed,  2 Nov 2022 03:33:31 +0100
-Message-Id: <20221102022051.996442002@linuxfoundation.org>
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 49/91] net: hinic: fix the issue of double release MBOX callback of VF
+Date:   Wed,  2 Nov 2022 03:33:32 +0100
+Message-Id: <20221102022056.416823495@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
-References: <20221102022051.821538553@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,48 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannu Hartikainen <hannu@hrtk.in>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-commit fc4ade55c617dc73c7e9756b57f3230b4ff24540 upstream.
+[ Upstream commit 8ec2f4c6b2e11a4249bba77460f0cfe6d95a82f8 ]
 
-NVIDIA Jetson devices in Force Recovery mode (RCM) do not support
-suspending, ie. flashing fails if the device has been suspended. The
-devices are still visible in lsusb and seem to work otherwise, making
-the issue hard to debug. This has been discovered in various forum
-posts, eg. [1].
+In hinic_vf_func_init(), if VF fails to register information with PF
+through the MBOX, the MBOX callback function of VF is released once. But
+it is released again in hinic_init_hwdev(). Remove one.
 
-The patch has been tested on NVIDIA Jetson AGX Xavier, but I'm adding
-all the Jetson models listed in [2] on the assumption that they all
-behave similarly.
-
-[1]: https://forums.developer.nvidia.com/t/flashing-not-working/72365
-[2]: https://docs.nvidia.com/jetson/archives/l4t-archived/l4t-3271/index.html#page/Tegra%20Linux%20Driver%20Package%20Development%20Guide/quick_start.html
-
-Signed-off-by: Hannu Hartikainen <hannu@hrtk.in>
-Cc: stable <stable@kernel.org>  # after 6.1-rc3
-Link: https://lore.kernel.org/r/20220919171610.30484-1-hannu@hrtk.in
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7dd29ee12865 ("hinic: add sriov feature support")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/quirks.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/huawei/hinic/hinic_sriov.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -388,6 +388,15 @@ static const struct usb_device_id usb_qu
- 	/* Kingston DataTraveler 3.0 */
- 	{ USB_DEVICE(0x0951, 0x1666), .driver_info = USB_QUIRK_NO_LPM },
- 
-+	/* NVIDIA Jetson devices in Force Recovery mode */
-+	{ USB_DEVICE(0x0955, 0x7018), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7019), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7418), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7721), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7c18), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7e19), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7f21), .driver_info = USB_QUIRK_RESET_RESUME },
-+
- 	/* X-Rite/Gretag-Macbeth Eye-One Pro display colorimeter */
- 	{ USB_DEVICE(0x0971, 0x2000), .driver_info = USB_QUIRK_NO_SET_INTF },
- 
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_sriov.c b/drivers/net/ethernet/huawei/hinic/hinic_sriov.c
+index f8a26459ff65..4d82ebfe27f9 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_sriov.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_sriov.c
+@@ -1178,7 +1178,6 @@ int hinic_vf_func_init(struct hinic_hwdev *hwdev)
+ 			dev_err(&hwdev->hwif->pdev->dev,
+ 				"Failed to register VF, err: %d, status: 0x%x, out size: 0x%x\n",
+ 				err, register_info.status, out_size);
+-			hinic_unregister_vf_mbox_cb(hwdev, HINIC_MOD_L2NIC);
+ 			return -EIO;
+ 		}
+ 	} else {
+-- 
+2.35.1
+
 
 
