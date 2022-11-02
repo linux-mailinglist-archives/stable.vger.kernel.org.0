@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F1CF615A98
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:36:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB0F0615AA8
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:38:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229496AbiKBDgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:36:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55022 "EHLO
+        id S229531AbiKBDiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:38:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229546AbiKBDgk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:36:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FC3226546
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:36:38 -0700 (PDT)
+        with ESMTP id S229517AbiKBDiK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:38:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B0BA26561
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:38:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D2BA617CB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:36:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F433C433C1;
-        Wed,  2 Nov 2022 03:36:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E407AB82071
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:38:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF7B4C433C1;
+        Wed,  2 Nov 2022 03:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360198;
-        bh=f+w4AYpcU6g805M/9Env65Ka0+cw6SliomCcsyZInIg=;
+        s=korg; t=1667360286;
+        bh=BtZnXpGahIedbHIaXuR2wxFv59GKyLQpH2GzbOXjdGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gV1J3687Eui47vKca6hhfJEWQxrRWZWNcfXAghXP0f/Auzl/FnuuTJVps9xf+MM7D
-         oe7SvXCFpkXIIf3opYYA2sTWxXNKIAs6fbGOszB2ThpkrKo7DmMLv6aK/QqEPsOy1l
-         NCzt6kjjVkEG1oeletfIBz5O/R8TcQsx3CSpzRr8=
+        b=TUTGrnqiMIdXnujLF8M8CTtMWNqaAgsmTl0+HJwmO+6CgP7WpXR2y2i4INmrxrybZ
+         +h8oPr0fFyoEIlkJXnHq2Ve3bgAJhYWcWzNxcZEVmNz+aa1eBKI/mJOlukVXwrO4pi
+         Z85Fe2A6swY4AJIKh+eWt7ksbAERZLKssF44AdpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 4.19 48/78] net: ieee802154: fix error return code in dgram_bind()
+        patches@lists.linux.dev, Xiaobo Liu <cppcoffee@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 12/60] net/atm: fix proc_mpc_write incorrect return value
 Date:   Wed,  2 Nov 2022 03:34:33 +0100
-Message-Id: <20221102022054.397145570@linuxfoundation.org>
+Message-Id: <20221102022051.473371361@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Xiaobo Liu <cppcoffee@gmail.com>
 
-commit 444d8ad4916edec8a9fc684e841287db9b1e999f upstream.
+[ Upstream commit d8bde3bf7f82dac5fc68a62c2816793a12cafa2a ]
 
-Fix to return error code -EINVAL from the error handling
-case instead of 0, as done elsewhere in this function.
+Then the input contains '\0' or '\n', proc_mpc_write has read them,
+so the return value needs +1.
 
-Fixes: 94160108a70c ("net/ieee802154: fix uninit value bug in dgram_sendmsg")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Link: https://lore.kernel.org/r/20220919160830.1436109-1-weiyongjun@huaweicloud.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xiaobo Liu <cppcoffee@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/socket.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/atm/mpoa_proc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ieee802154/socket.c
-+++ b/net/ieee802154/socket.c
-@@ -518,8 +518,10 @@ static int dgram_bind(struct sock *sk, s
- 	if (err < 0)
- 		goto out;
+diff --git a/net/atm/mpoa_proc.c b/net/atm/mpoa_proc.c
+index 8a0c17e1c203..4d5f8690e914 100644
+--- a/net/atm/mpoa_proc.c
++++ b/net/atm/mpoa_proc.c
+@@ -220,11 +220,12 @@ static ssize_t proc_mpc_write(struct file *file, const char __user *buff,
+ 	if (!page)
+ 		return -ENOMEM;
  
--	if (addr->family != AF_IEEE802154)
-+	if (addr->family != AF_IEEE802154) {
-+		err = -EINVAL;
- 		goto out;
-+	}
- 
- 	ieee802154_addr_from_sa(&haddr, &addr->addr);
- 	dev = ieee802154_get_dev(sock_net(sk), &haddr);
+-	for (p = page, len = 0; len < nbytes; p++, len++) {
++	for (p = page, len = 0; len < nbytes; p++) {
+ 		if (get_user(*p, buff++)) {
+ 			free_page((unsigned long)page);
+ 			return -EFAULT;
+ 		}
++		len += 1;
+ 		if (*p == '\0' || *p == '\n')
+ 			break;
+ 	}
+-- 
+2.35.1
+
 
 
