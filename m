@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4989A6158EE
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:01:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE2BD61585C
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:50:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231262AbiKBDBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:01:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50576 "EHLO
+        id S230468AbiKBCua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:50:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231280AbiKBDBT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:01:19 -0400
+        with ESMTP id S230420AbiKBCua (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:50:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B67C123142
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:01:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A0E209AB
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:50:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80F58B82064
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:01:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 689D3C433D6;
-        Wed,  2 Nov 2022 03:01:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA277B8206C
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:50:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F92C433D6;
+        Wed,  2 Nov 2022 02:50:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358072;
-        bh=OsU4JgnYD/HidOS0hIsT0JOBsXD/By05+b85NytdXa8=;
+        s=korg; t=1667357425;
+        bh=dJjG68QBxsmigJKfoCJynL7OLt8Tpe6Qxvak6tzwc3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=geUUKLDDeXv7YlrzCTTTiRPbtvpfqQ9iaunUZLNUDMLIXHXO2nEUaWLfaSJ0v/M2W
-         TpbvabAuXD/htCP1XRNB4iItmo5tOMJ69jIV6lcq9pwRbprl1TsYqb64hXclMWc1M+
-         9W5x3dmYyUMa2wK0BGDcgbaX5EEZ43zMsZDApF/k=
+        b=JCpqlaiFF1GTnuk6kCbD4Buq7z2fRgxj/FFk7DX1eUmLmJBKz8+CbPzGYYgFmSo4n
+         kw/Dhaie0CpZ968HGIfj2VnGDE++KRsIQT3kQhlx5vBVCkmC6gQNEd9eidkj1xRX15
+         1pS7iwqlLzsmdts8xDNIbgFQha3nL1kpCd14Tid4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Norris <briannorris@chromium.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 036/132] mmc: sdhci_am654: select, not depends REGMAP_MMIO
-Date:   Wed,  2 Nov 2022 03:32:22 +0100
-Message-Id: <20221102022100.581457173@linuxfoundation.org>
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 168/240] net: hinic: fix the issue of double release MBOX callback of VF
+Date:   Wed,  2 Nov 2022 03:32:23 +0100
+Message-Id: <20221102022115.183156208@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
+References: <20221102022111.398283374@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-commit 8d280b1df87e0b3d1355aeac7e62b62214b93f1c upstream.
+[ Upstream commit 8ec2f4c6b2e11a4249bba77460f0cfe6d95a82f8 ]
 
-REGMAP_MMIO is not user-configurable, so we can only satisfy this
-dependency by enabling some other Kconfig symbol that properly 'select's
-it. Use select like everybody else.
+In hinic_vf_func_init(), if VF fails to register information with PF
+through the MBOX, the MBOX callback function of VF is released once. But
+it is released again in hinic_init_hwdev(). Remove one.
 
-Noticed when trying to enable this driver for compile testing.
-
-Fixes: 59592cc1f593 ("mmc: sdhci_am654: Add dependency on MMC_SDHCI_AM654")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221024180300.2292208-1-briannorris@chromium.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7dd29ee12865 ("hinic: add sriov feature support")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/Kconfig |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/huawei/hinic/hinic_sriov.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/mmc/host/Kconfig
-+++ b/drivers/mmc/host/Kconfig
-@@ -1069,9 +1069,10 @@ config MMC_SDHCI_OMAP
- 
- config MMC_SDHCI_AM654
- 	tristate "Support for the SDHCI Controller in TI's AM654 SOCs"
--	depends on MMC_SDHCI_PLTFM && OF && REGMAP_MMIO
-+	depends on MMC_SDHCI_PLTFM && OF
- 	select MMC_SDHCI_IO_ACCESSORS
- 	select MMC_CQHCI
-+	select REGMAP_MMIO
- 	help
- 	  This selects the Secure Digital Host Controller Interface (SDHCI)
- 	  support present in TI's AM654 SOCs. The controller supports
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_sriov.c b/drivers/net/ethernet/huawei/hinic/hinic_sriov.c
+index df555847afb5..61c1da0c52a0 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_sriov.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_sriov.c
+@@ -1175,7 +1175,6 @@ int hinic_vf_func_init(struct hinic_hwdev *hwdev)
+ 			dev_err(&hwdev->hwif->pdev->dev,
+ 				"Failed to register VF, err: %d, status: 0x%x, out size: 0x%x\n",
+ 				err, register_info.status, out_size);
+-			hinic_unregister_vf_mbox_cb(hwdev, HINIC_MOD_L2NIC);
+ 			return -EIO;
+ 		}
+ 	} else {
+-- 
+2.35.1
+
 
 
