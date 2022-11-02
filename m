@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 649D6615983
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:13:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD1DB615947
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:08:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230155AbiKBDNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:13:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60628 "EHLO
+        id S230304AbiKBDIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:08:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230281AbiKBDMr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:12:47 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2024123EBB
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:12:26 -0700 (PDT)
+        with ESMTP id S230366AbiKBDIK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:08:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8525240A4
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:07:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8E540CE1F1A
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:12:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1476AC433D6;
-        Wed,  2 Nov 2022 03:12:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45636617D1
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:07:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD4B4C433D6;
+        Wed,  2 Nov 2022 03:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358742;
-        bh=h9P6+KbIjeAfIMU7xx2L1IaFSo4+Z0P3Pttfml1s7tE=;
+        s=korg; t=1667358449;
+        bh=8QSbkHzLEAaWB7KWUNi3L7Jf3NW+es0+cDoZVu5Xzwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QJ/SELVYz7uSkJIjHs0CjrcTlyaOk/CQMnm6pXTf4b2yqyvEh895rIJoqGq4tO3Jh
-         DJuTJwkOfBtUu8/wyUAWRr9eU0iYs+buHH+hXud9n5mESfw3y7A90MPqTeZbDU6mdt
-         PGQxkPpqz6Bpg++kRIaiuDVXiSs1udnKkhU3NbhQ=
+        b=QsmG6+QQny9M9CUjnAJGyaWz7rqIVhPHvWN14hUMu7i9aZe/Cyr97TC/vUf2tojwV
+         cOLbFXvug0AV1vlwkSfNEr4BUI62ISpjDZ1XgIE/YB3yPz/B5zHK9y13jGJ4vcosvg
+         /pbcQ+uacRgojIHjHCjdGHTal06V3yDfXzzHS64g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.10 18/91] fs/binfmt_elf: Fix memory leak in load_elf_binary()
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 075/132] nfc: virtual_ncidev: Fix memory leak in virtual_nci_send()
 Date:   Wed,  2 Nov 2022 03:33:01 +0100
-Message-Id: <20221102022055.566805950@linuxfoundation.org>
+Message-Id: <20221102022101.583345029@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-commit 594d2a14f2168c09b13b114c3d457aa939403e52 upstream.
+[ Upstream commit e840d8f4a1b323973052a1af5ad4edafcde8ae3d ]
 
-There is a memory leak reported by kmemleak:
+skb should be free in virtual_nci_send(), otherwise kmemleak will report
+memleak.
 
-  unreferenced object 0xffff88817104ef80 (size 224):
-    comm "xfs_admin", pid 47165, jiffies 4298708825 (age 1333.476s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-      60 a8 b3 00 81 88 ff ff a8 10 5a 00 81 88 ff ff  `.........Z.....
-    backtrace:
-      [<ffffffff819171e1>] __alloc_file+0x21/0x250
-      [<ffffffff81918061>] alloc_empty_file+0x41/0xf0
-      [<ffffffff81948cda>] path_openat+0xea/0x3d30
-      [<ffffffff8194ec89>] do_filp_open+0x1b9/0x290
-      [<ffffffff8192660e>] do_open_execat+0xce/0x5b0
-      [<ffffffff81926b17>] open_exec+0x27/0x50
-      [<ffffffff81a69250>] load_elf_binary+0x510/0x3ed0
-      [<ffffffff81927759>] bprm_execve+0x599/0x1240
-      [<ffffffff8192a997>] do_execveat_common.isra.0+0x4c7/0x680
-      [<ffffffff8192b078>] __x64_sys_execve+0x88/0xb0
-      [<ffffffff83bbf0a5>] do_syscall_64+0x35/0x80
+Steps for reproduction (simulated in qemu):
+	cd tools/testing/selftests/nci
+	make
+	./nci_dev
 
-If "interp_elf_ex" fails to allocate memory in load_elf_binary(),
-the program will take the "out_free_ph" error handing path,
-resulting in "interpreter" file resource is not released.
+BUG: memory leak
+unreferenced object 0xffff888107588000 (size 208):
+  comm "nci_dev", pid 206, jiffies 4294945376 (age 368.248s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000008d94c8fd>] __alloc_skb+0x1da/0x290
+    [<00000000278bc7f8>] nci_send_cmd+0xa3/0x350
+    [<0000000081256a22>] nci_reset_req+0x6b/0xa0
+    [<000000009e721112>] __nci_request+0x90/0x250
+    [<000000005d556e59>] nci_dev_up+0x217/0x5b0
+    [<00000000e618ce62>] nfc_dev_up+0x114/0x220
+    [<00000000981e226b>] nfc_genl_dev_up+0x94/0xe0
+    [<000000009bb03517>] genl_family_rcv_msg_doit.isra.14+0x228/0x2d0
+    [<00000000b7f8c101>] genl_rcv_msg+0x35c/0x640
+    [<00000000c94075ff>] netlink_rcv_skb+0x11e/0x350
+    [<00000000440cfb1e>] genl_rcv+0x24/0x40
+    [<0000000062593b40>] netlink_unicast+0x43f/0x640
+    [<000000001d0b13cc>] netlink_sendmsg+0x73a/0xbf0
+    [<000000003272487f>] __sys_sendto+0x324/0x370
+    [<00000000ef9f1747>] __x64_sys_sendto+0xdd/0x1b0
+    [<000000001e437841>] do_syscall_64+0x3f/0x90
 
-Fix it by adding an error handing path "out_free_file", which will
-release the file resource when "interp_elf_ex" failed to allocate
-memory.
-
-Fixes: 0693ffebcfe5 ("fs/binfmt_elf.c: allocate less for static executable")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221024154421.982230-1-lizetao1@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e624e6c3e777 ("nfc: Add a virtual nci device driver")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20221020030505.15572-1-shangxiaojing@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_elf.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nfc/virtual_ncidev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/binfmt_elf.c
-+++ b/fs/binfmt_elf.c
-@@ -907,7 +907,7 @@ static int load_elf_binary(struct linux_
- 		interp_elf_ex = kmalloc(sizeof(*interp_elf_ex), GFP_KERNEL);
- 		if (!interp_elf_ex) {
- 			retval = -ENOMEM;
--			goto out_free_ph;
-+			goto out_free_file;
- 		}
+diff --git a/drivers/nfc/virtual_ncidev.c b/drivers/nfc/virtual_ncidev.c
+index 221fa3bb8705..6317e8505aaa 100644
+--- a/drivers/nfc/virtual_ncidev.c
++++ b/drivers/nfc/virtual_ncidev.c
+@@ -54,16 +54,19 @@ static int virtual_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
+ 	mutex_lock(&nci_mutex);
+ 	if (state != virtual_ncidev_enabled) {
+ 		mutex_unlock(&nci_mutex);
++		kfree_skb(skb);
+ 		return 0;
+ 	}
  
- 		/* Get the exec headers */
-@@ -1328,6 +1328,7 @@ out:
- out_free_dentry:
- 	kfree(interp_elf_ex);
- 	kfree(interp_elf_phdata);
-+out_free_file:
- 	allow_write_access(interpreter);
- 	if (interpreter)
- 		fput(interpreter);
+ 	if (send_buff) {
+ 		mutex_unlock(&nci_mutex);
++		kfree_skb(skb);
+ 		return -1;
+ 	}
+ 	send_buff = skb_copy(skb, GFP_KERNEL);
+ 	mutex_unlock(&nci_mutex);
+ 	wake_up_interruptible(&wq);
++	consume_skb(skb);
+ 
+ 	return 0;
+ }
+-- 
+2.35.1
+
 
 
