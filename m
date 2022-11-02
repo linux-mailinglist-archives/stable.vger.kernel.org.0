@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99285615AB7
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:39:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCCF1615AB8
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:39:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229950AbiKBDji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:39:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56796 "EHLO
+        id S229882AbiKBDjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:39:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229882AbiKBDjh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:39:37 -0400
+        with ESMTP id S230103AbiKBDjm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:39:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C18C264A3
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:39:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FE782656E
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:39:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A0E7B8205C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:39:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E106BC433C1;
-        Wed,  2 Nov 2022 03:39:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C044DB8205C
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:39:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B17CDC433D6;
+        Wed,  2 Nov 2022 03:39:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360373;
-        bh=cyE5GLqld2atVkPvarvnzfCB9HT1k+9aCFeCb0mitls=;
+        s=korg; t=1667360379;
+        bh=dymtWmbAw2K873+g42pvLr+y0fCYwofUpmXE5EwcFVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qrHma/DCRrWCaJ2YG1HNmZA23Gy0XLhRLeJrnfIId/kovrV74c5OwmWDzm2ZYNDdR
-         8yJOAah+hLteEqv51S5T9y0tIwg7sJrwD5AtAJBLKG51i/exkBW5euR+obj4V9dDbI
-         RwJd4mOG48P+l/FL+hmgi+wqN+cWrEglcEDqY0jQ=
+        b=mGkBUjcX86MsQW4qiyCd5AyM9k/OHpRdKXIFIxylsCIaI1wj2ByzPPc+mVk57NFjd
+         cquCCcTUIkDtcBqU5oOBUaeBB+6wzpMcKbOeYZPzzVMF+IxpdHtTgsqXN2kXPUfwCS
+         /KyAtqRSYLvkweiKlkyrq+80udof1To2ivnKhFfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hyunwoo Kim <imv4bel@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 26/60] fbdev: smscufx: Fix several use-after-free bugs
-Date:   Wed,  2 Nov 2022 03:34:47 +0100
-Message-Id: <20221102022051.940941588@linuxfoundation.org>
+        patches@lists.linux.dev, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 4.14 27/60] mac802154: Fix LQI recording
+Date:   Wed,  2 Nov 2022 03:34:48 +0100
+Message-Id: <20221102022051.974360059@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
 References: <20221102022051.081761052@linuxfoundation.org>
@@ -52,168 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <imv4bel@gmail.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit cc67482c9e5f2c80d62f623bcc347c29f9f648e1 upstream.
+commit 5a5c4e06fd03b595542d5590f2bc05a6b7fc5c2b upstream.
 
-Several types of UAFs can occur when physically removing a USB device.
+Back in 2014, the LQI was saved in the skb control buffer (skb->cb, or
+mac_cb(skb)) without any actual reset of this area prior to its use.
 
-Adds ufx_ops_destroy() function to .fb_destroy of fb_ops, and
-in this function, there is kref_put() that finally calls ufx_free().
+As part of a useful rework of the use of this region, 32edc40ae65c
+("ieee802154: change _cb handling slightly") introduced mac_cb_init() to
+basically memset the cb field to 0. In particular, this new function got
+called at the beginning of mac802154_parse_frame_start(), right before
+the location where the buffer got actually filled.
 
-This fix prevents multiple UAFs.
+What went through unnoticed however, is the fact that the very first
+helper called by device drivers in the receive path already used this
+area to save the LQI value for later extraction. Resetting the cb field
+"so late" led to systematically zeroing the LQI.
 
-Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
-Link: https://lore.kernel.org/linux-fbdev/20221011153436.GA4446@ubuntu/
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+If we consider the reset of the cb field needed, we can make it as soon
+as we get an skb from a device driver, right before storing the LQI,
+as is the very first time we need to write something there.
+
+Cc: stable@vger.kernel.org
+Fixes: 32edc40ae65c ("ieee802154: change _cb handling slightly")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20221020142535.1038885-1-miquel.raynal@bootlin.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/smscufx.c |   55 ++++++++++++++++++++++--------------------
- 1 file changed, 30 insertions(+), 25 deletions(-)
+ net/mac802154/rx.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/video/fbdev/smscufx.c
-+++ b/drivers/video/fbdev/smscufx.c
-@@ -100,7 +100,6 @@ struct ufx_data {
- 	struct kref kref;
- 	int fb_count;
- 	bool virtualized; /* true when physical usb device not present */
--	struct delayed_work free_framebuffer_work;
- 	atomic_t usb_active; /* 0 = update virtual buffer, but no usb traffic */
- 	atomic_t lost_pixels; /* 1 = a render op failed. Need screen refresh */
- 	u8 *edid; /* null until we read edid from hw or get from sysfs */
-@@ -1120,15 +1119,24 @@ static void ufx_free(struct kref *kref)
+--- a/net/mac802154/rx.c
++++ b/net/mac802154/rx.c
+@@ -140,7 +140,7 @@ static int
+ ieee802154_parse_frame_start(struct sk_buff *skb, struct ieee802154_hdr *hdr)
  {
- 	struct ufx_data *dev = container_of(kref, struct ufx_data, kref);
+ 	int hlen;
+-	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
++	struct ieee802154_mac_cb *cb = mac_cb(skb);
  
--	/* this function will wait for all in-flight urbs to complete */
--	if (dev->urbs.count > 0)
--		ufx_free_urb_list(dev);
-+	kfree(dev);
-+}
+ 	skb_reset_mac_header(skb);
  
--	pr_debug("freeing ufx_data %p", dev);
-+static void ufx_ops_destory(struct fb_info *info)
-+{
-+	struct ufx_data *dev = info->par;
-+	int node = info->node;
- 
--	kfree(dev);
-+	/* Assume info structure is freed after this point */
-+	framebuffer_release(info);
-+
-+	pr_debug("fb_info for /dev/fb%d has been freed", node);
-+
-+	/* release reference taken by kref_init in probe() */
-+	kref_put(&dev->kref, ufx_free);
- }
- 
-+
- static void ufx_release_urb_work(struct work_struct *work)
+@@ -302,8 +302,9 @@ void
+ ieee802154_rx_irqsafe(struct ieee802154_hw *hw, struct sk_buff *skb, u8 lqi)
  {
- 	struct urb_node *unode = container_of(work, struct urb_node,
-@@ -1137,14 +1145,9 @@ static void ufx_release_urb_work(struct
- 	up(&unode->dev->urbs.limit_sem);
- }
+ 	struct ieee802154_local *local = hw_to_local(hw);
++	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
  
--static void ufx_free_framebuffer_work(struct work_struct *work)
-+static void ufx_free_framebuffer(struct ufx_data *dev)
- {
--	struct ufx_data *dev = container_of(work, struct ufx_data,
--					    free_framebuffer_work.work);
- 	struct fb_info *info = dev->info;
--	int node = info->node;
--
--	unregister_framebuffer(info);
- 
- 	if (info->cmap.len != 0)
- 		fb_dealloc_cmap(&info->cmap);
-@@ -1156,11 +1159,6 @@ static void ufx_free_framebuffer_work(st
- 
- 	dev->info = NULL;
- 
--	/* Assume info structure is freed after this point */
--	framebuffer_release(info);
--
--	pr_debug("fb_info for /dev/fb%d has been freed", node);
--
- 	/* ref taken in probe() as part of registering framebfufer */
- 	kref_put(&dev->kref, ufx_free);
- }
-@@ -1172,11 +1170,13 @@ static int ufx_ops_release(struct fb_inf
- {
- 	struct ufx_data *dev = info->par;
- 
-+	mutex_lock(&disconnect_mutex);
-+
- 	dev->fb_count--;
- 
- 	/* We can't free fb_info here - fbmem will touch it when we return */
- 	if (dev->virtualized && (dev->fb_count == 0))
--		schedule_delayed_work(&dev->free_framebuffer_work, HZ);
-+		ufx_free_framebuffer(dev);
- 
- 	if ((dev->fb_count == 0) && (info->fbdefio)) {
- 		fb_deferred_io_cleanup(info);
-@@ -1190,6 +1190,8 @@ static int ufx_ops_release(struct fb_inf
- 
- 	kref_put(&dev->kref, ufx_free);
- 
-+	mutex_unlock(&disconnect_mutex);
-+
- 	return 0;
- }
- 
-@@ -1296,6 +1298,7 @@ static struct fb_ops ufx_ops = {
- 	.fb_blank = ufx_ops_blank,
- 	.fb_check_var = ufx_ops_check_var,
- 	.fb_set_par = ufx_ops_set_par,
-+	.fb_destroy = ufx_ops_destory,
- };
- 
- /* Assumes &info->lock held by caller
-@@ -1688,9 +1691,6 @@ static int ufx_usb_probe(struct usb_inte
- 		goto error;
- 	}
- 
--	INIT_DELAYED_WORK(&dev->free_framebuffer_work,
--			  ufx_free_framebuffer_work);
--
- 	retval = ufx_reg_read(dev, 0x3000, &id_rev);
- 	check_warn_goto_error(retval, "error %d reading 0x3000 register from device", retval);
- 	dev_dbg(dev->gdev, "ID_REV register value 0x%08x", id_rev);
-@@ -1769,10 +1769,12 @@ error:
- static void ufx_usb_disconnect(struct usb_interface *interface)
- {
- 	struct ufx_data *dev;
-+	struct fb_info *info;
- 
- 	mutex_lock(&disconnect_mutex);
- 
- 	dev = usb_get_intfdata(interface);
-+	info = dev->info;
- 
- 	pr_debug("USB disconnect starting\n");
- 
-@@ -1786,12 +1788,15 @@ static void ufx_usb_disconnect(struct us
- 
- 	/* if clients still have us open, will be freed on last close */
- 	if (dev->fb_count == 0)
--		schedule_delayed_work(&dev->free_framebuffer_work, 0);
-+		ufx_free_framebuffer(dev);
- 
--	/* release reference taken by kref_init in probe() */
--	kref_put(&dev->kref, ufx_free);
-+	/* this function will wait for all in-flight urbs to complete */
-+	if (dev->urbs.count > 0)
-+		ufx_free_urb_list(dev);
-+
-+	pr_debug("freeing ufx_data %p", dev);
- 
--	/* consider ufx_data freed */
-+	unregister_framebuffer(info);
- 
- 	mutex_unlock(&disconnect_mutex);
- }
+-	mac_cb(skb)->lqi = lqi;
++	cb->lqi = lqi;
+ 	skb->pkt_type = IEEE802154_RX_MSG;
+ 	skb_queue_tail(&local->skb_queue, skb);
+ 	tasklet_schedule(&local->tasklet);
 
 
