@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BE0F6157F9
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:42:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87C2161582B
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:46:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230297AbiKBCmf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:42:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60796 "EHLO
+        id S230305AbiKBCq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:46:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230306AbiKBCmd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:42:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DCF820BCE
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:42:33 -0700 (PDT)
+        with ESMTP id S230395AbiKBCqZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:46:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F5921241
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:46:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFD8B601C6
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:42:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B4F1C433B5;
-        Wed,  2 Nov 2022 02:42:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DC66B82075
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:46:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DC6BC433D6;
+        Wed,  2 Nov 2022 02:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356952;
-        bh=/iXs2srnTOyDSuY7FjChpG6R2Oi3MpSbidZRChKxAww=;
+        s=korg; t=1667357182;
+        bh=Qg9lWVXq7yJb7vVPri8TU1sffzvuAUBOyLMcgv0X2I8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ktUWgcLBazOKY01PpKv0EOiQm/gVuAoj6Fw3dSYFatc/ICBIzd+E4xkmXy/zrBZIS
-         2x0qHohELbNihGU13og/eZyeK1l94UQLHh/JcOrDiQlFjGCkXZaFlrVS5Y1ZE0capU
-         iKBsjpJFgVKGVrpmAroa2DHQnAMLUIoxhMAano+4=
+        b=aI07km4AyPUG+Xr5FQJNlph1P/9Z1Wh0anK623KhZ+LzUn3HLM6+uP/m3eXm5ilNr
+         76LX0bX/RsfkEU/uLZwyyTbohkN51nNvTYsL8N6eKbjqW8h5aXdetwCYlsrsncGPvS
+         yegPYjmqh1qWPq72zTn8MmwgHJaLLyVk5eUV9p6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Xu <peterx@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
+        patches@lists.linux.dev,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Yang Shi <shy828301@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        "Huang, Ying" <ying.huang@intel.com>, Zi Yan <ziy@nvidia.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.0 087/240] mm/uffd: fix vma check on userfault for wp
-Date:   Wed,  2 Nov 2022 03:31:02 +0100
-Message-Id: <20221102022113.366299064@linuxfoundation.org>
+Subject: [PATCH 6.0 088/240] mm: migrate: fix return value if all subpages of THPs are migrated successfully
+Date:   Wed,  2 Nov 2022 03:31:03 +0100
+Message-Id: <20221102022113.388362601@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,62 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: Baolin Wang <baolin.wang@linux.alibaba.com>
 
-commit 67eae54bc227b30dedcce9db68b063ba1adb7838 upstream.
+commit 03e5f82ea632af329e32ec03d952b2d99497eeaa upstream.
 
-We used to have a report that pte-marker code can be reached even when
-uffd-wp is not compiled in for file memories, here:
+During THP migration, if THPs are not migrated but they are split and all
+subpages are migrated successfully, migrate_pages() will still return the
+number of THP pages that were not migrated.  This will confuse the callers
+of migrate_pages().  For example, the longterm pinning will failed though
+all pages are migrated successfully.
 
-https://lore.kernel.org/all/YzeR+R6b4bwBlBHh@x1n/T/#u
+Thus we should return 0 to indicate that all pages are migrated in this
+case
 
-I just got time to revisit this and found that the root cause is we simply
-messed up with the vma check, so that for !PTE_MARKER_UFFD_WP system, we
-will allow UFFDIO_REGISTER of MINOR & WP upon shmem as the check was
-wrong:
-
-    if (vm_flags & VM_UFFD_MINOR)
-        return is_vm_hugetlb_page(vma) || vma_is_shmem(vma);
-
-Where we'll allow anything to pass on shmem as long as minor mode is
-requested.
-
-Axel did it right when introducing minor mode but I messed it up in
-b1f9e876862d when moving code around.  Fix it.
-
-Link: https://lkml.kernel.org/r/20221024193336.1233616-1-peterx@redhat.com
-Link: https://lkml.kernel.org/r/20221024193336.1233616-2-peterx@redhat.com
-Fixes: b1f9e876862d ("mm/uffd: enable write protection for shmem & hugetlbfs")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
+Link: https://lkml.kernel.org/r/de386aa864be9158d2f3b344091419ea7c38b2f7.1666599848.git.baolin.wang@linux.alibaba.com
+Fixes: b5bade978e9b ("mm: migrate: fix the return value of migrate_pages()")
+Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+Reviewed-by: Alistair Popple <apopple@nvidia.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: "Huang, Ying" <ying.huang@intel.com>
+Cc: Zi Yan <ziy@nvidia.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/userfaultfd_k.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ mm/migrate.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/include/linux/userfaultfd_k.h b/include/linux/userfaultfd_k.h
-index f07e6998bb68..9df0b9a762cc 100644
---- a/include/linux/userfaultfd_k.h
-+++ b/include/linux/userfaultfd_k.h
-@@ -146,9 +146,9 @@ static inline bool userfaultfd_armed(struct vm_area_struct *vma)
- static inline bool vma_can_userfault(struct vm_area_struct *vma,
- 				     unsigned long vm_flags)
- {
--	if (vm_flags & VM_UFFD_MINOR)
--		return is_vm_hugetlb_page(vma) || vma_is_shmem(vma);
--
-+	if ((vm_flags & VM_UFFD_MINOR) &&
-+	    (!is_vm_hugetlb_page(vma) && !vma_is_shmem(vma)))
-+		return false;
- #ifndef CONFIG_PTE_MARKER_UFFD_WP
- 	/*
- 	 * If user requested uffd-wp but not enabled pte markers for
--- 
-2.38.1
-
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -1558,6 +1558,13 @@ out:
+ 	 */
+ 	list_splice(&ret_pages, from);
+ 
++	/*
++	 * Return 0 in case all subpages of fail-to-migrate THPs are
++	 * migrated successfully.
++	 */
++	if (list_empty(from))
++		rc = 0;
++
+ 	count_vm_events(PGMIGRATE_SUCCESS, nr_succeeded);
+ 	count_vm_events(PGMIGRATE_FAIL, nr_failed_pages);
+ 	count_vm_events(THP_MIGRATION_SUCCESS, nr_thp_succeeded);
 
 
