@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AFB8615984
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:13:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2952861594A
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:09:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230401AbiKBDNi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:13:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33042 "EHLO
+        id S230318AbiKBDI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:08:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230414AbiKBDMx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:12:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F4BA240A3
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:12:29 -0700 (PDT)
+        with ESMTP id S230327AbiKBDIP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:08:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A730240B1
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:07:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C9986179E
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:12:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7DB5C433C1;
-        Wed,  2 Nov 2022 03:12:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09C8F617BC
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:07:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8D8FC433C1;
+        Wed,  2 Nov 2022 03:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358748;
-        bh=11MVRTUy0yi0lU2/v1rSCNbYJM/QzN1/asazseg3oYI=;
+        s=korg; t=1667358461;
+        bh=Rdtz2+NMlHqfzvnBhPb7jsXkgsCrR+NxMxJNqpYP2m8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rzyZtTQdlvWy8KZj2TrkkedYt0QcEI/Wp+JoCqDSNUGEhPy3IYp09p8o9h6SiYk+K
-         OwcuazT9HVtVHoJREi08FzT11IH2hKsNqsDRDz11PaP/5Ryk5Sgs+F4TaFSPwdk1hZ
-         yLND3cFYdGCDNOV4dD7OzK/d3mWUVW/+hQfzenAg=
+        b=bsMHTTiuEXY/oLqoJsq1zXCUa7hNdkzlcgH+YGTBhehPqx+c07EDE49QCey+zP9nm
+         JqcqMZbXU0rq8LMKm2QcP4yWMseGYsE3h+s0R9u708ZqqkBfKpxQvShyky6RNrf7Va
+         PIWg/wBEevmxQWuRxdSjYWqZ3hwGNN4lvTVvZnMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bernd Edlinger <bernd.edlinger@hotmail.de>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.10 19/91] exec: Copy oldsighand->action under spin-lock
-Date:   Wed,  2 Nov 2022 03:33:02 +0100
-Message-Id: <20221102022055.596032708@linuxfoundation.org>
+        patches@lists.linux.dev, Raju Rangoju <Raju.Rangoju@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 077/132] amd-xgbe: fix the SFP compliance codes check for DAC cables
+Date:   Wed,  2 Nov 2022 03:33:03 +0100
+Message-Id: <20221102022101.635959976@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernd Edlinger <bernd.edlinger@hotmail.de>
+From: Raju Rangoju <Raju.Rangoju@amd.com>
 
-commit 5bf2fedca8f59379025b0d52f917b9ddb9bfe17e upstream.
+[ Upstream commit 09c5f6bf11ac98874339e55f4f5f79a9dbc9b375 ]
 
-unshare_sighand should only access oldsighand->action
-while holding oldsighand->siglock, to make sure that
-newsighand->action is in a consistent state.
+The current XGBE code assumes that offset 6 of EEPROM SFP DAC (passive)
+cables is NULL. However, some cables (the 5 meter and 7 meter Molex
+passive cables) have non-zero data at offset 6. Fix the logic by moving
+the passive cable check above the active checks, so as not to be
+improperly identified as an active cable. This will fix the issue for
+any passive cable that advertises 1000Base-CX in offset 6.
 
-Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
-Cc: stable@vger.kernel.org
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/AM8PR10MB470871DEBD1DED081F9CC391E4389@AM8PR10MB4708.EURPRD10.PROD.OUTLOOK.COM
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
+Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exec.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1198,11 +1198,11 @@ static int unshare_sighand(struct task_s
- 			return -ENOMEM;
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index 213769054391..21e38b720d87 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -1151,7 +1151,10 @@ static void xgbe_phy_sfp_parse_eeprom(struct xgbe_prv_data *pdata)
+ 	}
  
- 		refcount_set(&newsighand->count, 1);
--		memcpy(newsighand->action, oldsighand->action,
--		       sizeof(newsighand->action));
+ 	/* Determine the type of SFP */
+-	if (sfp_base[XGBE_SFP_BASE_10GBE_CC] & XGBE_SFP_BASE_10GBE_CC_SR)
++	if (phy_data->sfp_cable == XGBE_SFP_CABLE_PASSIVE &&
++	    xgbe_phy_sfp_bit_rate(sfp_eeprom, XGBE_SFP_SPEED_10000))
++		phy_data->sfp_base = XGBE_SFP_BASE_10000_CR;
++	else if (sfp_base[XGBE_SFP_BASE_10GBE_CC] & XGBE_SFP_BASE_10GBE_CC_SR)
+ 		phy_data->sfp_base = XGBE_SFP_BASE_10000_SR;
+ 	else if (sfp_base[XGBE_SFP_BASE_10GBE_CC] & XGBE_SFP_BASE_10GBE_CC_LR)
+ 		phy_data->sfp_base = XGBE_SFP_BASE_10000_LR;
+@@ -1167,9 +1170,6 @@ static void xgbe_phy_sfp_parse_eeprom(struct xgbe_prv_data *pdata)
+ 		phy_data->sfp_base = XGBE_SFP_BASE_1000_CX;
+ 	else if (sfp_base[XGBE_SFP_BASE_1GBE_CC] & XGBE_SFP_BASE_1GBE_CC_T)
+ 		phy_data->sfp_base = XGBE_SFP_BASE_1000_T;
+-	else if ((phy_data->sfp_cable == XGBE_SFP_CABLE_PASSIVE) &&
+-		 xgbe_phy_sfp_bit_rate(sfp_eeprom, XGBE_SFP_SPEED_10000))
+-		phy_data->sfp_base = XGBE_SFP_BASE_10000_CR;
  
- 		write_lock_irq(&tasklist_lock);
- 		spin_lock(&oldsighand->siglock);
-+		memcpy(newsighand->action, oldsighand->action,
-+		       sizeof(newsighand->action));
- 		rcu_assign_pointer(me->sighand, newsighand);
- 		spin_unlock(&oldsighand->siglock);
- 		write_unlock_irq(&tasklist_lock);
+ 	switch (phy_data->sfp_base) {
+ 	case XGBE_SFP_BASE_1000_T:
+-- 
+2.35.1
+
 
 
