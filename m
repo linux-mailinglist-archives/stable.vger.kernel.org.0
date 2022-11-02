@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DAFA6157DD
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:40:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E08C6157BB
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230265AbiKBCk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:40:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58858 "EHLO
+        id S230239AbiKBChy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:37:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230261AbiKBCk0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:40:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 199051208D
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:40:26 -0700 (PDT)
+        with ESMTP id S230216AbiKBChx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:37:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA8071A805
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:37:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C54CFB82071
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:40:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A4FEC433D6;
-        Wed,  2 Nov 2022 02:40:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66EDC617C8
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:37:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B72DC433D6;
+        Wed,  2 Nov 2022 02:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356823;
-        bh=hoBhVye89RKg/eBDm3QQh/VDmYGvrHAGOcr/0wxaQWg=;
+        s=korg; t=1667356659;
+        bh=VETqd/5F8XEHDagoaqcVuEzhl7+XurcS5g0ILeS5oOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tHMrlQvgWmYZ8E83kzqXkmWlYN+TkmlgMzdFVz9mHBNq700K94OFQrFA5dndsqR+P
-         ZwbNP73Y6a9YqY4hczZqu4HM+9Io7U6SB18RYadp9GZJkJDnFqOuHC0qj1AfAXstB+
-         GjsRoaDcmN694e061K/GbHc804mwLD2qM8yNufG4=
+        b=LfTfPbTlFZSLyohi9KM94KN/t9DeLV3uCdNTf71lLs//s5T2Ni6ZagiRRPOtZxMUw
+         ILofyNbYJb/6TvEE7vUMN0gSZF41gX5Tp9J9erEq+WujTLluHHjYiRi1tdb2kZU5d8
+         VxscSVtA2uL+XyGYP0PkEPB9DOp3TQE+eupKYQpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Tony OBrien <tony.obrien@alliedtelesis.co.nz>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
         Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 6.0 037/240] mtd: parsers: bcm47xxpart: Fix halfblock reads
-Date:   Wed,  2 Nov 2022 03:30:12 +0100
-Message-Id: <20221102022112.242812391@linuxfoundation.org>
+Subject: [PATCH 6.0 038/240] mtd: rawnand: marvell: Use correct logic for nand-keep-config
+Date:   Wed,  2 Nov 2022 03:30:13 +0100
+Message-Id: <20221102022112.264713102@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,49 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
 
-commit 05e258c6ec669d6d18c494ea03d35962d6f5b545 upstream.
+commit ce107713b722af57c4b7f2477594d445b496420e upstream.
 
-There is some code in the parser that tries to read 0x8000
-bytes into a block to "read in the middle" of the block. Well
-that only works if the block is also 0x10000 bytes all the time,
-else we get these parse errors as we reach the end of the flash:
-
-spi-nor spi0.0: mx25l1606e (2048 Kbytes)
-mtd_read error while parsing (offset: 0x200000): -22
-mtd_read error while parsing (offset: 0x201000): -22
-(...)
-
-Fix the code to do what I think was intended.
+Originally the absence of the marvell,nand-keep-config property caused
+the setup_data_interface function to be provided. However when
+setup_data_interface was moved into nand_controller_ops the logic was
+unintentionally inverted. Update the logic so that only if the
+marvell,nand-keep-config property is present the bootloader NAND config
+kept.
 
 Cc: stable@vger.kernel.org
-Fixes: f0501e81fbaa ("mtd: bcm47xxpart: alternative MAGIC for board_data partition")
-Cc: Rafał Miłecki <zajec5@gmail.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 7a08dbaedd36 ("mtd: rawnand: Move ->setup_data_interface() to nand_controller_ops")
+Signed-off-by: Tony O'Brien <tony.obrien@alliedtelesis.co.nz>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20221018091129.280026-1-linus.walleij@linaro.org
+Link: https://lore.kernel.org/linux-mtd/20220927024728.28447-1-chris.packham@alliedtelesis.co.nz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/parsers/bcm47xxpart.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mtd/nand/raw/marvell_nand.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/parsers/bcm47xxpart.c
-+++ b/drivers/mtd/parsers/bcm47xxpart.c
-@@ -233,11 +233,11 @@ static int bcm47xxpart_parse(struct mtd_
- 		}
+--- a/drivers/mtd/nand/raw/marvell_nand.c
++++ b/drivers/mtd/nand/raw/marvell_nand.c
+@@ -2672,7 +2672,7 @@ static int marvell_nand_chip_init(struct
+ 	chip->controller = &nfc->controller;
+ 	nand_set_flash_node(chip, np);
  
- 		/* Read middle of the block */
--		err = mtd_read(master, offset + 0x8000, 0x4, &bytes_read,
-+		err = mtd_read(master, offset + (blocksize / 2), 0x4, &bytes_read,
- 			       (uint8_t *)buf);
- 		if (err && !mtd_is_bitflip(err)) {
- 			pr_err("mtd_read error while parsing (offset: 0x%X): %d\n",
--			       offset + 0x8000, err);
-+			       offset + (blocksize / 2), err);
- 			continue;
- 		}
+-	if (!of_property_read_bool(np, "marvell,nand-keep-config"))
++	if (of_property_read_bool(np, "marvell,nand-keep-config"))
+ 		chip->options |= NAND_KEEP_TIMINGS;
  
+ 	mtd = nand_to_mtd(chip);
 
 
