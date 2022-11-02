@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2952861594A
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:09:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85399615985
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:13:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230318AbiKBDI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:08:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56522 "EHLO
+        id S230420AbiKBDNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:13:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230327AbiKBDIP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:08:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A730240B1
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:07:42 -0700 (PDT)
+        with ESMTP id S230421AbiKBDMy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:12:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCCE9240BE
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:12:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09C8F617BC
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:07:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8D8FC433C1;
-        Wed,  2 Nov 2022 03:07:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79A94616DB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:12:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E36C433D6;
+        Wed,  2 Nov 2022 03:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358461;
-        bh=Rdtz2+NMlHqfzvnBhPb7jsXkgsCrR+NxMxJNqpYP2m8=;
+        s=korg; t=1667358754;
+        bh=Dnor4adkufRk++lfcAtgS5yKuVG7nGEmHiyDDMIs/1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsMHTTiuEXY/oLqoJsq1zXCUa7hNdkzlcgH+YGTBhehPqx+c07EDE49QCey+zP9nm
-         JqcqMZbXU0rq8LMKm2QcP4yWMseGYsE3h+s0R9u708ZqqkBfKpxQvShyky6RNrf7Va
-         PIWg/wBEevmxQWuRxdSjYWqZ3hwGNN4lvTVvZnMo=
+        b=rGb0EIBhGcnvy/FcS4oQltAIidiICmfhotGKmWSl4lM/NFIOAsrN6NvJ2t1Yi1NuA
+         NRpl11s19vrNyYeIDvwFz9Jiey6pZL9JlEhFvs8ZCIMtHxvvpwzgMrHIqsfpBLnp6e
+         qht85ELR/ZaX0ynlrI+Gw6cayLPefS+ql17ojzLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Raju Rangoju <Raju.Rangoju@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 077/132] amd-xgbe: fix the SFP compliance codes check for DAC cables
+        patches@lists.linux.dev, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 5.10 20/91] mac802154: Fix LQI recording
 Date:   Wed,  2 Nov 2022 03:33:03 +0100
-Message-Id: <20221102022101.635959976@linuxfoundation.org>
+Message-Id: <20221102022055.624693600@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <Raju.Rangoju@amd.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 09c5f6bf11ac98874339e55f4f5f79a9dbc9b375 ]
+commit 5a5c4e06fd03b595542d5590f2bc05a6b7fc5c2b upstream.
 
-The current XGBE code assumes that offset 6 of EEPROM SFP DAC (passive)
-cables is NULL. However, some cables (the 5 meter and 7 meter Molex
-passive cables) have non-zero data at offset 6. Fix the logic by moving
-the passive cable check above the active checks, so as not to be
-improperly identified as an active cable. This will fix the issue for
-any passive cable that advertises 1000Base-CX in offset 6.
+Back in 2014, the LQI was saved in the skb control buffer (skb->cb, or
+mac_cb(skb)) without any actual reset of this area prior to its use.
 
-Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
-Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As part of a useful rework of the use of this region, 32edc40ae65c
+("ieee802154: change _cb handling slightly") introduced mac_cb_init() to
+basically memset the cb field to 0. In particular, this new function got
+called at the beginning of mac802154_parse_frame_start(), right before
+the location where the buffer got actually filled.
+
+What went through unnoticed however, is the fact that the very first
+helper called by device drivers in the receive path already used this
+area to save the LQI value for later extraction. Resetting the cb field
+"so late" led to systematically zeroing the LQI.
+
+If we consider the reset of the cb field needed, we can make it as soon
+as we get an skb from a device driver, right before storing the LQI,
+as is the very first time we need to write something there.
+
+Cc: stable@vger.kernel.org
+Fixes: 32edc40ae65c ("ieee802154: change _cb handling slightly")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20221020142535.1038885-1-miquel.raynal@bootlin.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/mac802154/rx.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-index 213769054391..21e38b720d87 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-@@ -1151,7 +1151,10 @@ static void xgbe_phy_sfp_parse_eeprom(struct xgbe_prv_data *pdata)
- 	}
+--- a/net/mac802154/rx.c
++++ b/net/mac802154/rx.c
+@@ -132,7 +132,7 @@ static int
+ ieee802154_parse_frame_start(struct sk_buff *skb, struct ieee802154_hdr *hdr)
+ {
+ 	int hlen;
+-	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
++	struct ieee802154_mac_cb *cb = mac_cb(skb);
  
- 	/* Determine the type of SFP */
--	if (sfp_base[XGBE_SFP_BASE_10GBE_CC] & XGBE_SFP_BASE_10GBE_CC_SR)
-+	if (phy_data->sfp_cable == XGBE_SFP_CABLE_PASSIVE &&
-+	    xgbe_phy_sfp_bit_rate(sfp_eeprom, XGBE_SFP_SPEED_10000))
-+		phy_data->sfp_base = XGBE_SFP_BASE_10000_CR;
-+	else if (sfp_base[XGBE_SFP_BASE_10GBE_CC] & XGBE_SFP_BASE_10GBE_CC_SR)
- 		phy_data->sfp_base = XGBE_SFP_BASE_10000_SR;
- 	else if (sfp_base[XGBE_SFP_BASE_10GBE_CC] & XGBE_SFP_BASE_10GBE_CC_LR)
- 		phy_data->sfp_base = XGBE_SFP_BASE_10000_LR;
-@@ -1167,9 +1170,6 @@ static void xgbe_phy_sfp_parse_eeprom(struct xgbe_prv_data *pdata)
- 		phy_data->sfp_base = XGBE_SFP_BASE_1000_CX;
- 	else if (sfp_base[XGBE_SFP_BASE_1GBE_CC] & XGBE_SFP_BASE_1GBE_CC_T)
- 		phy_data->sfp_base = XGBE_SFP_BASE_1000_T;
--	else if ((phy_data->sfp_cable == XGBE_SFP_CABLE_PASSIVE) &&
--		 xgbe_phy_sfp_bit_rate(sfp_eeprom, XGBE_SFP_SPEED_10000))
--		phy_data->sfp_base = XGBE_SFP_BASE_10000_CR;
+ 	skb_reset_mac_header(skb);
  
- 	switch (phy_data->sfp_base) {
- 	case XGBE_SFP_BASE_1000_T:
--- 
-2.35.1
-
+@@ -294,8 +294,9 @@ void
+ ieee802154_rx_irqsafe(struct ieee802154_hw *hw, struct sk_buff *skb, u8 lqi)
+ {
+ 	struct ieee802154_local *local = hw_to_local(hw);
++	struct ieee802154_mac_cb *cb = mac_cb_init(skb);
+ 
+-	mac_cb(skb)->lqi = lqi;
++	cb->lqi = lqi;
+ 	skb->pkt_type = IEEE802154_RX_MSG;
+ 	skb_queue_tail(&local->skb_queue, skb);
+ 	tasklet_schedule(&local->tasklet);
 
 
