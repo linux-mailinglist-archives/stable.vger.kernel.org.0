@@ -2,55 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53AB961596A
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:10:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABDD66159EF
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:21:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbiKBDKg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:10:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59602 "EHLO
+        id S230281AbiKBDVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:21:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230176AbiKBDKf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:10:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E7A2BF64
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:10:34 -0700 (PDT)
+        with ESMTP id S230259AbiKBDVV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:21:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F9F25295
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:21:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9F3EB82076
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:10:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5449FC433D6;
-        Wed,  2 Nov 2022 03:10:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A575B82062
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:21:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF7B8C433D7;
+        Wed,  2 Nov 2022 03:21:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358631;
-        bh=uKckqtqEkawReT+CfM7Tj5I1qAQ95pOrLwPpMkLuwsw=;
+        s=korg; t=1667359277;
+        bh=UPlBCDytGL6K7AIh8Bj348XOo71VKjaEn7zRWmXg+jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrC0hb6RDsgm7NASf4yh6NYmEu5g0OddCrT9zUpUjEHnJCGfClxcuvB0nrajgQ5x+
-         Rt/+WwzxB5QVJJvn250qyhPbd3btE40z7kVCjJCoNgc4lgmfa5vd5kLgbF7PcEwtly
-         vTagezwAXicoiBiToQGZg7F/Um0igCFxc1wTWICY=
+        b=LGBvkHr7ilosCO1fmtZR/s8yBMHBCIdeJ6skdOWhqhZ+Gpb6nrjYOGhdBDzSOLrcb
+         6IwnyAnw5l1MtgaCzEqwg+pPC6oC8yAGsyCDjaOB4rHKootLRtOus8oI9XqJz7gqpc
+         d+bMjxEFRiapg4q8ODDRfL8ZGbXuqUwqHqK8s3WI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Garry <john.garry@huawei.com>,
-        Shang XiaoJing <shangxiaojing@huawei.com>,
-        James Clark <james.clark@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Kajol Jain <kjain@linux.ibm.com>, Leo Yan <leo.yan@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mike Leach <mike.leach@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 105/132] perf vendor events arm64: Fix incorrect Hisi hip08 L3 metrics
+        patches@lists.linux.dev, Hannu Hartikainen <hannu@hrtk.in>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.4 05/64] USB: add RESET_RESUME quirk for NVIDIA Jetson devices in RCM
 Date:   Wed,  2 Nov 2022 03:33:31 +0100
-Message-Id: <20221102022102.416456953@linuxfoundation.org>
+Message-Id: <20221102022051.996442002@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,84 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Hannu Hartikainen <hannu@hrtk.in>
 
-[ Upstream commit e9229d5b6254a75291536f582652c599957344d2 ]
+commit fc4ade55c617dc73c7e9756b57f3230b4ff24540 upstream.
 
-Commit 0cc177cfc95d565e ("perf vendor events arm64: Add Hisi hip08 L3
-metrics") add L3 metrics of hip08, but some metrics (IF_BP_MISP_BR_RET,
-IF_BP_MISP_BR_RET, IF_BP_MISP_BR_BL) have incorrect event number due to
-the mistakes in document, which caused incorrect result. Fix the
-incorrect metrics.
+NVIDIA Jetson devices in Force Recovery mode (RCM) do not support
+suspending, ie. flashing fails if the device has been suspended. The
+devices are still visible in lsusb and seem to work otherwise, making
+the issue hard to debug. This has been discovered in various forum
+posts, eg. [1].
 
-Before:
+The patch has been tested on NVIDIA Jetson AGX Xavier, but I'm adding
+all the Jetson models listed in [2] on the assumption that they all
+behave similarly.
 
-  65,811,214,308	armv8_pmuv3_0/event=0x1014/	# 18.87 push_branch
-  							# -40.19 other_branch
-  3,564,316,780	BR_MIS_PRED				# 0.51 indirect_branch
-  							# 21.81 pop_branch
+[1]: https://forums.developer.nvidia.com/t/flashing-not-working/72365
+[2]: https://docs.nvidia.com/jetson/archives/l4t-archived/l4t-3271/index.html#page/Tegra%20Linux%20Driver%20Package%20Development%20Guide/quick_start.html
 
-After:
-
-  6,537,146,245	BR_MIS_PRED			# 0.48 indirect_branch
-  						# 0.47 pop_branch
-  						# 0.00 push_branch
-  						# 0.05 other_branch
-
-Fixes: 0cc177cfc95d565e ("perf vendor events arm64: Add Hisi hip08 L3 metrics")
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Acked-by: James Clark <james.clark@arm.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Kajol Jain <kjain@linux.ibm.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20221021105035.10000-2-shangxiaojing@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Hannu Hartikainen <hannu@hrtk.in>
+Cc: stable <stable@kernel.org>  # after 6.1-rc3
+Link: https://lore.kernel.org/r/20220919171610.30484-1-hannu@hrtk.in
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../perf/pmu-events/arch/arm64/hisilicon/hip08/metrics.json | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/core/quirks.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/tools/perf/pmu-events/arch/arm64/hisilicon/hip08/metrics.json b/tools/perf/pmu-events/arch/arm64/hisilicon/hip08/metrics.json
-index dda8e59149d2..be23d3c89a79 100644
---- a/tools/perf/pmu-events/arch/arm64/hisilicon/hip08/metrics.json
-+++ b/tools/perf/pmu-events/arch/arm64/hisilicon/hip08/metrics.json
-@@ -112,21 +112,21 @@
-         "MetricName": "indirect_branch"
-     },
-     {
--        "MetricExpr": "(armv8_pmuv3_0@event\\=0x1014@ + armv8_pmuv3_0@event\\=0x1018@) / BR_MIS_PRED",
-+        "MetricExpr": "(armv8_pmuv3_0@event\\=0x1013@ + armv8_pmuv3_0@event\\=0x1016@) / BR_MIS_PRED",
-         "PublicDescription": "Push branch L3 topdown metric",
-         "BriefDescription": "Push branch L3 topdown metric",
-         "MetricGroup": "TopDownL3",
-         "MetricName": "push_branch"
-     },
-     {
--        "MetricExpr": "armv8_pmuv3_0@event\\=0x100c@ / BR_MIS_PRED",
-+        "MetricExpr": "armv8_pmuv3_0@event\\=0x100d@ / BR_MIS_PRED",
-         "PublicDescription": "Pop branch L3 topdown metric",
-         "BriefDescription": "Pop branch L3 topdown metric",
-         "MetricGroup": "TopDownL3",
-         "MetricName": "pop_branch"
-     },
-     {
--        "MetricExpr": "(BR_MIS_PRED - armv8_pmuv3_0@event\\=0x1010@ - armv8_pmuv3_0@event\\=0x1014@ - armv8_pmuv3_0@event\\=0x1018@ - armv8_pmuv3_0@event\\=0x100c@) / BR_MIS_PRED",
-+        "MetricExpr": "(BR_MIS_PRED - armv8_pmuv3_0@event\\=0x1010@ - armv8_pmuv3_0@event\\=0x1013@ - armv8_pmuv3_0@event\\=0x1016@ - armv8_pmuv3_0@event\\=0x100d@) / BR_MIS_PRED",
-         "PublicDescription": "Other branch L3 topdown metric",
-         "BriefDescription": "Other branch L3 topdown metric",
-         "MetricGroup": "TopDownL3",
--- 
-2.35.1
-
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -388,6 +388,15 @@ static const struct usb_device_id usb_qu
+ 	/* Kingston DataTraveler 3.0 */
+ 	{ USB_DEVICE(0x0951, 0x1666), .driver_info = USB_QUIRK_NO_LPM },
+ 
++	/* NVIDIA Jetson devices in Force Recovery mode */
++	{ USB_DEVICE(0x0955, 0x7018), .driver_info = USB_QUIRK_RESET_RESUME },
++	{ USB_DEVICE(0x0955, 0x7019), .driver_info = USB_QUIRK_RESET_RESUME },
++	{ USB_DEVICE(0x0955, 0x7418), .driver_info = USB_QUIRK_RESET_RESUME },
++	{ USB_DEVICE(0x0955, 0x7721), .driver_info = USB_QUIRK_RESET_RESUME },
++	{ USB_DEVICE(0x0955, 0x7c18), .driver_info = USB_QUIRK_RESET_RESUME },
++	{ USB_DEVICE(0x0955, 0x7e19), .driver_info = USB_QUIRK_RESET_RESUME },
++	{ USB_DEVICE(0x0955, 0x7f21), .driver_info = USB_QUIRK_RESET_RESUME },
++
+ 	/* X-Rite/Gretag-Macbeth Eye-One Pro display colorimeter */
+ 	{ USB_DEVICE(0x0971, 0x2000), .driver_info = USB_QUIRK_NO_SET_INTF },
+ 
 
 
