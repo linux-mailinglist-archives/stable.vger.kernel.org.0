@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B662615A4D
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64BB361596D
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:10:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231177AbiKBD2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:28:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47450 "EHLO
+        id S230235AbiKBDKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:10:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231181AbiKBD2i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:28:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 054F01AF09
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:28:30 -0700 (PDT)
+        with ESMTP id S229823AbiKBDKx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:10:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E7F723BE1
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:10:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 942D2617CF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:28:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F755C433D6;
-        Wed,  2 Nov 2022 03:28:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C8878CE1EB9
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:10:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39325C433C1;
+        Wed,  2 Nov 2022 03:10:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359709;
-        bh=89acmAkwgb17dayad/zKxcsqUZWXhIwBlctK+6OAi18=;
+        s=korg; t=1667358649;
+        bh=xA4mQAal6pHW63JAX1mvRsr/9zyhRBSvZ1pHZWWLQtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ViiBK6sBrpnsmg8Yk1XPvlP0seqs7pVAa46dy4S3jTt8kG+mEUixlggQxwgx2iENE
-         rj8Otd26G/WqmgXnFJQ1FnjCC1Zs06BxSoQY7Larooo6BBeL3jn4ZJQsy3FYb09dg0
-         Pjn9iuWkcZxjpRwuLd1ObpHJPTkHDXsCJzk5XzL4=
+        b=L4DuSDxKDX38GaFXR3PKBRQz/ywMWI0kUE6mtr8sgjdPzZEDLM24WtsBuN/HOUdjn
+         pZTCFZgo1A6viaYwEMg6TouwvWD9hdqDQRlTBBsPDR2pQBV08R9+r7Ox47I/Ps382d
+         kEUa5vMPvkrCq5lTc6jC5mXRcGb/xM+7L1wzaWAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.19 08/78] media: venus: dec: Handle the case where find_format fails
+        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
+        Bart Van Assche <bvanassche@acm.org>
+Subject: [PATCH 5.15 127/132] scsi: sd: Revert "scsi: sd: Remove a local variable"
 Date:   Wed,  2 Nov 2022 03:33:53 +0100
-Message-Id: <20221102022053.167193577@linuxfoundation.org>
+Message-Id: <20221102022103.008409308@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 06a2da340f762addc5935bf851d95b14d4692db2 upstream.
+This reverts commit 84f7a9de0602704bbec774a6c7f7c8c4994bee9c.
 
-Debugging the decoder on msm8916 I noticed the vdec probe was crashing if
-the fmt pointer was NULL.
+Because it introduces a problem that rq->__data_len is set to the wrong
+value.
 
-A similar fix from Colin Ian King found by Coverity was implemented for the
-encoder. Implement the same fix on the decoder.
+before the patch:
+1) nr_bytes = rq->__data_len
+2) rq->__data_len = sdp->sector_size
+3) scsi_init_io()
+4) rq->__data_len = nr_bytes
 
-Fixes: 7472c1c69138 ("[media] media: venus: vdec: add video decoder files")
-Cc: stable@vger.kernel.org  # v4.13+
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+after the patch:
+1) rq->__data_len = sdp->sector_size
+2) scsi_init_io()
+3) rq->__data_len = rq->__data_len -> __data_len is wrong
+
+It will cause that io can only complete one segment each time, and the io
+will requeue in scsi_io_completion_action(), which will cause severe
+performance degradation.
+
+Scsi write same is removed in commit e383e16e84e9 ("scsi: sd: Remove
+WRITE_SAME support") from mainline, hence this patch is only needed for
+stable kernels.
+
+Fixes: 84f7a9de0602 ("scsi: sd: Remove a local variable")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/qcom/venus/vdec.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/sd.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/media/platform/qcom/venus/vdec.c
-+++ b/drivers/media/platform/qcom/venus/vdec.c
-@@ -155,6 +155,8 @@ vdec_try_fmt_common(struct venus_inst *i
- 		else
- 			return NULL;
- 		fmt = find_format(inst, pixmp->pixelformat, f->type);
-+		if (!fmt)
-+			return NULL;
- 	}
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -1072,6 +1072,7 @@ static blk_status_t sd_setup_write_same_
+ 	struct bio *bio = rq->bio;
+ 	u64 lba = sectors_to_logical(sdp, blk_rq_pos(rq));
+ 	u32 nr_blocks = sectors_to_logical(sdp, blk_rq_sectors(rq));
++	unsigned int nr_bytes = blk_rq_bytes(rq);
+ 	blk_status_t ret;
  
- 	pixmp->width = clamp(pixmp->width, frame_width_min(inst),
+ 	if (sdkp->device->no_write_same)
+@@ -1108,7 +1109,7 @@ static blk_status_t sd_setup_write_same_
+ 	 */
+ 	rq->__data_len = sdp->sector_size;
+ 	ret = scsi_alloc_sgtables(cmd);
+-	rq->__data_len = blk_rq_bytes(rq);
++	rq->__data_len = nr_bytes;
+ 
+ 	return ret;
+ }
 
 
