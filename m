@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB84E615A2D
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:26:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2E9C615A9C
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:37:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230294AbiKBD0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:26:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45112 "EHLO
+        id S230026AbiKBDhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:37:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230474AbiKBD0M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:26:12 -0400
+        with ESMTP id S229992AbiKBDhE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:37:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6665825C74
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:26:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F297D26551
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:37:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2E55617BA
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:26:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99045C433C1;
-        Wed,  2 Nov 2022 03:26:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9314661799
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:37:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EA64C433D6;
+        Wed,  2 Nov 2022 03:37:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359569;
-        bh=XmH0GaFV6fThlQ/HnfD6J8R+gGh4ag/OMSrVb29DlZk=;
+        s=korg; t=1667360222;
+        bh=Wy35oRYf4Ay4VUrRAomwIljUTtmcPG1hfcS0P39SkQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K79IxAQ4Sv20iK29nnxd+6VD3GCLJH3ys/RqNlk/+PnTStA6opTqiDMQ/KsstVAnW
-         5d6kgTF8TbyvHXOapfL+d0Fiwi+nm2xNMfeQbhHgqNRFT6jasJc1OQgUlrAVI2AbQS
-         62zp9yVa6dlS+4J3ImEOKty300fWPW7xIj7VpPNE=
+        b=AWpqRCx5hVsO5+a3cYRpMpjMX3oO1ApMnVcmxMFEKBcARvfrHTDBx9y9d1L99Mar0
+         Cm5bzZP8Wqs8Vj4AHNetjCNWScbluLNXBJnNMF6NH2Q9j269QPBNomV76IcpTGkhFD
+         i/hfm2ssaW1vLtilkSqgtrGYhVIL7zCFRlDpJP6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hyong Youb Kim <hyonkim@cisco.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 61/64] net/mlx5e: Do not increment ESN when updating IPsec ESN state
+        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
+        "Christian A. Ehrhardt" <lk@c--e.de>, stable <stable@kernel.org>
+Subject: [PATCH 4.19 42/78] kernfs: fix use-after-free in __kernfs_remove
 Date:   Wed,  2 Nov 2022 03:34:27 +0100
-Message-Id: <20221102022053.787487124@linuxfoundation.org>
+Message-Id: <20221102022054.224210542@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
-References: <20221102022051.821538553@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +52,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyong Youb Kim <hyonkim@cisco.com>
+From: Christian A. Ehrhardt <lk@c--e.de>
 
-[ Upstream commit 888be6b279b7257b5f6e4c9527675bff0a335596 ]
+commit 4abc99652812a2ddf932f137515d5c5a04723538 upstream.
 
-An offloaded SA stops receiving after about 2^32 + replay_window
-packets. For example, when SA reaches <seq-hi 0x1, seq 0x2c>, all
-subsequent packets get dropped with SA-icv-failure (integrity_failed).
+Syzkaller managed to trigger concurrent calls to
+kernfs_remove_by_name_ns() for the same file resulting in
+a KASAN detected use-after-free. The race occurs when the root
+node is freed during kernfs_drain().
 
-To reproduce the bug:
-- ConnectX-6 Dx with crypto enabled (FW 22.30.1004)
-- ipsec.conf:
-  nic-offload = yes
-  replay-window = 32
-  esn = yes
-  salifetime=24h
-- Run netperf for a long time to send more than 2^32 packets
-  netperf -H <device-under-test> -t TCP_STREAM -l 20000
+To prevent this acquire an additional reference for the root
+of the tree that is removed before calling __kernfs_remove().
 
-When 2^32 + replay_window packets are received, the replay window
-moves from the 2nd half of subspace (overlap=1) to the 1st half
-(overlap=0). The driver then updates the 'esn' value in NIC
-(i.e. seq_hi) as follows.
+Found by syzkaller with the following reproducer (slab_nomerge is
+required):
 
- seq_hi = xfrm_replay_seqhi(seq_bottom)
- new esn in NIC = seq_hi + 1
+syz_mount_image$ext4(0x0, &(0x7f0000000100)='./file0\x00', 0x100000, 0x0, 0x0, 0x0, 0x0)
+r0 = openat(0xffffffffffffff9c, &(0x7f0000000080)='/proc/self/exe\x00', 0x0, 0x0)
+close(r0)
+pipe2(&(0x7f0000000140)={0xffffffffffffffff, <r1=>0xffffffffffffffff}, 0x800)
+mount$9p_fd(0x0, &(0x7f0000000040)='./file0\x00', &(0x7f00000000c0), 0x408, &(0x7f0000000280)={'trans=fd,', {'rfdno', 0x3d, r0}, 0x2c, {'wfdno', 0x3d, r1}, 0x2c, {[{@cache_loose}, {@mmap}, {@loose}, {@loose}, {@mmap}], [{@mask={'mask', 0x3d, '^MAY_EXEC'}}, {@fsmagic={'fsmagic', 0x3d, 0x10001}}, {@dont_hash}]}})
 
-The +1 increment is wrong, as seq_hi already contains the correct
-seq_hi. For example, when seq_hi=1, the driver actually tells NIC to
-use seq_hi=2 (esn). This incorrect esn value causes all subsequent
-packets to fail integrity checks (SA-icv-failure). So, do not
-increment.
+Sample report:
 
-Fixes: cb01008390bb ("net/mlx5: IPSec, Add support for ESN")
-Signed-off-by: Hyong Youb Kim <hyonkim@cisco.com>
-Acked-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/20221026135153.154807-2-saeed@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+==================================================================
+BUG: KASAN: use-after-free in kernfs_type include/linux/kernfs.h:335 [inline]
+BUG: KASAN: use-after-free in kernfs_leftmost_descendant fs/kernfs/dir.c:1261 [inline]
+BUG: KASAN: use-after-free in __kernfs_remove.part.0+0x843/0x960 fs/kernfs/dir.c:1369
+Read of size 2 at addr ffff8880088807f0 by task syz-executor.2/857
+
+CPU: 0 PID: 857 Comm: syz-executor.2 Not tainted 6.0.0-rc3-00363-g7726d4c3e60b #5
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x6e/0x91 lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:317 [inline]
+ print_report.cold+0x5e/0x5e5 mm/kasan/report.c:433
+ kasan_report+0xa3/0x130 mm/kasan/report.c:495
+ kernfs_type include/linux/kernfs.h:335 [inline]
+ kernfs_leftmost_descendant fs/kernfs/dir.c:1261 [inline]
+ __kernfs_remove.part.0+0x843/0x960 fs/kernfs/dir.c:1369
+ __kernfs_remove fs/kernfs/dir.c:1356 [inline]
+ kernfs_remove_by_name_ns+0x108/0x190 fs/kernfs/dir.c:1589
+ sysfs_slab_add+0x133/0x1e0 mm/slub.c:5943
+ __kmem_cache_create+0x3e0/0x550 mm/slub.c:4899
+ create_cache mm/slab_common.c:229 [inline]
+ kmem_cache_create_usercopy+0x167/0x2a0 mm/slab_common.c:335
+ p9_client_create+0xd4d/0x1190 net/9p/client.c:993
+ v9fs_session_init+0x1e6/0x13c0 fs/9p/v9fs.c:408
+ v9fs_mount+0xb9/0xbd0 fs/9p/vfs_super.c:126
+ legacy_get_tree+0xf1/0x200 fs/fs_context.c:610
+ vfs_get_tree+0x85/0x2e0 fs/super.c:1530
+ do_new_mount fs/namespace.c:3040 [inline]
+ path_mount+0x675/0x1d00 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __x64_sys_mount+0x282/0x300 fs/namespace.c:3568
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f725f983aed
+Code: 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b0 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f725f0f7028 EFLAGS: 00000246 ORIG_RAX: 00000000000000a5
+RAX: ffffffffffffffda RBX: 00007f725faa3f80 RCX: 00007f725f983aed
+RDX: 00000000200000c0 RSI: 0000000020000040 RDI: 0000000000000000
+RBP: 00007f725f9f419c R08: 0000000020000280 R09: 0000000000000000
+R10: 0000000000000408 R11: 0000000000000246 R12: 0000000000000000
+R13: 0000000000000006 R14: 00007f725faa3f80 R15: 00007f725f0d7000
+ </TASK>
+
+Allocated by task 855:
+ kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+ kasan_set_track mm/kasan/common.c:45 [inline]
+ set_alloc_info mm/kasan/common.c:437 [inline]
+ __kasan_slab_alloc+0x66/0x80 mm/kasan/common.c:470
+ kasan_slab_alloc include/linux/kasan.h:224 [inline]
+ slab_post_alloc_hook mm/slab.h:727 [inline]
+ slab_alloc_node mm/slub.c:3243 [inline]
+ slab_alloc mm/slub.c:3251 [inline]
+ __kmem_cache_alloc_lru mm/slub.c:3258 [inline]
+ kmem_cache_alloc+0xbf/0x200 mm/slub.c:3268
+ kmem_cache_zalloc include/linux/slab.h:723 [inline]
+ __kernfs_new_node+0xd4/0x680 fs/kernfs/dir.c:593
+ kernfs_new_node fs/kernfs/dir.c:655 [inline]
+ kernfs_create_dir_ns+0x9c/0x220 fs/kernfs/dir.c:1010
+ sysfs_create_dir_ns+0x127/0x290 fs/sysfs/dir.c:59
+ create_dir lib/kobject.c:63 [inline]
+ kobject_add_internal+0x24a/0x8d0 lib/kobject.c:223
+ kobject_add_varg lib/kobject.c:358 [inline]
+ kobject_init_and_add+0x101/0x160 lib/kobject.c:441
+ sysfs_slab_add+0x156/0x1e0 mm/slub.c:5954
+ __kmem_cache_create+0x3e0/0x550 mm/slub.c:4899
+ create_cache mm/slab_common.c:229 [inline]
+ kmem_cache_create_usercopy+0x167/0x2a0 mm/slab_common.c:335
+ p9_client_create+0xd4d/0x1190 net/9p/client.c:993
+ v9fs_session_init+0x1e6/0x13c0 fs/9p/v9fs.c:408
+ v9fs_mount+0xb9/0xbd0 fs/9p/vfs_super.c:126
+ legacy_get_tree+0xf1/0x200 fs/fs_context.c:610
+ vfs_get_tree+0x85/0x2e0 fs/super.c:1530
+ do_new_mount fs/namespace.c:3040 [inline]
+ path_mount+0x675/0x1d00 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __x64_sys_mount+0x282/0x300 fs/namespace.c:3568
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Freed by task 857:
+ kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+ kasan_set_track+0x21/0x30 mm/kasan/common.c:45
+ kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:370
+ ____kasan_slab_free mm/kasan/common.c:367 [inline]
+ ____kasan_slab_free mm/kasan/common.c:329 [inline]
+ __kasan_slab_free+0x108/0x190 mm/kasan/common.c:375
+ kasan_slab_free include/linux/kasan.h:200 [inline]
+ slab_free_hook mm/slub.c:1754 [inline]
+ slab_free_freelist_hook mm/slub.c:1780 [inline]
+ slab_free mm/slub.c:3534 [inline]
+ kmem_cache_free+0x9c/0x340 mm/slub.c:3551
+ kernfs_put.part.0+0x2b2/0x520 fs/kernfs/dir.c:547
+ kernfs_put+0x42/0x50 fs/kernfs/dir.c:521
+ __kernfs_remove.part.0+0x72d/0x960 fs/kernfs/dir.c:1407
+ __kernfs_remove fs/kernfs/dir.c:1356 [inline]
+ kernfs_remove_by_name_ns+0x108/0x190 fs/kernfs/dir.c:1589
+ sysfs_slab_add+0x133/0x1e0 mm/slub.c:5943
+ __kmem_cache_create+0x3e0/0x550 mm/slub.c:4899
+ create_cache mm/slab_common.c:229 [inline]
+ kmem_cache_create_usercopy+0x167/0x2a0 mm/slab_common.c:335
+ p9_client_create+0xd4d/0x1190 net/9p/client.c:993
+ v9fs_session_init+0x1e6/0x13c0 fs/9p/v9fs.c:408
+ v9fs_mount+0xb9/0xbd0 fs/9p/vfs_super.c:126
+ legacy_get_tree+0xf1/0x200 fs/fs_context.c:610
+ vfs_get_tree+0x85/0x2e0 fs/super.c:1530
+ do_new_mount fs/namespace.c:3040 [inline]
+ path_mount+0x675/0x1d00 fs/namespace.c:3370
+ do_mount fs/namespace.c:3383 [inline]
+ __do_sys_mount fs/namespace.c:3591 [inline]
+ __se_sys_mount fs/namespace.c:3568 [inline]
+ __x64_sys_mount+0x282/0x300 fs/namespace.c:3568
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+The buggy address belongs to the object at ffff888008880780
+ which belongs to the cache kernfs_node_cache of size 128
+The buggy address is located 112 bytes inside of
+ 128-byte region [ffff888008880780, ffff888008880800)
+
+The buggy address belongs to the physical page:
+page:00000000732833f8 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x8880
+flags: 0x100000000000200(slab|node=0|zone=1)
+raw: 0100000000000200 0000000000000000 dead000000000122 ffff888001147280
+raw: 0000000000000000 0000000000150015 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff888008880680: fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb fb
+ ffff888008880700: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+>ffff888008880780: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                                                             ^
+ ffff888008880800: fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb fb
+ ffff888008880880: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+==================================================================
+
+Acked-by: Tejun Heo <tj@kernel.org>
+Cc: stable <stable@kernel.org> # -rc3
+Signed-off-by: Christian A. Ehrhardt <lk@c--e.de>
+Link: https://lore.kernel.org/r/20220913121723.691454-1-lk@c--e.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c | 3 ---
- 1 file changed, 3 deletions(-)
+ fs/kernfs/dir.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
-index c467f5e981f6..70087f2542b2 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
-@@ -117,7 +117,6 @@ static bool mlx5e_ipsec_update_esn_state(struct mlx5e_ipsec_sa_entry *sa_entry)
- 	struct xfrm_replay_state_esn *replay_esn;
- 	u32 seq_bottom;
- 	u8 overlap;
--	u32 *esn;
+--- a/fs/kernfs/dir.c
++++ b/fs/kernfs/dir.c
+@@ -1513,8 +1513,11 @@ int kernfs_remove_by_name_ns(struct kern
+ 	mutex_lock(&kernfs_mutex);
  
- 	if (!(sa_entry->x->props.flags & XFRM_STATE_ESN)) {
- 		sa_entry->esn_state.trigger = 0;
-@@ -130,11 +129,9 @@ static bool mlx5e_ipsec_update_esn_state(struct mlx5e_ipsec_sa_entry *sa_entry)
+ 	kn = kernfs_find_ns(parent, name, ns);
+-	if (kn)
++	if (kn) {
++		kernfs_get(kn);
+ 		__kernfs_remove(kn);
++		kernfs_put(kn);
++	}
  
- 	sa_entry->esn_state.esn = xfrm_replay_seqhi(sa_entry->x,
- 						    htonl(seq_bottom));
--	esn = &sa_entry->esn_state.esn;
+ 	mutex_unlock(&kernfs_mutex);
  
- 	sa_entry->esn_state.trigger = 1;
- 	if (unlikely(overlap && seq_bottom < MLX5E_IPSEC_ESN_SCOPE_MID)) {
--		++(*esn);
- 		sa_entry->esn_state.overlap = 0;
- 		return true;
- 	} else if (unlikely(!overlap &&
--- 
-2.35.1
-
 
 
