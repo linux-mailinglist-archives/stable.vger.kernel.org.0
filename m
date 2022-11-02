@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 326CF615825
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:46:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91035615826
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:46:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230379AbiKBCqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:46:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35694 "EHLO
+        id S230211AbiKBCqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:46:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230383AbiKBCqA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:46:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E30A20F7B
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:45:59 -0700 (PDT)
+        with ESMTP id S230383AbiKBCqG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:46:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64ACE20F74
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:46:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B05A617C7
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:45:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DADFC433D6;
-        Wed,  2 Nov 2022 02:45:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03C79617C6
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:46:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F2E9C433C1;
+        Wed,  2 Nov 2022 02:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357158;
-        bh=J1BpyigVeoA98NlMDXcjuvnyM2J+3kXNcp9YwoxetEA=;
+        s=korg; t=1667357164;
+        bh=e/a82m/TKHuDJwPxoon1ldFJACjRTzMLgoSdAKSF3Mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TN6Kvq6SIqw+zzHkDw2ixQD2vR8dUkx9qS739Vfhy9Up5GSrAdex+LLO5aq7Il/4e
-         BnklO2UVBGlJyYRKX78RTcBS/uWXBnOlNOJ/KNxRArPbnapuoTZRhO6vLuB8Ra+LSm
-         HYsADib3i1Zk4SRJYnDhbNBq3S7H7/gBd+B0Gc9k=
+        b=bi+jGOn8T1FL4JuHRy0oRW0ZCnjU52cGDJEu67vZY6aYtvMUEnTdGCFvlIxC5NnIM
+         eQgad8diA/8jE6vRZ8X9DufIGEqsyAx0SasaK/U2+Oqa/CV/uvwvWt6QS7SVOdEN2j
+         7xWOvVnoXx3AtoMizcKOs7VpYb6lMw3xNvVUnVCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sai Krishna Potthuri <sai.krishna.potthuri@amd.com>,
-        Michal Simek <michal.simek@amd.com>,
+        patches@lists.linux.dev, Siarhei Volkau <lis8215@gmail.com>,
         Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 6.0 094/240] Revert "dt-bindings: pinctrl-zynqmp: Add output-enable configuration"
-Date:   Wed,  2 Nov 2022 03:31:09 +0100
-Message-Id: <20221102022113.521742409@linuxfoundation.org>
+Subject: [PATCH 6.0 095/240] pinctrl: Ingenic: JZ4755 bug fixes
+Date:   Wed,  2 Nov 2022 03:31:10 +0100
+Message-Id: <20221102022113.543457639@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -54,45 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Krishna Potthuri <sai.krishna.potthuri@amd.com>
+From: Siarhei Volkau <lis8215@gmail.com>
 
-commit ff8356060e3a5e126abb5e1f6b6e9931c220dec2 upstream.
+commit 17747577bbcb496e1b1c4096d64c2fc1e7bc0fef upstream.
 
-This reverts commit 133ad0d9af99bdca90705dadd8d31c20bfc9919f.
+Fixes UART1 function bits and MMC groups typo.
 
-On systems with older PMUFW (Xilinx ZynqMP Platform Management Firmware)
-using these pinctrl properties can cause system hang because there is
-missing feature autodetection.
-When this feature is implemented, support for these two properties should
-bring back.
+For pins 0x97,0x99 function 0 is designated to PWM3/PWM5
+respectively, function is 1 designated to the UART1.
+
+Diff from v1:
+ - sent separately
+ - added tag Fixes
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Sai Krishna Potthuri <sai.krishna.potthuri@amd.com>
-Acked-by: Michal Simek <michal.simek@amd.com>
-Link: https://lore.kernel.org/r/20221017130303.21746-3-sai.krishna.potthuri@amd.com
+Fixes: b582b5a434d3 ("pinctrl: Ingenic: Add pinctrl driver for JZ4755.")
+Tested-by: Siarhei Volkau <lis8215@gmail.com>
+Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
+Link: https://lore.kernel.org/r/20221016153548.3024209-1-lis8215@gmail.com
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../devicetree/bindings/pinctrl/xlnx,zynqmp-pinctrl.yaml      | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/pinctrl/pinctrl-ingenic.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/pinctrl/xlnx,zynqmp-pinctrl.yaml b/Documentation/devicetree/bindings/pinctrl/xlnx,zynqmp-pinctrl.yaml
-index 1e2b9b627b12..2722dc7bb03d 100644
---- a/Documentation/devicetree/bindings/pinctrl/xlnx,zynqmp-pinctrl.yaml
-+++ b/Documentation/devicetree/bindings/pinctrl/xlnx,zynqmp-pinctrl.yaml
-@@ -274,10 +274,6 @@ patternProperties:
-           slew-rate:
-             enum: [0, 1]
- 
--          output-enable:
--            description:
--              This will internally disable the tri-state for MIO pins.
--
-           drive-strength:
-             description:
-               Selects the drive strength for MIO pins, in mA.
--- 
-2.38.1
-
+--- a/drivers/pinctrl/pinctrl-ingenic.c
++++ b/drivers/pinctrl/pinctrl-ingenic.c
+@@ -667,7 +667,7 @@ static u8 jz4755_lcd_24bit_funcs[] = { 1
+ static const struct group_desc jz4755_groups[] = {
+ 	INGENIC_PIN_GROUP("uart0-data", jz4755_uart0_data, 0),
+ 	INGENIC_PIN_GROUP("uart0-hwflow", jz4755_uart0_hwflow, 0),
+-	INGENIC_PIN_GROUP("uart1-data", jz4755_uart1_data, 0),
++	INGENIC_PIN_GROUP("uart1-data", jz4755_uart1_data, 1),
+ 	INGENIC_PIN_GROUP("uart2-data", jz4755_uart2_data, 1),
+ 	INGENIC_PIN_GROUP("ssi-dt-b", jz4755_ssi_dt_b, 0),
+ 	INGENIC_PIN_GROUP("ssi-dt-f", jz4755_ssi_dt_f, 0),
+@@ -721,7 +721,7 @@ static const char *jz4755_ssi_groups[] =
+ 	"ssi-ce1-b", "ssi-ce1-f",
+ };
+ static const char *jz4755_mmc0_groups[] = { "mmc0-1bit", "mmc0-4bit", };
+-static const char *jz4755_mmc1_groups[] = { "mmc0-1bit", "mmc0-4bit", };
++static const char *jz4755_mmc1_groups[] = { "mmc1-1bit", "mmc1-4bit", };
+ static const char *jz4755_i2c_groups[] = { "i2c-data", };
+ static const char *jz4755_cim_groups[] = { "cim-data", };
+ static const char *jz4755_lcd_groups[] = {
 
 
