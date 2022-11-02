@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E841615863
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:51:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EEE6615864
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:51:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230480AbiKBCvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:51:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40482 "EHLO
+        id S230481AbiKBCvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:51:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230474AbiKBCvF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:51:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD26F21E05
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:51:03 -0700 (PDT)
+        with ESMTP id S230378AbiKBCvI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:51:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 099C3209A7
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:51:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67CFFB82077
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:51:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4054DC433D6;
-        Wed,  2 Nov 2022 02:50:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A9FB617C8
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:51:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E386C433D6;
+        Wed,  2 Nov 2022 02:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357461;
-        bh=N4ahiQRFXxVftQoDrX2puPRcqc1lykzJo2dePMMxvv8=;
+        s=korg; t=1667357467;
+        bh=u54GmEnvB6ZWOHr9fbXiPwXVOLLm7ak9CXTXYktyaHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N25XM4GOEHgywuzD2xUBc+RVTXl4+/zgOa/blx/4FDgmPb5gn9vdWpZFwnFtrKSZD
-         WLzHY7tL/19mTomoRxqaNAqp3uCXh9HODwo5wOkPG+UdSBLGWHr/Ag/RnEL1gU1x3/
-         96xLMqNqyhYUkyYPYiHYafv6DcfjnuewBdjojczo=
+        b=gBs58O6GWku0vG469sOAp/d+8mYO2JadXdr10phjs1iUwI7BzOCj+HcGumtY5wJHH
+         x7n5me6atU9mgi1Q9ksXt51J7+2FzxYXbQ6Nj4BVqbvuszP+Sh/ScpWsZffGmH16Vw
+         jaLr5dtSRSRsjmg0R/3qT+aN4xXrE88RWRTrd3DY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anup Patel <apatel@ventanamicro.com>,
-        Atish Patra <atishp@rivosinc.com>,
-        Anup Patel <anup@brainfault.org>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 173/240] RISC-V: KVM: Fix kvm_riscv_vcpu_timer_pending() for Sstc
-Date:   Wed,  2 Nov 2022 03:32:28 +0100
-Message-Id: <20221102022115.298920791@linuxfoundation.org>
+Subject: [PATCH 6.0 174/240] x86/unwind/orc: Fix unreliable stack dump with gcov
+Date:   Wed,  2 Nov 2022 03:32:29 +0100
+Message-Id: <20221102022115.321992886@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -54,98 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anup Patel <apatel@ventanamicro.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit cea8896bd936135559253e9b23340cfa1cdf0caf ]
+[ Upstream commit 230db82413c091bc16acee72650f48d419cebe49 ]
 
-The kvm_riscv_vcpu_timer_pending() checks per-VCPU next_cycles
-and per-VCPU software injected VS timer interrupt. This function
-returns incorrect value when Sstc is available because the per-VCPU
-next_cycles are only updated by kvm_riscv_vcpu_timer_save() called
-from kvm_arch_vcpu_put(). As a result, when Sstc is available the
-VCPU does not block properly upon WFI traps.
+When a console stack dump is initiated with CONFIG_GCOV_PROFILE_ALL
+enabled, show_trace_log_lvl() gets out of sync with the ORC unwinder,
+causing the stack trace to show all text addresses as unreliable:
 
-To fix the above issue, we introduce kvm_riscv_vcpu_timer_sync()
-which will update per-VCPU next_cycles upon every VM exit instead
-of kvm_riscv_vcpu_timer_save().
+  # echo l > /proc/sysrq-trigger
+  [  477.521031] sysrq: Show backtrace of all active CPUs
+  [  477.523813] NMI backtrace for cpu 0
+  [  477.524492] CPU: 0 PID: 1021 Comm: bash Not tainted 6.0.0 #65
+  [  477.525295] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-1.fc36 04/01/2014
+  [  477.526439] Call Trace:
+  [  477.526854]  <TASK>
+  [  477.527216]  ? dump_stack_lvl+0xc7/0x114
+  [  477.527801]  ? dump_stack+0x13/0x1f
+  [  477.528331]  ? nmi_cpu_backtrace.cold+0xb5/0x10d
+  [  477.528998]  ? lapic_can_unplug_cpu+0xa0/0xa0
+  [  477.529641]  ? nmi_trigger_cpumask_backtrace+0x16a/0x1f0
+  [  477.530393]  ? arch_trigger_cpumask_backtrace+0x1d/0x30
+  [  477.531136]  ? sysrq_handle_showallcpus+0x1b/0x30
+  [  477.531818]  ? __handle_sysrq.cold+0x4e/0x1ae
+  [  477.532451]  ? write_sysrq_trigger+0x63/0x80
+  [  477.533080]  ? proc_reg_write+0x92/0x110
+  [  477.533663]  ? vfs_write+0x174/0x530
+  [  477.534265]  ? handle_mm_fault+0x16f/0x500
+  [  477.534940]  ? ksys_write+0x7b/0x170
+  [  477.535543]  ? __x64_sys_write+0x1d/0x30
+  [  477.536191]  ? do_syscall_64+0x6b/0x100
+  [  477.536809]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  [  477.537609]  </TASK>
 
-Fixes: 8f5cb44b1bae ("RISC-V: KVM: Support sstc extension")
-Signed-off-by: Anup Patel <apatel@ventanamicro.com>
-Reviewed-by: Atish Patra <atishp@rivosinc.com>
-Signed-off-by: Anup Patel <anup@brainfault.org>
+This happens when the compiled code for show_stack() has a single word
+on the stack, and doesn't use a tail call to show_stack_log_lvl().
+(CONFIG_GCOV_PROFILE_ALL=y is the only known case of this.)  Then the
+__unwind_start() skip logic hits an off-by-one bug and fails to unwind
+all the way to the intended starting frame.
+
+Fix it by reverting the following commit:
+
+  f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
+
+The original justification for that commit no longer exists.  That
+original issue was later fixed in a different way, with the following
+commit:
+
+  f2ac57a4c49d ("x86/unwind/orc: Fix inactive tasks with stack pointer in %sp on GCC 10 compiled kernels")
+
+Fixes: f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+[jpoimboe: rewrite commit log]
+Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/kvm_vcpu_timer.h |  1 +
- arch/riscv/kvm/vcpu.c                   |  3 +++
- arch/riscv/kvm/vcpu_timer.c             | 17 +++++++++++++++--
- 3 files changed, 19 insertions(+), 2 deletions(-)
+ arch/x86/kernel/unwind_orc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/include/asm/kvm_vcpu_timer.h b/arch/riscv/include/asm/kvm_vcpu_timer.h
-index 0d8fdb8ec63a..82f7260301da 100644
---- a/arch/riscv/include/asm/kvm_vcpu_timer.h
-+++ b/arch/riscv/include/asm/kvm_vcpu_timer.h
-@@ -45,6 +45,7 @@ int kvm_riscv_vcpu_timer_deinit(struct kvm_vcpu *vcpu);
- int kvm_riscv_vcpu_timer_reset(struct kvm_vcpu *vcpu);
- void kvm_riscv_vcpu_timer_restore(struct kvm_vcpu *vcpu);
- void kvm_riscv_guest_timer_init(struct kvm *kvm);
-+void kvm_riscv_vcpu_timer_sync(struct kvm_vcpu *vcpu);
- void kvm_riscv_vcpu_timer_save(struct kvm_vcpu *vcpu);
- bool kvm_riscv_vcpu_timer_pending(struct kvm_vcpu *vcpu);
+diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
+index 0ea57da92940..c059820dfaea 100644
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -713,7 +713,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+ 	/* Otherwise, skip ahead to the user-specified starting frame: */
+ 	while (!unwind_done(state) &&
+ 	       (!on_stack(&state->stack_info, first_frame, sizeof(long)) ||
+-			state->sp < (unsigned long)first_frame))
++			state->sp <= (unsigned long)first_frame))
+ 		unwind_next_frame(state);
  
-diff --git a/arch/riscv/kvm/vcpu.c b/arch/riscv/kvm/vcpu.c
-index 2ef33d5d94d1..f692c0716aa7 100644
---- a/arch/riscv/kvm/vcpu.c
-+++ b/arch/riscv/kvm/vcpu.c
-@@ -698,6 +698,9 @@ void kvm_riscv_vcpu_sync_interrupts(struct kvm_vcpu *vcpu)
- 				clear_bit(IRQ_VS_SOFT, &v->irqs_pending);
- 		}
- 	}
-+
-+	/* Sync-up timer CSRs */
-+	kvm_riscv_vcpu_timer_sync(vcpu);
- }
- 
- int kvm_riscv_vcpu_set_interrupt(struct kvm_vcpu *vcpu, unsigned int irq)
-diff --git a/arch/riscv/kvm/vcpu_timer.c b/arch/riscv/kvm/vcpu_timer.c
-index 185f2386a747..ad34519c8a13 100644
---- a/arch/riscv/kvm/vcpu_timer.c
-+++ b/arch/riscv/kvm/vcpu_timer.c
-@@ -320,20 +320,33 @@ void kvm_riscv_vcpu_timer_restore(struct kvm_vcpu *vcpu)
- 	kvm_riscv_vcpu_timer_unblocking(vcpu);
- }
- 
--void kvm_riscv_vcpu_timer_save(struct kvm_vcpu *vcpu)
-+void kvm_riscv_vcpu_timer_sync(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_vcpu_timer *t = &vcpu->arch.timer;
- 
- 	if (!t->sstc_enabled)
- 		return;
- 
--	t = &vcpu->arch.timer;
- #if defined(CONFIG_32BIT)
- 	t->next_cycles = csr_read(CSR_VSTIMECMP);
- 	t->next_cycles |= (u64)csr_read(CSR_VSTIMECMPH) << 32;
- #else
- 	t->next_cycles = csr_read(CSR_VSTIMECMP);
- #endif
-+}
-+
-+void kvm_riscv_vcpu_timer_save(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_vcpu_timer *t = &vcpu->arch.timer;
-+
-+	if (!t->sstc_enabled)
-+		return;
-+
-+	/*
-+	 * The vstimecmp CSRs are saved by kvm_riscv_vcpu_timer_sync()
-+	 * upon every VM exit so no need to save here.
-+	 */
-+
- 	/* timer should be enabled for the remaining operations */
- 	if (unlikely(!t->init_done))
- 		return;
+ 	return;
 -- 
 2.35.1
 
