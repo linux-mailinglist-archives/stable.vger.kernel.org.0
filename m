@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D71CB615964
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:10:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EE326159C5
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:18:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230187AbiKBDKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:10:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59212 "EHLO
+        id S229962AbiKBDSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:18:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230012AbiKBDKH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:10:07 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0893D1571D
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:10:06 -0700 (PDT)
+        with ESMTP id S230251AbiKBDRn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:17:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DF39252AC
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:17:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 56FADCE1EB9
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:10:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE4F5C433D7;
-        Wed,  2 Nov 2022 03:10:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE0EA60B72
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:17:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D29BC433C1;
+        Wed,  2 Nov 2022 03:17:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358602;
-        bh=OMkHuU58ZLwy41a0tce20orNYAf7zExXy8vTOKAXLuA=;
+        s=korg; t=1667359062;
+        bh=icFqFopmqoX/aDGUC4FTvhp5GMXkbbyROAF2R6wfw1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qzrk605HkoDU+XowJtgJCUZ6D5iaFG6OqeZjpmRBAiQB9NAblvLrRNpcft1LsdDUD
-         8rhcMjHzuSYgMZp0y3uND0+kbMeq/MvbDNBtCnXUfZeodYCY9+mQgO09+HEjyqj7Ph
-         UW2Yo8qZb6sCCTPY074meqSo6wamio8eSvjYxYVE=
+        b=bEEL9d9zzhNu4L0bVszQQPZMH7xyQvXF8iUXhNmzrI6qy55UcnQgEloTMwEu1g/Wc
+         MEL7vwPli51R0mpiPpyBfL7SpE9OsgNBcgzc2np0fbQL1sWS0sbl12/SJMKUD/XTa1
+         1RM0R3h3mc37KVOEQnZxScTi9+FDsZ/4sxru0e0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Slawomir Laba <slawomirx.laba@intel.com>,
-        Michal Jaron <michalx.jaron@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.15 100/132] i40e: Fix ethtool rx-flow-hash setting for X722
+        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 43/91] perf/x86/intel/lbr: Use setup_clear_cpu_cap() instead of clear_cpu_cap()
 Date:   Wed,  2 Nov 2022 03:33:26 +0100
-Message-Id: <20221102022102.273474129@linuxfoundation.org>
+Message-Id: <20221102022056.259490443@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,127 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-[ Upstream commit 54b5af5a438076082d482cab105b1bd484ab5074 ]
+[ Upstream commit b329f5ddc9ce4b622d9c7aaf5c6df4de52caf91a ]
 
-When enabling flow type for RSS hash via ethtool:
+clear_cpu_cap(&boot_cpu_data) is very similar to setup_clear_cpu_cap()
+except that the latter also sets a bit in 'cpu_caps_cleared' which
+later clears the same cap in secondary cpus, which is likely what is
+meant here.
 
-ethtool -N $pf rx-flow-hash tcp4|tcp6|udp4|udp6 s|d
-
-the driver would fail to setup this setting on X722
-device since it was using the mask on the register
-dedicated for X710 devices.
-
-Apply a different mask on the register when setting the
-RSS hash for the X722 device.
-
-When displaying the flow types enabled via ethtool:
-
-ethtool -n $pf rx-flow-hash tcp4|tcp6|udp4|udp6
-
-the driver would print wrong values for X722 device.
-
-Fix this issue by testing masks for X722 device in
-i40e_get_rss_hash_opts function.
-
-Fixes: eb0dd6e4a3b3 ("i40e: Allow RSS Hash set with less than four parameters")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Link: https://lore.kernel.org/r/20221024100526.1874914-1-jacob.e.keller@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 47125db27e47 ("perf/x86/intel/lbr: Support Architectural LBR")
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Link: https://lkml.kernel.org/r/20220718141123.136106-2-mlevitsk@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/intel/i40e/i40e_ethtool.c    | 31 ++++++++++++++-----
- drivers/net/ethernet/intel/i40e/i40e_type.h   |  4 +++
- 2 files changed, 27 insertions(+), 8 deletions(-)
+ arch/x86/events/intel/lbr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index 11a17ebfceef..6d94255bea5f 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -3085,10 +3085,17 @@ static int i40e_get_rss_hash_opts(struct i40e_pf *pf, struct ethtool_rxnfc *cmd)
+diff --git a/arch/x86/events/intel/lbr.c b/arch/x86/events/intel/lbr.c
+index 42173a7be3bb..4b6c39c5facb 100644
+--- a/arch/x86/events/intel/lbr.c
++++ b/arch/x86/events/intel/lbr.c
+@@ -1847,7 +1847,7 @@ void __init intel_pmu_arch_lbr_init(void)
+ 	return;
  
- 		if (cmd->flow_type == TCP_V4_FLOW ||
- 		    cmd->flow_type == UDP_V4_FLOW) {
--			if (i_set & I40E_L3_SRC_MASK)
--				cmd->data |= RXH_IP_SRC;
--			if (i_set & I40E_L3_DST_MASK)
--				cmd->data |= RXH_IP_DST;
-+			if (hw->mac.type == I40E_MAC_X722) {
-+				if (i_set & I40E_X722_L3_SRC_MASK)
-+					cmd->data |= RXH_IP_SRC;
-+				if (i_set & I40E_X722_L3_DST_MASK)
-+					cmd->data |= RXH_IP_DST;
-+			} else {
-+				if (i_set & I40E_L3_SRC_MASK)
-+					cmd->data |= RXH_IP_SRC;
-+				if (i_set & I40E_L3_DST_MASK)
-+					cmd->data |= RXH_IP_DST;
-+			}
- 		} else if (cmd->flow_type == TCP_V6_FLOW ||
- 			  cmd->flow_type == UDP_V6_FLOW) {
- 			if (i_set & I40E_L3_V6_SRC_MASK)
-@@ -3446,12 +3453,15 @@ static int i40e_get_rxnfc(struct net_device *netdev, struct ethtool_rxnfc *cmd,
+ clear_arch_lbr:
+-	clear_cpu_cap(&boot_cpu_data, X86_FEATURE_ARCH_LBR);
++	setup_clear_cpu_cap(X86_FEATURE_ARCH_LBR);
+ }
  
  /**
-  * i40e_get_rss_hash_bits - Read RSS Hash bits from register
-+ * @hw: hw structure
-  * @nfc: pointer to user request
-  * @i_setc: bits currently set
-  *
-  * Returns value of bits to be set per user request
-  **/
--static u64 i40e_get_rss_hash_bits(struct ethtool_rxnfc *nfc, u64 i_setc)
-+static u64 i40e_get_rss_hash_bits(struct i40e_hw *hw,
-+				  struct ethtool_rxnfc *nfc,
-+				  u64 i_setc)
- {
- 	u64 i_set = i_setc;
- 	u64 src_l3 = 0, dst_l3 = 0;
-@@ -3470,8 +3480,13 @@ static u64 i40e_get_rss_hash_bits(struct ethtool_rxnfc *nfc, u64 i_setc)
- 		dst_l3 = I40E_L3_V6_DST_MASK;
- 	} else if (nfc->flow_type == TCP_V4_FLOW ||
- 		  nfc->flow_type == UDP_V4_FLOW) {
--		src_l3 = I40E_L3_SRC_MASK;
--		dst_l3 = I40E_L3_DST_MASK;
-+		if (hw->mac.type == I40E_MAC_X722) {
-+			src_l3 = I40E_X722_L3_SRC_MASK;
-+			dst_l3 = I40E_X722_L3_DST_MASK;
-+		} else {
-+			src_l3 = I40E_L3_SRC_MASK;
-+			dst_l3 = I40E_L3_DST_MASK;
-+		}
- 	} else {
- 		/* Any other flow type are not supported here */
- 		return i_set;
-@@ -3586,7 +3601,7 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
- 					       flow_pctype)) |
- 			((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1,
- 					       flow_pctype)) << 32);
--		i_set = i40e_get_rss_hash_bits(nfc, i_setc);
-+		i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
- 		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_pctype),
- 				  (u32)i_set);
- 		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_pctype),
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_type.h b/drivers/net/ethernet/intel/i40e/i40e_type.h
-index 7b3f30beb757..388c3d36d96a 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_type.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e_type.h
-@@ -1404,6 +1404,10 @@ struct i40e_lldp_variables {
- #define I40E_PFQF_CTL_0_HASHLUTSIZE_512	0x00010000
- 
- /* INPUT SET MASK for RSS, flow director, and flexible payload */
-+#define I40E_X722_L3_SRC_SHIFT		49
-+#define I40E_X722_L3_SRC_MASK		(0x3ULL << I40E_X722_L3_SRC_SHIFT)
-+#define I40E_X722_L3_DST_SHIFT		41
-+#define I40E_X722_L3_DST_MASK		(0x3ULL << I40E_X722_L3_DST_SHIFT)
- #define I40E_L3_SRC_SHIFT		47
- #define I40E_L3_SRC_MASK		(0x3ULL << I40E_L3_SRC_SHIFT)
- #define I40E_L3_V6_SRC_SHIFT		43
 -- 
 2.35.1
 
