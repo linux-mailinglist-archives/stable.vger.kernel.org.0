@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 180596158F1
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:01:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 678AA61585F
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:50:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231282AbiKBDBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:01:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50764 "EHLO
+        id S230475AbiKBCut (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:50:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231239AbiKBDBi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:01:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E88822BDD
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:01:32 -0700 (PDT)
+        with ESMTP id S230474AbiKBCus (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:50:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8B21209AB
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:50:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 008D0B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:01:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE0D7C433C1;
-        Wed,  2 Nov 2022 03:01:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69051B82077
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:50:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E789C433D7;
+        Wed,  2 Nov 2022 02:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358089;
-        bh=ZELdLrZqpEBexc8K+cQ05J2yGpBE9vTZ2j6IsjXgM/Y=;
+        s=korg; t=1667357443;
+        bh=4eSBhS12RcSUcl5NUR+lxde6sdmB/rvVU10dslYrZO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dr23PI8C0rziESOr3l7c4bpVLWAjByGG8/5mkJnmyG9caFggNkx3jBmOngQPx/5V9
-         Iw+hS0xZBQIgIT2+weA0jj+FQngL/3DWYVYrx4vX0yC38JDQuEDOt3z/It0xQ0bR/T
-         vPa218TgDltqf1WAWRMNw3j843NyTvSv7e7K/dB8=
+        b=W81yJnGJztpksspVDe41B3esod3DTtswUU1FcKXG+dPdI7OiPivYVq83y+mqAwFMr
+         FGaJl6DSyJpRNxFFGUOkmB+2h2/bzyvOJVvhfl8zr5T9DtZsQbLXTx/lDrGJ74x5v/
+         7ZwbmPGEpq39z7bKe7K9hGmDzI4R5MGg7B7UElwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sascha Hauer <s.hauer@pengutronix.de>,
-        Haibo Chen <haibo.chen@nxp.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 039/132] mmc: sdhci-esdhc-imx: Propagate ESDHC_FLAG_HS400* only on 8bit bus
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 170/240] nfc: virtual_ncidev: Fix memory leak in virtual_nci_send()
 Date:   Wed,  2 Nov 2022 03:32:25 +0100
-Message-Id: <20221102022100.657790972@linuxfoundation.org>
+Message-Id: <20221102022115.229766489@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
+References: <20221102022111.398283374@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-commit 1ed5c3b22fc78735c539e4767832aea58db6761c upstream.
+[ Upstream commit e840d8f4a1b323973052a1af5ad4edafcde8ae3d ]
 
-The core issues the warning "drop HS400 support since no 8-bit bus" when
-one of the ESDHC_FLAG_HS400* flags is set on a non 8bit capable host. To
-avoid this warning set these flags only on hosts that actually can do
-8bit, i.e. have bus-width = <8> set in the device tree.
+skb should be free in virtual_nci_send(), otherwise kmemleak will report
+memleak.
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Reviewed-by: Haibo Chen <haibo.chen@nxp.com>
-Fixes: 029e2476f9e6 ("mmc: sdhci-esdhc-imx: add HS400_ES support for i.MX8QXP")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221013093248.2220802-1-s.hauer@pengutronix.de
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Steps for reproduction (simulated in qemu):
+	cd tools/testing/selftests/nci
+	make
+	./nci_dev
+
+BUG: memory leak
+unreferenced object 0xffff888107588000 (size 208):
+  comm "nci_dev", pid 206, jiffies 4294945376 (age 368.248s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000008d94c8fd>] __alloc_skb+0x1da/0x290
+    [<00000000278bc7f8>] nci_send_cmd+0xa3/0x350
+    [<0000000081256a22>] nci_reset_req+0x6b/0xa0
+    [<000000009e721112>] __nci_request+0x90/0x250
+    [<000000005d556e59>] nci_dev_up+0x217/0x5b0
+    [<00000000e618ce62>] nfc_dev_up+0x114/0x220
+    [<00000000981e226b>] nfc_genl_dev_up+0x94/0xe0
+    [<000000009bb03517>] genl_family_rcv_msg_doit.isra.14+0x228/0x2d0
+    [<00000000b7f8c101>] genl_rcv_msg+0x35c/0x640
+    [<00000000c94075ff>] netlink_rcv_skb+0x11e/0x350
+    [<00000000440cfb1e>] genl_rcv+0x24/0x40
+    [<0000000062593b40>] netlink_unicast+0x43f/0x640
+    [<000000001d0b13cc>] netlink_sendmsg+0x73a/0xbf0
+    [<000000003272487f>] __sys_sendto+0x324/0x370
+    [<00000000ef9f1747>] __x64_sys_sendto+0xdd/0x1b0
+    [<000000001e437841>] do_syscall_64+0x3f/0x90
+
+Fixes: e624e6c3e777 ("nfc: Add a virtual nci device driver")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20221020030505.15572-1-shangxiaojing@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-esdhc-imx.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/nfc/virtual_ncidev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1643,6 +1643,10 @@ static int sdhci_esdhc_imx_probe(struct
- 		host->mmc_host_ops.execute_tuning = usdhc_execute_tuning;
+diff --git a/drivers/nfc/virtual_ncidev.c b/drivers/nfc/virtual_ncidev.c
+index f577449e4935..85c06dbb2c44 100644
+--- a/drivers/nfc/virtual_ncidev.c
++++ b/drivers/nfc/virtual_ncidev.c
+@@ -54,16 +54,19 @@ static int virtual_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
+ 	mutex_lock(&nci_mutex);
+ 	if (state != virtual_ncidev_enabled) {
+ 		mutex_unlock(&nci_mutex);
++		kfree_skb(skb);
+ 		return 0;
  	}
  
-+	err = sdhci_esdhc_imx_probe_dt(pdev, host, imx_data);
-+	if (err)
-+		goto disable_ahb_clk;
-+
- 	if (imx_data->socdata->flags & ESDHC_FLAG_MAN_TUNING)
- 		sdhci_esdhc_ops.platform_execute_tuning =
- 					esdhc_executing_tuning;
-@@ -1650,13 +1654,15 @@ static int sdhci_esdhc_imx_probe(struct
- 	if (imx_data->socdata->flags & ESDHC_FLAG_ERR004536)
- 		host->quirks |= SDHCI_QUIRK_BROKEN_ADMA;
- 
--	if (imx_data->socdata->flags & ESDHC_FLAG_HS400)
-+	if (host->caps & MMC_CAP_8_BIT_DATA &&
-+	    imx_data->socdata->flags & ESDHC_FLAG_HS400)
- 		host->mmc->caps2 |= MMC_CAP2_HS400;
- 
- 	if (imx_data->socdata->flags & ESDHC_FLAG_BROKEN_AUTO_CMD23)
- 		host->quirks2 |= SDHCI_QUIRK2_ACMD23_BROKEN;
- 
--	if (imx_data->socdata->flags & ESDHC_FLAG_HS400_ES) {
-+	if (host->caps & MMC_CAP_8_BIT_DATA &&
-+	    imx_data->socdata->flags & ESDHC_FLAG_HS400_ES) {
- 		host->mmc->caps2 |= MMC_CAP2_HS400_ES;
- 		host->mmc_host_ops.hs400_enhanced_strobe =
- 					esdhc_hs400_enhanced_strobe;
-@@ -1678,10 +1684,6 @@ static int sdhci_esdhc_imx_probe(struct
- 			goto disable_ahb_clk;
+ 	if (send_buff) {
+ 		mutex_unlock(&nci_mutex);
++		kfree_skb(skb);
+ 		return -1;
  	}
+ 	send_buff = skb_copy(skb, GFP_KERNEL);
+ 	mutex_unlock(&nci_mutex);
+ 	wake_up_interruptible(&wq);
++	consume_skb(skb);
  
--	err = sdhci_esdhc_imx_probe_dt(pdev, host, imx_data);
--	if (err)
--		goto disable_ahb_clk;
--
- 	sdhci_esdhc_imx_hwinit(host);
- 
- 	err = sdhci_add_host(host);
+ 	return 0;
+ }
+-- 
+2.35.1
+
 
 
