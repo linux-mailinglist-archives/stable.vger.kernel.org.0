@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 728BB6158AA
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:56:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB7616158AC
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:56:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231174AbiKBC4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:56:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45974 "EHLO
+        id S231177AbiKBC4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:56:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231177AbiKBC4J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:56:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A36D222A4
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:56:08 -0700 (PDT)
+        with ESMTP id S231176AbiKBC4P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:56:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62140222A4
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:56:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5475BB82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:56:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3565CC433D6;
-        Wed,  2 Nov 2022 02:56:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15AD9B82071
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:56:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE27EC433D6;
+        Wed,  2 Nov 2022 02:56:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357766;
-        bh=A6MauMhyzXVsKogT5umjLtYdZe84CudnY1Ps6vIHaU8=;
+        s=korg; t=1667357771;
+        bh=e2z3GNJ4ETEM5sZw1Kn+BpF8yz3/PLm0BM3XeJG11jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dk/bcn1mnAnvSOu4uyTh/usWV5ygJpyUi3zo8OlVRLDuF6dGdDWU6SWP9VsoJH+hX
-         HJ7lZtrTNieqBYrrQDI52L/UIMI+fCRZ1ywwnjsimQ2xIBhfA1Hzkz+be8jZoztTca
-         wNtXgUaJ77xhgCQ2Ser1o+ICnyTfXREvJVen5Lds=
+        b=izsZ4AfEF3yi9X3mfBVvjsL+fhu7Fn7jPDlvzBBoU2KF3JY6/PAoNgYX6n80W4F8+
+         Rb+/rRCqUh2TRr1WAKeq/S3LOJ2g1Xlw/WkkpBgAtTZi9LLmulqaXTZ3tzutOMyLBJ
+         BHymQwpNwaKEzdjCoPsetb8HvggPtAAz4pEJGcqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aya Levin <ayal@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
+        patches@lists.linux.dev, Paul Blakey <paulb@nvidia.com>,
+        Oz Shlomo <ozsh@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 226/240] net/mlx5e: Extend SKB room check to include PTP-SQ
-Date:   Wed,  2 Nov 2022 03:33:21 +0100
-Message-Id: <20221102022116.513662401@linuxfoundation.org>
+Subject: [PATCH 6.0 227/240] net/mlx5e: Update restore chain id for slow path packets
+Date:   Wed,  2 Nov 2022 03:33:22 +0100
+Message-Id: <20221102022116.537176253@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,100 +55,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Paul Blakey <paulb@nvidia.com>
 
-[ Upstream commit 19b43a432e3e47db656a8269a74b50aef826950c ]
+[ Upstream commit 8dc47c0527c1586e3ebe0efd323f1d8abb181c77 ]
 
-When tx_port_ts is set, the driver diverts all UPD traffic over PTP port
-to a dedicated PTP-SQ. The SKBs are cached until the wire-CQE arrives.
-When the packet size is greater then MTU, the firmware might drop it and
-the packet won't be transmitted to the wire, hence the wire-CQE won't
-reach the driver. In this case the SKBs are accumulated in the SKB fifo.
-Add room check to consider the PTP-SQ SKB fifo, when the SKB fifo is
-full, driver stops the queue resulting in a TX timeout. Devlink
-TX-reporter can recover from it.
+Currently encap slow path rules just forward to software without
+setting the chain id miss register, so driver doesn't restore
+the chain, and packets hitting this rule will restart from tc chain
+0 instead of continuing to the chain the encap rule was on.
 
-Fixes: 1880bc4e4a96 ("net/mlx5e: Add TX port timestamp support")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Fix this by setting the chain id miss register to the chain id mapping.
+
+Fixes: 8f1e0b97cc70 ("net/mlx5: E-Switch, Mark miss packets with new chain id mapping")
+Signed-off-by: Paul Blakey <paulb@nvidia.com>
+Reviewed-by: Oz Shlomo <ozsh@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/20221026135153.154807-5-saeed@kernel.org
+Link: https://lore.kernel.org/r/20221026135153.154807-6-saeed@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/ptp.h  | 9 +++++++++
- drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h | 6 ++++++
- drivers/net/ethernet/mellanox/mlx5/core/en_tx.c   | 6 ++++++
- 3 files changed, 21 insertions(+)
+ .../ethernet/mellanox/mlx5/core/en/tc_priv.h  |  2 +
+ .../net/ethernet/mellanox/mlx5/core/en_tc.c   | 62 ++++++++++++++++++-
+ 2 files changed, 62 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.h b/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.h
-index 92dbbec472ec..f324a0c6f869 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.h
-@@ -6,6 +6,7 @@
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_priv.h b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_priv.h
+index 10c9a8a79d00..2e42d7c5451e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_priv.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_priv.h
+@@ -96,6 +96,7 @@ struct mlx5e_tc_flow {
+ 	struct encap_flow_item encaps[MLX5_MAX_FLOW_FWD_VPORTS];
+ 	struct mlx5e_tc_flow *peer_flow;
+ 	struct mlx5e_mod_hdr_handle *mh; /* attached mod header instance */
++	struct mlx5e_mod_hdr_handle *slow_mh; /* attached mod header instance for slow path */
+ 	struct mlx5e_hairpin_entry *hpe; /* attached hairpin instance */
+ 	struct list_head hairpin; /* flows sharing the same hairpin */
+ 	struct list_head peer;    /* flows with peer flow */
+@@ -111,6 +112,7 @@ struct mlx5e_tc_flow {
+ 	struct completion del_hw_done;
+ 	struct mlx5_flow_attr *attr;
+ 	struct list_head attrs;
++	u32 chain_mapping;
+ };
  
- #include "en.h"
- #include "en_stats.h"
-+#include "en/txrx.h"
- #include <linux/ptp_classify.h>
+ struct mlx5_flow_handle *
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index f154bda668ad..6a0df046064f 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -1394,8 +1394,13 @@ mlx5e_tc_offload_to_slow_path(struct mlx5_eswitch *esw,
+ 			      struct mlx5e_tc_flow *flow,
+ 			      struct mlx5_flow_spec *spec)
+ {
++	struct mlx5e_tc_mod_hdr_acts mod_acts = {};
++	struct mlx5e_mod_hdr_handle *mh = NULL;
+ 	struct mlx5_flow_attr *slow_attr;
+ 	struct mlx5_flow_handle *rule;
++	bool fwd_and_modify_cap;
++	u32 chain_mapping = 0;
++	int err;
  
- #define MLX5E_PTP_CHANNEL_IX 0
-@@ -68,6 +69,14 @@ static inline bool mlx5e_use_ptpsq(struct sk_buff *skb)
- 		fk.ports.dst == htons(PTP_EV_PORT));
+ 	slow_attr = mlx5_alloc_flow_attr(MLX5_FLOW_NAMESPACE_FDB);
+ 	if (!slow_attr)
+@@ -1406,13 +1411,56 @@ mlx5e_tc_offload_to_slow_path(struct mlx5_eswitch *esw,
+ 	slow_attr->esw_attr->split_count = 0;
+ 	slow_attr->flags |= MLX5_ATTR_FLAG_SLOW_PATH;
+ 
++	fwd_and_modify_cap = MLX5_CAP_ESW_FLOWTABLE((esw)->dev, fdb_modify_header_fwd_to_table);
++	if (!fwd_and_modify_cap)
++		goto skip_restore;
++
++	err = mlx5_chains_get_chain_mapping(esw_chains(esw), flow->attr->chain, &chain_mapping);
++	if (err)
++		goto err_get_chain;
++
++	err = mlx5e_tc_match_to_reg_set(esw->dev, &mod_acts, MLX5_FLOW_NAMESPACE_FDB,
++					CHAIN_TO_REG, chain_mapping);
++	if (err)
++		goto err_reg_set;
++
++	mh = mlx5e_mod_hdr_attach(esw->dev, get_mod_hdr_table(flow->priv, flow),
++				  MLX5_FLOW_NAMESPACE_FDB, &mod_acts);
++	if (IS_ERR(mh)) {
++		err = PTR_ERR(mh);
++		goto err_attach;
++	}
++
++	slow_attr->action |= MLX5_FLOW_CONTEXT_ACTION_MOD_HDR;
++	slow_attr->modify_hdr = mlx5e_mod_hdr_get(mh);
++
++skip_restore:
+ 	rule = mlx5e_tc_offload_fdb_rules(esw, flow, spec, slow_attr);
+-	if (!IS_ERR(rule))
+-		flow_flag_set(flow, SLOW);
++	if (IS_ERR(rule)) {
++		err = PTR_ERR(rule);
++		goto err_offload;
++	}
+ 
++	flow->slow_mh = mh;
++	flow->chain_mapping = chain_mapping;
++	flow_flag_set(flow, SLOW);
++
++	mlx5e_mod_hdr_dealloc(&mod_acts);
+ 	kfree(slow_attr);
+ 
+ 	return rule;
++
++err_offload:
++	if (fwd_and_modify_cap)
++		mlx5e_mod_hdr_detach(esw->dev, get_mod_hdr_table(flow->priv, flow), mh);
++err_attach:
++err_reg_set:
++	if (fwd_and_modify_cap)
++		mlx5_chains_put_chain_mapping(esw_chains(esw), chain_mapping);
++err_get_chain:
++	mlx5e_mod_hdr_dealloc(&mod_acts);
++	kfree(slow_attr);
++	return ERR_PTR(err);
  }
  
-+static inline bool mlx5e_ptpsq_fifo_has_room(struct mlx5e_txqsq *sq)
-+{
-+	if (!sq->ptpsq)
-+		return true;
-+
-+	return mlx5e_skb_fifo_has_room(&sq->ptpsq->skb_fifo);
-+}
-+
- int mlx5e_ptp_open(struct mlx5e_priv *priv, struct mlx5e_params *params,
- 		   u8 lag_port, struct mlx5e_ptp **cp);
- void mlx5e_ptp_close(struct mlx5e_ptp *c);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-index c208ea307bff..ff8ca7a7e103 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-@@ -57,6 +57,12 @@ netdev_tx_t mlx5e_xmit(struct sk_buff *skb, struct net_device *dev);
- bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget);
- void mlx5e_free_txqsq_descs(struct mlx5e_txqsq *sq);
- 
-+static inline bool
-+mlx5e_skb_fifo_has_room(struct mlx5e_skb_fifo *fifo)
-+{
-+	return (*fifo->pc - *fifo->cc) < fifo->mask;
-+}
-+
- static inline bool
- mlx5e_wqc_has_room_for(struct mlx5_wq_cyc *wq, u16 cc, u16 pc, u16 n)
- {
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
-index 27f791feb517..4d45150a3f8e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
-@@ -391,6 +391,11 @@ mlx5e_txwqe_complete(struct mlx5e_txqsq *sq, struct sk_buff *skb,
- 	if (unlikely(sq->ptpsq)) {
- 		mlx5e_skb_cb_hwtstamp_init(skb);
- 		mlx5e_skb_fifo_push(&sq->ptpsq->skb_fifo, skb);
-+		if (!netif_tx_queue_stopped(sq->txq) &&
-+		    !mlx5e_skb_fifo_has_room(&sq->ptpsq->skb_fifo)) {
-+			netif_tx_stop_queue(sq->txq);
-+			sq->stats->stopped++;
-+		}
- 		skb_get(skb);
- 	}
- 
-@@ -867,6 +872,7 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *cq, int napi_budget)
- 
- 	if (netif_tx_queue_stopped(sq->txq) &&
- 	    mlx5e_wqc_has_room_for(&sq->wq, sq->cc, sq->pc, sq->stop_room) &&
-+	    mlx5e_ptpsq_fifo_has_room(sq) &&
- 	    !test_bit(MLX5E_SQ_STATE_RECOVERING, &sq->state)) {
- 		netif_tx_wake_queue(sq->txq);
- 		stats->wake++;
+ void mlx5e_tc_unoffload_from_slow_path(struct mlx5_eswitch *esw,
+@@ -1430,7 +1478,17 @@ void mlx5e_tc_unoffload_from_slow_path(struct mlx5_eswitch *esw,
+ 	slow_attr->action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
+ 	slow_attr->esw_attr->split_count = 0;
+ 	slow_attr->flags |= MLX5_ATTR_FLAG_SLOW_PATH;
++	if (flow->slow_mh) {
++		slow_attr->action |= MLX5_FLOW_CONTEXT_ACTION_MOD_HDR;
++		slow_attr->modify_hdr = mlx5e_mod_hdr_get(flow->slow_mh);
++	}
+ 	mlx5e_tc_unoffload_fdb_rules(esw, flow, slow_attr);
++	if (flow->slow_mh) {
++		mlx5e_mod_hdr_detach(esw->dev, get_mod_hdr_table(flow->priv, flow), flow->slow_mh);
++		mlx5_chains_put_chain_mapping(esw_chains(esw), flow->chain_mapping);
++		flow->chain_mapping = 0;
++		flow->slow_mh = NULL;
++	}
+ 	flow_flag_clear(flow, SLOW);
+ 	kfree(slow_attr);
+ }
 -- 
 2.35.1
 
