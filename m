@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AC706157D3
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:39:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 219FD6157D5
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:39:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230267AbiKBCjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:39:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58134 "EHLO
+        id S230249AbiKBCjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:39:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230280AbiKBCji (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:39:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F9FA120B4
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:39:37 -0700 (PDT)
+        with ESMTP id S230235AbiKBCjw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:39:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D74F10FC7
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:39:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BC16617A9
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:39:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4DD9C433D7;
-        Wed,  2 Nov 2022 02:39:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 518ACB82072
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:39:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D2FFC433D6;
+        Wed,  2 Nov 2022 02:39:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356776;
-        bh=9Q64YjVt/D4q3Cb3bukav+scAsNK1wYNlBeye1ir72s=;
+        s=korg; t=1667356789;
+        bh=XZ7AIisS0BoyaAy0f2lSX8XzCoSaWxfet4pDlPthyGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bByHPErVdee1ZXHB7sfpgZDRH+7zaWGpG1IOWUz//kxpbrhpcsYQmDEF0O0sCGqxv
-         joU3QMzbMUeGQe5TL8nskHl7nFaNU6ihJ5ZhxuTICRcEa3cNiVFucibxcWu4AZSRZs
-         XBsJhZCUt7gmg4FU8ObBsnH5hKwNjnIYYKF7Bvmo=
+        b=kvavLxmh7lRRbte8yDcAG34xT5QDf8WG6Jcq7TjKcGCwFh/RtL+/Jxmle0qKrvlZZ
+         kG3SwJlU3shGI/pPEquy3mT+0k1cktb7ihvVNOK1uez30ZGNdxmMpbrF91ZjD8KOlG
+         pVRp/xhGPsSOX7b9cL2SdReJfJwo82TbZmYGA1tE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 6.0 057/240] scsi: qla2xxx: Use transport-defined speed mask for supported_speeds
-Date:   Wed,  2 Nov 2022 03:30:32 +0100
-Message-Id: <20221102022112.689497733@linuxfoundation.org>
+        Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Subject: [PATCH 6.0 058/240] drm/amdgpu: Fix VRAM BO swap issue
+Date:   Wed,  2 Nov 2022 03:30:33 +0100
+Message-Id: <20221102022112.711804486@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,73 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Rangankar <mrangankar@marvell.com>
+From: Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>
 
-commit 0b863257c17c5f57a41e0a48de140ed026957a63 upstream.
+commit 312b4dc11d4f74bfe03ea25ffe04c1f2fdd13cb9 upstream.
 
-One of the sysfs values reported for supported_speeds was not valid (20Gb/s
-reported instead of 64Gb/s).  Instead of driver internal speed mask
-definition, use speed mask defined in transport_fc for reporting
-host->supported_speeds.
+DRM buddy manager allocates the contiguous memory requests in
+a single block or multiple blocks. So for the ttm move operation
+(incase of low vram memory) we should consider all the blocks to
+compute the total memory size which compared with the struct
+ttm_resource num_pages in order to verify that the blocks are
+contiguous for the eviction process.
 
-Link: https://lore.kernel.org/r/20220927115946.17559-1-njavali@marvell.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+v2: Added a Fixes tag
+v3: Rewrite the code to save a bit of calculations and
+    variables (Christian)
+
+Fixes: c9cad937c0c5 ("drm/amdgpu: add drm buddy support to amdgpu")
+Signed-off-by: Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_attr.c |   28 ++++++++++++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -3330,11 +3330,34 @@ struct fc_function_template qla2xxx_tran
- 	.bsg_timeout = qla24xx_bsg_timeout,
- };
- 
-+static uint
-+qla2x00_get_host_supported_speeds(scsi_qla_host_t *vha, uint speeds)
-+{
-+	uint supported_speeds = FC_PORTSPEED_UNKNOWN;
-+
-+	if (speeds & FDMI_PORT_SPEED_64GB)
-+		supported_speeds |= FC_PORTSPEED_64GBIT;
-+	if (speeds & FDMI_PORT_SPEED_32GB)
-+		supported_speeds |= FC_PORTSPEED_32GBIT;
-+	if (speeds & FDMI_PORT_SPEED_16GB)
-+		supported_speeds |= FC_PORTSPEED_16GBIT;
-+	if (speeds & FDMI_PORT_SPEED_8GB)
-+		supported_speeds |= FC_PORTSPEED_8GBIT;
-+	if (speeds & FDMI_PORT_SPEED_4GB)
-+		supported_speeds |= FC_PORTSPEED_4GBIT;
-+	if (speeds & FDMI_PORT_SPEED_2GB)
-+		supported_speeds |= FC_PORTSPEED_2GBIT;
-+	if (speeds & FDMI_PORT_SPEED_1GB)
-+		supported_speeds |= FC_PORTSPEED_1GBIT;
-+
-+	return supported_speeds;
-+}
-+
- void
- qla2x00_init_host_attr(scsi_qla_host_t *vha)
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+@@ -424,8 +424,9 @@ error:
+ static bool amdgpu_mem_visible(struct amdgpu_device *adev,
+ 			       struct ttm_resource *mem)
  {
- 	struct qla_hw_data *ha = vha->hw;
--	u32 speeds = FC_PORTSPEED_UNKNOWN;
-+	u32 speeds = 0, fdmi_speed = 0;
+-	uint64_t mem_size = (u64)mem->num_pages << PAGE_SHIFT;
++	u64 mem_size = (u64)mem->num_pages << PAGE_SHIFT;
+ 	struct amdgpu_res_cursor cursor;
++	u64 end;
  
- 	fc_host_dev_loss_tmo(vha->host) = ha->port_down_retry_count;
- 	fc_host_node_name(vha->host) = wwn_to_u64(vha->node_name);
-@@ -3344,7 +3367,8 @@ qla2x00_init_host_attr(scsi_qla_host_t *
- 	fc_host_max_npiv_vports(vha->host) = ha->max_npiv_vports;
- 	fc_host_npiv_vports_inuse(vha->host) = ha->cur_vport_count;
+ 	if (mem->mem_type == TTM_PL_SYSTEM ||
+ 	    mem->mem_type == TTM_PL_TT)
+@@ -434,12 +435,18 @@ static bool amdgpu_mem_visible(struct am
+ 		return false;
  
--	speeds = qla25xx_fdmi_port_speed_capability(ha);
-+	fdmi_speed = qla25xx_fdmi_port_speed_capability(ha);
-+	speeds = qla2x00_get_host_supported_speeds(vha, fdmi_speed);
+ 	amdgpu_res_first(mem, 0, mem_size, &cursor);
++	end = cursor.start + cursor.size;
++	while (cursor.remaining) {
++		amdgpu_res_next(&cursor, cursor.size);
  
- 	fc_host_supported_speeds(vha->host) = speeds;
+-	/* ttm_resource_ioremap only supports contiguous memory */
+-	if (cursor.size != mem_size)
+-		return false;
++		/* ttm_resource_ioremap only supports contiguous memory */
++		if (end != cursor.start)
++			return false;
++
++		end = cursor.start + cursor.size;
++	}
+ 
+-	return cursor.start + cursor.size <= adev->gmc.visible_vram_size;
++	return end <= adev->gmc.visible_vram_size;
  }
+ 
+ /*
 
 
