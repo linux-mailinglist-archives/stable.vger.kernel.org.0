@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D866D6158FF
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:03:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34B75615900
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:03:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229457AbiKBDDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:03:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51316 "EHLO
+        id S230251AbiKBDDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:03:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231271AbiKBDCP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:02:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E22722BD8
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:02:13 -0700 (PDT)
+        with ESMTP id S231278AbiKBDCT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:02:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 080B722BCF
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:02:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D682B8206C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:02:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E5C2C433C1;
-        Wed,  2 Nov 2022 03:02:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97F1561729
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:02:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E092C433D6;
+        Wed,  2 Nov 2022 03:02:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358130;
-        bh=wrTdkigt/G2/pk8kFSQTZBxjCx5UtGHFnyLJBCASTdk=;
+        s=korg; t=1667358137;
+        bh=YzukgQzP0UDxJa2aug/vZNRPeOzJJeN7yFJQljMfWKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wiq9snxOnFnCKEIrDfRfaxyYJ7aMfqQ6KX0HSQKmmLQAeAdvgBn5mOyOavVEDXlwO
-         xtCrGaA1XAWO1Tea7ro7knMl6mDJN8fglsyn9plzkk5WYmgp3QB/Slf5u634OP+v61
-         mDZ/YGKDxxzsvzk3HP/d6cCKOWhy2liJwDx692dk=
+        b=dPHxVe7jwI/Ql/MfhIfc1UTbqPC/VgDRvkUtx9XFH9xqRwNdRhnBgOfOhok/d4Mht
+         DTdoo4a3OEhbbKNfoO3eauYZCAtvP73zbUYswJ8v9EsJC8MSEdJYaYXVjrMBzvQKCF
+         dD4QhILfAINecHk6MqFuwikOtDwFoCwFpRn3xucU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Shreeya Patel <shreeya.patel@collabora.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 020/132] tools: iio: iio_utils: fix digit calculation
-Date:   Wed,  2 Nov 2022 03:32:06 +0100
-Message-Id: <20221102022100.155977790@linuxfoundation.org>
+Subject: [PATCH 5.15 021/132] iio: light: tsl2583: Fix module unloading
+Date:   Wed,  2 Nov 2022 03:32:07 +0100
+Message-Id: <20221102022100.181998612@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
 References: <20221102022059.593236470@linuxfoundation.org>
@@ -54,42 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matti Vaittinen <mazziesaccount@gmail.com>
+From: Shreeya Patel <shreeya.patel@collabora.com>
 
-commit 72b2aa38191bcba28389b0e20bf6b4f15017ff2b upstream.
+commit 0dec4d2f2636b9e54d9d29f17afc7687c5407f78 upstream.
 
-The iio_utils uses a digit calculation in order to know length of the
-file name containing a buffer number. The digit calculation does not
-work for number 0.
+tsl2583 probe() uses devm_iio_device_register() and calling
+iio_device_unregister() causes the unregister to occur twice. s
+Switch to iio_device_register() instead of devm_iio_device_register()
+in probe to avoid the device managed cleanup.
 
-This leads to allocation of one character too small buffer for the
-file-name when file name contains value '0'. (Eg. buffer0).
-
-Fix digit calculation by returning one digit to be present for number
-'0'.
-
-Fixes: 096f9b862e60 ("tools:iio:iio_utils: implement digit calculation")
-Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
-Link: https://lore.kernel.org/r/Y0f+tKCz+ZAIoroQ@dc75zzyyyyyyyyyyyyycy-3.rev.dnainternet.fi
+Fixes: 371894f5d1a0 ("iio: tsl2583: add runtime power management support")
+Signed-off-by: Shreeya Patel <shreeya.patel@collabora.com>
+Link: https://lore.kernel.org/r/20220826122352.288438-1-shreeya.patel@collabora.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/iio/iio_utils.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/iio/light/tsl2583.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/iio/iio_utils.c
-+++ b/tools/iio/iio_utils.c
-@@ -547,6 +547,10 @@ static int calc_digits(int num)
- {
- 	int count = 0;
+--- a/drivers/iio/light/tsl2583.c
++++ b/drivers/iio/light/tsl2583.c
+@@ -858,7 +858,7 @@ static int tsl2583_probe(struct i2c_clie
+ 					 TSL2583_POWER_OFF_DELAY_MS);
+ 	pm_runtime_use_autosuspend(&clientp->dev);
  
-+	/* It takes a digit to represent zero */
-+	if (!num)
-+		return 1;
-+
- 	while (num != 0) {
- 		num /= 10;
- 		count++;
+-	ret = devm_iio_device_register(indio_dev->dev.parent, indio_dev);
++	ret = iio_device_register(indio_dev);
+ 	if (ret) {
+ 		dev_err(&clientp->dev, "%s: iio registration failed\n",
+ 			__func__);
 
 
