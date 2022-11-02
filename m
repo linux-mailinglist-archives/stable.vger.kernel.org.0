@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88E396158B6
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:57:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43BB16158B7
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:57:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231182AbiKBC5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:57:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46652 "EHLO
+        id S231184AbiKBC5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:57:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231183AbiKBC5M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:57:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 827FB2251C
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:57:11 -0700 (PDT)
+        with ESMTP id S231183AbiKBC5T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:57:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 058B313F8A
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:57:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2014D617D0
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:57:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBB09C433C1;
-        Wed,  2 Nov 2022 02:57:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB63CB82071
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:57:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EA3EC433D6;
+        Wed,  2 Nov 2022 02:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357830;
-        bh=u80g+fW4XlpYj3oS7L/JqPYcpuAhjIGvzeXfRrCxzD8=;
+        s=korg; t=1667357836;
+        bh=7EVNh/iJMpTpD+7Jpy18jFkcaWpqtj5NMe4bAOLLbsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oI23VgXwXmZ7kHy/EVZc50UEi8KkZiVskOHEGWS/KCRQgR17LbN+gcQ8M3ktt4Swn
-         2qdK6IdZ2JxdPwPWokMvWj7w+0/9d6fluZzaF0ZKvIY7v2fIJp2b57uBtnj58AS38i
-         TH+5EdQ+I/8o6ZDzTW0zZYUFPaUPVSS5WjbZs6oU=
+        b=X3QkhstwI5sTp2/ptJqNuubL1LQDZEWwlPhNtLc61pZ5sPmb+ol2EXWoGIbV7tR/P
+         TVgHy/BvTf5n7zmnyzjNEGPqDQ6ICFJEcX4UtFDeYzQgN2JNZghWcww6tMFor9t1Ry
+         feNEGV7rp5gfel7dQop3VxUe50JCw281U/mB+kP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qinglin Pan <panqinglin2020@iscas.ac.cn>,
-        Atish Patra <atishp@rivosinc.com>,
+        patches@lists.linux.dev, Kevin Hilman <khilman@baylibre.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Nathan Chancellor <nathan@kernel.org>,
         Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 236/240] riscv: mm: add missing memcpy in kasan_init
-Date:   Wed,  2 Nov 2022 03:33:31 +0100
-Message-Id: <20221102022116.741944321@linuxfoundation.org>
+Subject: [PATCH 6.0 237/240] riscv: fix detection of toolchain Zicbom support
+Date:   Wed,  2 Nov 2022 03:33:32 +0100
+Message-Id: <20221102022116.764526019@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -54,59 +56,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglin Pan <panqinglin2020@iscas.ac.cn>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit 9f2ac64d6ca60db99132e08628ac2899f956a0ec ]
+[ Upstream commit b8c86872d1dc171d8f1c137917d6913cae2fa4f2 ]
 
-Hi Atish,
+It is not sufficient to check if a toolchain supports a particular
+extension without checking if the linker supports that extension too.
+For example, Clang 15 supports Zicbom but GNU bintutils 2.35.2 does
+not, leading build errors like so:
 
-It seems that the panic is due to the missing memcpy during kasan_init.
-Could you please check whether this patch is helpful?
+riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_c2p0_zicbom1p0_zihintpause2p0: Invalid or unknown z ISA extension: 'zicbom'
 
-When doing kasan_populate, the new allocated base_pud/base_p4d should
-contain kasan_early_shadow_{pud, p4d}'s content. Add the missing memcpy
-to avoid page fault when read/write kasan shadow region.
+Convert CC_HAS_ZICBOM to TOOLCHAIN_HAS_ZICBOM & check if the linker
+also supports Zicbom.
 
-Tested on:
- - qemu with sv57 and CONFIG_KASAN on.
- - qemu with sv48 and CONFIG_KASAN on.
-
-Signed-off-by: Qinglin Pan <panqinglin2020@iscas.ac.cn>
-Tested-by: Atish Patra <atishp@rivosinc.com>
-Fixes: 8fbdccd2b173 ("riscv: mm: Support kasan for sv57")
-Link: https://lore.kernel.org/r/20221009083050.3814850-1-panqinglin2020@iscas.ac.cn
+Reported-by: Kevin Hilman <khilman@baylibre.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1714
+Link: https://storage.kernelci.org/next/master/next-20220920/riscv/defconfig+CONFIG_EFI=n/clang-16/logs/kernel.log
+Fixes: 1631ba1259d6 ("riscv: Add support for non-coherent devices using zicbom extension")
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/r/20221006173520.1785507-2-conor@kernel.org
+[Palmer: Check for ld-2.38, not 2.39, as 2.38 no longer errors.]
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/mm/kasan_init.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/riscv/Kconfig  | 10 ++++++----
+ arch/riscv/Makefile |  3 +--
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/arch/riscv/mm/kasan_init.c b/arch/riscv/mm/kasan_init.c
-index a22e418dbd82..e1226709490f 100644
---- a/arch/riscv/mm/kasan_init.c
-+++ b/arch/riscv/mm/kasan_init.c
-@@ -113,6 +113,8 @@ static void __init kasan_populate_pud(pgd_t *pgd,
- 		base_pud = pt_ops.get_pud_virt(pfn_to_phys(_pgd_pfn(*pgd)));
- 	} else if (pgd_none(*pgd)) {
- 		base_pud = memblock_alloc(PTRS_PER_PUD * sizeof(pud_t), PAGE_SIZE);
-+		memcpy(base_pud, (void *)kasan_early_shadow_pud,
-+			sizeof(pud_t) * PTRS_PER_PUD);
- 	} else {
- 		base_pud = (pud_t *)pgd_page_vaddr(*pgd);
- 		if (base_pud == lm_alias(kasan_early_shadow_pud)) {
-@@ -173,8 +175,11 @@ static void __init kasan_populate_p4d(pgd_t *pgd,
- 		base_p4d = pt_ops.get_p4d_virt(pfn_to_phys(_pgd_pfn(*pgd)));
- 	} else {
- 		base_p4d = (p4d_t *)pgd_page_vaddr(*pgd);
--		if (base_p4d == lm_alias(kasan_early_shadow_p4d))
-+		if (base_p4d == lm_alias(kasan_early_shadow_p4d)) {
- 			base_p4d = memblock_alloc(PTRS_PER_PUD * sizeof(p4d_t), PAGE_SIZE);
-+			memcpy(base_p4d, (void *)kasan_early_shadow_p4d,
-+				sizeof(p4d_t) * PTRS_PER_P4D);
-+		}
- 	}
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index cea22ccb57cb..e646298d2d65 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -402,14 +402,16 @@ config RISCV_ISA_SVPBMT
  
- 	p4dp = base_p4d + p4d_index(vaddr);
+ 	   If you don't know what to do here, say Y.
+ 
+-config CC_HAS_ZICBOM
++config TOOLCHAIN_HAS_ZICBOM
+ 	bool
+-	default y if 64BIT && $(cc-option,-mabi=lp64 -march=rv64ima_zicbom)
+-	default y if 32BIT && $(cc-option,-mabi=ilp32 -march=rv32ima_zicbom)
++	default y
++	depends on !64BIT || $(cc-option,-mabi=lp64 -march=rv64ima_zicbom)
++	depends on !32BIT || $(cc-option,-mabi=ilp32 -march=rv32ima_zicbom)
++	depends on LLD_VERSION >= 150000 || LD_VERSION >= 23800
+ 
+ config RISCV_ISA_ZICBOM
+ 	bool "Zicbom extension support for non-coherent DMA operation"
+-	depends on CC_HAS_ZICBOM
++	depends on TOOLCHAIN_HAS_ZICBOM
+ 	depends on !XIP_KERNEL && MMU
+ 	select RISCV_DMA_NONCOHERENT
+ 	select RISCV_ALTERNATIVE
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index e7d52a2301e2..d1dbbe0fb0f8 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -59,8 +59,7 @@ toolchain-need-zicsr-zifencei := $(call cc-option-yn, -march=$(riscv-march-y)_zi
+ riscv-march-$(toolchain-need-zicsr-zifencei) := $(riscv-march-y)_zicsr_zifencei
+ 
+ # Check if the toolchain supports Zicbom extension
+-toolchain-supports-zicbom := $(call cc-option-yn, -march=$(riscv-march-y)_zicbom)
+-riscv-march-$(toolchain-supports-zicbom) := $(riscv-march-y)_zicbom
++riscv-march-$(CONFIG_TOOLCHAIN_HAS_ZICBOM) := $(riscv-march-y)_zicbom
+ 
+ # Check if the toolchain supports Zihintpause extension
+ toolchain-supports-zihintpause := $(call cc-option-yn, -march=$(riscv-march-y)_zihintpause)
 -- 
 2.35.1
 
