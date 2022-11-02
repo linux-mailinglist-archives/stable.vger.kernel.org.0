@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15DE36157FF
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:43:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBB3C615800
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:43:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230314AbiKBCnK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:43:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33022 "EHLO
+        id S230318AbiKBCnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:43:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230315AbiKBCnJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:43:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9598220F46
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:43:08 -0700 (PDT)
+        with ESMTP id S230315AbiKBCnQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:43:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F304A20F46
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:43:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33209617AD
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:43:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE236C433D6;
-        Wed,  2 Nov 2022 02:43:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6821B82070
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:43:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90DD8C433D6;
+        Wed,  2 Nov 2022 02:43:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356987;
-        bh=Sg3u/QOhS3klSHy1e+nyHIUiP6aQDAfAfeEzNwP8718=;
+        s=korg; t=1667356993;
+        bh=MfviPCcXQC54bnffzRjNHl9pKNL8ppqKn6KNPP0TE/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gpJU9Ra29cdInURla2Ctdzi3Fk6i5reeWegjsjmRzH0sLL2QrEvPzj/PQ0oB4gTz1
-         yjEEVzjxMlK2JGxCWcxray1FgImGLwIaO5+1BSKEfT2ehB3h1jPKICDlUIZrBUhBPd
-         e2lrM/6E/KyJIR8ly05ahq3XjL2abCel2k+Mdz/M=
+        b=aJUxb9dgAWnaog76Ue91OMkmCCbuh7zF6ayokhHPSYBwYgVN5Y8Q2WO5wocLowquU
+         TLPeTCodmijlZvFo9Tuo9kzaF1h0sBooo6weffvMe0lTSZJR6a/j0Sm8TMxBidCQ7O
+         MdVfo3HYumzRPzZ+u1vH8jkbR3WaDFFlvLfgfT2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
         Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Abhinav Kumar <quic_abhinavk@quicinc.com>
-Subject: [PATCH 6.0 067/240] drm/msm: fix use-after-free on probe deferral
-Date:   Wed,  2 Nov 2022 03:30:42 +0100
-Message-Id: <20221102022112.916988657@linuxfoundation.org>
+Subject: [PATCH 6.0 068/240] drm/msm/dsi: fix memory corruption with too many bridges
+Date:   Wed,  2 Nov 2022 03:30:43 +0100
+Message-Id: <20221102022112.939685218@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -57,39 +56,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 6808abdb33bf90330e70a687d29f038507e06ebb upstream.
+commit 2e786eb2f9cebb07e317226b60054df510b60c65 upstream.
 
-The bridge counter was never reset when tearing down the DRM device so
-that stale pointers to deallocated structures would be accessed on the
-next tear down (e.g. after a second late bind deferral).
+Add the missing sanity check on the bridge counter to avoid corrupting
+data beyond the fixed-sized bridge array in case there are ever more
+than eight bridges.
 
-Given enough bridges and a few probe deferrals this could currently also
-lead to data beyond the bridge array being corrupted.
-
-Fixes: d28ea556267c ("drm/msm: properly add and remove internal bridges")
-Fixes: a3376e3ec81c ("drm/msm: convert to drm_bridge")
-Cc: stable@vger.kernel.org      # 3.12
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: a689554ba6ed ("drm/msm: Initial add DSI connector support")
+Cc: stable@vger.kernel.org	# 4.1
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 Tested-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
 Reviewed-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/502665/
-Link: https://lore.kernel.org/r/20220913085320.8577-2-johan+linaro@kernel.org
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/502668/
+Link: https://lore.kernel.org/r/20220913085320.8577-4-johan+linaro@kernel.org
 Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/dsi/dsi.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -241,6 +241,7 @@ static int msm_drm_uninit(struct device
+--- a/drivers/gpu/drm/msm/dsi/dsi.c
++++ b/drivers/gpu/drm/msm/dsi/dsi.c
+@@ -227,6 +227,12 @@ int msm_dsi_modeset_init(struct msm_dsi
+ 		return -EINVAL;
  
- 	for (i = 0; i < priv->num_bridges; i++)
- 		drm_bridge_remove(priv->bridges[i]);
-+	priv->num_bridges = 0;
+ 	priv = dev->dev_private;
++
++	if (priv->num_bridges == ARRAY_SIZE(priv->bridges)) {
++		DRM_DEV_ERROR(dev->dev, "too many bridges\n");
++		return -ENOSPC;
++	}
++
+ 	msm_dsi->dev = dev;
  
- 	pm_runtime_get_sync(dev);
- 	msm_irq_uninstall(ddev);
+ 	ret = msm_dsi_host_modeset_init(msm_dsi->host, dev);
 
 
