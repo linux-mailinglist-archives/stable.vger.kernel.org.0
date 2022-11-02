@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1FD615AFB
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:45:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A0D615AD2
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:42:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230137AbiKBDp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:45:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33710 "EHLO
+        id S230176AbiKBDmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:42:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230241AbiKBDp0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:45:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87F0163E6
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:45:22 -0700 (PDT)
+        with ESMTP id S230298AbiKBDmB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:42:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB06E26AE6
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:41:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2025C61799
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:45:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC412C433C1;
-        Wed,  2 Nov 2022 03:45:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A79B3B82072
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:41:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AA37C433B5;
+        Wed,  2 Nov 2022 03:41:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360721;
-        bh=lSxZIotA6UA+x+qrQAQGN4e45BJwxvPpAZTaDrYH7Ik=;
+        s=korg; t=1667360513;
+        bh=K/LFf1wmE/QwCXN8J/+nR2ausn0i7Pf0nA0Ms3PLCWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kp5LGL2f0a68zoYUVNnJr8uRHJRm3vfs8aEJP3BhC8bxKOB2zRkvAvux+aKG0bNrb
-         0DSxBcP0YthBrLd2iKI1d7t8sqIJJJwUFzMTjks2yk6abJMlcvmh54xv2XDSNmPV2k
-         pbDX+SR1cqge/T2qir159MDhbtw2rgt56yCNvW34=
+        b=LNtND9QB3PjmXsu6PavAq+Jz/sbEZGH9KBLC3U4NzgGZ5a3hTJA9JgDK4ugSFguFR
+         AQzC+EZPUjwPjmBxc7uDoYedgufCpn3U9DHSoGl8zL1MOzs3UAo4i2nPKOH8HU2L/S
+         0hS2ptgS86Gu1mFp+4TkUfHA4e0wQcPv6TsTp4Rs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 4.9 25/44] net: ieee802154: fix error return code in dgram_bind()
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 50/60] media: v4l2-dv-timings: add sanity checks for blanking values
 Date:   Wed,  2 Nov 2022 03:35:11 +0100
-Message-Id: <20221102022049.947556961@linuxfoundation.org>
+Message-Id: <20221102022052.721408592@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
-References: <20221102022049.017479464@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit 444d8ad4916edec8a9fc684e841287db9b1e999f upstream.
+[ Upstream commit 4b6d66a45ed34a15721cb9e11492fa1a24bc83df ]
 
-Fix to return error code -EINVAL from the error handling
-case instead of 0, as done elsewhere in this function.
+Add sanity checks to v4l2_valid_dv_timings() to ensure that the provided
+blanking values are reasonable.
 
-Fixes: 94160108a70c ("net/ieee802154: fix uninit value bug in dgram_sendmsg")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Link: https://lore.kernel.org/r/20220919160830.1436109-1-weiyongjun@huaweicloud.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: b18787ed1ce3 ([media] v4l2-dv-timings: add new helper module)
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/socket.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/v4l2-core/v4l2-dv-timings.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/net/ieee802154/socket.c
-+++ b/net/ieee802154/socket.c
-@@ -516,8 +516,10 @@ static int dgram_bind(struct sock *sk, s
- 	if (err < 0)
- 		goto out;
- 
--	if (addr->family != AF_IEEE802154)
-+	if (addr->family != AF_IEEE802154) {
-+		err = -EINVAL;
- 		goto out;
-+	}
- 
- 	ieee802154_addr_from_sa(&haddr, &addr->addr);
- 	dev = ieee802154_get_dev(sock_net(sk), &haddr);
+diff --git a/drivers/media/v4l2-core/v4l2-dv-timings.c b/drivers/media/v4l2-core/v4l2-dv-timings.c
+index bed6b7db43f5..4353e624a585 100644
+--- a/drivers/media/v4l2-core/v4l2-dv-timings.c
++++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
+@@ -172,6 +172,20 @@ bool v4l2_valid_dv_timings(const struct v4l2_dv_timings *t,
+ 	    (bt->interlaced && !(caps & V4L2_DV_BT_CAP_INTERLACED)) ||
+ 	    (!bt->interlaced && !(caps & V4L2_DV_BT_CAP_PROGRESSIVE)))
+ 		return false;
++
++	/* sanity checks for the blanking timings */
++	if (!bt->interlaced &&
++	    (bt->il_vbackporch || bt->il_vsync || bt->il_vfrontporch))
++		return false;
++	if (bt->hfrontporch > 2 * bt->width ||
++	    bt->hsync > 1024 || bt->hbackporch > 1024)
++		return false;
++	if (bt->vfrontporch > 4096 ||
++	    bt->vsync > 128 || bt->vbackporch > 4096)
++		return false;
++	if (bt->interlaced && (bt->il_vfrontporch > 4096 ||
++	    bt->il_vsync > 128 || bt->il_vbackporch > 4096))
++		return false;
+ 	return fnc == NULL || fnc(t, fnc_handle);
+ }
+ EXPORT_SYMBOL_GPL(v4l2_valid_dv_timings);
+-- 
+2.35.1
+
 
 
