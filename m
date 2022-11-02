@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B93AA615A3D
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F282F615971
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:11:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230495AbiKBD1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:27:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46156 "EHLO
+        id S230176AbiKBDLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:11:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231126AbiKBD1k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:27:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AFF62610C
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:27:39 -0700 (PDT)
+        with ESMTP id S230261AbiKBDLQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:11:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D15EFD2F
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:11:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3999B8205C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:27:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 810DCC433C1;
-        Wed,  2 Nov 2022 03:27:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2F8BB82062
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:11:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8B52C433C1;
+        Wed,  2 Nov 2022 03:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359656;
-        bh=H+mgr3fM9QWridL181i1PIjp9AuGkv5sEm4wyer1eoA=;
+        s=korg; t=1667358672;
+        bh=iKFTWgsEheCzPS3dQ6aholDOywuurIw8CUxJm+LA01k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3Mm4af0Xlk3PVIi9zcnwkdJyu46YxH+nvOK4pdxdGmkofY5RXjyZ6qdq9mUk5vDF
-         tv9Cc3tT8o3HaK5QZTX9GGhfcK4o7vfuCUe38Oe46kM1TWS2xbErTXmUIY/XnerTT8
-         PPI/E8PYV61KM8HKrFy+V2MTIGpydjBrKJ4KgtTw=
+        b=LvGsYrlKYEM7tPoT1DgRIAaGdXJlTZo/RWeDAxOwFvXA4aXLyc8+vLBivH8pIhSxf
+         Kg3I4QdlXpkmYzeQAFDKxUdfemi4yVAoE1zl2+e76K3QV4aV+7nWidYG0iXaOtKyRt
+         STt1LqkcMpp1MBdgv1vqMV5Q7ZDSEdKKjSVW/2jY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/78] btrfs: fix processing of delayed tree block refs during backref walking
+        patches@lists.linux.dev,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Roosen Henri <Henri.Roosen@ginzinger.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Daisuke Mizobuchi <mizo@atmark-techno.com>,
+        Dominique Martinet <dominique.martinet@atmark-techno.com>
+Subject: [PATCH 5.15 131/132] serial: Deassert Transmit Enable on probe in driver-specific way
 Date:   Wed,  2 Nov 2022 03:33:57 +0100
-Message-Id: <20221102022053.294815104@linuxfoundation.org>
+Message-Id: <20221102022103.114212959@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,203 +57,276 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 943553ef9b51db303ab2b955c1025261abfdf6fb ]
+commit 7c7f9bc986e698873b489c371a08f206979d06b7 upstream.
 
-During backref walking, when processing a delayed reference with a type of
-BTRFS_TREE_BLOCK_REF_KEY, we have two bugs there:
+When a UART port is newly registered, uart_configure_port() seeks to
+deassert RS485 Transmit Enable by setting the RTS bit in port->mctrl.
+However a number of UART drivers interpret a set RTS bit as *assertion*
+instead of deassertion:  Affected drivers include those using
+serial8250_em485_config() (except 8250_bcm2835aux.c) and some using
+mctrl_gpio (e.g. imx.c).
 
-1) We are accessing the delayed references extent_op, and its key, without
-   the protection of the delayed ref head's lock;
+Since the interpretation of the RTS bit is driver-specific, it is not
+suitable as a means to centrally deassert Transmit Enable in the serial
+core.  Instead, the serial core must call on drivers to deassert it in
+their driver-specific way.  One way to achieve that is to call
+->rs485_config().  It implicitly deasserts Transmit Enable.
 
-2) If there's no extent op for the delayed ref head, we end up with an
-   uninitialized key in the stack, variable 'tmp_op_key', and then pass
-   it to add_indirect_ref(), which adds the reference to the indirect
-   refs rb tree.
+So amend uart_configure_port() and uart_resume_port() to invoke
+uart_rs485_config().  That allows removing calls to uart_rs485_config()
+from drivers' ->probe() hooks and declaring the function static.
 
-   This is wrong, because indirect references should have a NULL key
-   when we don't have access to the key, and in that case they should be
-   added to the indirect_missing_keys rb tree and not to the indirect rb
-   tree.
+Skip any invocation of ->set_mctrl() if RS485 is enabled.  RS485 has no
+hardware flow control, so the modem control lines are irrelevant and
+need not be touched.  When leaving RS485 mode, reset the modem control
+lines to the state stored in port->mctrl.  That way, UARTs which are
+muxed between RS485 and RS232 transceivers drive the lines correctly
+when switched to RS232.  (serial8250_do_startup() historically raises
+the OUT1 modem signal because otherwise interrupts are not signaled on
+ancient PC UARTs, but I believe that no longer applies to modern,
+RS485-capable UARTs and is thus safe to be skipped.)
 
-   This means that if have BTRFS_TREE_BLOCK_REF_KEY delayed ref resulting
-   from freeing an extent buffer, therefore with a count of -1, it will
-   not cancel out the corresponding reference we have in the extent tree
-   (with a count of 1), since both references end up in different rb
-   trees.
+imx.c modifies port->mctrl whenever Transmit Enable is asserted and
+deasserted.  Stop it from doing that so port->mctrl reflects the RS232
+line state.
 
-   When using fiemap, where we often need to check if extents are shared
-   through shared subtrees resulting from snapshots, it means we can
-   incorrectly report an extent as shared when it's no longer shared.
-   However this is temporary because after the transaction is committed
-   the extent is no longer reported as shared, as running the delayed
-   reference results in deleting the tree block reference from the extent
-   tree.
+8250_omap.c deasserts Transmit Enable on ->runtime_resume() by calling
+->set_mctrl().  Because that is now a no-op in RS485 mode, amend the
+function to call serial8250_em485_stop_tx().
 
-   Outside the fiemap context, the result is unpredictable, as the key was
-   not initialized but it's used when navigating the rb trees to insert
-   and search for references (prelim_ref_compare()), and we expect all
-   references in the indirect rb tree to have valid keys.
+fsl_lpuart.c retrieves and applies the RS485 device tree properties
+after registering the UART port.  Because applying now happens on
+registration in uart_configure_port(), move retrieval of the properties
+ahead of uart_add_one_port().
 
-The following reproducer triggers the second bug:
-
-   $ cat test.sh
-   #!/bin/bash
-
-   DEV=/dev/sdj
-   MNT=/mnt/sdj
-
-   mkfs.btrfs -f $DEV
-   mount -o compress $DEV $MNT
-
-   # With a compressed 128M file we get a tree height of 2 (level 1 root).
-   xfs_io -f -c "pwrite -b 1M 0 128M" $MNT/foo
-
-   btrfs subvolume snapshot $MNT $MNT/snap
-
-   # Fiemap should output 0x2008 in the flags column.
-   # 0x2000 means shared extent
-   # 0x8 means encoded extent (because it's compressed)
-   echo
-   echo "fiemap after snapshot, range [120M, 120M + 128K):"
-   xfs_io -c "fiemap -v 120M 128K" $MNT/foo
-   echo
-
-   # Overwrite one extent and fsync to flush delalloc and COW a new path
-   # in the snapshot's tree.
-   #
-   # After this we have a BTRFS_DROP_DELAYED_REF delayed ref of type
-   # BTRFS_TREE_BLOCK_REF_KEY with a count of -1 for every COWed extent
-   # buffer in the path.
-   #
-   # In the extent tree we have inline references of type
-   # BTRFS_TREE_BLOCK_REF_KEY, with a count of 1, for the same extent
-   # buffers, so they should cancel each other, and the extent buffers in
-   # the fs tree should no longer be considered as shared.
-   #
-   echo "Overwriting file range [120M, 120M + 128K)..."
-   xfs_io -c "pwrite -b 128K 120M 128K" $MNT/snap/foo
-   xfs_io -c "fsync" $MNT/snap/foo
-
-   # Fiemap should output 0x8 in the flags column. The extent in the range
-   # [120M, 120M + 128K) is no longer shared, it's now exclusive to the fs
-   # tree.
-   echo
-   echo "fiemap after overwrite range [120M, 120M + 128K):"
-   xfs_io -c "fiemap -v 120M 128K" $MNT/foo
-   echo
-
-   umount $MNT
-
-Running it before this patch:
-
-   $ ./test.sh
-   (...)
-   wrote 134217728/134217728 bytes at offset 0
-   128 MiB, 128 ops; 0.1152 sec (1.085 GiB/sec and 1110.5809 ops/sec)
-   Create a snapshot of '/mnt/sdj' in '/mnt/sdj/snap'
-
-   fiemap after snapshot, range [120M, 120M + 128K):
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [245760..246015]: 34304..34559       256 0x2008
-
-   Overwriting file range [120M, 120M + 128K)...
-   wrote 131072/131072 bytes at offset 125829120
-   128 KiB, 1 ops; 0.0001 sec (683.060 MiB/sec and 5464.4809 ops/sec)
-
-   fiemap after overwrite range [120M, 120M + 128K):
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [245760..246015]: 34304..34559       256 0x2008
-
-The extent in the range [120M, 120M + 128K) is still reported as shared
-(0x2000 bit set) after overwriting that range and flushing delalloc, which
-is not correct - an entire path was COWed in the snapshot's tree and the
-extent is now only referenced by the original fs tree.
-
-Running it after this patch:
-
-   $ ./test.sh
-   (...)
-   wrote 134217728/134217728 bytes at offset 0
-   128 MiB, 128 ops; 0.1198 sec (1.043 GiB/sec and 1068.2067 ops/sec)
-   Create a snapshot of '/mnt/sdj' in '/mnt/sdj/snap'
-
-   fiemap after snapshot, range [120M, 120M + 128K):
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [245760..246015]: 34304..34559       256 0x2008
-
-   Overwriting file range [120M, 120M + 128K)...
-   wrote 131072/131072 bytes at offset 125829120
-   128 KiB, 1 ops; 0.0001 sec (694.444 MiB/sec and 5555.5556 ops/sec)
-
-   fiemap after overwrite range [120M, 120M + 128K):
-   /mnt/sdj/foo:
-    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
-      0: [245760..246015]: 34304..34559       256   0x8
-
-Now the extent is not reported as shared anymore.
-
-So fix this by passing a NULL key pointer to add_indirect_ref() when
-processing a delayed reference for a tree block if there's no extent op
-for our delayed ref head with a defined key. Also access the extent op
-only after locking the delayed ref head's lock.
-
-The reproducer will be converted later to a test case for fstests.
-
-Fixes: 86d5f994425252 ("btrfs: convert prelimary reference tracking to use rbtrees")
-Fixes: a6dbceafb915e8 ("btrfs: Remove unused op_key var from add_delayed_refs")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/all/20220329085050.311408-1-matthias.schiffer@ew.tq-group.com/
+Link: https://lore.kernel.org/all/8f538a8903795f22f9acc94a9a31b03c9c4ccacb.camel@ginzinger.com/
+Fixes: d3b3404df318 ("serial: Fix incorrect rs485 polarity on uart open")
+Cc: stable@vger.kernel.org # v4.14+
+Reported-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Reported-by: Roosen Henri <Henri.Roosen@ginzinger.com>
+Tested-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/2de36eba3fbe11278d5002e4e501afe0ceaca039.1663863805.git.lukas@wunner.de
+Signed-off-by: Daisuke Mizobuchi <mizo@atmark-techno.com>
+Signed-off-by: Dominique Martinet <dominique.martinet@atmark-techno.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/backref.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/tty/serial/8250/8250_omap.c |    3 +++
+ drivers/tty/serial/8250/8250_pci.c  |    9 +--------
+ drivers/tty/serial/8250/8250_port.c |   12 +++++++-----
+ drivers/tty/serial/fsl_lpuart.c     |    8 +++-----
+ drivers/tty/serial/imx.c            |    8 ++------
+ drivers/tty/serial/serial_core.c    |   30 +++++++++++++++++-------------
+ 6 files changed, 33 insertions(+), 37 deletions(-)
 
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 5e27e30fd887..781c725e6432 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -761,16 +761,11 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
- 			    struct share_check *sc)
- {
- 	struct btrfs_delayed_ref_node *node;
--	struct btrfs_delayed_extent_op *extent_op = head->extent_op;
- 	struct btrfs_key key;
--	struct btrfs_key tmp_op_key;
- 	struct rb_node *n;
- 	int count;
- 	int ret = 0;
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -342,6 +342,9 @@ static void omap8250_restore_regs(struct
+ 	omap8250_update_mdr1(up, priv);
  
--	if (extent_op && extent_op->update_key)
--		btrfs_disk_key_to_cpu(&tmp_op_key, &extent_op->key);
--
- 	spin_lock(&head->lock);
- 	for (n = rb_first(&head->ref_tree); n; n = rb_next(n)) {
- 		node = rb_entry(n, struct btrfs_delayed_ref_node,
-@@ -797,10 +792,16 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
- 		case BTRFS_TREE_BLOCK_REF_KEY: {
- 			/* NORMAL INDIRECT METADATA backref */
- 			struct btrfs_delayed_tree_ref *ref;
-+			struct btrfs_key *key_ptr = NULL;
+ 	up->port.ops->set_mctrl(&up->port, up->port.mctrl);
 +
-+			if (head->extent_op && head->extent_op->update_key) {
-+				btrfs_disk_key_to_cpu(&key, &head->extent_op->key);
-+				key_ptr = &key;
-+			}
++	if (up->port.rs485.flags & SER_RS485_ENABLED)
++		serial8250_em485_stop_tx(up);
+ }
  
- 			ref = btrfs_delayed_node_to_tree_ref(node);
- 			ret = add_indirect_ref(fs_info, preftrees, ref->root,
--					       &tmp_op_key, ref->level + 1,
-+					       key_ptr, ref->level + 1,
- 					       node->bytenr, count, sc,
- 					       GFP_ATOMIC);
- 			break;
--- 
-2.35.1
-
+ /*
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -1739,7 +1739,6 @@ static int pci_fintek_init(struct pci_de
+ 	resource_size_t bar_data[3];
+ 	u8 config_base;
+ 	struct serial_private *priv = pci_get_drvdata(dev);
+-	struct uart_8250_port *port;
+ 
+ 	if (!(pci_resource_flags(dev, 5) & IORESOURCE_IO) ||
+ 			!(pci_resource_flags(dev, 4) & IORESOURCE_IO) ||
+@@ -1786,13 +1785,7 @@ static int pci_fintek_init(struct pci_de
+ 
+ 		pci_write_config_byte(dev, config_base + 0x06, dev->irq);
+ 
+-		if (priv) {
+-			/* re-apply RS232/485 mode when
+-			 * pciserial_resume_ports()
+-			 */
+-			port = serial8250_get_port(priv->line[i]);
+-			pci_fintek_rs485_config(&port->port, NULL);
+-		} else {
++		if (!priv) {
+ 			/* First init without port data
+ 			 * force init to RS232 Mode
+ 			 */
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -600,7 +600,7 @@ EXPORT_SYMBOL_GPL(serial8250_rpm_put);
+ static int serial8250_em485_init(struct uart_8250_port *p)
+ {
+ 	if (p->em485)
+-		return 0;
++		goto deassert_rts;
+ 
+ 	p->em485 = kmalloc(sizeof(struct uart_8250_em485), GFP_ATOMIC);
+ 	if (!p->em485)
+@@ -616,7 +616,9 @@ static int serial8250_em485_init(struct
+ 	p->em485->active_timer = NULL;
+ 	p->em485->tx_stopped = true;
+ 
+-	p->rs485_stop_tx(p);
++deassert_rts:
++	if (p->em485->tx_stopped)
++		p->rs485_stop_tx(p);
+ 
+ 	return 0;
+ }
+@@ -2034,6 +2036,9 @@ EXPORT_SYMBOL_GPL(serial8250_do_set_mctr
+ 
+ static void serial8250_set_mctrl(struct uart_port *port, unsigned int mctrl)
+ {
++	if (port->rs485.flags & SER_RS485_ENABLED)
++		return;
++
+ 	if (port->set_mctrl)
+ 		port->set_mctrl(port, mctrl);
+ 	else
+@@ -3191,9 +3196,6 @@ static void serial8250_config_port(struc
+ 	if (flags & UART_CONFIG_TYPE)
+ 		autoconfig(up);
+ 
+-	if (port->rs485.flags & SER_RS485_ENABLED)
+-		port->rs485_config(port, &port->rs485);
+-
+ 	/* if access method is AU, it is a 16550 with a quirk */
+ 	if (port->type == PORT_16550A && port->iotype == UPIO_AU)
+ 		up->bugs |= UART_BUG_NOMSR;
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2733,10 +2733,6 @@ static int lpuart_probe(struct platform_
+ 	if (ret)
+ 		goto failed_reset;
+ 
+-	ret = uart_add_one_port(&lpuart_reg, &sport->port);
+-	if (ret)
+-		goto failed_attach_port;
+-
+ 	ret = uart_get_rs485_mode(&sport->port);
+ 	if (ret)
+ 		goto failed_get_rs485;
+@@ -2748,7 +2744,9 @@ static int lpuart_probe(struct platform_
+ 	    sport->port.rs485.delay_rts_after_send)
+ 		dev_err(&pdev->dev, "driver doesn't support RTS delays\n");
+ 
+-	sport->port.rs485_config(&sport->port, &sport->port.rs485);
++	ret = uart_add_one_port(&lpuart_reg, &sport->port);
++	if (ret)
++		goto failed_attach_port;
+ 
+ 	ret = devm_request_irq(&pdev->dev, sport->port.irq, handler, 0,
+ 				DRIVER_NAME, sport);
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -380,8 +380,7 @@ static void imx_uart_rts_active(struct i
+ {
+ 	*ucr2 &= ~(UCR2_CTSC | UCR2_CTS);
+ 
+-	sport->port.mctrl |= TIOCM_RTS;
+-	mctrl_gpio_set(sport->gpios, sport->port.mctrl);
++	mctrl_gpio_set(sport->gpios, sport->port.mctrl | TIOCM_RTS);
+ }
+ 
+ /* called with port.lock taken and irqs caller dependent */
+@@ -390,8 +389,7 @@ static void imx_uart_rts_inactive(struct
+ 	*ucr2 &= ~UCR2_CTSC;
+ 	*ucr2 |= UCR2_CTS;
+ 
+-	sport->port.mctrl &= ~TIOCM_RTS;
+-	mctrl_gpio_set(sport->gpios, sport->port.mctrl);
++	mctrl_gpio_set(sport->gpios, sport->port.mctrl & ~TIOCM_RTS);
+ }
+ 
+ static void start_hrtimer_ms(struct hrtimer *hrt, unsigned long msec)
+@@ -2318,8 +2316,6 @@ static int imx_uart_probe(struct platfor
+ 		dev_err(&pdev->dev,
+ 			"low-active RTS not possible when receiver is off, enabling receiver\n");
+ 
+-	imx_uart_rs485_config(&sport->port, &sport->port.rs485);
+-
+ 	/* Disable interrupts before requesting them */
+ 	ucr1 = imx_uart_readl(sport, UCR1);
+ 	ucr1 &= ~(UCR1_ADEN | UCR1_TRDYEN | UCR1_IDEN | UCR1_RRDYEN | UCR1_RTSDEN);
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -149,15 +149,10 @@ uart_update_mctrl(struct uart_port *port
+ 	unsigned long flags;
+ 	unsigned int old;
+ 
+-	if (port->rs485.flags & SER_RS485_ENABLED) {
+-		set &= ~TIOCM_RTS;
+-		clear &= ~TIOCM_RTS;
+-	}
+-
+ 	spin_lock_irqsave(&port->lock, flags);
+ 	old = port->mctrl;
+ 	port->mctrl = (old & ~clear) | set;
+-	if (old != port->mctrl)
++	if (old != port->mctrl && !(port->rs485.flags & SER_RS485_ENABLED))
+ 		port->ops->set_mctrl(port, port->mctrl);
+ 	spin_unlock_irqrestore(&port->lock, flags);
+ }
+@@ -1332,8 +1327,13 @@ static int uart_set_rs485_config(struct
+ 
+ 	spin_lock_irqsave(&port->lock, flags);
+ 	ret = port->rs485_config(port, &rs485);
+-	if (!ret)
++	if (!ret) {
+ 		port->rs485 = rs485;
++
++		/* Reset RTS and other mctrl lines when disabling RS485 */
++		if (!(rs485.flags & SER_RS485_ENABLED))
++			port->ops->set_mctrl(port, port->mctrl);
++	}
+ 	spin_unlock_irqrestore(&port->lock, flags);
+ 	if (ret)
+ 		return ret;
+@@ -2306,7 +2306,8 @@ int uart_resume_port(struct uart_driver
+ 
+ 		uart_change_pm(state, UART_PM_STATE_ON);
+ 		spin_lock_irq(&uport->lock);
+-		ops->set_mctrl(uport, 0);
++		if (!(uport->rs485.flags & SER_RS485_ENABLED))
++			ops->set_mctrl(uport, 0);
+ 		spin_unlock_irq(&uport->lock);
+ 		if (console_suspend_enabled || !uart_console(uport)) {
+ 			/* Protected by port mutex for now */
+@@ -2317,7 +2318,10 @@ int uart_resume_port(struct uart_driver
+ 				if (tty)
+ 					uart_change_speed(tty, state, NULL);
+ 				spin_lock_irq(&uport->lock);
+-				ops->set_mctrl(uport, uport->mctrl);
++				if (!(uport->rs485.flags & SER_RS485_ENABLED))
++					ops->set_mctrl(uport, uport->mctrl);
++				else
++					uport->rs485_config(uport, &uport->rs485);
+ 				ops->start_tx(uport);
+ 				spin_unlock_irq(&uport->lock);
+ 				tty_port_set_initialized(port, 1);
+@@ -2423,10 +2427,10 @@ uart_configure_port(struct uart_driver *
+ 		 */
+ 		spin_lock_irqsave(&port->lock, flags);
+ 		port->mctrl &= TIOCM_DTR;
+-		if (port->rs485.flags & SER_RS485_ENABLED &&
+-		    !(port->rs485.flags & SER_RS485_RTS_AFTER_SEND))
+-			port->mctrl |= TIOCM_RTS;
+-		port->ops->set_mctrl(port, port->mctrl);
++		if (!(port->rs485.flags & SER_RS485_ENABLED))
++			port->ops->set_mctrl(port, port->mctrl);
++		else
++			port->rs485_config(port, &port->rs485);
+ 		spin_unlock_irqrestore(&port->lock, flags);
+ 
+ 		/*
 
 
