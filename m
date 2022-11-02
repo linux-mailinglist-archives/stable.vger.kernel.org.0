@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D7F26159B3
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:16:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06B22615A15
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:24:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229846AbiKBDQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:16:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36462 "EHLO
+        id S230304AbiKBDYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:24:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230106AbiKBDQY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:16:24 -0400
+        with ESMTP id S230474AbiKBDYM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:24:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3575424BDA
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:16:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 515F124962
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:24:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C628260B72
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:16:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AF1BC433D6;
-        Wed,  2 Nov 2022 03:16:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93E9F617BA
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:24:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31955C433D6;
+        Wed,  2 Nov 2022 03:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358983;
-        bh=IDbiOKUF3/tFcpqawWDcIxEa2Zu9c8WVsl9Qbf5tYHk=;
+        s=korg; t=1667359446;
+        bh=mu8FpJJ7rIyEtMkn8AxhEW7phItth+hF0HK4WgcFoKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qwx4xvIwzNkWXnkUUet7eIU/laCgMqGklqqx0azhFo60Ot72czYPc6+DapYXEswOH
-         yot1WnzTNhZ9cqqp/zsT0nSR0IvdN3PmRufrxpN7IY4FG+2X3tRP0HKSXZ38xB+wSw
-         M+ZDG2Hqb8eGa2vkS/SvSUR4gN+TD6PYDqMRgSw0=
+        b=vRQLiew5IxNT62Ki5C7MFUBY6Na7qgpzuVsVjXhRpdJftDJ79EBuXqd0/N7qbLcEl
+         6QMnQohazId5FKobLISsRAtzY2jjKKNDI0MKNWKkEMkBTjVgp5MWZYqPALPd7Idjmg
+         4NahNLg8Fu/DdzMhkDGCRs6n7WrEDAKJoQTw1ZKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 56/91] net: fix UAF issue in nfqnl_nf_hook_drop() when ops_init() failed
+        patches@lists.linux.dev,
+        Shreeya Patel <shreeya.patel@collabora.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 13/64] iio: light: tsl2583: Fix module unloading
 Date:   Wed,  2 Nov 2022 03:33:39 +0100
-Message-Id: <20221102022056.623293875@linuxfoundation.org>
+Message-Id: <20221102022052.235649217@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,121 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Shreeya Patel <shreeya.patel@collabora.com>
 
-[ Upstream commit d266935ac43d57586e311a087510fe6a084af742 ]
+commit 0dec4d2f2636b9e54d9d29f17afc7687c5407f78 upstream.
 
-When the ops_init() interface is invoked to initialize the net, but
-ops->init() fails, data is released. However, the ptr pointer in
-net->gen is invalid. In this case, when nfqnl_nf_hook_drop() is invoked
-to release the net, invalid address access occurs.
+tsl2583 probe() uses devm_iio_device_register() and calling
+iio_device_unregister() causes the unregister to occur twice. s
+Switch to iio_device_register() instead of devm_iio_device_register()
+in probe to avoid the device managed cleanup.
 
-The process is as follows:
-setup_net()
-	ops_init()
-		data = kzalloc(...)   ---> alloc "data"
-		net_assign_generic()  ---> assign "date" to ptr in net->gen
-		...
-		ops->init()           ---> failed
-		...
-		kfree(data);          ---> ptr in net->gen is invalid
-	...
-	ops_exit_list()
-		...
-		nfqnl_nf_hook_drop()
-			*q = nfnl_queue_pernet(net) ---> q is invalid
-
-The following is the Call Trace information:
-BUG: KASAN: use-after-free in nfqnl_nf_hook_drop+0x264/0x280
-Read of size 8 at addr ffff88810396b240 by task ip/15855
-Call Trace:
-<TASK>
-dump_stack_lvl+0x8e/0xd1
-print_report+0x155/0x454
-kasan_report+0xba/0x1f0
-nfqnl_nf_hook_drop+0x264/0x280
-nf_queue_nf_hook_drop+0x8b/0x1b0
-__nf_unregister_net_hook+0x1ae/0x5a0
-nf_unregister_net_hooks+0xde/0x130
-ops_exit_list+0xb0/0x170
-setup_net+0x7ac/0xbd0
-copy_net_ns+0x2e6/0x6b0
-create_new_namespaces+0x382/0xa50
-unshare_nsproxy_namespaces+0xa6/0x1c0
-ksys_unshare+0x3a4/0x7e0
-__x64_sys_unshare+0x2d/0x40
-do_syscall_64+0x35/0x80
-entry_SYSCALL_64_after_hwframe+0x46/0xb0
-</TASK>
-
-Allocated by task 15855:
-kasan_save_stack+0x1e/0x40
-kasan_set_track+0x21/0x30
-__kasan_kmalloc+0xa1/0xb0
-__kmalloc+0x49/0xb0
-ops_init+0xe7/0x410
-setup_net+0x5aa/0xbd0
-copy_net_ns+0x2e6/0x6b0
-create_new_namespaces+0x382/0xa50
-unshare_nsproxy_namespaces+0xa6/0x1c0
-ksys_unshare+0x3a4/0x7e0
-__x64_sys_unshare+0x2d/0x40
-do_syscall_64+0x35/0x80
-entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Freed by task 15855:
-kasan_save_stack+0x1e/0x40
-kasan_set_track+0x21/0x30
-kasan_save_free_info+0x2a/0x40
-____kasan_slab_free+0x155/0x1b0
-slab_free_freelist_hook+0x11b/0x220
-__kmem_cache_free+0xa4/0x360
-ops_init+0xb9/0x410
-setup_net+0x5aa/0xbd0
-copy_net_ns+0x2e6/0x6b0
-create_new_namespaces+0x382/0xa50
-unshare_nsproxy_namespaces+0xa6/0x1c0
-ksys_unshare+0x3a4/0x7e0
-__x64_sys_unshare+0x2d/0x40
-do_syscall_64+0x35/0x80
-entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Fixes: f875bae06533 ("net: Automatically allocate per namespace data.")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 371894f5d1a0 ("iio: tsl2583: add runtime power management support")
+Signed-off-by: Shreeya Patel <shreeya.patel@collabora.com>
+Link: https://lore.kernel.org/r/20220826122352.288438-1-shreeya.patel@collabora.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/net_namespace.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/iio/light/tsl2583.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
-index cbff7d94b993..a3b7d965e9c0 100644
---- a/net/core/net_namespace.c
-+++ b/net/core/net_namespace.c
-@@ -135,6 +135,7 @@ static int net_assign_generic(struct net *net, unsigned int id, void *data)
+--- a/drivers/iio/light/tsl2583.c
++++ b/drivers/iio/light/tsl2583.c
+@@ -857,7 +857,7 @@ static int tsl2583_probe(struct i2c_clie
+ 					 TSL2583_POWER_OFF_DELAY_MS);
+ 	pm_runtime_use_autosuspend(&clientp->dev);
  
- static int ops_init(const struct pernet_operations *ops, struct net *net)
- {
-+	struct net_generic *ng;
- 	int err = -ENOMEM;
- 	void *data = NULL;
- 
-@@ -153,7 +154,13 @@ static int ops_init(const struct pernet_operations *ops, struct net *net)
- 	if (!err)
- 		return 0;
- 
-+	if (ops->id && ops->size) {
- cleanup:
-+		ng = rcu_dereference_protected(net->gen,
-+					       lockdep_is_held(&pernet_ops_rwsem));
-+		ng->ptr[*ops->id] = NULL;
-+	}
-+
- 	kfree(data);
- 
- out:
--- 
-2.35.1
-
+-	ret = devm_iio_device_register(indio_dev->dev.parent, indio_dev);
++	ret = iio_device_register(indio_dev);
+ 	if (ret) {
+ 		dev_err(&clientp->dev, "%s: iio registration failed\n",
+ 			__func__);
 
 
