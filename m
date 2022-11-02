@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12F30615A4A
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:28:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B9B16159E2
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:20:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231132AbiKBD2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:28:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46822 "EHLO
+        id S230045AbiKBDUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:20:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231226AbiKBD2Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:28:24 -0400
+        with ESMTP id S230187AbiKBDUV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:20:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0340025EA9
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:28:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE87C205C0
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:20:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FFE3617D4
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:28:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C738C433D6;
-        Wed,  2 Nov 2022 03:28:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2BA0617BF
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:20:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BC53C433C1;
+        Wed,  2 Nov 2022 03:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359697;
-        bh=orRNSPbkISP6oWgvhZNqLS+5gGYP61gi3c0oN1TtfKo=;
+        s=korg; t=1667359209;
+        bh=wutgUqtyXSwR9W56Weyq4WonCEhgQ8psQ1/GzBxjElA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FLsXy1cTYA4eiT6dKvCIqDlowaG2TufrzPHKVQrTxUbIiJwG6L2RIp4+AppiBdrZx
-         +gc2iBdXqcOF3w9GXab3eFOftrbegcE0ACKBEE4agWH8vbu269a8j+M8NB632DK7ht
-         mfcZKQmut8ooUr35Y614kd0IHWo1RDnt4J3cSsqs=
+        b=DIFHh/LgaGZ8JFKKq19WE+doh0J4yQxbsjpmFSeDGgexnLP4zI+bMHN4KUKTul2V3
+         itJNhuAB1OZDI+751F/d9dGSLqFFP1FFCYM33m4x3LlVY9+uqFfJcrSSA3QWkfQ0Zd
+         Xd5m/eSljVAOHGgiiY84XZsACsGdiGSlj7TJYtzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 4.19 06/78] ata: ahci: Match EM_MAX_SLOTS with SATA_PMP_MAX_PORTS
-Date:   Wed,  2 Nov 2022 03:33:51 +0100
-Message-Id: <20221102022053.102557650@linuxfoundation.org>
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 69/91] ipv6: ensure sane device mtu in tunnels
+Date:   Wed,  2 Nov 2022 03:33:52 +0100
+Message-Id: <20221102022056.996215743@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +54,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 1e41e693f458eef2d5728207dbd327cd3b16580a upstream.
+[ Upstream commit d89d7ff01235f218dad37de84457717f699dee79 ]
 
-UBSAN complains about array-index-out-of-bounds:
-[ 1.980703] kernel: UBSAN: array-index-out-of-bounds in /build/linux-9H675w/linux-5.15.0/drivers/ata/libahci.c:968:41
-[ 1.980709] kernel: index 15 is out of range for type 'ahci_em_priv [8]'
-[ 1.980713] kernel: CPU: 0 PID: 209 Comm: scsi_eh_8 Not tainted 5.15.0-25-generic #25-Ubuntu
-[ 1.980716] kernel: Hardware name: System manufacturer System Product Name/P5Q3, BIOS 1102 06/11/2010
-[ 1.980718] kernel: Call Trace:
-[ 1.980721] kernel: <TASK>
-[ 1.980723] kernel: show_stack+0x52/0x58
-[ 1.980729] kernel: dump_stack_lvl+0x4a/0x5f
-[ 1.980734] kernel: dump_stack+0x10/0x12
-[ 1.980736] kernel: ubsan_epilogue+0x9/0x45
-[ 1.980739] kernel: __ubsan_handle_out_of_bounds.cold+0x44/0x49
-[ 1.980742] kernel: ahci_qc_issue+0x166/0x170 [libahci]
-[ 1.980748] kernel: ata_qc_issue+0x135/0x240
-[ 1.980752] kernel: ata_exec_internal_sg+0x2c4/0x580
-[ 1.980754] kernel: ? vprintk_default+0x1d/0x20
-[ 1.980759] kernel: ata_exec_internal+0x67/0xa0
-[ 1.980762] kernel: sata_pmp_read+0x8d/0xc0
-[ 1.980765] kernel: sata_pmp_read_gscr+0x3c/0x90
-[ 1.980768] kernel: sata_pmp_attach+0x8b/0x310
-[ 1.980771] kernel: ata_eh_revalidate_and_attach+0x28c/0x4b0
-[ 1.980775] kernel: ata_eh_recover+0x6b6/0xb30
-[ 1.980778] kernel: ? ahci_do_hardreset+0x180/0x180 [libahci]
-[ 1.980783] kernel: ? ahci_stop_engine+0xb0/0xb0 [libahci]
-[ 1.980787] kernel: ? ahci_do_softreset+0x290/0x290 [libahci]
-[ 1.980792] kernel: ? trace_event_raw_event_ata_eh_link_autopsy_qc+0xe0/0xe0
-[ 1.980795] kernel: sata_pmp_eh_recover.isra.0+0x214/0x560
-[ 1.980799] kernel: sata_pmp_error_handler+0x23/0x40
-[ 1.980802] kernel: ahci_error_handler+0x43/0x80 [libahci]
-[ 1.980806] kernel: ata_scsi_port_error_handler+0x2b1/0x600
-[ 1.980810] kernel: ata_scsi_error+0x9c/0xd0
-[ 1.980813] kernel: scsi_error_handler+0xa1/0x180
-[ 1.980817] kernel: ? scsi_unjam_host+0x1c0/0x1c0
-[ 1.980820] kernel: kthread+0x12a/0x150
-[ 1.980823] kernel: ? set_kthread_struct+0x50/0x50
-[ 1.980826] kernel: ret_from_fork+0x22/0x30
-[ 1.980831] kernel: </TASK>
+Another syzbot report [1] with no reproducer hints
+at a bug in ip6_gre tunnel (dev:ip6gretap0)
 
-This happens because sata_pmp_init_links() initialize link->pmp up to
-SATA_PMP_MAX_PORTS while em_priv is declared as 8 elements array.
+Since ipv6 mcast code makes sure to read dev->mtu once
+and applies a sanity check on it (see commit b9b312a7a451
+"ipv6: mcast: better catch silly mtu values"), a remaining
+possibility is that a layer is able to set dev->mtu to
+an underflowed value (high order bit set).
 
-I can't find the maximum Enclosure Management ports specified in AHCI
-spec v1.3.1, but "12.2.1 LED message type" states that "Port Multiplier
-Information" can utilize 4 bits, which implies it can support up to 16
-ports. Hence, use SATA_PMP_MAX_PORTS as EM_MAX_SLOTS to resolve the
-issue.
+This could happen indeed in ip6gre_tnl_link_config_route(),
+ip6_tnl_link_config() and ipip6_tunnel_bind_dev()
 
-BugLink: https://bugs.launchpad.net/bugs/1970074
-Cc: stable@vger.kernel.org
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Make sure to sanitize mtu value in a local variable before
+it is written once on dev->mtu, as lockless readers could
+catch wrong temporary value.
+
+[1]
+skbuff: skb_over_panic: text:ffff80000b7a2f38 len:40 put:40 head:ffff000149dcf200 data:ffff000149dcf2b0 tail:0xd8 end:0xc0 dev:ip6gretap0
+------------[ cut here ]------------
+kernel BUG at net/core/skbuff.c:120
+Internal error: Oops - BUG: 00000000f2000800 [#1] PREEMPT SMP
+Modules linked in:
+CPU: 1 PID: 10241 Comm: kworker/1:1 Not tainted 6.0.0-rc7-syzkaller-18095-gbbed346d5a96 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/30/2022
+Workqueue: mld mld_ifc_work
+pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : skb_panic+0x4c/0x50 net/core/skbuff.c:116
+lr : skb_panic+0x4c/0x50 net/core/skbuff.c:116
+sp : ffff800020dd3b60
+x29: ffff800020dd3b70 x28: 0000000000000000 x27: ffff00010df2a800
+x26: 00000000000000c0 x25: 00000000000000b0 x24: ffff000149dcf200
+x23: 00000000000000c0 x22: 00000000000000d8 x21: ffff80000b7a2f38
+x20: ffff00014c2f7800 x19: 0000000000000028 x18: 00000000000001a9
+x17: 0000000000000000 x16: ffff80000db49158 x15: ffff000113bf1a80
+x14: 0000000000000000 x13: 00000000ffffffff x12: ffff000113bf1a80
+x11: ff808000081c0d5c x10: 0000000000000000 x9 : 73f125dc5c63ba00
+x8 : 73f125dc5c63ba00 x7 : ffff800008161d1c x6 : 0000000000000000
+x5 : 0000000000000080 x4 : 0000000000000001 x3 : 0000000000000000
+x2 : ffff0001fefddcd0 x1 : 0000000100000000 x0 : 0000000000000089
+Call trace:
+skb_panic+0x4c/0x50 net/core/skbuff.c:116
+skb_over_panic net/core/skbuff.c:125 [inline]
+skb_put+0xd4/0xdc net/core/skbuff.c:2049
+ip6_mc_hdr net/ipv6/mcast.c:1714 [inline]
+mld_newpack+0x14c/0x270 net/ipv6/mcast.c:1765
+add_grhead net/ipv6/mcast.c:1851 [inline]
+add_grec+0xa20/0xae0 net/ipv6/mcast.c:1989
+mld_send_cr+0x438/0x5a8 net/ipv6/mcast.c:2115
+mld_ifc_work+0x38/0x290 net/ipv6/mcast.c:2653
+process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
+worker_thread+0x340/0x610 kernel/workqueue.c:2436
+kthread+0x12c/0x158 kernel/kthread.c:376
+ret_from_fork+0x10/0x20 arch/arm64/kernel/entry.S:860
+Code: 91011400 aa0803e1 a90027ea 94373093 (d4210000)
+
+Fixes: c12b395a4664 ("gre: Support GRE over IPv6")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20221024020124.3756833-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/ahci.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/ip6_gre.c    | 12 +++++++-----
+ net/ipv6/ip6_tunnel.c | 11 ++++++-----
+ net/ipv6/sit.c        |  8 +++++---
+ 3 files changed, 18 insertions(+), 13 deletions(-)
 
---- a/drivers/ata/ahci.h
-+++ b/drivers/ata/ahci.h
-@@ -265,7 +265,7 @@ enum {
- 	PCS_7				= 0x94, /* 7+ port PCS (Denverton) */
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index 9e0890738d93..0010f9e54f13 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -1153,14 +1153,16 @@ static void ip6gre_tnl_link_config_route(struct ip6_tnl *t, int set_mtu,
+ 				dev->needed_headroom = dst_len;
  
- 	/* em constants */
--	EM_MAX_SLOTS			= 8,
-+	EM_MAX_SLOTS			= SATA_PMP_MAX_PORTS,
- 	EM_MAX_RETRY			= 5,
+ 			if (set_mtu) {
+-				dev->mtu = rt->dst.dev->mtu - t_hlen;
++				int mtu = rt->dst.dev->mtu - t_hlen;
++
+ 				if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMIT))
+-					dev->mtu -= 8;
++					mtu -= 8;
+ 				if (dev->type == ARPHRD_ETHER)
+-					dev->mtu -= ETH_HLEN;
++					mtu -= ETH_HLEN;
  
- 	/* em_ctl bits */
+-				if (dev->mtu < IPV6_MIN_MTU)
+-					dev->mtu = IPV6_MIN_MTU;
++				if (mtu < IPV6_MIN_MTU)
++					mtu = IPV6_MIN_MTU;
++				WRITE_ONCE(dev->mtu, mtu);
+ 			}
+ 		}
+ 		ip6_rt_put(rt);
+diff --git a/net/ipv6/ip6_tunnel.c b/net/ipv6/ip6_tunnel.c
+index 3a2741569b84..0d4cab94c5dd 100644
+--- a/net/ipv6/ip6_tunnel.c
++++ b/net/ipv6/ip6_tunnel.c
+@@ -1476,8 +1476,8 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
+ 	struct net_device *tdev = NULL;
+ 	struct __ip6_tnl_parm *p = &t->parms;
+ 	struct flowi6 *fl6 = &t->fl.u.ip6;
+-	unsigned int mtu;
+ 	int t_hlen;
++	int mtu;
+ 
+ 	memcpy(dev->dev_addr, &p->laddr, sizeof(struct in6_addr));
+ 	memcpy(dev->broadcast, &p->raddr, sizeof(struct in6_addr));
+@@ -1524,12 +1524,13 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
+ 			dev->hard_header_len = tdev->hard_header_len + t_hlen;
+ 			mtu = min_t(unsigned int, tdev->mtu, IP6_MAX_MTU);
+ 
+-			dev->mtu = mtu - t_hlen;
++			mtu = mtu - t_hlen;
+ 			if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMIT))
+-				dev->mtu -= 8;
++				mtu -= 8;
+ 
+-			if (dev->mtu < IPV6_MIN_MTU)
+-				dev->mtu = IPV6_MIN_MTU;
++			if (mtu < IPV6_MIN_MTU)
++				mtu = IPV6_MIN_MTU;
++			WRITE_ONCE(dev->mtu, mtu);
+ 		}
+ 	}
+ }
+diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
+index 3c92e8cacbba..1ce486a9bc07 100644
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -1123,10 +1123,12 @@ static void ipip6_tunnel_bind_dev(struct net_device *dev)
+ 
+ 	if (tdev && !netif_is_l3_master(tdev)) {
+ 		int t_hlen = tunnel->hlen + sizeof(struct iphdr);
++		int mtu;
+ 
+-		dev->mtu = tdev->mtu - t_hlen;
+-		if (dev->mtu < IPV6_MIN_MTU)
+-			dev->mtu = IPV6_MIN_MTU;
++		mtu = tdev->mtu - t_hlen;
++		if (mtu < IPV6_MIN_MTU)
++			mtu = IPV6_MIN_MTU;
++		WRITE_ONCE(dev->mtu, mtu);
+ 	}
+ }
+ 
+-- 
+2.35.1
+
 
 
