@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6BE1615A6B
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:31:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB84E615A2D
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:26:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230501AbiKBDbG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:31:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48470 "EHLO
+        id S230294AbiKBD0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:26:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231281AbiKBDai (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:30:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4485E2613B
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:30:34 -0700 (PDT)
+        with ESMTP id S230474AbiKBD0M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:26:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6665825C74
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:26:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 73C09CE1E47
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:30:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02ABEC433D6;
-        Wed,  2 Nov 2022 03:30:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2E55617BA
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:26:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99045C433C1;
+        Wed,  2 Nov 2022 03:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359830;
-        bh=2wmwYwVfhI8cA8+mg7+tGbyhNEomvYPMRzUJTtUEHuA=;
+        s=korg; t=1667359569;
+        bh=XmH0GaFV6fThlQ/HnfD6J8R+gGh4ag/OMSrVb29DlZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PPR8YztZVUKrxG/6aSZ6lwRBVvK5AAwOlS8ktiWgtayjbDBiqQrkwNNpjXNFgp2gJ
-         x8azdyARPXwjJrgcWbPAavIUIqbJTvRgWNOvwoQVhMINRlLsrFd6XQdroMYDOi+V8Y
-         xqT1gYkpcg9laOj+mK0zKy1i4w/IjtYNq8TufBfQ=
+        b=K79IxAQ4Sv20iK29nnxd+6VD3GCLJH3ys/RqNlk/+PnTStA6opTqiDMQ/KsstVAnW
+         5d6kgTF8TbyvHXOapfL+d0Fiwi+nm2xNMfeQbhHgqNRFT6jasJc1OQgUlrAVI2AbQS
+         62zp9yVa6dlS+4J3ImEOKty300fWPW7xIj7VpPNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthew Ma <mahongwei@zeku.com>,
-        Weizhao Ouyang <ouyangweizhao@zeku.com>,
-        John Wang <wangdayu@zeku.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 41/78] mmc: core: Fix kernel panic when remove non-standard SDIO card
-Date:   Wed,  2 Nov 2022 03:34:26 +0100
-Message-Id: <20221102022054.196853363@linuxfoundation.org>
+        patches@lists.linux.dev, Hyong Youb Kim <hyonkim@cisco.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 61/64] net/mlx5e: Do not increment ESN when updating IPsec ESN state
+Date:   Wed,  2 Nov 2022 03:34:27 +0100
+Message-Id: <20221102022053.787487124@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
+References: <20221102022051.821538553@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Ma <mahongwei@zeku.com>
+From: Hyong Youb Kim <hyonkim@cisco.com>
 
-commit 9972e6b404884adae9eec7463e30d9b3c9a70b18 upstream.
+[ Upstream commit 888be6b279b7257b5f6e4c9527675bff0a335596 ]
 
-SDIO tuple is only allocated for standard SDIO card, especially it causes
-memory corruption issues when the non-standard SDIO card has removed, which
-is because the card device's reference counter does not increase for it at
-sdio_init_func(), but all SDIO card device reference counter gets decreased
-at sdio_release_func().
+An offloaded SA stops receiving after about 2^32 + replay_window
+packets. For example, when SA reaches <seq-hi 0x1, seq 0x2c>, all
+subsequent packets get dropped with SA-icv-failure (integrity_failed).
 
-Fixes: 6f51be3d37df ("sdio: allow non-standard SDIO cards")
-Signed-off-by: Matthew Ma <mahongwei@zeku.com>
-Reviewed-by: Weizhao Ouyang <ouyangweizhao@zeku.com>
-Reviewed-by: John Wang <wangdayu@zeku.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221014034951.2300386-1-ouyangweizhao@zeku.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To reproduce the bug:
+- ConnectX-6 Dx with crypto enabled (FW 22.30.1004)
+- ipsec.conf:
+  nic-offload = yes
+  replay-window = 32
+  esn = yes
+  salifetime=24h
+- Run netperf for a long time to send more than 2^32 packets
+  netperf -H <device-under-test> -t TCP_STREAM -l 20000
+
+When 2^32 + replay_window packets are received, the replay window
+moves from the 2nd half of subspace (overlap=1) to the 1st half
+(overlap=0). The driver then updates the 'esn' value in NIC
+(i.e. seq_hi) as follows.
+
+ seq_hi = xfrm_replay_seqhi(seq_bottom)
+ new esn in NIC = seq_hi + 1
+
+The +1 increment is wrong, as seq_hi already contains the correct
+seq_hi. For example, when seq_hi=1, the driver actually tells NIC to
+use seq_hi=2 (esn). This incorrect esn value causes all subsequent
+packets to fail integrity checks (SA-icv-failure). So, do not
+increment.
+
+Fixes: cb01008390bb ("net/mlx5: IPSec, Add support for ESN")
+Signed-off-by: Hyong Youb Kim <hyonkim@cisco.com>
+Acked-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Link: https://lore.kernel.org/r/20221026135153.154807-2-saeed@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sdio_bus.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/mmc/core/sdio_bus.c
-+++ b/drivers/mmc/core/sdio_bus.c
-@@ -264,7 +264,8 @@ static void sdio_release_func(struct dev
- {
- 	struct sdio_func *func = dev_to_sdio_func(dev);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
+index c467f5e981f6..70087f2542b2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
+@@ -117,7 +117,6 @@ static bool mlx5e_ipsec_update_esn_state(struct mlx5e_ipsec_sa_entry *sa_entry)
+ 	struct xfrm_replay_state_esn *replay_esn;
+ 	u32 seq_bottom;
+ 	u8 overlap;
+-	u32 *esn;
  
--	sdio_free_func_cis(func);
-+	if (!(func->card->quirks & MMC_QUIRK_NONSTD_SDIO))
-+		sdio_free_func_cis(func);
+ 	if (!(sa_entry->x->props.flags & XFRM_STATE_ESN)) {
+ 		sa_entry->esn_state.trigger = 0;
+@@ -130,11 +129,9 @@ static bool mlx5e_ipsec_update_esn_state(struct mlx5e_ipsec_sa_entry *sa_entry)
  
- 	kfree(func->info);
- 	kfree(func->tmpbuf);
+ 	sa_entry->esn_state.esn = xfrm_replay_seqhi(sa_entry->x,
+ 						    htonl(seq_bottom));
+-	esn = &sa_entry->esn_state.esn;
+ 
+ 	sa_entry->esn_state.trigger = 1;
+ 	if (unlikely(overlap && seq_bottom < MLX5E_IPSEC_ESN_SCOPE_MID)) {
+-		++(*esn);
+ 		sa_entry->esn_state.overlap = 0;
+ 		return true;
+ 	} else if (unlikely(!overlap &&
+-- 
+2.35.1
+
 
 
