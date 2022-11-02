@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EEE6615864
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:51:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32C82615865
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:51:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230481AbiKBCvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:51:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40512 "EHLO
+        id S230474AbiKBCvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:51:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230378AbiKBCvI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:51:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 099C3209A7
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:51:08 -0700 (PDT)
+        with ESMTP id S230378AbiKBCvQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:51:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B01721E18
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:51:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A9FB617C8
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E386C433D6;
-        Wed,  2 Nov 2022 02:51:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C7AFB82063
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:51:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF10BC433C1;
+        Wed,  2 Nov 2022 02:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357467;
-        bh=u54GmEnvB6ZWOHr9fbXiPwXVOLLm7ak9CXTXYktyaHk=;
+        s=korg; t=1667357472;
+        bh=4dcNw1c+lLmz9G0MLfuhJjKxV6ltW4iiLcpaXYkVhQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gBs58O6GWku0vG469sOAp/d+8mYO2JadXdr10phjs1iUwI7BzOCj+HcGumtY5wJHH
-         x7n5me6atU9mgi1Q9ksXt51J7+2FzxYXbQ6Nj4BVqbvuszP+Sh/ScpWsZffGmH16Vw
-         jaLr5dtSRSRsjmg0R/3qT+aN4xXrE88RWRTrd3DY=
+        b=XM0TkFfNkAo2wGzhVXOda7DRM2eU4JMGsTlzDQ/5QpPEs27PqOFi77Ue7OoXCw8x0
+         whGw2WS3n5eI9TNwnJnYm4HMSljmeoqEIDk584SHMFfGQwqzji2giYXblbWr5SM+GX
+         TujxmXN4XPgSzgNZw+nbt6B4s8smNfZwO9R+mvGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+        patches@lists.linux.dev, Stephen Boyd <swboyd@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 174/240] x86/unwind/orc: Fix unreliable stack dump with gcov
-Date:   Wed,  2 Nov 2022 03:32:29 +0100
-Message-Id: <20221102022115.321992886@linuxfoundation.org>
+Subject: [PATCH 6.0 175/240] drm/bridge: ps8640: Add back the 50 ms mystery delay after HPD
+Date:   Wed,  2 Nov 2022 03:32:30 +0100
+Message-Id: <20221102022115.344648147@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -54,78 +53,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 230db82413c091bc16acee72650f48d419cebe49 ]
+[ Upstream commit cb8e30ddb7e345867f6f2da8a08291d7d9e037db ]
 
-When a console stack dump is initiated with CONFIG_GCOV_PROFILE_ALL
-enabled, show_trace_log_lvl() gets out of sync with the ORC unwinder,
-causing the stack trace to show all text addresses as unreliable:
+Back in commit 826cff3f7ebb ("drm/bridge: parade-ps8640: Enable
+runtime power management") we removed a mysterious 50 ms delay because
+"Parade's support [couldn't] explain what the delay [was] for".
 
-  # echo l > /proc/sysrq-trigger
-  [  477.521031] sysrq: Show backtrace of all active CPUs
-  [  477.523813] NMI backtrace for cpu 0
-  [  477.524492] CPU: 0 PID: 1021 Comm: bash Not tainted 6.0.0 #65
-  [  477.525295] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-1.fc36 04/01/2014
-  [  477.526439] Call Trace:
-  [  477.526854]  <TASK>
-  [  477.527216]  ? dump_stack_lvl+0xc7/0x114
-  [  477.527801]  ? dump_stack+0x13/0x1f
-  [  477.528331]  ? nmi_cpu_backtrace.cold+0xb5/0x10d
-  [  477.528998]  ? lapic_can_unplug_cpu+0xa0/0xa0
-  [  477.529641]  ? nmi_trigger_cpumask_backtrace+0x16a/0x1f0
-  [  477.530393]  ? arch_trigger_cpumask_backtrace+0x1d/0x30
-  [  477.531136]  ? sysrq_handle_showallcpus+0x1b/0x30
-  [  477.531818]  ? __handle_sysrq.cold+0x4e/0x1ae
-  [  477.532451]  ? write_sysrq_trigger+0x63/0x80
-  [  477.533080]  ? proc_reg_write+0x92/0x110
-  [  477.533663]  ? vfs_write+0x174/0x530
-  [  477.534265]  ? handle_mm_fault+0x16f/0x500
-  [  477.534940]  ? ksys_write+0x7b/0x170
-  [  477.535543]  ? __x64_sys_write+0x1d/0x30
-  [  477.536191]  ? do_syscall_64+0x6b/0x100
-  [  477.536809]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
-  [  477.537609]  </TASK>
+While I'm always a fan of removing mysterious delays, I suspect that
+we need this mysterious delay to avoid some problems.
 
-This happens when the compiled code for show_stack() has a single word
-on the stack, and doesn't use a tail call to show_stack_log_lvl().
-(CONFIG_GCOV_PROFILE_ALL=y is the only known case of this.)  Then the
-__unwind_start() skip logic hits an off-by-one bug and fails to unwind
-all the way to the intended starting frame.
+Specifically, what I found recently is that on sc7180-trogdor-homestar
+sometimes the AUX backlight wasn't initializing properly. Some
+debugging showed that the drm_dp_dpcd_read() function that the AUX
+backlight driver was calling was returning bogus data about 1% of the
+time when I booted up. This confused
+drm_panel_dp_aux_backlight(). From continued debugging:
+- If I retried the read then the read worked just fine.
+- If I added a loop to perform the same read that
+  drm_panel_dp_aux_backlight() was doing 30 times at bootup I could
+  see that some percentage of the time the first read would give bogus
+  data but all 29 additional reads would always be fine.
+- If I added a large delay _after_ powering on the panel but before
+  powering on PS8640 I could still reproduce the problem.
+- If I added a delay after PS8640 powered on then I couldn't reproduce
+  the problem.
+- I couldn't reproduce the problem on a board with the same panel but
+  the ti-sn65dsi86 bridge chip.
 
-Fix it by reverting the following commit:
+To me, the above indicated that there was a problem with PS8640 and
+not the panel.
 
-  f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
+I don't really have any insight into what's going on in the MCU, but
+my best guess is that when the MCU itself sees the HPD go high that it
+does some AUX transfers itself and this is confusing things.
 
-The original justification for that commit no longer exists.  That
-original issue was later fixed in a different way, with the following
-commit:
+Let's go back and add back in the mysterious 50 ms delay. We only want
+to do this the first time we see HPD go high after booting the MCU,
+not every time we double-check HPD.
 
-  f2ac57a4c49d ("x86/unwind/orc: Fix inactive tasks with stack pointer in %sp on GCC 10 compiled kernels")
+With this, the backlight initializes reliably on homestar.
 
-Fixes: f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-[jpoimboe: rewrite commit log]
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
+Fixes: 826cff3f7ebb ("drm/bridge: parade-ps8640: Enable runtime power management")
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221017121813.1.I59700c745fbc31559a5d5c8e2a960279c751dbd5@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/unwind_orc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/parade-ps8640.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
-index 0ea57da92940..c059820dfaea 100644
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -713,7 +713,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
- 	/* Otherwise, skip ahead to the user-specified starting frame: */
- 	while (!unwind_done(state) &&
- 	       (!on_stack(&state->stack_info, first_frame, sizeof(long)) ||
--			state->sp < (unsigned long)first_frame))
-+			state->sp <= (unsigned long)first_frame))
- 		unwind_next_frame(state);
+diff --git a/drivers/gpu/drm/bridge/parade-ps8640.c b/drivers/gpu/drm/bridge/parade-ps8640.c
+index 49107a6cdac1..0dacbdb49a30 100644
+--- a/drivers/gpu/drm/bridge/parade-ps8640.c
++++ b/drivers/gpu/drm/bridge/parade-ps8640.c
+@@ -105,6 +105,7 @@ struct ps8640 {
+ 	struct gpio_desc *gpio_powerdown;
+ 	struct device_link *link;
+ 	bool pre_enabled;
++	bool need_post_hpd_delay;
+ };
  
- 	return;
+ static const struct regmap_config ps8640_regmap_config[] = {
+@@ -173,14 +174,31 @@ static int _ps8640_wait_hpd_asserted(struct ps8640 *ps_bridge, unsigned long wai
+ {
+ 	struct regmap *map = ps_bridge->regmap[PAGE2_TOP_CNTL];
+ 	int status;
++	int ret;
+ 
+ 	/*
+ 	 * Apparently something about the firmware in the chip signals that
+ 	 * HPD goes high by reporting GPIO9 as high (even though HPD isn't
+ 	 * actually connected to GPIO9).
+ 	 */
+-	return regmap_read_poll_timeout(map, PAGE2_GPIO_H, status,
+-					status & PS_GPIO9, wait_us / 10, wait_us);
++	ret = regmap_read_poll_timeout(map, PAGE2_GPIO_H, status,
++				       status & PS_GPIO9, wait_us / 10, wait_us);
++
++	/*
++	 * The first time we see HPD go high after a reset we delay an extra
++	 * 50 ms. The best guess is that the MCU is doing "stuff" during this
++	 * time (maybe talking to the panel) and we don't want to interrupt it.
++	 *
++	 * No locking is done around "need_post_hpd_delay". If we're here we
++	 * know we're holding a PM Runtime reference and the only other place
++	 * that touches this is PM Runtime resume.
++	 */
++	if (!ret && ps_bridge->need_post_hpd_delay) {
++		ps_bridge->need_post_hpd_delay = false;
++		msleep(50);
++	}
++
++	return ret;
+ }
+ 
+ static int ps8640_wait_hpd_asserted(struct drm_dp_aux *aux, unsigned long wait_us)
+@@ -376,6 +394,9 @@ static int __maybe_unused ps8640_resume(struct device *dev)
+ 	usleep_range(2000, 2500);
+ 	gpiod_set_value(ps_bridge->gpio_reset, 0);
+ 
++	/* We just reset things, so we need a delay after the first HPD */
++	ps_bridge->need_post_hpd_delay = true;
++
+ 	/*
+ 	 * Mystery 200 ms delay for the "MCU to be ready". It's unclear if
+ 	 * this is truly necessary since the MCU will already signal that
 -- 
 2.35.1
 
