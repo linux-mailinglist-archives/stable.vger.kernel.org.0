@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B30A6157C1
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:38:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B6336157C2
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230221AbiKBCiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:38:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56878 "EHLO
+        id S230209AbiKBCi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:38:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230209AbiKBCiQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:38:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F18A31788C
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:38:15 -0700 (PDT)
+        with ESMTP id S230214AbiKBCiY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:38:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8200BE63
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:38:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D2CA616DB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:38:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34074C4347C;
-        Wed,  2 Nov 2022 02:38:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34E26B82072
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:38:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CB40C433D6;
+        Wed,  2 Nov 2022 02:38:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356695;
-        bh=nnGEKWFIhR1euKgxp+aynKkT2F35nNjUPnR5nQ8vZak=;
+        s=korg; t=1667356700;
+        bh=wrTdkigt/G2/pk8kFSQTZBxjCx5UtGHFnyLJBCASTdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OzEKNJIJivWe9f6hnVOiyqAA/Ag/mcbIJbj3xnt/BkFKsOu9pA0INZXPu40RNK0b1
-         BH+jBv8ZKVsMrcerxINyITZORjgAQ64SBin4vBYYbk0VYwgjoH6fI7bp2/CDnh1CGW
-         aUlBze5nDUqLvJl5oWKoAlPxNqwAMwEWsSMoudjQ=
+        b=fyAj/8bxMgxr+E3qDJuujgmvKn9gYSmXWO0BmWsfCENTvzB03iVTGT270dXFmdMHs
+         oVB5WraKXOHwj79hxVxvRV40uErmMBmCtY82H9aKCpeMeiM6HX0GlxJST5MPjX2ZDO
+         o0ckc9sExtElm3OnvWzhJWcWp9zpe5cInWMzy6VY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 6.0 044/240] xhci: Remove device endpoints from bandwidth list when freeing the device
-Date:   Wed,  2 Nov 2022 03:30:19 +0100
-Message-Id: <20221102022112.398045846@linuxfoundation.org>
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.0 045/240] tools: iio: iio_utils: fix digit calculation
+Date:   Wed,  2 Nov 2022 03:30:20 +0100
+Message-Id: <20221102022112.420397259@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -54,66 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Matti Vaittinen <mazziesaccount@gmail.com>
 
-commit 5aed5b7c2430ce318a8e62f752f181e66f0d1053 upstream.
+commit 72b2aa38191bcba28389b0e20bf6b4f15017ff2b upstream.
 
-Endpoints are normally deleted from the bandwidth list when they are
-dropped, before the virt device is freed.
+The iio_utils uses a digit calculation in order to know length of the
+file name containing a buffer number. The digit calculation does not
+work for number 0.
 
-If xHC host is dying or being removed then the endpoints aren't dropped
-cleanly due to functions returning early to avoid interacting with a
-non-accessible host controller.
+This leads to allocation of one character too small buffer for the
+file-name when file name contains value '0'. (Eg. buffer0).
 
-So check and delete endpoints that are still on the bandwidth list when
-freeing the virt device.
+Fix digit calculation by returning one digit to be present for number
+'0'.
 
-Solves a list_del corruption kernel crash when unbinding xhci-pci,
-caused by xhci_mem_cleanup() when it later tried to delete already freed
-endpoints from the bandwidth list.
-
-This only affects hosts that use software bandwidth checking, which
-currenty is only the xHC in intel Panther Point PCH (Ivy Bridge)
-
-Cc: stable@vger.kernel.org
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20221024142720.4122053-5-mathias.nyman@intel.com
+Fixes: 096f9b862e60 ("tools:iio:iio_utils: implement digit calculation")
+Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Link: https://lore.kernel.org/r/Y0f+tKCz+ZAIoroQ@dc75zzyyyyyyyyyyyyycy-3.rev.dnainternet.fi
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-mem.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ tools/iio/iio_utils.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -889,15 +889,19 @@ void xhci_free_virt_device(struct xhci_h
- 		if (dev->eps[i].stream_info)
- 			xhci_free_stream_info(xhci,
- 					dev->eps[i].stream_info);
--		/* Endpoints on the TT/root port lists should have been removed
--		 * when usb_disable_device() was called for the device.
--		 * We can't drop them anyway, because the udev might have gone
--		 * away by this point, and we can't tell what speed it was.
-+		/*
-+		 * Endpoints are normally deleted from the bandwidth list when
-+		 * endpoints are dropped, before device is freed.
-+		 * If host is dying or being removed then endpoints aren't
-+		 * dropped cleanly, so delete the endpoint from list here.
-+		 * Only applicable for hosts with software bandwidth checking.
- 		 */
--		if (!list_empty(&dev->eps[i].bw_endpoint_list))
--			xhci_warn(xhci, "Slot %u endpoint %u "
--					"not removed from BW list!\n",
--					slot_id, i);
+--- a/tools/iio/iio_utils.c
++++ b/tools/iio/iio_utils.c
+@@ -547,6 +547,10 @@ static int calc_digits(int num)
+ {
+ 	int count = 0;
+ 
++	/* It takes a digit to represent zero */
++	if (!num)
++		return 1;
 +
-+		if (!list_empty(&dev->eps[i].bw_endpoint_list)) {
-+			list_del_init(&dev->eps[i].bw_endpoint_list);
-+			xhci_dbg(xhci, "Slot %u endpoint %u not removed from BW list!\n",
-+				 slot_id, i);
-+		}
- 	}
- 	/* If this is a hub, free the TT(s) from the TT list */
- 	xhci_free_tt_info(xhci, dev, slot_id);
+ 	while (num != 0) {
+ 		num /= 10;
+ 		count++;
 
 
