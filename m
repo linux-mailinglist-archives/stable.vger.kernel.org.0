@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2CA3615937
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:06:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E8A61593B
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:06:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229785AbiKBDGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:06:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54500 "EHLO
+        id S230098AbiKBDGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:06:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230196AbiKBDG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:06:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1DD823BE1
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:06:28 -0700 (PDT)
+        with ESMTP id S229927AbiKBDGf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:06:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E935423BE9
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:06:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51389B82072
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:06:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34CE2C433D6;
-        Wed,  2 Nov 2022 03:06:24 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 482E7CE1F1B
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:06:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9825C433C1;
+        Wed,  2 Nov 2022 03:06:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358386;
-        bh=iUVwllhcJdFa9Xp3KiSFWTgOEM9p6nX6NNGsC73aJX4=;
+        s=korg; t=1667358391;
+        bh=0xdeYWJLgJ4kKHcN6/VTITqDvauYV2j99wH1n2memcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NWGn9Audt0DGvKoz5igVE8GenqtjHqDdHhC72icL/QTaxDfmlzPYiEIiqiVCKBwK3
-         CuJHnuOxKQ7VvaWriG5aCESyScqxhnbFN+idbVego2eXK/9WaEGq27iZb64PSB0Ug1
-         YH+zGfhYYiJ81topizK4iyZZKZIxq0EIRa329AQM=
+        b=SZ+atQ/NVDGdag3idX6hmgXODnkNgba5iljX6eLUgylIS9zYK0WOHKtK5HxFR18Am
+         WlzJ95Tgo2jVCiwuAHz+hOvFcac1vtF+smk1L77m8oZ4nnF1ardl8PIgts3K/rgF19
+         UAZwyGGQ8f4VjJJq3tqtuuW/Ai0XM9QVIpcfh8OM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Dongliang Mu <dzm91@hust.edu.cn>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 089/132] drm/amdkfd: Fix memory leak in kfd_mem_dmamap_userptr()
-Date:   Wed,  2 Nov 2022 03:33:15 +0100
-Message-Id: <20221102022101.964562534@linuxfoundation.org>
+Subject: [PATCH 5.15 090/132] can: mscan: mpc5xxx: mpc5xxx_can_probe(): add missing put_clock() in error path
+Date:   Wed,  2 Nov 2022 03:33:16 +0100
+Message-Id: <20221102022101.992069781@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
 References: <20221102022059.593236470@linuxfoundation.org>
@@ -54,46 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+From: Dongliang Mu <dzm91@hust.edu.cn>
 
-[ Upstream commit 90bfee142af0f0e9d3bec80e7acd5f49b230acf7 ]
+[ Upstream commit 3e5b3418827cefb5e1cc658806f02965791b8f07 ]
 
-If the number of pages from the userptr BO differs from the SG BO then the
-allocated memory for the SG table doesn't get freed before returning
--EINVAL, which may lead to a memory leak in some error paths. Fix this by
-checking the number of pages before allocating memory for the SG table.
+The commit 1149108e2fbf ("can: mscan: improve clock API use") only
+adds put_clock() in mpc5xxx_can_remove() function, forgetting to add
+put_clock() in the error handling code.
 
-Fixes: 264fb4d332f5 ("drm/amdgpu: Add multi-GPU DMA mapping helpers")
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fix this bug by adding put_clock() in the error handling code.
+
+Fixes: 1149108e2fbf ("can: mscan: improve clock API use")
+Signed-off-by: Dongliang Mu <dzm91@hust.edu.cn>
+Link: https://lore.kernel.org/all/20221024133828.35881-1-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/can/mscan/mpc5xxx_can.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-index c904269b3e14..477ab3551177 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -476,13 +476,13 @@ kfd_mem_dmamap_userptr(struct kgd_mem *mem,
- 	struct ttm_tt *ttm = bo->tbo.ttm;
- 	int ret;
+diff --git a/drivers/net/can/mscan/mpc5xxx_can.c b/drivers/net/can/mscan/mpc5xxx_can.c
+index 35892c1efef0..7d868b6eb579 100644
+--- a/drivers/net/can/mscan/mpc5xxx_can.c
++++ b/drivers/net/can/mscan/mpc5xxx_can.c
+@@ -322,14 +322,14 @@ static int mpc5xxx_can_probe(struct platform_device *ofdev)
+ 					       &mscan_clksrc);
+ 	if (!priv->can.clock.freq) {
+ 		dev_err(&ofdev->dev, "couldn't get MSCAN clock properties\n");
+-		goto exit_free_mscan;
++		goto exit_put_clock;
+ 	}
  
-+	if (WARN_ON(ttm->num_pages != src_ttm->num_pages))
-+		return -EINVAL;
-+
- 	ttm->sg = kmalloc(sizeof(*ttm->sg), GFP_KERNEL);
- 	if (unlikely(!ttm->sg))
- 		return -ENOMEM;
+ 	err = register_mscandev(dev, mscan_clksrc);
+ 	if (err) {
+ 		dev_err(&ofdev->dev, "registering %s failed (err=%d)\n",
+ 			DRV_NAME, err);
+-		goto exit_free_mscan;
++		goto exit_put_clock;
+ 	}
  
--	if (WARN_ON(ttm->num_pages != src_ttm->num_pages))
--		return -EINVAL;
--
- 	/* Same sequence as in amdgpu_ttm_tt_pin_userptr */
- 	ret = sg_alloc_table_from_pages(ttm->sg, src_ttm->pages,
- 					ttm->num_pages, 0,
+ 	dev_info(&ofdev->dev, "MSCAN at 0x%p, irq %d, clock %d Hz\n",
+@@ -337,7 +337,9 @@ static int mpc5xxx_can_probe(struct platform_device *ofdev)
+ 
+ 	return 0;
+ 
+-exit_free_mscan:
++exit_put_clock:
++	if (data->put_clock)
++		data->put_clock(ofdev);
+ 	free_candev(dev);
+ exit_dispose_irq:
+ 	irq_dispose_mapping(irq);
 -- 
 2.35.1
 
