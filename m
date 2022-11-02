@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B927E615AEC
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:44:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6786D615AE3
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:43:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230184AbiKBDoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:44:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60740 "EHLO
+        id S230017AbiKBDnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:43:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230086AbiKBDoF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:44:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3E672640
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:44:03 -0700 (PDT)
+        with ESMTP id S230086AbiKBDnQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:43:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95FD226ADF
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:43:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F462B82063
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:44:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CD47C433D7;
-        Wed,  2 Nov 2022 03:44:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 329B56172F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:43:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70A22C433C1;
+        Wed,  2 Nov 2022 03:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360641;
-        bh=oEXnzrPac/p2f1kS5mA5PWq27C3ZVkCof+DLYzM/U/M=;
+        s=korg; t=1667360594;
+        bh=cDxWpFPC2Wp2ajuZttVGZVaawWMAX3emq+DajNSflfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c/tELy//mL2XeLlTCFQjjgoqJsZuw7cuZFy2JQCqcZTKGdms+pl69nv+NF4ECUxnv
-         u3eszEJcIRCp4UtZpnAwKZHOBla8ItpMfQI+vAPG6EbhFDSkbtfX6Pp0Nshi32Fnnq
-         m/hHSqbWZCYoG1woyNiN058bd6rMycKKowKBX0H0=
+        b=waGbFtbFw9rVWlGofBQ/YXbomldYGo82+c0O9XZ/FqiGuuGWugcVmLCLTBPPjRoED
+         p2h1EfGVrPlCj26gp8j3EiZ0RJh5aUyAqilhCcIsH4jd9RzOlDkJsquynAvodpeYpB
+         86SqNtbfwllBuyBp0Aq39YG49ar2ZyVJPc2z2++k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hannu Hartikainen <hannu@hrtk.in>,
-        stable <stable@kernel.org>
-Subject: [PATCH 4.9 12/44] USB: add RESET_RESUME quirk for NVIDIA Jetson devices in RCM
-Date:   Wed,  2 Nov 2022 03:34:58 +0100
-Message-Id: <20221102022049.469333317@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 38/60] ALSA: ac97: fix possible memory leak in snd_ac97_dev_register()
+Date:   Wed,  2 Nov 2022 03:34:59 +0100
+Message-Id: <20221102022052.325109046@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
-References: <20221102022049.017479464@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,48 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannu Hartikainen <hannu@hrtk.in>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit fc4ade55c617dc73c7e9756b57f3230b4ff24540 upstream.
+[ Upstream commit 4881bda5ea05c8c240fc8afeaa928e2bc43f61fa ]
 
-NVIDIA Jetson devices in Force Recovery mode (RCM) do not support
-suspending, ie. flashing fails if the device has been suspended. The
-devices are still visible in lsusb and seem to work otherwise, making
-the issue hard to debug. This has been discovered in various forum
-posts, eg. [1].
+If device_register() fails in snd_ac97_dev_register(), it should
+call put_device() to give up reference, or the name allocated in
+dev_set_name() is leaked.
 
-The patch has been tested on NVIDIA Jetson AGX Xavier, but I'm adding
-all the Jetson models listed in [2] on the assumption that they all
-behave similarly.
-
-[1]: https://forums.developer.nvidia.com/t/flashing-not-working/72365
-[2]: https://docs.nvidia.com/jetson/archives/l4t-archived/l4t-3271/index.html#page/Tegra%20Linux%20Driver%20Package%20Development%20Guide/quick_start.html
-
-Signed-off-by: Hannu Hartikainen <hannu@hrtk.in>
-Cc: stable <stable@kernel.org>  # after 6.1-rc3
-Link: https://lore.kernel.org/r/20220919171610.30484-1-hannu@hrtk.in
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0ca06a00e206 ("[ALSA] AC97 bus interface for ad-hoc drivers")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221019093025.1179475-1-yangyingliang@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/quirks.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/pci/ac97/ac97_codec.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -227,6 +227,15 @@ static const struct usb_device_id usb_qu
- 	/* Kingston DataTraveler 3.0 */
- 	{ USB_DEVICE(0x0951, 0x1666), .driver_info = USB_QUIRK_NO_LPM },
- 
-+	/* NVIDIA Jetson devices in Force Recovery mode */
-+	{ USB_DEVICE(0x0955, 0x7018), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7019), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7418), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7721), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7c18), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7e19), .driver_info = USB_QUIRK_RESET_RESUME },
-+	{ USB_DEVICE(0x0955, 0x7f21), .driver_info = USB_QUIRK_RESET_RESUME },
-+
- 	/* X-Rite/Gretag-Macbeth Eye-One Pro display colorimeter */
- 	{ USB_DEVICE(0x0971, 0x2000), .driver_info = USB_QUIRK_NO_SET_INTF },
- 
+diff --git a/sound/pci/ac97/ac97_codec.c b/sound/pci/ac97/ac97_codec.c
+index 1cb2a1ecf3cf..d5dfc7349e70 100644
+--- a/sound/pci/ac97/ac97_codec.c
++++ b/sound/pci/ac97/ac97_codec.c
+@@ -1965,6 +1965,7 @@ static int snd_ac97_dev_register(struct snd_device *device)
+ 		     snd_ac97_get_short_name(ac97));
+ 	if ((err = device_register(&ac97->dev)) < 0) {
+ 		ac97_err(ac97, "Can't register ac97 bus\n");
++		put_device(&ac97->dev);
+ 		ac97->dev.bus = NULL;
+ 		return err;
+ 	}
+-- 
+2.35.1
+
 
 
