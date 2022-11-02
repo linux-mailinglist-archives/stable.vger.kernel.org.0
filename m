@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1B1D615A5E
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:30:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45AB7615A60
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:30:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231249AbiKBD35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:29:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48648 "EHLO
+        id S231181AbiKBDaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:30:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231269AbiKBD3f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:29:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AE491F2F2
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:29:34 -0700 (PDT)
+        with ESMTP id S231287AbiKBD3m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:29:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CF2B264B0
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:29:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD0ED61799
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:29:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4120CC433D6;
-        Wed,  2 Nov 2022 03:29:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2DAFEB8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:29:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15C1CC433D6;
+        Wed,  2 Nov 2022 03:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359773;
-        bh=3To5j5enuhG1lOVJ7Z8kTMk0Kw7z3PjmXhUbIrsSzz0=;
+        s=korg; t=1667359778;
+        bh=rcc6iHgjBmbGPgPb+kuAl667KfesRe40mIaRwbsLvF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y/S11s1YgoAZgw+8sQBircyFFZBAKqki0bgDltaZOfJYbjeo2UqB//9Sc6/l+p6oW
-         7nPKDSL+sSU5oC86JvaUk1rZ5rfWq2pZJX5a9LEhc+rke70VPG4gQn8Wrl5eN9gLPd
-         e2h5u1LPvfViZbY7HMK4bcd8aJ3CXkipAUamjPVk=
+        b=SF9s93snqX/70+uZZhdH4EPmbQ6AYnv/s8Al433sMXIM6aZOlMZhbcW2wONXDAwIt
+         1K2PhXqP0jPmeASlc4HemIbqfqbgVrP7ifPRJKS+/O1hguSXkjizeA2/6pqO/J08N9
+         WUOvKDaiReRlyXwdOHLC/7F5u58hstp9i8wOGIRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Justin Chen <justinpopo6@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        stable <stable@kernel.org>
-Subject: [PATCH 4.19 32/78] usb: bdc: change state when port disconnected
-Date:   Wed,  2 Nov 2022 03:34:17 +0100
-Message-Id: <20221102022053.938126304@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Jens Glathe <jens.glathe@oldschoolsolutions.biz>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 33/78] usb: xhci: add XHCI_SPURIOUS_SUCCESS to ASM1042 despite being a V0.96 controller
+Date:   Wed,  2 Nov 2022 03:34:18 +0100
+Message-Id: <20221102022053.965175996@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
 References: <20221102022052.895556444@linuxfoundation.org>
@@ -53,33 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Chen <justinpopo6@gmail.com>
+From: Jens Glathe <jens.glathe@oldschoolsolutions.biz>
 
-commit fb8f60dd1b67520e0e0d7978ef17d015690acfc1 upstream.
+commit 4f547472380136718b56064ea5689a61e135f904 upstream.
 
-When port is connected and then disconnected, the state stays as
-configured. Which is incorrect as the port is no longer configured,
-but in a not attached state.
+This appears to fix the error:
+"xhci_hcd <address>; ERROR Transfer event TRB DMA ptr not part of
+current TD ep_index 2 comp_code 13" that appear spuriously (or pretty
+often) when using a r8152 USB3 ethernet adapter with integrated hub.
 
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Fixes: efed421a94e6 ("usb: gadget: Add UDC driver for Broadcom USB3.0 device controller IP BDC")
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/1664997235-18198-1-git-send-email-justinpopo6@gmail.com
+ASM1042 reports as a 0.96 controller, but appears to behave more like 1.0
+
+Inspired by this email thread: https://markmail.org/thread/7vzqbe7t6du6qsw3
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Jens Glathe <jens.glathe@oldschoolsolutions.biz>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20221024142720.4122053-2-mathias.nyman@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/bdc/bdc_udc.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci-pci.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/udc/bdc/bdc_udc.c
-+++ b/drivers/usb/gadget/udc/bdc/bdc_udc.c
-@@ -151,6 +151,7 @@ static void bdc_uspc_disconnected(struct
- 	bdc->delayed_status = false;
- 	bdc->reinit = reinit;
- 	bdc->test_mode = false;
-+	usb_gadget_set_state(&bdc->gadget, USB_STATE_NOTATTACHED);
- }
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -242,8 +242,14 @@ static void xhci_pci_quirks(struct devic
+ 		xhci->quirks |= XHCI_BROKEN_STREAMS;
  
- /* TNotify wkaeup timer */
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
+-		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042_XHCI)
++		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042_XHCI) {
++		/*
++		 * try to tame the ASMedia 1042 controller which reports 0.96
++		 * but appears to behave more like 1.0
++		 */
++		xhci->quirks |= XHCI_SPURIOUS_SUCCESS;
+ 		xhci->quirks |= XHCI_BROKEN_STREAMS;
++	}
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
+ 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI) {
+ 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
 
 
