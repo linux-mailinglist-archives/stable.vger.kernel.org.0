@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD173615956
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:09:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CE9A6159B5
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:16:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230267AbiKBDJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:09:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56498 "EHLO
+        id S229871AbiKBDQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:16:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230315AbiKBDIy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:08:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C758167E1
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:08:49 -0700 (PDT)
+        with ESMTP id S229962AbiKBDQb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:16:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2404333B
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:16:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 060D1CE1F21
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:08:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B522C433C1;
-        Wed,  2 Nov 2022 03:08:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B599E60B72
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:16:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58D00C433D6;
+        Wed,  2 Nov 2022 03:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358526;
-        bh=9/neXQl+x5xUng+h6dQy/jiq0XFvSSZqN7IuJyzszgE=;
+        s=korg; t=1667358989;
+        bh=cpwIGw+J94LnR/rVHNFl4xUn9OysZ2fFlwAXmCr93fY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LSYc//c5YKxuPL97PjCUBXFzywpDhgY5z9vzqfRX0Wn0I3YKFuiY+7d430uqW1gfO
-         ynNGROj/bygwf/E4bxdQyglqLqtbjR+BvZ5NOvK0VgeZwlxuLplnaJVCfqUHhpSGSx
-         m6hITvgK25VY9uLUOcVVXMM8EV2gP80OQGXnVgao=
+        b=ugsk0WH8dt4YchM6D07hT/B4uVd6Bz9dQBkwDwsKw4Qp+gyDSb435SPMobsvjp5Cs
+         TLZ8C5UjbrfNmWfIdX7TLqu6QC1Se2fcp+fOZOU4rlb1JjHnIscyygy0JYm61nsc9Z
+         RDXfO6IWSCGL/xKbvrT+lVKKLoFRS7JqW2ikk370=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Colin Ian King <colin.i.king@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 114/132] net: broadcom: bcm4908enet: remove redundant variable bytes
+Subject: [PATCH 5.10 57/91] net: lantiq_etop: dont free skb when returning NETDEV_TX_BUSY
 Date:   Wed,  2 Nov 2022 03:33:40 +0100
-Message-Id: <20221102022102.663282898@linuxfoundation.org>
+Message-Id: <20221102022056.649666292@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
+References: <20221102022055.039689234@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.i.king@gmail.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 62a3106697f3c6f9af64a2cd0f9ff58552010dc8 ]
+[ Upstream commit 9c1eaa27ec599fcc25ed4970c0b73c247d147a2b ]
 
-The variable bytes is being used to summate slot lengths,
-however the value is never used afterwards. The summation
-is redundant so remove variable bytes.
+The ndo_start_xmit() method must not free skb when returning
+NETDEV_TX_BUSY, since caller is going to requeue freed skb.
 
-Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
-Link: https://lore.kernel.org/r/20211222003937.727325-1-colin.i.king@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Stable-dep-of: ef3556ee16c6 ("net: broadcom: bcm4908_enet: update TX stats after actual transmission")
+Fixes: 504d4721ee8e ("MIPS: Lantiq: Add ethernet driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bcm4908_enet.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/lantiq_etop.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bcm4908_enet.c b/drivers/net/ethernet/broadcom/bcm4908_enet.c
-index 376f81796a29..994731a33e18 100644
---- a/drivers/net/ethernet/broadcom/bcm4908_enet.c
-+++ b/drivers/net/ethernet/broadcom/bcm4908_enet.c
-@@ -635,7 +635,6 @@ static int bcm4908_enet_poll_tx(struct napi_struct *napi, int weight)
- 	struct bcm4908_enet_dma_ring_bd *buf_desc;
- 	struct bcm4908_enet_dma_ring_slot *slot;
- 	struct device *dev = enet->dev;
--	unsigned int bytes = 0;
- 	int handled = 0;
+diff --git a/drivers/net/ethernet/lantiq_etop.c b/drivers/net/ethernet/lantiq_etop.c
+index 2d0c52f7106b..5ea626b1e578 100644
+--- a/drivers/net/ethernet/lantiq_etop.c
++++ b/drivers/net/ethernet/lantiq_etop.c
+@@ -466,7 +466,6 @@ ltq_etop_tx(struct sk_buff *skb, struct net_device *dev)
+ 	len = skb->len < ETH_ZLEN ? ETH_ZLEN : skb->len;
  
- 	while (handled < weight && tx_ring->read_idx != tx_ring->write_idx) {
-@@ -646,7 +645,6 @@ static int bcm4908_enet_poll_tx(struct napi_struct *napi, int weight)
- 
- 		dma_unmap_single(dev, slot->dma_addr, slot->len, DMA_TO_DEVICE);
- 		dev_kfree_skb(slot->skb);
--		bytes += slot->len;
- 		if (++tx_ring->read_idx == tx_ring->length)
- 			tx_ring->read_idx = 0;
- 
+ 	if ((desc->ctl & (LTQ_DMA_OWN | LTQ_DMA_C)) || ch->skb[ch->dma.desc]) {
+-		dev_kfree_skb_any(skb);
+ 		netdev_err(dev, "tx ring full\n");
+ 		netif_tx_stop_queue(txq);
+ 		return NETDEV_TX_BUSY;
 -- 
 2.35.1
 
