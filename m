@@ -2,152 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F23406158C6
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:58:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E642615812
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:44:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231202AbiKBC6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:58:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47620 "EHLO
+        id S230341AbiKBCo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:44:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231206AbiKBC6X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:58:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97272BEE
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:58:21 -0700 (PDT)
+        with ESMTP id S230333AbiKBCo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:44:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D4161BEAF;
+        Tue,  1 Nov 2022 19:44:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33A5E617C8
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:58:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEEC2C433C1;
-        Wed,  2 Nov 2022 02:58:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357900;
-        bh=fdwKzYwATP3bkc7Kk/y0jQJ56kY/qgU5teorjTw9xWg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b1U7w6dCrkEi7lOWWQLPqXPSpes+z67gZL9aWNOzSjRxADSnxysvPPV05+3EQDw8S
-         7mnA6wAkWBVUBbWtaAOJf1pCr2d/4uwg5s2rWdp3ZoTvBSN5j2Axp2vjCiETQhic2Y
-         +OG2soofQVYN1EVHr5AQxntCSOx9hiJWBE30HdOY=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Meena Shanmugam <meenashanmugam@google.com>
-Subject: [PATCH 6.0 240/240] tcp/udp: Fix memory leak in ipv6_renew_options().
-Date:   Wed,  2 Nov 2022 03:33:35 +0100
-Message-Id: <20221102022116.835569094@linuxfoundation.org>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
-References: <20221102022111.398283374@linuxfoundation.org>
-User-Agent: quilt/0.67
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D214F617A9;
+        Wed,  2 Nov 2022 02:44:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F702C4347C;
+        Wed,  2 Nov 2022 02:44:54 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="QABkUn6/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1667357091;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=UBDll3aYfc54ok2vGI+aLXjCxJBzqPNfmky2K1csXd8=;
+        b=QABkUn6/Oy6XT6TEVj0zIC+t0OIaIi74m1DlLjhBC2UUC0vf6H2NixR2DkmiZJFVpxxB0L
+        it7OVWJtXOS5RpjPqRhvapbKSIjYp27zXwKIO9++vCWDVWdw+cB63qydiMMkhDgmRIbXhp
+        Cd+/vmigoMADd0ec/gewUBqXPVU+gc4=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 2def14c2 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Wed, 2 Nov 2022 02:44:50 +0000 (UTC)
+Received: by mail-vk1-f173.google.com with SMTP id f68so8296788vkc.8;
+        Tue, 01 Nov 2022 19:44:50 -0700 (PDT)
+X-Gm-Message-State: ACrzQf0zrW+nRYlzNBxRQTKtZVOvNSLWwybUNrAQ2gKD18blH/2WGsPc
+        5hUG8VBoCOYe6p5/CUuB/wmI8v5N85y+SzWWmbU=
+X-Google-Smtp-Source: AMsMyM5cezv5iqW1JPV8jCiRJLT4Lvoir0toUoTZ05yCdVMedc+j+TrGJp9Ae/LrfSxffD6LPAGtAhZZex7Oy/jHgtU=
+X-Received: by 2002:a05:6122:318:b0:3b8:394d:e5ab with SMTP id
+ c24-20020a056122031800b003b8394de5abmr7431793vko.37.1667357089200; Tue, 01
+ Nov 2022 19:44:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+References: <20221026123216.1575440-1-Jason@zx2c4.com>
+In-Reply-To: <20221026123216.1575440-1-Jason@zx2c4.com>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Wed, 2 Nov 2022 03:44:38 +0100
+X-Gmail-Original-Message-ID: <CAHmME9phbAJEbogBVZqmmb+44_V--rG_L5hAZCWeJVJy6-W7ag@mail.gmail.com>
+Message-ID: <CAHmME9phbAJEbogBVZqmmb+44_V--rG_L5hAZCWeJVJy6-W7ag@mail.gmail.com>
+Subject: Re: [PATCH] ipvs: use explicitly signed chars
+To:     Pablo Neira Ayuso <pablo@netfilter.org>
+Cc:     Julian Anastasov <ja@ssi.bg>, Simon Horman <horms@verge.net.au>,
+        stable@vger.kernel.org, netfilter-devel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        lvs-devel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+Hi Pablo,
 
-commit 3c52c6bb831f6335c176a0fc7214e26f43adbd11 upstream.
+On Wed, Oct 26, 2022 at 2:34 PM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
+>
+> The `char` type with no explicit sign is sometimes signed and sometimes
+> unsigned. This code will break on platforms such as arm, where char is
+> unsigned. So mark it here as explicitly signed, so that the
+> todrop_counter decrement and subsequent comparison is correct.
+>
+> Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+> Cc: Julian Anastasov <ja@ssi.bg>
+> Cc: Simon Horman <horms@verge.net.au>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 
-syzbot reported a memory leak [0] related to IPV6_ADDRFORM.
+Wondering if you planned on taking this into nf.git for 6.1?
 
-The scenario is that while one thread is converting an IPv6 socket into
-IPv4 with IPV6_ADDRFORM, another thread calls do_ipv6_setsockopt() and
-allocates memory to inet6_sk(sk)->XXX after conversion.
-
-Then, the converted sk with (tcp|udp)_prot never frees the IPv6 resources,
-which inet6_destroy_sock() should have cleaned up.
-
-setsockopt(IPV6_ADDRFORM)                 setsockopt(IPV6_DSTOPTS)
-+-----------------------+                 +----------------------+
-- do_ipv6_setsockopt(sk, ...)
-  - sockopt_lock_sock(sk)                 - do_ipv6_setsockopt(sk, ...)
-    - lock_sock(sk)                         ^._ called via tcpv6_prot
-  - WRITE_ONCE(sk->sk_prot, &tcp_prot)          before WRITE_ONCE()
-  - xchg(&np->opt, NULL)
-  - txopt_put(opt)
-  - sockopt_release_sock(sk)
-    - release_sock(sk)                      - sockopt_lock_sock(sk)
-                                              - lock_sock(sk)
-                                            - ipv6_set_opt_hdr(sk, ...)
-                                              - ipv6_update_options(sk, opt)
-                                                - xchg(&inet6_sk(sk)->opt, opt)
-                                                  ^._ opt is never freed.
-
-                                            - sockopt_release_sock(sk)
-                                              - release_sock(sk)
-
-Since IPV6_DSTOPTS allocates options under lock_sock(), we can avoid this
-memory leak by testing whether sk_family is changed by IPV6_ADDRFORM after
-acquiring the lock.
-
-This issue exists from the initial commit between IPV6_ADDRFORM and
-IPV6_PKTOPTIONS.
-
-[0]:
-BUG: memory leak
-unreferenced object 0xffff888009ab9f80 (size 96):
-  comm "syz-executor583", pid 328, jiffies 4294916198 (age 13.034s)
-  hex dump (first 32 bytes):
-    01 00 00 00 48 00 00 00 08 00 00 00 00 00 00 00  ....H...........
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000002ee98ae1>] kmalloc include/linux/slab.h:605 [inline]
-    [<000000002ee98ae1>] sock_kmalloc+0xb3/0x100 net/core/sock.c:2566
-    [<0000000065d7b698>] ipv6_renew_options+0x21e/0x10b0 net/ipv6/exthdrs.c:1318
-    [<00000000a8c756d7>] ipv6_set_opt_hdr net/ipv6/ipv6_sockglue.c:354 [inline]
-    [<00000000a8c756d7>] do_ipv6_setsockopt.constprop.0+0x28b7/0x4350 net/ipv6/ipv6_sockglue.c:668
-    [<000000002854d204>] ipv6_setsockopt+0xdf/0x190 net/ipv6/ipv6_sockglue.c:1021
-    [<00000000e69fdcf8>] tcp_setsockopt+0x13b/0x2620 net/ipv4/tcp.c:3789
-    [<0000000090da4b9b>] __sys_setsockopt+0x239/0x620 net/socket.c:2252
-    [<00000000b10d192f>] __do_sys_setsockopt net/socket.c:2263 [inline]
-    [<00000000b10d192f>] __se_sys_setsockopt net/socket.c:2260 [inline]
-    [<00000000b10d192f>] __x64_sys_setsockopt+0xbe/0x160 net/socket.c:2260
-    [<000000000a80d7aa>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<000000000a80d7aa>] do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
-    [<000000004562b5c6>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv6/ipv6_sockglue.c |    7 +++++++
- 1 file changed, 7 insertions(+)
-
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -419,6 +419,12 @@ static int do_ipv6_setsockopt(struct soc
- 		rtnl_lock();
- 	lock_sock(sk);
- 
-+	/* Another thread has converted the socket into IPv4 with
-+	 * IPV6_ADDRFORM concurrently.
-+	 */
-+	if (unlikely(sk->sk_family != AF_INET6))
-+		goto unlock;
-+
- 	switch (optname) {
- 
- 	case IPV6_ADDRFORM:
-@@ -994,6 +1000,7 @@ done:
- 		break;
- 	}
- 
-+unlock:
- 	release_sock(sk);
- 	if (needs_rtnl)
- 		rtnl_unlock();
-
-
+Thanks,
+Jason
