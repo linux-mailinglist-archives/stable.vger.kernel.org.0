@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE2BD61585C
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:50:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D24796158EF
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:01:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230468AbiKBCua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:50:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40156 "EHLO
+        id S231266AbiKBDB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:01:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230420AbiKBCua (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:50:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A0E209AB
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:50:28 -0700 (PDT)
+        with ESMTP id S231259AbiKBDBX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:01:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BD4F22BCC
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:01:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA277B8206C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:50:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F92C433D6;
-        Wed,  2 Nov 2022 02:50:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C02C3617BF
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:01:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F0A5C433C1;
+        Wed,  2 Nov 2022 03:01:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357425;
-        bh=dJjG68QBxsmigJKfoCJynL7OLt8Tpe6Qxvak6tzwc3Y=;
+        s=korg; t=1667358078;
+        bh=FK8TleZkWiiDYtG1brzuZFZzsJn8Jc5gMYkykPo53Rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JCpqlaiFF1GTnuk6kCbD4Buq7z2fRgxj/FFk7DX1eUmLmJBKz8+CbPzGYYgFmSo4n
-         kw/Dhaie0CpZ968HGIfj2VnGDE++KRsIQT3kQhlx5vBVCkmC6gQNEd9eidkj1xRX15
-         1pS7iwqlLzsmdts8xDNIbgFQha3nL1kpCd14Tid4=
+        b=SDlBC2Wd3BaQyk1kV7xFvQqKX9Eb2xtuCRgj1ycSopLTAVaFHXYGKEXQjpg0jDKoo
+         gzpHp2jp8X42HvzLWofFLiLIi0uydSFcSsTRgyrjIMnxnLmpRaSK3YTCgGXe5wcTzx
+         xVI+uNklyQxwLqiT2KgHzt6D4S1SweumlbgwqJOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 168/240] net: hinic: fix the issue of double release MBOX callback of VF
+        patches@lists.linux.dev, Matthew Ma <mahongwei@zeku.com>,
+        Weizhao Ouyang <ouyangweizhao@zeku.com>,
+        John Wang <wangdayu@zeku.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 037/132] mmc: core: Fix kernel panic when remove non-standard SDIO card
 Date:   Wed,  2 Nov 2022 03:32:23 +0100
-Message-Id: <20221102022115.183156208@linuxfoundation.org>
+Message-Id: <20221102022100.607712365@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
-References: <20221102022111.398283374@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Matthew Ma <mahongwei@zeku.com>
 
-[ Upstream commit 8ec2f4c6b2e11a4249bba77460f0cfe6d95a82f8 ]
+commit 9972e6b404884adae9eec7463e30d9b3c9a70b18 upstream.
 
-In hinic_vf_func_init(), if VF fails to register information with PF
-through the MBOX, the MBOX callback function of VF is released once. But
-it is released again in hinic_init_hwdev(). Remove one.
+SDIO tuple is only allocated for standard SDIO card, especially it causes
+memory corruption issues when the non-standard SDIO card has removed, which
+is because the card device's reference counter does not increase for it at
+sdio_init_func(), but all SDIO card device reference counter gets decreased
+at sdio_release_func().
 
-Fixes: 7dd29ee12865 ("hinic: add sriov feature support")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6f51be3d37df ("sdio: allow non-standard SDIO cards")
+Signed-off-by: Matthew Ma <mahongwei@zeku.com>
+Reviewed-by: Weizhao Ouyang <ouyangweizhao@zeku.com>
+Reviewed-by: John Wang <wangdayu@zeku.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221014034951.2300386-1-ouyangweizhao@zeku.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/huawei/hinic/hinic_sriov.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/mmc/core/sdio_bus.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_sriov.c b/drivers/net/ethernet/huawei/hinic/hinic_sriov.c
-index df555847afb5..61c1da0c52a0 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_sriov.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_sriov.c
-@@ -1175,7 +1175,6 @@ int hinic_vf_func_init(struct hinic_hwdev *hwdev)
- 			dev_err(&hwdev->hwif->pdev->dev,
- 				"Failed to register VF, err: %d, status: 0x%x, out size: 0x%x\n",
- 				err, register_info.status, out_size);
--			hinic_unregister_vf_mbox_cb(hwdev, HINIC_MOD_L2NIC);
- 			return -EIO;
- 		}
- 	} else {
--- 
-2.35.1
-
+--- a/drivers/mmc/core/sdio_bus.c
++++ b/drivers/mmc/core/sdio_bus.c
+@@ -290,7 +290,8 @@ static void sdio_release_func(struct dev
+ {
+ 	struct sdio_func *func = dev_to_sdio_func(dev);
+ 
+-	sdio_free_func_cis(func);
++	if (!(func->card->quirks & MMC_QUIRK_NONSTD_SDIO))
++		sdio_free_func_cis(func);
+ 
+ 	kfree(func->info);
+ 	kfree(func->tmpbuf);
 
 
