@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57F146157BE
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:38:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F4606157BF
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:38:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230155AbiKBCiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:38:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56518 "EHLO
+        id S230141AbiKBCiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:38:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230209AbiKBCiB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:38:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285DB13DC6
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:38:00 -0700 (PDT)
+        with ESMTP id S230187AbiKBCiF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:38:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A3013F7C
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:38:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0755B82070
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:37:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FF87C433D6;
-        Wed,  2 Nov 2022 02:37:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2EA4617C6
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:38:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BFC8C433D7;
+        Wed,  2 Nov 2022 02:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356677;
-        bh=nbCUjuha6icmp6jA4yrHzhXRYbin0B7XAwpCSVTS+og=;
+        s=korg; t=1667356683;
+        bh=G5DxxWUs1jFLyBKlh6ZqKP1uU9NuZrzZiKQUQsc4EcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ozww3ZP4c+H0PePl+XHNQc6wJvGmduklpiI6TgTwmHp0/cDXWtwdlLgLAqz42GBDo
-         NJdifebIOyLBX+yRQtEbJjeyu/goyqZAvkK93lEfCTG6FPgnwGXypqVgKpXiPczO3Y
-         PhSsL230tqWCpJs46AEnFrvCU9l1VBaqcKnkVHuQ=
+        b=LsAkBW+26cQIRftqRWpM7timLsshZ3Ov8R9q2lrFcZGSzImAz49Bitp/eOyb30LlT
+         jfLjiK5WRjY+8oX+6zH8KYIxLYoqBqI5ogzjdfpIepI2pomvssdTI7ANAboK18wd/0
+         bADlHWX23xn89sSH9eOAaA8Fz1He/beAmmzQnPn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Phillip Lougher <phillip@squashfs.org.uk>,
-        Bagas Sanjaya <bagasdotme@gmail.com>,
-        Marc Miltenberger <marcmiltenberger@gmail.com>,
-        Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
-        Slade Watkins <srw@sladewatkins.net>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.0 041/240] squashfs: fix buffer release race condition in readahead code
-Date:   Wed,  2 Nov 2022 03:30:16 +0100
-Message-Id: <20221102022112.331394720@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 6.0 042/240] xhci: Add quirk to reset host back to default state at shutdown
+Date:   Wed,  2 Nov 2022 03:30:17 +0100
+Message-Id: <20221102022112.354184898@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -59,56 +52,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Lougher <phillip@squashfs.org.uk>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit e11c4e088be4c39d17f304fcf331670891905f42 upstream.
+commit 34cd2db408d591bc15771cbcc90939ade0a99a21 upstream.
 
-Fix a buffer release race condition, where the error value was used after
-release.
+Systems based on Alder Lake P see significant boot time delay if
+boot firmware tries to control usb ports in unexpected link states.
 
-Link: https://lkml.kernel.org/r/20221020223616.7571-4-phillip@squashfs.org.uk
-Fixes: b09a7a036d20 ("squashfs: support reading fragments in readahead call")
-Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-Reported-by: Marc Miltenberger <marcmiltenberger@gmail.com>
-Cc: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Cc: Hsin-Yi Wang <hsinyi@chromium.org>
-Cc: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Cc: Slade Watkins <srw@sladewatkins.net>
-Cc: Thorsten Leemhuis <regressions@leemhuis.info>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+This is seen with self-powered usb devices that survive in U3 link
+suspended state over S5.
+
+A more generic solution to power off ports at shutdown was attempted in
+commit 83810f84ecf1 ("xhci: turn off port power in shutdown")
+but it caused regression.
+
+Add host specific XHCI_RESET_TO_DEFAULT quirk which will reset host and
+ports back to default state in shutdown.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20221024142720.4122053-3-mathias.nyman@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/squashfs/file.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci-pci.c |    4 ++++
+ drivers/usb/host/xhci.c     |   10 ++++++++--
+ drivers/usb/host/xhci.h     |    1 +
+ 3 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/fs/squashfs/file.c b/fs/squashfs/file.c
-index f0afd4d6fd30..8ba8c4c50770 100644
---- a/fs/squashfs/file.c
-+++ b/fs/squashfs/file.c
-@@ -506,8 +506,9 @@ static int squashfs_readahead_fragment(struct page **page,
- 		squashfs_i(inode)->fragment_size);
- 	struct squashfs_sb_info *msblk = inode->i_sb->s_fs_info;
- 	unsigned int n, mask = (1 << (msblk->block_log - PAGE_SHIFT)) - 1;
-+	int error = buffer->error;
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -258,6 +258,10 @@ static void xhci_pci_quirks(struct devic
+ 		xhci->quirks |= XHCI_MISSING_CAS;
  
--	if (buffer->error)
-+	if (error)
- 		goto out;
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
++	    pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI)
++		xhci->quirks |= XHCI_RESET_TO_DEFAULT;
++
++	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+ 	    (pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_2C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_4C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_LP_XHCI ||
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -810,9 +810,15 @@ void xhci_shutdown(struct usb_hcd *hcd)
  
- 	expected += squashfs_i(inode)->fragment_offset;
-@@ -529,7 +530,7 @@ static int squashfs_readahead_fragment(struct page **page,
+ 	spin_lock_irq(&xhci->lock);
+ 	xhci_halt(xhci);
+-	/* Workaround for spurious wakeups at shutdown with HSW */
+-	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
++
++	/*
++	 * Workaround for spurious wakeps at shutdown with HSW, and for boot
++	 * firmware delay in ADL-P PCH if port are left in U3 at shutdown
++	 */
++	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP ||
++	    xhci->quirks & XHCI_RESET_TO_DEFAULT)
+ 		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
++
+ 	spin_unlock_irq(&xhci->lock);
  
- out:
- 	squashfs_cache_put(buffer);
--	return buffer->error;
-+	return error;
- }
+ 	xhci_cleanup_msix(xhci);
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1900,6 +1900,7 @@ struct xhci_hcd {
+ #define XHCI_BROKEN_D3COLD	BIT_ULL(41)
+ #define XHCI_EP_CTX_BROKEN_DCS	BIT_ULL(42)
+ #define XHCI_SUSPEND_RESUME_CLKS	BIT_ULL(43)
++#define XHCI_RESET_TO_DEFAULT	BIT_ULL(44)
  
- static void squashfs_readahead(struct readahead_control *ractl)
--- 
-2.38.1
-
+ 	unsigned int		num_active_eps;
+ 	unsigned int		limit_active_eps;
 
 
