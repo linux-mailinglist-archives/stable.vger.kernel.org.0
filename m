@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBB276158E0
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:00:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5578161586D
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:52:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231224AbiKBDAO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:00:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49130 "EHLO
+        id S230493AbiKBCwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:52:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231265AbiKBC75 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:59:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B774822B30
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:59:56 -0700 (PDT)
+        with ESMTP id S230505AbiKBCv4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:51:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B7B5220ED
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:51:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55B80617BF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:59:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00093C433D7;
-        Wed,  2 Nov 2022 02:59:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1912B617BB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:51:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B223CC433D6;
+        Wed,  2 Nov 2022 02:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357995;
-        bh=IqmBM0HAGhJEdx6mYnai/iA+TzVwaZ6WAtObasYbluw=;
+        s=korg; t=1667357513;
+        bh=kVEihka80BhLCyqRKS47FEqbkUxQ745sWa2/ZskqEmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1hJNbTICrmJ8FOUOcuOgZ4wl++4mrpUqh8It77/22wNmGHsMnNf/0V/eOsJNHRA45
-         ZL0Cnwvnq4YXroi52gFEen98K2qSur5Eja/4Ho0QZlWxeOMnTzA8rx7qUhOGyehGN0
-         RefhC9bq75m3KIGYzNI8Fhm9IKCEu+X8DWFXxmuk=
+        b=u7xQZf6t7M2DkCudpx9VvMPpikV9WsQFbtlE8uoOboTgr2upw42zzQsD4IzBqdmJW
+         8KYQUrbWCZ/cPYTdi17wr2w6CQC8D3WIEr0Hz8ZRmtNLFxQPQQGeMrkfkl13KH+pYL
+         f856QTEWmoXikdXefSwUZR57Hm0Ms+2mqOJl0IQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hyunwoo Kim <imv4bel@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 024/132] fbdev: smscufx: Fix several use-after-free bugs
+        patches@lists.linux.dev,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Gopal Vamshi Krishna <vamshi.krishna.gopal@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 155/240] ASoC: SOF: Intel: pci-tgl: use RPL specific firmware definitions
 Date:   Wed,  2 Nov 2022 03:32:10 +0100
-Message-Id: <20221102022100.264818118@linuxfoundation.org>
+Message-Id: <20221102022114.886340884@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
+References: <20221102022111.398283374@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,168 +57,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <imv4bel@gmail.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-commit cc67482c9e5f2c80d62f623bcc347c29f9f648e1 upstream.
+[ Upstream commit 63d375b9f2a99bb111e3fb5f3e2442a391988949 ]
 
-Several types of UAFs can occur when physically removing a USB device.
+Split out firmware definitions for Intel Raptor Lake platforms.
 
-Adds ufx_ops_destroy() function to .fb_destroy of fb_ops, and
-in this function, there is kref_put() that finally calls ufx_free().
-
-This fix prevents multiple UAFs.
-
-Signed-off-by: Hyunwoo Kim <imv4bel@gmail.com>
-Link: https://lore.kernel.org/linux-fbdev/20221011153436.GA4446@ubuntu/
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Suggested-by: Gopal Vamshi Krishna <vamshi.krishna.gopal@intel.com>
+Link: https://lore.kernel.org/r/20220816130510.190427-2-kai.vehmanen@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Stable-dep-of: 05de5cf6fb7d ("ASoC: SOF: Intel: pci-tgl: fix ADL-N descriptor")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/smscufx.c |   55 ++++++++++++++++++++++--------------------
- 1 file changed, 30 insertions(+), 25 deletions(-)
+ sound/soc/sof/intel/pci-tgl.c | 62 +++++++++++++++++++++++++++++++++--
+ 1 file changed, 59 insertions(+), 3 deletions(-)
 
---- a/drivers/video/fbdev/smscufx.c
-+++ b/drivers/video/fbdev/smscufx.c
-@@ -97,7 +97,6 @@ struct ufx_data {
- 	struct kref kref;
- 	int fb_count;
- 	bool virtualized; /* true when physical usb device not present */
--	struct delayed_work free_framebuffer_work;
- 	atomic_t usb_active; /* 0 = update virtual buffer, but no usb traffic */
- 	atomic_t lost_pixels; /* 1 = a render op failed. Need screen refresh */
- 	u8 *edid; /* null until we read edid from hw or get from sysfs */
-@@ -1116,15 +1115,24 @@ static void ufx_free(struct kref *kref)
- {
- 	struct ufx_data *dev = container_of(kref, struct ufx_data, kref);
- 
--	/* this function will wait for all in-flight urbs to complete */
--	if (dev->urbs.count > 0)
--		ufx_free_urb_list(dev);
-+	kfree(dev);
-+}
- 
--	pr_debug("freeing ufx_data %p", dev);
-+static void ufx_ops_destory(struct fb_info *info)
-+{
-+	struct ufx_data *dev = info->par;
-+	int node = info->node;
- 
--	kfree(dev);
-+	/* Assume info structure is freed after this point */
-+	framebuffer_release(info);
-+
-+	pr_debug("fb_info for /dev/fb%d has been freed", node);
-+
-+	/* release reference taken by kref_init in probe() */
-+	kref_put(&dev->kref, ufx_free);
- }
- 
-+
- static void ufx_release_urb_work(struct work_struct *work)
- {
- 	struct urb_node *unode = container_of(work, struct urb_node,
-@@ -1133,14 +1141,9 @@ static void ufx_release_urb_work(struct
- 	up(&unode->dev->urbs.limit_sem);
- }
- 
--static void ufx_free_framebuffer_work(struct work_struct *work)
-+static void ufx_free_framebuffer(struct ufx_data *dev)
- {
--	struct ufx_data *dev = container_of(work, struct ufx_data,
--					    free_framebuffer_work.work);
- 	struct fb_info *info = dev->info;
--	int node = info->node;
--
--	unregister_framebuffer(info);
- 
- 	if (info->cmap.len != 0)
- 		fb_dealloc_cmap(&info->cmap);
-@@ -1152,11 +1155,6 @@ static void ufx_free_framebuffer_work(st
- 
- 	dev->info = NULL;
- 
--	/* Assume info structure is freed after this point */
--	framebuffer_release(info);
--
--	pr_debug("fb_info for /dev/fb%d has been freed", node);
--
- 	/* ref taken in probe() as part of registering framebfufer */
- 	kref_put(&dev->kref, ufx_free);
- }
-@@ -1168,11 +1166,13 @@ static int ufx_ops_release(struct fb_inf
- {
- 	struct ufx_data *dev = info->par;
- 
-+	mutex_lock(&disconnect_mutex);
-+
- 	dev->fb_count--;
- 
- 	/* We can't free fb_info here - fbmem will touch it when we return */
- 	if (dev->virtualized && (dev->fb_count == 0))
--		schedule_delayed_work(&dev->free_framebuffer_work, HZ);
-+		ufx_free_framebuffer(dev);
- 
- 	if ((dev->fb_count == 0) && (info->fbdefio)) {
- 		fb_deferred_io_cleanup(info);
-@@ -1185,6 +1185,8 @@ static int ufx_ops_release(struct fb_inf
- 
- 	kref_put(&dev->kref, ufx_free);
- 
-+	mutex_unlock(&disconnect_mutex);
-+
- 	return 0;
- }
- 
-@@ -1291,6 +1293,7 @@ static const struct fb_ops ufx_ops = {
- 	.fb_blank = ufx_ops_blank,
- 	.fb_check_var = ufx_ops_check_var,
- 	.fb_set_par = ufx_ops_set_par,
-+	.fb_destroy = ufx_ops_destory,
+diff --git a/sound/soc/sof/intel/pci-tgl.c b/sound/soc/sof/intel/pci-tgl.c
+index ccc44ba3ad94..aac47cd007e8 100644
+--- a/sound/soc/sof/intel/pci-tgl.c
++++ b/sound/soc/sof/intel/pci-tgl.c
+@@ -159,6 +159,62 @@ static const struct sof_dev_desc adl_desc = {
+ 	.ops_init = sof_tgl_ops_init,
  };
  
- /* Assumes &info->lock held by caller
-@@ -1672,9 +1675,6 @@ static int ufx_usb_probe(struct usb_inte
- 		goto destroy_modedb;
- 	}
- 
--	INIT_DELAYED_WORK(&dev->free_framebuffer_work,
--			  ufx_free_framebuffer_work);
--
- 	retval = ufx_reg_read(dev, 0x3000, &id_rev);
- 	check_warn_goto_error(retval, "error %d reading 0x3000 register from device", retval);
- 	dev_dbg(dev->gdev, "ID_REV register value 0x%08x", id_rev);
-@@ -1747,10 +1747,12 @@ e_nomem:
- static void ufx_usb_disconnect(struct usb_interface *interface)
- {
- 	struct ufx_data *dev;
-+	struct fb_info *info;
- 
- 	mutex_lock(&disconnect_mutex);
- 
- 	dev = usb_get_intfdata(interface);
-+	info = dev->info;
- 
- 	pr_debug("USB disconnect starting\n");
- 
-@@ -1764,12 +1766,15 @@ static void ufx_usb_disconnect(struct us
- 
- 	/* if clients still have us open, will be freed on last close */
- 	if (dev->fb_count == 0)
--		schedule_delayed_work(&dev->free_framebuffer_work, 0);
-+		ufx_free_framebuffer(dev);
- 
--	/* release reference taken by kref_init in probe() */
--	kref_put(&dev->kref, ufx_free);
-+	/* this function will wait for all in-flight urbs to complete */
-+	if (dev->urbs.count > 0)
-+		ufx_free_urb_list(dev);
- 
--	/* consider ufx_data freed */
-+	pr_debug("freeing ufx_data %p", dev);
++static const struct sof_dev_desc rpls_desc = {
++	.machines               = snd_soc_acpi_intel_rpl_machines,
++	.alt_machines           = snd_soc_acpi_intel_rpl_sdw_machines,
++	.use_acpi_target_states	= true,
++	.resindex_lpe_base      = 0,
++	.resindex_pcicfg_base   = -1,
++	.resindex_imr_base      = -1,
++	.irqindex_host_ipc      = -1,
++	.chip_info = &adls_chip_info,
++	.ipc_supported_mask	= BIT(SOF_IPC) | BIT(SOF_INTEL_IPC4),
++	.ipc_default		= SOF_IPC,
++	.default_fw_path = {
++		[SOF_IPC] = "intel/sof",
++		[SOF_INTEL_IPC4] = "intel/avs/rpl-s",
++	},
++	.default_tplg_path = {
++		[SOF_IPC] = "intel/sof-tplg",
++		[SOF_INTEL_IPC4] = "intel/avs-tplg",
++	},
++	.default_fw_filename = {
++		[SOF_IPC] = "sof-rpl-s.ri",
++		[SOF_INTEL_IPC4] = "dsp_basefw.bin",
++	},
++	.nocodec_tplg_filename = "sof-rpl-nocodec.tplg",
++	.ops = &sof_tgl_ops,
++	.ops_init = sof_tgl_ops_init,
++};
 +
-+	unregister_framebuffer(info);
- 
- 	mutex_unlock(&disconnect_mutex);
- }
++static const struct sof_dev_desc rpl_desc = {
++	.machines               = snd_soc_acpi_intel_rpl_machines,
++	.alt_machines           = snd_soc_acpi_intel_rpl_sdw_machines,
++	.use_acpi_target_states = true,
++	.resindex_lpe_base      = 0,
++	.resindex_pcicfg_base   = -1,
++	.resindex_imr_base      = -1,
++	.irqindex_host_ipc      = -1,
++	.chip_info = &tgl_chip_info,
++	.ipc_supported_mask	= BIT(SOF_IPC) | BIT(SOF_INTEL_IPC4),
++	.ipc_default		= SOF_IPC,
++	.default_fw_path = {
++		[SOF_IPC] = "intel/sof",
++		[SOF_INTEL_IPC4] = "intel/avs/rpl",
++	},
++	.default_tplg_path = {
++		[SOF_IPC] = "intel/sof-tplg",
++		[SOF_INTEL_IPC4] = "intel/avs-tplg",
++	},
++	.default_fw_filename = {
++		[SOF_IPC] = "sof-rpl.ri",
++		[SOF_INTEL_IPC4] = "dsp_basefw.bin",
++	},
++	.nocodec_tplg_filename = "sof-rpl-nocodec.tplg",
++	.ops = &sof_tgl_ops,
++	.ops_init = sof_tgl_ops_init,
++};
++
+ /* PCI IDs */
+ static const struct pci_device_id sof_pci_ids[] = {
+ 	{ PCI_DEVICE(0x8086, 0xa0c8), /* TGL-LP */
+@@ -172,7 +228,7 @@ static const struct pci_device_id sof_pci_ids[] = {
+ 	{ PCI_DEVICE(0x8086, 0x7ad0), /* ADL-S */
+ 		.driver_data = (unsigned long)&adls_desc},
+ 	{ PCI_DEVICE(0x8086, 0x7a50), /* RPL-S */
+-		.driver_data = (unsigned long)&adls_desc},
++		.driver_data = (unsigned long)&rpls_desc},
+ 	{ PCI_DEVICE(0x8086, 0x51c8), /* ADL-P */
+ 		.driver_data = (unsigned long)&adl_desc},
+ 	{ PCI_DEVICE(0x8086, 0x51cd), /* ADL-P */
+@@ -180,9 +236,9 @@ static const struct pci_device_id sof_pci_ids[] = {
+ 	{ PCI_DEVICE(0x8086, 0x51c9), /* ADL-PS */
+ 		.driver_data = (unsigned long)&adl_desc},
+ 	{ PCI_DEVICE(0x8086, 0x51ca), /* RPL-P */
+-		.driver_data = (unsigned long)&adl_desc},
++		.driver_data = (unsigned long)&rpl_desc},
+ 	{ PCI_DEVICE(0x8086, 0x51cb), /* RPL-P */
+-		.driver_data = (unsigned long)&adl_desc},
++		.driver_data = (unsigned long)&rpl_desc},
+ 	{ PCI_DEVICE(0x8086, 0x51cc), /* ADL-M */
+ 		.driver_data = (unsigned long)&adl_desc},
+ 	{ PCI_DEVICE(0x8086, 0x54c8), /* ADL-N */
+-- 
+2.35.1
+
 
 
