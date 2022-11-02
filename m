@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6872F615970
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:11:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDE2B615A3B
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:27:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229823AbiKBDLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:11:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60090 "EHLO
+        id S230493AbiKBD1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:27:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230259AbiKBDLL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:11:11 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECDC922B1F
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:11:09 -0700 (PDT)
+        with ESMTP id S230497AbiKBD1d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:27:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75AB625EA5
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:27:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 67F4DCE1E2F
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:11:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2B10C433D6;
-        Wed,  2 Nov 2022 03:11:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 053CA617D8
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:27:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DF6EC433C1;
+        Wed,  2 Nov 2022 03:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358666;
-        bh=ku4ZHpQXj7gBiKyBYQqcIVfVw7Hogzed766p4iYx3xg=;
+        s=korg; t=1667359650;
+        bh=hsgULN1uzqsDrvNYkcIKH6vkXzXEM+mLbV+bNhYgNPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=axcGRhVX8wJh7aaP7v7Y6k/rCq1/dTwgzTD/y5+f5AKxJSf7BVIpIJb0ALrVB0/cb
-         APwSSaShBqvk0k/V/cx+psZWMumDRH7LNyhaMAOPYG4Y/Qs3oZw+3BNOPj1PScf+Tf
-         VBPQuS+6MIxbHfD1NIEvVfweKwd/6EIpuqsSty9Q=
+        b=zLtx3kofPMS6zOAqjs0zNwipRUz4ozJGEa/tHvJ/OwMu5YI2KEtVtY6RmAbH06XLZ
+         AyvoPV3ipGXIJGNPSkSgkq+QVB91T6VrEqFrOzHjVgQg8GPUUn8EKre3csfwDTZ3ZH
+         VarBv9u2/f7xeskJdL7XbZnU1Vz20MjrN+fJ+bZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lino Sanfilippo <LinoSanfilippo@gmx.de>,
-        Daisuke Mizobuchi <mizo@atmark-techno.com>,
-        Dominique Martinet <dominique.martinet@atmark-techno.com>
-Subject: [PATCH 5.15 130/132] serial: core: move RS485 configuration tasks from drivers into core
+        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 11/78] btrfs: fix processing of delayed data refs during backref walking
 Date:   Wed,  2 Nov 2022 03:33:56 +0100
-Message-Id: <20221102022103.088364167@linuxfoundation.org>
+Message-Id: <20221102022053.261962112@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
-References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +53,249 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 0ed12afa5655512ee418047fb3546d229df20aa1 upstream.
+[ Upstream commit 4fc7b57228243d09c0d878873bf24fa64a90fa01 ]
 
-Several drivers that support setting the RS485 configuration via userspace
-implement one or more of the following tasks:
+When processing delayed data references during backref walking and we are
+using a share context (we are being called through fiemap), whenever we
+find a delayed data reference for an inode different from the one we are
+interested in, then we immediately exit and consider the data extent as
+shared. This is wrong, because:
 
-- in case of an invalid RTS configuration (both RTS after send and RTS on
-  send set or both unset) fall back to enable RTS on send and disable RTS
-  after send
+1) This might be a DROP reference that will cancel out a reference in the
+   extent tree;
 
-- nullify the padding field of the returned serial_rs485 struct
+2) Even if it's an ADD reference, it may be followed by a DROP reference
+   that cancels it out.
 
-- copy the configuration into the uart port struct
+In either case we should not exit immediately.
 
-- limit RTS delays to 100 ms
+Fix this by never exiting when we find a delayed data reference for
+another inode - instead add the reference and if it does not cancel out
+other delayed reference, we will exit early when we call
+extent_is_shared() after processing all delayed references. If we find
+a drop reference, then signal the code that processes references from
+the extent tree (add_inline_refs() and add_keyed_refs()) to not exit
+immediately if it finds there a reference for another inode, since we
+have delayed drop references that may cancel it out. In this later case
+we exit once we don't have references in the rb trees that cancel out
+each other and have two references for different inodes.
 
-Move these tasks into the serial core to make them generic and to provide
-a consistent behaviour among all drivers.
+Example reproducer for case 1):
 
-Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Link: https://lore.kernel.org/r/20220410104642.32195-2-LinoSanfilippo@gmx.de
-Signed-off-by: Daisuke Mizobuchi <mizo@atmark-techno.com>
-Signed-off-by: Dominique Martinet <dominique.martinet@atmark-techno.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+   $ cat test-1.sh
+   #!/bin/bash
+
+   DEV=/dev/sdj
+   MNT=/mnt/sdj
+
+   mkfs.btrfs -f $DEV
+   mount $DEV $MNT
+
+   xfs_io -f -c "pwrite 0 64K" $MNT/foo
+   cp --reflink=always $MNT/foo $MNT/bar
+
+   echo
+   echo "fiemap after cloning:"
+   xfs_io -c "fiemap -v" $MNT/foo
+
+   rm -f $MNT/bar
+   echo
+   echo "fiemap after removing file bar:"
+   xfs_io -c "fiemap -v" $MNT/foo
+
+   umount $MNT
+
+Running it before this patch, the extent is still listed as shared, it has
+the flag 0x2000 (FIEMAP_EXTENT_SHARED) set:
+
+   $ ./test-1.sh
+   fiemap after cloning:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128 0x2001
+
+   fiemap after removing file bar:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128 0x2001
+
+Example reproducer for case 2):
+
+   $ cat test-2.sh
+   #!/bin/bash
+
+   DEV=/dev/sdj
+   MNT=/mnt/sdj
+
+   mkfs.btrfs -f $DEV
+   mount $DEV $MNT
+
+   xfs_io -f -c "pwrite 0 64K" $MNT/foo
+   cp --reflink=always $MNT/foo $MNT/bar
+
+   # Flush delayed references to the extent tree and commit current
+   # transaction.
+   sync
+
+   echo
+   echo "fiemap after cloning:"
+   xfs_io -c "fiemap -v" $MNT/foo
+
+   rm -f $MNT/bar
+   echo
+   echo "fiemap after removing file bar:"
+   xfs_io -c "fiemap -v" $MNT/foo
+
+   umount $MNT
+
+Running it before this patch, the extent is still listed as shared, it has
+the flag 0x2000 (FIEMAP_EXTENT_SHARED) set:
+
+   $ ./test-2.sh
+   fiemap after cloning:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128 0x2001
+
+   fiemap after removing file bar:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128 0x2001
+
+After this patch, after deleting bar in both tests, the extent is not
+reported with the 0x2000 flag anymore, it gets only the flag 0x1
+(which is FIEMAP_EXTENT_LAST):
+
+   $ ./test-1.sh
+   fiemap after cloning:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128 0x2001
+
+   fiemap after removing file bar:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128   0x1
+
+   $ ./test-2.sh
+   fiemap after cloning:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128 0x2001
+
+   fiemap after removing file bar:
+   /mnt/sdj/foo:
+    EXT: FILE-OFFSET      BLOCK-RANGE      TOTAL FLAGS
+      0: [0..127]:        26624..26751       128   0x1
+
+These tests will later be converted to a test case for fstests.
+
+Fixes: dc046b10c8b7d4 ("Btrfs: make fiemap not blow when you have lots of snapshots")
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial_core.c |   33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ fs/btrfs/backref.c | 33 ++++++++++++++++++++++++---------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -42,6 +42,11 @@ static struct lock_class_key port_lock_k
+diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
+index 3fe15d6f4087..5e27e30fd887 100644
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -136,6 +136,7 @@ struct share_check {
+ 	u64 root_objectid;
+ 	u64 inum;
+ 	int share_count;
++	bool have_delayed_delete_refs;
+ };
  
- #define HIGH_BITS_OFFSET	((sizeof(long)-sizeof(int))*8)
+ static inline int extent_is_shared(struct share_check *sc)
+@@ -825,13 +826,22 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
+ 			key.offset = ref->offset;
  
-+/*
-+ * Max time with active RTS before/after data is sent.
-+ */
-+#define RS485_MAX_RTS_DELAY	100 /* msecs */
-+
- static void uart_change_speed(struct tty_struct *tty, struct uart_state *state,
- 					struct ktermios *old_termios);
- static void uart_wait_until_sent(struct tty_struct *tty, int timeout);
-@@ -1299,8 +1304,36 @@ static int uart_set_rs485_config(struct
- 	if (copy_from_user(&rs485, rs485_user, sizeof(*rs485_user)))
- 		return -EFAULT;
+ 			/*
+-			 * Found a inum that doesn't match our known inum, we
+-			 * know it's shared.
++			 * If we have a share check context and a reference for
++			 * another inode, we can't exit immediately. This is
++			 * because even if this is a BTRFS_ADD_DELAYED_REF
++			 * reference we may find next a BTRFS_DROP_DELAYED_REF
++			 * which cancels out this ADD reference.
++			 *
++			 * If this is a DROP reference and there was no previous
++			 * ADD reference, then we need to signal that when we
++			 * process references from the extent tree (through
++			 * add_inline_refs() and add_keyed_refs()), we should
++			 * not exit early if we find a reference for another
++			 * inode, because one of the delayed DROP references
++			 * may cancel that reference in the extent tree.
+ 			 */
+-			if (sc && sc->inum && ref->objectid != sc->inum) {
+-				ret = BACKREF_FOUND_SHARED;
+-				goto out;
+-			}
++			if (sc && count < 0)
++				sc->have_delayed_delete_refs = true;
  
-+	/* pick sane settings if the user hasn't */
-+	if (!(rs485.flags & SER_RS485_RTS_ON_SEND) ==
-+	    !(rs485.flags & SER_RS485_RTS_AFTER_SEND)) {
-+		dev_warn_ratelimited(port->dev,
-+			"%s (%d): invalid RTS setting, using RTS_ON_SEND instead\n",
-+			port->name, port->line);
-+		rs485.flags |= SER_RS485_RTS_ON_SEND;
-+		rs485.flags &= ~SER_RS485_RTS_AFTER_SEND;
-+	}
+ 			ret = add_indirect_ref(fs_info, preftrees, ref->root,
+ 					       &key, 0, node->bytenr, count, sc,
+@@ -861,7 +871,7 @@ static int add_delayed_refs(const struct btrfs_fs_info *fs_info,
+ 	}
+ 	if (!ret)
+ 		ret = extent_is_shared(sc);
+-out:
 +
-+	if (rs485.delay_rts_before_send > RS485_MAX_RTS_DELAY) {
-+		rs485.delay_rts_before_send = RS485_MAX_RTS_DELAY;
-+		dev_warn_ratelimited(port->dev,
-+			"%s (%d): RTS delay before sending clamped to %u ms\n",
-+			port->name, port->line, rs485.delay_rts_before_send);
-+	}
+ 	spin_unlock(&head->lock);
+ 	return ret;
+ }
+@@ -965,7 +975,8 @@ static int add_inline_refs(const struct btrfs_fs_info *fs_info,
+ 			key.type = BTRFS_EXTENT_DATA_KEY;
+ 			key.offset = btrfs_extent_data_ref_offset(leaf, dref);
+ 
+-			if (sc && sc->inum && key.objectid != sc->inum) {
++			if (sc && sc->inum && key.objectid != sc->inum &&
++			    !sc->have_delayed_delete_refs) {
+ 				ret = BACKREF_FOUND_SHARED;
+ 				break;
+ 			}
+@@ -975,6 +986,7 @@ static int add_inline_refs(const struct btrfs_fs_info *fs_info,
+ 			ret = add_indirect_ref(fs_info, preftrees, root,
+ 					       &key, 0, bytenr, count,
+ 					       sc, GFP_NOFS);
 +
-+	if (rs485.delay_rts_after_send > RS485_MAX_RTS_DELAY) {
-+		rs485.delay_rts_after_send = RS485_MAX_RTS_DELAY;
-+		dev_warn_ratelimited(port->dev,
-+			"%s (%d): RTS delay after sending clamped to %u ms\n",
-+			port->name, port->line, rs485.delay_rts_after_send);
-+	}
-+	/* Return clean padding area to userspace */
-+	memset(rs485.padding, 0, sizeof(rs485.padding));
-+
- 	spin_lock_irqsave(&port->lock, flags);
- 	ret = port->rs485_config(port, &rs485);
-+	if (!ret)
-+		port->rs485 = rs485;
- 	spin_unlock_irqrestore(&port->lock, flags);
- 	if (ret)
- 		return ret;
+ 			break;
+ 		}
+ 		default:
+@@ -1064,7 +1076,8 @@ static int add_keyed_refs(struct btrfs_fs_info *fs_info,
+ 			key.type = BTRFS_EXTENT_DATA_KEY;
+ 			key.offset = btrfs_extent_data_ref_offset(leaf, dref);
+ 
+-			if (sc && sc->inum && key.objectid != sc->inum) {
++			if (sc && sc->inum && key.objectid != sc->inum &&
++			    !sc->have_delayed_delete_refs) {
+ 				ret = BACKREF_FOUND_SHARED;
+ 				break;
+ 			}
+@@ -1490,6 +1503,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr)
+ 		.root_objectid = root->objectid,
+ 		.inum = inum,
+ 		.share_count = 0,
++		.have_delayed_delete_refs = false,
+ 	};
+ 
+ 	tmp = ulist_alloc(GFP_NOFS);
+@@ -1528,6 +1542,7 @@ int btrfs_check_shared(struct btrfs_root *root, u64 inum, u64 bytenr)
+ 			break;
+ 		bytenr = node->val;
+ 		shared.share_count = 0;
++		shared.have_delayed_delete_refs = false;
+ 		cond_resched();
+ 	}
+ 
+-- 
+2.35.1
+
 
 
