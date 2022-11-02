@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E1BC61589D
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:55:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D7061587A
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:52:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231149AbiKBCzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:55:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45096 "EHLO
+        id S230502AbiKBCwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231162AbiKBCzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:55:09 -0400
+        with ESMTP id S230503AbiKBCwg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:52:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ADCD2127C
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:55:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82E00220D2
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:52:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AF11617BB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:55:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA6D5C433C1;
-        Wed,  2 Nov 2022 02:55:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 223C6617CE
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:52:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC989C433D6;
+        Wed,  2 Nov 2022 02:52:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357707;
-        bh=pRILxpzAZ9n5CvohsHJzRYFohLuV/DxDTLb1ULcsJTI=;
+        s=korg; t=1667357554;
+        bh=SXYKW4avPIqz9CtUz/OrTgooWsgjGPf3f+VnNx/Ftbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1+y0DZtVqtTS2QDbEHlRu4Pe4oNAJEfGjcPkMbqiSdsUq0dCxIpzryxnttU90voO
-         LzhKvLXqxEzsn7wRI2xzb2gFsYtH4iRDK6f12zWEnkBy/gtvRAOOjdTOB6fuGxc0GW
-         /nrJrmBoIuF84NSpbbBBXXFZFgaem7d7nYiW7p6Q=
+        b=Y/uFblIWUd1nHWqD03m1jmjNGhmcjyh9IaKxVNQwTCR3/+SlGi5rXZyPJXjkgEw+Y
+         lKXVbUOA4jCc1/XeqVkmM+/eeoo2diDBK5k62TtIZlYu8Fqn1kUAU7RDlH40uda+G1
+         OPg1ma0Bqpb0FfhpI0hrTHCdO1Fia3kzZaQgZtJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shakeel Butt <shakeelb@google.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Rafael Mendonca <rafaelmendsr@gmail.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 189/240] net-memcg: avoid stalls when under memory pressure
-Date:   Wed,  2 Nov 2022 03:32:44 +0100
-Message-Id: <20221102022115.666150528@linuxfoundation.org>
+Subject: [PATCH 6.0 190/240] drm/amdkfd: Fix memory leak in kfd_mem_dmamap_userptr()
+Date:   Wed,  2 Nov 2022 03:32:45 +0100
+Message-Id: <20221102022115.690005108@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -54,57 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Rafael Mendonca <rafaelmendsr@gmail.com>
 
-[ Upstream commit 720ca52bcef225b967a339e0fffb6d0c7e962240 ]
+[ Upstream commit 90bfee142af0f0e9d3bec80e7acd5f49b230acf7 ]
 
-As Shakeel explains the commit under Fixes had the unintended
-side-effect of no longer pre-loading the cached memory allowance.
-Even tho we previously dropped the first packet received when
-over memory limit - the consecutive ones would get thru by using
-the cache. The charging was happening in batches of 128kB, so
-we'd let in 128kB (truesize) worth of packets per one drop.
+If the number of pages from the userptr BO differs from the SG BO then the
+allocated memory for the SG table doesn't get freed before returning
+-EINVAL, which may lead to a memory leak in some error paths. Fix this by
+checking the number of pages before allocating memory for the SG table.
 
-After the change we no longer force charge, there will be no
-cache filling side effects. This causes significant drops and
-connection stalls for workloads which use a lot of page cache,
-since we can't reclaim page cache under GFP_NOWAIT.
-
-Some of the latency can be recovered by improving SACK reneg
-handling but nowhere near enough to get back to the pre-5.15
-performance (the application I'm experimenting with still
-sees 5-10x worst latency).
-
-Apply the suggested workaround of using GFP_ATOMIC. We will now
-be more permissive than previously as we'll drop _no_ packets
-in softirq when under pressure. But I can't think of any good
-and simple way to address that within networking.
-
-Link: https://lore.kernel.org/all/20221012163300.795e7b86@kernel.org/
-Suggested-by: Shakeel Butt <shakeelb@google.com>
-Fixes: 4b1327be9fe5 ("net-memcg: pass in gfp_t mask to mem_cgroup_charge_skmem()")
-Acked-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
-Link: https://lore.kernel.org/r/20221021160304.1362511-1-kuba@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 264fb4d332f5 ("drm/amdgpu: Add multi-GPU DMA mapping helpers")
+Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sock.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index d08cfe190a78..8a98ea9360fb 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -2567,7 +2567,7 @@ static inline gfp_t gfp_any(void)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+index 2170db83e41d..93ad00453f4b 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+@@ -509,13 +509,13 @@ kfd_mem_dmamap_userptr(struct kgd_mem *mem,
+ 	struct ttm_tt *ttm = bo->tbo.ttm;
+ 	int ret;
  
- static inline gfp_t gfp_memcg_charge(void)
- {
--	return in_softirq() ? GFP_NOWAIT : GFP_KERNEL;
-+	return in_softirq() ? GFP_ATOMIC : GFP_KERNEL;
- }
++	if (WARN_ON(ttm->num_pages != src_ttm->num_pages))
++		return -EINVAL;
++
+ 	ttm->sg = kmalloc(sizeof(*ttm->sg), GFP_KERNEL);
+ 	if (unlikely(!ttm->sg))
+ 		return -ENOMEM;
  
- static inline long sock_rcvtimeo(const struct sock *sk, bool noblock)
+-	if (WARN_ON(ttm->num_pages != src_ttm->num_pages))
+-		return -EINVAL;
+-
+ 	/* Same sequence as in amdgpu_ttm_tt_pin_userptr */
+ 	ret = sg_alloc_table_from_pages(ttm->sg, src_ttm->pages,
+ 					ttm->num_pages, 0,
 -- 
 2.35.1
 
