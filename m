@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E6DD6157FB
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:42:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7F4A6157FC
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:42:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230311AbiKBCmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:42:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60938 "EHLO
+        id S230306AbiKBCmw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:42:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230307AbiKBCms (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:42:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71FD820BE3
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:42:46 -0700 (PDT)
+        with ESMTP id S230313AbiKBCmv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:42:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C180820BEA
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:42:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27677B82072
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:42:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C0A7C43470;
-        Wed,  2 Nov 2022 02:42:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 615C8617A9
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:42:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF34C433B5;
+        Wed,  2 Nov 2022 02:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667356963;
-        bh=BLo5HlDaeTCESuskRpIISrw2S2aFZHcA1uX9uU8EAbg=;
+        s=korg; t=1667356969;
+        bh=U2T86J8ZZ4B0gpMm7P4fsgsUkAS5ufR7pARU+HDSYxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y3ii/SusnrYgxG9ncQmrPsvY2CdCz2c8vjHIxDTh0oaZWlqr7LhVNpONtOMSjJfW2
-         B6eAebGhCZImKVy/uvDvzJyzFbI0zVfwoYt+P6mF6eLACoPNoqgaNmJlvBOA6dTcqZ
-         Ca+n2aAdepBkVcIS0G0Y+qUvj8/MiSsLvErqXKcw=
+        b=BPvlC2j7IayAKd8j5ANZMS6odzv40yXJ6yF3/fgzf+/jX8pz1FOUZxYX8V6jCfTEA
+         vP+qE/yeo9AEGMnCdrEOPwgwxFW/jkF3KyiuMUS6LQLK4rALBa/D7sB+T9ANIfIWgo
+         IdXcRI0ErZdLldoTh/qYTyTMwVpLh681fdK5sAVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chengming Gui <Jack.Gui@amd.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Joaqu=C3=ADn=20Ignacio=20Aramend=C3=ADa?= 
+        <samsagax@gmail.com>, Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 063/240] drm/amdgpu: fix pstate setting issue
-Date:   Wed,  2 Nov 2022 03:30:38 +0100
-Message-Id: <20221102022112.827290641@linuxfoundation.org>
+Subject: [PATCH 6.0 064/240] drm/amd/display: Revert logic for plane modifiers
+Date:   Wed,  2 Nov 2022 03:30:39 +0100
+Message-Id: <20221102022112.849768860@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -52,50 +54,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengming Gui <Jack.Gui@amd.com>
+From: Joaquín Ignacio Aramendía <samsagax@gmail.com>
 
-commit 79610d3041338dc1ef554d6fd8b3b3e23be527f5 upstream.
+commit 809734c110548dca410fb0cca52e6b1540319f5e upstream.
 
-[WHY]
-0, original pstate X
-1, ctx_A_create -> ctx_A->stable_pstate = X
-2, ctx_A_set_pstate (Y) -> current pstate is Y (PEAK or STANDARD)
-3, ctx_B_create -> ctx_B->stable_pstate =  Y
-4, ctx_A_destroy -> restore pstate to X
-5, ctx_B_destroy -> restore pstate to Y
-Above sequence will cause final pstate is wrong (Y), should be original X.
+This file was split in commit 5d945cbcd4b16a29d6470a80dfb19738f9a4319f
+("drm/amd/display: Create a file dedicated to planes") and the logic in
+dm_plane_format_mod_supported() function got changed by a switch logic.
+That change broke drm_plane modifiers setting on series 5000 APUs
+(tested on OXP mini AMD 5800U and HP Dev One 5850U PRO)
+leading to Gamescope not working as reported on GitHub[1]
 
-[HOW]
-When ctx_B create,
-if  ctx_A touched pstate setting
-(not auto, stable_pstate_ctx != NULL),
-set ctx_B->stable_pstate the same value as ctx_A saved,
-if stable_pstate_ctx == NULL,
-fetch current pstate to fill
-ctx_B->stable_pstate.
+To reproduce the issue, enter a TTY and run:
 
-Signed-off-by: Chengming Gui <Jack.Gui@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+$ gamescope -- vkcube
+
+With said commit applied it will abort. This one restores the old logic,
+fixing the issue that affects Gamescope.
+
+[1](https://github.com/Plagman/gamescope/issues/624)
+
+Cc: <stable@vger.kernel.org> # 6.0.x
+Signed-off-by: Joaquín Ignacio Aramendía <samsagax@gmail.com>
+Reviewed-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ .../amd/display/amdgpu_dm/amdgpu_dm_plane.c   | 50 +++----------------
+ 1 file changed, 7 insertions(+), 43 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-@@ -327,7 +327,10 @@ static int amdgpu_ctx_init(struct amdgpu
- 	if (r)
- 		return r;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_plane.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_plane.c
+index dfd3be49eac8..e6854f7270a6 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_plane.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_plane.c
+@@ -1369,7 +1369,7 @@ static bool dm_plane_format_mod_supported(struct drm_plane *plane,
+ {
+ 	struct amdgpu_device *adev = drm_to_adev(plane->dev);
+ 	const struct drm_format_info *info = drm_format_info(format);
+-	struct hw_asic_id asic_id = adev->dm.dc->ctx->asic_id;
++	int i;
  
--	ctx->stable_pstate = current_stable_pstate;
-+	if (mgr->adev->pm.stable_pstate_ctx)
-+		ctx->stable_pstate = mgr->adev->pm.stable_pstate_ctx->stable_pstate;
-+	else
-+		ctx->stable_pstate = current_stable_pstate;
+ 	enum dm_micro_swizzle microtile = modifier_gfx9_swizzle_mode(modifier) & 3;
  
- 	return 0;
- }
+@@ -1386,49 +1386,13 @@ static bool dm_plane_format_mod_supported(struct drm_plane *plane,
+ 		return true;
+ 	}
+ 
+-	/* check if swizzle mode is supported by this version of DCN */
+-	switch (asic_id.chip_family) {
+-	case FAMILY_SI:
+-	case FAMILY_CI:
+-	case FAMILY_KV:
+-	case FAMILY_CZ:
+-	case FAMILY_VI:
+-		/* asics before AI does not have modifier support */
+-		return false;
+-	case FAMILY_AI:
+-	case FAMILY_RV:
+-	case FAMILY_NV:
+-	case FAMILY_VGH:
+-	case FAMILY_YELLOW_CARP:
+-	case AMDGPU_FAMILY_GC_10_3_6:
+-	case AMDGPU_FAMILY_GC_10_3_7:
+-		switch (AMD_FMT_MOD_GET(TILE, modifier)) {
+-		case AMD_FMT_MOD_TILE_GFX9_64K_R_X:
+-		case AMD_FMT_MOD_TILE_GFX9_64K_D_X:
+-		case AMD_FMT_MOD_TILE_GFX9_64K_S_X:
+-		case AMD_FMT_MOD_TILE_GFX9_64K_D:
+-			return true;
+-		default:
+-			return false;
+-		}
+-		break;
+-	case AMDGPU_FAMILY_GC_11_0_0:
+-	case AMDGPU_FAMILY_GC_11_0_1:
+-		switch (AMD_FMT_MOD_GET(TILE, modifier)) {
+-		case AMD_FMT_MOD_TILE_GFX11_256K_R_X:
+-		case AMD_FMT_MOD_TILE_GFX9_64K_R_X:
+-		case AMD_FMT_MOD_TILE_GFX9_64K_D_X:
+-		case AMD_FMT_MOD_TILE_GFX9_64K_S_X:
+-		case AMD_FMT_MOD_TILE_GFX9_64K_D:
+-			return true;
+-		default:
+-			return false;
+-		}
+-		break;
+-	default:
+-		ASSERT(0); /* Unknown asic */
+-		break;
++	/* Check that the modifier is on the list of the plane's supported modifiers. */
++	for (i = 0; i < plane->modifier_count; i++) {
++		if (modifier == plane->modifiers[i])
++			break;
+ 	}
++	if (i == plane->modifier_count)
++		return false;
+ 
+ 	/*
+ 	 * For D swizzle the canonical modifier depends on the bpp, so check
+-- 
+2.38.1
+
 
 
