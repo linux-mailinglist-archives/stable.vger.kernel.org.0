@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25E7B615A22
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:25:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E642615A64
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:30:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230394AbiKBDZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:25:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
+        id S231236AbiKBDaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:30:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230397AbiKBDZX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:25:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B7C25C5E
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:25:23 -0700 (PDT)
+        with ESMTP id S231216AbiKBDaA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:30:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBC631F607
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:29:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1A1161799
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:25:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C858C433C1;
-        Wed,  2 Nov 2022 03:25:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95C10B8205C
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:29:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74ED9C433D6;
+        Wed,  2 Nov 2022 03:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359522;
-        bh=Vp9ldAhkAYvO0bGms+w3r9nMz6wqc9k0p55m/0YCmQo=;
+        s=korg; t=1667359796;
+        bh=JjeIzlE8eQaGHGfa3JuPbJB+POP7qOf0td7u3hlJGZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=unbC7yx8nmIy2YVsVyp3LjyHg6+23FKmEk4qo9w50qKaPelF7PkOHwKGCqft3MT1g
-         ybnRoxmUTuis0klPHj9WeAaRPTEMyY3liMeoAyx2vswMo4SC+kbi5UyJZrI+I2Proi
-         MKKYrR+QS/7oQMR78/Q/NCZEgZ7tTkmy9NdC+qEY=
+        b=WoCEOwPC5XChytIJwycRzJdlou+HPjz3vKpqKpPnPJGU6RnGCHkebUIec0Rd/ntRZ
+         94T78PvecKnBl3Iga0mosZ3Lj3gVu1ojF678hFbj8czupIFQdI8N1pBR1lowkRFlJo
+         Gm7uf2ceSkjEh3y8Ot0ZAZL90LrHg6DX8lR0isHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 54/64] net: ksz884x: fix missing pci_disable_device() on error in pcidev_init()
+        patches@lists.linux.dev,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 35/78] tools: iio: iio_utils: fix digit calculation
 Date:   Wed,  2 Nov 2022 03:34:20 +0100
-Message-Id: <20221102022053.559554429@linuxfoundation.org>
+Message-Id: <20221102022054.024975091@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022051.821538553@linuxfoundation.org>
-References: <20221102022051.821538553@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Matti Vaittinen <mazziesaccount@gmail.com>
 
-[ Upstream commit 5da6d65590a0698199df44d095e54b0ed1708178 ]
+commit 72b2aa38191bcba28389b0e20bf6b4f15017ff2b upstream.
 
-pci_disable_device() need be called while module exiting, switch to use
-pcim_enable(), pci_disable_device() will be called in pcim_release()
-while unbinding device.
+The iio_utils uses a digit calculation in order to know length of the
+file name containing a buffer number. The digit calculation does not
+work for number 0.
 
-Fixes: 8ca86fd83eae ("net: Micrel KSZ8841/2 PCI Ethernet driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221024131338.2848959-1-yangyingliang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This leads to allocation of one character too small buffer for the
+file-name when file name contains value '0'. (Eg. buffer0).
+
+Fix digit calculation by returning one digit to be present for number
+'0'.
+
+Fixes: 096f9b862e60 ("tools:iio:iio_utils: implement digit calculation")
+Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Link: https://lore.kernel.org/r/Y0f+tKCz+ZAIoroQ@dc75zzyyyyyyyyyyyyycy-3.rev.dnainternet.fi
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/micrel/ksz884x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/iio/iio_utils.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/micrel/ksz884x.c b/drivers/net/ethernet/micrel/ksz884x.c
-index 2431723bc2fb..9ffb8880105f 100644
---- a/drivers/net/ethernet/micrel/ksz884x.c
-+++ b/drivers/net/ethernet/micrel/ksz884x.c
-@@ -6928,7 +6928,7 @@ static int pcidev_init(struct pci_dev *pdev, const struct pci_device_id *id)
- 	char banner[sizeof(version)];
- 	struct ksz_switch *sw = NULL;
+--- a/tools/iio/iio_utils.c
++++ b/tools/iio/iio_utils.c
+@@ -546,6 +546,10 @@ static int calc_digits(int num)
+ {
+ 	int count = 0;
  
--	result = pci_enable_device(pdev);
-+	result = pcim_enable_device(pdev);
- 	if (result)
- 		return result;
- 
--- 
-2.35.1
-
++	/* It takes a digit to represent zero */
++	if (!num)
++		return 1;
++
+ 	while (num != 0) {
+ 		num /= 10;
+ 		count++;
 
 
