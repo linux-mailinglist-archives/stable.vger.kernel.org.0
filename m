@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9286E6158B8
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:57:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 658C96158BA
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:57:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231185AbiKBC5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:57:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46736 "EHLO
+        id S231187AbiKBC5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:57:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231183AbiKBC5Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:57:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 659D32252A
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:57:23 -0700 (PDT)
+        with ESMTP id S231183AbiKBC5f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:57:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 287DA2252F
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:57:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03BC6617CF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:57:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CF82C433D6;
-        Wed,  2 Nov 2022 02:57:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B99C4617BB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:57:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5917DC433D6;
+        Wed,  2 Nov 2022 02:57:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357842;
-        bh=tWIsELuOCx9lIJ4AZ8gpZXYvm7gRFtTae0YUW5nOPYs=;
+        s=korg; t=1667357854;
+        bh=UJPEVOETrKvUzE0GMDx3EfcCr8mBGuXUlz4/LZ36ZIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9Mq/WNHP02Bw08T4XSc4X32rU192rFvqldlQ9PVT56EU7Y5PULwJp4WePm0EYPkZ
-         UStdFRF0LeBUAlBa4xjZAD7kGBx6DwWIr1p80MxOFCnGbVSbRoif6lcYPXIWTnCw4c
-         NazCtKo+R0x82XraHTllHaU8EIkw+/9gkD60GWo8=
+        b=vHbbP6bfrlpKs+3nQ8umMmtVomUaIISgwnsqjtTDH8s3f6yziu0ngp0/SdiV/Uw9v
+         0h9C5JFlhV+AXsP4BcM4S3gUQnmRSGaheUnCfVKTXbcSzMqRMuCbzHiGdfewSd0lZw
+         9q17AhkDJTeIKsjcl2JeJ4KYpRkmILoSDIlf9RWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Conor Dooley <conor.dooley@microchip.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev,
+        D Scott Phillips <scott@os.amperecomputing.com>,
+        James Morse <james.morse@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 238/240] riscv: fix detection of toolchain Zihintpause support
-Date:   Wed,  2 Nov 2022 03:33:33 +0100
-Message-Id: <20221102022116.788038832@linuxfoundation.org>
+Subject: [PATCH 6.0 239/240] arm64: Add AMPERE1 to the Spectre-BHB affected list
+Date:   Wed,  2 Nov 2022 03:33:34 +0100
+Message-Id: <20221102022116.812925904@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,79 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: D Scott Phillips <scott@os.amperecomputing.com>
 
-[ Upstream commit aae538cd03bc8fc35979653d9180922d146da0ca ]
+[ Upstream commit 0e5d5ae837c8ce04d2ddb874ec5f920118bd9d31 ]
 
-It is not sufficient to check if a toolchain supports a particular
-extension without checking if the linker supports that extension
-too. For example, Clang 15 supports Zihintpause but GNU bintutils
-2.35.2 does not, leading build errors like so:
+Per AmpereOne erratum AC03_CPU_12, "Branch history may allow control of
+speculative execution across software contexts," the AMPERE1 core needs the
+bhb clearing loop to mitigate Spectre-BHB, with a loop iteration count of
+11.
 
-riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_c2p0_zihintpause2p0: Invalid or unknown z ISA extension: 'zihintpause'
-
-Add a TOOLCHAIN_HAS_ZIHINTPAUSE which checks if each of the compiler,
-assembler and linker support the extension. Replace the ifdef in the
-vdso with one depending on this new symbol.
-
-Fixes: 8eb060e10185 ("arch/riscv: add Zihintpause support")
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20221006173520.1785507-3-conor@kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: D Scott Phillips <scott@os.amperecomputing.com>
+Link: https://lore.kernel.org/r/20221011022140.432370-1-scott@os.amperecomputing.com
+Reviewed-by: James Morse <james.morse@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Kconfig                      | 7 +++++++
- arch/riscv/Makefile                     | 3 +--
- arch/riscv/include/asm/vdso/processor.h | 2 +-
- 3 files changed, 9 insertions(+), 3 deletions(-)
+ arch/arm64/include/asm/cputype.h | 4 ++++
+ arch/arm64/kernel/proton-pack.c  | 6 ++++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index e646298d2d65..9d5b7fa1b622 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -426,6 +426,13 @@ config RISCV_ISA_ZICBOM
+diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
+index 8aa0d276a636..abc418650fec 100644
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -60,6 +60,7 @@
+ #define ARM_CPU_IMP_FUJITSU		0x46
+ #define ARM_CPU_IMP_HISI		0x48
+ #define ARM_CPU_IMP_APPLE		0x61
++#define ARM_CPU_IMP_AMPERE		0xC0
  
- 	   If you don't know what to do here, say Y.
+ #define ARM_CPU_PART_AEM_V8		0xD0F
+ #define ARM_CPU_PART_FOUNDATION		0xD00
+@@ -123,6 +124,8 @@
+ #define APPLE_CPU_PART_M1_ICESTORM_MAX	0x028
+ #define APPLE_CPU_PART_M1_FIRESTORM_MAX	0x029
  
-+config TOOLCHAIN_HAS_ZIHINTPAUSE
-+	bool
-+	default y
-+	depends on !64BIT || $(cc-option,-mabi=lp64 -march=rv64ima_zihintpause)
-+	depends on !32BIT || $(cc-option,-mabi=ilp32 -march=rv32ima_zihintpause)
-+	depends on LLD_VERSION >= 150000 || LD_VERSION >= 23600
++#define AMPERE_CPU_PART_AMPERE1		0xAC3
 +
- config FPU
- 	bool "FPU support"
- 	default y
-diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-index d1dbbe0fb0f8..e5a608e37f45 100644
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -62,8 +62,7 @@ riscv-march-$(toolchain-need-zicsr-zifencei) := $(riscv-march-y)_zicsr_zifencei
- riscv-march-$(CONFIG_TOOLCHAIN_HAS_ZICBOM) := $(riscv-march-y)_zicbom
+ #define MIDR_CORTEX_A53 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A53)
+ #define MIDR_CORTEX_A57 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A57)
+ #define MIDR_CORTEX_A72 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
+@@ -172,6 +175,7 @@
+ #define MIDR_APPLE_M1_FIRESTORM_PRO MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, APPLE_CPU_PART_M1_FIRESTORM_PRO)
+ #define MIDR_APPLE_M1_ICESTORM_MAX MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, APPLE_CPU_PART_M1_ICESTORM_MAX)
+ #define MIDR_APPLE_M1_FIRESTORM_MAX MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, APPLE_CPU_PART_M1_FIRESTORM_MAX)
++#define MIDR_AMPERE1 MIDR_CPU_MODEL(ARM_CPU_IMP_AMPERE, AMPERE_CPU_PART_AMPERE1)
  
- # Check if the toolchain supports Zihintpause extension
--toolchain-supports-zihintpause := $(call cc-option-yn, -march=$(riscv-march-y)_zihintpause)
--riscv-march-$(toolchain-supports-zihintpause) := $(riscv-march-y)_zihintpause
-+riscv-march-$(CONFIG_TOOLCHAIN_HAS_ZIHINTPAUSE) := $(riscv-march-y)_zihintpause
+ /* Fujitsu Erratum 010001 affects A64FX 1.0 and 1.1, (v0r0 and v1r0) */
+ #define MIDR_FUJITSU_ERRATUM_010001		MIDR_FUJITSU_A64FX
+diff --git a/arch/arm64/kernel/proton-pack.c b/arch/arm64/kernel/proton-pack.c
+index 40be3a7c2c53..428cfabd11c4 100644
+--- a/arch/arm64/kernel/proton-pack.c
++++ b/arch/arm64/kernel/proton-pack.c
+@@ -868,6 +868,10 @@ u8 spectre_bhb_loop_affected(int scope)
+ 			MIDR_ALL_VERSIONS(MIDR_NEOVERSE_N1),
+ 			{},
+ 		};
++		static const struct midr_range spectre_bhb_k11_list[] = {
++			MIDR_ALL_VERSIONS(MIDR_AMPERE1),
++			{},
++		};
+ 		static const struct midr_range spectre_bhb_k8_list[] = {
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A72),
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A57),
+@@ -878,6 +882,8 @@ u8 spectre_bhb_loop_affected(int scope)
+ 			k = 32;
+ 		else if (is_midr_in_range_list(read_cpuid_id(), spectre_bhb_k24_list))
+ 			k = 24;
++		else if (is_midr_in_range_list(read_cpuid_id(), spectre_bhb_k11_list))
++			k = 11;
+ 		else if (is_midr_in_range_list(read_cpuid_id(), spectre_bhb_k8_list))
+ 			k =  8;
  
- KBUILD_CFLAGS += -march=$(subst fd,,$(riscv-march-y))
- KBUILD_AFLAGS += -march=$(riscv-march-y)
-diff --git a/arch/riscv/include/asm/vdso/processor.h b/arch/riscv/include/asm/vdso/processor.h
-index 1e4f8b4aef79..fa70cfe507aa 100644
---- a/arch/riscv/include/asm/vdso/processor.h
-+++ b/arch/riscv/include/asm/vdso/processor.h
-@@ -21,7 +21,7 @@ static inline void cpu_relax(void)
- 		 * Reduce instruction retirement.
- 		 * This assumes the PC changes.
- 		 */
--#ifdef __riscv_zihintpause
-+#ifdef CONFIG_TOOLCHAIN_HAS_ZIHINTPAUSE
- 		__asm__ __volatile__ ("pause");
- #else
- 		/* Encoding of the pause instruction */
 -- 
 2.35.1
 
