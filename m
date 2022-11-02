@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 600C9615B02
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:46:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F830615B03
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:46:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230258AbiKBDqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:46:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33926 "EHLO
+        id S230256AbiKBDqH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:46:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230256AbiKBDp6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:45:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 406A72714B
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:45:58 -0700 (PDT)
+        with ESMTP id S230259AbiKBDqG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:46:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81A0327168
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:46:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1B7361799
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:45:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B115C433D6;
-        Wed,  2 Nov 2022 03:45:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3CEBBB82071
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:46:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 296FEC433D6;
+        Wed,  2 Nov 2022 03:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360757;
-        bh=s++WPitG/TfJW1XMLPGbGF6DOrGj+WxHWoTDmc13YlU=;
+        s=korg; t=1667360762;
+        bh=dP1gAFuKh+AFhb6zu07L3xkqTfc2DeUq3wfI2s34lNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LoiY3nXjfrRFmdNlfAvhz1XVm0ENvwhOhJaOGvnGaWIe/+mdqBa+IE3q8BYlnAl34
-         8opZYHTqRaNLYMt4qw1SK+iBoDvHoU233RZqL5dW+fp0KghO9LHf8vR/+z7qRToXoQ
-         AV4TXNON9DCxvMnsPdKtXtVcTBz9KcRonw226fJw=
+        b=O/SQLfZyq7Bo84xkaw0XWSA3RXS89rtPDxPB4nTcVKcnOhogpKGTkPFDg1Oj8hDFi
+         CLNaqJ0yxTp8GPWxEKBs2KqZin+hGvH6Wl+SUQCqIY5N1GAaXGILBFEvLil3Iu+9ul
+         t1vrbAeLS914gbPiyIQxaYesMWR2KDyrtsMJmL98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/44] net: hns: fix possible memory leak in hnae_ae_register()
-Date:   Wed,  2 Nov 2022 03:34:54 +0100
-Message-Id: <20221102022049.318885815@linuxfoundation.org>
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Werner Sembach <wse@tuxedocomputers.com>
+Subject: [PATCH 4.9 09/44] [PATCH v3] ACPI: video: Force backlight native for more TongFang devices
+Date:   Wed,  2 Nov 2022 03:34:55 +0100
+Message-Id: <20221102022049.353611699@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
 References: <20221102022049.017479464@linuxfoundation.org>
@@ -54,61 +52,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-[ Upstream commit ff2f5ec5d009844ec28f171123f9e58750cef4bf ]
+commit 3dbc80a3e4c55c4a5b89ef207bed7b7de36157b4 upstream.
 
-Inject fault while probing module, if device_register() fails,
-but the refcount of kobject is not decreased to 0, the name
-allocated in dev_set_name() is leaked. Fix this by calling
-put_device(), so that name can be freed in callback function
-kobject_cleanup().
+This commit is very different from the upstream commit! It fixes the same
+issue by adding more quirks, rather then the general fix from the 6.1
+kernel, because the general fix from the 6.1 kernel is part of a larger
+refactoring of the backlight code which is not suitable for the stable
+series.
 
-unreferenced object 0xffff00c01aba2100 (size 128):
-  comm "systemd-udevd", pid 1259, jiffies 4294903284 (age 294.152s)
-  hex dump (first 32 bytes):
-    68 6e 61 65 30 00 00 00 18 21 ba 1a c0 00 ff ff  hnae0....!......
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000034783f26>] slab_post_alloc_hook+0xa0/0x3e0
-    [<00000000748188f2>] __kmem_cache_alloc_node+0x164/0x2b0
-    [<00000000ab0743e8>] __kmalloc_node_track_caller+0x6c/0x390
-    [<000000006c0ffb13>] kvasprintf+0x8c/0x118
-    [<00000000fa27bfe1>] kvasprintf_const+0x60/0xc8
-    [<0000000083e10ed7>] kobject_set_name_vargs+0x3c/0xc0
-    [<000000000b87affc>] dev_set_name+0x7c/0xa0
-    [<000000003fd8fe26>] hnae_ae_register+0xcc/0x190 [hnae]
-    [<00000000fe97edc9>] hns_dsaf_ae_init+0x9c/0x108 [hns_dsaf]
-    [<00000000c36ff1eb>] hns_dsaf_probe+0x548/0x748 [hns_dsaf]
+As described in "ACPI: video: Drop NL5x?U, PF4NU1F and PF5?U??
+acpi_backlight=native quirks" (10212754a0d2) the upstream commit "ACPI:
+video: Make backlight class device registration a separate step (v2)"
+(3dbc80a3e4c5) makes these quirks unnecessary. However as mentioned in this
+bugtracker ticket https://bugzilla.kernel.org/show_bug.cgi?id=215683#c17
+the upstream fix is part of a larger patchset that is overall too complex
+for stable.
 
-Fixes: 6fe6611ff275 ("net: add Hisilicon Network Subsystem hnae framework support")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20221018122451.1749171-1-yangyingliang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The TongFang GKxNRxx, GMxNGxx, GMxZGxx, and GMxRGxx / TUXEDO
+Stellaris/Polaris Gen 1-4, have the same problem as the Clevo NL5xRU and
+NL5xNU / TUXEDO Aura 15 Gen1 and Gen2:
+They have a working native and video interface for screen backlight.
+However the default detection mechanism first registers the video interface
+before unregistering it again and switching to the native interface during
+boot. This results in a dangling SBIOS request for backlight change for
+some reason, causing the backlight to switch to ~2% once per boot on the
+first power cord connect or disconnect event. Setting the native interface
+explicitly circumvents this buggy behaviour by avoiding the unregistering
+process.
+
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns/hnae.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/acpi/video_detect.c |   64 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 64 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hnae.c b/drivers/net/ethernet/hisilicon/hns/hnae.c
-index 66e7a5fd4249..87ce15a12135 100644
---- a/drivers/net/ethernet/hisilicon/hns/hnae.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hnae.c
-@@ -418,8 +418,10 @@ int hnae_ae_register(struct hnae_ae_dev *hdev, struct module *owner)
- 	hdev->cls_dev.release = hnae_release;
- 	(void)dev_set_name(&hdev->cls_dev, "hnae%d", hdev->id);
- 	ret = device_register(&hdev->cls_dev);
--	if (ret)
-+	if (ret) {
-+		put_device(&hdev->cls_dev);
- 		return ret;
-+	}
- 
- 	__module_get(THIS_MODULE);
- 
--- 
-2.35.1
-
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -227,6 +227,70 @@ static const struct dmi_system_id video_
+ 		},
+ 	},
+ 	/*
++	 * More Tongfang devices with the same issue as the Clevo NL5xRU and
++	 * NL5xNU/TUXEDO Aura 15 Gen1 and Gen2. See the description above.
++	 */
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "GKxNRxx"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1501A1650TI"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1501A2060"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1701A1650TI"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GKxNRxx",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "TUXEDO"),
++		DMI_MATCH(DMI_BOARD_NAME, "POLARIS1701A2060"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GMxNGxx",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "GMxNGxx"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GMxZGxx",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "GMxZGxx"),
++		},
++	},
++	{
++	.callback = video_detect_force_native,
++	.ident = "TongFang GMxRGxx",
++	.matches = {
++		DMI_MATCH(DMI_BOARD_NAME, "GMxRGxx"),
++		},
++	},
++	/*
+ 	 * These models have a working acpi_video backlight control, and using
+ 	 * native backlight causes a regression where backlight does not work
+ 	 * when userspace is not handling brightness key events. Disable
 
 
