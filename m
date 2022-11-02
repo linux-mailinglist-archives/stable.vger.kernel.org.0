@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65E806158FA
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:02:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D73E6158FC
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:02:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230155AbiKBDCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:02:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51608 "EHLO
+        id S231318AbiKBDCi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:02:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231349AbiKBDCH (ORCPT
+        with ESMTP id S231355AbiKBDCH (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:02:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F345B23140
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:02:01 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 154CB22B2D
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:02:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33158B82071
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:02:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E54CC433D7;
-        Wed,  2 Nov 2022 03:01:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78E4D617BB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:02:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 196B6C433C1;
+        Wed,  2 Nov 2022 03:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358118;
-        bh=NEkRj8E65+bZ1G2ByHR1hSBh+j/Op9H7q2QLt1lo6SU=;
+        s=korg; t=1667358124;
+        bh=HMXY/RSgiIPdYqdPniDQIkcdp+XIhbTPMlYM4cfHbO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JKwneBb3d71pKz1J+/JNTdQQxn0NTFJQfDs57oj0Q2Os6LvTXHJ+VhQEQinbQSxNx
-         gUdizHTiFz9Tr00BGfdHTvPldd/kw9OsIUy1FUmBaNLWathkAD9P+nKk2Kc7wahxur
-         lP4KrYP0naexZDXNiS8VuS+G5/QPbnL9z3VSiSpQ=
+        b=UDOC//jNv8ejq/rsnsH9exLbnp2dUv3F7b47fh50mDESJqJfzfKAbp6MVXgEERL9b
+         F0s6yGSijarQAsRpVmeOjuBC5KS6uO5l9d18UbCR0cD5GXNEOa0Wissau6wCkIQZjZ
+         9A3RNpVPNvNotOwjYcLbRsUacC6R4LwcN2hkuAWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.15 018/132] xhci-pci: Set runtime PM as default policy on all xHC 1.2 or later devices
-Date:   Wed,  2 Nov 2022 03:32:04 +0100
-Message-Id: <20221102022100.103491935@linuxfoundation.org>
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.15 019/132] xhci: Remove device endpoints from bandwidth list when freeing the device
+Date:   Wed,  2 Nov 2022 03:32:05 +0100
+Message-Id: <20221102022100.129567169@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
 References: <20221102022059.593236470@linuxfoundation.org>
@@ -54,103 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit a611bf473d1f77b70f7188b5577542cb39b4701b upstream.
+commit 5aed5b7c2430ce318a8e62f752f181e66f0d1053 upstream.
 
-For optimal power consumption of USB4 routers the XHCI PCIe endpoint
-used for tunneling must be in D3.  Historically this is accomplished
-by a long list of PCIe IDs that correspond to these endpoints because
-the xhci_hcd driver will not default to allowing runtime PM for all
-devices.
+Endpoints are normally deleted from the bandwidth list when they are
+dropped, before the virt device is freed.
 
-As both AMD and Intel have released new products with new XHCI controllers
-this list continues to grow. In reviewing the XHCI specification v1.2 on
-page 607 there is already a requirement that the PCI power management
-states D3hot and D3cold must be supported.
+If xHC host is dying or being removed then the endpoints aren't dropped
+cleanly due to functions returning early to avoid interacting with a
+non-accessible host controller.
 
-In the quirk list, use this to indicate that runtime PM should be allowed
-on XHCI controllers. The following controllers are known to be xHC 1.2 and
-dropped explicitly:
-* AMD Yellow Carp
-* Intel Alder Lake
-* Intel Meteor Lake
-* Intel Raptor Lake
+So check and delete endpoints that are still on the bandwidth list when
+freeing the virt device.
 
-[keep PCI ID for Alder Lake PCH for recently added quirk -Mathias]
+Solves a list_del corruption kernel crash when unbinding xhci-pci,
+caused by xhci_mem_cleanup() when it later tried to delete already freed
+endpoints from the bandwidth list.
+
+This only affects hosts that use software bandwidth checking, which
+currenty is only the xHC in intel Panther Point PCH (Ivy Bridge)
 
 Cc: stable@vger.kernel.org
-Suggested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/extensible-host-controler-interface-usb-xhci.pdf
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20221024142720.4122053-4-mathias.nyman@intel.com
+Link: https://lore.kernel.org/r/20221024142720.4122053-5-mathias.nyman@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-pci.c |   32 ++++----------------------------
- 1 file changed, 4 insertions(+), 28 deletions(-)
+ drivers/usb/host/xhci-mem.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -58,25 +58,13 @@
- #define PCI_DEVICE_ID_INTEL_CML_XHCI			0xa3af
- #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
- #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
--#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI		0x461e
--#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_XHCI		0x464e
--#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI	0x51ed
--#define PCI_DEVICE_ID_INTEL_RAPTOR_LAKE_XHCI		0xa71e
--#define PCI_DEVICE_ID_INTEL_METEOR_LAKE_XHCI		0x7ec0
-+#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI		0x51ed
- 
- #define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_2			0x43bb
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_1			0x43bc
--#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_1		0x161a
--#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_2		0x161b
--#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_3		0x161d
--#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_4		0x161e
--#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_5		0x15d6
--#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_6		0x15d7
--#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_7		0x161c
--#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_8		0x161f
- 
- #define PCI_DEVICE_ID_ASMEDIA_1042_XHCI			0x1042
- #define PCI_DEVICE_ID_ASMEDIA_1042A_XHCI		0x1142
-@@ -273,12 +261,7 @@ static void xhci_pci_quirks(struct devic
- 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_DD_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI ||
--	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI ||
--	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI ||
--	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_XHCI ||
--	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI ||
--	     pdev->device == PCI_DEVICE_ID_INTEL_RAPTOR_LAKE_XHCI ||
--	     pdev->device == PCI_DEVICE_ID_INTEL_METEOR_LAKE_XHCI))
-+	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI))
- 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
- 
- 	if (pdev->vendor == PCI_VENDOR_ID_ETRON &&
-@@ -347,15 +330,8 @@ static void xhci_pci_quirks(struct devic
- 	     pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_4))
- 		xhci->quirks |= XHCI_NO_SOFT_RETRY;
- 
--	if (pdev->vendor == PCI_VENDOR_ID_AMD &&
--	    (pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_1 ||
--	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_2 ||
--	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_3 ||
--	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_4 ||
--	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_5 ||
--	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_6 ||
--	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_7 ||
--	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_8))
-+	/* xHC spec requires PCI devices to support D3hot and D3cold */
-+	if (xhci->hci_version >= 0x120)
- 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
- 
- 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -898,15 +898,19 @@ void xhci_free_virt_device(struct xhci_h
+ 		if (dev->eps[i].stream_info)
+ 			xhci_free_stream_info(xhci,
+ 					dev->eps[i].stream_info);
+-		/* Endpoints on the TT/root port lists should have been removed
+-		 * when usb_disable_device() was called for the device.
+-		 * We can't drop them anyway, because the udev might have gone
+-		 * away by this point, and we can't tell what speed it was.
++		/*
++		 * Endpoints are normally deleted from the bandwidth list when
++		 * endpoints are dropped, before device is freed.
++		 * If host is dying or being removed then endpoints aren't
++		 * dropped cleanly, so delete the endpoint from list here.
++		 * Only applicable for hosts with software bandwidth checking.
+ 		 */
+-		if (!list_empty(&dev->eps[i].bw_endpoint_list))
+-			xhci_warn(xhci, "Slot %u endpoint %u "
+-					"not removed from BW list!\n",
+-					slot_id, i);
++
++		if (!list_empty(&dev->eps[i].bw_endpoint_list)) {
++			list_del_init(&dev->eps[i].bw_endpoint_list);
++			xhci_dbg(xhci, "Slot %u endpoint %u not removed from BW list!\n",
++				 slot_id, i);
++		}
+ 	}
+ 	/* If this is a hub, free the TT(s) from the TT list */
+ 	xhci_free_tt_info(xhci, dev, slot_id);
 
 
