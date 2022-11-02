@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B669615A90
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:33:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AE0E615ADE
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:42:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231292AbiKBDdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:33:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52694 "EHLO
+        id S229487AbiKBDmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:42:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231295AbiKBDd1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:33:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D91D25E
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:33:24 -0700 (PDT)
+        with ESMTP id S229871AbiKBDmy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:42:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB7926ADE
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:42:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C25BB8205C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:33:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 898C2C433C1;
-        Wed,  2 Nov 2022 03:33:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B777FB8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:42:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E7D1C433D6;
+        Wed,  2 Nov 2022 03:42:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360001;
-        bh=ptH0kTuGv+tqtMKUg1dby9kHqLNrQTvxohL4H/L1aQU=;
+        s=korg; t=1667360571;
+        bh=i0cU98J7svOzQUXBtrcc0vwdgfiU1MZ4KhPpyFKbA3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WL/cpzSCei8W7zw4bvs0O01uvNa+UNIjIzKiXFRDDWEac8KK9K1ac3qEI7ZkBLGHd
-         rvd05A6tmQG/7HKwsjkGrPVN5HY5I4HY+/2gJmn4/YFsnU8ABhWRtodv3/R9mST9Zd
-         Huw8EMU9TKtNgD6XzOBVG69dAx4U1VuoFZoBo2Ng=
+        b=eZoGrk+PQLoOYZja3skvU9EF/QmxHWII3uIIN/T6eaoiN7TjyiC0IDtXvX/qD7AWU
+         /B1gJKA6iLmgIyq0hPXZ6+1qa9lUYeGNUIqJQiVUCi+ZNoQ3e80hD7Rt3VoZpo/E+8
+         XfnHlCdrlGeiR6m/Sh6Iybu87JNywUpfq6JBRVsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Slawomir Laba <slawomirx.laba@intel.com>,
-        Michal Jaron <michalx.jaron@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 70/78] i40e: Fix flow-type by setting GL_HASH_INSET registers
+        patches@lists.linux.dev, Rik van Riel <riel@surriel.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Glen McCready <gkmccready@meta.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.14 34/60] mm,hugetlb: take hugetlb_lock before decrementing h->resv_huge_pages
 Date:   Wed,  2 Nov 2022 03:34:55 +0100
-Message-Id: <20221102022054.994671743@linuxfoundation.org>
+Message-Id: <20221102022052.193980798@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
-References: <20221102022052.895556444@linuxfoundation.org>
+In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
+References: <20221102022051.081761052@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,144 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: Rik van Riel <riel@surriel.com>
 
-[ Upstream commit 3b32c9932853e11d71f9db012d69e92e4669ba23 ]
+commit 12df140f0bdfae5dcfc81800970dd7f6f632e00c upstream.
 
-Fix setting bits for specific flow_type for GLQF_HASH_INSET register.
-In previous version all of the bits were set only in hena register, while
-in inset only one bit was set. In order for this working correctly on all
-types of cards these bits needs to be set correctly for both hena and inset
-registers.
+The h->*_huge_pages counters are protected by the hugetlb_lock, but
+alloc_huge_page has a corner case where it can decrement the counter
+outside of the lock.
 
-Fixes: eb0dd6e4a3b3 ("i40e: Allow RSS Hash set with less than four parameters")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Link: https://lore.kernel.org/r/20221024100526.1874914-3-jacob.e.keller@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This could lead to a corrupted value of h->resv_huge_pages, which we have
+observed on our systems.
+
+Take the hugetlb_lock before decrementing h->resv_huge_pages to avoid a
+potential race.
+
+Link: https://lkml.kernel.org/r/20221017202505.0e6a4fcd@imladris.surriel.com
+Fixes: a88c76954804 ("mm: hugetlb: fix hugepage memory leak caused by wrong reserve count")
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Glen McCready <gkmccready@meta.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/intel/i40e/i40e_ethtool.c    | 71 ++++++++++---------
- 1 file changed, 38 insertions(+), 33 deletions(-)
+ mm/hugetlb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index 6c666d04d438..16adba824811 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -3067,6 +3067,7 @@ static u64 i40e_get_rss_hash_bits(struct i40e_hw *hw,
- 	return i_set;
- }
- 
-+#define FLOW_PCTYPES_SIZE 64
- /**
-  * i40e_set_rss_hash_opt - Enable/Disable flow types for RSS hash
-  * @pf: pointer to the physical function struct
-@@ -3079,9 +3080,11 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
- 	struct i40e_hw *hw = &pf->hw;
- 	u64 hena = (u64)i40e_read_rx_ctl(hw, I40E_PFQF_HENA(0)) |
- 		   ((u64)i40e_read_rx_ctl(hw, I40E_PFQF_HENA(1)) << 32);
--	u8 flow_pctype = 0;
-+	DECLARE_BITMAP(flow_pctypes, FLOW_PCTYPES_SIZE);
- 	u64 i_set, i_setc;
- 
-+	bitmap_zero(flow_pctypes, FLOW_PCTYPES_SIZE);
-+
- 	if (pf->flags & I40E_FLAG_MFP_ENABLED) {
- 		dev_err(&pf->pdev->dev,
- 			"Change of RSS hash input set is not supported when MFP mode is enabled\n");
-@@ -3097,36 +3100,35 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
- 
- 	switch (nfc->flow_type) {
- 	case TCP_V4_FLOW:
--		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV4_TCP;
-+		set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_TCP, flow_pctypes);
- 		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK);
-+			set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK,
-+				flow_pctypes);
- 		break;
- 	case TCP_V6_FLOW:
--		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV6_TCP;
--		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV4_TCP_SYN_NO_ACK);
-+		set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_TCP, flow_pctypes);
- 		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_IPV6_TCP_SYN_NO_ACK);
-+			set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_TCP_SYN_NO_ACK,
-+				flow_pctypes);
- 		break;
- 	case UDP_V4_FLOW:
--		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV4_UDP;
--		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV4_UDP) |
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV4_UDP);
--
-+		set_bit(I40E_FILTER_PCTYPE_NONF_IPV4_UDP, flow_pctypes);
-+		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE) {
-+			set_bit(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV4_UDP,
-+				flow_pctypes);
-+			set_bit(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV4_UDP,
-+				flow_pctypes);
-+		}
- 		hena |= BIT_ULL(I40E_FILTER_PCTYPE_FRAG_IPV4);
- 		break;
- 	case UDP_V6_FLOW:
--		flow_pctype = I40E_FILTER_PCTYPE_NONF_IPV6_UDP;
--		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE)
--			hena |=
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV6_UDP) |
--			  BIT_ULL(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV6_UDP);
--
-+		set_bit(I40E_FILTER_PCTYPE_NONF_IPV6_UDP, flow_pctypes);
-+		if (pf->hw_features & I40E_HW_MULTIPLE_TCP_UDP_RSS_PCTYPE) {
-+			set_bit(I40E_FILTER_PCTYPE_NONF_UNICAST_IPV6_UDP,
-+				flow_pctypes);
-+			set_bit(I40E_FILTER_PCTYPE_NONF_MULTICAST_IPV6_UDP,
-+				flow_pctypes);
-+		}
- 		hena |= BIT_ULL(I40E_FILTER_PCTYPE_FRAG_IPV6);
- 		break;
- 	case AH_ESP_V4_FLOW:
-@@ -3159,17 +3161,20 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
- 		return -EINVAL;
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -2089,11 +2089,11 @@ struct page *alloc_huge_page(struct vm_a
+ 		page = __alloc_buddy_huge_page_with_mpol(h, vma, addr);
+ 		if (!page)
+ 			goto out_uncharge_cgroup;
++		spin_lock(&hugetlb_lock);
+ 		if (!avoid_reserve && vma_has_reserves(vma, gbl_chg)) {
+ 			SetPagePrivate(page);
+ 			h->resv_huge_pages--;
+ 		}
+-		spin_lock(&hugetlb_lock);
+ 		list_move(&page->lru, &h->hugepage_activelist);
+ 		/* Fall through */
  	}
- 
--	if (flow_pctype) {
--		i_setc = (u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(0,
--					       flow_pctype)) |
--			((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1,
--					       flow_pctype)) << 32);
--		i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
--		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_pctype),
--				  (u32)i_set);
--		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_pctype),
--				  (u32)(i_set >> 32));
--		hena |= BIT_ULL(flow_pctype);
-+	if (bitmap_weight(flow_pctypes, FLOW_PCTYPES_SIZE)) {
-+		u8 flow_id;
-+
-+		for_each_set_bit(flow_id, flow_pctypes, FLOW_PCTYPES_SIZE) {
-+			i_setc = (u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_id)) |
-+				 ((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_id)) << 32);
-+			i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
-+
-+			i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_id),
-+					  (u32)i_set);
-+			i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_id),
-+					  (u32)(i_set >> 32));
-+			hena |= BIT_ULL(flow_id);
-+		}
- 	}
- 
- 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(0), (u32)hena);
--- 
-2.35.1
-
 
 
