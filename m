@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F0C1615AEA
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:43:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACE86615A91
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:33:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230012AbiKBDn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:43:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60644 "EHLO
+        id S231214AbiKBDdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:33:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230086AbiKBDnx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:43:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 953012676
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:43:52 -0700 (PDT)
+        with ESMTP id S231301AbiKBDdi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:33:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7287E303
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:33:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3CA80B82071
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:43:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10085C433D6;
-        Wed,  2 Nov 2022 03:43:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E78B617D4
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:33:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A768CC433C1;
+        Wed,  2 Nov 2022 03:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360629;
-        bh=zBfkaFvI5JWSbghU23CyT0em6cHrhP1RFQ2l0rr1BXw=;
+        s=korg; t=1667360007;
+        bh=Wxq6aeshaetIcr6LGel2hPsaDlNjyHbcr/Ujxulyb3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WFhwGkNy/8GVXdt2pCASrnD6Rp+ETyuVkxKbqqoSojNYnomL0CaSB6I2HAmsqy4xB
-         2QHU3SXZ9af4LsuCq+BOgwbRs2JJbwbzONzWOSfy+6MPSlIKqRaaK5dJq4tfrqv3/r
-         dDUtgQu1T2JcsfpnlbAZEXnPXLOamXz+e7nH+j0U=
+        b=FTvhr4c31P1fJv3cBj0A37C6LcGEJgXTCriP6kqLJ/DQ6pgIqAORsSZK2lQZI5utU
+         ykLMr3x3qMCQ5NlewpGy6ElRu1876mdcyGOJK3ok7CSeaBBBZ2tcR5swbNnGL+JKJm
+         jPPgjqr0p/KSCCcGT9fCOi5qoclwtLZ+fdJvkLsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 10/44] ALSA: Use del_timer_sync() before freeing timer
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 71/78] net: ksz884x: fix missing pci_disable_device() on error in pcidev_init()
 Date:   Wed,  2 Nov 2022 03:34:56 +0100
-Message-Id: <20221102022049.390565517@linuxfoundation.org>
+Message-Id: <20221102022055.021638449@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022049.017479464@linuxfoundation.org>
-References: <20221102022049.017479464@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit f0a868788fcbf63cdab51f5adcf73b271ede8164 upstream.
+[ Upstream commit 5da6d65590a0698199df44d095e54b0ed1708178 ]
 
-The current code for freeing the emux timer is extremely dangerous:
+pci_disable_device() need be called while module exiting, switch to use
+pcim_enable(), pci_disable_device() will be called in pcim_release()
+while unbinding device.
 
-  CPU0				CPU1
-  ----				----
-snd_emux_timer_callback()
-			    snd_emux_free()
-			      spin_lock(&emu->voice_lock)
-			      del_timer(&emu->tlist); <-- returns immediately
-			      spin_unlock(&emu->voice_lock);
-			      [..]
-			      kfree(emu);
-
-  spin_lock(&emu->voice_lock);
-
- [BOOM!]
-
-Instead just use del_timer_sync() which will wait for the timer to finish
-before continuing. No need to check if the timer is active or not when
-doing so.
-
-This doesn't fix the race of a possible re-arming of the timer, but at
-least it won't use the data that has just been freed.
-
-[ Fixed unused variable warning by tiwai ]
-
-Cc: stable@vger.kernel.org
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20221026231236.6834b551@gandalf.local.home
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8ca86fd83eae ("net: Micrel KSZ8841/2 PCI Ethernet driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221024131338.2848959-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/synth/emux/emux.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/net/ethernet/micrel/ksz884x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/synth/emux/emux.c
-+++ b/sound/synth/emux/emux.c
-@@ -138,15 +138,10 @@ EXPORT_SYMBOL(snd_emux_register);
-  */
- int snd_emux_free(struct snd_emux *emu)
- {
--	unsigned long flags;
--
- 	if (! emu)
- 		return -EINVAL;
+diff --git a/drivers/net/ethernet/micrel/ksz884x.c b/drivers/net/ethernet/micrel/ksz884x.c
+index 623a05d78343..beec87ec15f5 100644
+--- a/drivers/net/ethernet/micrel/ksz884x.c
++++ b/drivers/net/ethernet/micrel/ksz884x.c
+@@ -6936,7 +6936,7 @@ static int pcidev_init(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	char banner[sizeof(version)];
+ 	struct ksz_switch *sw = NULL;
  
--	spin_lock_irqsave(&emu->voice_lock, flags);
--	if (emu->timer_active)
--		del_timer(&emu->tlist);
--	spin_unlock_irqrestore(&emu->voice_lock, flags);
-+	del_timer_sync(&emu->tlist);
+-	result = pci_enable_device(pdev);
++	result = pcim_enable_device(pdev);
+ 	if (result)
+ 		return result;
  
- 	snd_emux_proc_free(emu);
- 	snd_emux_delete_virmidi(emu);
+-- 
+2.35.1
+
 
 
