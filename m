@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 658C96158BA
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:57:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F23406158C6
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:58:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231187AbiKBC5g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:57:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46790 "EHLO
+        id S231202AbiKBC6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:58:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231183AbiKBC5f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:57:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 287DA2252F
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:57:35 -0700 (PDT)
+        with ESMTP id S231206AbiKBC6X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:58:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97272BEE
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:58:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B99C4617BB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:57:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5917DC433D6;
-        Wed,  2 Nov 2022 02:57:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 33A5E617C8
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:58:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEEC2C433C1;
+        Wed,  2 Nov 2022 02:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357854;
-        bh=UJPEVOETrKvUzE0GMDx3EfcCr8mBGuXUlz4/LZ36ZIk=;
+        s=korg; t=1667357900;
+        bh=fdwKzYwATP3bkc7Kk/y0jQJ56kY/qgU5teorjTw9xWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vHbbP6bfrlpKs+3nQ8umMmtVomUaIISgwnsqjtTDH8s3f6yziu0ngp0/SdiV/Uw9v
-         0h9C5JFlhV+AXsP4BcM4S3gUQnmRSGaheUnCfVKTXbcSzMqRMuCbzHiGdfewSd0lZw
-         9q17AhkDJTeIKsjcl2JeJ4KYpRkmILoSDIlf9RWg=
+        b=b1U7w6dCrkEi7lOWWQLPqXPSpes+z67gZL9aWNOzSjRxADSnxysvPPV05+3EQDw8S
+         7mnA6wAkWBVUBbWtaAOJf1pCr2d/4uwg5s2rWdp3ZoTvBSN5j2Axp2vjCiETQhic2Y
+         +OG2soofQVYN1EVHr5AQxntCSOx9hiJWBE30HdOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        D Scott Phillips <scott@os.amperecomputing.com>,
-        James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 239/240] arm64: Add AMPERE1 to the Spectre-BHB affected list
-Date:   Wed,  2 Nov 2022 03:33:34 +0100
-Message-Id: <20221102022116.812925904@linuxfoundation.org>
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Meena Shanmugam <meenashanmugam@google.com>
+Subject: [PATCH 6.0 240/240] tcp/udp: Fix memory leak in ipv6_renew_options().
+Date:   Wed,  2 Nov 2022 03:33:35 +0100
+Message-Id: <20221102022116.835569094@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,80 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D Scott Phillips <scott@os.amperecomputing.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit 0e5d5ae837c8ce04d2ddb874ec5f920118bd9d31 ]
+commit 3c52c6bb831f6335c176a0fc7214e26f43adbd11 upstream.
 
-Per AmpereOne erratum AC03_CPU_12, "Branch history may allow control of
-speculative execution across software contexts," the AMPERE1 core needs the
-bhb clearing loop to mitigate Spectre-BHB, with a loop iteration count of
-11.
+syzbot reported a memory leak [0] related to IPV6_ADDRFORM.
 
-Signed-off-by: D Scott Phillips <scott@os.amperecomputing.com>
-Link: https://lore.kernel.org/r/20221011022140.432370-1-scott@os.amperecomputing.com
-Reviewed-by: James Morse <james.morse@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The scenario is that while one thread is converting an IPv6 socket into
+IPv4 with IPV6_ADDRFORM, another thread calls do_ipv6_setsockopt() and
+allocates memory to inet6_sk(sk)->XXX after conversion.
+
+Then, the converted sk with (tcp|udp)_prot never frees the IPv6 resources,
+which inet6_destroy_sock() should have cleaned up.
+
+setsockopt(IPV6_ADDRFORM)                 setsockopt(IPV6_DSTOPTS)
++-----------------------+                 +----------------------+
+- do_ipv6_setsockopt(sk, ...)
+  - sockopt_lock_sock(sk)                 - do_ipv6_setsockopt(sk, ...)
+    - lock_sock(sk)                         ^._ called via tcpv6_prot
+  - WRITE_ONCE(sk->sk_prot, &tcp_prot)          before WRITE_ONCE()
+  - xchg(&np->opt, NULL)
+  - txopt_put(opt)
+  - sockopt_release_sock(sk)
+    - release_sock(sk)                      - sockopt_lock_sock(sk)
+                                              - lock_sock(sk)
+                                            - ipv6_set_opt_hdr(sk, ...)
+                                              - ipv6_update_options(sk, opt)
+                                                - xchg(&inet6_sk(sk)->opt, opt)
+                                                  ^._ opt is never freed.
+
+                                            - sockopt_release_sock(sk)
+                                              - release_sock(sk)
+
+Since IPV6_DSTOPTS allocates options under lock_sock(), we can avoid this
+memory leak by testing whether sk_family is changed by IPV6_ADDRFORM after
+acquiring the lock.
+
+This issue exists from the initial commit between IPV6_ADDRFORM and
+IPV6_PKTOPTIONS.
+
+[0]:
+BUG: memory leak
+unreferenced object 0xffff888009ab9f80 (size 96):
+  comm "syz-executor583", pid 328, jiffies 4294916198 (age 13.034s)
+  hex dump (first 32 bytes):
+    01 00 00 00 48 00 00 00 08 00 00 00 00 00 00 00  ....H...........
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000002ee98ae1>] kmalloc include/linux/slab.h:605 [inline]
+    [<000000002ee98ae1>] sock_kmalloc+0xb3/0x100 net/core/sock.c:2566
+    [<0000000065d7b698>] ipv6_renew_options+0x21e/0x10b0 net/ipv6/exthdrs.c:1318
+    [<00000000a8c756d7>] ipv6_set_opt_hdr net/ipv6/ipv6_sockglue.c:354 [inline]
+    [<00000000a8c756d7>] do_ipv6_setsockopt.constprop.0+0x28b7/0x4350 net/ipv6/ipv6_sockglue.c:668
+    [<000000002854d204>] ipv6_setsockopt+0xdf/0x190 net/ipv6/ipv6_sockglue.c:1021
+    [<00000000e69fdcf8>] tcp_setsockopt+0x13b/0x2620 net/ipv4/tcp.c:3789
+    [<0000000090da4b9b>] __sys_setsockopt+0x239/0x620 net/socket.c:2252
+    [<00000000b10d192f>] __do_sys_setsockopt net/socket.c:2263 [inline]
+    [<00000000b10d192f>] __se_sys_setsockopt net/socket.c:2260 [inline]
+    [<00000000b10d192f>] __x64_sys_setsockopt+0xbe/0x160 net/socket.c:2260
+    [<000000000a80d7aa>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<000000000a80d7aa>] do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
+    [<000000004562b5c6>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/cputype.h | 4 ++++
- arch/arm64/kernel/proton-pack.c  | 6 ++++++
- 2 files changed, 10 insertions(+)
+ net/ipv6/ipv6_sockglue.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
-index 8aa0d276a636..abc418650fec 100644
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -60,6 +60,7 @@
- #define ARM_CPU_IMP_FUJITSU		0x46
- #define ARM_CPU_IMP_HISI		0x48
- #define ARM_CPU_IMP_APPLE		0x61
-+#define ARM_CPU_IMP_AMPERE		0xC0
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -419,6 +419,12 @@ static int do_ipv6_setsockopt(struct soc
+ 		rtnl_lock();
+ 	lock_sock(sk);
  
- #define ARM_CPU_PART_AEM_V8		0xD0F
- #define ARM_CPU_PART_FOUNDATION		0xD00
-@@ -123,6 +124,8 @@
- #define APPLE_CPU_PART_M1_ICESTORM_MAX	0x028
- #define APPLE_CPU_PART_M1_FIRESTORM_MAX	0x029
- 
-+#define AMPERE_CPU_PART_AMPERE1		0xAC3
++	/* Another thread has converted the socket into IPv4 with
++	 * IPV6_ADDRFORM concurrently.
++	 */
++	if (unlikely(sk->sk_family != AF_INET6))
++		goto unlock;
 +
- #define MIDR_CORTEX_A53 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A53)
- #define MIDR_CORTEX_A57 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A57)
- #define MIDR_CORTEX_A72 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
-@@ -172,6 +175,7 @@
- #define MIDR_APPLE_M1_FIRESTORM_PRO MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, APPLE_CPU_PART_M1_FIRESTORM_PRO)
- #define MIDR_APPLE_M1_ICESTORM_MAX MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, APPLE_CPU_PART_M1_ICESTORM_MAX)
- #define MIDR_APPLE_M1_FIRESTORM_MAX MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, APPLE_CPU_PART_M1_FIRESTORM_MAX)
-+#define MIDR_AMPERE1 MIDR_CPU_MODEL(ARM_CPU_IMP_AMPERE, AMPERE_CPU_PART_AMPERE1)
+ 	switch (optname) {
  
- /* Fujitsu Erratum 010001 affects A64FX 1.0 and 1.1, (v0r0 and v1r0) */
- #define MIDR_FUJITSU_ERRATUM_010001		MIDR_FUJITSU_A64FX
-diff --git a/arch/arm64/kernel/proton-pack.c b/arch/arm64/kernel/proton-pack.c
-index 40be3a7c2c53..428cfabd11c4 100644
---- a/arch/arm64/kernel/proton-pack.c
-+++ b/arch/arm64/kernel/proton-pack.c
-@@ -868,6 +868,10 @@ u8 spectre_bhb_loop_affected(int scope)
- 			MIDR_ALL_VERSIONS(MIDR_NEOVERSE_N1),
- 			{},
- 		};
-+		static const struct midr_range spectre_bhb_k11_list[] = {
-+			MIDR_ALL_VERSIONS(MIDR_AMPERE1),
-+			{},
-+		};
- 		static const struct midr_range spectre_bhb_k8_list[] = {
- 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A72),
- 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A57),
-@@ -878,6 +882,8 @@ u8 spectre_bhb_loop_affected(int scope)
- 			k = 32;
- 		else if (is_midr_in_range_list(read_cpuid_id(), spectre_bhb_k24_list))
- 			k = 24;
-+		else if (is_midr_in_range_list(read_cpuid_id(), spectre_bhb_k11_list))
-+			k = 11;
- 		else if (is_midr_in_range_list(read_cpuid_id(), spectre_bhb_k8_list))
- 			k =  8;
+ 	case IPV6_ADDRFORM:
+@@ -994,6 +1000,7 @@ done:
+ 		break;
+ 	}
  
--- 
-2.35.1
-
++unlock:
+ 	release_sock(sk);
+ 	if (needs_rtnl)
+ 		rtnl_unlock();
 
 
