@@ -2,127 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20DE4616F1A
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 21:47:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 661D5616F1B
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 21:48:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229882AbiKBUrw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Nov 2022 16:47:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39022 "EHLO
+        id S230274AbiKBUsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Nov 2022 16:48:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231387AbiKBUrt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 16:47:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C65FA9FD3;
-        Wed,  2 Nov 2022 13:47:47 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78105B824EC;
-        Wed,  2 Nov 2022 20:47:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BC4AC433C1;
-        Wed,  2 Nov 2022 20:47:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1667422065;
-        bh=QmdJk8xreg7eA7OSbIRZeVlOTPufqtG1mQ9ZNCgm/aE=;
-        h=Date:To:From:Subject:From;
-        b=TlB/Ba4+Fz6SqS4eNHArTLJcJ0Yuw9KbVseEbsI609En+3Tc8GM75ibk5hDu8ZZXr
-         qXZkO2J6lNraX4OC/3OTy0y33pnip4chB0maV6+LXFoTE3LKHqVxSHckcNTwlYlhF6
-         /tJBkACfuM72I7di08t9s7ChCgfBkcVKYtmeFJrQ=
-Date:   Wed, 02 Nov 2022 13:47:44 -0700
-To:     mm-commits@vger.kernel.org, willy@infradead.org,
-        stable@vger.kernel.org, hughd@google.com, axelrasmussen@google.com,
-        aarcange@redhat.com, peterx@redhat.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-shmem-use-page_mapping-to-detect-page-cache-for-uffd-continue.patch added to mm-hotfixes-unstable branch
-Message-Id: <20221102204745.1BC4AC433C1@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229493AbiKBUsP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Nov 2022 16:48:15 -0400
+Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F6F765D9;
+        Wed,  2 Nov 2022 13:48:15 -0700 (PDT)
+Received: by mail-oi1-x231.google.com with SMTP id n186so3143936oih.7;
+        Wed, 02 Nov 2022 13:48:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1R+kPdUwpILgSxzae/u/gpRu4jldLuHqjWFbxDw4WVs=;
+        b=V9JnLImy+JyZXXXE/VotKasJjk7dEVynobUp+nN4iVZ5L8Ov5fs/OL7IuPPFpTeCHP
+         CxHfsyshrcEN3YZNnmQ9x10WtyeHrezctAEsLH5/4Qt3zmSw0desubheZgVcrhycoBsY
+         LlOW6WxoAuyhmSZfwmq6hnI9umxALGdSZfB58PH17Dk7q90Psm46TbfVw6Fzo1M4+L1F
+         2vJcwBSqamCQTz0gZBKM52ulds3tou64OvWXfMagbiHU/krccTk/Pw/lm1hhOMsNmuG0
+         nP6aCMD+LLuTCsgfmB3rh8EWMPGS7AS4HfPa3j5jKWLSxGfrTthPGhZOo8TMcsO2+vE7
+         NE7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1R+kPdUwpILgSxzae/u/gpRu4jldLuHqjWFbxDw4WVs=;
+        b=PSI9elObqP5CgKutG4xMVVGvDp+vnXmqgu8xBNOz6PYxbFwDHufCyXrFwNb3zR2F95
+         TwUeK59vq6NkrD3Z0phiptfb4ycR4Va7i/sjc5U/F9kjX29exDxQKAVNXhPGvf+hXd02
+         FUs5DJa4/1Q/gQeot3d7qV6sGmkMzyvftWTYdOsyq97aOvSkHzdGpDGdF10nFJ8ieZFD
+         Ll8xHfMp76IAo4uCCKIY4uTecNyjMV/cYJstbnAIHicmamdIpj65EtCx2EWmtyceicUN
+         xx1oV3Q1It83c4CicHpK8pU1c5hsjPma1ZFPEuL1J7xE4+iOJ5lF2OyWjrphQOuWg3GR
+         GiRg==
+X-Gm-Message-State: ACrzQf0I/CpwsEwwzfeLVAlLAPfGVpNNOc9NmpsBPvelfRPtcHlkHJPp
+        RtMjHTzwDNgJkQ0vz0YRUa8=
+X-Google-Smtp-Source: AMsMyM7YjsxFiz6JcexC8tue/fTcMAq7RLth3HOCMWC5GYPADqBFwBpAh+2MIPSNixPw0Cx6asJfRg==
+X-Received: by 2002:a05:6808:1527:b0:35a:4051:7287 with SMTP id u39-20020a056808152700b0035a40517287mr2365779oiw.5.1667422094783;
+        Wed, 02 Nov 2022 13:48:14 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id s6-20020a056808008600b00354b619a375sm4931739oic.0.2022.11.02.13.48.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Nov 2022 13:48:14 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 2 Nov 2022 13:48:13 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Subject: Re: [PATCH 6.0 000/240] 6.0.7-rc1 review
+Message-ID: <20221102204813.GH2089083@roeck-us.net>
+References: <20221102022111.398283374@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Nov 02, 2022 at 03:29:35AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.7 release.
+> There are 240 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 04 Nov 2022 02:20:38 +0000.
+> Anything received after that time might be too late.
+> 
 
-The patch titled
-     Subject: mm/shmem: use page_mapping() to detect page cache for uffd continue
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-shmem-use-page_mapping-to-detect-page-cache-for-uffd-continue.patch
+Build results:
+	total: 152 pass: 152 fail: 0
+Qemu test results:
+	total: 500 pass: 500 fail: 0
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-shmem-use-page_mapping-to-detect-page-cache-for-uffd-continue.patch
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: mm/shmem: use page_mapping() to detect page cache for uffd continue
-Date: Wed, 2 Nov 2022 14:41:52 -0400
-
-mfill_atomic_install_pte() checks page->mapping to detect whether one page
-is used in the page cache.  However as pointed out by Matthew, the page
-can logically be a tail page rather than always the head in the case of
-uffd minor mode with UFFDIO_CONTINUE.  It means we could wrongly install
-one pte with shmem thp tail page assuming it's an anonymous page.
-
-It's not that clear even for anonymous page, since normally anonymous
-pages also have page->mapping being setup with the anon vma.  It's safe
-here only because the only such caller to mfill_atomic_install_pte() is
-always passing in a newly allocated page (mcopy_atomic_pte()), whose
-page->mapping is not yet setup.  However that's not extremely obvious
-either.
-
-For either of above, use page_mapping() instead.
-
-Link: https://lkml.kernel.org/r/Y2K+y7wnhC4vbnP2@x1n
-Fixes: 153132571f02 ("userfaultfd/shmem: support UFFDIO_CONTINUE for shmem")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/userfaultfd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/mm/userfaultfd.c~mm-shmem-use-page_mapping-to-detect-page-cache-for-uffd-continue
-+++ a/mm/userfaultfd.c
-@@ -64,7 +64,7 @@ int mfill_atomic_install_pte(struct mm_s
- 	pte_t _dst_pte, *dst_pte;
- 	bool writable = dst_vma->vm_flags & VM_WRITE;
- 	bool vm_shared = dst_vma->vm_flags & VM_SHARED;
--	bool page_in_cache = page->mapping;
-+	bool page_in_cache = page_mapping(page);
- 	spinlock_t *ptl;
- 	struct inode *inode;
- 	pgoff_t offset, max_off;
-_
-
-Patches currently in -mm which might be from peterx@redhat.com are
-
-partly-revert-mm-thp-carry-over-dirty-bit-when-thp-splits-on-pmd.patch
-mm-shmem-use-page_mapping-to-detect-page-cache-for-uffd-continue.patch
-selftests-vm-use-memfd-for-uffd-hugetlb-tests.patch
-selftests-vm-use-memfd-for-hugetlb-madvise-test.patch
-selftests-vm-use-memfd-for-hugepage-mremap-test.patch
-selftests-vm-drop-mnt-point-for-hugetlb-in-run_vmtestssh.patch
-mm-hugetlb-unify-clearing-of-restorereserve-for-private-pages.patch
-revert-mm-uffd-fix-warning-without-pte_marker_uffd_wp-compiled-in.patch
-
+Guenter
