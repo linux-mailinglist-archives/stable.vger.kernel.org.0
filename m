@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2834615AA1
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:37:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6D69615AA2
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:37:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229553AbiKBDhe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:37:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55208 "EHLO
+        id S229975AbiKBDhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:37:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230229AbiKBDhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:37:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D7D22655C
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:37:32 -0700 (PDT)
+        with ESMTP id S230229AbiKBDhi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:37:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4060A26560
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:37:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF3676172F
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:37:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 963C3C433D6;
-        Wed,  2 Nov 2022 03:37:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D28AF6172F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:37:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A4DFC433C1;
+        Wed,  2 Nov 2022 03:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360251;
-        bh=XmH0GaFV6fThlQ/HnfD6J8R+gGh4ag/OMSrVb29DlZk=;
+        s=korg; t=1667360257;
+        bh=IAuN8HgsS8djbMM1EszhX61MUlFv8xCXtDc38DKOo6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=opom/pStMJbJox+MgXN9JDWnh6hbgyUHMGtVHCU24P6awtrew9ygB2KDQzSdlk1og
-         JgLcIqXXJ7x1SUUn/VRE5k8WOjulaNh4fUiWby6C44jWUFlJ0MSQm/Rp3ifZdIVlp5
-         v/RD9F6Rbf8Jk0xoN6eWIzrgJjoU6vBmKu30cW9Y=
+        b=aIoTLYnm/o3O/AwD8ObL+ALPQmKxfyd5Tn1u9lnIshM86iBTF1pEnUyf7yp7JTX7j
+         X96wypAzua3wX68fHkh2xcHVkwPDXutIT8biAmnx1s0M3cS1tDrTWqqHRuzm9hRG3w
+         HWAXScJAlvrBb7QcH9Wydu+Fyf6cTwTriyz2Ln1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hyong Youb Kim <hyonkim@cisco.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 77/78] net/mlx5e: Do not increment ESN when updating IPsec ESN state
-Date:   Wed,  2 Nov 2022 03:35:02 +0100
-Message-Id: <20221102022055.192205480@linuxfoundation.org>
+        patches@lists.linux.dev, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Biju Das <biju.das.jz@bp.renesas.com>
+Subject: [PATCH 4.19 78/78] can: rcar_canfd: rcar_canfd_handle_global_receive(): fix IRQ storm on global FIFO receive
+Date:   Wed,  2 Nov 2022 03:35:03 +0100
+Message-Id: <20221102022055.220331870@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
 References: <20221102022052.895556444@linuxfoundation.org>
@@ -55,75 +52,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyong Youb Kim <hyonkim@cisco.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit 888be6b279b7257b5f6e4c9527675bff0a335596 ]
+commit 702de2c21eed04c67cefaaedc248ef16e5f6b293 upstream.
 
-An offloaded SA stops receiving after about 2^32 + replay_window
-packets. For example, when SA reaches <seq-hi 0x1, seq 0x2c>, all
-subsequent packets get dropped with SA-icv-failure (integrity_failed).
+We are seeing an IRQ storm on the global receive IRQ line under heavy
+CAN bus load conditions with both CAN channels enabled.
 
-To reproduce the bug:
-- ConnectX-6 Dx with crypto enabled (FW 22.30.1004)
-- ipsec.conf:
-  nic-offload = yes
-  replay-window = 32
-  esn = yes
-  salifetime=24h
-- Run netperf for a long time to send more than 2^32 packets
-  netperf -H <device-under-test> -t TCP_STREAM -l 20000
+Conditions:
 
-When 2^32 + replay_window packets are received, the replay window
-moves from the 2nd half of subspace (overlap=1) to the 1st half
-(overlap=0). The driver then updates the 'esn' value in NIC
-(i.e. seq_hi) as follows.
+The global receive IRQ line is shared between can0 and can1, either of
+the channels can trigger interrupt while the other channel's IRQ line
+is disabled (RFIE).
 
- seq_hi = xfrm_replay_seqhi(seq_bottom)
- new esn in NIC = seq_hi + 1
+When global a receive IRQ interrupt occurs, we mask the interrupt in
+the IRQ handler. Clearing and unmasking of the interrupt is happening
+in rx_poll(). There is a race condition where rx_poll() unmasks the
+interrupt, but the next IRQ handler does not mask the IRQ due to
+NAPIF_STATE_MISSED flag (e.g.: can0 RX FIFO interrupt is disabled and
+can1 is triggering RX interrupt, the delay in rx_poll() processing
+results in setting NAPIF_STATE_MISSED flag) leading to an IRQ storm.
 
-The +1 increment is wrong, as seq_hi already contains the correct
-seq_hi. For example, when seq_hi=1, the driver actually tells NIC to
-use seq_hi=2 (esn). This incorrect esn value causes all subsequent
-packets to fail integrity checks (SA-icv-failure). So, do not
-increment.
+This patch fixes the issue by checking IRQ active and enabled before
+handling the IRQ on a particular channel.
 
-Fixes: cb01008390bb ("net/mlx5: IPSec, Add support for ESN")
-Signed-off-by: Hyong Youb Kim <hyonkim@cisco.com>
-Acked-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Link: https://lore.kernel.org/r/20221026135153.154807-2-saeed@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: dd3bd23eb438 ("can: rcar_canfd: Add Renesas R-Car CAN FD driver")
+Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/all/20221025155657.1426948-2-biju.das.jz@bp.renesas.com
+Cc: stable@vger.kernel.org
+[mkl: adjust commit message]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+[biju: removed gpriv from RCANFD_RFCC_RFIE macro]
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/can/rcar/rcar_canfd.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
-index c467f5e981f6..70087f2542b2 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.c
-@@ -117,7 +117,6 @@ static bool mlx5e_ipsec_update_esn_state(struct mlx5e_ipsec_sa_entry *sa_entry)
- 	struct xfrm_replay_state_esn *replay_esn;
- 	u32 seq_bottom;
- 	u8 overlap;
--	u32 *esn;
+--- a/drivers/net/can/rcar/rcar_canfd.c
++++ b/drivers/net/can/rcar/rcar_canfd.c
+@@ -1079,7 +1079,7 @@ static irqreturn_t rcar_canfd_global_int
+ 	struct rcar_canfd_global *gpriv = dev_id;
+ 	struct net_device *ndev;
+ 	struct rcar_canfd_channel *priv;
+-	u32 sts, gerfl;
++	u32 sts, cc, gerfl;
+ 	u32 ch, ridx;
  
- 	if (!(sa_entry->x->props.flags & XFRM_STATE_ESN)) {
- 		sa_entry->esn_state.trigger = 0;
-@@ -130,11 +129,9 @@ static bool mlx5e_ipsec_update_esn_state(struct mlx5e_ipsec_sa_entry *sa_entry)
+ 	/* Global error interrupts still indicate a condition specific
+@@ -1097,7 +1097,9 @@ static irqreturn_t rcar_canfd_global_int
  
- 	sa_entry->esn_state.esn = xfrm_replay_seqhi(sa_entry->x,
- 						    htonl(seq_bottom));
--	esn = &sa_entry->esn_state.esn;
- 
- 	sa_entry->esn_state.trigger = 1;
- 	if (unlikely(overlap && seq_bottom < MLX5E_IPSEC_ESN_SCOPE_MID)) {
--		++(*esn);
- 		sa_entry->esn_state.overlap = 0;
- 		return true;
- 	} else if (unlikely(!overlap &&
--- 
-2.35.1
-
+ 		/* Handle Rx interrupts */
+ 		sts = rcar_canfd_read(priv->base, RCANFD_RFSTS(ridx));
+-		if (likely(sts & RCANFD_RFSTS_RFIF)) {
++		cc = rcar_canfd_read(priv->base, RCANFD_RFCC(ridx));
++		if (likely(sts & RCANFD_RFSTS_RFIF &&
++			   cc & RCANFD_RFCC_RFIE)) {
+ 			if (napi_schedule_prep(&priv->napi)) {
+ 				/* Disable Rx FIFO interrupts */
+ 				rcar_canfd_clear_bit(priv->base,
 
 
