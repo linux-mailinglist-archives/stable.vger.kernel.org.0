@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DE646158AE
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:56:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA4366158B9
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:57:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231179AbiKBC40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:56:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46126 "EHLO
+        id S231186AbiKBC5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:57:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231176AbiKBC4Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:56:25 -0400
+        with ESMTP id S231183AbiKBC53 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:57:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E76B8222BB
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:56:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 467D522528
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:57:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84B74617CF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:56:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF619C433C1;
-        Wed,  2 Nov 2022 02:56:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D84B0617BB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:57:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8077BC433D6;
+        Wed,  2 Nov 2022 02:57:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357784;
-        bh=WREgoqnsQ0kKaPI1t5f/KsG9ncORVWI1pD3LvQ8qVWE=;
+        s=korg; t=1667357848;
+        bh=ouX0T+jsaDWCGxITiUdAFjnvDrvWyVjJ9LWdKZtHcwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yxzd5RjbdjrT5hd5zmDkvWkcTHqzsKp1awjqX8lz4emj2TZlIrkd0WtlBQznvkRSn
-         QGa6d+YtkrTV8zUIKH5FdUETCFpi6+BBJz312mXFwkANIBoPVgAOX39GfvO6C9tfKp
-         sPQj80XDHyUY1Lx/ZJUibrrGFzY2LR25PVuDV5lE=
+        b=WanlXdUnaoMFTaSalkcJLOa+hCzwbWvzWW9WZ5odLRQ2JDdidsxdkZV4feNpf9lbe
+         zyCpVm8uAIwt6m5Vhr7D8n3lG24W0IydWUFKb5tdhbDJQrtaCRZqfxY8WQ5LB6lT0P
+         FrcGyexrjrJ1rA6HFdCRIubRRdzWEqO3d2EsL5/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juergen Borleis <jbe@pengutronix.de>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 211/240] net: fec: limit register access on i.MX6UL
-Date:   Wed,  2 Nov 2022 03:33:06 +0100
-Message-Id: <20221102022116.171426076@linuxfoundation.org>
+Subject: [PATCH 6.0 212/240] net: ethernet: ave: Fix MAC to be in charge of PHY PM
+Date:   Wed,  2 Nov 2022 03:33:07 +0100
+Message-Id: <20221102022116.194649009@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -53,100 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Borleis <jbe@pengutronix.de>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 0a8b43b12dd78daa77a7dc007b92770d262a2714 ]
+[ Upstream commit e2badb4bd33abe13ddc35975bd7f7f8693955a4b ]
 
-Using 'ethtool -d […]' on an i.MX6UL leads to a kernel crash:
+The phylib callback is called after MAC driver's own resume callback is
+called. For AVE driver, after resuming immediately, PHY state machine is
+in PHY_NOLINK because there is a time lag from link-down to link-up due to
+autoneg. The result is WARN_ON() dump in mdio_bus_phy_resume().
 
-   Unhandled fault: external abort on non-linefetch (0x1008) at […]
+Since ave_resume() itself calls phy_resume(), AVE driver should manage
+PHY PM. To indicate that MAC driver manages PHY PM, set
+phydev->mac_managed_pm to true to avoid the unnecessary phylib call and
+add missing phy_init_hw() to ave_resume().
 
-due to this SoC has less registers in its FEC implementation compared to other
-i.MX6 variants. Thus, a run-time decision is required to avoid access to
-non-existing registers.
-
-Fixes: a51d3ab50702 ("net: fec: use a more proper compatible string for i.MX6UL type device")
-Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20221024080552.21004-1-jbe@pengutronix.de
+Suggested-by: Heiner Kallweit <hkallweit1@gmail.com>
+Fixes: fba863b81604 ("net: phy: make PHY PM ops a no-op if MAC driver manages PHY PM")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Link: https://lore.kernel.org/r/20221024072227.24769-1-hayashi.kunihiko@socionext.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 46 ++++++++++++++++++++++-
- 1 file changed, 44 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/socionext/sni_ave.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 92c55e1a5507..a486435ceee2 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -2347,6 +2347,31 @@ static u32 fec_enet_register_offset[] = {
- 	IEEE_R_DROP, IEEE_R_FRAME_OK, IEEE_R_CRC, IEEE_R_ALIGN, IEEE_R_MACERR,
- 	IEEE_R_FDXFC, IEEE_R_OCTETS_OK
- };
-+/* for i.MX6ul */
-+static u32 fec_enet_register_offset_6ul[] = {
-+	FEC_IEVENT, FEC_IMASK, FEC_R_DES_ACTIVE_0, FEC_X_DES_ACTIVE_0,
-+	FEC_ECNTRL, FEC_MII_DATA, FEC_MII_SPEED, FEC_MIB_CTRLSTAT, FEC_R_CNTRL,
-+	FEC_X_CNTRL, FEC_ADDR_LOW, FEC_ADDR_HIGH, FEC_OPD, FEC_TXIC0, FEC_RXIC0,
-+	FEC_HASH_TABLE_HIGH, FEC_HASH_TABLE_LOW, FEC_GRP_HASH_TABLE_HIGH,
-+	FEC_GRP_HASH_TABLE_LOW, FEC_X_WMRK, FEC_R_DES_START_0,
-+	FEC_X_DES_START_0, FEC_R_BUFF_SIZE_0, FEC_R_FIFO_RSFL, FEC_R_FIFO_RSEM,
-+	FEC_R_FIFO_RAEM, FEC_R_FIFO_RAFL, FEC_RACC,
-+	RMON_T_DROP, RMON_T_PACKETS, RMON_T_BC_PKT, RMON_T_MC_PKT,
-+	RMON_T_CRC_ALIGN, RMON_T_UNDERSIZE, RMON_T_OVERSIZE, RMON_T_FRAG,
-+	RMON_T_JAB, RMON_T_COL, RMON_T_P64, RMON_T_P65TO127, RMON_T_P128TO255,
-+	RMON_T_P256TO511, RMON_T_P512TO1023, RMON_T_P1024TO2047,
-+	RMON_T_P_GTE2048, RMON_T_OCTETS,
-+	IEEE_T_DROP, IEEE_T_FRAME_OK, IEEE_T_1COL, IEEE_T_MCOL, IEEE_T_DEF,
-+	IEEE_T_LCOL, IEEE_T_EXCOL, IEEE_T_MACERR, IEEE_T_CSERR, IEEE_T_SQE,
-+	IEEE_T_FDXFC, IEEE_T_OCTETS_OK,
-+	RMON_R_PACKETS, RMON_R_BC_PKT, RMON_R_MC_PKT, RMON_R_CRC_ALIGN,
-+	RMON_R_UNDERSIZE, RMON_R_OVERSIZE, RMON_R_FRAG, RMON_R_JAB,
-+	RMON_R_RESVD_O, RMON_R_P64, RMON_R_P65TO127, RMON_R_P128TO255,
-+	RMON_R_P256TO511, RMON_R_P512TO1023, RMON_R_P1024TO2047,
-+	RMON_R_P_GTE2048, RMON_R_OCTETS,
-+	IEEE_R_DROP, IEEE_R_FRAME_OK, IEEE_R_CRC, IEEE_R_ALIGN, IEEE_R_MACERR,
-+	IEEE_R_FDXFC, IEEE_R_OCTETS_OK
-+};
- #else
- static __u32 fec_enet_register_version = 1;
- static u32 fec_enet_register_offset[] = {
-@@ -2371,7 +2396,24 @@ static void fec_enet_get_regs(struct net_device *ndev,
- 	u32 *buf = (u32 *)regbuf;
- 	u32 i, off;
- 	int ret;
-+#if defined(CONFIG_M523x) || defined(CONFIG_M527x) || defined(CONFIG_M528x) || \
-+	defined(CONFIG_M520x) || defined(CONFIG_M532x) || defined(CONFIG_ARM) || \
-+	defined(CONFIG_ARM64) || defined(CONFIG_COMPILE_TEST)
-+	u32 *reg_list;
-+	u32 reg_cnt;
+diff --git a/drivers/net/ethernet/socionext/sni_ave.c b/drivers/net/ethernet/socionext/sni_ave.c
+index f0c8de2c6075..db80a17a7e21 100644
+--- a/drivers/net/ethernet/socionext/sni_ave.c
++++ b/drivers/net/ethernet/socionext/sni_ave.c
+@@ -1229,6 +1229,8 @@ static int ave_init(struct net_device *ndev)
  
-+	if (!of_machine_is_compatible("fsl,imx6ul")) {
-+		reg_list = fec_enet_register_offset;
-+		reg_cnt = ARRAY_SIZE(fec_enet_register_offset);
-+	} else {
-+		reg_list = fec_enet_register_offset_6ul;
-+		reg_cnt = ARRAY_SIZE(fec_enet_register_offset_6ul);
-+	}
-+#else
-+	/* coldfire */
-+	static u32 *reg_list = fec_enet_register_offset;
-+	static const u32 reg_cnt = ARRAY_SIZE(fec_enet_register_offset);
-+#endif
- 	ret = pm_runtime_resume_and_get(dev);
- 	if (ret < 0)
- 		return;
-@@ -2380,8 +2422,8 @@ static void fec_enet_get_regs(struct net_device *ndev,
+ 	phy_support_asym_pause(phydev);
  
- 	memset(buf, 0, regs->len);
++	phydev->mac_managed_pm = true;
++
+ 	phy_attached_info(phydev);
  
--	for (i = 0; i < ARRAY_SIZE(fec_enet_register_offset); i++) {
--		off = fec_enet_register_offset[i];
-+	for (i = 0; i < reg_cnt; i++) {
-+		off = reg_list[i];
+ 	return 0;
+@@ -1757,6 +1759,10 @@ static int ave_resume(struct device *dev)
  
- 		if ((off == FEC_R_BOUND || off == FEC_R_FSTART) &&
- 		    !(fep->quirks & FEC_QUIRK_HAS_FRREG))
+ 	ave_global_reset(ndev);
+ 
++	ret = phy_init_hw(ndev->phydev);
++	if (ret)
++		return ret;
++
+ 	ave_ethtool_get_wol(ndev, &wol);
+ 	wol.wolopts = priv->wolopts;
+ 	__ave_ethtool_set_wol(ndev, &wol);
 -- 
 2.35.1
 
