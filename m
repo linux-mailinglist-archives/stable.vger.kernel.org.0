@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9214F615AE1
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:43:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEB4A615AE2
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:43:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229871AbiKBDnL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:43:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59442 "EHLO
+        id S229795AbiKBDnP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:43:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229996AbiKBDnF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:43:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9C9526ADF
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:43:03 -0700 (PDT)
+        with ESMTP id S229817AbiKBDnM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:43:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 268D026ADF
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:43:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69F66617CF
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:43:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 112EBC433C1;
-        Wed,  2 Nov 2022 03:43:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9663B8206F
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:43:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2A8EC433D7;
+        Wed,  2 Nov 2022 03:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667360582;
-        bh=NmtEPomvZfIFPZ553zqynoPG4Y4Jaq1jhTqxrWj45YA=;
+        s=korg; t=1667360588;
+        bh=EGgt/f4egVDDTJ1p5uzb0miQFFnQ4Z5q5N2Epy+h1h8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=otfuT/NqD791oNoFSCOniyeCcVm5jsoe5BkbryS6bfv5Xn1JOTNYrV3smrZP/AZm0
-         x4avlNOxhyBU52CdjsLY4jjSPGe3ja2eqQ2oz8HiQM0VxJbCBXVzBNOHAB70seko8y
-         B+4MyAW4GwB/cB8Nv432wSbEX1zxabGZ583UjAgo=
+        b=sQOrrLfxywjUeSYRF/2+opNseCuYNDUQ//33oY9/xCQWg4php9Su0+5wOqoF5KJp2
+         DDH2S909h+PdJZPkUjr/AQMmI3hVJAMa2lQbq8POjViSgF8Wkz9G5VV1i7h1renH4A
+         DmPR1pdyy0qGeCOu6MRWYBMyQDU1xTNsOx1ii5fw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        llvm@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Nathan Chancellor <nathan@kernel.org>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Vineet Gupta <vgupta@kernel.org>,
+        linux-snps-arc@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/60] drm/msm: Fix return type of mdp4_lvds_connector_mode_valid
-Date:   Wed,  2 Nov 2022 03:34:57 +0100
-Message-Id: <20221102022052.263342405@linuxfoundation.org>
+Subject: [PATCH 4.14 37/60] arc: iounmap() arg is volatile
+Date:   Wed,  2 Nov 2022 03:34:58 +0100
+Message-Id: <20221102022052.291402518@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022051.081761052@linuxfoundation.org>
 References: <20221102022051.081761052@linuxfoundation.org>
@@ -55,52 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 0b33a33bd15d5bab73b87152b220a8d0153a4587 ]
+[ Upstream commit c44f15c1c09481d50fd33478ebb5b8284f8f5edb ]
 
-The mode_valid field in drm_connector_helper_funcs is expected to be of
-type:
-enum drm_mode_status (* mode_valid) (struct drm_connector *connector,
-                                     struct drm_display_mode *mode);
+Add 'volatile' to iounmap()'s argument to prevent build warnings.
+This make it the same as other major architectures.
 
-The mismatched return type breaks forward edge kCFI since the underlying
-function definition does not match the function hook definition.
+Placates these warnings: (12 such warnings)
 
-The return type of mdp4_lvds_connector_mode_valid should be changed from
-int to enum drm_mode_status.
+../drivers/video/fbdev/riva/fbdev.c: In function 'rivafb_probe':
+../drivers/video/fbdev/riva/fbdev.c:2067:42: error: passing argument 1 of 'iounmap' discards 'volatile' qualifier from pointer target type [-Werror=discarded-qualifiers]
+ 2067 |                 iounmap(default_par->riva.PRAMIN);
 
-Reported-by: Dan Carpenter <error27@gmail.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1703
-Cc: llvm@lists.linux.dev
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Fixes: 3e87599b68e7 ("drm/msm/mdp4: add LVDS panel support")
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Patchwork: https://patchwork.freedesktop.org/patch/502878/
-Link: https://lore.kernel.org/r/20220913205551.155128-1-nhuck@google.com
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Fixes: 1162b0701b14b ("ARC: I/O and DMA Mappings")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Vineet Gupta <vgupta@kernel.org>
+Cc: linux-snps-arc@lists.infradead.org
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Vineet Gupta <vgupta@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/mdp/mdp4/mdp4_lvds_connector.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arc/include/asm/io.h | 2 +-
+ arch/arc/mm/ioremap.c     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/mdp/mdp4/mdp4_lvds_connector.c b/drivers/gpu/drm/msm/mdp/mdp4/mdp4_lvds_connector.c
-index e3b1c86b7aae..5c932b3fb831 100644
---- a/drivers/gpu/drm/msm/mdp/mdp4/mdp4_lvds_connector.c
-+++ b/drivers/gpu/drm/msm/mdp/mdp4/mdp4_lvds_connector.c
-@@ -71,8 +71,9 @@ static int mdp4_lvds_connector_get_modes(struct drm_connector *connector)
- 	return ret;
+diff --git a/arch/arc/include/asm/io.h b/arch/arc/include/asm/io.h
+index 2f39d9b3886e..19d0cab60a39 100644
+--- a/arch/arc/include/asm/io.h
++++ b/arch/arc/include/asm/io.h
+@@ -35,7 +35,7 @@ static inline void ioport_unmap(void __iomem *addr)
+ {
  }
  
--static int mdp4_lvds_connector_mode_valid(struct drm_connector *connector,
--				 struct drm_display_mode *mode)
-+static enum drm_mode_status
-+mdp4_lvds_connector_mode_valid(struct drm_connector *connector,
-+			       struct drm_display_mode *mode)
+-extern void iounmap(const void __iomem *addr);
++extern void iounmap(const volatile void __iomem *addr);
+ 
+ #define ioremap_nocache(phy, sz)	ioremap(phy, sz)
+ #define ioremap_wc(phy, sz)		ioremap(phy, sz)
+diff --git a/arch/arc/mm/ioremap.c b/arch/arc/mm/ioremap.c
+index 9881bd740ccc..0719b1280ef8 100644
+--- a/arch/arc/mm/ioremap.c
++++ b/arch/arc/mm/ioremap.c
+@@ -95,7 +95,7 @@ void __iomem *ioremap_prot(phys_addr_t paddr, unsigned long size,
+ EXPORT_SYMBOL(ioremap_prot);
+ 
+ 
+-void iounmap(const void __iomem *addr)
++void iounmap(const volatile void __iomem *addr)
  {
- 	struct mdp4_lvds_connector *mdp4_lvds_connector =
- 			to_mdp4_lvds_connector(connector);
+ 	/* weird double cast to handle phys_addr_t > 32 bits */
+ 	if (arc_uncached_addr_space((phys_addr_t)(u32)addr))
 -- 
 2.35.1
 
