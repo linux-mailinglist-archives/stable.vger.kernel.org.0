@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ACBF615987
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:13:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE679615927
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:06:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230519AbiKBDNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:13:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33300 "EHLO
+        id S230258AbiKBDF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:05:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230366AbiKBDM4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:12:56 -0400
+        with ESMTP id S230357AbiKBDFY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:05:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB052248C2
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:12:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7D723EBF
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:05:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5730A617D1
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:12:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4EFEC433C1;
-        Wed,  2 Nov 2022 03:12:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CA50616DB
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:05:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C4D5C433D6;
+        Wed,  2 Nov 2022 03:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358766;
-        bh=RsdjVLQae4Pd/Z5A/yQBFSu7JEC4RgP6AyW2oatoDe0=;
+        s=korg; t=1667358322;
+        bh=qZlkKXY4nsfmP00mcpEZEyYZNk9eltTrXfIR7D4ANwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6rN15LUjrQOUVEc0VMX4IvO/yHgk4/Vgrl/yuyGTRmHAqSqkwL5KTBo3naPxOqlD
-         dV2fQFa8Lq/LrUEOUJDe2VSVZ4etnHdy79WKUCcW3qXCdabZnPDT0zfS6s/n8fx+pK
-         tBNm+4CWvFpjzXRuHxUL+NYBjYOaVK1pPiu5DDOc=
+        b=Rs1dmc8iVQ6tAQtzklExL2QJf9O//pV5JukHm5ZwnCWx9h9Mag7hQ8N9ldHm0N7DB
+         xorJwUNONYz87carM0Uzk24TpKSplW5Wed0T4drDcE5aSKfmcC+roRDbpWUgl2Gal3
+         OHL6boPAVj6Dg5RBEhbeIaenLPfgJ07301FdwKys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>
-Subject: [PATCH 5.10 22/91] drm/msm/dsi: fix memory corruption with too many bridges
+        patches@lists.linux.dev, Swati Sharma <swati2.sharma@intel.com>,
+        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Uma Shankar <uma.shankar@intel.com>
+Subject: [PATCH 5.15 079/132] drm/i915/dp: Reset frl trained flag before restarting FRL training
 Date:   Wed,  2 Nov 2022 03:33:05 +0100
-Message-Id: <20221102022055.678592635@linuxfoundation.org>
+Message-Id: <20221102022101.691189623@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+References: <20221102022059.593236470@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +58,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
 
-commit 2e786eb2f9cebb07e317226b60054df510b60c65 upstream.
+[ Upstream commit 63720a561b3c98199adf0c73e152807f15cc3b7f ]
 
-Add the missing sanity check on the bridge counter to avoid corrupting
-data beyond the fixed-sized bridge array in case there are ever more
-than eight bridges.
+For cases where DP has HDMI2.1 sink and FRL Link issues are detected,
+reset the flag to state FRL trained status before restarting FRL
+training.
 
-Fixes: a689554ba6ed ("drm/msm: Initial add DSI connector support")
-Cc: stable@vger.kernel.org	# 4.1
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Tested-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/502668/
-Link: https://lore.kernel.org/r/20220913085320.8577-4-johan+linaro@kernel.org
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9488a030ac91 ("drm/i915: Add support for enabling link status and recovery")
+Cc: Swati Sharma <swati2.sharma@intel.com>
+Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Cc: Uma Shankar <uma.shankar@intel.com> (v2)
+Cc: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221011063447.904649-2-ankit.k.nautiyal@intel.com
+(cherry picked from commit 47e1a59e60c688c5f95b67277202f05b7e84c189)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/i915/display/intel_dp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/msm/dsi/dsi.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi.c
-@@ -205,6 +205,12 @@ int msm_dsi_modeset_init(struct msm_dsi
- 		return -EINVAL;
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index f87e4d510ea5..1ccdf2da042b 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -3497,6 +3497,8 @@ intel_dp_handle_hdmi_link_status_change(struct intel_dp *intel_dp)
  
- 	priv = dev->dev_private;
-+
-+	if (priv->num_bridges == ARRAY_SIZE(priv->bridges)) {
-+		DRM_DEV_ERROR(dev->dev, "too many bridges\n");
-+		return -ENOSPC;
-+	}
-+
- 	msm_dsi->dev = dev;
+ 		drm_dp_pcon_hdmi_frl_link_error_count(&intel_dp->aux, &intel_dp->attached_connector->base);
  
- 	ret = msm_dsi_host_modeset_init(msm_dsi->host, dev);
++		intel_dp->frl.is_trained = false;
++
+ 		/* Restart FRL training or fall back to TMDS mode */
+ 		intel_dp_check_frl_training(intel_dp);
+ 	}
+-- 
+2.35.1
+
 
 
