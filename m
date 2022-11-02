@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E4A6159D7
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:19:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58CFA615A75
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:31:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230012AbiKBDT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:19:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38906 "EHLO
+        id S231216AbiKBDbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:31:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230018AbiKBDTW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:19:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F54618B06
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:19:20 -0700 (PDT)
+        with ESMTP id S230258AbiKBDbQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:31:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD4431B792
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:31:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BE1E617CB
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:19:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C55F6C433C1;
-        Wed,  2 Nov 2022 03:19:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 54819CE1E47
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:31:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B94AFC433D6;
+        Wed,  2 Nov 2022 03:31:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667359159;
-        bh=C89SwVeiK7Wrzk9Bi4JtBZM6teWDDDi3jyQf+vP3CYg=;
+        s=korg; t=1667359871;
+        bh=kzTkbS1/QtQ0QTfVsFS8+FSp6kHO+xlPLZQwPaS6I8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CYAvkTpolZOKoqkgB+cDN/JNo0SVM2CF4HET/x/lR0JE/e87DuzyoyvjYaFULiFpm
-         Rm397k8FBQ8V6OPQr+KgkQq+VmNnCS5jEjRc5xyrlSfri/BtN3zpJngA2ehwekfJ6x
-         xf0kZp8waUAZ5SDjqrjMulZZLSs/e5SLM3dyOIqU=
+        b=C0y7CA4rudDGEYruL9UYzN1xYxDo+IK4PWv6VEq70rzbEUn20Fs4y4bXDYtnmZSk1
+         aipYfzCgCA5nD5xwGBPJuRk3neE5U3XbWz5/O8tLCnwQ0EKDDMeChgSVeGGkWeUMNY
+         gWnwT98hz0aoaFdaWPIHibuO15Gkavyp1GmvneDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        D Scott Phillips <scott@os.amperecomputing.com>,
-        James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 85/91] arm64: Add AMPERE1 to the Spectre-BHB affected list
-Date:   Wed,  2 Nov 2022 03:34:08 +0100
-Message-Id: <20221102022057.467300591@linuxfoundation.org>
+        patches@lists.linux.dev, Haiyang Zhang <haiyangz@microsoft.com>,
+        Gaurav Kohli <gauravkohli@linux.microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 24/78] hv_netvsc: Fix race between VF offering and VF association message from host
+Date:   Wed,  2 Nov 2022 03:34:09 +0100
+Message-Id: <20221102022053.699818579@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221102022055.039689234@linuxfoundation.org>
-References: <20221102022055.039689234@linuxfoundation.org>
+In-Reply-To: <20221102022052.895556444@linuxfoundation.org>
+References: <20221102022052.895556444@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +53,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D Scott Phillips <scott@os.amperecomputing.com>
+From: Gaurav Kohli <gauravkohli@linux.microsoft.com>
 
-[ Upstream commit 0e5d5ae837c8ce04d2ddb874ec5f920118bd9d31 ]
+commit 365e1ececb2905f94cc10a5817c5b644a32a3ae2 upstream.
 
-Per AmpereOne erratum AC03_CPU_12, "Branch history may allow control of
-speculative execution across software contexts," the AMPERE1 core needs the
-bhb clearing loop to mitigate Spectre-BHB, with a loop iteration count of
-11.
+During vm boot, there might be possibility that vf registration
+call comes before the vf association from host to vm.
 
-Signed-off-by: D Scott Phillips <scott@os.amperecomputing.com>
-Link: https://lore.kernel.org/r/20221011022140.432370-1-scott@os.amperecomputing.com
-Reviewed-by: James Morse <james.morse@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+And this might break netvsc vf path, To prevent the same block
+vf registration until vf bind message comes from host.
+
+Cc: stable@vger.kernel.org
+Fixes: 00d7ddba11436 ("hv_netvsc: pair VF based on serial number")
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: Gaurav Kohli <gauravkohli@linux.microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/cputype.h |    4 ++++
- arch/arm64/kernel/proton-pack.c  |    6 ++++++
- 2 files changed, 10 insertions(+)
+ drivers/net/hyperv/hyperv_net.h |    3 +++
+ drivers/net/hyperv/netvsc.c     |    4 ++++
+ drivers/net/hyperv/netvsc_drv.c |   20 ++++++++++++++++++++
+ 3 files changed, 27 insertions(+)
 
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -60,6 +60,7 @@
- #define ARM_CPU_IMP_FUJITSU		0x46
- #define ARM_CPU_IMP_HISI		0x48
- #define ARM_CPU_IMP_APPLE		0x61
-+#define ARM_CPU_IMP_AMPERE		0xC0
- 
- #define ARM_CPU_PART_AEM_V8		0xD0F
- #define ARM_CPU_PART_FOUNDATION		0xD00
-@@ -112,6 +113,8 @@
- #define APPLE_CPU_PART_M1_ICESTORM	0x022
- #define APPLE_CPU_PART_M1_FIRESTORM	0x023
- 
-+#define AMPERE_CPU_PART_AMPERE1		0xAC3
+--- a/drivers/net/hyperv/hyperv_net.h
++++ b/drivers/net/hyperv/hyperv_net.h
+@@ -950,6 +950,9 @@ struct net_device_context {
+ 	u32 vf_alloc;
+ 	/* Serial number of the VF to team with */
+ 	u32 vf_serial;
 +
- #define MIDR_CORTEX_A53 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A53)
- #define MIDR_CORTEX_A57 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A57)
- #define MIDR_CORTEX_A72 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
-@@ -151,6 +154,7 @@
- #define MIDR_HISI_TSV110 MIDR_CPU_MODEL(ARM_CPU_IMP_HISI, HISI_CPU_PART_TSV110)
- #define MIDR_APPLE_M1_ICESTORM MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, APPLE_CPU_PART_M1_ICESTORM)
- #define MIDR_APPLE_M1_FIRESTORM MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, APPLE_CPU_PART_M1_FIRESTORM)
-+#define MIDR_AMPERE1 MIDR_CPU_MODEL(ARM_CPU_IMP_AMPERE, AMPERE_CPU_PART_AMPERE1)
++	/* completion variable to confirm vf association */
++	struct completion vf_add;
+ };
  
- /* Fujitsu Erratum 010001 affects A64FX 1.0 and 1.1, (v0r0 and v1r0) */
- #define MIDR_FUJITSU_ERRATUM_010001		MIDR_FUJITSU_A64FX
---- a/arch/arm64/kernel/proton-pack.c
-+++ b/arch/arm64/kernel/proton-pack.c
-@@ -876,6 +876,10 @@ u8 spectre_bhb_loop_affected(int scope)
- 			MIDR_ALL_VERSIONS(MIDR_NEOVERSE_N1),
- 			{},
- 		};
-+		static const struct midr_range spectre_bhb_k11_list[] = {
-+			MIDR_ALL_VERSIONS(MIDR_AMPERE1),
-+			{},
-+		};
- 		static const struct midr_range spectre_bhb_k8_list[] = {
- 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A72),
- 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A57),
-@@ -886,6 +890,8 @@ u8 spectre_bhb_loop_affected(int scope)
- 			k = 32;
- 		else if (is_midr_in_range_list(read_cpuid_id(), spectre_bhb_k24_list))
- 			k = 24;
-+		else if (is_midr_in_range_list(read_cpuid_id(), spectre_bhb_k11_list))
-+			k = 11;
- 		else if (is_midr_in_range_list(read_cpuid_id(), spectre_bhb_k8_list))
- 			k =  8;
+ /* Per channel data */
+--- a/drivers/net/hyperv/netvsc.c
++++ b/drivers/net/hyperv/netvsc.c
+@@ -1227,6 +1227,10 @@ static void netvsc_send_vf(struct net_de
  
+ 	net_device_ctx->vf_alloc = nvmsg->msg.v4_msg.vf_assoc.allocated;
+ 	net_device_ctx->vf_serial = nvmsg->msg.v4_msg.vf_assoc.serial;
++
++	if (net_device_ctx->vf_alloc)
++		complete(&net_device_ctx->vf_add);
++
+ 	netdev_info(ndev, "VF slot %u %s\n",
+ 		    net_device_ctx->vf_serial,
+ 		    net_device_ctx->vf_alloc ? "added" : "removed");
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -2121,6 +2121,7 @@ static struct net_device *get_netvsc_bys
+ {
+ 	struct device *parent = vf_netdev->dev.parent;
+ 	struct net_device_context *ndev_ctx;
++	struct net_device *ndev;
+ 	struct pci_dev *pdev;
+ 	u32 serial;
+ 
+@@ -2147,6 +2148,18 @@ static struct net_device *get_netvsc_bys
+ 			return hv_get_drvdata(ndev_ctx->device_ctx);
+ 	}
+ 
++	/* Fallback path to check synthetic vf with
++	 * help of mac addr
++	 */
++	list_for_each_entry(ndev_ctx, &netvsc_dev_list, list) {
++		ndev = hv_get_drvdata(ndev_ctx->device_ctx);
++		if (ether_addr_equal(vf_netdev->perm_addr, ndev->perm_addr)) {
++			netdev_notice(vf_netdev,
++				      "falling back to mac addr based matching\n");
++			return ndev;
++		}
++	}
++
+ 	netdev_notice(vf_netdev,
+ 		      "no netdev found for vf serial:%u\n", serial);
+ 	return NULL;
+@@ -2216,6 +2229,11 @@ static int netvsc_vf_changed(struct net_
+ 	if (!netvsc_dev)
+ 		return NOTIFY_DONE;
+ 
++	if (vf_is_up && !net_device_ctx->vf_alloc) {
++		netdev_info(ndev, "Waiting for the VF association from host\n");
++		wait_for_completion(&net_device_ctx->vf_add);
++	}
++
+ 	netvsc_switch_datapath(ndev, vf_is_up);
+ 	netdev_info(ndev, "Data path switched %s VF: %s\n",
+ 		    vf_is_up ? "to" : "from", vf_netdev->name);
+@@ -2237,6 +2255,7 @@ static int netvsc_unregister_vf(struct n
+ 
+ 	netdev_info(ndev, "VF unregistering: %s\n", vf_netdev->name);
+ 
++	reinit_completion(&net_device_ctx->vf_add);
+ 	netdev_rx_handler_unregister(vf_netdev);
+ 	netdev_upper_dev_unlink(vf_netdev, ndev);
+ 	RCU_INIT_POINTER(net_device_ctx->vf_netdev, NULL);
+@@ -2274,6 +2293,7 @@ static int netvsc_probe(struct hv_device
+ 
+ 	INIT_DELAYED_WORK(&net_device_ctx->dwork, netvsc_link_change);
+ 
++	init_completion(&net_device_ctx->vf_add);
+ 	spin_lock_init(&net_device_ctx->lock);
+ 	INIT_LIST_HEAD(&net_device_ctx->reconfig_events);
+ 	INIT_DELAYED_WORK(&net_device_ctx->vf_takeover, netvsc_vf_setup);
 
 
