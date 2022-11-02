@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9ED761585E
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:50:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E239F61586B
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 03:51:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230473AbiKBCuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 22:50:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40268 "EHLO
+        id S230457AbiKBCvs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 22:51:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230474AbiKBCuj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:50:39 -0400
+        with ESMTP id S230501AbiKBCvo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 22:51:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D83209A7
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:50:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B55D21E35
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 19:51:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6605617CA
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:50:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 763B8C433D6;
-        Wed,  2 Nov 2022 02:50:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9672B617CE
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 02:51:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CA2BC433D6;
+        Wed,  2 Nov 2022 02:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667357437;
-        bh=XvApASpnBaHnOKvRcgjBm7nInIxXt4w7Q/G8fSB7EH4=;
+        s=korg; t=1667357502;
+        bh=UIZOseeQh6NqgYML67XjP+1RDlthbTNu22kafHd9u0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QLP8CklVsG+aCPsibL/m0ttQewV7Vg38dPvTlqYcJEchV/PN9iogWUcvk2wEKiHbZ
-         UYAu0RPAIqqdfj2FTJKLDdhfc2w93+hqWCfzuU18hG7CJzQE8IgMvyFJ3/gMYVZpBH
-         bjNNLdP/1dIsCv8MYe4r4YFhs0LnWmf0/0Nh72ho=
+        b=hZY7ICqyRcLM4w3/1S51SejUMakGA7n5fB9vB73NblVkVomHjldXFeGpKnZg8On06
+         0uBF59zhOv/Eg4+06RQ7JyQXFdICNoc7MKJsgdEGGIAdkYgx53dB0ztL/n+j21WjcH
+         wYgumnwm5nozPdYVSoT2W5nYVr9rjmF1M7qnyiBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Joel Stanley <joel@jms.id.au>, Mark Brown <broonie@kernel.org>,
+        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 152/240] spi: aspeed: Fix window offset of CE1
-Date:   Wed,  2 Nov 2022 03:32:07 +0100
-Message-Id: <20221102022114.817755256@linuxfoundation.org>
+Subject: [PATCH 6.0 153/240] ASoC: qcom: lpass-cpu: Mark HDMI TX parity register as volatile
+Date:   Wed,  2 Nov 2022 03:32:08 +0100
+Message-Id: <20221102022114.840510414@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022111.398283374@linuxfoundation.org>
 References: <20221102022111.398283374@linuxfoundation.org>
@@ -55,39 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
 
-[ Upstream commit f8aa6c895d482847c9b799dcdac8bbdb56cb8e04 ]
+[ Upstream commit 1dd5166102e7ca91e8c5d833110333835e147ddb ]
 
-The offset value of the mapping window in the kernel structure is
-calculated using the value of the previous window offset. This doesn't
-reflect how the HW is configured and can lead to erroneous setting of
-the second flash device (CE1).
+Update LPASS_HDMI_TX_PARITY_ADDR register as volatile, to fix
+dp audio failures observed with some of external monitors.
 
-Cc: Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>
-Fixes: e3228ed92893 ("spi: spi-mem: Convert Aspeed SMC driver to spi-mem")
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Link: https://lore.kernel.org/r/20221016155722.3520802-1-clg@kaod.org
+Fixes: 7cb37b7bd0d3 ("ASoC: qcom: Add support for lpass hdmi driver")
+
+Signed-off-by: Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1665825530-7593-1-git-send-email-quic_srivasam@quicinc.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-aspeed-smc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/qcom/lpass-cpu.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spi-aspeed-smc.c b/drivers/spi/spi-aspeed-smc.c
-index 3e891bf22470..5a995b5653f1 100644
---- a/drivers/spi/spi-aspeed-smc.c
-+++ b/drivers/spi/spi-aspeed-smc.c
-@@ -398,7 +398,7 @@ static void aspeed_spi_get_windows(struct aspeed_spi *aspi,
- 		windows[cs].cs = cs;
- 		windows[cs].size = data->segment_end(aspi, reg_val) -
- 			data->segment_start(aspi, reg_val);
--		windows[cs].offset = cs ? windows[cs - 1].offset + windows[cs - 1].size : 0;
-+		windows[cs].offset = data->segment_start(aspi, reg_val) - aspi->ahb_base_phy;
- 		dev_vdbg(aspi->dev, "CE%d offset=0x%.8x size=0x%x\n", cs,
- 			 windows[cs].offset, windows[cs].size);
- 	}
+diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
+index 99a3b4428591..54353842dc07 100644
+--- a/sound/soc/qcom/lpass-cpu.c
++++ b/sound/soc/qcom/lpass-cpu.c
+@@ -784,6 +784,8 @@ static bool lpass_hdmi_regmap_volatile(struct device *dev, unsigned int reg)
+ 		return true;
+ 	if (reg == LPASS_HDMI_TX_VBIT_CTL_ADDR(v))
+ 		return true;
++	if (reg == LPASS_HDMI_TX_PARITY_ADDR(v))
++		return true;
+ 
+ 	for (i = 0; i < v->hdmi_rdma_channels; ++i) {
+ 		if (reg == LPAIF_HDMI_RDMACURR_REG(v, i))
 -- 
 2.35.1
 
