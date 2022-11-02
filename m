@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ED1E61595A
-	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:09:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D71CB615964
+	for <lists+stable@lfdr.de>; Wed,  2 Nov 2022 04:10:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230342AbiKBDJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Nov 2022 23:09:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54500 "EHLO
+        id S230187AbiKBDKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Nov 2022 23:10:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230451AbiKBDJJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:09:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9DA322BD4
-        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:09:06 -0700 (PDT)
+        with ESMTP id S230012AbiKBDKH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Nov 2022 23:10:07 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0893D1571D
+        for <stable@vger.kernel.org>; Tue,  1 Nov 2022 20:10:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 101DAB82076
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:09:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E26DDC433D6;
-        Wed,  2 Nov 2022 03:09:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 56FADCE1EB9
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 03:10:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE4F5C433D7;
+        Wed,  2 Nov 2022 03:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667358543;
-        bh=Gtf+Latj5w1gXLT3LWiOYY8fMD5lnCc1wMuRgQBgHVc=;
+        s=korg; t=1667358602;
+        bh=OMkHuU58ZLwy41a0tce20orNYAf7zExXy8vTOKAXLuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=idBBKhZ6V1w1xpwV+fCKx9Qa3fccSuHvtOMbbqHK6meetFxSEgnjLk3qJ3SgMoETY
-         1BTMjzfMJlNfGQucuzH3ZaoxZm2jI2sY/28LTZA6iiXr5uiImQ49ZHt2rHkg3n67SV
-         lrcaOD0yM+DjX+Naj6GuYsZr2anDvwen2uAcpODE=
+        b=Qzrk605HkoDU+XowJtgJCUZ6D5iaFG6OqeZjpmRBAiQB9NAblvLrRNpcft1LsdDUD
+         8rhcMjHzuSYgMZp0y3uND0+kbMeq/MvbDNBtCnXUfZeodYCY9+mQgO09+HEjyqj7Ph
+         UW2Yo8qZb6sCCTPY074meqSo6wamio8eSvjYxYVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
+        patches@lists.linux.dev, Slawomir Laba <slawomirx.laba@intel.com>,
+        Michal Jaron <michalx.jaron@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 099/132] ipv6: ensure sane device mtu in tunnels
-Date:   Wed,  2 Nov 2022 03:33:25 +0100
-Message-Id: <20221102022102.245318870@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.15 100/132] i40e: Fix ethtool rx-flow-hash setting for X722
+Date:   Wed,  2 Nov 2022 03:33:26 +0100
+Message-Id: <20221102022102.273474129@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
 References: <20221102022059.593236470@linuxfoundation.org>
@@ -54,155 +57,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Slawomir Laba <slawomirx.laba@intel.com>
 
-[ Upstream commit d89d7ff01235f218dad37de84457717f699dee79 ]
+[ Upstream commit 54b5af5a438076082d482cab105b1bd484ab5074 ]
 
-Another syzbot report [1] with no reproducer hints
-at a bug in ip6_gre tunnel (dev:ip6gretap0)
+When enabling flow type for RSS hash via ethtool:
 
-Since ipv6 mcast code makes sure to read dev->mtu once
-and applies a sanity check on it (see commit b9b312a7a451
-"ipv6: mcast: better catch silly mtu values"), a remaining
-possibility is that a layer is able to set dev->mtu to
-an underflowed value (high order bit set).
+ethtool -N $pf rx-flow-hash tcp4|tcp6|udp4|udp6 s|d
 
-This could happen indeed in ip6gre_tnl_link_config_route(),
-ip6_tnl_link_config() and ipip6_tunnel_bind_dev()
+the driver would fail to setup this setting on X722
+device since it was using the mask on the register
+dedicated for X710 devices.
 
-Make sure to sanitize mtu value in a local variable before
-it is written once on dev->mtu, as lockless readers could
-catch wrong temporary value.
+Apply a different mask on the register when setting the
+RSS hash for the X722 device.
 
-[1]
-skbuff: skb_over_panic: text:ffff80000b7a2f38 len:40 put:40 head:ffff000149dcf200 data:ffff000149dcf2b0 tail:0xd8 end:0xc0 dev:ip6gretap0
-------------[ cut here ]------------
-kernel BUG at net/core/skbuff.c:120
-Internal error: Oops - BUG: 00000000f2000800 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 1 PID: 10241 Comm: kworker/1:1 Not tainted 6.0.0-rc7-syzkaller-18095-gbbed346d5a96 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/30/2022
-Workqueue: mld mld_ifc_work
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : skb_panic+0x4c/0x50 net/core/skbuff.c:116
-lr : skb_panic+0x4c/0x50 net/core/skbuff.c:116
-sp : ffff800020dd3b60
-x29: ffff800020dd3b70 x28: 0000000000000000 x27: ffff00010df2a800
-x26: 00000000000000c0 x25: 00000000000000b0 x24: ffff000149dcf200
-x23: 00000000000000c0 x22: 00000000000000d8 x21: ffff80000b7a2f38
-x20: ffff00014c2f7800 x19: 0000000000000028 x18: 00000000000001a9
-x17: 0000000000000000 x16: ffff80000db49158 x15: ffff000113bf1a80
-x14: 0000000000000000 x13: 00000000ffffffff x12: ffff000113bf1a80
-x11: ff808000081c0d5c x10: 0000000000000000 x9 : 73f125dc5c63ba00
-x8 : 73f125dc5c63ba00 x7 : ffff800008161d1c x6 : 0000000000000000
-x5 : 0000000000000080 x4 : 0000000000000001 x3 : 0000000000000000
-x2 : ffff0001fefddcd0 x1 : 0000000100000000 x0 : 0000000000000089
-Call trace:
-skb_panic+0x4c/0x50 net/core/skbuff.c:116
-skb_over_panic net/core/skbuff.c:125 [inline]
-skb_put+0xd4/0xdc net/core/skbuff.c:2049
-ip6_mc_hdr net/ipv6/mcast.c:1714 [inline]
-mld_newpack+0x14c/0x270 net/ipv6/mcast.c:1765
-add_grhead net/ipv6/mcast.c:1851 [inline]
-add_grec+0xa20/0xae0 net/ipv6/mcast.c:1989
-mld_send_cr+0x438/0x5a8 net/ipv6/mcast.c:2115
-mld_ifc_work+0x38/0x290 net/ipv6/mcast.c:2653
-process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
-worker_thread+0x340/0x610 kernel/workqueue.c:2436
-kthread+0x12c/0x158 kernel/kthread.c:376
-ret_from_fork+0x10/0x20 arch/arm64/kernel/entry.S:860
-Code: 91011400 aa0803e1 a90027ea 94373093 (d4210000)
+When displaying the flow types enabled via ethtool:
 
-Fixes: c12b395a4664 ("gre: Support GRE over IPv6")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20221024020124.3756833-1-eric.dumazet@gmail.com
+ethtool -n $pf rx-flow-hash tcp4|tcp6|udp4|udp6
+
+the driver would print wrong values for X722 device.
+
+Fix this issue by testing masks for X722 device in
+i40e_get_rss_hash_opts function.
+
+Fixes: eb0dd6e4a3b3 ("i40e: Allow RSS Hash set with less than four parameters")
+Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
+Signed-off-by: Michal Jaron <michalx.jaron@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Link: https://lore.kernel.org/r/20221024100526.1874914-1-jacob.e.keller@intel.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_gre.c    | 12 +++++++-----
- net/ipv6/ip6_tunnel.c | 11 ++++++-----
- net/ipv6/sit.c        |  8 +++++---
- 3 files changed, 18 insertions(+), 13 deletions(-)
+ .../net/ethernet/intel/i40e/i40e_ethtool.c    | 31 ++++++++++++++-----
+ drivers/net/ethernet/intel/i40e/i40e_type.h   |  4 +++
+ 2 files changed, 27 insertions(+), 8 deletions(-)
 
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index 70ef4d4ebff4..13b1748b8b46 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -1153,14 +1153,16 @@ static void ip6gre_tnl_link_config_route(struct ip6_tnl *t, int set_mtu,
- 				dev->needed_headroom = dst_len;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index 11a17ebfceef..6d94255bea5f 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -3085,10 +3085,17 @@ static int i40e_get_rss_hash_opts(struct i40e_pf *pf, struct ethtool_rxnfc *cmd)
  
- 			if (set_mtu) {
--				dev->mtu = rt->dst.dev->mtu - t_hlen;
-+				int mtu = rt->dst.dev->mtu - t_hlen;
-+
- 				if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMIT))
--					dev->mtu -= 8;
-+					mtu -= 8;
- 				if (dev->type == ARPHRD_ETHER)
--					dev->mtu -= ETH_HLEN;
-+					mtu -= ETH_HLEN;
+ 		if (cmd->flow_type == TCP_V4_FLOW ||
+ 		    cmd->flow_type == UDP_V4_FLOW) {
+-			if (i_set & I40E_L3_SRC_MASK)
+-				cmd->data |= RXH_IP_SRC;
+-			if (i_set & I40E_L3_DST_MASK)
+-				cmd->data |= RXH_IP_DST;
++			if (hw->mac.type == I40E_MAC_X722) {
++				if (i_set & I40E_X722_L3_SRC_MASK)
++					cmd->data |= RXH_IP_SRC;
++				if (i_set & I40E_X722_L3_DST_MASK)
++					cmd->data |= RXH_IP_DST;
++			} else {
++				if (i_set & I40E_L3_SRC_MASK)
++					cmd->data |= RXH_IP_SRC;
++				if (i_set & I40E_L3_DST_MASK)
++					cmd->data |= RXH_IP_DST;
++			}
+ 		} else if (cmd->flow_type == TCP_V6_FLOW ||
+ 			  cmd->flow_type == UDP_V6_FLOW) {
+ 			if (i_set & I40E_L3_V6_SRC_MASK)
+@@ -3446,12 +3453,15 @@ static int i40e_get_rxnfc(struct net_device *netdev, struct ethtool_rxnfc *cmd,
  
--				if (dev->mtu < IPV6_MIN_MTU)
--					dev->mtu = IPV6_MIN_MTU;
-+				if (mtu < IPV6_MIN_MTU)
-+					mtu = IPV6_MIN_MTU;
-+				WRITE_ONCE(dev->mtu, mtu);
- 			}
- 		}
- 		ip6_rt_put(rt);
-diff --git a/net/ipv6/ip6_tunnel.c b/net/ipv6/ip6_tunnel.c
-index fa8da8ff35b4..ea5077942871 100644
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -1446,8 +1446,8 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
- 	struct net_device *tdev = NULL;
- 	struct __ip6_tnl_parm *p = &t->parms;
- 	struct flowi6 *fl6 = &t->fl.u.ip6;
--	unsigned int mtu;
- 	int t_hlen;
-+	int mtu;
+ /**
+  * i40e_get_rss_hash_bits - Read RSS Hash bits from register
++ * @hw: hw structure
+  * @nfc: pointer to user request
+  * @i_setc: bits currently set
+  *
+  * Returns value of bits to be set per user request
+  **/
+-static u64 i40e_get_rss_hash_bits(struct ethtool_rxnfc *nfc, u64 i_setc)
++static u64 i40e_get_rss_hash_bits(struct i40e_hw *hw,
++				  struct ethtool_rxnfc *nfc,
++				  u64 i_setc)
+ {
+ 	u64 i_set = i_setc;
+ 	u64 src_l3 = 0, dst_l3 = 0;
+@@ -3470,8 +3480,13 @@ static u64 i40e_get_rss_hash_bits(struct ethtool_rxnfc *nfc, u64 i_setc)
+ 		dst_l3 = I40E_L3_V6_DST_MASK;
+ 	} else if (nfc->flow_type == TCP_V4_FLOW ||
+ 		  nfc->flow_type == UDP_V4_FLOW) {
+-		src_l3 = I40E_L3_SRC_MASK;
+-		dst_l3 = I40E_L3_DST_MASK;
++		if (hw->mac.type == I40E_MAC_X722) {
++			src_l3 = I40E_X722_L3_SRC_MASK;
++			dst_l3 = I40E_X722_L3_DST_MASK;
++		} else {
++			src_l3 = I40E_L3_SRC_MASK;
++			dst_l3 = I40E_L3_DST_MASK;
++		}
+ 	} else {
+ 		/* Any other flow type are not supported here */
+ 		return i_set;
+@@ -3586,7 +3601,7 @@ static int i40e_set_rss_hash_opt(struct i40e_pf *pf, struct ethtool_rxnfc *nfc)
+ 					       flow_pctype)) |
+ 			((u64)i40e_read_rx_ctl(hw, I40E_GLQF_HASH_INSET(1,
+ 					       flow_pctype)) << 32);
+-		i_set = i40e_get_rss_hash_bits(nfc, i_setc);
++		i_set = i40e_get_rss_hash_bits(&pf->hw, nfc, i_setc);
+ 		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(0, flow_pctype),
+ 				  (u32)i_set);
+ 		i40e_write_rx_ctl(hw, I40E_GLQF_HASH_INSET(1, flow_pctype),
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_type.h b/drivers/net/ethernet/intel/i40e/i40e_type.h
+index 7b3f30beb757..388c3d36d96a 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_type.h
++++ b/drivers/net/ethernet/intel/i40e/i40e_type.h
+@@ -1404,6 +1404,10 @@ struct i40e_lldp_variables {
+ #define I40E_PFQF_CTL_0_HASHLUTSIZE_512	0x00010000
  
- 	memcpy(dev->dev_addr, &p->laddr, sizeof(struct in6_addr));
- 	memcpy(dev->broadcast, &p->raddr, sizeof(struct in6_addr));
-@@ -1494,12 +1494,13 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
- 			dev->hard_header_len = tdev->hard_header_len + t_hlen;
- 			mtu = min_t(unsigned int, tdev->mtu, IP6_MAX_MTU);
- 
--			dev->mtu = mtu - t_hlen;
-+			mtu = mtu - t_hlen;
- 			if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMIT))
--				dev->mtu -= 8;
-+				mtu -= 8;
- 
--			if (dev->mtu < IPV6_MIN_MTU)
--				dev->mtu = IPV6_MIN_MTU;
-+			if (mtu < IPV6_MIN_MTU)
-+				mtu = IPV6_MIN_MTU;
-+			WRITE_ONCE(dev->mtu, mtu);
- 		}
- 	}
- }
-diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
-index 637cd99bd7a6..946871741f12 100644
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1130,10 +1130,12 @@ static void ipip6_tunnel_bind_dev(struct net_device *dev)
- 
- 	if (tdev && !netif_is_l3_master(tdev)) {
- 		int t_hlen = tunnel->hlen + sizeof(struct iphdr);
-+		int mtu;
- 
--		dev->mtu = tdev->mtu - t_hlen;
--		if (dev->mtu < IPV6_MIN_MTU)
--			dev->mtu = IPV6_MIN_MTU;
-+		mtu = tdev->mtu - t_hlen;
-+		if (mtu < IPV6_MIN_MTU)
-+			mtu = IPV6_MIN_MTU;
-+		WRITE_ONCE(dev->mtu, mtu);
- 	}
- }
- 
+ /* INPUT SET MASK for RSS, flow director, and flexible payload */
++#define I40E_X722_L3_SRC_SHIFT		49
++#define I40E_X722_L3_SRC_MASK		(0x3ULL << I40E_X722_L3_SRC_SHIFT)
++#define I40E_X722_L3_DST_SHIFT		41
++#define I40E_X722_L3_DST_MASK		(0x3ULL << I40E_X722_L3_DST_SHIFT)
+ #define I40E_L3_SRC_SHIFT		47
+ #define I40E_L3_SRC_MASK		(0x3ULL << I40E_L3_SRC_SHIFT)
+ #define I40E_L3_V6_SRC_SHIFT		43
 -- 
 2.35.1
 
