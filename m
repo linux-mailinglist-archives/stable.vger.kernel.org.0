@@ -2,164 +2,252 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EADF16176D6
-	for <lists+stable@lfdr.de>; Thu,  3 Nov 2022 07:45:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 261AF617707
+	for <lists+stable@lfdr.de>; Thu,  3 Nov 2022 07:59:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229567AbiKCGpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Nov 2022 02:45:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59528 "EHLO
+        id S229643AbiKCG7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Nov 2022 02:59:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229459AbiKCGpC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Nov 2022 02:45:02 -0400
-Received: from mail-qk1-x731.google.com (mail-qk1-x731.google.com [IPv6:2607:f8b0:4864:20::731])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84C6618B0C
-        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 23:45:01 -0700 (PDT)
-Received: by mail-qk1-x731.google.com with SMTP id f8so586121qkg.3
-        for <stable@vger.kernel.org>; Wed, 02 Nov 2022 23:45:01 -0700 (PDT)
+        with ESMTP id S229587AbiKCG7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Nov 2022 02:59:41 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F9BEE02
+        for <stable@vger.kernel.org>; Wed,  2 Nov 2022 23:59:40 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id b2so2773579eja.6
+        for <stable@vger.kernel.org>; Wed, 02 Nov 2022 23:59:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=NMOvgkuB8lyX4Rwafin1j3iALf2ImbCXoMHWWARw3mA=;
-        b=Q15Xi45csjZ6O+MVN2MVm8CRUJ/hZrklHbHw9um0Q2sZA8UJooWij0sXYCn26tjdq0
-         5PAiCgBnPdgApMXNQ5Epl5CE+S4cdMSoC6KCCG6SOTqGtd0I4x+ZH4Q05yO2uGyX9KIr
-         ZxEgRw9eD5Da33gpWfrX+wgQ1A8osGp5o+K/y+ITFuzR24LjPUio4AD4OWp9+pKQo9Qc
-         sgMGmUa9sNwdrNEEQ+ZWP8GuT+6rXNJBT7aKlCq4l7zRfbdyQqrfH7a7QKnaNGTlpOiv
-         b6bmg4zhKNY4va4orST6Hj4BCD7e8IjmrXiVVXbi8ES/97oVnk27oMdmSMi6s36hqMqQ
-         gM+g==
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Hj1GNgc0zC7LmySqgd1/EQ8aJdse95LGxtuBcxW3XZ8=;
+        b=ozZgIXgI0yEifAI5odai3lgHfeHbNmu2oR9AZIPI7bJ2RvVBAWpHm0FZHlQyTPau21
+         4w050QEA2dDVCaMWeLWfjjc2i5Swi4xxtpeRcDOLi6ZTOIBmzks4YQtJAoteohKy6GCv
+         dLC7EsyA8DVla5+aGFfQphXi1nRYawomvXAbCuSaZ822H4gC7NSsgh8XbKSMbFDOwGA3
+         21VKrCMNpQx8dlxLQq7FDgKrREoIiM4GUY+FjvBpEgA2r13xe3ukxcwOmyP8t2aq93kS
+         4oASIIJ8qiPEKTVtrT7JfAg6VQ3XK0g6sc15A+CEeB2zJyzwwbNuM62zmXFRs2Bd2h+e
+         EQIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=NMOvgkuB8lyX4Rwafin1j3iALf2ImbCXoMHWWARw3mA=;
-        b=HpYLwg0MEByOjB9GxoDZwe/d0gZ0iZLFPncMSn4ZYa+is3U88WI+AFte/UxIJYfcoL
-         LY3DB2Car113bAqJqv/b2a/UxkU3xksdU/1L8x34n09Y/FRFcRCm4fZ6QJilW/0sIOKo
-         ngPkQ3mJa+mGZBNIu8272Qu81v6kFuln0KGS2gAuUUQWfVaLJhkKuWScNWfpN7zFNwyz
-         Qkc3A+pwyjNwxljQc1DyRsCBSUGna0wGKhFmCzC8QPdY8LZ8ZGAQiqn5zIrTc5NN46pB
-         y0y5wYm2B7V8B8pmSCR+verg7+4H1Z7qJpSaakowC+p0t4uKQRCJtL44uyg40epT42W8
-         WoPg==
-X-Gm-Message-State: ACrzQf0vPjGcR1dgPiu3HO7TyyFC4CiBNu32NabwfzeWkK4fmst6rc0a
-        wQkbmMRcq3mQa3hb/2xc+5dh/RRqACVgJkHowaeGMmP2FPf1gg==
-X-Google-Smtp-Source: AMsMyM4Mcbfukva/wuD7n38ErlsCNtJ0tNqWtH7OzD8Ig8LkHOo9pM+3qPnxSm3ZVWlW0Eeds3qwU+BqkitGgeWEXjA=
-X-Received: by 2002:a05:620a:2888:b0:6cf:5798:9a2d with SMTP id
- j8-20020a05620a288800b006cf57989a2dmr20842513qkp.508.1667457900563; Wed, 02
- Nov 2022 23:45:00 -0700 (PDT)
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Hj1GNgc0zC7LmySqgd1/EQ8aJdse95LGxtuBcxW3XZ8=;
+        b=awdgnfY9eYZiFrq+uA+9aTLT64E7B4xE/Wr1wfexr22i1a6QgkB5Bg5MoA5R/C84yL
+         XdEiNfXtXePbfHnRE9lt5m8GsUo/yvDTvf8XiH32SZfdqLJavQblNuZd9ZW3vihdDvk7
+         fJ15f6WaLpI9dB+FDhtE6hS07oDfkcmYTbPchZ8RKqXgc+Gc+P0O46OdDcy2a7D+/lAs
+         NDt4vxvR7ImdQWQr01pVCP6GRlhZi2Wz6SWfyOMG6Cs6e0GAy0QxTScfd2z+OROxbOQX
+         rWuW/0WDWUh/1ipMKNOWXXxcre57bBLKKA8lPeUJX0qR17z+kqPsQuzjBp3rnfM0TmGf
+         RR7w==
+X-Gm-Message-State: ACrzQf2I1t3GM5OFbMZvTR7Q8AxNQGxfBVadOsKWDtHcLTfFQG5MNz/2
+        Kz3eKWTSVxa2a2qqsYMXUs7LcRazQRNUW+D4XsAsAw==
+X-Google-Smtp-Source: AMsMyM6DEBg0fVoGNFIWomQ3+QdAuc/7cfzElVqqx+iD826sQqftfI+rbjkRJeGYZAaPahJARTCwattK+Hkm7HiMRDs=
+X-Received: by 2002:a17:907:80b:b0:77a:86a1:db52 with SMTP id
+ wv11-20020a170907080b00b0077a86a1db52mr27550502ejb.294.1667458778830; Wed, 02
+ Nov 2022 23:59:38 -0700 (PDT)
 MIME-Version: 1.0
-References: <CACCxZWP-O07hx0QpZNkuG9xPH-QG71t-1e5qZU8hNkkyvFKVhA@mail.gmail.com>
- <Y2F0s/+TDf7deuIg@kroah.com> <CACCxZWPVXAR2tdf7twp=OtOico=EhaXjVQY=yxdxhMgJutuEfw@mail.gmail.com>
- <Y2MxURlV6NRjSABO@kroah.com>
-In-Reply-To: <Y2MxURlV6NRjSABO@kroah.com>
-From:   Anil Altinay <aaltinay@google.com>
-Date:   Wed, 2 Nov 2022 23:44:49 -0700
-Message-ID: <CACCxZWM6kBhEeaMSBO05e2UzBWWVTU8Cd_-nw1w-pk=JSLzivQ@mail.gmail.com>
-Subject: Re: Backporting 7a62ed61367b8fd01bae1e18e30602c25060d824 to 5.15 stable
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-Content-Type: multipart/mixed; boundary="000000000000d7e23205ec8b4b43"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20221102022059.593236470@linuxfoundation.org>
+In-Reply-To: <20221102022059.593236470@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 3 Nov 2022 12:29:27 +0530
+Message-ID: <CA+G9fYvPV69FB2QARi0whE4WE4oOb24mWRDAzE8e4YwHA_1KCA@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/132] 5.15.77-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---000000000000d7e23205ec8b4b43
-Content-Type: text/plain; charset="UTF-8"
-
-Ops, I am sorry. It is my first time sending a patch to the stable
-tree. I added "Signed-off-by: Anil Altinay <aaltinay@google.com>" at
-the end of the Signed-off list. Hopefully, it is good to go this time
-:) Thanks for your patience Greg!
-
-On Wed, Nov 2, 2022 at 8:10 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+On Wed, 2 Nov 2022 at 08:29, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On Wed, Nov 02, 2022 at 07:59:24PM -0700, Anil Altinay wrote:
-> > Please see attached patch for backported version with the commit
-> > message updated with the upstream commit SHA. I also applied this
-> > patch to our kernel and it built fine. Hopefully, it is good to go
-> > this time.
+> This is the start of the stable review cycle for the 5.15.77 release.
+> There are 132 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> You forgot to sign off on the patch :(
+> Responses should be made by Fri, 04 Nov 2022 02:20:38 +0000.
+> Anything received after that time might be too late.
 >
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.77-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
---000000000000d7e23205ec8b4b43
-Content-Type: application/octet-stream; 
-	name="0001-af_unix-Fix-memory-leaks-of-the-whole-sk-due-to-OOB- (3).patch"
-Content-Disposition: attachment; 
-	filename="0001-af_unix-Fix-memory-leaks-of-the-whole-sk-due-to-OOB- (3).patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_la0pa9lr0>
-X-Attachment-Id: f_la0pa9lr0
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-RnJvbSAwYmUwZjQ3YmFkMGM3MzYyNTFkZTQxYjY0ZTQ4NzgyZjZiNmEwZjJkIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBLdW5peXVraSBJd2FzaGltYSA8a3VuaXl1QGFtYXpvbi5jb20+
-CkRhdGU6IFRodSwgMjkgU2VwIDIwMjIgMDg6NTI6MDQgLTA3MDAKU3ViamVjdDogW1BBVENIXSBh
-Zl91bml4OiBGaXggbWVtb3J5IGxlYWtzIG9mIHRoZSB3aG9sZSBzayBkdWUgdG8gT09CIHNrYi4K
-ClsgVXBzdHJlYW0gY29tbWl0IDdhNjJlZDYxMzY3YjhmZDAxYmFlMWUxOGUzMDYwMmMyNTA2MGQ4
-MjQgXQoKc3l6Ym90IHJlcG9ydGVkIGEgc2VxdWVuY2Ugb2YgbWVtb3J5IGxlYWtzLCBhbmQgb25l
-IG9mIHRoZW0gaW5kaWNhdGVkIHdlCmZhaWxlZCB0byBmcmVlIGEgd2hvbGUgc2s6CgogIHVucmVm
-ZXJlbmNlZCBvYmplY3QgMHhmZmZmODg4MDEyNmUwMDAwIChzaXplIDEwODgpOgogICAgY29tbSAi
-c3l6LWV4ZWN1dG9yNDE5IiwgcGlkIDMyNiwgamlmZmllcyA0Mjk0NzczNjA3IChhZ2UgMTIuNjA5
-cykKICAgIGhleCBkdW1wIChmaXJzdCAzMiBieXRlcyk6CiAgICAgIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDdkIDAwIDAwIDAwIDAwIDAwIDAwIDAwICAuLi4uLi4uLn0uLi4uLi4uCiAgICAgIDAx
-IDAwIDA3IDQwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwICAuLi5ALi4uLi4u
-Li4uLi4uCiAgICBiYWNrdHJhY2U6CiAgICAgIFs8MDAwMDAwMDA2ZmVmZTc1MD5dIHNrX3Byb3Rf
-YWxsb2MrMHg2NC8weDJhMCBuZXQvY29yZS9zb2NrLmM6MTk3MAogICAgICBbPDAwMDAwMDAwNzQw
-MDZkYjU+XSBza19hbGxvYysweDNiLzB4ODAwIG5ldC9jb3JlL3NvY2suYzoyMDI5CiAgICAgIFs8
-MDAwMDAwMDA3MjhjZDQzND5dIHVuaXhfY3JlYXRlMSsweGFmLzB4OTIwIG5ldC91bml4L2FmX3Vu
-aXguYzo5MjgKICAgICAgWzwwMDAwMDAwMGEyNzlhMTM5Pl0gdW5peF9jcmVhdGUrMHgxMTMvMHgx
-ZDAgbmV0L3VuaXgvYWZfdW5peC5jOjk5NwogICAgICBbPDAwMDAwMDAwNjgyNTk4MTI+XSBfX3Nv
-Y2tfY3JlYXRlKzB4MmFiLzB4NTUwIG5ldC9zb2NrZXQuYzoxNTE2CiAgICAgIFs8MDAwMDAwMDBk
-YTE1MjFlMT5dIHNvY2tfY3JlYXRlIG5ldC9zb2NrZXQuYzoxNTY2IFtpbmxpbmVdCiAgICAgIFs8
-MDAwMDAwMDBkYTE1MjFlMT5dIF9fc3lzX3NvY2tldHBhaXIrMHgxYTgvMHg1NTAgbmV0L3NvY2tl
-dC5jOjE2OTgKICAgICAgWzwwMDAwMDAwMDdhYjI1OWUxPl0gX19kb19zeXNfc29ja2V0cGFpciBu
-ZXQvc29ja2V0LmM6MTc1MSBbaW5saW5lXQogICAgICBbPDAwMDAwMDAwN2FiMjU5ZTE+XSBfX3Nl
-X3N5c19zb2NrZXRwYWlyIG5ldC9zb2NrZXQuYzoxNzQ4IFtpbmxpbmVdCiAgICAgIFs8MDAwMDAw
-MDA3YWIyNTllMT5dIF9feDY0X3N5c19zb2NrZXRwYWlyKzB4OTcvMHgxMDAgbmV0L3NvY2tldC5j
-OjE3NDgKICAgICAgWzwwMDAwMDAwMDdkZWRkZGMxPl0gZG9fc3lzY2FsbF94NjQgYXJjaC94ODYv
-ZW50cnkvY29tbW9uLmM6NTAgW2lubGluZV0KICAgICAgWzwwMDAwMDAwMDdkZWRkZGMxPl0gZG9f
-c3lzY2FsbF82NCsweDM4LzB4OTAgYXJjaC94ODYvZW50cnkvY29tbW9uLmM6ODAKICAgICAgWzww
-MDAwMDAwMDk0NTY2NzlmPl0gZW50cnlfU1lTQ0FMTF82NF9hZnRlcl9od2ZyYW1lKzB4NjMvMHhj
-ZAoKV2UgY2FuIHJlcHJvZHVjZSB0aGlzIGlzc3VlIGJ5IGNyZWF0aW5nIHR3byBBRl9VTklYIFNP
-Q0tfU1RSRUFNIHNvY2tldHMsCnNlbmQoKWluZyBhbiBPT0Igc2tiIHRvIGVhY2ggb3RoZXIsIGFu
-ZCBjbG9zZSgpaW5nIHRoZW0gd2l0aG91dCBjb25zdW1pbmcKdGhlIE9PQiBza2JzLgoKICBpbnQg
-c2twYWlyWzJdOwoKICBzb2NrZXRwYWlyKEFGX1VOSVgsIFNPQ0tfU1RSRUFNLCAwLCBza3BhaXIp
-OwoKICBzZW5kKHNrcGFpclswXSwgIngiLCAxLCBNU0dfT09CKTsKICBzZW5kKHNrcGFpclsxXSwg
-IngiLCAxLCBNU0dfT09CKTsKCiAgY2xvc2Uoc2twYWlyWzBdKTsKICBjbG9zZShza3BhaXJbMV0p
-OwoKQ3VycmVudGx5LCB3ZSBmcmVlIGFuIE9PQiBza2IgaW4gdW5peF9zb2NrX2Rlc3RydWN0b3Io
-KSB3aGljaCBpcyBjYWxsZWQgdmlhCl9fc2tfZnJlZSgpLCBidXQgaXQncyB0b28gbGF0ZSBiZWNh
-dXNlIHRoZSByZWNlaXZlcidzIHVuaXhfc2soc2spLT5vb2Jfc2tiCmlzIGFjY291bnRlZCBhZ2Fp
-bnN0IHRoZSBzZW5kZXIncyBzay0+c2tfd21lbV9hbGxvYyBhbmQgX19za19mcmVlKCkgaXMKY2Fs
-bGVkIG9ubHkgd2hlbiBzay0+c2tfd21lbV9hbGxvYyBpcyAwLgoKSW4gdGhlIHJlcHJvIHNlcXVl
-bmNlcywgd2UgZG8gbm90IGNvbnN1bWUgdGhlIE9PQiBza2IsIHNvIGJvdGggdHdvIHNrJ3MKc29j
-a19wdXQoKSBuZXZlciByZWFjaCBfX3NrX2ZyZWUoKSBkdWUgdG8gdGhlIHBvc2l0aXZlIHNrLT5z
-a193bWVtX2FsbG9jLgpUaGVuLCBubyBvbmUgY2FuIGNvbnN1bWUgdGhlIE9PQiBza2Igbm9yIGNh
-bGwgX19za19mcmVlKCksIGFuZCB3ZSBmaW5hbGx5CmxlYWsgdGhlIHR3byB3aG9sZSBzay4KClRo
-dXMsIHdlIG11c3QgZnJlZSB0aGUgdW5jb25zdW1lZCBPT0Igc2tiIGVhcmxpZXIgd2hlbiBjbG9z
-ZSgpaW5nIHRoZQpzb2NrZXQuCgpGaXhlczogMzE0MDAxZjBiZjkyICgiYWZfdW5peDogQWRkIE9P
-QiBzdXBwb3J0IikKUmVwb3J0ZWQtYnk6IHN5emJvdCA8c3l6a2FsbGVyQGdvb2dsZWdyb3Vwcy5j
-b20+ClNpZ25lZC1vZmYtYnk6IEt1bml5dWtpIEl3YXNoaW1hIDxrdW5peXVAYW1hem9uLmNvbT4K
-U2lnbmVkLW9mZi1ieTogRGF2aWQgUy4gTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0PgpTaWdu
-ZWQtb2ZmLWJ5OiBBbmlsIEFsdGluYXkgPGFhbHRpbmF5QGdvb2dsZS5jb20+Ci0tLQogbmV0L3Vu
-aXgvYWZfdW5peC5jIHwgMTMgKysrKysrKy0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0
-aW9ucygrKSwgNiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9uZXQvdW5peC9hZl91bml4LmMg
-Yi9uZXQvdW5peC9hZl91bml4LmMKaW5kZXggNzhlMDhlODJjMDhjLi4zZDIwYTliOTIzYWIgMTAw
-NjQ0Ci0tLSBhL25ldC91bml4L2FmX3VuaXguYworKysgYi9uZXQvdW5peC9hZl91bml4LmMKQEAg
-LTUwNCwxMiArNTA0LDYgQEAgc3RhdGljIHZvaWQgdW5peF9zb2NrX2Rlc3RydWN0b3Ioc3RydWN0
-IHNvY2sgKnNrKQogCiAJc2tiX3F1ZXVlX3B1cmdlKCZzay0+c2tfcmVjZWl2ZV9xdWV1ZSk7CiAK
-LSNpZiBJU19FTkFCTEVEKENPTkZJR19BRl9VTklYX09PQikKLQlpZiAodS0+b29iX3NrYikgewot
-CQlrZnJlZV9za2IodS0+b29iX3NrYik7Ci0JCXUtPm9vYl9za2IgPSBOVUxMOwotCX0KLSNlbmRp
-ZgogCVdBUk5fT04ocmVmY291bnRfcmVhZCgmc2stPnNrX3dtZW1fYWxsb2MpKTsKIAlXQVJOX09O
-KCFza191bmhhc2hlZChzaykpOwogCVdBUk5fT04oc2stPnNrX3NvY2tldCk7CkBAIC01NTYsNiAr
-NTUwLDEzIEBAIHN0YXRpYyB2b2lkIHVuaXhfcmVsZWFzZV9zb2NrKHN0cnVjdCBzb2NrICpzaywg
-aW50IGVtYnJpb24pCiAKIAl1bml4X3N0YXRlX3VubG9jayhzayk7CiAKKyNpZiBJU19FTkFCTEVE
-KENPTkZJR19BRl9VTklYX09PQikKKwlpZiAodS0+b29iX3NrYikgeworCQlrZnJlZV9za2IodS0+
-b29iX3NrYik7CisJCXUtPm9vYl9za2IgPSBOVUxMOworCX0KKyNlbmRpZgorCiAJd2FrZV91cF9p
-bnRlcnJ1cHRpYmxlX2FsbCgmdS0+cGVlcl93YWl0KTsKIAogCWlmIChza3BhaXIgIT0gTlVMTCkg
-ewotLSAKMi4zOC4xLjI3My5nNDNhMTdiZmVhYy1nb29nCgo=
---000000000000d7e23205ec8b4b43--
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 5.15.77-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: 55ed865a9c8fe0489641ddc8e9a4ee35d74767aa
+* git describe: v5.15.76-133-g55ed865a9c8f
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.76-133-g55ed865a9c8f
+
+## No Test Regressions (compared to v5.15.76)
+
+## No Metric Regressions (compared to v5.15.76)
+
+## No Test Fixes (compared to v5.15.76)
+
+## No Metric Fixes (compared to v5.15.76)
+
+## Test result summary
+total: 156317, pass: 131770, fail: 4147, skip: 19975, xfail: 425
+
+## Build Summary
+* arc: 5 total, 5 passed, 0 failed
+* arm: 149 total, 148 passed, 1 failed
+* arm64: 47 total, 45 passed, 2 failed
+* i386: 37 total, 35 passed, 2 failed
+* mips: 27 total, 27 passed, 0 failed
+* parisc: 6 total, 6 passed, 0 failed
+* powerpc: 30 total, 30 passed, 0 failed
+* riscv: 10 total, 10 passed, 0 failed
+* s390: 12 total, 12 passed, 0 failed
+* sh: 12 total, 12 passed, 0 failed
+* sparc: 6 total, 6 passed, 0 failed
+* x86_64: 40 total, 38 passed, 2 failed
+
+## Test suites summary
+* fwts
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* perf
+* perf/Zstd-perf.data-compression
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
