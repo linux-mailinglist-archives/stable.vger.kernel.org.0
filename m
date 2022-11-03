@@ -2,35 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68023618741
-	for <lists+stable@lfdr.de>; Thu,  3 Nov 2022 19:16:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F8161874F
+	for <lists+stable@lfdr.de>; Thu,  3 Nov 2022 19:19:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231255AbiKCSQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Nov 2022 14:16:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52022 "EHLO
+        id S231472AbiKCSTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Nov 2022 14:19:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231208AbiKCSQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Nov 2022 14:16:06 -0400
-Received: from mx2.mythic-beasts.com (mx2.mythic-beasts.com [IPv6:2a00:1098:0:82:1000:0:2:1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B0C6E9A
-        for <stable@vger.kernel.org>; Thu,  3 Nov 2022 11:16:03 -0700 (PDT)
-Received: from [217.155.36.16] (port=44472 helo=Samsung-Ubuntu.fritz.box)
-        by mailhub-hex-d.mythic-beasts.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <john-linux@pelago.org.uk>)
-        id 1oqeku-009pou-FU; Thu, 03 Nov 2022 18:15:57 +0000
-From:   John Veness <john-linux@pelago.org.uk>
-To:     Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@perex.cz>
-Cc:     alsa-devel@alsa-project.org,
-        John Veness <john-linux@pelago.org.uk>, stable@vger.kernel.org
-Subject: [PATCH] ALSA: usb-audio: Add quirks for MacroSilicon MS2100/MS2106 devices (5.10)
-Date:   Thu,  3 Nov 2022 18:15:44 +0000
-Message-Id: <20221103181544.18958-1-john-linux@pelago.org.uk>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S230203AbiKCSTQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Nov 2022 14:19:16 -0400
+Received: from mail-qv1-xf36.google.com (mail-qv1-xf36.google.com [IPv6:2607:f8b0:4864:20::f36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA6FD13DDA
+        for <stable@vger.kernel.org>; Thu,  3 Nov 2022 11:19:15 -0700 (PDT)
+Received: by mail-qv1-xf36.google.com with SMTP id e15so1700745qvo.4
+        for <stable@vger.kernel.org>; Thu, 03 Nov 2022 11:19:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=aN3dMnVz+nmi7TLCuQg/8KIQmgzCsYAurRu4UYTuXBY=;
+        b=fkpYqygolTBusc2DhAgbyGqcJqlfl8mbO4AbHfABXcbAM6YMQWzQ83rV+/tM3/ISaG
+         08ugJjJGFwLe9eNtMFK6EXJ8L/NlLdvWPOa5ylDcykJiBMPo6ueo7dPQew4puJ97dsU4
+         IAszUjG77JXeR4gcMzJhogfvbJFO+FBRNhlR0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=aN3dMnVz+nmi7TLCuQg/8KIQmgzCsYAurRu4UYTuXBY=;
+        b=TyxRB/DOKmo7jLFUXucouQ3r5wa7t8t/U7ED40FJ+P5TJ0l3OOAt65zdIHy/bBOq/a
+         qGX38odT7zEr7Q4yP1VxmFXq2Dy/e2/AtU+IBrjihMGTZHC/NumjdBUTXVuD9c3MvV9H
+         hS6di2QOzvN0AISuDSRna/lGUa+kaGhAOMcQPlUi7oVVPByROmeJM+64KsbuEf7Qd9nq
+         Nx9//pbXqdNjpDa692auhXAdrMOjNWpagoc71gtVNp2+V6m1Jp0RBZLdI1s8jDQ1DatD
+         A6pwTaVPu52CV0AeMkFFps5nziBpgedIxJ57klO7Dc55xNLBvDZgAmlEzIebTr5SC7B6
+         luqQ==
+X-Gm-Message-State: ACrzQf1Rf409pKGoPrl0rkim5QMe/4D1ZxJQkVc3UZJe+1IIT/Lahn4n
+        dxznXpx9Z2XdNP1/Z+t4uLOhe35CCMtMPw==
+X-Google-Smtp-Source: AMsMyM5QDY5/3taduGoo3xDHQrAbZnBcbfZsvFGMRn1kfEURRUYFor5lms+4i19zTfzWabkpUKBjBg==
+X-Received: by 2002:ad4:4eeb:0:b0:4bb:f8cd:a5b0 with SMTP id dv11-20020ad44eeb000000b004bbf8cda5b0mr20736947qvb.123.1667499554695;
+        Thu, 03 Nov 2022 11:19:14 -0700 (PDT)
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com. [209.85.219.53])
+        by smtp.gmail.com with ESMTPSA id s9-20020a05620a29c900b006cec8001bf4sm1219716qkp.26.2022.11.03.11.19.13
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 03 Nov 2022 11:19:14 -0700 (PDT)
+Received: by mail-qv1-f53.google.com with SMTP id c8so1687353qvn.10
+        for <stable@vger.kernel.org>; Thu, 03 Nov 2022 11:19:13 -0700 (PDT)
+X-Received: by 2002:ad4:4ea3:0:b0:4bb:6b59:9785 with SMTP id
+ ed3-20020ad44ea3000000b004bb6b599785mr27117519qvb.118.1667499553629; Thu, 03
+ Nov 2022 11:19:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-BlackCat-Spam-Score: 49
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+From:   Khazhy Kumykov <khazhy@chromium.org>
+Date:   Thu, 3 Nov 2022 11:19:02 -0700
+X-Gmail-Original-Message-ID: <CACGdZYJajC76+92imPwBHUFcYQLmJKkX2xjjpoTvhgH=v9+JZg@mail.gmail.com>
+Message-ID: <CACGdZYJajC76+92imPwBHUFcYQLmJKkX2xjjpoTvhgH=v9+JZg@mail.gmail.com>
+Subject: bfq fix for missing lock
+To:     stable@vger.kernel.org
+Cc:     Yu Kuai <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        Chaitanya Kulkarni <kch@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -38,97 +69,10 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6e2c9105e0b743c92a157389d40f00b81bdd09fe]
+Please consider backporting 181490d5321806e537dc5386db5ea640b826bf78
+("block, bfq: protect 'bfqd->queued' by 'bfqd->lock'"), which was
+merged in 5.19
 
-Backported to 5.10.
-
-Treat the claimed 96kHz 1ch in the descriptors as 48kHz 2ch, so that
-the audio stream doesn't sound mono. Also fix initial stream
-alignment, so that left and right channels are in the correct order.
-
-Signed-off-by: John Veness <john-linux@pelago.org.uk>
-Cc: <stable@vger.kernel.org> # 5.10
-
----
- sound/usb/quirks-table.h | 52 ++++++++++++++++++++++++++++++++++++++++
- sound/usb/quirks.c       |  1 +
- 2 files changed, 53 insertions(+)
-
-diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-index 1ac91c46da3c..a51591f68ae6 100644
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3656,6 +3656,58 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge", "HVR-950Q"),
- 	}
- },
- 
-+/*
-+ * MacroSilicon MS2100/MS2106 based AV capture cards
-+ *
-+ * These claim 96kHz 1ch in the descriptors, but are actually 48kHz 2ch.
-+ * They also need QUIRK_AUDIO_ALIGN_TRANSFER, which makes one wonder if
-+ * they pretend to be 96kHz mono as a workaround for stereo being broken
-+ * by that...
-+ *
-+ * They also have an issue with initial stream alignment that causes the
-+ * channels to be swapped and out of phase, which is dealt with in quirks.c.
-+ */
-+{
-+	USB_AUDIO_DEVICE(0x534d, 0x0021),
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.vendor_name = "MacroSilicon",
-+		.product_name = "MS210x",
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = &(const struct snd_usb_audio_quirk[]) {
-+			{
-+				.ifnum = 2,
-+				.type = QUIRK_AUDIO_ALIGN_TRANSFER,
-+			},
-+			{
-+				.ifnum = 2,
-+				.type = QUIRK_AUDIO_STANDARD_MIXER,
-+			},
-+			{
-+				.ifnum = 3,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S16_LE,
-+					.channels = 2,
-+					.iface = 3,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.attributes = 0,
-+					.endpoint = 0x82,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC |
-+						USB_ENDPOINT_SYNC_ASYNC,
-+					.rates = SNDRV_PCM_RATE_CONTINUOUS,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+				}
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
-+
- /*
-  * MacroSilicon MS2109 based HDMI capture cards
-  *
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 41f5d8242478..04a691bc560c 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1508,6 +1508,7 @@ void snd_usb_set_format_quirk(struct snd_usb_substream *subs,
- 	case USB_ID(0x2b73, 0x0017): /* Pioneer DJ DJM-250MK2 */
- 		pioneer_djm_set_format_quirk(subs);
- 		break;
-+	case USB_ID(0x534d, 0x0021): /* MacroSilicon MS2100/MS2106 */
- 	case USB_ID(0x534d, 0x2109): /* MacroSilicon MS2109 */
- 		subs->stream_offset_adj = 2;
- 		break;
--- 
-2.34.1
-
+applies cleanly to the lts trees I have (4.14 - 5.15), glancing at the
+git history it looks like this bug has been present since bfq was
+introduced in 4.14ish, so the above stables should be enough.
