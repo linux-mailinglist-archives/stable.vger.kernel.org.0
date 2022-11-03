@@ -2,58 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76437618D08
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 00:56:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C23F618D0A
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 00:58:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229823AbiKCX4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Nov 2022 19:56:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36932 "EHLO
+        id S230487AbiKCX6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Nov 2022 19:58:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229496AbiKCX4T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Nov 2022 19:56:19 -0400
-Received: from smtp-fw-6001.amazon.com (smtp-fw-6001.amazon.com [52.95.48.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A00C81DF23
-        for <stable@vger.kernel.org>; Thu,  3 Nov 2022 16:56:17 -0700 (PDT)
+        with ESMTP id S230336AbiKCX6O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Nov 2022 19:58:14 -0400
+Received: from smtp-fw-80006.amazon.com (smtp-fw-80006.amazon.com [99.78.197.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EAFD1F2CF
+        for <stable@vger.kernel.org>; Thu,  3 Nov 2022 16:58:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1667519778; x=1699055778;
+  t=1667519893; x=1699055893;
   h=from:to:cc:subject:date:message-id:mime-version:
    content-transfer-encoding;
-  bh=hqaatb+6PWrBMshMMlOMP+XA1wGiRWWnJtbCvFwZtwU=;
-  b=Z1xUW+MmpYwucu4aj5+90TrRD5v0aTgb/k+bjJO5fAe3MTwPEsuiWWDw
-   +TbotJ96JiC3eQXS8npg7lsSFyy5dyGPiM4DKxwd8fkr+zIn3hjBcfwK7
-   b0DVsDLo/AV2bC5rHCa3PKl3NhvKo8IXIGNBzHTyV5Bi09Fqp0qHoIM8F
-   c=;
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-pdx-2b-m6i4x-ed19f671.us-west-2.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-6001.iad6.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2022 23:56:17 +0000
-Received: from EX13MTAUWB002.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-pdx-2b-m6i4x-ed19f671.us-west-2.amazon.com (Postfix) with ESMTPS id E237D81B89;
-        Thu,  3 Nov 2022 23:56:15 +0000 (UTC)
+  bh=2DhK6AHvgZ/1Z3yz4J+D8u736UcbOI9KWuFiloJ/axM=;
+  b=IdJ0Wp3Ur3Ldd+zpR8s8ff/TB5SfIG1T4jaddeXCVEolREu4/d1mrHeI
+   z7oPAv/n7pj5Zx9tFWEk7xp90mgW3oafJMVASESZbZOUBfaf0tKt4NFMk
+   PIoUacuXcVKB4jsHmQh17/AhP90oxRKKXIGRJeq6FT7v7pnNfxa9VFRjG
+   0=;
+X-IronPort-AV: E=Sophos;i="5.96,135,1665446400"; 
+   d="scan'208";a="147342745"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-pdx-1box-2bm6-32cf6363.us-west-2.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-80006.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2022 23:58:11 +0000
+Received: from EX13MTAUWB002.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-pdx-1box-2bm6-32cf6363.us-west-2.amazon.com (Postfix) with ESMTPS id AE5FE81E8F;
+        Thu,  3 Nov 2022 23:58:10 +0000 (UTC)
 Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
  EX13MTAUWB002.ant.amazon.com (10.43.161.202) with Microsoft SMTP Server (TLS)
- id 15.0.1497.42; Thu, 3 Nov 2022 23:56:15 +0000
-Received: from 88665a182662.ant.amazon.com (10.43.162.178) by
+ id 15.0.1497.42; Thu, 3 Nov 2022 23:58:09 +0000
+Received: from 88665a182662.ant.amazon.com (10.43.161.14) by
  EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.15;
- Thu, 3 Nov 2022 23:56:13 +0000
+ Thu, 3 Nov 2022 23:58:08 +0000
 From:   Kuniyuki Iwashima <kuniyu@amazon.com>
 To:     <stable@vger.kernel.org>
 CC:     Kuniyuki Iwashima <kuniyu@amazon.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10] tcp/udp: Make early_demux back namespacified.
-Date:   Thu, 3 Nov 2022 16:56:04 -0700
-Message-ID: <20221103235604.48199-1-kuniyu@amazon.com>
+Subject: [PATCH 5.15] tcp/udp: Make early_demux back namespacified.
+Date:   Thu, 3 Nov 2022 16:57:58 -0700
+Message-ID: <20221103235758.48577-1-kuniyu@amazon.com>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Originating-IP: [10.43.162.178]
-X-ClientProxiedBy: EX13D30UWB004.ant.amazon.com (10.43.161.51) To
+X-Originating-IP: [10.43.161.14]
+X-ClientProxiedBy: EX13D31UWA001.ant.amazon.com (10.43.160.57) To
  EX19D004ANA001.ant.amazon.com (10.37.240.138)
 X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -91,17 +93,17 @@ Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 ---
  include/net/protocol.h     |  4 ---
  include/net/tcp.h          |  2 +-
- include/net/udp.h          |  1 +
+ include/net/udp.h          |  2 +-
  net/ipv4/af_inet.c         | 14 ++-------
  net/ipv4/ip_input.c        | 37 ++++++++++++++----------
  net/ipv4/sysctl_net_ipv4.c | 59 ++------------------------------------
- net/ipv6/ip6_input.c       | 26 ++++++++++-------
+ net/ipv6/ip6_input.c       | 23 ++++++++-------
  net/ipv6/tcp_ipv6.c        |  9 ++----
  net/ipv6/udp.c             |  9 ++----
- 9 files changed, 47 insertions(+), 114 deletions(-)
+ 9 files changed, 45 insertions(+), 114 deletions(-)
 
 diff --git a/include/net/protocol.h b/include/net/protocol.h
-index 2b778e1d2d8f..0fd2df844fc7 100644
+index f51c06ae365f..6aef8cb11cc8 100644
 --- a/include/net/protocol.h
 +++ b/include/net/protocol.h
 @@ -35,8 +35,6 @@
@@ -113,7 +115,7 @@ index 2b778e1d2d8f..0fd2df844fc7 100644
  	int			(*handler)(struct sk_buff *skb);
  
  	/* This returns an error if we weren't able to handle the error. */
-@@ -53,8 +51,6 @@ struct net_protocol {
+@@ -52,8 +50,6 @@ struct net_protocol {
  
  #if IS_ENABLED(CONFIG_IPV6)
  struct inet6_protocol {
@@ -123,10 +125,10 @@ index 2b778e1d2d8f..0fd2df844fc7 100644
  
  	/* This returns an error if we weren't able to handle the error. */
 diff --git a/include/net/tcp.h b/include/net/tcp.h
-index bf4af27f5620..9a8d98639b20 100644
+index d2de3b7788a9..81ef95dc27ba 100644
 --- a/include/net/tcp.h
 +++ b/include/net/tcp.h
-@@ -934,7 +934,7 @@ extern const struct inet_connection_sock_af_ops ipv6_specific;
+@@ -921,7 +921,7 @@ extern const struct inet_connection_sock_af_ops ipv6_specific;
  
  INDIRECT_CALLABLE_DECLARE(void tcp_v6_send_check(struct sock *sk, struct sk_buff *skb));
  INDIRECT_CALLABLE_DECLARE(int tcp_v6_rcv(struct sk_buff *skb));
@@ -136,22 +138,23 @@ index bf4af27f5620..9a8d98639b20 100644
  #endif
  
 diff --git a/include/net/udp.h b/include/net/udp.h
-index 010bc324f860..388e68c7bca0 100644
+index 438b1b01a56c..930666c0b6e5 100644
 --- a/include/net/udp.h
 +++ b/include/net/udp.h
-@@ -176,6 +176,7 @@ INDIRECT_CALLABLE_DECLARE(int udp6_gro_complete(struct sk_buff *, int));
- struct sk_buff *udp_gro_receive(struct list_head *head, struct sk_buff *skb,
- 				struct udphdr *uh, struct sock *sk);
- int udp_gro_complete(struct sk_buff *skb, int nhoff, udp_lookup_t lookup);
+@@ -173,7 +173,7 @@ INDIRECT_CALLABLE_DECLARE(int udp4_gro_complete(struct sk_buff *, int));
+ INDIRECT_CALLABLE_DECLARE(struct sk_buff *udp6_gro_receive(struct list_head *,
+ 							   struct sk_buff *));
+ INDIRECT_CALLABLE_DECLARE(int udp6_gro_complete(struct sk_buff *, int));
+-INDIRECT_CALLABLE_DECLARE(void udp_v6_early_demux(struct sk_buff *));
 +void udp_v6_early_demux(struct sk_buff *skb);
+ INDIRECT_CALLABLE_DECLARE(int udpv6_rcv(struct sk_buff *));
  
- struct sk_buff *__udp_gso_segment(struct sk_buff *gso_skb,
- 				  netdev_features_t features, bool is_ipv6);
+ struct sk_buff *udp_gro_receive(struct list_head *head, struct sk_buff *skb,
 diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index 87d73a3e92ba..48223c264991 100644
+index e4b2ced66261..91710e5eedff 100644
 --- a/net/ipv4/af_inet.c
 +++ b/net/ipv4/af_inet.c
-@@ -1726,12 +1726,7 @@ static const struct net_protocol igmp_protocol = {
+@@ -1728,24 +1728,14 @@ static const struct net_protocol igmp_protocol = {
  };
  #endif
  
@@ -165,7 +168,6 @@ index 87d73a3e92ba..48223c264991 100644
  	.handler	=	tcp_v4_rcv,
  	.err_handler	=	tcp_v4_err,
  	.no_policy	=	1,
-@@ -1739,12 +1734,7 @@ static struct net_protocol tcp_protocol = {
  	.icmp_strict_tag_validation = 1,
  };
  
@@ -180,10 +182,10 @@ index 87d73a3e92ba..48223c264991 100644
  	.err_handler =	udp_err,
  	.no_policy =	1,
 diff --git a/net/ipv4/ip_input.c b/net/ipv4/ip_input.c
-index b0c244af1e4d..f6b3237e88ca 100644
+index d5222c0fa87c..459d7e630cb0 100644
 --- a/net/ipv4/ip_input.c
 +++ b/net/ipv4/ip_input.c
-@@ -309,14 +309,13 @@ static bool ip_can_use_hint(const struct sk_buff *skb, const struct iphdr *iph,
+@@ -310,14 +310,13 @@ static bool ip_can_use_hint(const struct sk_buff *skb, const struct iphdr *iph,
  	       ip_hdr(hint)->tos == iph->tos;
  }
  
@@ -197,10 +199,10 @@ index b0c244af1e4d..f6b3237e88ca 100644
  {
  	const struct iphdr *iph = ip_hdr(skb);
 -	int (*edemux)(struct sk_buff *skb);
+ 	int err, drop_reason;
  	struct rtable *rt;
- 	int err;
  
-@@ -327,21 +326,29 @@ static int ip_rcv_finish_core(struct net *net, struct sock *sk,
+@@ -330,21 +329,29 @@ static int ip_rcv_finish_core(struct net *net, struct sock *sk,
  			goto drop_error;
  	}
  
@@ -243,10 +245,10 @@ index b0c244af1e4d..f6b3237e88ca 100644
  	}
  
 diff --git a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
-index 86f553864f98..439970e02ac6 100644
+index a36728277e32..495c58e442e2 100644
 --- a/net/ipv4/sysctl_net_ipv4.c
 +++ b/net/ipv4/sysctl_net_ipv4.c
-@@ -361,61 +361,6 @@ static int proc_tcp_fastopen_key(struct ctl_table *table, int write,
+@@ -363,61 +363,6 @@ static int proc_tcp_fastopen_key(struct ctl_table *table, int write,
  	return ret;
  }
  
@@ -278,7 +280,7 @@ index 86f553864f98..439970e02ac6 100644
 -{
 -	int ret = 0;
 -
--	ret = proc_dointvec(table, write, buffer, lenp, ppos);
+-	ret = proc_dou8vec_minmax(table, write, buffer, lenp, ppos);
 -
 -	if (write && !ret) {
 -		int enabled = init_net.ipv4.sysctl_tcp_early_demux;
@@ -294,7 +296,7 @@ index 86f553864f98..439970e02ac6 100644
 -{
 -	int ret = 0;
 -
--	ret = proc_dointvec(table, write, buffer, lenp, ppos);
+-	ret = proc_dou8vec_minmax(table, write, buffer, lenp, ppos);
 -
 -	if (write && !ret) {
 -		int enabled = init_net.ipv4.sysctl_udp_early_demux;
@@ -308,35 +310,32 @@ index 86f553864f98..439970e02ac6 100644
  static int proc_tfo_blackhole_detect_timeout(struct ctl_table *table,
  					     int write, void *buffer,
  					     size_t *lenp, loff_t *ppos)
-@@ -685,14 +630,14 @@ static struct ctl_table ipv4_net_table[] = {
+@@ -720,14 +665,14 @@ static struct ctl_table ipv4_net_table[] = {
  		.data           = &init_net.ipv4.sysctl_udp_early_demux,
- 		.maxlen         = sizeof(int),
+ 		.maxlen         = sizeof(u8),
  		.mode           = 0644,
 -		.proc_handler   = proc_udp_early_demux
-+		.proc_handler   = proc_douintvec_minmax,
++		.proc_handler   = proc_dou8vec_minmax,
  	},
  	{
  		.procname       = "tcp_early_demux",
  		.data           = &init_net.ipv4.sysctl_tcp_early_demux,
- 		.maxlen         = sizeof(int),
+ 		.maxlen         = sizeof(u8),
  		.mode           = 0644,
 -		.proc_handler   = proc_tcp_early_demux
-+		.proc_handler   = proc_douintvec_minmax,
++		.proc_handler   = proc_dou8vec_minmax,
  	},
  	{
  		.procname       = "nexthop_compat_mode",
 diff --git a/net/ipv6/ip6_input.c b/net/ipv6/ip6_input.c
-index 15ea3d082534..4eb9fbfdce33 100644
+index d4b1e2c5aa76..32071529bfd9 100644
 --- a/net/ipv6/ip6_input.c
 +++ b/net/ipv6/ip6_input.c
-@@ -44,21 +44,25 @@
+@@ -45,20 +45,23 @@
  #include <net/inet_ecn.h>
  #include <net/dst_metadata.h>
  
--INDIRECT_CALLABLE_DECLARE(void udp_v6_early_demux(struct sk_buff *));
 -INDIRECT_CALLABLE_DECLARE(void tcp_v6_early_demux(struct sk_buff *));
-+void udp_v6_early_demux(struct sk_buff *);
-+void tcp_v6_early_demux(struct sk_buff *);
  static void ip6_rcv_finish_core(struct net *net, struct sock *sk,
  				struct sk_buff *skb)
  {
@@ -367,10 +366,10 @@ index 15ea3d082534..4eb9fbfdce33 100644
  		ip6_route_input(skb);
  }
 diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
-index c14eaec64a0b..a558dd9d177b 100644
+index 66d00368db82..51f4d330e820 100644
 --- a/net/ipv6/tcp_ipv6.c
 +++ b/net/ipv6/tcp_ipv6.c
-@@ -1818,7 +1818,7 @@ INDIRECT_CALLABLE_SCOPE int tcp_v6_rcv(struct sk_buff *skb)
+@@ -1854,7 +1854,7 @@ INDIRECT_CALLABLE_SCOPE int tcp_v6_rcv(struct sk_buff *skb)
  	goto discard_it;
  }
  
@@ -379,7 +378,7 @@ index c14eaec64a0b..a558dd9d177b 100644
  {
  	const struct ipv6hdr *hdr;
  	const struct tcphdr *th;
-@@ -2169,12 +2169,7 @@ struct proto tcpv6_prot = {
+@@ -2209,12 +2209,7 @@ struct proto tcpv6_prot = {
  };
  EXPORT_SYMBOL_GPL(tcpv6_prot);
  
@@ -394,10 +393,10 @@ index c14eaec64a0b..a558dd9d177b 100644
  	.err_handler	=	tcp_v6_err,
  	.flags		=	INET6_PROTO_NOPOLICY|INET6_PROTO_FINAL,
 diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index 514e6a55959f..1805cc5f7418 100644
+index 19b6c4da0f42..9dfb4bb54344 100644
 --- a/net/ipv6/udp.c
 +++ b/net/ipv6/udp.c
-@@ -1027,7 +1027,7 @@ static struct sock *__udp6_lib_demux_lookup(struct net *net,
+@@ -1046,7 +1046,7 @@ static struct sock *__udp6_lib_demux_lookup(struct net *net,
  	return NULL;
  }
  
@@ -406,7 +405,7 @@ index 514e6a55959f..1805cc5f7418 100644
  {
  	struct net *net = dev_net(skb->dev);
  	const struct udphdr *uh;
-@@ -1640,12 +1640,7 @@ int udpv6_getsockopt(struct sock *sk, int level, int optname,
+@@ -1659,12 +1659,7 @@ int udpv6_getsockopt(struct sock *sk, int level, int optname,
  	return ipv6_getsockopt(sk, level, optname, optval, optlen);
  }
  
