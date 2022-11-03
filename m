@@ -2,119 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C87618248
-	for <lists+stable@lfdr.de>; Thu,  3 Nov 2022 16:18:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B4F461825D
+	for <lists+stable@lfdr.de>; Thu,  3 Nov 2022 16:19:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232069AbiKCPST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Nov 2022 11:18:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58650 "EHLO
+        id S231320AbiKCPTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Nov 2022 11:19:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232073AbiKCPSS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Nov 2022 11:18:18 -0400
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8D8F193F5
-        for <stable@vger.kernel.org>; Thu,  3 Nov 2022 08:18:16 -0700 (PDT)
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-        by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20221103151814euoutp0203c2756660d9507b6cd3329ac6cd0911~kHCH0a2Vy1456714567euoutp02w
-        for <stable@vger.kernel.org>; Thu,  3 Nov 2022 15:18:14 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20221103151814euoutp0203c2756660d9507b6cd3329ac6cd0911~kHCH0a2Vy1456714567euoutp02w
+        with ESMTP id S232027AbiKCPTU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Nov 2022 11:19:20 -0400
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BCFF5FA2
+        for <stable@vger.kernel.org>; Thu,  3 Nov 2022 08:19:19 -0700 (PDT)
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20221103151918euoutp0153ea9dc6cf3687071c22fff07a8caf4d~kHDDd4qQ53071530715euoutp01h
+        for <stable@vger.kernel.org>; Thu,  3 Nov 2022 15:19:18 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20221103151918euoutp0153ea9dc6cf3687071c22fff07a8caf4d~kHDDd4qQ53071530715euoutp01h
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1667488694;
-        bh=rbUMn6HqqS28Y3UuFN/O9DUfkW3PyC6du2nvuOus6QI=;
+        s=mail20170921; t=1667488758;
+        bh=tXNppWO/p/BXEPilMY5O7F1D2ssWHgvMCPECI//TJQQ=;
         h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-        b=kfC2PtOwv7WPM5S8+tPZwGDD1OvE+/JozBYn+1hhgvwTuWH4UVDiXmkvzol6emS08
-         D5+ZXYcNrkuzoh5rSj9YH/VgeugNTIrvqK/cn+sr5n3XsbuZAOByw5mFuBmlEy9uAQ
-         7aKv20s6ckxxn5tikEVqOyMpVewQzXYlYtR0Mw1I=
-Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20221103151813eucas1p16cbb9fafd44f569dc22b07dfdb65a8d9~kHCHY8P2o2075520755eucas1p1s;
-        Thu,  3 Nov 2022 15:18:13 +0000 (GMT)
+        b=XU02lTQf6C7B7TD/mhxK7sZG+0m2NiRRSVl9u6+IBcB/MCBrnHFuf0lWpmuVmWK4Z
+         kcLdhDarxAr3T/VdQV0qDjjxF+iGWTYZdHpqQVPIWeVGTpZmG+KnhqIbuZuwJUNnux
+         GaYKrXlkAa7r2bKYHApYqTFdLJzZuxMIQ8etiX/c=
+Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
+        eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20221103151917eucas1p29e4d7ade0f1a97984fff2d4b5e7f07b5~kHDDM7IXQ1167711677eucas1p2_;
+        Thu,  3 Nov 2022 15:19:17 +0000 (GMT)
 Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
-        eusmges1new.samsung.com (EUCPMTA) with SMTP id AF.8B.29727.5BBD3636; Thu,  3
-        Nov 2022 15:18:13 +0000 (GMT)
-Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+        eusmges3new.samsung.com (EUCPMTA) with SMTP id 6A.22.19378.5FBD3636; Thu,  3
+        Nov 2022 15:19:17 +0000 (GMT)
+Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
         eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-        20221103151813eucas1p23d0fcda856fb48133a8a724f835b6665~kHCHANL7o1831318313eucas1p2P;
-        Thu,  3 Nov 2022 15:18:13 +0000 (GMT)
-Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
-        eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20221103151813eusmtrp161e2d75364bb8d19ebb5ed0ecbd8b543~kHCG-apS70504605046eusmtrp1J;
-        Thu,  3 Nov 2022 15:18:13 +0000 (GMT)
-X-AuditID: cbfec7f2-205ff7000001741f-78-6363dbb58b96
+        20221103151917eucas1p2b1aece847b31052e782360f07ccec143~kHDCpzUFi0389003890eucas1p2e;
+        Thu,  3 Nov 2022 15:19:17 +0000 (GMT)
+Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+        eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20221103151917eusmtrp22ed1cc97e1db9e636b85b5034b530405~kHDCo7R_A2941329413eusmtrp2d;
+        Thu,  3 Nov 2022 15:19:17 +0000 (GMT)
+X-AuditID: cbfec7f5-a35ff70000014bb2-14-6363dbf580b3
 Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
-        eusmgms1.samsung.com (EUCPMTA) with SMTP id 90.E1.07473.5BBD3636; Thu,  3
-        Nov 2022 15:18:13 +0000 (GMT)
+        eusmgms2.samsung.com (EUCPMTA) with SMTP id BC.78.10862.5FBD3636; Thu,  3
+        Nov 2022 15:19:17 +0000 (GMT)
 Received: from [106.210.134.192] (unknown [106.210.134.192]) by
         eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20221103151812eusmtip23de54a39b28d6be6dda5601291548f1f~kHCGaHvPd2294822948eusmtip2W;
-        Thu,  3 Nov 2022 15:18:12 +0000 (GMT)
-Message-ID: <53e543e8-f895-d4f1-da94-d0baca528e79@samsung.com>
-Date:   Thu, 3 Nov 2022 16:18:12 +0100
+        20221103151916eusmtip21a7c9778694c6d62b84007e299c42887~kHDCMZDQf2407724077eusmtip2F;
+        Thu,  3 Nov 2022 15:19:16 +0000 (GMT)
+Message-ID: <e870459c-70e8-b4f3-ef7e-4dde0e952b3d@samsung.com>
+Date:   Thu, 3 Nov 2022 16:19:17 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0)
         Gecko/20100101 Thunderbird/102.4.1
-Subject: Re: [PATCH stable-5.15 3/3] usb: dwc3: disable USB core PHY
- management
+Subject: Re: [PATCH] Revert "usb: dwc3: disable USB core PHY management"
 Content-Language: en-US
-To:     Johan Hovold <johan@kernel.org>, Stefan Agner <stefan@agner.ch>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        stable <stable@kernel.org>, regressions@lists.linux.dev,
-        krzk@kernel.org
+To:     Johan Hovold <johan+linaro@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Stefan Agner <stefan@agner.ch>, stable@vger.kernel.org
 From:   Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <Y2PVF/IJoKvSu3SM@hovoldconsulting.com>
+In-Reply-To: <20221103144648.14197-1-johan+linaro@kernel.org>
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrAKsWRmVeSWpSXmKPExsWy7djPc7pbbycnG2z9rWrRvHg9m8WKSoum
-        Gz2sFufPb2C3uLxrDpvF5w2PGS02vu1gt/h0/gKbxYKNjxgtNq9rZ3fg8lj8/R6zx+yGiywe
-        m1Z1snnsn7uG3ePF5pmMHp83yQWwRXHZpKTmZJalFunbJXBl9B74zFawQ7Ri6WzzBsa9/F2M
-        nBwSAiYSu5atZO5i5OIQEljBKHFqzwRGCOcLo8SehglQmc+MEhMaFrDAtDTdeAtVtZxRYtGE
-        oywQzkdGiQM73zOBVPEK2El8vrkTqJ2Dg0VAReL33UqIsKDEyZlPwAaJCqRI7O7eBmYLCwRK
-        TNr/CqyVWUBc4taT+WC2iICzxNVlZ8GuYBZoZ5LY/mgeI0iCTcBQouttFxuIzQl00Yqd1xkh
-        muUltr+dA9YgIfCDQ6LlyU1WiLNdJKZcaoR6QVji1fEt7BC2jMTpyT0sEA3tjBILft9ngnAm
-        MEo0PL/FCFFlLXHn3C82kHeYBTQl1u/Shwg7Skz5OosdJCwhwCdx460gxBF8EpO2TWeGCPNK
-        dLQJQVSrScw6vg5u7cELl5gnMCrNQgqXWUj+n4XknVkIexcwsqxiFE8tLc5NTy02zEst1ytO
-        zC0uzUvXS87P3cQITFSn/x3/tINx7quPeocYmTgYDzFKcDArifB+2pacLMSbklhZlVqUH19U
-        mpNafIhRmoNFSZyXbYZWspBAemJJanZqakFqEUyWiYNTqoFJ+q5m1Avn3ye3Xng99UzN1eB/
-        17nvKEmfifVxFSy/4qzLvUgoL1FLWiSE40pHu9hOI5WmrxlSHOntDPx/Ju4L6lL49Ed19QXz
-        LR4ZzSdT2rZe+fbo9jG/tCfffuhr/oz89K/kdarHxfldCfdio3yrFpYI9m4ofDuxapJkd+cf
-        tfDf4p2y7h+m7lwaXLBF5Wrig10rUm7IrBDyjb9oNuNTv+HNGwfddV3FYr5N/aq2Tit5wheT
-        xQ8b8tx8fDkcjFSEwyN0VaaFz3NV61MNmbvvMku2hMYO9YUnWA/JVZ1/3bGDff5Sg1en/s5O
-        CL+xM89WZsGWpWtjDm1c8GBmS3/LWpnP2q6LPuhkijwS0ZZRYinOSDTUYi4qTgQAEHyKo8MD
-        AAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrAIsWRmVeSWpSXmKPExsVy+t/xe7pbbycnG6w+ymPRvHg9m8WKSoum
-        Gz2sFufPb2C3uLxrDpvF5w2PGS02vu1gt/h0/gKbxYKNjxgtNq9rZ3fg8lj8/R6zx+yGiywe
-        m1Z1snnsn7uG3ePF5pmMHp83yQWwRenZFOWXlqQqZOQXl9gqRRtaGOkZWlroGZlY6hkam8da
-        GZkq6dvZpKTmZJalFunbJehl9B74zFawQ7Ri6WzzBsa9/F2MnBwSAiYSTTfeMoLYQgJLGSWa
-        HotAxGUkTk5rYIWwhSX+XOti62LkAqp5zyhx43MfG0iCV8BO4vPNncxdjBwcLAIqEr/vVkKE
-        BSVOznzCAhIWFUiR+HauDiQsLBAoMWn/KyYQm1lAXOLWk/lgtoiAs8TVZWeZQcYzC7QzSTx+
-        toIFYtdzZol//5+AHcEmYCjR9bYLbC8n0NErdl5nhJhkJtG1tQvKlpfY/nYO8wRGoVlI7piF
-        ZOEsJC2zkLQsYGRZxSiSWlqcm55bbKhXnJhbXJqXrpecn7uJERiV24793LyDcd6rj3qHGJk4
-        GA8xSnAwK4nwftqWnCzEm5JYWZValB9fVJqTWnyI0RQYFhOZpUST84FpIa8k3tDMwNTQxMzS
-        wNTSzFhJnNezoCNRSCA9sSQ1OzW1ILUIpo+Jg1Oqganhw/2JdrPurvjbyN0yteIkR2eeXJv6
-        79ryPdVLrBu35AuInC46VbVkvsDOi1+PdBx2YN8+60jdo3khstPKd85+KjHPW1NiUePZ0HUG
-        3zafZxbLfZpyObfUz2Xu5BdVOVPWzLlwJk9RMTvuAmPmum7PuRv0r2nx+Z5WaV0xWWAJp/b0
-        1BmlMg+qVsTrbjrHfmfNzwszKt49buBRzjyw/OFvyZMffiX2hSQssNnf9ZpryqaM7/bFQTG5
-        v/jPzlLtn/F7wuzpE5a1n3Rs7t42bdn/q0smVGspb6v497thqonzsnM6O2INz814tveSpH2H
-        qNvZjUWzp/ceO//j0Wvv2nVhf/wrvz7pi2PfzfaiqabrvhJLcUaioRZzUXEiAEaY6SVTAwAA
-X-CMS-MailID: 20221103151813eucas1p23d0fcda856fb48133a8a724f835b6665
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprHKsWRmVeSWpSXmKPExsWy7djPc7pfbycnG3xZYmrRvHg9m8WKSovL
+        u+awWSxa1spssWDjI0aLzeva2S1WLTjA7sDusfj7PWaPTas62Tz2z13D7rFl/2dGj8+b5AJY
+        o7hsUlJzMstSi/TtErgyDh9YxF6wUrjicMN81gbGm/xdjJwcEgImEi+XPGPsYuTiEBJYwSix
+        +NRmFgjnC6PExsnP2CGcz4wSJxt/scK0rLzdA9WynFHiftM9qKqPjBLLtq5nAaniFbCTuLH9
+        NROIzSKgIjFh2yl2iLigxMmZT8BqRAVSJHZ3bwOzhQU8JOa+nwVWzywgLnHryXwmkKEiAu2M
+        EpNv72OESJRKvGp9wAZiswkYSnS97QKzOQVsJXZtu8kCUSMvsf3tHGaQZgmBBxwSnxuXsUPc
+        7SKxYOsJFghbWOLV8S1QcRmJ/zshtkmAbFvw+z6UM4FRouH5LUaIKmuJO+d+Aa3jAFqhKbF+
+        lz5E2FHi75kfzCBhCQE+iRtvBSGO4JOYtG06VJhXoqNNCKJaTWLW8XVwaw9euMQ8gVFpFlK4
+        zELy/ywk78xC2LuAkWUVo3hqaXFuemqxcV5quV5xYm5xaV66XnJ+7iZGYBI6/e/41x2MK159
+        1DvEyMTBeIhRgoNZSYT307bkZCHelMTKqtSi/Pii0pzU4kOM0hwsSuK8bDO0koUE0hNLUrNT
+        UwtSi2CyTBycUg1MDpdml65nnnMw48f+K0xepYtfLG3sqVhw0sdWfbvBLP1Dcv1RBgG3hJa+
+        F11gtz910fStkxgssk/evVVmXWj77F3QnBeN03ycD91U4FFm0ujt+jC1pePDrYwtnbsTOR8t
+        ZvCsy56weJU4z+M17POkdFo5xWQsQ1Rv65b+cPu54OQz0d8fWo7tkM03aRWU+HnSrUJGW/x5
+        yQ1m4YNXLwTLRv81/rZc58XSHU/+Ozw65d7OqLI0p9V1vWleVtjargVsDU8MvJ/k7QjkmPRm
+        lvD9a88t2l82Ok7MdE/3f3Ygp/f50853Lt8vLKzdr+9n5e/w3UPO+aHtr++iYok6T99x/5KJ
+        UeGb39554HrpHLVEJZbijERDLeai4kQAYnLV0bEDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrPIsWRmVeSWpSXmKPExsVy+t/xe7pfbycnG6w8y2/RvHg9m8WKSovL
+        u+awWSxa1spssWDjI0aLzeva2S1WLTjA7sDusfj7PWaPTas62Tz2z13D7rFl/2dGj8+b5AJY
+        o/RsivJLS1IVMvKLS2yVog0tjPQMLS30jEws9QyNzWOtjEyV9O1sUlJzMstSi/TtEvQyDh9Y
+        xF6wUrjicMN81gbGm/xdjJwcEgImEitv9zB2MXJxCAksZZQ4cK+DDSIhI3FyWgMrhC0s8eda
+        FxtE0XtGiTfP7oEleAXsJG5sf80EYrMIqEhM2HaKHSIuKHFy5hOWLkYODlGBFIlv5+pAwsIC
+        HhJz388CK2cWEJe49WQ+E8hMEYFORol1t+ewQiRKJR6dPsAMsWwCo8Tih99YQBJsAoYSXW+7
+        wK7jFLCV2LXtJgtEg5lE19YuRghbXmL72znMExiFZiG5YxaShbOQtMxC0rKAkWUVo0hqaXFu
+        em6xkV5xYm5xaV66XnJ+7iZGYMxtO/Zzyw7Gla8+6h1iZOJgPMQowcGsJML7aVtyshBvSmJl
+        VWpRfnxRaU5q8SFGU2BgTGSWEk3OB0Z9Xkm8oZmBqaGJmaWBqaWZsZI4r2dBR6KQQHpiSWp2
+        ampBahFMHxMHp1QDk7qZx9PNz47OWX9H5Fnz3aPrXa77ZYtE6CavLsnJ9J/dsCsr9NCW7vii
+        mTJ3dcLvyvyUvHRewOXckuwTLXxJZYu0pzSc5S77c0VorpXL8juLn8+exutqWnN/pt+70req
+        G5mlS/z++QtvmZ9v8/3AvntHtl/uObh3SprJa+mJ2nOsjq+c8FpU1EIuysp23s0+Bdbe0uv5
+        EXEWou58Xy78vr/B4sxvZtMAL8cJbCbcy/z1F84Rm3j/3g7HDyknfqlosgt/vVWd/r/ZpD2C
+        /y3fmXv8/oybZO6+bC+foT0lQG4p0wsbwzOhZ29aNU77xbSeY+H5lHczIhVYHsxclXV9L+PO
+        +g2rcm5OdmF41cJ8O1uJpTgj0VCLuag4EQBdm/N3QgMAAA==
+X-CMS-MailID: 20221103151917eucas1p2b1aece847b31052e782360f07ccec143
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20221103145022eucas1p2218e78d51500c85b3cda59cc533a3631
+X-RootMTR: 20221103144724eucas1p2a1b7c96e013cb32ae24f4bb8b353771d
 X-EPHeader: CA
 CMS-TYPE: 201P
-X-CMS-RootMailID: 20221103145022eucas1p2218e78d51500c85b3cda59cc533a3631
-References: <20220906120702.19219-1-johan@kernel.org>
-        <20220906120702.19219-4-johan@kernel.org>
-        <808bdba846bb60456adf10a3016911ee@agner.ch>
-        <Y0+8dKESygFunXOu@hovoldconsulting.com>
-        <86c0f1ee8ffc94f9a53690dda6a83fbb@agner.ch>
-        <Y1JCIKT80P9IysKD@hovoldconsulting.com>
-        <b2a1e70bda64cb741efe81c5b7e56707@agner.ch>
-        <Y1p9Wy9w5umMBC4V@hovoldconsulting.com>
-        <CGME20221103145022eucas1p2218e78d51500c85b3cda59cc533a3631@eucas1p2.samsung.com>
-        <Y2PVF/IJoKvSu3SM@hovoldconsulting.com>
+X-CMS-RootMailID: 20221103144724eucas1p2a1b7c96e013cb32ae24f4bb8b353771d
+References: <CGME20221103144724eucas1p2a1b7c96e013cb32ae24f4bb8b353771d@eucas1p2.samsung.com>
+        <20221103144648.14197-1-johan+linaro@kernel.org>
 X-Spam-Status: No, score=-8.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
         RCVD_IN_DNSWL_HI,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,
@@ -125,62 +113,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Johan,
-
-On 03.11.2022 15:49, Johan Hovold wrote:
-> On Thu, Oct 27, 2022 at 02:45:15PM +0200, Johan Hovold wrote:
->> On Wed, Oct 26, 2022 at 03:11:00PM +0200, Stefan Agner wrote:
->>> The user reports the S-ATA disk is *not* recognized with that patch
->>> applied.
->> I just noticed a mistake in the instrumentation patch I sent you. Could
->> you try moving the calibrations calls after dwc3_host_init() (e.g. as in
->> the second chunk in the diff below)?
->>
->> As mentioned in the commit message for a0a465569b45 ("usb: dwc3: remove
->> generic PHY calibrate() calls"), this may not work if the xhci-plat
->> driver is built as a module and there are some corner cases that it does
->> not cover.
->>
->> It seems we should revert the offending commit and then try to find some
->> time to untangle this mess, but please check if the below addresses the
->> issue first so we know what the problem is.
->>
->> I'll prepare a revert in the meantime.
-> I've now posted the revert, but please do check if the below patch was
-> enough to resolve the immediate issue.
-
-The below patch was a half-fix. It worked only if both dwc3 and 
-xhci_plat_hcd were compiled into the kernel. Afair Debian-based distros 
-used xhci compiled as a module, so this didn't work for that case due to 
-timing issues.
-
-
+On 03.11.2022 15:46, Johan Hovold wrote:
+> This reverts commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea.
 >
-> Johan
+> The offending commit disabled the USB core PHY management as the dwc3
+> already manages the PHYs in question.
 >
->> diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
->> index 31156d4dec9f..37d49a394912 100644
->> --- a/drivers/usb/dwc3/core.c
->> +++ b/drivers/usb/dwc3/core.c
->> @@ -197,6 +197,8 @@ static void __dwc3_set_mode(struct work_struct *work)
->>                                  otg_set_vbus(dwc->usb2_phy->otg, true);
->>                          phy_set_mode(dwc->usb2_generic_phy, PHY_MODE_USB_HOST);
->>                          phy_set_mode(dwc->usb3_generic_phy, PHY_MODE_USB_HOST);
->> +                       phy_calibrate(dwc->usb2_generic_phy);
->> +                       phy_calibrate(dwc->usb3_generic_phy);
->>                          if (dwc->dis_split_quirk) {
->>                                  reg = dwc3_readl(dwc->regs, DWC3_GUCTL3);
->>                                  reg |= DWC3_GUCTL3_SPLITDISABLE;
->> @@ -1391,6 +1393,9 @@ static int dwc3_core_init_mode(struct dwc3 *dwc)
->>                  ret = dwc3_host_init(dwc);
->>                  if (ret)
->>                          return dev_err_probe(dev, ret, "failed to initialize host\n");
->> +
->> +               phy_calibrate(dwc->usb2_generic_phy);
->> +               phy_calibrate(dwc->usb3_generic_phy);
->>                  break;
->>          case USB_DR_MODE_OTG:
->>                  INIT_WORK(&dwc->drd_work, __dwc3_set_mode);
+> Unfortunately some platforms have started relying on having USB core
+> also controlling the PHY and this is specifically currently needed on
+> some Exynos platforms for PHY calibration or connected device may fail
+> to enumerate.
+>
+> The PHY calibration was previously handled in the dwc3 driver, but to
+> work around some issues related to how the dwc3 driver interacts with
+> xhci (e.g. using multiple drivers) this was moved to USB core by commits
+> 34c7ed72f4f0 ("usb: core: phy: add support for PHY calibration") and
+> a0a465569b45 ("usb: dwc3: remove generic PHY calibrate() calls").
+>
+> The same PHY obviously should not be controlled from two different
+> places, which for example do no agree on the PHY mode or power state
+> during suspend, but as the offending patch was backported to stable,
+> let's revert it for now.
+>
+> Reported-by: Stefan Agner <stefan@agner.ch>
+> Link: https://lore.kernel.org/lkml/808bdba846bb60456adf10a3016911ee@agner.ch/
+> Fixes: 6000b8d900cd ("usb: dwc3: disable USB core PHY management")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> ---
+>   drivers/usb/dwc3/host.c | 10 ----------
+>   1 file changed, 10 deletions(-)
+>
+> diff --git a/drivers/usb/dwc3/host.c b/drivers/usb/dwc3/host.c
+> index a7154fe8206d..f6f13e7f1ba1 100644
+> --- a/drivers/usb/dwc3/host.c
+> +++ b/drivers/usb/dwc3/host.c
+> @@ -11,13 +11,8 @@
+>   #include <linux/of.h>
+>   #include <linux/platform_device.h>
+>   
+> -#include "../host/xhci-plat.h"
+>   #include "core.h"
+>   
+> -static const struct xhci_plat_priv dwc3_xhci_plat_priv = {
+> -	.quirks = XHCI_SKIP_PHY_INIT,
+> -};
+> -
+>   static void dwc3_host_fill_xhci_irq_res(struct dwc3 *dwc,
+>   					int irq, char *name)
+>   {
+> @@ -97,11 +92,6 @@ int dwc3_host_init(struct dwc3 *dwc)
+>   		goto err;
+>   	}
+>   
+> -	ret = platform_device_add_data(xhci, &dwc3_xhci_plat_priv,
+> -					sizeof(dwc3_xhci_plat_priv));
+> -	if (ret)
+> -		goto err;
+> -
+>   	memset(props, 0, sizeof(struct property_entry) * ARRAY_SIZE(props));
+>   
+>   	if (dwc->usb3_lpm_capable)
 
 Best regards
 -- 
