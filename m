@@ -2,140 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12392619204
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 08:32:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94424619287
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 09:14:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231313AbiKDHb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 03:31:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58470 "EHLO
+        id S230510AbiKDIO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 04:14:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231146AbiKDHb4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 03:31:56 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D785F29CBB;
-        Fri,  4 Nov 2022 00:31:54 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id k15so3809146pfg.2;
-        Fri, 04 Nov 2022 00:31:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:cc:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=z/2ddx3QK9qVmB+YZPn4XwRTbYZOHRH73PR/5mzfEfs=;
-        b=VMp82LIS3vwEtXJO+/+qulhDA06eeVOiufgCORgqh+ukznplIhIOFxydjlGiDfIpqY
-         UXc7qz9WXOAUh0Zkxs49Ghh30Bvcf8K8IHjeVFs94dlpDBS09g4nt9weckjZgunEm2OI
-         n99KXR/LbdhfaiDbWFhmOuw4GyzDc+iw5QiZWsBTmkVMpWE5qkm74GfUv9hEszTSSO/F
-         mQe33R6q5DoI5gWUb435ifIWgEG5j/HfVHuETy6uPq8SYbX7D2FTNqpu3K6nXgJg4/SN
-         vZz9LE3DjAHomW5KRTf9Ng8KTAgn8q00HkDlW2fM9BNBO39I3ZaNp7nri8rfn/KHZ3Ab
-         h+pA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:cc:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=z/2ddx3QK9qVmB+YZPn4XwRTbYZOHRH73PR/5mzfEfs=;
-        b=50If4sZKgIByADnHsZ6x0Vf7naPadevkP59RlmIckbE9LoyXzXuNpKQjwgKvM4Ni1d
-         zZ8GsEabvr/bNexo6kHMU0cto4yT9hRRz12b7wfWnpO/PiM7qUJGEYhO9T3NjrRYw4Pg
-         Mn8QJc6ghjeMpGR5Oo7ZR4QoWgwvJNE7Ncxr70xwvB14JbWSadHQpQONpwXr3nlYg7Ga
-         52fVvbfLsmEK1ivw9OevUsHrvgno+xpki/PVud2b+yqWkfLVeBzQUENJugBM5nYYi8pn
-         dZkRvjEyanhMIWEFEVr+SUrZaiA8kqHDZ4gU2qmo9g97MgI5s679Na3bET47ClkMcR0j
-         mIlA==
-X-Gm-Message-State: ACrzQf3x/10TkSgKYa1AY6UFsPZMCsUa6lxxu0FO+hVIkxV9NNmLO9dO
-        4o1bfCYnle87hy6ymzOWvWjQ3XcyG+6pbQ==
-X-Google-Smtp-Source: AMsMyM4DOu8z9+w2S8sFcStYPjXJIlaR24z6iOen4ZQnFO1xlWcOOFlfIIWQREkSfp6bE+UOMspzpQ==
-X-Received: by 2002:a63:4955:0:b0:44e:d36e:4c2e with SMTP id y21-20020a634955000000b0044ed36e4c2emr29441324pgk.326.1667547114380;
-        Fri, 04 Nov 2022 00:31:54 -0700 (PDT)
-Received: from [172.20.12.203] ([116.128.244.169])
-        by smtp.gmail.com with ESMTPSA id b3-20020aa79503000000b0056d2797bf05sm1926784pfp.217.2022.11.04.00.31.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 04 Nov 2022 00:31:53 -0700 (PDT)
-Message-ID: <fe95b054-e720-ebbf-ba03-4ea6662974ad@gmail.com>
-Date:   Fri, 4 Nov 2022 15:31:49 +0800
+        with ESMTP id S229950AbiKDIO2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 04:14:28 -0400
+Received: from relay11.mail.gandi.net (relay11.mail.gandi.net [IPv6:2001:4b98:dc4:8::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95A326109;
+        Fri,  4 Nov 2022 01:14:25 -0700 (PDT)
+Received: from booty (unknown [77.244.183.192])
+        (Authenticated sender: luca.ceresoli@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 0B06E10000A;
+        Fri,  4 Nov 2022 08:14:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1667549664;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+H2GO8v3XbY+N5PDhigFQzh8x3FCkd8eGdKQu4ziIlU=;
+        b=goh02MBw1xLMfvBjotjbiT1KklpqEqtRfEXdeDUE0vdwwwqc4WRzFT3kEkaMqPYUnOVnWq
+        UBYoXdiuVLCurH2PSTnaDu49UYyYCfWLRSBYvoEExn3ETJ0Jy7s0rDBCicK0Nl3av/EHVW
+        HfkD11MkStCAw+/OeisiTYf1UYg9Zn1cjkMQ+A2x3IQZyNsrSm5wvKAywFRKNGN5ZW28lD
+        O2YpRPZdWj/FrKZHb/gl5DhCGnmaDyDcM5xMhjP8j36u9YOfuOSUFB3Nx7HOxXgsvVsnsq
+        aMq92yeSLpi/OujBp1AuRA0U+/PKN+qdHrNf0/RIuPImgL2gNB72zZbmsde3OQ==
+Date:   Fri, 4 Nov 2022 09:14:20 +0100
+From:   Luca Ceresoli <luca.ceresoli@bootlin.com>
+To:     Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc:     linux-tegra@vger.kernel.org,
+        Peter De Schrijver <pdeschrijver@nvidia.com>,
+        Prashant Gaikwad <pgaikwad@nvidia.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: Re: [PATCH] clk: tegra: fix HOST1X clock divider on Tegra20 and
+ Tegra30
+Message-ID: <20221104091420.4b6d90cb@booty>
+In-Reply-To: <0e002130-868e-ca51-a1dd-091c269dba5d@collabora.com>
+References: <20221028074826.2317640-1-luca.ceresoli@bootlin.com>
+        <603a0227-7d25-b9da-6dc3-fa9fe1b951e7@collabora.com>
+        <20221102093255.0b5ba7d6@booty>
+        <0e002130-868e-ca51-a1dd-091c269dba5d@collabora.com>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Cc:     xiongxin@kylinos.cn, len.brown@intel.com, pavel@ucw.cz,
-        huanglei@kylinos.cn, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH -next 1/2] PM: hibernate: fix spelling mistake for
- annotation
-Content-Language: en-US
-To:     "Rafael J. Wysocki" <rafael@kernel.org>
-References: <20221101022840.1351163-1-tgsp002@gmail.com>
- <20221101022840.1351163-2-tgsp002@gmail.com>
- <CAJZ5v0iPFPbbconOoQ7x_4X5yJ31pP7aduLqG4dq6KgAsprKbA@mail.gmail.com>
-From:   TGSP <tgsp002@gmail.com>
-In-Reply-To: <CAJZ5v0iPFPbbconOoQ7x_4X5yJ31pP7aduLqG4dq6KgAsprKbA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-在 2022/11/4 00:25, Rafael J. Wysocki 写道:
-> On Tue, Nov 1, 2022 at 3:28 AM TGSP <tgsp002@gmail.com> wrote:
->>
->> From: xiongxin <xiongxin@kylinos.cn>
->>
->> The actual calculation formula in the code below is:
->>
->> max_size = (count - (size + PAGES_FOR_IO)) / 2
->>              - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE);
->>
->> But function comments are written differently, the comment is wrong?
-> 
-> It is, and it is more serious than just a spelling mistake.
-> 
->> By the way, what exactly do the "/ 2" and "2 *" mean?
-> 
-> Every page in the image is a copy of an existing allocated page, so
-> room needs to be made for the two, except for the "IO pages" and
-> metadata pages that are not copied.  Hence, the division by 2.
-> 
-> Now, the "reserved_size" pages will be allocated right before creating
-> the image and there will be a copy of each of them in the image, so
-> there needs to be room for twice as many.
+Hi Dmitry,
 
-According to your interpretation, the formula should be：
-max_size = (count - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE)
-                - (size + PAGES_FOR_IO)) / 2
+On Fri, 4 Nov 2022 00:44:16 +0300
+Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
 
-Am I right?
+> On 11/2/22 11:32, Luca Ceresoli wrote:
+> > Hello Dmitry,
+> > 
+> > On Mon, 31 Oct 2022 03:34:07 +0300
+> > Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
+> >   
+> >> On 10/28/22 10:48, luca.ceresoli@bootlin.com wrote:  
+> >>> From: Luca Ceresoli <luca.ceresoli@bootlin.com>
+> >>>
+> >>> On Tegra20 and Tegra30 the HOST1X clock is a fractional clock divider with
+> >>> 7 integer bits + 1 decimal bit. This has been verified on both
+> >>> documentation and real hardware for Tegra20 an on the documentation I was
+> >>> able to find for Tegra30.
+> >>>
+> >>> However in the kernel code this clock is declared as an integer divider. A
+> >>> consequence of this is that requesting 144 MHz for HOST1X which is fed by
+> >>> pll_p running at 216 MHz would result in 108 MHz (216 / 2) instead of 144
+> >>> MHz (216 / 1.5).
+> >>>
+> >>> Fix by replacing the INT() macro with the MUX() macro which, despite the
+> >>> name, defines a fractional divider. The only difference between the two
+> >>> macros is the former does not have the TEGRA_DIVIDER_INT flag.
+> >>>
+> >>> Also move the line together with the other MUX*() ones to keep the existing
+> >>> file organization.
+> >>>
+> >>> Fixes: 76ebc134d45d ("clk: tegra: move periph clocks to common file")
+> >>> Cc: stable@vger.kernel.org
+> >>> Cc: Peter De Schrijver <pdeschrijver@nvidia.com>
+> >>> Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
+> >>> ---
+> >>>  drivers/clk/tegra/clk-tegra-periph.c | 2 +-
+> >>>  1 file changed, 1 insertion(+), 1 deletion(-)
+> >>>
+> >>> diff --git a/drivers/clk/tegra/clk-tegra-periph.c b/drivers/clk/tegra/clk-tegra-periph.c
+> >>> index 4dcf7f7cb8a0..806d835ca0d2 100644
+> >>> --- a/drivers/clk/tegra/clk-tegra-periph.c
+> >>> +++ b/drivers/clk/tegra/clk-tegra-periph.c
+> >>> @@ -615,7 +615,6 @@ static struct tegra_periph_init_data periph_clks[] = {
+> >>>  	INT("vde", mux_pllp_pllc_pllm_clkm, CLK_SOURCE_VDE, 61, 0, tegra_clk_vde),
+> >>>  	INT("vi", mux_pllm_pllc_pllp_plla, CLK_SOURCE_VI, 20, 0, tegra_clk_vi),
+> >>>  	INT("epp", mux_pllm_pllc_pllp_plla, CLK_SOURCE_EPP, 19, 0, tegra_clk_epp),
+> >>> -	INT("host1x", mux_pllm_pllc_pllp_plla, CLK_SOURCE_HOST1X, 28, 0, tegra_clk_host1x),
+> >>>  	INT("mpe", mux_pllm_pllc_pllp_plla, CLK_SOURCE_MPE, 60, 0, tegra_clk_mpe),
+> >>>  	INT("2d", mux_pllm_pllc_pllp_plla, CLK_SOURCE_2D, 21, 0, tegra_clk_gr2d),
+> >>>  	INT("3d", mux_pllm_pllc_pllp_plla, CLK_SOURCE_3D, 24, 0, tegra_clk_gr3d),
+> >>> @@ -664,6 +663,7 @@ static struct tegra_periph_init_data periph_clks[] = {
+> >>>  	MUX("owr", mux_pllp_pllc_clkm, CLK_SOURCE_OWR, 71, TEGRA_PERIPH_ON_APB, tegra_clk_owr_8),
+> >>>  	MUX("nor", mux_pllp_pllc_pllm_clkm, CLK_SOURCE_NOR, 42, 0, tegra_clk_nor),
+> >>>  	MUX("mipi", mux_pllp_pllc_pllm_clkm, CLK_SOURCE_MIPI, 50, TEGRA_PERIPH_ON_APB, tegra_clk_mipi),
+> >>> +	MUX("host1x", mux_pllm_pllc_pllp_plla, CLK_SOURCE_HOST1X, 28, 0, tegra_clk_host1x),
+> >>>  	MUX("vi_sensor", mux_pllm_pllc_pllp_plla, CLK_SOURCE_VI_SENSOR, 20, TEGRA_PERIPH_NO_RESET, tegra_clk_vi_sensor),
+> >>>  	MUX("vi_sensor", mux_pllc_pllp_plla, CLK_SOURCE_VI_SENSOR, 20, TEGRA_PERIPH_NO_RESET, tegra_clk_vi_sensor_9),
+> >>>  	MUX("cilab", mux_pllp_pllc_clkm, CLK_SOURCE_CILAB, 144, 0, tegra_clk_cilab),    
+> >>
+> >> This was attempted in the past
+> >> https://lore.kernel.org/all/20180723085010.GK1636@tbergstrom-lnx.Nvidia.com/
+> >>
+> >> I assume here you're also porting the downstream patches to upstream.
+> >> This one is too questionable. The host1x clock shouldn't affect overall
+> >> performance to begin with. It doesn't make sense to use fractional clock
+> >> just for getting extra KHz.  
+> > 
+> > Thank you for the review and for the pointer!
+> > 
+> > Indeed I'm not sure this patch brings an actual improvement to my use
+> > case, however I reached it by trying to replicate the configuration on
+> > a known-working kernel 3.1, which uses a 1.5 divider. This seems to be
+> > the same reason that led to the 2018 patch that also got rejected.
+> > 
+> > I'll be OK with dropping this patch after I have a 100% working setup
+> > with an integer divider, which is very likely given your reply. But it
+> > took time before I found the root cause of this issue, and I would like
+> > to avoid other people waste time in the future, so what about adding a
+> > comment there?
+> > 
+> > What about:
+> > 
+> >   /*
+> >    * The host1x clock shouldn't affect overall performance. It doesn't
+> >    * make sense to use fractional clock just for getting extra KHz, so
+> >    * let's pretend it's an integer divider
+> >    */  
+> 
+> If host1x isn't the only clock like that, then comment shouldn't be
+> directed to host1x. Have you checked other clocks?
 
-> 
-> I'll adjust the changelog and queue up the path for 6.2.
-> 
->> Cc: stable@vger.kernel.org
-> 
-> I'll add a Fixes tag instead.
-> 
->> Signed-off-by: xiongxin <xiongxin@kylinos.cn>
->> ---
->>   kernel/power/snapshot.c | 4 ++--
->>   1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
->> index 2a406753af90..c20ca5fb9adc 100644
->> --- a/kernel/power/snapshot.c
->> +++ b/kernel/power/snapshot.c
->> @@ -1723,8 +1723,8 @@ static unsigned long minimum_image_size(unsigned long saveable)
->>    * /sys/power/reserved_size, respectively).  To make this happen, we compute the
->>    * total number of available page frames and allocate at least
->>    *
->> - * ([page frames total] + PAGES_FOR_IO + [metadata pages]) / 2
->> - *  + 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE)
->> + * ([page frames total] - PAGES_FOR_IO - [metadata pages]) / 2
->> + *  - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE)
->>    *
->>    * of them, which corresponds to the maximum size of a hibernation image.
->>    *
->> --
->> 2.25.1
->>
+No, apologies, I don't know enough about this SoC to be able to put
+into a comment anything interesting other than what you wrote in your
+previous reply.
 
+> I'm curious who made that change originally in your downstream, was it
+> coming from NVIDIA?
+
+It is coming from our customer, not sure where they got it initially,
+but this is the commit where it was added, with a DIV_U71 flag:
+
+https://osdn.net/projects/android-x86/scm/git/kernel/commits/d861196163e30c07add471562b45dce38517c9b2
+
+-- 
+Luca Ceresoli, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
