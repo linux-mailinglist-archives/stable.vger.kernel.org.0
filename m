@@ -2,114 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7EE7619E3D
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 18:15:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D89C4619E9F
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 18:25:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229994AbiKDRPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 13:15:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56782 "EHLO
+        id S231833AbiKDRZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 13:25:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229964AbiKDRP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 13:15:29 -0400
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06FE631FA4
-        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 10:15:28 -0700 (PDT)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 6EDD41C09D8; Fri,  4 Nov 2022 18:15:26 +0100 (CET)
-Date:   Fri, 4 Nov 2022 18:15:25 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        Juergen Borleis <jbe@pengutronix.de>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 75/91] net: fec: limit register access on i.MX6UL
-Message-ID: <20221104171525.GB29661@duo.ucw.cz>
-References: <20221102022055.039689234@linuxfoundation.org>
- <20221102022057.177463393@linuxfoundation.org>
+        with ESMTP id S231840AbiKDRYm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 13:24:42 -0400
+Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2669E25DC
+        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 10:23:44 -0700 (PDT)
+Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-37063f855e5so49708877b3.3
+        for <stable@vger.kernel.org>; Fri, 04 Nov 2022 10:23:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=qjeSPcfZKsfnrVevxgSeMkvqmACOU3/OJEjGUxStCPE=;
+        b=Hc8xWNdGHH0Jju5ZVWxwrwy0Q+Xj2WiAaA5nT4BYBXQuB/dJr4yeV2LKi4x0ezIguw
+         k1c5MLbf0m3HIJeijOFHdpBa/gxkB9OZT7lkdubqxU/NgJ+/YlHnh9GOUiOItq+ca6tT
+         PFGzH6AEIfHyF225+4Rw9fXgOQkZd8Ex7gzM1D+40FTDkWblJVLzI3H1nM3os7po/+fd
+         9bTBlqch2pDoiZFxbbqtHweTj8t16Ml7kk8mz3NeQ0L9+2YZn4gmFFaFUxwAnPL/UU6t
+         b1bsSXWNPMofYF44HsPlDOSVm5mves0msDE3R+QjkwJ1ajGGCtzRhtUm+Y8GinnOWgf2
+         cr8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=qjeSPcfZKsfnrVevxgSeMkvqmACOU3/OJEjGUxStCPE=;
+        b=ha84+A1KedK15SPKNUYlD0QyTEoggjOODsfEuigbj6YrMsrN1TdIKxmiu88bQIv06g
+         agKKSPeqarnfwnuVLbQqBY7kk2zrv9xZbim87rZw1Bg0gCrf0Y0I2Fq3rtF3OPOuhEKe
+         COy+DDEAxEQkRENxTF7GUSBGNK9tYqpEUkEayt8GwUBtYYxu/noq4RESSD4C+o6cLCo4
+         dr1h6VNkeDK3tuUyXugVFfA30x9vfEceYrBVBChe7Mt8qS7h5RaJz4kdjR9qLIPfj64H
+         MdpioX+VifDfGDdhloswSFTySQik0lEpcw4+5fb4Us0gWrXDaUsY6CjIomfqdFze5QZD
+         I23w==
+X-Gm-Message-State: ACrzQf1O4p8QY2rUzWMvhPxfWsZ8YTJY9LWbQzJxEUQdDOVXDUN7p5S5
+        sSxYVyQaqx8CkU0i+t9zGIAtICP9txfbMR7pfcD8VltFzbXVsw==
+X-Google-Smtp-Source: AMsMyM7TAGfxSN3KjUNx0FJxNdz1y5kpNt0VqpDfMd/ts5Oq8a3j/gb56UqXzHwTXbEOlKxtO7l9CFhYqTv9xhWuC6w=
+X-Received: by 2002:a81:5a86:0:b0:36f:cece:6efd with SMTP id
+ o128-20020a815a86000000b0036fcece6efdmr34064709ywb.489.1667582623102; Fri, 04
+ Nov 2022 10:23:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="/WwmFnJnmDyWGHa4"
-Content-Disposition: inline
-In-Reply-To: <20221102022057.177463393@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
+References: <20221102022055.039689234@linuxfoundation.org> <20221102022056.996215743@linuxfoundation.org>
+ <20221104171155.GA29661@duo.ucw.cz>
+In-Reply-To: <20221104171155.GA29661@duo.ucw.cz>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Fri, 4 Nov 2022 10:23:32 -0700
+Message-ID: <CANn89iKfhPA6qMvdJ50RV2XZAPcmkUhNDVK4Fj6L5bsaxzdaVA@mail.gmail.com>
+Subject: Re: [PATCH 5.10 69/91] ipv6: ensure sane device mtu in tunnels
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, patches@lists.linux.dev,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Nov 4, 2022 at 10:11 AM Pavel Machek <pavel@denx.de> wrote:
+>
+> Hi!
+>
+> > [ Upstream commit d89d7ff01235f218dad37de84457717f699dee79 ]
+> >
+> > Another syzbot report [1] with no reproducer hints
+> > at a bug in ip6_gre tunnel (dev:ip6gretap0)
+> >
+> > Since ipv6 mcast code makes sure to read dev->mtu once
+> > and applies a sanity check on it (see commit b9b312a7a451
+> > "ipv6: mcast: better catch silly mtu values"), a remaining
+> > possibility is that a layer is able to set dev->mtu to
+> > an underflowed value (high order bit set).
+> >
+> > This could happen indeed in ip6gre_tnl_link_config_route(),
+> > ip6_tnl_link_config() and ipip6_tunnel_bind_dev()
+> >
+> > Make sure to sanitize mtu value in a local variable before
+> > it is written once on dev->mtu, as lockless readers could
+> > catch wrong temporary value.
+>
+> Ok, but now types seem to be confused:
+>
+> > diff --git a/net/ipv6/ip6_tunnel.c b/net/ipv6/ip6_tunnel.c
+> > index 3a2741569b84..0d4cab94c5dd 100644
+> > --- a/net/ipv6/ip6_tunnel.c
+> > +++ b/net/ipv6/ip6_tunnel.c
+> > @@ -1476,8 +1476,8 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
+> >       struct net_device *tdev = NULL;
+> >       struct __ip6_tnl_parm *p = &t->parms;
+> >       struct flowi6 *fl6 = &t->fl.u.ip6;
+> > -     unsigned int mtu;
+> >       int t_hlen;
+> > +     int mtu;
+> >
+> >       memcpy(dev->dev_addr, &p->laddr, sizeof(struct in6_addr));
+> >       memcpy(dev->broadcast, &p->raddr, sizeof(struct in6_addr));
+> > @@ -1524,12 +1524,13 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
+> >                       dev->hard_header_len = tdev->hard_header_len + t_hlen;
+> >                       mtu = min_t(unsigned int, tdev->mtu, IP6_MAX_MTU);
+>
+> mtu is now signed, but we still do min_t on unsigned types.
+>
+> > -                     dev->mtu = mtu - t_hlen;
+> > +                     mtu = mtu - t_hlen;
+> >                       if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMIT))
+> > -                             dev->mtu -= 8;
+> > +                             mtu -= 8;
+> >
+>
+> I don't see overflow potential right away, but it may be worth fixing.
+>
 
---/WwmFnJnmDyWGHa4
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This was intended ( part of the fix) so that the following check is
+going to catch 'negative' mtu
 
-Hi!
+[1]
+if (mtu < IPV6_MIN_MTU)
+    mtu = IPV6_MIN_MTU;
 
-> Using 'ethtool -d [=E2=80=A6]' on an i.MX6UL leads to a kernel crash:
->=20
->    Unhandled fault: external abort on non-linefetch (0x1008) at [=E2=80=
-=A6]
->=20
-> due to this SoC has less registers in its FEC implementation compared to =
-other
-> i.MX6 variants. Thus, a run-time decision is required to avoid access to
-> non-existing registers.
+Otherwise, if a fuzzer succeeds to get mtu = 0xFFFFFFC0,
+sanity test [1] leaves the problematic mtu in dev->mtu.
 
-Ok, but the code is rather creative:
-
-> @@ -2275,7 +2300,24 @@ static void fec_enet_get_regs(struct net_device *n=
-dev,
->  	u32 *buf =3D (u32 *)regbuf;
->  	u32 i, off;
->  	int ret;
-> +#if defined(CONFIG_M523x) || defined(CONFIG_M527x) || defined(CONFIG_M52=
-8x) || \
-> +	defined(CONFIG_M520x) || defined(CONFIG_M532x) || defined(CONFIG_ARM) |=
-| \
-> +	defined(CONFIG_ARM64) || defined(CONFIG_COMPILE_TEST)
-> +	u32 *reg_list;
-> +	u32 reg_cnt;
-> =20
-> +	if (!of_machine_is_compatible("fsl,imx6ul")) {
-> +		reg_list =3D fec_enet_register_offset;
-> +		reg_cnt =3D ARRAY_SIZE(fec_enet_register_offset);
-> +	} else {
-> +		reg_list =3D fec_enet_register_offset_6ul;
-> +		reg_cnt =3D ARRAY_SIZE(fec_enet_register_offset_6ul);
-> +	}
-> +#else
-> +	/* coldfire */
-> +	static u32 *reg_list =3D fec_enet_register_offset;
-> +	static const u32 reg_cnt =3D ARRAY_SIZE(fec_enet_register_offset);
-> +#endif
-
-First, COMPILE_TEST now changes behaviour of the code, which is
-unexpected. I guess coldfire machine with
-of_machine_is_compatible("fsl,imx6ul") =3D=3D true is not probable, but
-still.
-
-Second reg_list is static, which is quite confusing. I guess that was
-attempt to enable compiler optimalizations, but I don't think compiler
-needs this much help.
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---/WwmFnJnmDyWGHa4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY2VIrQAKCRAw5/Bqldv6
-8oRrAJ4wdCUGqm+LBjJ9LaRsVUZzEnkPUQCfVox/RGX6nE9Pv7LYkebzMf9Of2Q=
-=arp8
------END PGP SIGNATURE-----
-
---/WwmFnJnmDyWGHa4--
+Thanks.
