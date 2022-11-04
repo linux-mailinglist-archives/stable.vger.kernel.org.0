@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99AC66192D3
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 09:35:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15970619344
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 10:17:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230496AbiKDIfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 04:35:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53834 "EHLO
+        id S230194AbiKDJRk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 05:17:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231304AbiKDIfS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 04:35:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C2E728E1D;
-        Fri,  4 Nov 2022 01:35:17 -0700 (PDT)
+        with ESMTP id S229994AbiKDJRj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 05:17:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E286354;
+        Fri,  4 Nov 2022 02:17:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF0FBB82C3B;
-        Fri,  4 Nov 2022 08:35:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04AEFC433C1;
-        Fri,  4 Nov 2022 08:35:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667550914;
-        bh=WEjpQeqZ+czaDcqzlymsAPVQX6ISl68VnQ6+y9Js5sw=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=HyAgN8rLzX7g0yHlrPl0y581af8e3K+6Wm7HYidgsxo9H8IMp/Ky5UG+CAROOcXGD
-         7Yyulk51ozEArph4wGbzfE2Udi5b0oCIykDq3wM6peR8c9/GAIFEPRBr9If9Yjt0tQ
-         CthysPqq5nuKeHYeCANYR2btMCpstjCeoZAnELi3GKR/W6DG2Z2EY3DjqXuf7pxDvR
-         vIERu5rJS60Q2xlFiA+eMo9nsh1hn3UaNpn66p/pbSIZPBc8vj+brHaNx/UoGfd/iT
-         LtBNkO+6GByKoCCyA3N92RQlJOkWvdV5PepNzLQzIJvsMH8S6fJ4Cjhe2CGIG629QO
-         W6u99IDs/c6TQ==
-Date:   Fri, 4 Nov 2022 09:35:11 +0100 (CET)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Jason Gerecke <killertofu@gmail.com>
-cc:     linux-input@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Joshua Dickens <joshua.dickens@wacom.com>,
-        Ping Cheng <ping.cheng@wacom.com>
-Subject: Re: [PATCH] HID: wacom: Fix logic used for 3rd barrel switch
- emulation
-In-Reply-To: <20221103173304.128651-1-jason.gerecke@wacom.com>
-Message-ID: <nycvar.YFH.7.76.2211040934560.29912@cbobk.fhfr.pm>
-References: <20221103173304.128651-1-jason.gerecke@wacom.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6EA75B82C4D;
+        Fri,  4 Nov 2022 09:17:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BC1DC433C1;
+        Fri,  4 Nov 2022 09:17:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1667553456;
+        bh=SHbE2LcdkBiwyRM/AvlDZQO5hSel5lKZUzSHsY5egTI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=s0Y35Tx6AgDHYPTZqZKJamKbZOHDz1uMAchts8vfXYcjIHFhT+kfGD6yAbDsj5ZtJ
+         mrJD75Csnm5uib1QAG4++hwbBoKfPjcGUURWT/7/Q6wiRxx62gC6owoXlu5RzD5/nh
+         qOTUlO0T8ZsO09Oie4Dubv3Av+jAeNxNV+lLR8QI=
+Date:   Fri, 4 Nov 2022 18:18:15 +0900
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     TGSP <tgsp002@gmail.com>
+Cc:     rafael@kernel.org, len.brown@intel.com, pavel@ucw.cz,
+        huanglei@kylinos.cn, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, xiongxin <xiongxin@kylinos.cn>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] PM: hibernate: fix spelling mistake for annotation
+Message-ID: <Y2TY120EAhfKgSvR@kroah.com>
+References: <20221104054119.1946073-1-tgsp002@gmail.com>
+ <20221104054119.1946073-2-tgsp002@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221104054119.1946073-2-tgsp002@gmail.com>
 X-Spam-Status: No, score=-8.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -56,32 +52,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 3 Nov 2022, Jason Gerecke wrote:
-
-> From: Jason Gerecke <killertofu@gmail.com>
+On Fri, Nov 04, 2022 at 01:41:18PM +0800, TGSP wrote:
+> From: xiongxin <xiongxin@kylinos.cn>
 > 
-> When support was added for devices using an explicit 3rd barrel switch,
-> the logic used by devices emulating this feature was broken. The 'if'
-> statement / block that was introduced only handles the case where the
-> button is pressed (i.e. 'barrelswitch' and 'barrelswitch2' are both set)
-> but not the case where it is released (i.e. one or both being cleared).
-> This results in a BTN_STYLUS3 "down" event being sent when the button
-> is pressed, but no "up" event ever being sent afterwards.
+> The actual calculation formula in the code below is:
 > 
-> This patch restores the previously-used logic for determining button
-> states in the emulated case so that switches are reported correctly
-> again.
+> max_size = (count - (size + PAGES_FOR_IO)) / 2
+> 	    - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE);
 > 
-> Link: https://github.com/linuxwacom/xf86-input-wacom/issues/292
-> Fixes: 6d09085b38e5 ("HID: wacom: Adding Support for new usages")
-> CC: stable@vger.kernel.org #v5.19+
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> Tested-by: Joshua Dickens <joshua.dickens@wacom.com>
-> Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+> But function comments are written differently, the comment is wrong?
+> 
+> By the way, what exactly do the "/ 2" and "2 *" mean?
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: xiongxin <xiongxin@kylinos.cn>
 
-Applied, thank you.
+Please do not use an anonymous gmail account for your corporate work
+like this.  Work with your company email admins to allow you to send
+patches from that address so that they can be verified to actually come
+from there.
 
--- 
-Jiri Kosina
-SUSE Labs
+thanks,
 
+greg k-h
