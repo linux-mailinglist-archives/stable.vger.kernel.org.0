@@ -2,65 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11BC261A34A
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 22:25:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F07D61A366
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 22:36:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229940AbiKDVZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 17:25:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38660 "EHLO
+        id S229819AbiKDVgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 17:36:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229828AbiKDVZg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 17:25:36 -0400
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E0EE43849
-        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 14:25:35 -0700 (PDT)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-352e29ff8c2so56764127b3.21
-        for <stable@vger.kernel.org>; Fri, 04 Nov 2022 14:25:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=ZMzbEeAq/WBS4iwvB8bBgtIMvjV4CPxHl4/ZDJnosVw=;
-        b=ZrK+ebo6lUDd9raxHtPZNseJQ/MOuileQPeRTp4FqpnqL0PiBei0t3rlsIuGVkcSLe
-         XEDJC+IYxG3reEa/CtJkBvLhItgY1jvFfy3GuJ+ZEKv5HEGpNrUnjfNPy88NIBi1Hj9T
-         migd7LYzNVulF8C/ji8OMzcXpYeEG5xHIioY8v/c1JWgn9sPzmNVN/p201g8/u+imUxM
-         4QNvk8nFy7QDPLIu6OItVQClzrdd4NntORcBuLPRO5B+GncFefpH8PoMbfJaaX2r+2Rg
-         8zZHpVttHLQGuvbnJo+t3LKSkaxbqielNnURCipoejdspuUUJ98WPGImxS/b+GrBeY9X
-         /YPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ZMzbEeAq/WBS4iwvB8bBgtIMvjV4CPxHl4/ZDJnosVw=;
-        b=E7DZ7hL5oslt9vF5/av9V47OMbIqd2ppZC3c0D5tmOxbkxxI6BPzV79RxAqVpbxKel
-         EGmQk4izR3OUafJU4Me1a7AocqZRkEhXngqmgyeCWoHcKiI3+KPry76TRky4SCynZ+mU
-         2Owbg+eSMJt2K0khh+vHk7mr84K4vopJ2sjqo6x9ikQ1VD2KubXZn/a2bshMmxdxARnx
-         sgMX7QkssJFfBNyeg4nc8gFulXnS1sr8vQ90mY2zPag1HyAe9vMw4JYaRugVGi49vGk4
-         B8rb311HNqy1tMq+gLf84ITeV8lcHOLuXLtZq8wDmzdOdgfLNT48IYn202amCoR/OMso
-         0vQQ==
-X-Gm-Message-State: ACrzQf1gtXSj7guR3yNiBSpgGz1QAzTysq7xhF2RN55rqD6i/zpe1j8y
-        NwEKkbZvcSa0fEODT0Jy0jz9MRkuDpLfffR4Dw==
-X-Google-Smtp-Source: AMsMyM6jYvgmQ0dGg901njBI8YTBH+yqg5uTvJfXKDJ/PvHypkHSyES9/YTnaGT1+uHsuq+9g+l3pGRe6ZlOTtYStA==
-X-Received: from roguebantha-cloud.c.googlers.com ([fda3:e722:ac3:cc00:2b:7d90:c0a8:1eee])
- (user=sethjenkins job=sendgmr) by 2002:a05:6902:8d:b0:6bc:47ea:42da with SMTP
- id h13-20020a056902008d00b006bc47ea42damr34014092ybs.529.1667597134725; Fri,
- 04 Nov 2022 14:25:34 -0700 (PDT)
-Date:   Fri,  4 Nov 2022 17:25:19 -0400
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
-Message-ID: <20221104212519.538108-1-sethjenkins@google.com>
-Subject: [PATCH] aio: fix mremap after fork null-deref
-From:   Seth Jenkins <sethjenkins@google.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Benjamin LaHaise <bcrl@kvack.org>
-Cc:     linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
-        linux-kernel@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Pavel Emelyanov <xemul@parallels.com>,
-        Seth Jenkins <sethjenkins@google.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+        with ESMTP id S229741AbiKDVga (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 17:36:30 -0400
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFAAE45EEC;
+        Fri,  4 Nov 2022 14:36:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1667597789; x=1699133789;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=uW0UoDlK6NeYqKsrQ4vkjqOMmoi22z2YFfsS3iHW1S8=;
+  b=frF4DxKMScN2P3fxpcuQKAVO0j50w+5eQqTbDW8Foj3nQRm49vWc7XR4
+   BkSg8pZJ1lsiyLQWtLYUdJeO5Q1Tun1DscJxg/YFSAege72I0GAz5gQnQ
+   jjoT8nkaoyhtgQ/tmGSB7tJ+DwuF3gs6uEutPcDUMIVDEbdmxj3k+2swv
+   4/sJF2Ab3L3dhqg/HOfjIDiIiMcdVtR14ohPfox5bIh3wZ4gOLYtB0coJ
+   pHMyeAfh6gY2bn2cz8Y0MPb9eEOdra4E2LR5XqNTvWWnHF8028aWSjhjB
+   KB4ACD4xOa9/8OsGq7Us9KSCznEzXiWstGcRCKhJ0PUyWUIsbdZSQXRZ4
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10521"; a="310079190"
+X-IronPort-AV: E=Sophos;i="5.96,138,1665471600"; 
+   d="scan'208";a="310079190"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2022 14:36:29 -0700
+X-IronPort-AV: E=McAfee;i="6500,9779,10521"; a="964490279"
+X-IronPort-AV: E=Sophos;i="5.96,138,1665471600"; 
+   d="scan'208";a="964490279"
+Received: from djiang5-mobl2.amr.corp.intel.com (HELO [10.212.112.74]) ([10.212.112.74])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2022 14:36:29 -0700
+Message-ID: <00353b48-7709-fbca-c261-ffb34a160ffa@intel.com>
+Date:   Fri, 4 Nov 2022 14:36:28 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Firefox/102.0 Thunderbird/102.4.1
+Subject: Re: [PATCH 1/7] cxl/region: Fix region HPA ordering validation
+Content-Language: en-US
+To:     Dan Williams <dan.j.williams@intel.com>, linux-cxl@vger.kernel.org
+Cc:     stable@vger.kernel.org, vishal.l.verma@intel.com,
+        alison.schofield@intel.com, ira.weiny@intel.com
+References: <166752181697.947915.744835334283138352.stgit@dwillia2-xfh.jf.intel.com>
+ <166752182461.947915.497032805239915067.stgit@dwillia2-xfh.jf.intel.com>
+From:   Dave Jiang <dave.jiang@intel.com>
+In-Reply-To: <166752182461.947915.497032805239915067.stgit@dwillia2-xfh.jf.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-8.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -68,49 +63,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit e4a0d3e720e7 ("aio: Make it possible to remap aio ring") introduced
-a null-deref if mremap is called on an old aio mapping after fork as
-mm->ioctx_table will be set to NULL.
 
-Fixes: e4a0d3e720e7 ("aio: Make it possible to remap aio ring")
-Cc: stable@vger.kernel.org
-Signed-off-by: Seth Jenkins <sethjenkins@google.com>
----
- fs/aio.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/fs/aio.c b/fs/aio.c
-index 5b2ff20ad322..74eae7de7323 100644
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -361,16 +361,18 @@ static int aio_ring_mremap(struct vm_area_struct *vma)
- 	spin_lock(&mm->ioctx_lock);
- 	rcu_read_lock();
- 	table = rcu_dereference(mm->ioctx_table);
--	for (i = 0; i < table->nr; i++) {
--		struct kioctx *ctx;
--
--		ctx = rcu_dereference(table->table[i]);
--		if (ctx && ctx->aio_ring_file == file) {
--			if (!atomic_read(&ctx->dead)) {
--				ctx->user_id = ctx->mmap_base = vma->vm_start;
--				res = 0;
-+	if (table) {
-+		for (i = 0; i < table->nr; i++) {
-+			struct kioctx *ctx;
-+
-+			ctx = rcu_dereference(table->table[i]);
-+			if (ctx && ctx->aio_ring_file == file) {
-+				if (!atomic_read(&ctx->dead)) {
-+					ctx->user_id = ctx->mmap_base = vma->vm_start;
-+					res = 0;
-+				}
-+				break;
- 			}
--			break;
- 		}
- 	}
- 
--- 
-2.38.1.431.g37b22c650d-goog
+On 11/3/2022 5:30 PM, Dan Williams wrote:
+> Some regions may not have any address space allocated. Skip them when
+> validating HPA order otherwise a crash like the following may result:
+> 
+>   devm_cxl_add_region: cxl_acpi cxl_acpi.0: decoder3.4: created region9
+>   BUG: kernel NULL pointer dereference, address: 0000000000000000
+>   [..]
+>   RIP: 0010:store_targetN+0x655/0x1740 [cxl_core]
+>   [..]
+>   Call Trace:
+>    <TASK>
+>    kernfs_fop_write_iter+0x144/0x200
+>    vfs_write+0x24a/0x4d0
+>    ksys_write+0x69/0xf0
+>    do_syscall_64+0x3a/0x90
+> 
+> store_targetN+0x655/0x1740:
+> alloc_region_ref at drivers/cxl/core/region.c:676
+> (inlined by) cxl_port_attach_region at drivers/cxl/core/region.c:850
+> (inlined by) cxl_region_attach at drivers/cxl/core/region.c:1290
+> (inlined by) attach_target at drivers/cxl/core/region.c:1410
+> (inlined by) store_targetN at drivers/cxl/core/region.c:1453
+> 
+> Cc: <stable@vger.kernel.org>
+> Fixes: 384e624bb211 ("cxl/region: Attach endpoint decoders")
+> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 
+Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+
+> ---
+>   drivers/cxl/core/region.c |    3 +++
+>   1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/cxl/core/region.c b/drivers/cxl/core/region.c
+> index bb6f4fc84a3f..d26ca7a6beae 100644
+> --- a/drivers/cxl/core/region.c
+> +++ b/drivers/cxl/core/region.c
+> @@ -658,6 +658,9 @@ static struct cxl_region_ref *alloc_region_ref(struct cxl_port *port,
+>   	xa_for_each(&port->regions, index, iter) {
+>   		struct cxl_region_params *ip = &iter->region->params;
+>   
+> +		if (!ip->res)
+> +			continue;
+> +
+>   		if (ip->res->start > p->res->start) {
+>   			dev_dbg(&cxlr->dev,
+>   				"%s: HPA order violation %s:%pr vs %pr\n",
+> 
