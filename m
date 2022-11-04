@@ -2,142 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFC85619EC3
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 18:31:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC14D619EDE
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 18:36:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230254AbiKDRbq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 13:31:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42616 "EHLO
+        id S229882AbiKDRgL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 13:36:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230070AbiKDRbo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 13:31:44 -0400
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 986D212618
-        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 10:31:43 -0700 (PDT)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 83D811C09F0; Fri,  4 Nov 2022 18:31:40 +0100 (CET)
-Date:   Fri, 4 Nov 2022 18:31:40 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Eric Dumazet <edumazet@google.com>
-Cc:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        with ESMTP id S231336AbiKDRgI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 13:36:08 -0400
+Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED344199E
+        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 10:36:06 -0700 (PDT)
+Received: by mail-yb1-xb33.google.com with SMTP id r3so6614745yba.5
+        for <stable@vger.kernel.org>; Fri, 04 Nov 2022 10:36:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=I3Gzf6/nexPToRji6N5bO/dL9FXtbk5UeonSa66mO0w=;
+        b=RJ1/fYDFtRMRRV1tOozcs1tCUlJ4hIhtltYrdQ8trNvIMsH4D9xeKDU3XEN/RzhS0P
+         NNo829xVbvZ4/m7TXi3cpBgoKHU8V2tcxJsuByE4wjNfre3z1+xmXKMZBeVVVI9bSHzT
+         MgV++LB+c3iLth3betc4rykAI+DMJsn4nWT5tzbd1f8DGkM8bXTye3sNhGnVShHnUt5e
+         Lzq12o38A6inUoSZAiQ+AXiUMD6dxklJA9dx/jqp3t4dAwD6timxHAThVx8/iwmAoZ6M
+         NVId/Z27xUnrIAwuzFJnocW/z6hHoPBWiE6arMLAvadcW7QSxurqlWgFejl/vFCYWMhj
+         qvHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=I3Gzf6/nexPToRji6N5bO/dL9FXtbk5UeonSa66mO0w=;
+        b=VKSKkuWMnwdLNeP8KEYKd/LK7j7uRNnRJmkSsmQME13D9WY6+ltsMjamPYduyFOA5l
+         mlqR5uibs/cgeMX8otEpTSBPtMmLqs5v4RImqVtPwU7xxA8/K1sbttiF/KQGrUmg9iOC
+         RHpH8m0EcjeGKcgI3cjGUuqNIWWIoIAKpRW5X9cSN8wjQmr8jz6BBnzJuPL4FaQvIX6n
+         o8U1GF1jz3v2gZNh6chHBA4gRJtbJrmP60tKr66Oq55PMbFC1cTY7Jv9ADqiKSQVqVJf
+         6zLFY5ChISh4+0KM9dhRLUHVFXyta1sqobT4uSIHU+6e1dN63ZHe3qPoTanJdDQHq/k4
+         BBfw==
+X-Gm-Message-State: ANoB5pl5LuKW2t0ATCUpSDzO4Jfjbk63AbPDpOhC5OBXTy3cIOr9Jqxb
+        PB6wlJgnufSVN8RhzAAaupZnH5qBGfoJh3HM/9QIkg==
+X-Google-Smtp-Source: AA0mqf5NoDRt6raEcSo5u5nI7z7HAfUPqxb4X7Rxa/1vFG+y2xtdXFj/Z2GR+JHJyyOUNnt5FRnDr6Eq3QJM396H2KE=
+X-Received: by 2002:a25:b83:0:b0:6d3:bb1d:305e with SMTP id
+ 125-20020a250b83000000b006d3bb1d305emr2472905ybl.598.1667583365610; Fri, 04
+ Nov 2022 10:36:05 -0700 (PDT)
+MIME-Version: 1.0
+References: <20221102022055.039689234@linuxfoundation.org> <20221102022056.996215743@linuxfoundation.org>
+ <20221104171155.GA29661@duo.ucw.cz> <CANn89iKfhPA6qMvdJ50RV2XZAPcmkUhNDVK4Fj6L5bsaxzdaVA@mail.gmail.com>
+ <20221104173140.GA980@duo.ucw.cz>
+In-Reply-To: <20221104173140.GA980@duo.ucw.cz>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Fri, 4 Nov 2022 10:35:54 -0700
+Message-ID: <CANn89iLUdwSytmjOO8TT0pPYTshxc5sZD9H7O0pqU+hPXBc4AQ@mail.gmail.com>
+Subject: Re: [PATCH 5.10 69/91] ipv6: ensure sane device mtu in tunnels
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, patches@lists.linux.dev,
         syzbot <syzkaller@googlegroups.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 69/91] ipv6: ensure sane device mtu in tunnels
-Message-ID: <20221104173140.GA980@duo.ucw.cz>
-References: <20221102022055.039689234@linuxfoundation.org>
- <20221102022056.996215743@linuxfoundation.org>
- <20221104171155.GA29661@duo.ucw.cz>
- <CANn89iKfhPA6qMvdJ50RV2XZAPcmkUhNDVK4Fj6L5bsaxzdaVA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
-Content-Disposition: inline
-In-Reply-To: <CANn89iKfhPA6qMvdJ50RV2XZAPcmkUhNDVK4Fj6L5bsaxzdaVA@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---huq684BweRXVnRxX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi!
-
-> > > [ Upstream commit d89d7ff01235f218dad37de84457717f699dee79 ]
+On Fri, Nov 4, 2022 at 10:31 AM Pavel Machek <pavel@denx.de> wrote:
+>
+> Hi!
+>
+> > > > [ Upstream commit d89d7ff01235f218dad37de84457717f699dee79 ]
+> > > >
+> > > > Another syzbot report [1] with no reproducer hints
+> > > > at a bug in ip6_gre tunnel (dev:ip6gretap0)
+> > > >
+> > > > Since ipv6 mcast code makes sure to read dev->mtu once
+> > > > and applies a sanity check on it (see commit b9b312a7a451
+> > > > "ipv6: mcast: better catch silly mtu values"), a remaining
+> > > > possibility is that a layer is able to set dev->mtu to
+> > > > an underflowed value (high order bit set).
+> > > >
+> > > > This could happen indeed in ip6gre_tnl_link_config_route(),
+> > > > ip6_tnl_link_config() and ipip6_tunnel_bind_dev()
+> > > >
+> > > > Make sure to sanitize mtu value in a local variable before
+> > > > it is written once on dev->mtu, as lockless readers could
+> > > > catch wrong temporary value.
 > > >
-> > > Another syzbot report [1] with no reproducer hints
-> > > at a bug in ip6_gre tunnel (dev:ip6gretap0)
+> > > Ok, but now types seem to be confused:
 > > >
-> > > Since ipv6 mcast code makes sure to read dev->mtu once
-> > > and applies a sanity check on it (see commit b9b312a7a451
-> > > "ipv6: mcast: better catch silly mtu values"), a remaining
-> > > possibility is that a layer is able to set dev->mtu to
-> > > an underflowed value (high order bit set).
+> > > > diff --git a/net/ipv6/ip6_tunnel.c b/net/ipv6/ip6_tunnel.c
+> > > > index 3a2741569b84..0d4cab94c5dd 100644
+> > > > --- a/net/ipv6/ip6_tunnel.c
+> > > > +++ b/net/ipv6/ip6_tunnel.c
+> > > > @@ -1476,8 +1476,8 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
+> > > >       struct net_device *tdev = NULL;
+> > > >       struct __ip6_tnl_parm *p = &t->parms;
+> > > >       struct flowi6 *fl6 = &t->fl.u.ip6;
+> > > > -     unsigned int mtu;
+> > > >       int t_hlen;
+> > > > +     int mtu;
+> > > >
+> > > >       memcpy(dev->dev_addr, &p->laddr, sizeof(struct in6_addr));
+> > > >       memcpy(dev->broadcast, &p->raddr, sizeof(struct in6_addr));
+> > > > @@ -1524,12 +1524,13 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
+> > > >                       dev->hard_header_len = tdev->hard_header_len + t_hlen;
+> > > >                       mtu = min_t(unsigned int, tdev->mtu, IP6_MAX_MTU);
 > > >
-> > > This could happen indeed in ip6gre_tnl_link_config_route(),
-> > > ip6_tnl_link_config() and ipip6_tunnel_bind_dev()
+> > > mtu is now signed, but we still do min_t on unsigned types.
 > > >
-> > > Make sure to sanitize mtu value in a local variable before
-> > > it is written once on dev->mtu, as lockless readers could
-> > > catch wrong temporary value.
-> >
-> > Ok, but now types seem to be confused:
-> >
-> > > diff --git a/net/ipv6/ip6_tunnel.c b/net/ipv6/ip6_tunnel.c
-> > > index 3a2741569b84..0d4cab94c5dd 100644
-> > > --- a/net/ipv6/ip6_tunnel.c
-> > > +++ b/net/ipv6/ip6_tunnel.c
-> > > @@ -1476,8 +1476,8 @@ static void ip6_tnl_link_config(struct ip6_tnl =
-*t)
-> > >       struct net_device *tdev =3D NULL;
-> > >       struct __ip6_tnl_parm *p =3D &t->parms;
-> > >       struct flowi6 *fl6 =3D &t->fl.u.ip6;
-> > > -     unsigned int mtu;
-> > >       int t_hlen;
-> > > +     int mtu;
+> > > > -                     dev->mtu = mtu - t_hlen;
+> > > > +                     mtu = mtu - t_hlen;
+> > > >                       if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMIT))
+> > > > -                             dev->mtu -= 8;
+> > > > +                             mtu -= 8;
+> > > >
 > > >
-> > >       memcpy(dev->dev_addr, &p->laddr, sizeof(struct in6_addr));
-> > >       memcpy(dev->broadcast, &p->raddr, sizeof(struct in6_addr));
-> > > @@ -1524,12 +1524,13 @@ static void ip6_tnl_link_config(struct ip6_tn=
-l *t)
-> > >                       dev->hard_header_len =3D tdev->hard_header_len =
-+ t_hlen;
-> > >                       mtu =3D min_t(unsigned int, tdev->mtu, IP6_MAX_=
-MTU);
-> >
-> > mtu is now signed, but we still do min_t on unsigned types.
-> >
-> > > -                     dev->mtu =3D mtu - t_hlen;
-> > > +                     mtu =3D mtu - t_hlen;
-> > >                       if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMI=
-T))
-> > > -                             dev->mtu -=3D 8;
-> > > +                             mtu -=3D 8;
+> > > I don't see overflow potential right away, but it may be worth fixing.
 > > >
 > >
-> > I don't see overflow potential right away, but it may be worth fixing.
+> > This was intended ( part of the fix) so that the following check is
+> > going to catch 'negative' mtu
 > >
->=20
-> This was intended ( part of the fix) so that the following check is
-> going to catch 'negative' mtu
->=20
-> [1]
-> if (mtu < IPV6_MIN_MTU)
->     mtu =3D IPV6_MIN_MTU;
->=20
-> Otherwise, if a fuzzer succeeds to get mtu =3D 0xFFFFFFC0,
-> sanity test [1] leaves the problematic mtu in dev->mtu.
+> > [1]
+> > if (mtu < IPV6_MIN_MTU)
+> >     mtu = IPV6_MIN_MTU;
+> >
+> > Otherwise, if a fuzzer succeeds to get mtu = 0xFFFFFFC0,
+> > sanity test [1] leaves the problematic mtu in dev->mtu.
+>
+> This is the line I'm complaining about (1525 in 5.10):
+>
+> mtu = min_t(unsigned int, tdev->mtu, IP6_MAX_MTU);
+>
+> I don't think it does any harm, but it looks wrong/confusing.
+>
 
-This is the line I'm complaining about (1525 in 5.10):
+So you are confused by :
 
-mtu =3D min_t(unsigned int, tdev->mtu, IP6_MAX_MTU);
+some_integer_var = some_unsigned_int_expression;
 
-I don't think it does any harm, but it looks wrong/confusing.
+I do not see any issue with that.
 
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---huq684BweRXVnRxX
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY2VMfAAKCRAw5/Bqldv6
-8tUtAJ4kZL3M7+i0vhbrmqegWXkAUx5CMACgtmHZ1m3TvilpSI1mh+hkKWgGwqQ=
-=sl6N
------END PGP SIGNATURE-----
-
---huq684BweRXVnRxX--
+Thanks.
