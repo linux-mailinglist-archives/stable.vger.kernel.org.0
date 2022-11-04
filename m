@@ -2,58 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EB6461A21D
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 21:26:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A83C361A229
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 21:29:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229629AbiKDU05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 16:26:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34902 "EHLO
+        id S229886AbiKDU3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 16:29:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229632AbiKDU04 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 16:26:56 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD2D6112D
-        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 13:26:54 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id d10so5455325pfh.6
-        for <stable@vger.kernel.org>; Fri, 04 Nov 2022 13:26:54 -0700 (PDT)
+        with ESMTP id S229501AbiKDU3a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 16:29:30 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B321ADB3
+        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 13:29:29 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id b62so5350074pgc.0
+        for <stable@vger.kernel.org>; Fri, 04 Nov 2022 13:29:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=xianwang.io; s=google;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
         bh=dNuOKOg5TSGR3sEFnpto1NusoWdDGSQBWKpGFE9UhI8=;
-        b=A6YYqRsV7b1o3r1ten+hFi3AdKoFqKwkSsJ7LlLLI+gQRTR9qIXn33903udZjOAJXf
-         yZM12R+1etlmOGl5BkKrKb0mbFWBiIrevorP+bIfj0bIsdq3ztcfZqkz0dKTIr4gkUVe
-         KBIStWfA99FY1Vj/0Y4dezGCTwwc2HSc65rHybRMYkT93+yE4ixX4w0M46meP7Dd5hSL
-         9duvECP7lzr/9dEqPQvGmSeOyHmWQotau8tktl9PZWaq+85rl5Vts7WW2n8OJSo5DUyN
-         cKlJqcWQpzhQ5ssqKPsju7JjPz8LM6YnXm7wIth5EH0mx89blONEAfPKbncavnkoO4qk
-         L2Zg==
+        b=Wz6o3Ssb6qoQQb4wDttx51bVElUbeXinkynJ9AE/ddy1Aob9geCC7eWuA/BbexLl2C
+         VozOESQYheDe8Uqx97e8NHSVy07RRsHPoJ25VBi0cRLnFTbH9UcknIws3N0klm+FmXCM
+         olD8RIzsAkJS6SdEWbtbnvrD91GzJSwG5Z2LHI1+wtF2uyLoc7i03a254R/zMbj0+jsc
+         pYaKo2awRcVHZOzaikb7OH0p/3jqnyQbeux6oIV2JQUPzLQlt8R67R3bNTAOr744CVLS
+         ZZX+dypVpy4bKOEKwwKqJk6k9ank0qZKedIOM9QkET0C40aonV9ap4s9I5AdnY84DftN
+         mmHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
         bh=dNuOKOg5TSGR3sEFnpto1NusoWdDGSQBWKpGFE9UhI8=;
-        b=ux1m+IGYyGkwcuSlUTw69vDkytKsM4/JG0hslkqo1f3wI79Z6u9xSxtAudNWAsf0XL
-         SbcrlbaMAdWQ0rfaKdWvBHLRzKZh9eirFVVtLOJfvRXRfbLB+wkeRrrnxdQFnO4HICt1
-         jFblgm9f70QZE7fSOJSlRjxdZLSeQ/GVB4hJ8LApF5VjeYFwS2Glk64avUViiud6YLJw
-         oogpatfI2vxcQs0jdosJID+5HV2CPluuuRonJAG+Ve69Gs2sVHK6m5PSxcqxbxTEL3Gx
-         s2LJpz9aN14FqTxiFaJSlmtVpf6ywaxBr4RU4fBMPuBhDS0CUuujeWC2+0Y7Cb4s4Mgu
-         k9Pw==
-X-Gm-Message-State: ACrzQf2QQg1NktnslABtwzRft9lnGI3HaMyu3gQoZ3HRIk2NC9USntm8
-        /YXeLC/xdl+WD09+6HiE6kYPF0wN4BbXZciB
-X-Google-Smtp-Source: AMsMyM5ouK1DNbpbd7ocnxHKoqRVeWc95GHRU0pDgOGTO8bA9WILEcCS5JgH5SfFW7yYwO6ZEPCrPw==
-X-Received: by 2002:a05:6a00:ad0:b0:555:ac02:433b with SMTP id c16-20020a056a000ad000b00555ac02433bmr37402372pfl.18.1667593614428;
-        Fri, 04 Nov 2022 13:26:54 -0700 (PDT)
+        b=1ehtLfikH7o2J7hhlSoYGbS2BNRMaLAQlB4OLus75yxHDjjBY/o2x/I/xw9E2yT368
+         e5gSD9cqOQbI7Z+R1T31XbZZxK12WRQ3J7j7PXROKn1O6GRwx32z+OYUK1zUQJP1Ogn0
+         Dpf8lNoutqUQQYBg9sSYLLa10C9O4XTCn2IxF/chMn6Tq9gVXiaDkl0/7xGv/jKGSMVm
+         3D1O9Eu1zVPq92SDN9zju4jP18RyVNZi89yb/E4SpaejgW3EpDW/ICmj3V2cE6twRH3Y
+         eR0Sp0G45BsU8s62ekuwo6e6Ngcd10AnBA6NU/cLxvYBuUm+XKKqwZw9WjVAy3sOkYlI
+         nFRA==
+X-Gm-Message-State: ACrzQf39vaA9VdgE8kf5C/N099GjQkVweYmqwg1IXinH3FFCb+InL9Q5
+        8qahzMOfYPLYplE5BEf1U5fdVA==
+X-Google-Smtp-Source: AMsMyM6pF1IEuLJpCOWhcd/9mFu2k77dwgeQT5Ij3OZfPSun43ThrToOxj/+2bNwCeSyh1diar3UNA==
+X-Received: by 2002:a63:5123:0:b0:46f:f329:c013 with SMTP id f35-20020a635123000000b0046ff329c013mr16440935pgb.428.1667593769432;
+        Fri, 04 Nov 2022 13:29:29 -0700 (PDT)
 Received: from aurora.xw.lan (75-172-80-208.tukw.qwest.net. [75.172.80.208])
-        by smtp.gmail.com with ESMTPSA id u132-20020a62798a000000b00561b53512b0sm29598pfc.195.2022.11.04.13.26.53
+        by smtp.gmail.com with ESMTPSA id u8-20020a1709026e0800b0017bb38e4588sm161464plk.135.2022.11.04.13.29.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Nov 2022 13:26:53 -0700 (PDT)
+        Fri, 04 Nov 2022 13:29:28 -0700 (PDT)
 From:   Xian Wang <dev@xianwang.io>
-To:     victor.xianwang@gmail.com
-Cc:     Xian Wang <dev@xianwang.io>, stable@vger.kernel.org
+To:     Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
+Cc:     alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
+        Xian Wang <dev@xianwang.io>, stable@vger.kernel.org
 Subject: [PATCH] patch_ca0132: add quirk for EVGA Z390 DARK
-Date:   Fri,  4 Nov 2022 13:26:51 -0700
-Message-Id: <20221104202651.13732-1-dev@xianwang.io>
+Date:   Fri,  4 Nov 2022 13:29:13 -0700
+Message-Id: <20221104202913.13904-1-dev@xianwang.io>
 X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
