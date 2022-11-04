@@ -2,123 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F1296193C7
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 10:44:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A6616193D4
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 10:48:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230222AbiKDJoC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 05:44:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57458 "EHLO
+        id S231546AbiKDJsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 05:48:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231597AbiKDJny (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 05:43:54 -0400
-Received: from relay07.th.seeweb.it (relay07.th.seeweb.it [IPv6:2001:4b7a:2000:18::168])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FACD62F7;
-        Fri,  4 Nov 2022 02:43:52 -0700 (PDT)
-Received: from [192.168.31.208] (unknown [194.29.137.22])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by m-r2.th.seeweb.it (Postfix) with ESMTPSA id 8708F3F792;
-        Fri,  4 Nov 2022 10:43:50 +0100 (CET)
-Message-ID: <0da38ea1-23ce-23d4-ade5-cddfff5d957f@somainline.org>
-Date:   Fri, 4 Nov 2022 10:43:49 +0100
+        with ESMTP id S231540AbiKDJsC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 05:48:02 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2176B72;
+        Fri,  4 Nov 2022 02:48:01 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id y203so4067049pfb.4;
+        Fri, 04 Nov 2022 02:48:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:cc:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=JCM7DmPCrAhHj8o16i9KvJND8gQ8xeXyO3XsNoc1pPw=;
+        b=CgmPNUd+NId6xXJHCwc5dSIA8ALu4kUG/zxn0BAvqYPLQDM7sbgqN8OGvEmuEECLIa
+         pLgoVHrEI65nS2DTG++k31VbbJiaCRB1Alwe9PvYjPAUtxxIvb3fLvOVJoVr6fSf4rOk
+         UtOw0X3ZLkwgVaoBY6BREhDtkOx8AmfGt3ZnG7zmgPcfeJCqvzSgioOn/wq8cLgPit2S
+         MHd6eIFy9ebLWXTYUHEeWYVqMHpwlhwRr+kWa55WOQVYaQR6xqztpHuD05VCDV1H99rR
+         YbL63FshfBwmSZGDFwBVVumi+kKDUmWiYcgfYXBas80O8tM5q3ZlR1ABw3FwYQ14MnP9
+         eMAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:cc:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=JCM7DmPCrAhHj8o16i9KvJND8gQ8xeXyO3XsNoc1pPw=;
+        b=bXpj5kfZLTQHVmtAFAF7ChbxOTLbfRuEIWfsucLLaHp+nnXxr6qVU5hAl+NipUWfs0
+         NFFu7jhHCwcFcjfINqOWR1S1cOjjWxChGOF23GromlzTzJ+TX1pJFw+CTwLPtdOgqrdY
+         OyT97rWiADSJA9RjFdGKyCxsNvb5Zg/x2ZBEO1K4z8plqirsVZzzEWSB1lx5QO019mqz
+         n5+CBuYw5mlqFWNqoL9QBUNGZVTw1qpqQYtmgOXh1JmO6ZiT3zOogh3TnWLnRKzoWUoU
+         uYqNA3Q/IB8ueTr0dpqjwkz/wuVBrAecQemZfrrm3c/IDS8vj7rWO2NPowjH72ZRXEcR
+         DMRw==
+X-Gm-Message-State: ACrzQf3H2WYAn+NPR6jskEKFkLDIdr84YB8YU5EjXIwasatGvemhOONC
+        blnvMKSsjrRfyUyebyGqLzc=
+X-Google-Smtp-Source: AMsMyM4J/bnvfLmAAYzNAp8KxZU31oa8PozHCTA7MrbLiwCOIyUOki9aQ6uaYWqTB9LkgJeVQJRXHw==
+X-Received: by 2002:a63:6507:0:b0:46f:ea82:5792 with SMTP id z7-20020a636507000000b0046fea825792mr15279336pgb.50.1667555281253;
+        Fri, 04 Nov 2022 02:48:01 -0700 (PDT)
+Received: from [172.20.12.203] ([116.128.244.169])
+        by smtp.gmail.com with ESMTPSA id y15-20020a17090322cf00b00176d347e9a7sm2172704plg.233.2022.11.04.02.47.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 04 Nov 2022 02:48:00 -0700 (PDT)
+Message-ID: <6436e363-198f-3d0b-cef3-4456de225432@gmail.com>
+Date:   Fri, 4 Nov 2022 17:47:07 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.4.1
-Subject: Re: [PATCH 1/2] arm64: dts: qcom: sc8280xp: fix UFS reference clocks
-To:     Johan Hovold <johan+linaro@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>
-Cc:     Andy Gross <agross@kernel.org>, Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Brian Masney <bmasney@redhat.com>,
-        Shazad Hussain <quic_shazhuss@quicinc.com>,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Cc:     xiongxin@kylinos.cn, rafael@kernel.org, len.brown@intel.com,
+        pavel@ucw.cz, huanglei@kylinos.cn, linux-pm@vger.kernel.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20221104092045.17410-1-johan+linaro@kernel.org>
- <20221104092045.17410-2-johan+linaro@kernel.org>
-From:   Konrad Dybcio <konrad.dybcio@somainline.org>
-In-Reply-To: <20221104092045.17410-2-johan+linaro@kernel.org>
+Subject: Re: [PATCH v2 1/2] PM: hibernate: fix spelling mistake for annotation
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+References: <20221104054119.1946073-1-tgsp002@gmail.com>
+ <20221104054119.1946073-2-tgsp002@gmail.com> <Y2TY120EAhfKgSvR@kroah.com>
+From:   TGSP <tgsp002@gmail.com>
+In-Reply-To: <Y2TY120EAhfKgSvR@kroah.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+在 2022/11/4 17:18, Greg KH 写道:
+> On Fri, Nov 04, 2022 at 01:41:18PM +0800, TGSP wrote:
+>> From: xiongxin <xiongxin@kylinos.cn>
+>>
+>> The actual calculation formula in the code below is:
+>>
+>> max_size = (count - (size + PAGES_FOR_IO)) / 2
+>> 	    - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE);
+>>
+>> But function comments are written differently, the comment is wrong?
+>>
+>> By the way, what exactly do the "/ 2" and "2 *" mean?
+>>
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: xiongxin <xiongxin@kylinos.cn>
+> 
+> Please do not use an anonymous gmail account for your corporate work
+> like this.  Work with your company email admins to allow you to send
+> patches from that address so that they can be verified to actually come
+> from there.
+> 
+> thanks,
+> 
+> greg k-h
 
-On 04/11/2022 10:20, Johan Hovold wrote:
-> There are three UFS reference clocks on SC8280XP which are used as
-> follows:
->
->   - The GCC_UFS_REF_CLKREF_CLK clock is fed to any UFS device connected
->     to either controller.
->
->   - The GCC_UFS_1_CARD_CLKREF_CLK and GCC_UFS_CARD_CLKREF_CLK clocks
->     provide reference clocks to the two PHYs.
->
-> Note that this depends on first updating the clock driver to reflect
-> that all three clocks are sourced from CXO. Specifically, the UFS
-> controller driver expects the device reference clock to have a valid
-> frequency:
->
-> 	ufshcd-qcom 1d84000.ufs: invalid ref_clk setting = 0
->
-> Fixes: 152d1faf1e2f ("arm64: dts: qcom: add SC8280XP platform")
-> Fixes: 8d6b458ce6e9 ("arm64: dts: qcom: sc8280xp: fix ufs_card_phy ref clock")
-> Fixes: f3aa975e230e ("arm64: dts: qcom: sc8280xp: correct ref clock for ufs_mem_phy")
-> Link: https://lore.kernel.org/lkml/Y2OEjNAPXg5BfOxH@hovoldconsulting.com/
-> Cc: stable@vger.kernel.org	# 5.20
-> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-> ---
+I also wanted to send it directly through the company mailbox, but those 
+leaders didn't take it seriously.
 
-Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-
-
-Konrad
-
->   arch/arm64/boot/dts/qcom/sc8280xp.dtsi | 8 ++++----
->   1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-> index 21ac119e0382..e0d0fb6994b5 100644
-> --- a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-> +++ b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-> @@ -912,7 +912,7 @@ ufs_mem_hc: ufs@1d84000 {
->   				 <&gcc GCC_AGGRE_UFS_PHY_AXI_CLK>,
->   				 <&gcc GCC_UFS_PHY_AHB_CLK>,
->   				 <&gcc GCC_UFS_PHY_UNIPRO_CORE_CLK>,
-> -				 <&rpmhcc RPMH_CXO_CLK>,
-> +				 <&gcc GCC_UFS_REF_CLKREF_CLK>,
->   				 <&gcc GCC_UFS_PHY_TX_SYMBOL_0_CLK>,
->   				 <&gcc GCC_UFS_PHY_RX_SYMBOL_0_CLK>,
->   				 <&gcc GCC_UFS_PHY_RX_SYMBOL_1_CLK>;
-> @@ -943,7 +943,7 @@ ufs_mem_phy: phy@1d87000 {
->   			ranges;
->   			clock-names = "ref",
->   				      "ref_aux";
-> -			clocks = <&gcc GCC_UFS_REF_CLKREF_CLK>,
-> +			clocks = <&gcc GCC_UFS_CARD_CLKREF_CLK>,
->   				 <&gcc GCC_UFS_PHY_PHY_AUX_CLK>;
->   
->   			resets = <&ufs_mem_hc 0>;
-> @@ -980,7 +980,7 @@ ufs_card_hc: ufs@1da4000 {
->   				 <&gcc GCC_AGGRE_UFS_CARD_AXI_CLK>,
->   				 <&gcc GCC_UFS_CARD_AHB_CLK>,
->   				 <&gcc GCC_UFS_CARD_UNIPRO_CORE_CLK>,
-> -				 <&rpmhcc RPMH_CXO_CLK>,
-> +				 <&gcc GCC_UFS_REF_CLKREF_CLK>,
->   				 <&gcc GCC_UFS_CARD_TX_SYMBOL_0_CLK>,
->   				 <&gcc GCC_UFS_CARD_RX_SYMBOL_0_CLK>,
->   				 <&gcc GCC_UFS_CARD_RX_SYMBOL_1_CLK>;
-> @@ -1011,7 +1011,7 @@ ufs_card_phy: phy@1da7000 {
->   			ranges;
->   			clock-names = "ref",
->   				      "ref_aux";
-> -			clocks = <&gcc GCC_UFS_REF_CLKREF_CLK>,
-> +			clocks = <&gcc GCC_UFS_1_CARD_CLKREF_CLK>,
->   				 <&gcc GCC_UFS_CARD_PHY_AUX_CLK>;
->   
->   			resets = <&ufs_card_hc 0>;
+Next time I don't use the company email and submit patches as I can as a 
+freelancer.
