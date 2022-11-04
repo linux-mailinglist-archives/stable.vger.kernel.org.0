@@ -2,123 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 590BA619706
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 14:05:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE19961983A
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 14:36:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231719AbiKDNF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 09:05:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42384 "EHLO
+        id S230267AbiKDNgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 09:36:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231634AbiKDNFu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 09:05:50 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 593572ED40
-        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 06:05:45 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1oqwOF-00088F-JG
-        for stable@vger.kernel.org; Fri, 04 Nov 2022 14:05:43 +0100
-Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id A8D53112F29
-        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 13:05:42 +0000 (UTC)
-Received: from hardanger.blackshift.org (unknown [172.20.34.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id 0E0D6112F06;
-        Fri,  4 Nov 2022 13:05:40 +0000 (UTC)
-Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 86e97196;
-        Fri, 4 Nov 2022 13:05:36 +0000 (UTC)
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Biju Das <biju.das.jz@bp.renesas.com>, stable@vger.kernel.org,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH net 5/5] can: rcar_canfd: Add missing ECC error checks for channels 2-7
-Date:   Fri,  4 Nov 2022 14:05:35 +0100
-Message-Id: <20221104130535.732382-6-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221104130535.732382-1-mkl@pengutronix.de>
-References: <20221104130535.732382-1-mkl@pengutronix.de>
+        with ESMTP id S229637AbiKDNgv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 09:36:51 -0400
+X-Greylist: delayed 445 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 04 Nov 2022 06:36:50 PDT
+Received: from smtp112.iad3b.emailsrvr.com (smtp112.iad3b.emailsrvr.com [146.20.161.112])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A15162A402
+        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 06:36:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
+        s=20190130-41we5z8j; t=1667568559;
+        bh=84c2Xts5TFIfcuNxFxNSo1CmLRqVLks8CTtQ1S5Zmy8=;
+        h=Date:Subject:To:From:From;
+        b=b9ZfyI+U+qfARJ7Tp5bZspnmr7j6nTt1iTCWs8AXOt0Q2jxhEbtPmtI7ElG04EV+0
+         UOgnV7Qi1/dX20JPy39cp0w8QrT9QaYfYs9cdoW0OBo5Xp+dOFuzdoGyYWeSbam3Ex
+         CU9wMmFNcSFtyj6CEbUkvagyTjfDs8+VaCYLg7ls=
+X-Auth-ID: abbotti@mev.co.uk
+Received: by smtp15.relay.iad3b.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id 193C2C009C;
+        Fri,  4 Nov 2022 09:29:18 -0400 (EDT)
+Message-ID: <b367fe74-25e1-6c33-b7bc-104686096519@mev.co.uk>
+Date:   Fri, 4 Nov 2022 13:29:23 +0000
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.3
+Subject: Re: [PATCH] rtc: ds1347: fix value written to century register
+To:     linux-rtc@vger.kernel.org
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org
+References: <20221027163249.447416-1-abbotti@mev.co.uk>
+Content-Language: en-GB
+From:   Ian Abbott <abbotti@mev.co.uk>
+Organization: MEV Ltd.
+In-Reply-To: <20221027163249.447416-1-abbotti@mev.co.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Classification-ID: ee9a6868-458b-4417-8104-08a8a09d8153-1-1
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+On 27/10/2022 17:32, Ian Abbott wrote:
+> In `ds1347_set_time()`, the wrong value is being written to the
+> `DS1347_CENTURY_REG` register.  It needs to be converted to BCD.  Fix
+> it.
+> 
+> Fixes: 147dae76dbb9 ("rtc: ds1347: handle century register")
+> Cc: <stable@vger.kernel.org> # v5.5+
+> Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+> ---
+>   drivers/rtc/rtc-ds1347.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/rtc/rtc-ds1347.c b/drivers/rtc/rtc-ds1347.c
+> index 157bf5209ac4..a40c1a52df65 100644
+> --- a/drivers/rtc/rtc-ds1347.c
+> +++ b/drivers/rtc/rtc-ds1347.c
+> @@ -112,7 +112,7 @@ static int ds1347_set_time(struct device *dev, struct rtc_time *dt)
+>   		return err;
+>   
+>   	century = (dt->tm_year / 100) + 19;
+> -	err = regmap_write(map, DS1347_CENTURY_REG, century);
+> +	err = regmap_write(map, DS1347_CENTURY_REG, bin2bcd(century));
+>   	if (err)
+>   		return err;
+>   
 
-When introducing support for R-Car V3U, which has 8 instead of 2
-channels, the ECC error bitmask was extended to take into account the
-extra channels, but rcar_canfd_global_error() was not updated to act
-upon the extra bits.
+I'm sure this isn't a commonly used driver, but I'd just like to mention 
+that I consider it critically broken without this bug fix.  Any dates in 
+the 21st century written to the RTC end up being in the 15th century 
+inside the chip, and the kernel treats it as invalid when it is read 
+back.  (The times are out of range of a 32-bit Unix time.  I'm not sure 
+if 64-bit Unix times from the RTC before 1970 are supported or not.)
 
-Replace the RCANFD_GERFL_EEF[01] macros by a new macro that takes the
-channel number, fixing R-Car V3U while simplifying the code.
-
-Fixes: 45721c406dcf50d4 ("can: rcar_canfd: Add support for r8a779a0 SoC")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/all/4edb2ea46cc64d0532a08a924179827481e14b4f.1666951503.git.geert+renesas@glider.be
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- drivers/net/can/rcar/rcar_canfd.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/net/can/rcar/rcar_canfd.c b/drivers/net/can/rcar/rcar_canfd.c
-index d530e986f7fa..b306cf554634 100644
---- a/drivers/net/can/rcar/rcar_canfd.c
-+++ b/drivers/net/can/rcar/rcar_canfd.c
-@@ -81,8 +81,7 @@ enum rcanfd_chip_id {
- 
- /* RSCFDnCFDGERFL / RSCFDnGERFL */
- #define RCANFD_GERFL_EEF0_7		GENMASK(23, 16)
--#define RCANFD_GERFL_EEF1		BIT(17)
--#define RCANFD_GERFL_EEF0		BIT(16)
-+#define RCANFD_GERFL_EEF(ch)		BIT(16 + (ch))
- #define RCANFD_GERFL_CMPOF		BIT(3)	/* CAN FD only */
- #define RCANFD_GERFL_THLES		BIT(2)
- #define RCANFD_GERFL_MES		BIT(1)
-@@ -90,7 +89,7 @@ enum rcanfd_chip_id {
- 
- #define RCANFD_GERFL_ERR(gpriv, x) \
- 	((x) & (reg_v3u(gpriv, RCANFD_GERFL_EEF0_7, \
--			RCANFD_GERFL_EEF0 | RCANFD_GERFL_EEF1) | \
-+			RCANFD_GERFL_EEF(0) | RCANFD_GERFL_EEF(1)) | \
- 		RCANFD_GERFL_MES | \
- 		((gpriv)->fdmode ? RCANFD_GERFL_CMPOF : 0)))
- 
-@@ -936,12 +935,8 @@ static void rcar_canfd_global_error(struct net_device *ndev)
- 	u32 ridx = ch + RCANFD_RFFIFO_IDX;
- 
- 	gerfl = rcar_canfd_read(priv->base, RCANFD_GERFL);
--	if ((gerfl & RCANFD_GERFL_EEF0) && (ch == 0)) {
--		netdev_dbg(ndev, "Ch0: ECC Error flag\n");
--		stats->tx_dropped++;
--	}
--	if ((gerfl & RCANFD_GERFL_EEF1) && (ch == 1)) {
--		netdev_dbg(ndev, "Ch1: ECC Error flag\n");
-+	if (gerfl & RCANFD_GERFL_EEF(ch)) {
-+		netdev_dbg(ndev, "Ch%u: ECC Error flag\n", ch);
- 		stats->tx_dropped++;
- 	}
- 	if (gerfl & RCANFD_GERFL_MES) {
 -- 
-2.35.1
-
+-=( Ian Abbott <abbotti@mev.co.uk> || MEV Ltd. is a company  )=-
+-=( registered in England & Wales.  Regd. number: 02862268.  )=-
+-=( Regd. addr.: S11 & 12 Building 67, Europa Business Park, )=-
+-=( Bird Hall Lane, STOCKPORT, SK3 0XA, UK. || www.mev.co.uk )=-
 
