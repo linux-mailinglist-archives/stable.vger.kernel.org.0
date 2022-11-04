@@ -2,106 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79267619A0B
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 15:34:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24EB9619A9F
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 15:56:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231719AbiKDOd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 10:33:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46314 "EHLO
+        id S232050AbiKDO4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 10:56:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231826AbiKDOdV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 10:33:21 -0400
-Received: from mo4-p01-ob.smtp.rzone.de (mo4-p01-ob.smtp.rzone.de [85.215.255.50])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194FB4AF2E;
-        Fri,  4 Nov 2022 07:31:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1667572097;
-    s=strato-dkim-0002; d=hartkopp.net;
-    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
-    From:Subject:Sender;
-    bh=1iIpXFsuyPQINneA2wCr5wWDQHSoRuYe4hV6XN+OD6A=;
-    b=pllalSucjoTv1gml5YxbETpWUUKScNTvvb8Jwt1hcUcwguIQDW5HcTDKVJfMO4bujL
-    URyPHBWQb+aWL3FG+D+Wx3Krhwp88tSFqLXgJTD1WVMBbxPFKZVsFe3Vdfl+v/JrNNYU
-    srLA+mIQg/sVZPVwgXE7eAm8Nu96JLNoSx8kehnhQMqaXjevNCZGL0yRJsQyh5rriXGB
-    eS132vH7l12Cvvl+g/oP7XPBVwfdYZGv7YjjuVm4SrfskheM31ToJ7t9BLtqGw9lFc4Z
-    +VFY9Iv4jSRrCrQ/fxme3yadboO579VIKEHLC7wKyD35eXB5l4v3xniig/mocFNyXnH5
-    wm9A==
-Authentication-Results: strato.com;
-    dkim=none
-X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjG14FZxedJy6qgO1qCHSa1GLptZHusx3hdIrpKytISr6hZqJAw=="
-X-RZG-CLASS-ID: mo00
-Received: from [IPV6:2a00:6020:1cfd:d104::923]
-    by smtp.strato.de (RZmta 48.2.1 AUTH)
-    with ESMTPSA id Dde783yA4ESHQrC
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-    Fri, 4 Nov 2022 15:28:17 +0100 (CET)
-Message-ID: <f8a22e38-a7e9-0643-d6a6-6c5901dee7b4@hartkopp.net>
-Date:   Fri, 4 Nov 2022 15:28:11 +0100
+        with ESMTP id S232080AbiKDO4G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 10:56:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D795A2C67D
+        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 07:56:05 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96A90B82E8D
+        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 14:56:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75E7FC433D6;
+        Fri,  4 Nov 2022 14:56:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1667573763;
+        bh=aFT+OYWwtWWikyYe2ydT4JOUjF+vaIMzzwvgJK0u6u0=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=sCTs4qMpQHoWjZwWKZylJU5GOrjmgd5bBsy0I3pfZ9THAWllObwZzZ8Me2QOMcrqb
+         ORhc4xj9oT/Z0IigtSXNdzcXcxZ5a1c7ZaK4X9u6tEX46lKvrkdT/xYGcKAzjdQiBO
+         VHYfz1Bml0McMBViOUrLN+OewKqxu6ZkPeOkzr9VhpMNcV5s6NbP3HvYVK9xn/M32b
+         ONVa8FQZ8vsRf9yb4Z0lTS9KxC9zNCPs6/5lskvWEKJACF46wsoxVgJ/D2uvqI+6KS
+         cpdKNPnfBrVlVUUbO0f9GGzFqbkrPrAmihh4icXjFzx/dKohjXFZ/Idy0KT6G/HNdr
+         ndnz/sfYo1oNQ==
+From:   Mark Brown <broonie@kernel.org>
+To:     Jason Montleon <jmontleo@redhat.com>,
+        pierre-louis.bossart@linux.intel.com
+Cc:     ckeepax@opensource.cirrus.com, regressions@lists.linux.dev,
+        tiwai@suse.com, stable@vger.kernel.org, oder_chiou@realtek.com,
+        cezary.rojewski@intel.com, alsa-devel@alsa-project.org
+In-Reply-To: <20221103144612.4431-1-jmontleo@redhat.com>
+References: <20221103144612.4431-1-jmontleo@redhat.com>
+Subject: Re: [PATCH v4 1/2] ASoC: rt5514: fix legacy dai naming
+Message-Id: <166757376119.346347.7384763439814980163.b4-ty@kernel.org>
+Date:   Fri, 04 Nov 2022 14:56:01 +0000
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH] can: isotp: fix tx state handling for echo tx processing
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     netdev@vger.kernel.org, linux-can@vger.kernel.org,
-        Wei Chen <harperchen1110@gmail.com>, stable@vger.kernel.org
-References: <20221101212902.10702-1-socketcan@hartkopp.net>
- <20221104121059.kbhrpwbumuc6q3iv@pengutronix.de>
-Content-Language: en-US
-From:   Oliver Hartkopp <socketcan@hartkopp.net>
-In-Reply-To: <20221104121059.kbhrpwbumuc6q3iv@pengutronix.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_PASS,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Mailer: b4 0.10.0-dev-fc921
+X-Spam-Status: No, score=-8.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Marc,
-
-On 04.11.22 13:10, Marc Kleine-Budde wrote:
-> On 01.11.2022 22:29:02, Oliver Hartkopp wrote:
->> In commit 4b7fe92c0690 ("can: isotp: add local echo tx processing for
->> consecutive frames") the data flow for consecutive frames (CF) has been
->> reworked to improve the reliability of long data transfers.
->>
->> This rework did not touch the transmission and the tx state changes of
->> single frame (SF) transfers which likely led to the WARN in the
->> isotp_tx_timer_handler() catching a wrong tx state. This patch makes use
->> of the improved frame processing for SF frames and sets the ISOTP_SENDING
->> state in isotp_sendmsg() within the cmpxchg() condition handling.
->>
->> A review of the state machine and the timer handling additionally revealed
->> a missing echo timeout handling in the case of the burst mode in
->> isotp_rcv_echo() and removes a potential timer configuration uncertainty
->> in isotp_rcv_fc() when the receiver requests consecutive frames.
->>
->> Fixes: 4b7fe92c0690 ("can: isotp: add local echo tx processing for consecutive frames")
->> Link: https://lore.kernel.org/linux-can/CAO4mrfe3dG7cMP1V5FLUkw7s+50c9vichigUMQwsxX4M=45QEw@mail.gmail.com/T/#u
->> Reported-by: Wei Chen <harperchen1110@gmail.com>
->> Cc: stable@vger.kernel.org # v6.0
->> Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+On Thu, 3 Nov 2022 10:46:11 -0400, Jason Montleon wrote:
+> Starting with 6.0-rc1 these messages are logged and the sound card
+> is unavailable. Adding legacy_dai_naming to the rt5514-spi causes
+> it to function properly again.
+> 
+> [   16.928454] kbl_r5514_5663_max kbl_r5514_5663_max: ASoC: CPU DAI
+> spi-PRP0001:00 not registered
+> [   16.928561] platform kbl_r5514_5663_max: deferred probe pending
 > 
 > [...]
-> 
->> @@ -905,10 +915,11 @@ static enum hrtimer_restart isotp_tx_timer_handler(struct hrtimer *hrtimer)
->>   		so->tx.state = ISOTP_IDLE;
->>   		wake_up_interruptible(&so->wait);
->>   		break;
->>   
->>   	default:
->> +		pr_notice_once("can-isotp: tx timer state %X\n", so->tx.state);
->>   		WARN_ON_ONCE(1);
-> 
-> Can you use WARN_ONCE() instead of pr_notice_once() + WARN_ON_ONCE() here?
-> 
 
-Yes. That was a good idea! V2 is sent.
+Applied to
 
-It also allowed me to print another relevant variable.
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-next
+
+Thanks!
+
+[1/2] ASoC: rt5514: fix legacy dai naming
+      commit: 392cc13c5ec72ccd6bbfb1bc2339502cc59dd285
+[2/2] ASoC: rt5677: fix legacy dai naming
+      commit: a1dca8774faf3f77eb34fa0ac6f3e2b82290b1e4
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
 
 Thanks,
-Oliver
+Mark
