@@ -2,58 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 853386195CE
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 13:06:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA6046195F3
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 13:11:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231704AbiKDMGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 08:06:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38284 "EHLO
+        id S231470AbiKDMLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 08:11:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231536AbiKDMGP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 08:06:15 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC4982B1AD;
-        Fri,  4 Nov 2022 05:06:14 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1oqvSf-0007ER-Bc; Fri, 04 Nov 2022 13:06:13 +0100
-Message-ID: <77db7bb2-5f4c-273f-6e15-d4d397c44745@leemhuis.info>
-Date:   Fri, 4 Nov 2022 13:06:13 +0100
+        with ESMTP id S231522AbiKDMLI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 08:11:08 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 649002D1E8
+        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 05:11:07 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1oqvXJ-0000GJ-F2; Fri, 04 Nov 2022 13:11:01 +0100
+Received: from pengutronix.de (unknown [IPv6:2a01:4f8:1c1c:29e9:22:41ff:fe00:1400])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        (Authenticated sender: mkl-all@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id 518B9112E30;
+        Fri,  4 Nov 2022 12:11:00 +0000 (UTC)
+Date:   Fri, 4 Nov 2022 13:10:59 +0100
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     Oliver Hartkopp <socketcan@hartkopp.net>
+Cc:     netdev@vger.kernel.org, linux-can@vger.kernel.org,
+        Wei Chen <harperchen1110@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] can: isotp: fix tx state handling for echo tx processing
+Message-ID: <20221104121059.kbhrpwbumuc6q3iv@pengutronix.de>
+References: <20221101212902.10702-1-socketcan@hartkopp.net>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: BISECT result: 6.0.0-RC kernels trigger Firefox snap bug with
- 6.0.0-rc3 through 6.0.0-rc7 #forregzbot
-Content-Language: en-US, de-DE
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-To:     regressions@lists.linux.dev
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <8702a833-e66c-e63a-bfc8-1007174c5b3d@leemhuis.info>
- <20221015205936.5735-1-phillip@squashfs.org.uk>
- <2d1ca80c-1023-9821-f401-43cff34cca86@gmail.com>
- <b811fb3a-b5bb-bb0d-0cdf-e5bc0e88836f@gmail.com>
- <6e744247-60b8-febb-9cc6-5c24ff6e3019@leemhuis.info>
-In-Reply-To: <6e744247-60b8-febb-9cc6-5c24ff6e3019@leemhuis.info>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1667563574;a4db72e5;
-X-HE-SMSGID: 1oqvSf-0007ER-Bc
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ez5os5lwkdehxyfw"
+Content-Disposition: inline
+In-Reply-To: <20221101212902.10702-1-socketcan@hartkopp.net>
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[Note: this mail is primarily send for documentation purposes and/or for
-regzbot, my Linux kernel regression tracking bot. That's why I removed
-most or all folks from the list of recipients, but left any that looked
-like a mailing lists. These mails usually contain '#forregzbot' in the
-subject, to make them easy to spot and filter out.]
 
-On 16.10.22 14:43, Thorsten Leemhuis wrote:
-> #regzbot introduced: b09a7a036d2035b14636c
+--ez5os5lwkdehxyfw
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-#regzbot fixed-by: e11c4e088be
+On 01.11.2022 22:29:02, Oliver Hartkopp wrote:
+> In commit 4b7fe92c0690 ("can: isotp: add local echo tx processing for
+> consecutive frames") the data flow for consecutive frames (CF) has been
+> reworked to improve the reliability of long data transfers.
+>=20
+> This rework did not touch the transmission and the tx state changes of
+> single frame (SF) transfers which likely led to the WARN in the
+> isotp_tx_timer_handler() catching a wrong tx state. This patch makes use
+> of the improved frame processing for SF frames and sets the ISOTP_SENDING
+> state in isotp_sendmsg() within the cmpxchg() condition handling.
+>=20
+> A review of the state machine and the timer handling additionally revealed
+> a missing echo timeout handling in the case of the burst mode in
+> isotp_rcv_echo() and removes a potential timer configuration uncertainty
+> in isotp_rcv_fc() when the receiver requests consecutive frames.
+>=20
+> Fixes: 4b7fe92c0690 ("can: isotp: add local echo tx processing for consec=
+utive frames")
+> Link: https://lore.kernel.org/linux-can/CAO4mrfe3dG7cMP1V5FLUkw7s+50c9vic=
+higUMQwsxX4M=3D45QEw@mail.gmail.com/T/#u
+> Reported-by: Wei Chen <harperchen1110@gmail.com>
+> Cc: stable@vger.kernel.org # v6.0
+> Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+
+[...]
+
+> @@ -905,10 +915,11 @@ static enum hrtimer_restart isotp_tx_timer_handler(=
+struct hrtimer *hrtimer)
+>  		so->tx.state =3D ISOTP_IDLE;
+>  		wake_up_interruptible(&so->wait);
+>  		break;
+> =20
+>  	default:
+> +		pr_notice_once("can-isotp: tx timer state %X\n", so->tx.state);
+>  		WARN_ON_ONCE(1);
+
+Can you use WARN_ONCE() instead of pr_notice_once() + WARN_ON_ONCE() here?
+
+Marc
+
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+
+--ez5os5lwkdehxyfw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEBsvAIBsPu6mG7thcrX5LkNig010FAmNlAVAACgkQrX5LkNig
+012E4Qf+L9/1ppXiOY0OZZiHyavf/wrgwC6CkuDWmTLlQucnNPE8Tn/uKUpvt6c3
+1kKOkNDS5Vnm9EgxPjplBjZtE1Ya3SKII1gAEF02jJf0x+KADpzhU/pu5D5jUvmm
+IGEdeQPR+pCvaxsMBpR4pG8k8ZFT/a+yeY7vn/hiETyuTbmLIWtvNI8mKu7zN+8A
+xFww/B+Hx60GW5fAWIoV/RH8jfvAQhn+j/DFAmgGe1SkWVKZvZ/0BJ+TJhnFrVzn
++c8fzetn6xXSiyUpt3WF+jHMCUEM3Cp9hPuRK2cJ0K+prF6PrU23Oj88YR8oEQ1Y
+JNXyRLimTPEVA6hTBF34qDXVYQ+G8w==
+=Xiux
+-----END PGP SIGNATURE-----
+
+--ez5os5lwkdehxyfw--
