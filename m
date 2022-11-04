@@ -2,58 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4790061A54F
-	for <lists+stable@lfdr.de>; Sat,  5 Nov 2022 00:03:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4C6A61A573
+	for <lists+stable@lfdr.de>; Sat,  5 Nov 2022 00:12:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229511AbiKDXDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 19:03:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39506 "EHLO
+        id S229527AbiKDXMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 19:12:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229494AbiKDXDh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 19:03:37 -0400
-Received: from www62.your-server.de (www62.your-server.de [213.133.104.62])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11D49CF3;
-        Fri,  4 Nov 2022 16:03:33 -0700 (PDT)
-Received: from sslproxy04.your-server.de ([78.46.152.42])
-        by www62.your-server.de with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <daniel@iogearbox.net>)
-        id 1or5ij-000LG1-6w; Sat, 05 Nov 2022 00:03:29 +0100
-Received: from [85.1.206.226] (helo=linux.home)
-        by sslproxy04.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <daniel@iogearbox.net>)
-        id 1or5ii-000LUC-RY; Sat, 05 Nov 2022 00:03:28 +0100
-Subject: Re: [PATCH] bpf: mark get_entry_ip as __maybe_unused
-To:     Jonas Rabenstein <rabenstein@cs.fau.de>, stable@vger.kernel.org
-Cc:     Jiri Olsa <jolsa@kernel.org>, Song Liu <song@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>, bpf@vger.kernel.org,
-        linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org
-References: <20221103150303.974028-1-rabenstein@cs.fau.de>
- <20221103153247.zal3czlsxvanfnc3@kashyyyk>
-From:   Daniel Borkmann <daniel@iogearbox.net>
-Message-ID: <ec1ac9cb-f92c-9a2f-3a6c-bfc4bc88ab11@iogearbox.net>
-Date:   Sat, 5 Nov 2022 00:03:28 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
-MIME-Version: 1.0
-In-Reply-To: <20221103153247.zal3czlsxvanfnc3@kashyyyk>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Authenticated-Sender: daniel@iogearbox.net
-X-Virus-Scanned: Clear (ClamAV 0.103.7/26710/Fri Nov  4 08:53:05 2022)
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        with ESMTP id S229459AbiKDXMx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 19:12:53 -0400
+Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D820B450B1
+        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 16:12:48 -0700 (PDT)
+Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-36fde8f2cdcso58050887b3.23
+        for <stable@vger.kernel.org>; Fri, 04 Nov 2022 16:12:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=xG8SF42tN7XJN1Q1/ybEZcxUZopQ7i5Q8n92aTP8rTA=;
+        b=tdEbBLnkjqwBbh7mLxH/Hzv5saWzHJsiuGO1JdrLEH1aSoLYNPgSALLnmnrk1MPvh/
+         JIPJCaqnu93XVSnYgZGjyFvZmbkuSiyNxPuJ/niHgumMs02X6CW2dXrDvTWrRTAyJKoH
+         0bBCOnHT5uhKFMgZtbyGvCWTel+cD3XVCTnrPLp0vKZRIkw9JaQS/Ed/1EQdhhvGTjJ6
+         dg4n+1TuGl0VFscIP/fVd028BYD8TpXcxEFpRfW8E8H/G7NR4QQSSecIv5aZKgXc4T4f
+         VD6bDEyKb13O425K+X+aDNZ9hi0RbavOP2FDIWWjJcc78NYvj5OQTiromrial3O4O7y3
+         LFkw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xG8SF42tN7XJN1Q1/ybEZcxUZopQ7i5Q8n92aTP8rTA=;
+        b=p4cVMc+ElfgKFx9u7GvlMi7As+DKEfpqAgnALWAi9xPxeEiGY85kyOh+d9iv+tFgTb
+         BWwkRG4qHeIoGZJxDkLqgULe3yDlMQ7aJL8G+mcgSf+ieMNAB/105JSLmTxmgMaLnvLh
+         SyLDPSdvz1vAMVB69ksYvzkzsLjbR1FEuJX7eP72cAC6/RFheBBo6Gv+hCL4Kk+bg7b3
+         0lDlqZJpzLM5pCSb3TCMgO4WmXfkAXO0kArQ4On7sUp3QvqlX3BqEkc9v7okuwwX7/gI
+         C8wrGzKscqA7GtO7SOU67pIYB+BGM/8KPFlifVDLAEEAe1eTk7WAdvB5mKSv0nnHL3UA
+         EofQ==
+X-Gm-Message-State: ACrzQf0ewstZXWPfi3AAoedrUIlaOS8xb0urJiSoc30BAbJzxlnQMS+5
+        MEFlJBG5FV7VKC2LdLW2CJhqamF6fjolRQ==
+X-Google-Smtp-Source: AMsMyM5HF8y6DHVqifbG2yHGSsCpt3xo+QvJoGzCdtOLeSejk76K6mymM1jcnkGn3zQqkjKdm+yoPJav4qg4ng==
+X-Received: from xllamas.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5070])
+ (user=cmllamas job=sendgmr) by 2002:a5b:142:0:b0:6c4:8a9:e4d2 with SMTP id
+ c2-20020a5b0142000000b006c408a9e4d2mr372993ybp.164.1667603568127; Fri, 04 Nov
+ 2022 16:12:48 -0700 (PDT)
+Date:   Fri,  4 Nov 2022 23:12:35 +0000
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
+Message-ID: <20221104231235.348958-1-cmllamas@google.com>
+Subject: [PATCH] binder: validate alloc->mm in ->mmap() handler
+From:   Carlos Llamas <cmllamas@google.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "=?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?=" <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Carlos Llamas <cmllamas@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>
+Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
+        Jann Horn <jannh@google.com>, stable@vger.kernel.org,
+        Todd Kjos <tkjos@google.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,47 +74,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/3/22 4:32 PM, Jonas Rabenstein wrote:
-> Hi again,
-> after sending this out, I noticed this is only a problem in the stable
-> versions (starting from v6.0.3), as c09eb2e578eb1668bbc has been applied (as
-> 03f148c159a250dd454) but not 0e253f7e558a3e250902 ("bpf: Return value in kprobe
-> get_func_ip only for entry address") which makes always use of get_entry_ip.
-> I therefore think, 0e253f7e558a3e250902 needs to be added to the stable v6.0
-> series as well as otherwise it can't be compiled with -Werror if
-> CONFIG_X6_KERNEL_IBT is set but CONFIG_FPROBE isn't.
+Since commit 1da52815d5f1 ("binder: fix alloc->vma_vm_mm null-ptr
+dereference") binder caches a pointer to the current->mm during open().
+This fixes a null-ptr dereference reported by syzkaller. Unfortunately,
+it also opens the door for a process to update its mm after the open(),
+(e.g. via execve) making the cached alloc->mm pointer invalid.
 
-Thanks for the info, Jonas. Added Greg wrt stable cherry-pick.
+Things get worse when the process continues to mmap() a vma. From this
+point forward, binder will attempt to find this vma using an obsolete
+alloc->mm reference. Such as in binder_update_page_range(), where the
+wrong vma is obtained via vma_lookup(), yet binder proceeds to happily
+insert new pages into it.
 
-> On Thu, Nov 03, 2022 at 04:03:03PM +0100, Jonas Rabenstein wrote:
->> Commit c09eb2e578eb1668bbc ("bpf: Adjust kprobe_multi entry_ip
->> for CONFIG_X86_KERNEL_IBT") introduced the get_entry_ip() function.
->> Depending on CONFIG_X86_KERNEL_IBT it is a static function or only
->> a macro definition. The only user of this symbol so far is in
->> kprobe_multi_link_handler() if CONFIG_FPROBE is enabled.
->> If CONFIG_FROBE is not set, the symbol is not used and - depending
->> on CONFIG_X86_KERNEL_IBT - a warning for get_entry_ip() is emitted.
->> To solve this, the function should be marked as __maybe_unused.
->>
->> Signed-off-by: Jonas Rabenstein <rabenstein@cs.fau.de>
->> ---
->>   kernel/trace/bpf_trace.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
->> index f2d8d070d024..19131aae0bc3 100644
->> --- a/kernel/trace/bpf_trace.c
->> +++ b/kernel/trace/bpf_trace.c
->> @@ -1032,7 +1032,7 @@ static const struct bpf_func_proto bpf_get_func_ip_proto_tracing = {
->>   };
->>   
->>   #ifdef CONFIG_X86_KERNEL_IBT
->> -static unsigned long get_entry_ip(unsigned long fentry_ip)
->> +static unsigned long __maybe_unused get_entry_ip(unsigned long fentry_ip)
->>   {
->>   	u32 instr;
->>   
->> -- 
->> 2.37.4
->>
+To avoid this issue fail the ->mmap() callback if we detect a mismatch
+between the vma->vm_mm and the original alloc->mm pointer. This prevents
+alloc->vm_addr from getting set, so that any subsequent vma_lookup()
+calls fail as expected.
+
+Fixes: 1da52815d5f1 ("binder: fix alloc->vma_vm_mm null-ptr dereference")
+Reported-by: Jann Horn <jannh@google.com>
+Cc: <stable@vger.kernel.org> # 5.15+
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
+---
+ drivers/android/binder_alloc.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
+index 1c39cfce32fa..4ad42b0f75cd 100644
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -739,6 +739,12 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
+ 	const char *failure_string;
+ 	struct binder_buffer *buffer;
+ 
++	if (unlikely(vma->vm_mm != alloc->mm)) {
++		ret = -EINVAL;
++		failure_string = "invalid vma->vm_mm";
++		goto err_invalid_mm;
++	}
++
+ 	mutex_lock(&binder_alloc_mmap_lock);
+ 	if (alloc->buffer_size) {
+ 		ret = -EBUSY;
+@@ -785,6 +791,7 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
+ 	alloc->buffer_size = 0;
+ err_already_mapped:
+ 	mutex_unlock(&binder_alloc_mmap_lock);
++err_invalid_mm:
+ 	binder_alloc_debug(BINDER_DEBUG_USER_ERROR,
+ 			   "%s: %d %lx-%lx %s failed %d\n", __func__,
+ 			   alloc->pid, vma->vm_start, vma->vm_end,
+-- 
+2.38.1.431.g37b22c650d-goog
 
