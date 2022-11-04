@@ -2,76 +2,341 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 158A26199A4
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 15:24:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 314FD6199D6
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 15:28:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231751AbiKDOYu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 10:24:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35000 "EHLO
+        id S231754AbiKDO2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 10:28:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231620AbiKDOYF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 10:24:05 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EE8230546
-        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 07:22:29 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id m14-20020a17090a3f8e00b00212dab39bcdso8389108pjc.0
-        for <stable@vger.kernel.org>; Fri, 04 Nov 2022 07:22:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ddKdS4x8c4ZSI9PbKdla4xMHlbecpUYnHnf7KqPY/v4=;
-        b=HRYSU7MovNaYRtWzxf0E13rVC8yJpO1j/oErbQ1ktFJywUgByzMihTqcZBgW6+/tyx
-         9pmATrUzR6pgdWpbvc2QpBnoGFuP75Qn7ZI9vyTl1jafKQIIQfd3nvKwdp203hx6Nbna
-         TgW7d0gHYbBBYD24RUOMK0jo3wK90J19kDEXt5XB7n/AGBTNF0NPjaViCDMDKvOYdiZy
-         yD0ZfWUfS9Byi2/f1WdFh4VO5tjeRE53MaA5N4sKfK2W6ONglzCu3a7txwbouJmAifZq
-         IdoHBQfH16H5rRm7Jd8PSI/YfFm85iuUb0Rl/y5UiuHwcDnRPZHFTL3oqPrvbeaVL2oQ
-         iQzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ddKdS4x8c4ZSI9PbKdla4xMHlbecpUYnHnf7KqPY/v4=;
-        b=v86RghQbsP1ikn2StlJ5MV1E0z3VSfMveEVBhQkwzXowpN87cNYemYvtu4MtkyE3kU
-         fxIz/zRZs8myldqDKJALM2sQn+3PE0TltYI1ZuWsgi/WrknORgKAWpWGZfuLdoBgOkRt
-         wqtgxZa3BnPy9QoBatAeLGxXZGqCpfm+MDAi3DdWu6/ynS+kWCmntlNrZgpAGCBcuXoj
-         LLU4ZE+5cAldYC5POn9geDEKT6ocEkMAwLTakLyMYFWdzb24/DFfTSLGM53EwcH5Da2u
-         qSlO0fIIZQgTPfO11gZdLGMB0ERAvHgK0MAVYxNqM+C3GVSLmZ1qw6qZXrySIUuakpUh
-         aR2A==
-X-Gm-Message-State: ACrzQf12tXQaSFL4ppUTQ1raSSGUgRS6/vSGCPNgpDPpxVpPrr1wd3zw
-        CFJfHuc6yB98yVtkpo4RU9RciM59yN+7GhEJmkY=
-X-Google-Smtp-Source: AMsMyM5sI+7AycTThDb7wSH0Pf9kT/l3+/sbvJL/4yjXZM3F29+wvcpBRGG3meDr3g5pUFicHVxO/UWpJ3FAaHRpgZw=
-X-Received: by 2002:a17:902:cec8:b0:186:8553:79d4 with SMTP id
- d8-20020a170902cec800b00186855379d4mr35091706plg.148.1667571747556; Fri, 04
- Nov 2022 07:22:27 -0700 (PDT)
+        with ESMTP id S232100AbiKDO2R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 10:28:17 -0400
+Received: from mo4-p00-ob.smtp.rzone.de (mo4-p00-ob.smtp.rzone.de [85.215.255.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D37CD26DC;
+        Fri,  4 Nov 2022 07:26:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1667571980;
+    s=strato-dkim-0002; d=hartkopp.net;
+    h=Message-Id:Date:Subject:Cc:To:From:Cc:Date:From:Subject:Sender;
+    bh=SVrYhIP3OS1ASlyGo7ULVXa44yep2VZq6SONHEF0xj4=;
+    b=eOrSvK/U4/V0Nyfe4biQiJpb9TWv+QFe21L/lyTFV8bBJzZkcmYaXfnh3i893u2ISF
+    DTXrbaq+7OAXPLkOxcS3gtj4q4ZWYsdRbIPDuKfqWOmph6N6z1vSzYj4iRwWllvcXcVp
+    lWRrstF0cWHSLKQig83ieyn7T0jZGfu76aABjPb0qXVlMPOTBNvgJNQXlbaAFdzpqq7E
+    lcrqjSHIcquVBp7nHaBzMo5JaAHAaCtzq8Nx/ZpXLS4u5/mebMma33XWsM1kH5bpNKIM
+    nUBCDsRRWFIe210xYHPGtKPxK8gdwBdZTOXtcZC0G87FSKzk1feRPPFFfU/EnglAPqyl
+    7NUQ==
+Authentication-Results: strato.com;
+    dkim=none
+X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjGrp7owjzFK3JbFk1mS/xvEBL7X5sbo3UIh9JiLceSWNadhq4/jU"
+X-RZG-CLASS-ID: mo00
+Received: from silver.lan
+    by smtp.strato.de (RZmta 48.2.1 AUTH)
+    with ESMTPSA id Dde783yA4EQKQqq
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+    Fri, 4 Nov 2022 15:26:20 +0100 (CET)
+From:   Oliver Hartkopp <socketcan@hartkopp.net>
+To:     netdev@vger.kernel.org, linux-can@vger.kernel.org
+Cc:     Oliver Hartkopp <socketcan@hartkopp.net>,
+        Wei Chen <harperchen1110@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH v2] can: isotp: fix tx state handling for echo tx processing
+Date:   Fri,  4 Nov 2022 15:25:51 +0100
+Message-Id: <20221104142551.16924-1-socketcan@hartkopp.net>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Received: by 2002:a05:6a20:9386:b0:a4:4d6f:9a3c with HTTP; Fri, 4 Nov 2022
- 07:22:26 -0700 (PDT)
-Reply-To: subik7633@gmail.com
-From:   Susan Bikram <sb8766198@gmail.com>
-Date:   Fri, 4 Nov 2022 07:22:26 -0700
-Message-ID: <CALhHHa=vpFo6+W_GfScAdEQe5Tvk38YYy-n6YUajxtbxeO0C1w@mail.gmail.com>
-Subject: Please can i have your attention
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_PASS,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear ,
+In commit 4b7fe92c0690 ("can: isotp: add local echo tx processing for
+consecutive frames") the data flow for consecutive frames (CF) has been
+reworked to improve the reliability of long data transfers.
 
-Please can I have your attention and possibly help me for humanity's
-sake please. I am writing this message with a heavy heart filled with
-sorrows and sadness.
-Please if you can respond, i have an issue that i will be most
-grateful if you could help me deal with it please.
+This rework did not touch the transmission and the tx state changes of
+single frame (SF) transfers which likely led to the WARN in the
+isotp_tx_timer_handler() catching a wrong tx state. This patch makes use
+of the improved frame processing for SF frames and sets the ISOTP_SENDING
+state in isotp_sendmsg() within the cmpxchg() condition handling.
 
-Susan
+A review of the state machine and the timer handling additionally revealed
+a missing echo timeout handling in the case of the burst mode in
+isotp_rcv_echo() and removes a potential timer configuration uncertainty
+in isotp_rcv_fc() when the receiver requests consecutive frames.
+
+Fixes: 4b7fe92c0690 ("can: isotp: add local echo tx processing for consecutive frames")
+Link: https://lore.kernel.org/linux-can/CAO4mrfe3dG7cMP1V5FLUkw7s+50c9vichigUMQwsxX4M=45QEw@mail.gmail.com/T/#u
+Reported-by: Wei Chen <harperchen1110@gmail.com>
+Cc: stable@vger.kernel.org # v6.0
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+---
+ net/can/isotp.c | 71 ++++++++++++++++++++++++++-----------------------
+ 1 file changed, 38 insertions(+), 33 deletions(-)
+
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index a9d1357f8489..608f8c24ae46 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -109,10 +109,13 @@ MODULE_ALIAS("can-proto-6");
+ /* Flow Status given in FC frame */
+ #define ISOTP_FC_CTS 0		/* clear to send */
+ #define ISOTP_FC_WT 1		/* wait */
+ #define ISOTP_FC_OVFLW 2	/* overflow */
+ 
++#define ISOTP_FC_TIMEOUT 1	/* 1 sec */
++#define ISOTP_ECHO_TIMEOUT 2	/* 2 secs */
++
+ enum {
+ 	ISOTP_IDLE = 0,
+ 	ISOTP_WAIT_FIRST_FC,
+ 	ISOTP_WAIT_FC,
+ 	ISOTP_WAIT_DATA,
+@@ -256,11 +259,12 @@ static int isotp_send_fc(struct sock *sk, int ae, u8 flowstatus)
+ 
+ 	/* reset last CF frame rx timestamp for rx stmin enforcement */
+ 	so->lastrxcf_tstamp = ktime_set(0, 0);
+ 
+ 	/* start rx timeout watchdog */
+-	hrtimer_start(&so->rxtimer, ktime_set(1, 0), HRTIMER_MODE_REL_SOFT);
++	hrtimer_start(&so->rxtimer, ktime_set(ISOTP_FC_TIMEOUT, 0),
++		      HRTIMER_MODE_REL_SOFT);
+ 	return 0;
+ }
+ 
+ static void isotp_rcv_skb(struct sk_buff *skb, struct sock *sk)
+ {
+@@ -342,10 +346,12 @@ static int check_pad(struct isotp_sock *so, struct canfd_frame *cf,
+ 				return 1;
+ 	}
+ 	return 0;
+ }
+ 
++static void isotp_send_cframe(struct isotp_sock *so);
++
+ static int isotp_rcv_fc(struct isotp_sock *so, struct canfd_frame *cf, int ae)
+ {
+ 	struct sock *sk = &so->sk;
+ 
+ 	if (so->tx.state != ISOTP_WAIT_FC &&
+@@ -396,18 +402,19 @@ static int isotp_rcv_fc(struct isotp_sock *so, struct canfd_frame *cf, int ae)
+ 
+ 	switch (cf->data[ae] & 0x0F) {
+ 	case ISOTP_FC_CTS:
+ 		so->tx.bs = 0;
+ 		so->tx.state = ISOTP_SENDING;
+-		/* start cyclic timer for sending CF frame */
+-		hrtimer_start(&so->txtimer, so->tx_gap,
++		/* send CF frame and enable echo timeout handling */
++		hrtimer_start(&so->txtimer, ktime_set(ISOTP_ECHO_TIMEOUT, 0),
+ 			      HRTIMER_MODE_REL_SOFT);
++		isotp_send_cframe(so);
+ 		break;
+ 
+ 	case ISOTP_FC_WT:
+ 		/* start timer to wait for next FC frame */
+-		hrtimer_start(&so->txtimer, ktime_set(1, 0),
++		hrtimer_start(&so->txtimer, ktime_set(ISOTP_FC_TIMEOUT, 0),
+ 			      HRTIMER_MODE_REL_SOFT);
+ 		break;
+ 
+ 	case ISOTP_FC_OVFLW:
+ 		/* overflow on receiver side - report 'message too long' */
+@@ -598,11 +605,11 @@ static int isotp_rcv_cf(struct sock *sk, struct canfd_frame *cf, int ae,
+ 	}
+ 
+ 	/* perform blocksize handling, if enabled */
+ 	if (!so->rxfc.bs || ++so->rx.bs < so->rxfc.bs) {
+ 		/* start rx timeout watchdog */
+-		hrtimer_start(&so->rxtimer, ktime_set(1, 0),
++		hrtimer_start(&so->rxtimer, ktime_set(ISOTP_FC_TIMEOUT, 0),
+ 			      HRTIMER_MODE_REL_SOFT);
+ 		return 0;
+ 	}
+ 
+ 	/* no creation of flow control frames */
+@@ -827,11 +834,11 @@ static void isotp_rcv_echo(struct sk_buff *skb, void *data)
+ {
+ 	struct sock *sk = (struct sock *)data;
+ 	struct isotp_sock *so = isotp_sk(sk);
+ 	struct canfd_frame *cf = (struct canfd_frame *)skb->data;
+ 
+-	/* only handle my own local echo skb's */
++	/* only handle my own local echo CF/SF skb's (no FF!) */
+ 	if (skb->sk != sk || so->cfecho != *(u32 *)cf->data)
+ 		return;
+ 
+ 	/* cancel local echo timeout */
+ 	hrtimer_cancel(&so->txtimer);
+@@ -847,17 +854,20 @@ static void isotp_rcv_echo(struct sk_buff *skb, void *data)
+ 	}
+ 
+ 	if (so->txfc.bs && so->tx.bs >= so->txfc.bs) {
+ 		/* stop and wait for FC with timeout */
+ 		so->tx.state = ISOTP_WAIT_FC;
+-		hrtimer_start(&so->txtimer, ktime_set(1, 0),
++		hrtimer_start(&so->txtimer, ktime_set(ISOTP_FC_TIMEOUT, 0),
+ 			      HRTIMER_MODE_REL_SOFT);
+ 		return;
+ 	}
+ 
+ 	/* no gap between data frames needed => use burst mode */
+ 	if (!so->tx_gap) {
++		/* enable echo timeout handling */
++		hrtimer_start(&so->txtimer, ktime_set(ISOTP_ECHO_TIMEOUT, 0),
++			      HRTIMER_MODE_REL_SOFT);
+ 		isotp_send_cframe(so);
+ 		return;
+ 	}
+ 
+ 	/* start timer to send next consecutive frame with correct delay */
+@@ -877,11 +887,11 @@ static enum hrtimer_restart isotp_tx_timer_handler(struct hrtimer *hrtimer)
+ 		/* cfecho should be consumed by isotp_rcv_echo() here */
+ 		if (!so->cfecho) {
+ 			/* start timeout for unlikely lost echo skb */
+ 			hrtimer_set_expires(&so->txtimer,
+ 					    ktime_add(ktime_get(),
+-						      ktime_set(2, 0)));
++						      ktime_set(ISOTP_ECHO_TIMEOUT, 0)));
+ 			restart = HRTIMER_RESTART;
+ 
+ 			/* push out the next consecutive frame */
+ 			isotp_send_cframe(so);
+ 			break;
+@@ -905,11 +915,12 @@ static enum hrtimer_restart isotp_tx_timer_handler(struct hrtimer *hrtimer)
+ 		so->tx.state = ISOTP_IDLE;
+ 		wake_up_interruptible(&so->wait);
+ 		break;
+ 
+ 	default:
+-		WARN_ON_ONCE(1);
++		WARN_ONCE(1, "can-isotp: tx timer state %08X cfecho %08X\n",
++			  so->tx.state, so->cfecho);
+ 	}
+ 
+ 	return restart;
+ }
+ 
+@@ -921,11 +932,11 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 	struct sk_buff *skb;
+ 	struct net_device *dev;
+ 	struct canfd_frame *cf;
+ 	int ae = (so->opt.flags & CAN_ISOTP_EXTEND_ADDR) ? 1 : 0;
+ 	int wait_tx_done = (so->opt.flags & CAN_ISOTP_WAIT_TX_DONE) ? 1 : 0;
+-	s64 hrtimer_sec = 0;
++	s64 hrtimer_sec = ISOTP_ECHO_TIMEOUT;
+ 	int off;
+ 	int err;
+ 
+ 	if (!so->bound)
+ 		return -EADDRNOTAVAIL;
+@@ -940,10 +951,12 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 
+ 		/* wait for complete transmission of current pdu */
+ 		err = wait_event_interruptible(so->wait, so->tx.state == ISOTP_IDLE);
+ 		if (err)
+ 			goto err_out;
++
++		so->tx.state = ISOTP_SENDING;
+ 	}
+ 
+ 	if (!size || size > MAX_MSG_LENGTH) {
+ 		err = -EINVAL;
+ 		goto err_out_drop;
+@@ -984,10 +997,14 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 	so->tx.idx = 0;
+ 
+ 	cf = (struct canfd_frame *)skb->data;
+ 	skb_put_zero(skb, so->ll.mtu);
+ 
++	/* cfecho should have been zero'ed by init / former isotp_rcv_echo() */
++	if (so->cfecho)
++		pr_notice_once("can-isotp: uninit cfecho %08X\n", so->cfecho);
++
+ 	/* check for single frame transmission depending on TX_DL */
+ 	if (size <= so->tx.ll_dl - SF_PCI_SZ4 - ae - off) {
+ 		/* The message size generally fits into a SingleFrame - good.
+ 		 *
+ 		 * SF_DL ESC offset optimization:
+@@ -1009,15 +1026,12 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 		if (off)
+ 			cf->data[SF_PCI_SZ4 + ae] = size;
+ 		else
+ 			cf->data[ae] |= size;
+ 
+-		so->tx.state = ISOTP_IDLE;
+-		wake_up_interruptible(&so->wait);
+-
+-		/* don't enable wait queue for a single frame transmission */
+-		wait_tx_done = 0;
++		/* set CF echo tag for isotp_rcv_echo() (SF-mode) */
++		so->cfecho = *(u32 *)cf->data;
+ 	} else {
+ 		/* send first frame */
+ 
+ 		isotp_create_fframe(cf, so, ae);
+ 
+@@ -1029,35 +1043,27 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 				so->tx_gap = ktime_set(0, so->frame_txtime);
+ 
+ 			/* disable wait for FCs due to activated block size */
+ 			so->txfc.bs = 0;
+ 
+-			/* cfecho should have been zero'ed by init */
+-			if (so->cfecho)
+-				pr_notice_once("can-isotp: no fc cfecho %08X\n",
+-					       so->cfecho);
+-
+-			/* set consecutive frame echo tag */
++			/* set CF echo tag for isotp_rcv_echo() (CF-mode) */
+ 			so->cfecho = *(u32 *)cf->data;
+-
+-			/* switch directly to ISOTP_SENDING state */
+-			so->tx.state = ISOTP_SENDING;
+-
+-			/* start timeout for unlikely lost echo skb */
+-			hrtimer_sec = 2;
+ 		} else {
+ 			/* standard flow control check */
+ 			so->tx.state = ISOTP_WAIT_FIRST_FC;
+ 
+ 			/* start timeout for FC */
+-			hrtimer_sec = 1;
+-		}
++			hrtimer_sec = ISOTP_FC_TIMEOUT;
+ 
+-		hrtimer_start(&so->txtimer, ktime_set(hrtimer_sec, 0),
+-			      HRTIMER_MODE_REL_SOFT);
++			/* no CF echo tag for isotp_rcv_echo() (FF-mode) */
++			so->cfecho = 0;
++		}
+ 	}
+ 
++	hrtimer_start(&so->txtimer, ktime_set(hrtimer_sec, 0),
++		      HRTIMER_MODE_REL_SOFT);
++
+ 	/* send the first or only CAN frame */
+ 	cf->flags = so->ll.tx_flags;
+ 
+ 	skb->dev = dev;
+ 	skb->sk = sk;
+@@ -1066,12 +1072,11 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 	if (err) {
+ 		pr_notice_once("can-isotp: %s: can_send_ret %pe\n",
+ 			       __func__, ERR_PTR(err));
+ 
+ 		/* no transmission -> no timeout monitoring */
+-		if (hrtimer_sec)
+-			hrtimer_cancel(&so->txtimer);
++		hrtimer_cancel(&so->txtimer);
+ 
+ 		/* reset consecutive frame echo tag */
+ 		so->cfecho = 0;
+ 
+ 		goto err_out_drop;
+-- 
+2.30.2
+
