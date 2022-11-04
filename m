@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3614619F52
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 18:55:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27DB2619F53
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 18:55:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230008AbiKDRz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 13:55:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59098 "EHLO
+        id S230290AbiKDRzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 13:55:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229882AbiKDRz0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 13:55:26 -0400
-Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D3CF303C3
-        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 10:55:25 -0700 (PDT)
-Received: by mail-pl1-x649.google.com with SMTP id k9-20020a170902c40900b0018734e872a9so4075954plk.21
-        for <stable@vger.kernel.org>; Fri, 04 Nov 2022 10:55:25 -0700 (PDT)
+        with ESMTP id S229882AbiKDRzl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 13:55:41 -0400
+Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95789303C3
+        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 10:55:39 -0700 (PDT)
+Received: by mail-pj1-x1049.google.com with SMTP id v10-20020a17090a7c0a00b00215deac75b4so2713986pjf.3
+        for <stable@vger.kernel.org>; Fri, 04 Nov 2022 10:55:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=ByKqJidfNb3mojJPAq8ZsGvjppf1O9EkDzOQxFpRQe8=;
-        b=e9kM7oGtvlmUl02QSt+b5ByDYOyWRrDYmh0YchXF+ZihKPF6CNQ1IyOiRWRGPbmar9
-         stiVUgjM7Vaxhgf//4aYPxGBtZlovL18YJoRDsTy1p8qE/01CeuGyrr/kA5VnMz+lA2n
-         1ZiW8ldbyjsDqd25WWL5uHwUYBfx4u32/SvP0dmh4QjS/l3exRarhJXoACIv/8c59VcM
-         W4oj6pp5yukfEPXBuFRfBgCZZIcADEg7DwG5aSLk7mBQd69lWBS8a8Niego2T5UJJAKY
-         601e07/H+ShvnMVFY5dFHck9c6F7odRF20HKmfsuKVIbPm6kLzWQjTILdlYl8+ZNESD7
-         g7ag==
+        bh=/X2Hm1gIXw/9Z8rvwApLMhnT3Rh/DkkCP/PD4pSdarQ=;
+        b=ltdOmDrH0s0e5PAFtmKQIxn2sNp/mLjaG7D7tWApB9kwiLiFCuqwulpMI7KQ5xw+7z
+         YaabZBg/sCKFhS5kS4XyOv0Q3UxonF5QBgOzkAPqPja1mNGBWeVdhCDwErNwetLZbnif
+         5hNZXVA86+tBUx2f+W55lFqJRPWmZRuVViTVSpoDakHAToJrW+U9yKvFx/LdNc5ezhVo
+         PIE7dufsgeACkhdeo9x/h09KlOcSLNC+LIdFbcGKdsGS26i6+RunW2qEyJL65CM/TNKu
+         rZaIjGDRC5EeZwoEy1dQktXWu7NdNZ3LUpVe83ZOeYprRTzmJ4ijEsuszMpTpuB7pOXk
+         usBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=ByKqJidfNb3mojJPAq8ZsGvjppf1O9EkDzOQxFpRQe8=;
-        b=LAUJHvWVGAFFhqibpxkIeIw9Y9Js63PCZAnjnbpk2ka3IxVWOFFQ4CJhmo79ukDpxM
-         EEfnzzn0OzrDrIeyrMWD/yQQIQpNZ3OH2cBCcWk/fToWLVm1SOvbXJwI4kfm7JvVD2BO
-         d7FclVk/u5nfU7PX5DCXHjzIemKl7u5xkCO1fFL0spVyw5fjNUHNx6e776KteuZcuThp
-         WqfO9pNE+LTyR1mvVhd3t5b3MvheiRlpuEK28IJwMc8AxFE1wocvslIvjzkbb4BrZ1mk
-         L7merDPj3iwOzFiZxxnuBVgcM34X86YtcvPSp0qp0ySTy4rSpDKBoL+gZP1IlSZxsvem
-         luPQ==
-X-Gm-Message-State: ACrzQf0QONn7XL0ax9lRugfAF10JsvpEGjkump+ICYh2jDSMKyM6Xfx5
-        cSaJ2LgRCUfH/diDZJNXNlWp0ez5Lqqftw==
-X-Google-Smtp-Source: AMsMyM7PthA71t0he2kma2h0sC9u6asPoijITy9fa2CUsCyRYYo7+YlB1A+awT+6CelbSJ15Ti/8qRT9AwqP1Q==
+        bh=/X2Hm1gIXw/9Z8rvwApLMhnT3Rh/DkkCP/PD4pSdarQ=;
+        b=gm3sE3sMnWmIbUCEHmxh/g89tQBOIj1On7FUtIBk+imTzQxFMQ9dN0AoVx2y1pLIlh
+         zQwOT1K5XJL/2rHp0QZ3Z4dJCpX4TSFy1/nZXjeIUXR7zEkgz5Ott4JB/pg8Hjnl1WJY
+         Xk7uz4YHNaHmNErv5pBToc+s+beGpejw8Kz4pwlNk+ico5dytZNB4nRpQ1RhKAUPuDh5
+         eI7PEV5k9erqGvbrlQOCJY/TFLBuuvcYe8ejawxAPASvnOECYUOGkR9aiat8hCZzmoV5
+         1EiJbomIke3QbFskG2Wqe46YmdfBFsjwrLWc1rsC+jI8PfloePsOwVfqXNY5MfGx3dKj
+         NROQ==
+X-Gm-Message-State: ACrzQf0+HMZGYYS7B3ggMx/Dv3ox215n0yAwCL4bjePQzbu6fjYxNO11
+        hqJk8km9ydHde3evdW45paPg8x5X8tYkjA==
+X-Google-Smtp-Source: AMsMyM6aoq+wEQyCl0d5HHt377RTRbSlt7JSeMgjYDeHp8juYcoABBwqoMwB1IL6jH2fpfv2SK77DpFb5JvLRg==
 X-Received: from xllamas.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5070])
- (user=cmllamas job=sendgmr) by 2002:a17:90a:8a16:b0:212:f516:edfb with SMTP
- id w22-20020a17090a8a1600b00212f516edfbmr359722pjn.156.1667584524402; Fri, 04
- Nov 2022 10:55:24 -0700 (PDT)
-Date:   Fri,  4 Nov 2022 17:54:49 +0000
+ (user=cmllamas job=sendgmr) by 2002:a17:902:f78a:b0:184:f2e2:a5fa with SMTP
+ id q10-20020a170902f78a00b00184f2e2a5famr36539848pln.161.1667584539105; Fri,
+ 04 Nov 2022 10:55:39 -0700 (PDT)
+Date:   Fri,  4 Nov 2022 17:55:33 +0000
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
-Message-ID: <20221104175450.306810-1-cmllamas@google.com>
-Subject: [PATCH 5.10] binder: fix UAF of alloc->vma in race with munmap()
+Message-ID: <20221104175534.307317-1-cmllamas@google.com>
+Subject: [PATCH 5.4] binder: fix UAF of alloc->vma in race with munmap()
 From:   Carlos Llamas <cmllamas@google.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "=?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?=" <arve@android.com>,
@@ -164,7 +164,7 @@ issue described here. This switch was introduced in commit a43cfc87caaf
 
 Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
 Reported-by: Jann Horn <jannh@google.com>
-Cc: <stable@vger.kernel.org> # 5.10.x
+Cc: <stable@vger.kernel.org> # 5.4.x
 Cc: Minchan Kim <minchan@kernel.org>
 Cc: Yang Shi <yang.shi@linux.alibaba.com>
 Cc: Liam Howlett <liam.howlett@oracle.com>
@@ -174,33 +174,33 @@ Signed-off-by: Carlos Llamas <cmllamas@google.com>
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
-index 95ca4f934d28..a77ed66425f2 100644
+index b5022a7f6bae..7e48ed7c9c8e 100644
 --- a/drivers/android/binder_alloc.c
 +++ b/drivers/android/binder_alloc.c
 @@ -212,7 +212,7 @@ static int binder_update_page_range(struct binder_alloc *alloc, int allocate,
  		mm = alloc->vma_vm_mm;
  
  	if (mm) {
--		mmap_read_lock(mm);
-+		mmap_write_lock(mm);
+-		down_read(&mm->mmap_sem);
++		down_write(&mm->mmap_sem);
  		vma = alloc->vma;
  	}
  
-@@ -270,7 +270,7 @@ static int binder_update_page_range(struct binder_alloc *alloc, int allocate,
- 		trace_binder_alloc_page_end(alloc, index);
+@@ -271,7 +271,7 @@ static int binder_update_page_range(struct binder_alloc *alloc, int allocate,
+ 		/* vm_insert_page does not seem to increment the refcount */
  	}
  	if (mm) {
--		mmap_read_unlock(mm);
-+		mmap_write_unlock(mm);
+-		up_read(&mm->mmap_sem);
++		up_write(&mm->mmap_sem);
  		mmput(mm);
  	}
  	return 0;
-@@ -303,7 +303,7 @@ static int binder_update_page_range(struct binder_alloc *alloc, int allocate,
+@@ -304,7 +304,7 @@ static int binder_update_page_range(struct binder_alloc *alloc, int allocate,
  	}
  err_no_vma:
  	if (mm) {
--		mmap_read_unlock(mm);
-+		mmap_write_unlock(mm);
+-		up_read(&mm->mmap_sem);
++		up_write(&mm->mmap_sem);
  		mmput(mm);
  	}
  	return vma ? -ENOMEM : -ESRCH;
