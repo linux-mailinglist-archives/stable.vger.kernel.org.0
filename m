@@ -2,69 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC14D619EDE
-	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 18:36:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3614619F52
+	for <lists+stable@lfdr.de>; Fri,  4 Nov 2022 18:55:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229882AbiKDRgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Nov 2022 13:36:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45142 "EHLO
+        id S230008AbiKDRz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Nov 2022 13:55:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231336AbiKDRgI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 13:36:08 -0400
-Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED344199E
-        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 10:36:06 -0700 (PDT)
-Received: by mail-yb1-xb33.google.com with SMTP id r3so6614745yba.5
-        for <stable@vger.kernel.org>; Fri, 04 Nov 2022 10:36:06 -0700 (PDT)
+        with ESMTP id S229882AbiKDRz0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Nov 2022 13:55:26 -0400
+Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D3CF303C3
+        for <stable@vger.kernel.org>; Fri,  4 Nov 2022 10:55:25 -0700 (PDT)
+Received: by mail-pl1-x649.google.com with SMTP id k9-20020a170902c40900b0018734e872a9so4075954plk.21
+        for <stable@vger.kernel.org>; Fri, 04 Nov 2022 10:55:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=I3Gzf6/nexPToRji6N5bO/dL9FXtbk5UeonSa66mO0w=;
-        b=RJ1/fYDFtRMRRV1tOozcs1tCUlJ4hIhtltYrdQ8trNvIMsH4D9xeKDU3XEN/RzhS0P
-         NNo829xVbvZ4/m7TXi3cpBgoKHU8V2tcxJsuByE4wjNfre3z1+xmXKMZBeVVVI9bSHzT
-         MgV++LB+c3iLth3betc4rykAI+DMJsn4nWT5tzbd1f8DGkM8bXTye3sNhGnVShHnUt5e
-         Lzq12o38A6inUoSZAiQ+AXiUMD6dxklJA9dx/jqp3t4dAwD6timxHAThVx8/iwmAoZ6M
-         NVId/Z27xUnrIAwuzFJnocW/z6hHoPBWiE6arMLAvadcW7QSxurqlWgFejl/vFCYWMhj
-         qvHQ==
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=ByKqJidfNb3mojJPAq8ZsGvjppf1O9EkDzOQxFpRQe8=;
+        b=e9kM7oGtvlmUl02QSt+b5ByDYOyWRrDYmh0YchXF+ZihKPF6CNQ1IyOiRWRGPbmar9
+         stiVUgjM7Vaxhgf//4aYPxGBtZlovL18YJoRDsTy1p8qE/01CeuGyrr/kA5VnMz+lA2n
+         1ZiW8ldbyjsDqd25WWL5uHwUYBfx4u32/SvP0dmh4QjS/l3exRarhJXoACIv/8c59VcM
+         W4oj6pp5yukfEPXBuFRfBgCZZIcADEg7DwG5aSLk7mBQd69lWBS8a8Niego2T5UJJAKY
+         601e07/H+ShvnMVFY5dFHck9c6F7odRF20HKmfsuKVIbPm6kLzWQjTILdlYl8+ZNESD7
+         g7ag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=I3Gzf6/nexPToRji6N5bO/dL9FXtbk5UeonSa66mO0w=;
-        b=VKSKkuWMnwdLNeP8KEYKd/LK7j7uRNnRJmkSsmQME13D9WY6+ltsMjamPYduyFOA5l
-         mlqR5uibs/cgeMX8otEpTSBPtMmLqs5v4RImqVtPwU7xxA8/K1sbttiF/KQGrUmg9iOC
-         RHpH8m0EcjeGKcgI3cjGUuqNIWWIoIAKpRW5X9cSN8wjQmr8jz6BBnzJuPL4FaQvIX6n
-         o8U1GF1jz3v2gZNh6chHBA4gRJtbJrmP60tKr66Oq55PMbFC1cTY7Jv9ADqiKSQVqVJf
-         6zLFY5ChISh4+0KM9dhRLUHVFXyta1sqobT4uSIHU+6e1dN63ZHe3qPoTanJdDQHq/k4
-         BBfw==
-X-Gm-Message-State: ANoB5pl5LuKW2t0ATCUpSDzO4Jfjbk63AbPDpOhC5OBXTy3cIOr9Jqxb
-        PB6wlJgnufSVN8RhzAAaupZnH5qBGfoJh3HM/9QIkg==
-X-Google-Smtp-Source: AA0mqf5NoDRt6raEcSo5u5nI7z7HAfUPqxb4X7Rxa/1vFG+y2xtdXFj/Z2GR+JHJyyOUNnt5FRnDr6Eq3QJM396H2KE=
-X-Received: by 2002:a25:b83:0:b0:6d3:bb1d:305e with SMTP id
- 125-20020a250b83000000b006d3bb1d305emr2472905ybl.598.1667583365610; Fri, 04
- Nov 2022 10:36:05 -0700 (PDT)
-MIME-Version: 1.0
-References: <20221102022055.039689234@linuxfoundation.org> <20221102022056.996215743@linuxfoundation.org>
- <20221104171155.GA29661@duo.ucw.cz> <CANn89iKfhPA6qMvdJ50RV2XZAPcmkUhNDVK4Fj6L5bsaxzdaVA@mail.gmail.com>
- <20221104173140.GA980@duo.ucw.cz>
-In-Reply-To: <20221104173140.GA980@duo.ucw.cz>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Fri, 4 Nov 2022 10:35:54 -0700
-Message-ID: <CANn89iLUdwSytmjOO8TT0pPYTshxc5sZD9H7O0pqU+hPXBc4AQ@mail.gmail.com>
-Subject: Re: [PATCH 5.10 69/91] ipv6: ensure sane device mtu in tunnels
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, patches@lists.linux.dev,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ByKqJidfNb3mojJPAq8ZsGvjppf1O9EkDzOQxFpRQe8=;
+        b=LAUJHvWVGAFFhqibpxkIeIw9Y9Js63PCZAnjnbpk2ka3IxVWOFFQ4CJhmo79ukDpxM
+         EEfnzzn0OzrDrIeyrMWD/yQQIQpNZ3OH2cBCcWk/fToWLVm1SOvbXJwI4kfm7JvVD2BO
+         d7FclVk/u5nfU7PX5DCXHjzIemKl7u5xkCO1fFL0spVyw5fjNUHNx6e776KteuZcuThp
+         WqfO9pNE+LTyR1mvVhd3t5b3MvheiRlpuEK28IJwMc8AxFE1wocvslIvjzkbb4BrZ1mk
+         L7merDPj3iwOzFiZxxnuBVgcM34X86YtcvPSp0qp0ySTy4rSpDKBoL+gZP1IlSZxsvem
+         luPQ==
+X-Gm-Message-State: ACrzQf0QONn7XL0ax9lRugfAF10JsvpEGjkump+ICYh2jDSMKyM6Xfx5
+        cSaJ2LgRCUfH/diDZJNXNlWp0ez5Lqqftw==
+X-Google-Smtp-Source: AMsMyM7PthA71t0he2kma2h0sC9u6asPoijITy9fa2CUsCyRYYo7+YlB1A+awT+6CelbSJ15Ti/8qRT9AwqP1Q==
+X-Received: from xllamas.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5070])
+ (user=cmllamas job=sendgmr) by 2002:a17:90a:8a16:b0:212:f516:edfb with SMTP
+ id w22-20020a17090a8a1600b00212f516edfbmr359722pjn.156.1667584524402; Fri, 04
+ Nov 2022 10:55:24 -0700 (PDT)
+Date:   Fri,  4 Nov 2022 17:54:49 +0000
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
+Message-ID: <20221104175450.306810-1-cmllamas@google.com>
+Subject: [PATCH 5.10] binder: fix UAF of alloc->vma in race with munmap()
+From:   Carlos Llamas <cmllamas@google.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "=?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?=" <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Carlos Llamas <cmllamas@google.com>,
+        Suren Baghdasaryan <surenb@google.com>
+Cc:     kernel-team@android.com, Jann Horn <jannh@google.com>,
+        stable@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Liam Howlett <liam.howlett@oracle.com>
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,81 +74,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 4, 2022 at 10:31 AM Pavel Machek <pavel@denx.de> wrote:
->
-> Hi!
->
-> > > > [ Upstream commit d89d7ff01235f218dad37de84457717f699dee79 ]
-> > > >
-> > > > Another syzbot report [1] with no reproducer hints
-> > > > at a bug in ip6_gre tunnel (dev:ip6gretap0)
-> > > >
-> > > > Since ipv6 mcast code makes sure to read dev->mtu once
-> > > > and applies a sanity check on it (see commit b9b312a7a451
-> > > > "ipv6: mcast: better catch silly mtu values"), a remaining
-> > > > possibility is that a layer is able to set dev->mtu to
-> > > > an underflowed value (high order bit set).
-> > > >
-> > > > This could happen indeed in ip6gre_tnl_link_config_route(),
-> > > > ip6_tnl_link_config() and ipip6_tunnel_bind_dev()
-> > > >
-> > > > Make sure to sanitize mtu value in a local variable before
-> > > > it is written once on dev->mtu, as lockless readers could
-> > > > catch wrong temporary value.
-> > >
-> > > Ok, but now types seem to be confused:
-> > >
-> > > > diff --git a/net/ipv6/ip6_tunnel.c b/net/ipv6/ip6_tunnel.c
-> > > > index 3a2741569b84..0d4cab94c5dd 100644
-> > > > --- a/net/ipv6/ip6_tunnel.c
-> > > > +++ b/net/ipv6/ip6_tunnel.c
-> > > > @@ -1476,8 +1476,8 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
-> > > >       struct net_device *tdev = NULL;
-> > > >       struct __ip6_tnl_parm *p = &t->parms;
-> > > >       struct flowi6 *fl6 = &t->fl.u.ip6;
-> > > > -     unsigned int mtu;
-> > > >       int t_hlen;
-> > > > +     int mtu;
-> > > >
-> > > >       memcpy(dev->dev_addr, &p->laddr, sizeof(struct in6_addr));
-> > > >       memcpy(dev->broadcast, &p->raddr, sizeof(struct in6_addr));
-> > > > @@ -1524,12 +1524,13 @@ static void ip6_tnl_link_config(struct ip6_tnl *t)
-> > > >                       dev->hard_header_len = tdev->hard_header_len + t_hlen;
-> > > >                       mtu = min_t(unsigned int, tdev->mtu, IP6_MAX_MTU);
-> > >
-> > > mtu is now signed, but we still do min_t on unsigned types.
-> > >
-> > > > -                     dev->mtu = mtu - t_hlen;
-> > > > +                     mtu = mtu - t_hlen;
-> > > >                       if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMIT))
-> > > > -                             dev->mtu -= 8;
-> > > > +                             mtu -= 8;
-> > > >
-> > >
-> > > I don't see overflow potential right away, but it may be worth fixing.
-> > >
-> >
-> > This was intended ( part of the fix) so that the following check is
-> > going to catch 'negative' mtu
-> >
-> > [1]
-> > if (mtu < IPV6_MIN_MTU)
-> >     mtu = IPV6_MIN_MTU;
-> >
-> > Otherwise, if a fuzzer succeeds to get mtu = 0xFFFFFFC0,
-> > sanity test [1] leaves the problematic mtu in dev->mtu.
->
-> This is the line I'm complaining about (1525 in 5.10):
->
-> mtu = min_t(unsigned int, tdev->mtu, IP6_MAX_MTU);
->
-> I don't think it does any harm, but it looks wrong/confusing.
->
+In commit 720c24192404 ("ANDROID: binder: change down_write to
+down_read") binder assumed the mmap read lock is sufficient to protect
+alloc->vma inside binder_update_page_range(). This used to be accurate
+until commit dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in
+munmap"), which now downgrades the mmap_lock after detaching the vma
+from the rbtree in munmap(). Then it proceeds to teardown and free the
+vma with only the read lock held.
 
-So you are confused by :
+This means that accesses to alloc->vma in binder_update_page_range() now
+will race with vm_area_free() in munmap() and can cause a UAF as shown
+in the following KASAN trace:
 
-some_integer_var = some_unsigned_int_expression;
+  ==================================================================
+  BUG: KASAN: use-after-free in vm_insert_page+0x7c/0x1f0
+  Read of size 8 at addr ffff16204ad00600 by task server/558
 
-I do not see any issue with that.
+  CPU: 3 PID: 558 Comm: server Not tainted 5.10.150-00001-gdc8dcf942daa #1
+  Hardware name: linux,dummy-virt (DT)
+  Call trace:
+   dump_backtrace+0x0/0x2a0
+   show_stack+0x18/0x2c
+   dump_stack+0xf8/0x164
+   print_address_description.constprop.0+0x9c/0x538
+   kasan_report+0x120/0x200
+   __asan_load8+0xa0/0xc4
+   vm_insert_page+0x7c/0x1f0
+   binder_update_page_range+0x278/0x50c
+   binder_alloc_new_buf+0x3f0/0xba0
+   binder_transaction+0x64c/0x3040
+   binder_thread_write+0x924/0x2020
+   binder_ioctl+0x1610/0x2e5c
+   __arm64_sys_ioctl+0xd4/0x120
+   el0_svc_common.constprop.0+0xac/0x270
+   do_el0_svc+0x38/0xa0
+   el0_svc+0x1c/0x2c
+   el0_sync_handler+0xe8/0x114
+   el0_sync+0x180/0x1c0
 
-Thanks.
+  Allocated by task 559:
+   kasan_save_stack+0x38/0x6c
+   __kasan_kmalloc.constprop.0+0xe4/0xf0
+   kasan_slab_alloc+0x18/0x2c
+   kmem_cache_alloc+0x1b0/0x2d0
+   vm_area_alloc+0x28/0x94
+   mmap_region+0x378/0x920
+   do_mmap+0x3f0/0x600
+   vm_mmap_pgoff+0x150/0x17c
+   ksys_mmap_pgoff+0x284/0x2dc
+   __arm64_sys_mmap+0x84/0xa4
+   el0_svc_common.constprop.0+0xac/0x270
+   do_el0_svc+0x38/0xa0
+   el0_svc+0x1c/0x2c
+   el0_sync_handler+0xe8/0x114
+   el0_sync+0x180/0x1c0
+
+  Freed by task 560:
+   kasan_save_stack+0x38/0x6c
+   kasan_set_track+0x28/0x40
+   kasan_set_free_info+0x24/0x4c
+   __kasan_slab_free+0x100/0x164
+   kasan_slab_free+0x14/0x20
+   kmem_cache_free+0xc4/0x34c
+   vm_area_free+0x1c/0x2c
+   remove_vma+0x7c/0x94
+   __do_munmap+0x358/0x710
+   __vm_munmap+0xbc/0x130
+   __arm64_sys_munmap+0x4c/0x64
+   el0_svc_common.constprop.0+0xac/0x270
+   do_el0_svc+0x38/0xa0
+   el0_svc+0x1c/0x2c
+   el0_sync_handler+0xe8/0x114
+   el0_sync+0x180/0x1c0
+
+  [...]
+  ==================================================================
+
+To prevent the race above, revert back to taking the mmap write lock
+inside binder_update_page_range(). One might expect an increase of mmap
+lock contention. However, binder already serializes these calls via top
+level alloc->mutex. Also, there was no performance impact shown when
+running the binder benchmark tests.
+
+Note this patch is specific to stable branches 5.4 and 5.10. Since in
+newer kernel releases binder no longer caches a pointer to the vma.
+Instead, it has been refactored to use vma_lookup() which avoids the
+issue described here. This switch was introduced in commit a43cfc87caaf
+("android: binder: stop saving a pointer to the VMA").
+
+Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
+Reported-by: Jann Horn <jannh@google.com>
+Cc: <stable@vger.kernel.org> # 5.10.x
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Yang Shi <yang.shi@linux.alibaba.com>
+Cc: Liam Howlett <liam.howlett@oracle.com>
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
+---
+ drivers/android/binder_alloc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
+index 95ca4f934d28..a77ed66425f2 100644
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -212,7 +212,7 @@ static int binder_update_page_range(struct binder_alloc *alloc, int allocate,
+ 		mm = alloc->vma_vm_mm;
+ 
+ 	if (mm) {
+-		mmap_read_lock(mm);
++		mmap_write_lock(mm);
+ 		vma = alloc->vma;
+ 	}
+ 
+@@ -270,7 +270,7 @@ static int binder_update_page_range(struct binder_alloc *alloc, int allocate,
+ 		trace_binder_alloc_page_end(alloc, index);
+ 	}
+ 	if (mm) {
+-		mmap_read_unlock(mm);
++		mmap_write_unlock(mm);
+ 		mmput(mm);
+ 	}
+ 	return 0;
+@@ -303,7 +303,7 @@ static int binder_update_page_range(struct binder_alloc *alloc, int allocate,
+ 	}
+ err_no_vma:
+ 	if (mm) {
+-		mmap_read_unlock(mm);
++		mmap_write_unlock(mm);
+ 		mmput(mm);
+ 	}
+ 	return vma ? -ENOMEM : -ESRCH;
+-- 
+2.38.1.431.g37b22c650d-goog
+
