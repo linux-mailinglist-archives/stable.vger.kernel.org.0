@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2539E61DE11
+	by mail.lfdr.de (Postfix) with ESMTP id 7ABE261DE12
 	for <lists+stable@lfdr.de>; Sat,  5 Nov 2022 21:51:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229791AbiKEUvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Nov 2022 16:51:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
+        id S229877AbiKEUvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Nov 2022 16:51:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229479AbiKEUvK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Nov 2022 16:51:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1248EE29;
-        Sat,  5 Nov 2022 13:51:09 -0700 (PDT)
+        with ESMTP id S229865AbiKEUvM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Nov 2022 16:51:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D7FDFCDC;
+        Sat,  5 Nov 2022 13:51:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C4AF60B40;
-        Sat,  5 Nov 2022 20:51:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2A58C433B5;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3BFE4B808C7;
+        Sat,  5 Nov 2022 20:51:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C937AC433D6;
         Sat,  5 Nov 2022 20:51:08 +0000 (UTC)
 Received: from rostedt by gandalf.local.home with local (Exim 4.96)
         (envelope-from <rostedt@goodmis.org>)
-        id 1orQ8f-007k79-1h;
+        id 1orQ8f-007k7h-2H;
         Sat, 05 Nov 2022 16:51:37 -0400
-Message-ID: <20221105205137.364862227@goodmis.org>
+Message-ID: <20221105205137.545218220@goodmis.org>
 User-Agent: quilt/0.66
-Date:   Sat, 05 Nov 2022 16:50:50 -0400
+Date:   Sat, 05 Nov 2022 16:50:51 -0400
 From:   Steven Rostedt <rostedt@goodmis.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Steven Noonan <steven.noonan@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Roland Ruckerbauer <roland.rucky@gmail.com>
-Subject: [for-linus][PATCH 1/6] ring-buffer: Check for NULL cpu_buffer in ring_buffer_wake_waiters()
+        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>
+Subject: [for-linus][PATCH 2/6] ftrace: Fix use-after-free for dynamic ftrace_ops
 References: <20221105205049.462806482@goodmis.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,68 +46,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+From: Li Huafei <lihuafei1@huawei.com>
 
-On some machines the number of listed CPUs may be bigger than the actual
-CPUs that exist. The tracing subsystem allocates a per_cpu directory with
-access to the per CPU ring buffer via a cpuX file. But to save space, the
-ring buffer will only allocate buffers for online CPUs, even though the
-CPU array will be as big as the nr_cpu_ids.
+KASAN reported a use-after-free with ftrace ops [1]. It was found from
+vmcore that perf had registered two ops with the same content
+successively, both dynamic. After unregistering the second ops, a
+use-after-free occurred.
 
-With the addition of waking waiters on the ring buffer when closing the
-file, the ring_buffer_wake_waiters() now needs to make sure that the
-buffer is allocated (with the irq_work allocated with it) before trying to
-wake waiters, as it will cause a NULL pointer dereference.
+In ftrace_shutdown(), when the second ops is unregistered, the
+FTRACE_UPDATE_CALLS command is not set because there is another enabled
+ops with the same content.  Also, both ops are dynamic and the ftrace
+callback function is ftrace_ops_list_func, so the
+FTRACE_UPDATE_TRACE_FUNC command will not be set. Eventually the value
+of 'command' will be 0 and ftrace_shutdown() will skip the rcu
+synchronization.
 
-While debugging this, I added a NULL check for the buffer itself (which is
-OK to do), and also NULL pointer checks against buffer->buffers (which is
-not fine, and will WARN) as well as making sure the CPU number passed in
-is within the nr_cpu_ids (which is also not fine if it isn't).
+However, ftrace may be activated. When the ops is released, another CPU
+may be accessing the ops.  Add the missing synchronization to fix this
+problem.
 
-Link: https://lore.kernel.org/all/87h6zklb6n.wl-tiwai@suse.de/
-Link: https://lore.kernel.org/all/CAM6Wdxc0KRJMXVAA0Y=u6Jh2V=uWB-_Fn6M4xRuNppfXzL1mUg@mail.gmail.com/
-Link: https://lkml.kernel.org/linux-trace-kernel/20221101191009.1e7378c8@rorschach.local.home
+[1]
+BUG: KASAN: use-after-free in __ftrace_ops_list_func kernel/trace/ftrace.c:7020 [inline]
+BUG: KASAN: use-after-free in ftrace_ops_list_func+0x2b0/0x31c kernel/trace/ftrace.c:7049
+Read of size 8 at addr ffff56551965bbc8 by task syz-executor.2/14468
 
+CPU: 1 PID: 14468 Comm: syz-executor.2 Not tainted 5.10.0 #7
+Hardware name: linux,dummy-virt (DT)
+Call trace:
+ dump_backtrace+0x0/0x40c arch/arm64/kernel/stacktrace.c:132
+ show_stack+0x30/0x40 arch/arm64/kernel/stacktrace.c:196
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1b4/0x248 lib/dump_stack.c:118
+ print_address_description.constprop.0+0x28/0x48c mm/kasan/report.c:387
+ __kasan_report mm/kasan/report.c:547 [inline]
+ kasan_report+0x118/0x210 mm/kasan/report.c:564
+ check_memory_region_inline mm/kasan/generic.c:187 [inline]
+ __asan_load8+0x98/0xc0 mm/kasan/generic.c:253
+ __ftrace_ops_list_func kernel/trace/ftrace.c:7020 [inline]
+ ftrace_ops_list_func+0x2b0/0x31c kernel/trace/ftrace.c:7049
+ ftrace_graph_call+0x0/0x4
+ __might_sleep+0x8/0x100 include/linux/perf_event.h:1170
+ __might_fault mm/memory.c:5183 [inline]
+ __might_fault+0x58/0x70 mm/memory.c:5171
+ do_strncpy_from_user lib/strncpy_from_user.c:41 [inline]
+ strncpy_from_user+0x1f4/0x4b0 lib/strncpy_from_user.c:139
+ getname_flags+0xb0/0x31c fs/namei.c:149
+ getname+0x2c/0x40 fs/namei.c:209
+ [...]
+
+Allocated by task 14445:
+ kasan_save_stack+0x24/0x50 mm/kasan/common.c:48
+ kasan_set_track mm/kasan/common.c:56 [inline]
+ __kasan_kmalloc mm/kasan/common.c:479 [inline]
+ __kasan_kmalloc.constprop.0+0x110/0x13c mm/kasan/common.c:449
+ kasan_kmalloc+0xc/0x14 mm/kasan/common.c:493
+ kmem_cache_alloc_trace+0x440/0x924 mm/slub.c:2950
+ kmalloc include/linux/slab.h:563 [inline]
+ kzalloc include/linux/slab.h:675 [inline]
+ perf_event_alloc.part.0+0xb4/0x1350 kernel/events/core.c:11230
+ perf_event_alloc kernel/events/core.c:11733 [inline]
+ __do_sys_perf_event_open kernel/events/core.c:11831 [inline]
+ __se_sys_perf_event_open+0x550/0x15f4 kernel/events/core.c:11723
+ __arm64_sys_perf_event_open+0x6c/0x80 kernel/events/core.c:11723
+ [...]
+
+Freed by task 14445:
+ kasan_save_stack+0x24/0x50 mm/kasan/common.c:48
+ kasan_set_track+0x24/0x34 mm/kasan/common.c:56
+ kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:358
+ __kasan_slab_free.part.0+0x11c/0x1b0 mm/kasan/common.c:437
+ __kasan_slab_free mm/kasan/common.c:445 [inline]
+ kasan_slab_free+0x2c/0x40 mm/kasan/common.c:446
+ slab_free_hook mm/slub.c:1569 [inline]
+ slab_free_freelist_hook mm/slub.c:1608 [inline]
+ slab_free mm/slub.c:3179 [inline]
+ kfree+0x12c/0xc10 mm/slub.c:4176
+ perf_event_alloc.part.0+0xa0c/0x1350 kernel/events/core.c:11434
+ perf_event_alloc kernel/events/core.c:11733 [inline]
+ __do_sys_perf_event_open kernel/events/core.c:11831 [inline]
+ __se_sys_perf_event_open+0x550/0x15f4 kernel/events/core.c:11723
+ [...]
+
+Link: https://lore.kernel.org/linux-trace-kernel/20221103031010.166498-1-lihuafei1@huawei.com
+
+Fixes: edb096e00724f ("ftrace: Fix memleak when unregistering dynamic ops when tracing disabled")
 Cc: stable@vger.kernel.org
-Cc: Steven Noonan <steven.noonan@gmail.com>
-Bugzilla: https://bugzilla.opensuse.org/show_bug.cgi?id=1204705
-Reported-by: Takashi Iwai <tiwai@suse.de>
-Reported-by: Roland Ruckerbauer <roland.rucky@gmail.com>
-Fixes: f3ddb74ad079 ("tracing: Wake up ring buffer waiters on closing of the file")
-Reviewed-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Li Huafei <lihuafei1@huawei.com>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 ---
- kernel/trace/ring_buffer.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ kernel/trace/ftrace.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-index 199759c73519..9712083832f4 100644
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -937,6 +937,9 @@ void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu)
- 	struct ring_buffer_per_cpu *cpu_buffer;
- 	struct rb_irq_work *rbwork;
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index fbf2543111c0..7dc023641bf1 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -3028,18 +3028,8 @@ int ftrace_shutdown(struct ftrace_ops *ops, int command)
+ 		command |= FTRACE_UPDATE_TRACE_FUNC;
+ 	}
  
-+	if (!buffer)
-+		return;
-+
- 	if (cpu == RING_BUFFER_ALL_CPUS) {
+-	if (!command || !ftrace_enabled) {
+-		/*
+-		 * If these are dynamic or per_cpu ops, they still
+-		 * need their data freed. Since, function tracing is
+-		 * not currently active, we can just free them
+-		 * without synchronizing all CPUs.
+-		 */
+-		if (ops->flags & FTRACE_OPS_FL_DYNAMIC)
+-			goto free_ops;
+-
+-		return 0;
+-	}
++	if (!command || !ftrace_enabled)
++		goto out;
  
- 		/* Wake up individual ones too. One level recursion */
-@@ -945,7 +948,15 @@ void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu)
+ 	/*
+ 	 * If the ops uses a trampoline, then it needs to be
+@@ -3076,6 +3066,7 @@ int ftrace_shutdown(struct ftrace_ops *ops, int command)
+ 	removed_ops = NULL;
+ 	ops->flags &= ~FTRACE_OPS_FL_REMOVING;
  
- 		rbwork = &buffer->irq_work;
- 	} else {
-+		if (WARN_ON_ONCE(!buffer->buffers))
-+			return;
-+		if (WARN_ON_ONCE(cpu >= nr_cpu_ids))
-+			return;
-+
- 		cpu_buffer = buffer->buffers[cpu];
-+		/* The CPU buffer may not have been initialized yet */
-+		if (!cpu_buffer)
-+			return;
- 		rbwork = &cpu_buffer->irq_work;
++out:
+ 	/*
+ 	 * Dynamic ops may be freed, we must make sure that all
+ 	 * callers are done before leaving this function.
+@@ -3103,7 +3094,6 @@ int ftrace_shutdown(struct ftrace_ops *ops, int command)
+ 		if (IS_ENABLED(CONFIG_PREEMPTION))
+ 			synchronize_rcu_tasks();
+ 
+- free_ops:
+ 		ftrace_trampoline_free(ops);
  	}
  
 -- 
