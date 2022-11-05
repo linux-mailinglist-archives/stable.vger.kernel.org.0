@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAB5B61D965
-	for <lists+stable@lfdr.de>; Sat,  5 Nov 2022 11:33:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4772F61D966
+	for <lists+stable@lfdr.de>; Sat,  5 Nov 2022 11:33:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229632AbiKEKdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Nov 2022 06:33:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42364 "EHLO
+        id S229635AbiKEKdO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Nov 2022 06:33:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbiKEKdH (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sat, 5 Nov 2022 06:33:07 -0400
+        with ESMTP id S229453AbiKEKdN (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sat, 5 Nov 2022 06:33:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 213D41AD8A
-        for <Stable@vger.kernel.org>; Sat,  5 Nov 2022 03:33:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9DB022B
+        for <Stable@vger.kernel.org>; Sat,  5 Nov 2022 03:33:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C132CB8165F
-        for <Stable@vger.kernel.org>; Sat,  5 Nov 2022 10:33:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1199FC433C1;
-        Sat,  5 Nov 2022 10:33:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 904BEB8164F
+        for <Stable@vger.kernel.org>; Sat,  5 Nov 2022 10:33:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8DD3C433C1;
+        Sat,  5 Nov 2022 10:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667644384;
-        bh=H36nMjBiWMcQe2MxmY03Jan1YctHvo/uhSSy/pgtX9s=;
+        s=korg; t=1667644390;
+        bh=tkozvjMih89DPy0ghXE0RynqHLX8E8J6C79qKgBUul4=;
         h=Subject:To:From:Date:From;
-        b=GqUJkTCb0qYQMc3gzbDSRkxnSdE8m/Goik6nWFeHZ1mgwSKeP7oHKw9yJpvfjfB5B
-         H4p74IAuu/WjvNsEEiyb10J6oWYmWmzdlNEnH6Bn6dfSFssjt4NUh07fq/jF6owsHa
-         M98orq/XVel/3IwBO9IhBaKM8WwC/ZJZjSJu22u4=
-Subject: patch "iio: accel: bma400: Ensure VDDIO is enable defore reading the chip" added to char-misc-linus
-To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        dan@dlrobertson.com
+        b=kZl1U2GuDsp/oaa+3nqnJzheiYc1WEf1zJfN3tRSDw+ENoVUgswZ4FSoizi4hVhHU
+         eC6XUt6mXl16UEABX6rRs0i5kwsQfn0Lh0QUfXXWIyw4uoiuxCnON759gNy2O6zGej
+         soW7m8dhaksBuyAUIl4ODL4kfjSL2LsUa3beMuZ0=
+Subject: patch "iio: pressure: ms5611: changed hardcoded SPI speed to value limited" added to char-misc-linus
+To:     mitja@lxnav.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 05 Nov 2022 11:32:59 +0100
-Message-ID: <1667644379235145@kroah.com>
+Date:   Sat, 05 Nov 2022 11:33:00 +0100
+Message-ID: <1667644380124117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: accel: bma400: Ensure VDDIO is enable defore reading the chip
+    iio: pressure: ms5611: changed hardcoded SPI speed to value limited
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,69 +64,35 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 57572cacd36e6d4be7722d7770d23f4430219827 Mon Sep 17 00:00:00 2001
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Sun, 2 Oct 2022 15:41:33 +0100
-Subject: iio: accel: bma400: Ensure VDDIO is enable defore reading the chip
- ID.
+From 741cec30cc52058d1c10d415f3b98319887e4f73 Mon Sep 17 00:00:00 2001
+From: Mitja Spes <mitja@lxnav.com>
+Date: Fri, 21 Oct 2022 15:58:21 +0200
+Subject: iio: pressure: ms5611: changed hardcoded SPI speed to value limited
 
-The regulator enables were after the check on the chip variant, which was
-very unlikely to return a correct value when not powered.
-Presumably all the device anyone is testing on have a regulator that
-is already powered up when this code runs for reasons beyond the scope
-of this driver. Move the read call down a few lines.
+Don't hardcode the ms5611 SPI speed, limit it instead.
 
-Fixes: 3cf7ded15e40 ("iio: accel: bma400: basic regulator support")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Dan Robertson <dan@dlrobertson.com>
+Signed-off-by: Mitja Spes <mitja@lxnav.com>
+Fixes: c0644160a8b5 ("iio: pressure: add support for MS5611 pressure and temperature sensor")
+Link: https://lore.kernel.org/r/20221021135827.1444793-3-mitja@lxnav.com
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221002144133.3771029-1-jic23@kernel.org
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/accel/bma400_core.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/iio/pressure/ms5611_spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/accel/bma400_core.c b/drivers/iio/accel/bma400_core.c
-index ad8fce3e08cd..490c342ef72a 100644
---- a/drivers/iio/accel/bma400_core.c
-+++ b/drivers/iio/accel/bma400_core.c
-@@ -869,18 +869,6 @@ static int bma400_init(struct bma400_data *data)
- 	unsigned int val;
- 	int ret;
+diff --git a/drivers/iio/pressure/ms5611_spi.c b/drivers/iio/pressure/ms5611_spi.c
+index 432e912096f4..a0a7205c9c3a 100644
+--- a/drivers/iio/pressure/ms5611_spi.c
++++ b/drivers/iio/pressure/ms5611_spi.c
+@@ -91,7 +91,7 @@ static int ms5611_spi_probe(struct spi_device *spi)
+ 	spi_set_drvdata(spi, indio_dev);
  
--	/* Try to read chip_id register. It must return 0x90. */
--	ret = regmap_read(data->regmap, BMA400_CHIP_ID_REG, &val);
--	if (ret) {
--		dev_err(data->dev, "Failed to read chip id register\n");
--		return ret;
--	}
--
--	if (val != BMA400_ID_REG_VAL) {
--		dev_err(data->dev, "Chip ID mismatch\n");
--		return -ENODEV;
--	}
--
- 	data->regulators[BMA400_VDD_REGULATOR].supply = "vdd";
- 	data->regulators[BMA400_VDDIO_REGULATOR].supply = "vddio";
- 	ret = devm_regulator_bulk_get(data->dev,
-@@ -906,6 +894,18 @@ static int bma400_init(struct bma400_data *data)
- 	if (ret)
- 		return ret;
- 
-+	/* Try to read chip_id register. It must return 0x90. */
-+	ret = regmap_read(data->regmap, BMA400_CHIP_ID_REG, &val);
-+	if (ret) {
-+		dev_err(data->dev, "Failed to read chip id register\n");
-+		return ret;
-+	}
-+
-+	if (val != BMA400_ID_REG_VAL) {
-+		dev_err(data->dev, "Chip ID mismatch\n");
-+		return -ENODEV;
-+	}
-+
- 	ret = bma400_get_power_mode(data);
- 	if (ret) {
- 		dev_err(data->dev, "Failed to get the initial power-mode\n");
+ 	spi->mode = SPI_MODE_0;
+-	spi->max_speed_hz = 20000000;
++	spi->max_speed_hz = min(spi->max_speed_hz, 20000000U);
+ 	spi->bits_per_word = 8;
+ 	ret = spi_setup(spi);
+ 	if (ret < 0)
 -- 
 2.38.1
 
