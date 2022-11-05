@@ -2,102 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71BC061D8F2
-	for <lists+stable@lfdr.de>; Sat,  5 Nov 2022 10:01:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D44861D8FA
+	for <lists+stable@lfdr.de>; Sat,  5 Nov 2022 10:06:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229501AbiKEJBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Nov 2022 05:01:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49010 "EHLO
+        id S229587AbiKEJGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Nov 2022 05:06:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229477AbiKEJBb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Nov 2022 05:01:31 -0400
-X-Greylist: delayed 66788 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 05 Nov 2022 02:01:28 PDT
-Received: from mo4-p01-ob.smtp.rzone.de (mo4-p01-ob.smtp.rzone.de [81.169.146.165])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED7CD1D0D2;
-        Sat,  5 Nov 2022 02:01:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1667638881;
-    s=strato-dkim-0002; d=hartkopp.net;
-    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
-    From:Subject:Sender;
-    bh=8GPoNWCoEi+P8snicppefnRlPeC5bI51GQlmNHRdgRg=;
-    b=JJjMCPIEpRP0lnMm+5+UssuEagtchhJ18CuKDCC88HTEIXwUtlTeLAfjx+CSIPWc6t
-    RnUQtXJzaOnYl4NxmXLJB9LM/qXkhBw6ccd7s2jY8lpECGlUIoZBTNIWCDyVZwJXhvah
-    3z/2XjzN4cLt8HVUALot4DyVZDYTuOCHo7oUPhE7bexzAWII7m2vLjBdJad5aLdSTGOK
-    S7nmP9GciBvm9bRsK2KKj0RsACvLzZHxGsEnr5++NYssX2XE/b0H9VRZyIg2QHutK9k7
-    qDXZUNfJC6aUwiYqtNT9zooaByBi2zNdoh1MqlA5yZw/cteQcW1beylRUcUCjLrUBu5C
-    J6FA==
-Authentication-Results: strato.com;
-    dkim=none
-X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjG14FZxedJy6qgO1qCHSa1GLptZHusx3hdIrpKytISr6hZqJAw=="
-X-RZG-CLASS-ID: mo00
-Received: from [IPV6:2a00:6020:1cfd:d104::923]
-    by smtp.strato.de (RZmta 48.2.1 AUTH)
-    with ESMTPSA id Dde783yA591KRs1
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-    Sat, 5 Nov 2022 10:01:20 +0100 (CET)
-Message-ID: <f7389601-40aa-2372-b185-387bd20fe701@hartkopp.net>
-Date:   Sat, 5 Nov 2022 10:01:15 +0100
+        with ESMTP id S229536AbiKEJGl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Nov 2022 05:06:41 -0400
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 804E32CCAD
+        for <stable@vger.kernel.org>; Sat,  5 Nov 2022 02:06:40 -0700 (PDT)
+Received: by mail-yb1-xb2e.google.com with SMTP id 63so8323184ybq.4
+        for <stable@vger.kernel.org>; Sat, 05 Nov 2022 02:06:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=c8XA1N0uaxkLO/wKHErNWHaSuu64k5Pjb5u9dmcZrOc=;
+        b=IMCLnsaFkkCeIk/XgqUJ0U+zjhe60rwF4P+9pbHKI87JGGthky+LEmiIWlaT/Ng61s
+         bvdFLT6RRBEFWmTvccNreg7woFOP4G3F7AWWKs+Vtx789psQjrm6wWbzrWXJM3DopFGU
+         sjkjLmaKuO6B3Vg3nmul18Luy2jCVqR5IKpyb3mCTU04Q1oIBC/8mdQvWFGDtAv1SvvH
+         Sa4+Urh+BuPxXa1VcRYLI5gEXuVeqjbHuaxKoCbQNiGiOMm1UEmkEUylljiIJYkZinPH
+         lf8kifJyUQ3vHCgxb6A/58Qf4FO6DDpxlrz9B9PuLgCn/RiTuRE7dfleO0zdmXYpffpb
+         Y+ww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=c8XA1N0uaxkLO/wKHErNWHaSuu64k5Pjb5u9dmcZrOc=;
+        b=MsGFDKCTooTLQx/cDi4i1G0VlUKTQjTS4hMWVd+KX9uI1YSuafSjRacCgcbf6xrPNw
+         TgaNLgy0gqIG0q4axbW8m5Dj8Qtsh2BXu5l9epiIrM2hlRO6jU+S9r3nbFkPuu+hDgmi
+         lEa6RftN4G43cCPaw/sqgoho9+dbokfbFvPp8ktTXUo9vpOsoXF/h+t8dLvzz/UXzbGr
+         ZdDW40pwht9HU2H5i+ZqhqosX5l0j51M1b98cSH0JETqO3vAHijnQMBfR6/yPyY7n4xy
+         LXoeyo5nq18w3XA4gzDvMC9ydQh0rNIeEzGSf5FoUVFx12lidhBV6vhwa0rNS8wVvzgV
+         ThaQ==
+X-Gm-Message-State: ACrzQf3oMLGZ/xGLusR32UGWx6hwPenzRnpb+/0yZ5dvNso+y/QVdxyi
+        ZPTnOL4EYoIh58V+pGKIsuPBzvF/rTWViwE72TY=
+X-Google-Smtp-Source: AMsMyM5hMPgDq/hgfbHXo7V5t6kRZI+NZsIDLkIE6kmqMR4n0d+95w5pNQEada9gTl7OJTU2jCxXKAJczS6GM1BH8rA=
+X-Received: by 2002:a25:d86:0:b0:6cb:84e9:e747 with SMTP id
+ 128-20020a250d86000000b006cb84e9e747mr38538814ybn.315.1667639199766; Sat, 05
+ Nov 2022 02:06:39 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH net 4/5] can: dev: fix skb drop check
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Marc Kleine-Budde <mkl@pengutronix.de>, netdev@vger.kernel.org,
-        davem@davemloft.net, linux-can@vger.kernel.org,
-        kernel@pengutronix.de,
-        Dariusz Stojaczyk <Dariusz.Stojaczyk@opensynergy.com>,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Max Staudt <max@enpas.org>, stable@vger.kernel.org
-References: <20221104130535.732382-1-mkl@pengutronix.de>
- <20221104130535.732382-5-mkl@pengutronix.de>
- <20221104115059.429412fb@kernel.org>
- <68896ba9-68c6-1f7a-3c6c-c3ee3c98e32f@hartkopp.net>
- <20221104153611.53758e3a@kernel.org>
-Content-Language: en-US
-From:   Oliver Hartkopp <socketcan@hartkopp.net>
-In-Reply-To: <20221104153611.53758e3a@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:a05:7000:8606:b0:3dd:4137:90cd with HTTP; Sat, 5 Nov 2022
+ 02:06:39 -0700 (PDT)
+Reply-To: stefanopessia755@hotmail.com
+From:   Stefano Pessina <smasinde92@gmail.com>
+Date:   Sat, 5 Nov 2022 12:06:39 +0300
+Message-ID: <CAHYgA3rQSPzZrWYffkLAJjzCeTH471z14R14HFOTn=aJApSyOQ@mail.gmail.com>
+Subject: Geldspende
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 04.11.22 23:36, Jakub Kicinski wrote:
-> On Fri, 4 Nov 2022 21:33:16 +0100 Oliver Hartkopp wrote:
->> On 04.11.22 19:50, Jakub Kicinski wrote:
->>> On Fri,  4 Nov 2022 14:05:34 +0100 Marc Kleine-Budde wrote:
->>>> -	if (can_dropped_invalid_skb(ndev, skb))
->>>> +	if (can_dev_dropped_skb(dev, skb))
->>>
->>> Compiler says "Did you mean ndev"?
->>
->> Your compiler is a smart buddy! Sorry!
->>
->> Marc added that single change to my patch for the pch_can.c driver
->> (which is removed in net-next but not in 6.1-rc).
->>
->> And in pch_can.c the netdev is named ndev.
->>
->> Would you like to fix this up on your own or should we send an updated
->> PR for the series?
-> 
-> Updated PR would be better, if possible.
-> We don't edit patches locally much (at all?) when applying to netdev.
-
-Ok, thanks!
-
-I have posted another patch which could be added to the updated PR too then.
-
-https://lore.kernel.org/linux-can/20221104142551.16924-1-socketcan@hartkopp.net/T/#u
-
-Best regards,
-Oliver
+--=20
+Die Summe von 500.000,00 =E2=82=AC wurde Ihnen von STEFANO PESSINA gespende=
+t.
+Bitte kontaktieren Sie uns f=C3=BCr weitere Informationen =C3=BCber
+stefanopessia755@hotmail.com
