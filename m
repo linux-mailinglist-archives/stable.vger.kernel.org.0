@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A86FF61D969
-	for <lists+stable@lfdr.de>; Sat,  5 Nov 2022 11:33:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1270361D96A
+	for <lists+stable@lfdr.de>; Sat,  5 Nov 2022 11:33:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229651AbiKEKdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Nov 2022 06:33:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42566 "EHLO
+        id S229648AbiKEKda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Nov 2022 06:33:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229648AbiKEKdW (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sat, 5 Nov 2022 06:33:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1810627D
-        for <Stable@vger.kernel.org>; Sat,  5 Nov 2022 03:33:21 -0700 (PDT)
+        with ESMTP id S229590AbiKEKd3 (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sat, 5 Nov 2022 06:33:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D071DDFE
+        for <Stable@vger.kernel.org>; Sat,  5 Nov 2022 03:33:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0AFD60AC7
-        for <Stable@vger.kernel.org>; Sat,  5 Nov 2022 10:33:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D6C1C433D6;
-        Sat,  5 Nov 2022 10:33:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32F86B8165F
+        for <Stable@vger.kernel.org>; Sat,  5 Nov 2022 10:33:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EC2FC433C1;
+        Sat,  5 Nov 2022 10:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667644399;
-        bh=4kHx93HjTQnSbG2osmHSzUrt51YSS95JH9sVCTRjGYk=;
+        s=korg; t=1667644405;
+        bh=maN4N3WEZcTmj5CmakhJ7hXp3B70ZeiGStTagZL/zZ4=;
         h=Subject:To:From:Date:From;
-        b=ehOckjToVWEt20SK1HW0b/9pEusyxiD7IMoAHn5zlg9TvlU686Vd4bAR4CXRZBRZZ
-         VSssYFM9I2GMXJi7UJunBxdLUOMX82NBCSVR/RiKMby35TyeOhVxYsoYmDl1C4kVso
-         bPbD7CcTme+cISHDqwToAez/O9IapakReLaKehh4=
-Subject: patch "iio: adc: mp2629: fix wrong comparison of channel" added to char-misc-linus
-To:     sravanhome@gmail.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, andy.shevchenko@gmail.com
+        b=GluxIMo9hPf7Y15wFIxrPRU0jooEp7cBQjDzhT4TiR4dnAZTKWxcwZwrLYMtf0HqO
+         /mKcG4Szub5ZqV9NQZHV/Cok65TFUn0LQaHKirqlhpDT31qe2BHeJGp71X7KqIfoio
+         4KDu6brk33beaYvPhxvs5skYQBXfgBiSHhFsuCyI=
+Subject: patch "iio: adc: at91_adc: fix possible memory leak in" added to char-misc-linus
+To:     yangyingliang@huawei.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 05 Nov 2022 11:33:01 +0100
-Message-ID: <1667644381225227@kroah.com>
+Date:   Sat, 05 Nov 2022 11:33:02 +0100
+Message-ID: <166764438239223@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: mp2629: fix wrong comparison of channel
+    iio: adc: at91_adc: fix possible memory leak in
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,37 +64,41 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 1eb20332a082fa801fb89c347c5e62de916a4001 Mon Sep 17 00:00:00 2001
-From: Saravanan Sekar <sravanhome@gmail.com>
-Date: Sat, 29 Oct 2022 11:29:53 +0200
-Subject: iio: adc: mp2629: fix wrong comparison of channel
+From 65f20301607d07ee279b0804d11a05a62a6c1a1c Mon Sep 17 00:00:00 2001
+From: Yang Yingliang <yangyingliang@huawei.com>
+Date: Mon, 24 Oct 2022 16:45:11 +0800
+Subject: iio: adc: at91_adc: fix possible memory leak in
+ at91_adc_allocate_trigger()
 
-Input voltage channel enum is compared against iio address instead
-of the channel.
+If iio_trigger_register() returns error, it should call iio_trigger_free()
+to give up the reference that hold in iio_trigger_alloc(), so that it can
+call iio_trig_release() to free memory when the refcount hit to 0.
 
-Fixes: 7abd9fb64682 ("iio: adc: mp2629: Add support for mp2629 ADC driver")
-Signed-off-by: Saravanan Sekar <sravanhome@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20221029093000.45451-2-sravanhome@gmail.com
+Fixes: 0e589d5fb317 ("ARM: AT91: IIO: Add AT91 ADC driver.")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221024084511.815096-1-yangyingliang@huawei.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/mp2629_adc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/adc/at91_adc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/mp2629_adc.c b/drivers/iio/adc/mp2629_adc.c
-index 30a31f185d08..f7af9af1665d 100644
---- a/drivers/iio/adc/mp2629_adc.c
-+++ b/drivers/iio/adc/mp2629_adc.c
-@@ -74,7 +74,7 @@ static int mp2629_read_raw(struct iio_dev *indio_dev,
- 		if (ret)
- 			return ret;
+diff --git a/drivers/iio/adc/at91_adc.c b/drivers/iio/adc/at91_adc.c
+index 532daaa6f943..366e252ebeb0 100644
+--- a/drivers/iio/adc/at91_adc.c
++++ b/drivers/iio/adc/at91_adc.c
+@@ -634,8 +634,10 @@ static struct iio_trigger *at91_adc_allocate_trigger(struct iio_dev *idev,
+ 	trig->ops = &at91_adc_trigger_ops;
  
--		if (chan->address == MP2629_INPUT_VOLT)
-+		if (chan->channel == MP2629_INPUT_VOLT)
- 			rval &= GENMASK(6, 0);
- 		*val = rval;
- 		return IIO_VAL_INT;
+ 	ret = iio_trigger_register(trig);
+-	if (ret)
++	if (ret) {
++		iio_trigger_free(trig);
+ 		return NULL;
++	}
+ 
+ 	return trig;
+ }
 -- 
 2.38.1
 
