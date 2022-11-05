@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49B6061D93A
-	for <lists+stable@lfdr.de>; Sat,  5 Nov 2022 10:57:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3B7D61D964
+	for <lists+stable@lfdr.de>; Sat,  5 Nov 2022 11:33:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229635AbiKEJ5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Nov 2022 05:57:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33288 "EHLO
+        id S229610AbiKEKdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Nov 2022 06:33:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbiKEJ5U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Nov 2022 05:57:20 -0400
+        with ESMTP id S229453AbiKEKdD (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sat, 5 Nov 2022 06:33:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 489E518B21;
-        Sat,  5 Nov 2022 02:57:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A38822B
+        for <Stable@vger.kernel.org>; Sat,  5 Nov 2022 03:33:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C28CB60B16;
-        Sat,  5 Nov 2022 09:57:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 609AAC433D6;
-        Sat,  5 Nov 2022 09:57:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 11E9D60AC7
+        for <Stable@vger.kernel.org>; Sat,  5 Nov 2022 10:33:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8A97C433C1;
+        Sat,  5 Nov 2022 10:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667642237;
-        bh=CrtV301dX680V0TO45XPkqCAEPd5NncbV4z/AHZEjjo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WQ/p1MLGqU8w1n0eRBDGckYVHyHConKkkopJDp6KKUoZExEtiwwRPi+7lAj/EnT/7
-         6crldLZom/JqM31NPid0WcmWS+e8HF+Hscd2yI1UKiA76g+C8iBGQ+ycxUN64Yhy/6
-         a4/4+91D4bPj8sdUkgUDRjjm3xlVIUdUsxlcDk4E=
-Date:   Sat, 5 Nov 2022 10:57:14 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
-        jslaby@suse.cz
-Subject: Re: Linux 4.14.297
-Message-ID: <Y2YzeruPdM2y327C@kroah.com>
-References: <166732705422181@kroah.com>
- <20221104181745.ahtjvjvk5qk7vu37@google.com>
+        s=korg; t=1667644381;
+        bh=dnRDOi7SqCcMzCtiYhuzg2cc1G0d3WHhTHHQva705sg=;
+        h=Subject:To:From:Date:From;
+        b=DtLcPl2p+z0TqW+UMX6QDLls5PT01WZF6jzsPeTrGgvK2P5cujKB+VBST+MQc+umU
+         3LP579PPM5iOnMhpVBDSSx3779marm1yA1Q4P1j4+FVFXTVathxE1iMbzmc/5Tmjgr
+         LSUeZQcmCVFj7JKT5XR2IHF2E+A0xkF2OqztC4h8=
+Subject: patch "iio: trigger: sysfs: fix possible memory leak in" added to char-misc-linus
+To:     yangyingliang@huawei.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 05 Nov 2022 11:32:58 +0100
+Message-ID: <1667644378169112@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221104181745.ahtjvjvk5qk7vu37@google.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-8.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -51,45 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 04, 2022 at 11:17:45AM -0700, Nick Desaulniers wrote:
-> On Tue, Nov 01, 2022 at 07:24:13PM +0100, Greg Kroah-Hartman wrote:
-> > I'm announcing the release of the 4.14.297 kernel.
-> > 
-> > All users of the 4.14 kernel series must upgrade.
-> > 
-> > The updated 4.14.y git tree can be found at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
-> > and can be browsed at the normal kernel.org git web browser:
-> > 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-> 
-> Hi Greg and stable tree maintainers,
-> Please consider cherry-picking
-> commit 95b980d62d52 ("linux/bits.h: make BIT(), GENMASK(), and friends available in assembly")
-> back to 4.19.y and 4.14.y. It first landed in v5.3-rc1 and applies
-> cleanly to both branches. I did not find any fixups to 95b980d62d52,
-> FWIW.
-> 
-> Otherwise users upgrading to this point release of linux-4.14.y still on
-> versions of the GNU assembler older than v1.28 will observe assembler
-> errors when building this series. See the link below for the error
-> messages.
-> 
-> Please see
-> https://lore.kernel.org/llvm/20221103210748.1343090-1-ndesaulniers@google.com/
-> for more info.
 
-Did you try building with that commit applied?  I get the following
-build error when running it through the Android build system:
+This is a note to let you know that I've just added the patch titled
 
-In file included from /buildbot/src/android/q-common-android-4.14/common/arch/arm64/include/asm/bitops.h:49:
-/buildbot/src/android/q-common-android-4.14/common/include/asm-generic/bitops/non-atomic.h:60:23: error: implicit declaration of function 'UL' [-Werror,-Wimplicit-function-declaration]
-        unsigned long mask = BIT_MASK(nr);
-                             ^
-/buildbot/src/android/q-common-android-4.14/common/include/linux/bits.h:10:24: note: expanded from macro 'BIT_MASK'
-#define BIT_MASK(nr)            (UL(1) << ((nr) % BITS_PER_LONG))
+    iio: trigger: sysfs: fix possible memory leak in
 
-So are you sure this is the correct fix?
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
 
-thanks,
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-greg k-h
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From efa17e90e1711bdb084e3954fa44afb6647331c0 Mon Sep 17 00:00:00 2001
+From: Yang Yingliang <yangyingliang@huawei.com>
+Date: Sat, 22 Oct 2022 15:42:12 +0800
+Subject: iio: trigger: sysfs: fix possible memory leak in
+ iio_sysfs_trig_init()
+
+dev_set_name() allocates memory for name, it need be freed
+when device_add() fails, call put_device() to give up the
+reference that hold in device_initialize(), so that it can
+be freed in kobject_cleanup() when the refcount hit to 0.
+
+Fault injection test can trigger this:
+
+unreferenced object 0xffff8e8340a7b4c0 (size 32):
+  comm "modprobe", pid 243, jiffies 4294678145 (age 48.845s)
+  hex dump (first 32 bytes):
+    69 69 6f 5f 73 79 73 66 73 5f 74 72 69 67 67 65  iio_sysfs_trigge
+    72 00 a7 40 83 8e ff ff 00 86 13 c4 f6 ee ff ff  r..@............
+  backtrace:
+    [<0000000074999de8>] __kmem_cache_alloc_node+0x1e9/0x360
+    [<00000000497fd30b>] __kmalloc_node_track_caller+0x44/0x1a0
+    [<000000003636c520>] kstrdup+0x2d/0x60
+    [<0000000032f84da2>] kobject_set_name_vargs+0x1e/0x90
+    [<0000000092efe493>] dev_set_name+0x4e/0x70
+
+Fixes: 1f785681a870 ("staging:iio:trigger sysfs userspace trigger rework.")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221022074212.1386424-1-yangyingliang@huawei.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+---
+ drivers/iio/trigger/iio-trig-sysfs.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/iio/trigger/iio-trig-sysfs.c b/drivers/iio/trigger/iio-trig-sysfs.c
+index d6c5e9644738..6b05eed41612 100644
+--- a/drivers/iio/trigger/iio-trig-sysfs.c
++++ b/drivers/iio/trigger/iio-trig-sysfs.c
+@@ -203,9 +203,13 @@ static int iio_sysfs_trigger_remove(int id)
+ 
+ static int __init iio_sysfs_trig_init(void)
+ {
++	int ret;
+ 	device_initialize(&iio_sysfs_trig_dev);
+ 	dev_set_name(&iio_sysfs_trig_dev, "iio_sysfs_trigger");
+-	return device_add(&iio_sysfs_trig_dev);
++	ret = device_add(&iio_sysfs_trig_dev);
++	if (ret)
++		put_device(&iio_sysfs_trig_dev);
++	return ret;
+ }
+ module_init(iio_sysfs_trig_init);
+ 
+-- 
+2.38.1
+
+
