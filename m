@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECFFB61E463
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:11:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED5EC61E44D
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:10:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231304AbiKFRK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:10:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51366 "EHLO
+        id S231138AbiKFRKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:10:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231196AbiKFRJr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:09:47 -0500
+        with ESMTP id S231137AbiKFRKB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:10:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D143FAC9;
-        Sun,  6 Nov 2022 09:06:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A23F013DFA;
+        Sun,  6 Nov 2022 09:06:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FB8360CF2;
-        Sun,  6 Nov 2022 17:06:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53D8CC433C1;
-        Sun,  6 Nov 2022 17:06:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9E1A60D39;
+        Sun,  6 Nov 2022 17:06:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE45EC433C1;
+        Sun,  6 Nov 2022 17:06:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667754383;
-        bh=NSYIezykGFvVUMwGYCG5DyKv09eJL769Py78ZlwLQuc=;
+        s=k20201202; t=1667754386;
+        bh=Ro3jmQCuet4MClUW3KXWYs/VxUoSGhfRGKBKBMjlpho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KyVmTzOjKW7uVd8FUNRDQGZLKkENNSK4oKG0LvNyzdEpOjPq/2yoN7+s8V6iXeCzo
-         psMI0MmtMhJaBAOxva0DZvwgn28P9Zgsfd3IIvoIf9wICVzpanHBzrpCW3s+s01hQW
-         fEqnQJctUbFYu88n6YTthfafB71wasnCqjjQgThxR3aAq3F0L246KQDPcAsdtW49Ah
-         tSYygootiuyd42cvkOkVSjd9pIRvIb9mGfQkIdFl6VuDDqIsIy04jqZcNyMXY6W9E6
-         uaSE8W4SJB+7PtvHiTe2M6j9aW2oUcj5W7C+yokEd9oWU3Lc8yHSlVqFzfg7zwc5Mv
-         KohlVYhsHjZgQ==
+        b=YGkbaxCI8SV5c2wkUS7zHaE39IXNT9vkaDJ0sgbnRC9aSkHiZWjtK/Ue7wD7isX8h
+         wZdMSXpqh+uS5lvHbsoMedRwxbgKIyIYfI2TYkC98swEJUPyHyqslKwHXkwhYKTFZ5
+         gT4+oHVmCfXSz52UULRj2EH+cAJF6bZoi5QX9FdCefqBE5UXXr63MUVyGC5w+Yhfk/
+         4RWjoete3y2P+yIyW/61abqshqDYZmcYfI9pxCtlV4ycUJi51FIjqyejVfl6pF7ZiH
+         bRkzgHRq081EGIvPVX4qnvM8BQBOofP6nmAsryPWSC84olUArprUpCkdNnKyv1VlsK
+         ntNUcdgvofaog==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
-        liam.r.girdwood@linux.intel.com, peter.ujfalusi@linux.intel.com,
-        kai.vehmanen@linux.intel.com, perex@perex.cz, tiwai@suse.com,
-        rander.wang@intel.com, yong.zhi@intel.com, i@cpp.in,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 11/16] ASoC: Intel: sof_sdw: add quirk variant for LAPBC710 NUC15
-Date:   Sun,  6 Nov 2022 12:05:48 -0500
-Message-Id: <20221106170555.1580584-11-sashal@kernel.org>
+Cc:     =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
+        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@igalia.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, shuah@kernel.org, nathan@kernel.org,
+        ndesaulniers@google.com, usama.anjum@collabora.com,
+        guillaume.tucker@collabora.com, linux-kselftest@vger.kernel.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.10 12/16] selftests/futex: fix build for clang
+Date:   Sun,  6 Nov 2022 12:05:49 -0500
+Message-Id: <20221106170555.1580584-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221106170555.1580584-1-sashal@kernel.org>
 References: <20221106170555.1580584-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,46 +61,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
 
-[ Upstream commit 41deb2db64997d01110faaf763bd911d490dfde7 ]
+[ Upstream commit 03cab65a07e083b6c1010fbc8f9b817e9aca75d9 ]
 
-Some NUC15 LAPBC710 devices don't expose the same DMI information as
-the Intel reference, add additional entry in the match table.
+Don't use the test-specific header files as source files to force a
+target dependency, as clang will complain if more than one source file
+is used for a compile command with a single '-o' flag.
 
-BugLink: https://github.com/thesofproject/linux/issues/3885
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20221017204054.207512-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Use the proper Makefile variables instead as defined in
+tools/testing/selftests/lib.mk.
+
+Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+Reviewed-by: André Almeida <andrealmeid@igalia.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ tools/testing/selftests/futex/functional/Makefile | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index 25548555d8d7..5e1a718a64da 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -175,6 +175,17 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 					SOF_SDW_PCH_DMIC |
- 					SOF_RT711_JD_SRC_JD2),
- 	},
-+	{
-+		/* NUC15 LAPBC710 skews */
-+		.callback = sof_sdw_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "LAPBC710"),
-+		},
-+		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
-+					SOF_SDW_PCH_DMIC |
-+					RT711_JD1),
-+	},
- 	/* TigerLake-SDCA devices */
- 	{
- 		.callback = sof_sdw_quirk_cb,
+diff --git a/tools/testing/selftests/futex/functional/Makefile b/tools/testing/selftests/futex/functional/Makefile
+index 23207829ec75..6a0ed2e7881e 100644
+--- a/tools/testing/selftests/futex/functional/Makefile
++++ b/tools/testing/selftests/futex/functional/Makefile
+@@ -3,11 +3,11 @@ INCLUDES := -I../include -I../../
+ CFLAGS := $(CFLAGS) -g -O2 -Wall -D_GNU_SOURCE -pthread $(INCLUDES)
+ LDLIBS := -lpthread -lrt
+ 
+-HEADERS := \
++LOCAL_HDRS := \
+ 	../include/futextest.h \
+ 	../include/atomic.h \
+ 	../include/logging.h
+-TEST_GEN_FILES := \
++TEST_GEN_PROGS := \
+ 	futex_wait_timeout \
+ 	futex_wait_wouldblock \
+ 	futex_requeue_pi \
+@@ -21,5 +21,3 @@ TEST_PROGS := run.sh
+ top_srcdir = ../../../../..
+ KSFT_KHDR_INSTALL := 1
+ include ../../lib.mk
+-
+-$(TEST_GEN_FILES): $(HEADERS)
 -- 
 2.35.1
 
