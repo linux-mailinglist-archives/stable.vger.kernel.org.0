@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 168C961E405
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:06:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7883E61E43A
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:09:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230137AbiKFRGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:06:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38122 "EHLO
+        id S230487AbiKFRJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:09:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230332AbiKFRGJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:06:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1977E11459;
-        Sun,  6 Nov 2022 09:05:10 -0800 (PST)
+        with ESMTP id S231166AbiKFRIJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:08:09 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF4341183B;
+        Sun,  6 Nov 2022 09:06:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A73560C3F;
-        Sun,  6 Nov 2022 17:05:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D7EC433D6;
-        Sun,  6 Nov 2022 17:05:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BFE18CE0DA3;
+        Sun,  6 Nov 2022 17:05:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F42C433C1;
+        Sun,  6 Nov 2022 17:05:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667754309;
-        bh=bo9UiN0uF95hKgvEmTSOyPSCOtDhnoUrHoiV9xWj5sE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TEseAInRMLjFV8vMzRajPHRywHzl1U/yDCizwH2SkWD7IFc1wpHqFlAlt9OvFCkca
-         tsWkMtcQLfoIjou/FPk1IuSjfuZiPG9gqstdwDM4K+Ur1Gbk8P4mTL5GwZQtPf5h6h
-         oBn0bsBOYy+9li0oMM+t7HQnjA/tj/v/aE4Kib5uXGMWo0G0aK0RKcyoPdLWEWiGNw
-         p05YWa3sSzvT7WDTf0MUdADE0D6PuupebjO/4YAZpipO5DXWtKld7mehCI4lvu2V6B
-         //vzrVmTVoeqgvlAPhgPEAd+jEFoUqHkIfNuWKTh6qtP9PVybKmWIEiaN6thMVWem1
-         CnF05X6H64urw==
-Date:   Sun, 6 Nov 2022 12:05:08 -0500
+        s=k20201202; t=1667754358;
+        bh=6KG5m9XApVpdHLC3NcSvYAiVS7AmZYt5nk9nikO4EuM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hSiIf2raEPbtw07+OzUccOmdpmlOyImKRk5mPAca8lfI0L4CKQd6n7JDxfADOJKBQ
+         8JMG9Ew/Ycgzc+OpLpPj3PLr+Bi9nknBMnyJGI6zjy+ZBpyVnPHasQw5xB4/5J6jK7
+         H9zCt9vEFenPChP9ltkxktVTegjuNyisO9hgKyDUrp74aWTnAVbiz2H9H0VJ/U9Ow8
+         xQL6p3pX+KDA8iv47/ZHewsKPmm9hXJ5Ia7Ebzuf25n3sS4fqTA/z+sTuDpRbiS2wP
+         2HRKtUS2HZSMLalIVtbwEh0LI6D5CRGS2ar0JgjyyzNDUWUxJk6T8z1KGv9tcVauxJ
+         3LI3lhB09UMtw==
 From:   Sasha Levin <sashal@kernel.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        gregkh@linuxfoundation.org, linux-media@vger.kernel.org,
-        linux-staging@lists.linux.dev
-Subject: Re: [PATCH AUTOSEL 6.0 15/34] media: atomisp-ov2680: Fix
- ov2680_set_fmt()
-Message-ID: <Y2fpRNxez+odikgL@sashalap>
-References: <20221101112726.799368-1-sashal@kernel.org>
- <20221101112726.799368-15-sashal@kernel.org>
- <48a28601-a3eb-8735-6a15-34436dcbd73e@redhat.com>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.10 01/16] ASoC: wm5102: Revert "ASoC: wm5102: Fix PM disable depth imbalance in wm5102_probe"
+Date:   Sun,  6 Nov 2022 12:05:38 -0500
+Message-Id: <20221106170555.1580584-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <48a28601-a3eb-8735-6a15-34436dcbd73e@redhat.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -58,36 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 01, 2022 at 02:27:53PM +0100, Hans de Goede wrote:
->Hi Sasha,
->
->I have no specific objections against the backporting of this
->and other atomisp related patches.
->
->But in general the atomisp driver is not yet in a state where
->it is ready to be used by normal users. Progress is being made
->but atm I don't really expect normal users to have it enabled /
->in active use.
->
->As such I'm also not sure if there is much value in backporting
->atomisp changes to the stable series.
->
->I don't know if you have a way to opt out certain drivers /
->file-paths from stable series backporting, but if you do
->you may want to consider opting out everything under:
->
->drivers/staging/media/atomisp/
->
->As said above I don't think doing the backports offers
->much (if any) value to end users and I assume it does take
->you some time, so opting this path out might be better.
->
->Also given the fragile state of atomisp support atm
->it is hard to say for me if partially backporting some of
->the changes won't break the driver.
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-I'll blacklist drivers/staging/media/atomisp/, thank you!
+[ Upstream commit de71d7567e358effd06dfc3e2a154b25f1331c10 ]
 
+This reverts commit fcbb60820cd3008bb44334a0395e5e57ccb77329.
+
+The pm_runtime_disable is redundant when error returns in
+wm5102_probe, we just revert the old patch to fix it.
+
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20221010114852.88127-2-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ sound/soc/codecs/wm5102.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
+index b7f5e5391fdb..2ed3fa67027d 100644
+--- a/sound/soc/codecs/wm5102.c
++++ b/sound/soc/codecs/wm5102.c
+@@ -2083,6 +2083,9 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		regmap_update_bits(arizona->regmap, wm5102_digital_vu[i],
+ 				   WM5102_DIG_VU, WM5102_DIG_VU);
+ 
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_idle(&pdev->dev);
++
+ 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
+ 				  "ADSP2 Compressed IRQ", wm5102_adsp2_irq,
+ 				  wm5102);
+@@ -2115,9 +2118,6 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		goto err_spk_irqs;
+ 	}
+ 
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_idle(&pdev->dev);
+-
+ 	return ret;
+ 
+ err_spk_irqs:
 -- 
-Thanks,
-Sasha
+2.35.1
+
