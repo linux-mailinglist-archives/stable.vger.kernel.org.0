@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 464D661E44B
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:10:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A89C61E467
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:11:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231167AbiKFRKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:10:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51742 "EHLO
+        id S231308AbiKFRLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:11:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231147AbiKFRJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:09:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7573B13DEC;
-        Sun,  6 Nov 2022 09:06:27 -0800 (PST)
+        with ESMTP id S231258AbiKFRK2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:10:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21DDD13F04;
+        Sun,  6 Nov 2022 09:07:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E0A2B80BED;
-        Sun,  6 Nov 2022 17:06:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2713C433D6;
-        Sun,  6 Nov 2022 17:06:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3638960BFF;
+        Sun,  6 Nov 2022 17:06:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C140C43470;
+        Sun,  6 Nov 2022 17:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667754378;
-        bh=CmcmcPI2VcpXv3yrjN2gijnu1MKsTMCTQ/7zNYKHIAc=;
+        s=k20201202; t=1667754379;
+        bh=cteLXXsF83r2USnyf9k+VB4O36var5zXb0jrtcODRiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CrJmh2RDOG4KGzhMOxi4N6SSU2+/TdXQRbv0CaXk1zD46yVHWsTP/J4PQDFFFUBQY
-         Wf27ecrm5ipbQ+i9EVWcMi+l2eURVyVrWsYT3ZPhxsBgGndhZ96MjEWzBMaHxtgAoD
-         pfrB8czzGZ384kX3CQ96ABSUk3T/LJvb6/wY9Uim/VrCyP/RSMoT4XOb2yGQN/D/Iv
-         JflngA+MzkriyCvJWfZMAjuSuwBXQJbp3vqEHEt46SMkpQ9PhiTDoszm3KVM52/8q2
-         aVdjdq8fczwtPcKB/Znc7X4Mblh2iy0T+F0Oyu3/BTGHPQwUrry7t8+GgKC5U2XQN4
-         QRwNYlzNo4AwA==
+        b=Xpy9XulIx5OWBKSxT4Ok9F46SoOzgDCqyQ9+lMhlQhuTc6D2ob187R7kfcqllYlom
+         K5RIIMAmdV01VqMfT05cT9g0WDT2Up8pX19WeivPbdO1Jy4fmK8OGZPVvcekQiWfgd
+         1jB6WXKGyEsodVK/aMZ1prfREivJNrGSl7F0qWyjG+QVBd/Zt7cjqbzGM0MPoqPZWo
+         Rrubnn5fUxn/kHp2lgXap/gemprwJrakNYCKGBnRYm2JtATNYa5qFTJeVHYUHl5se5
+         6VudWK5mLNXLhsvTRcAWW2CzTgp/j19ir8Wp01PzLbN1GdinYHj9bYWF5c1VND5ldG
+         us4p/0L3Zl7tw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Siarhei Volkau <lis8215@gmail.com>,
@@ -38,9 +38,9 @@ Cc:     Siarhei Volkau <lis8215@gmail.com>,
         Sasha Levin <sashal@kernel.org>, paul@crapouillou.net,
         lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
         linux-mips@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 09/16] ASoC: codecs: jz4725b: use right control for Capture Volume
-Date:   Sun,  6 Nov 2022 12:05:46 -0500
-Message-Id: <20221106170555.1580584-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 10/16] ASoC: codecs: jz4725b: fix capture selector naming
+Date:   Sun,  6 Nov 2022 12:05:47 -0500
+Message-Id: <20221106170555.1580584-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221106170555.1580584-1-sashal@kernel.org>
 References: <20221106170555.1580584-1-sashal@kernel.org>
@@ -59,65 +59,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Siarhei Volkau <lis8215@gmail.com>
 
-[ Upstream commit 1538e2c8c9b7e7a656effcc6e4e7cfe8c1b405fd ]
+[ Upstream commit 80852f8268769715db335a22305e81a0c4a38a84 ]
 
-Line In Bypass control is used as Master Capture at the moment
-this is completely incorrect.
+At the moment Capture source selector appears on Playback
+tab in the alsamixer and has a senseless name.
 
-Current control routed to Mixer instead of ADC, thus can't affect
-Capture path. ADC control shall be used instead.
-
-ADC volume control parameters are different, so the patch fixes that
-as well. Manual says (16.6.3.2 Programmable input attenuation amplifier:
-PGATM) that gain varies in range 0dB..22.5dB with 1.5dB step.
+Let's fix that.
 
 Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
-Link: https://lore.kernel.org/r/20221016132648.3011729-4-lis8215@gmail.com
+Link: https://lore.kernel.org/r/20221016132648.3011729-5-lis8215@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/jz4725b.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ sound/soc/codecs/jz4725b.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
-index 6f3d4ead9150..9dc8d76bf104 100644
+index 9dc8d76bf104..ab744e375367 100644
 --- a/sound/soc/codecs/jz4725b.c
 +++ b/sound/soc/codecs/jz4725b.c
-@@ -136,13 +136,16 @@ enum {
- #define REG_CGR3_GO1L_OFFSET		0
- #define REG_CGR3_GO1L_MASK		(0x1f << REG_CGR3_GO1L_OFFSET)
+@@ -183,7 +183,7 @@ static SOC_VALUE_ENUM_SINGLE_DECL(jz4725b_codec_adc_src_enum,
+ 				  jz4725b_codec_adc_src_texts,
+ 				  jz4725b_codec_adc_src_values);
+ static const struct snd_kcontrol_new jz4725b_codec_adc_src_ctrl =
+-			SOC_DAPM_ENUM("Route", jz4725b_codec_adc_src_enum);
++	SOC_DAPM_ENUM("ADC Source Capture Route", jz4725b_codec_adc_src_enum);
  
-+#define REG_CGR10_GIL_OFFSET		0
-+#define REG_CGR10_GIR_OFFSET		4
-+
- struct jz_icdc {
- 	struct regmap *regmap;
- 	void __iomem *base;
- 	struct clk *clk;
- };
+ static const struct snd_kcontrol_new jz4725b_codec_mixer_controls[] = {
+ 	SOC_DAPM_SINGLE("Line In Bypass", JZ4725B_CODEC_REG_CR1,
+@@ -228,7 +228,7 @@ static const struct snd_soc_dapm_widget jz4725b_codec_dapm_widgets[] = {
+ 	SND_SOC_DAPM_ADC("ADC", "Capture",
+ 			 JZ4725B_CODEC_REG_PMR1, REG_PMR1_SB_ADC_OFFSET, 1),
  
--static const SNDRV_CTL_TLVD_DECLARE_DB_LINEAR(jz4725b_line_tlv, -1500, 600);
-+static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_adc_tlv,     0, 150, 0);
- static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_dac_tlv, -2250, 150, 0);
+-	SND_SOC_DAPM_MUX("ADC Source", SND_SOC_NOPM, 0, 0,
++	SND_SOC_DAPM_MUX("ADC Source Capture Route", SND_SOC_NOPM, 0, 0,
+ 			 &jz4725b_codec_adc_src_ctrl),
  
- static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
-@@ -151,11 +154,11 @@ static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
- 		       REG_CGR1_GODL_OFFSET,
- 		       REG_CGR1_GODR_OFFSET,
- 		       0xf, 1, jz4725b_dac_tlv),
--	SOC_DOUBLE_R_TLV("Master Capture Volume",
--			 JZ4725B_CODEC_REG_CGR3,
--			 JZ4725B_CODEC_REG_CGR2,
--			 REG_CGR2_GO1R_OFFSET,
--			 0x1f, 1, jz4725b_line_tlv),
-+	SOC_DOUBLE_TLV("Master Capture Volume",
-+		       JZ4725B_CODEC_REG_CGR10,
-+		       REG_CGR10_GIL_OFFSET,
-+		       REG_CGR10_GIR_OFFSET,
-+		       0xf, 0, jz4725b_adc_tlv),
+ 	/* Mixer */
+@@ -287,11 +287,11 @@ static const struct snd_soc_dapm_route jz4725b_codec_dapm_routes[] = {
+ 	{"Mixer", NULL, "DAC to Mixer"},
  
- 	SOC_SINGLE("Master Playback Switch", JZ4725B_CODEC_REG_CR1,
- 		   REG_CR1_DAC_MUTE_OFFSET, 1, 1),
+ 	{"Mixer to ADC", NULL, "Mixer"},
+-	{"ADC Source", "Mixer", "Mixer to ADC"},
+-	{"ADC Source", "Line In", "Line In"},
+-	{"ADC Source", "Mic 1", "Mic 1"},
+-	{"ADC Source", "Mic 2", "Mic 2"},
+-	{"ADC", NULL, "ADC Source"},
++	{"ADC Source Capture Route", "Mixer", "Mixer to ADC"},
++	{"ADC Sourc Capture Routee", "Line In", "Line In"},
++	{"ADC Source Capture Route", "Mic 1", "Mic 1"},
++	{"ADC Source Capture Route", "Mic 2", "Mic 2"},
++	{"ADC", NULL, "ADC Source Capture Route"},
+ 
+ 	{"Out Stage", NULL, "Mixer"},
+ 	{"HP Out", NULL, "Out Stage"},
 -- 
 2.35.1
 
