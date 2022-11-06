@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59E1561E3DB
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:05:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A1D61E3D5
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:05:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230182AbiKFRF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:05:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38276 "EHLO
+        id S230203AbiKFRFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:05:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230040AbiKFREw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:04:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 429FAFAE1;
+        with ESMTP id S230255AbiKFREs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:04:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B62BFAC6;
         Sun,  6 Nov 2022 09:04:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1855B8013C;
-        Sun,  6 Nov 2022 17:04:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E536FC433C1;
-        Sun,  6 Nov 2022 17:04:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D37D60C3F;
+        Sun,  6 Nov 2022 17:04:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0981AC433D6;
+        Sun,  6 Nov 2022 17:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667754272;
-        bh=pF7BVJ0w72uPvjNUQ0lvkh18VBptk2Pe9NBKwwTGIvs=;
+        s=k20201202; t=1667754274;
+        bh=GnFHhqJgy5Blx6aSCEt1Q21ZwsxFFTu/xTF3zjzbjCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j23DX+b/hh6H4U+cT1/SSBqXk9YMs2d0dvQRcvE6TUiHB05cMtXVaanbxKkKfBn/T
-         F4ul+nvH85I5fqhfp1QEJPkUPK29QKqYwAI87jc9SkIvzI3ZuM7G/6Anh3AGtos88N
-         8QBGRSoe66yt7s4Ctw+mQG1wsPY4av45tbZUbGq0qNMynpN7bIjzXsGg7LxTs2Uo9T
-         n3M/03vvl4XKKQH2ZOxRtAIQBpcM5A1FYv/NRnkaARxNDBZc4KQ9IN3GVjIQgtcjT7
-         bmKThgUblM0Qj7zfAv7NWZYDl5qK+CYvD4liRpBCYXC8bTbkSjNgwXln4Tz6fk/aQg
-         kee2zGIkZ6gtg==
+        b=XkgyBtMxiwv/+kSy7jsOlyPH767+rBIFZJZDtiMEqHJZ2lTNLKTiUztDEIZjL6TBZ
+         b/kKYiszCyxOhhmvuZwhCCMZXi9G3dcYDksBhL0Y+4e2IkknYeiVW/bNNABUBXHtYR
+         F942518bwsK+jJHlssrriWDHAP0nCHzkhkBIOPd/gWHBM09Bd6esKrVKlUtOjhAjKk
+         x55GCpUysMoL4WPuoFqlxVGRUyesuNHWTZTANu4QdUf/2vGKZpfEiqeJKJ/lKgun7o
+         K59C/15sucR//aE2neEi6J89ijMbZnj52MS9WNZ4uWvKn/z/F5boN2uEcNvBFhdTi4
+         +ShPLPw+Cq0Lg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        kernel test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
-        linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 20/30] rtc: cmos: fix build on non-ACPI platforms
-Date:   Sun,  6 Nov 2022 12:03:32 -0500
-Message-Id: <20221106170345.1579893-20-sashal@kernel.org>
+Cc:     Shuming Fan <shumingf@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.0 21/30] ASoC: rt1308-sdw: add the default value of some registers
+Date:   Sun,  6 Nov 2022 12:03:33 -0500
+Message-Id: <20221106170345.1579893-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221106170345.1579893-1-sashal@kernel.org>
 References: <20221106170345.1579893-1-sashal@kernel.org>
@@ -56,35 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Shuming Fan <shumingf@realtek.com>
 
-[ Upstream commit db4e955ae333567dea02822624106c0b96a2f84f ]
+[ Upstream commit 75d8b1662ca5c20cf8365575222abaef18ff1f50 ]
 
-Now that rtc_wake_setup is called outside of cmos_wake_setup, it also need
-to be defined on non-ACPI platforms.
+The driver missed the default value of register 0xc070/0xc360.
+This patch adds that default value to avoid invalid register access
+when the device doesn't be enumerated yet.
+BugLink: https://github.com/thesofproject/linux/issues/3924
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/20221018203512.2532407-1-alexandre.belloni@bootlin.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Shuming Fan <shumingf@realtek.com>
+Link: https://lore.kernel.org/r/20221019095715.31082-1-shumingf@realtek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cmos.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/rt1308-sdw.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index bdb1df843c78..31aa11e0e7d4 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -1344,6 +1344,9 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
- {
- }
+diff --git a/sound/soc/codecs/rt1308-sdw.h b/sound/soc/codecs/rt1308-sdw.h
+index 6668e19d85d4..b5f231f708cb 100644
+--- a/sound/soc/codecs/rt1308-sdw.h
++++ b/sound/soc/codecs/rt1308-sdw.h
+@@ -139,10 +139,12 @@ static const struct reg_default rt1308_reg_defaults[] = {
+ 	{ 0x3005, 0x23 },
+ 	{ 0x3008, 0x02 },
+ 	{ 0x300a, 0x00 },
++	{ 0xc000 | (RT1308_DATA_PATH << 4), 0x00 },
+ 	{ 0xc003 | (RT1308_DAC_SET << 4), 0x00 },
+ 	{ 0xc000 | (RT1308_POWER << 4), 0x00 },
+ 	{ 0xc001 | (RT1308_POWER << 4), 0x00 },
+ 	{ 0xc002 | (RT1308_POWER << 4), 0x00 },
++	{ 0xc000 | (RT1308_POWER_STATUS << 4), 0x00 },
+ };
  
-+static void rtc_wake_setup(struct device *dev)
-+{
-+}
- #endif
- 
- #ifdef	CONFIG_PNP
+ #define RT1308_SDW_OFFSET 0xc000
 -- 
 2.35.1
 
