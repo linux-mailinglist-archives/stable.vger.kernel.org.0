@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F6E861E4A7
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:13:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BF8B61E49A
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:12:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231430AbiKFRN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:13:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50844 "EHLO
+        id S231292AbiKFRMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:12:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231670AbiKFRMf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:12:35 -0500
+        with ESMTP id S231594AbiKFRMZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:12:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EE2F10044;
-        Sun,  6 Nov 2022 09:08:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9A9614D1F;
+        Sun,  6 Nov 2022 09:07:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EF6C60D2F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6C7560BFF;
+        Sun,  6 Nov 2022 17:07:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5669FC433C1;
         Sun,  6 Nov 2022 17:07:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1243CC43145;
-        Sun,  6 Nov 2022 17:07:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667754441;
-        bh=v8cGCJBDm0eZJLPzFSbLDbXewUjQNprW6ZfOK/nAJcc=;
+        s=k20201202; t=1667754443;
+        bh=OCq411Ero81o/ji24Kw2gCP6jOBeej2cIJITZ6eOp2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3UfvTYtrq6XiF5Lrff/A8J1hJO71y12WN1SaaRPz2qKgEEkdYdPVthT5SisR8n+I
-         H6OGcN8rHcSjncAAqlNvmTMfipareDmyC32jwxINj53Zrn2Ha3LuN/lhm3s6MmNv/d
-         xjC7+vasaVS2x7RjO9YWJICflKTv0H14mkQQ+l/qY2Z9tkNrf4CYZkt5WM9tGcHW3u
-         vx60mWb4Bc3rto4l/suMbqPe1LZYoIKv1QUdxqKITGnBAwPywtxTNnxgpjNskXLbMj
-         Lyj+gcJp4dm8Nwt9I+ZxjHvsUNhG2e4G6dXLSikCzPNXhEKurhPH93OrF4WDxCP5ET
-         FF1Iqr1wEqHng==
+        b=oZWfafUG5dXPS09cOm7wP95SgjSDMJIqxO+qfs+7I8M7NbFgDZguj6iPmKGfo+HNQ
+         Ftzn1rv+R8SCZevlHbzu7zWlPRjgQ1vAvev43YkPD4k7kcTeJJuwD6dru/J5K7g1r/
+         gJMHaBNlFbJUYAh94CCZSvuEpcfpr1j9kBULIfS0wQaJODkHDJ/HKUqWrWkjhJjWim
+         /sInjawMFpyVmD/OMNQiYz9kGH/r4wthmK/yYldMDToC5RVstnk9ufVbOuqMh8e0F1
+         ipYD/X36Yj6H22/v3atioij6RXFf0yIgolsXv6n1DCQbnwXs7CCuE8IHcYCjxPKljv
+         fUMEOs0FWw3AQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 6/7] selftests/intel_pstate: fix build for ARCH=x86_64
-Date:   Sun,  6 Nov 2022 12:07:03 -0500
-Message-Id: <20221106170705.1580963-6-sashal@kernel.org>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        kernel test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 7/7] rtc: cmos: fix build on non-ACPI platforms
+Date:   Sun,  6 Nov 2022 12:07:04 -0500
+Message-Id: <20221106170705.1580963-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221106170705.1580963-1-sashal@kernel.org>
 References: <20221106170705.1580963-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,38 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit beb7d862ed4ac6aa14625418970f22a7d55b8615 ]
+[ Upstream commit db4e955ae333567dea02822624106c0b96a2f84f ]
 
-Handle the scenario where the build is launched with the ARCH envvar
-defined as x86_64.
+Now that rtc_wake_setup is called outside of cmos_wake_setup, it also need
+to be defined on non-ACPI platforms.
 
-Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20221018203512.2532407-1-alexandre.belloni@bootlin.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/intel_pstate/Makefile | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-cmos.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/testing/selftests/intel_pstate/Makefile b/tools/testing/selftests/intel_pstate/Makefile
-index 7340fd6a9a9f..9fc1a40b0127 100644
---- a/tools/testing/selftests/intel_pstate/Makefile
-+++ b/tools/testing/selftests/intel_pstate/Makefile
-@@ -2,10 +2,10 @@
- CFLAGS := $(CFLAGS) -Wall -D_GNU_SOURCE
- LDLIBS := $(LDLIBS) -lm
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 8545f0da57fe..c6147d8b622f 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1294,6 +1294,9 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
+ {
+ }
  
--uname_M := $(shell uname -m 2>/dev/null || echo not)
--ARCH ?= $(shell echo $(uname_M) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
-+ARCH ?= $(shell uname -m 2>/dev/null || echo not)
-+ARCH_PROCESSED := $(shell echo $(ARCH) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
++static void rtc_wake_setup(struct device *dev)
++{
++}
+ #endif
  
--ifeq (x86,$(ARCH))
-+ifeq (x86,$(ARCH_PROCESSED))
- TEST_GEN_FILES := msr aperf
- endif
- 
+ #ifdef	CONFIG_PNP
 -- 
 2.35.1
 
