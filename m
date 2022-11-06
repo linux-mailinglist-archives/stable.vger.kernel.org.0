@@ -2,68 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9BCB61E4FB
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:44:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AB5B61E522
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:55:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229919AbiKFRom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:44:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44002 "EHLO
+        id S230419AbiKFRy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:54:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229817AbiKFRol (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:44:41 -0500
-Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694326422;
-        Sun,  6 Nov 2022 09:44:40 -0800 (PST)
-Received: by mail-io1-xd36.google.com with SMTP id 11so7296000iou.0;
-        Sun, 06 Nov 2022 09:44:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LmwpYCTGFDgeBb3yaFM0SZa/jnM1t19xpWxBuBKJal8=;
-        b=FdnOLJCaxhF57Ct4n+8ZKrn1+v5QwMN+hsh06h/iWEb1N8H9iGKcFf6xiTsvHnaAIi
-         KehmF31IWBfev4X0kwpNLvQfbOSYqsP9jjGJgagF58XtGeO22Qw/zyQd65J02lQTRH1n
-         qFXeMRJsW9/bRiJ9vHdV9S6oZuIxtgVB8N5sIp6jf1MGi8m4bymCETSvaRU2pCQuxJ9J
-         OXpPHaDeadltcQUwxRLiCM+80tBDiz6QB3KPs0yBfY4Rl3HLbcbjPhOWcbokvl/AeUqk
-         45DTKn9D3LLfcoOBU/84Nb6s8T2QHof2mBeY1eoQ7s14pkGmBNC08NtXNz8DGt9aIaA6
-         zXuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LmwpYCTGFDgeBb3yaFM0SZa/jnM1t19xpWxBuBKJal8=;
-        b=lXlkQiepEGE6yQ/AaKs5T2CVI6LF5CPKjj1m8jgfoCrgssZuNu5gRXEXpjMvovZjsT
-         wUAo45Sb/bIEWUEtRqh5fOmF9waOPXiFf4QmstE+/GQKaMJmtSI8jN+Yy1D3rvA3ipGo
-         IfZPdmON4AqmIm2Csx/GxRKgrKawRD42zU0b++S/Fi2uZg3bG7YLRElbQ/Yl5ldv8fsk
-         7bCZj/ur7/lgW8ssoXAGJ4/UZmjM3zyADLpKpcDCeTRtB8UACCQauHw7lenrWePV5B6Z
-         LaY0iZ0ssfwejylGk5gQ/nBYhYRXGG/RQjFAuvwP9oxE5gVTXmxsG2LDgvp2AhWZt86c
-         BPGw==
-X-Gm-Message-State: ACrzQf2yrm6YNf2bgtNzXGaPigQCdLZRPERUx8cmaysqOfefGgvX6oj/
-        izXUPt1bg6k58OXga8CBokUMVeOfZ1ysutoBjvC/llaFNtc=
-X-Google-Smtp-Source: AMsMyM418EFQAdgZSCnwSka9QG7J5t/0cMR9HkkhAMxXuxbHyH/U0bq+Cin5uEekUmsh5uyq/C/AGzh6E6wYz9I6AcA=
-X-Received: by 2002:a5d:9552:0:b0:6ce:64b7:5198 with SMTP id
- a18-20020a5d9552000000b006ce64b75198mr19618284ios.108.1667756679822; Sun, 06
- Nov 2022 09:44:39 -0800 (PST)
-MIME-Version: 1.0
-References: <20221106170637.1580802-1-sashal@kernel.org> <20221106170637.1580802-9-sashal@kernel.org>
-In-Reply-To: <20221106170637.1580802-9-sashal@kernel.org>
-From:   Siarhei Volkau <lis8215@gmail.com>
-Date:   Sun, 6 Nov 2022 20:44:28 +0300
-Message-ID: <CAKNVLfZ63utLSOujoTZqN8jHKwYwqb-Z0E=VwueFmwMJf961iA@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.4 09/12] ASoC: codecs: jz4725b: fix capture
- selector naming
+        with ESMTP id S229991AbiKFRy7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:54:59 -0500
+Received: from relay11.mail.gandi.net (relay11.mail.gandi.net [217.70.178.231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96F6A643F;
+        Sun,  6 Nov 2022 09:54:57 -0800 (PST)
+Received: (Authenticated sender: alexandre.belloni@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 74AF2100003;
+        Sun,  6 Nov 2022 17:54:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1667757295;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Zg7/l4xvuUyfSZ1Lnyt6Mb3nu3U4w2YBOxTgNkugPXk=;
+        b=D5sVdGo7REHqDaPlbmq9IOJE4IGSq/6p+Ihyq0bQoVoAF4LSPF9K5DbBCTZJ26R9yDu+s0
+        /ewfsA10SVS0t4fYAKXrwP7f4G76Ah6qckJt7Gz65xZBRMYp4jrHOPs0PBTFFpeXoyHadh
+        sGyOwdWnedDd8VyEwDcxYqFcSnZIroBbXYNjMxod9I3wBdlO3pmEG4SPXpmVfPtuV31NK5
+        z96ZuZlvfe5jtyyKrZIE2P5J7oB9cpGqjwHXtI02sqN6kN/S6YgnOaYlNbAwRvwmiMw9TR
+        1CCjduL2q2AE7Oz2Bxrlrz6Y0jdWDNAIP+xhoQGX28eIoePjOCmrlm5XL/cYjg==
+Date:   Sun, 6 Nov 2022 18:54:55 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mark Brown <broonie@kernel.org>, paul@crapouillou.net,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        linux-mips@vger.kernel.org, alsa-devel@alsa-project.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        kernel test robot <lkp@intel.com>, a.zummo@towertech.it,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.9] rtc: cmos: fix build on non-ACPI platforms
+Message-ID: <Y2f079jOra55IGgr@mail.local>
+References: <20221106170729.1581125-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221106170729.1581125-1-sashal@kernel.org>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,11 +51,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-=D0=B2=D1=81, 6 =D0=BD=D0=BE=D1=8F=D0=B1. 2022 =D0=B3. =D0=B2 20:06, Sasha =
-Levin <sashal@kernel.org>:
-> +       {"ADC Sourc Capture Routee", "Line In", "Line In"},
+Hello, this doesn't need to be backported unless you also backport
+those:
+0782b66ed2fb rtc: cmos: Fix wake alarm breakage
+4919d3eb2ec0 rtc: cmos: Fix event handler registration ordering issue
+6492fed7d8c9 rtc: rtc-cmos: Do not check ACPI_FADT_LOW_POWER_S0
 
-Please make sure you're grabbing df496157a5af companion commit.
 
-BR,
-Siarhei
+On 06/11/2022 12:07:29-0500, Sasha Levin wrote:
+> From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> 
+> [ Upstream commit db4e955ae333567dea02822624106c0b96a2f84f ]
+> 
+> Now that rtc_wake_setup is called outside of cmos_wake_setup, it also need
+> to be defined on non-ACPI platforms.
+> 
+> Reported-by: kernel test robot <lkp@intel.com>
+> Link: https://lore.kernel.org/r/20221018203512.2532407-1-alexandre.belloni@bootlin.com
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/rtc/rtc-cmos.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+> index 1dbd8419df7d..2c3881bdf9bb 100644
+> --- a/drivers/rtc/rtc-cmos.c
+> +++ b/drivers/rtc/rtc-cmos.c
+> @@ -1113,6 +1113,9 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
+>  {
+>  }
+>  
+> +static void rtc_wake_setup(struct device *dev)
+> +{
+> +}
+>  #endif
+>  
+>  #ifdef	CONFIG_PNP
+> -- 
+> 2.35.1
+> 
+
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
