@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30EFA61E487
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:12:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D26D61E48B
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:12:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231668AbiKFRMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:12:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51604 "EHLO
+        id S230398AbiKFRMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:12:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231263AbiKFRLl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:11:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D91F14080;
-        Sun,  6 Nov 2022 09:07:26 -0800 (PST)
+        with ESMTP id S230341AbiKFRLh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:11:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E4EC1401D;
+        Sun,  6 Nov 2022 09:07:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A976DB802BD;
-        Sun,  6 Nov 2022 17:07:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 485CBC433C1;
-        Sun,  6 Nov 2022 17:07:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 926F760CF8;
+        Sun,  6 Nov 2022 17:07:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9149C433B5;
+        Sun,  6 Nov 2022 17:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667754434;
-        bh=oF0/D4qWndnp4p2zWUMltEaD5+xi723ayYB6dsaUmqM=;
+        s=k20201202; t=1667754436;
+        bh=17nVzYZDlxOShlzcokmJyNZashaE+MB7kmghc896PYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJ/e6y1pRTeY7hUrxwYo3oC5dyVUNoMRIl+kQwlSLzH4y4se7JA6B3FNxRlb9xx3M
-         hqbjNIz2hv4OJKi3zT7314pOg2RNlrKRE2tZeazl6aCnEfLn+aL8ddbdZmFHCxp9S4
-         CzSFehvUltKyxXZlAeNML+ArethPJhJbJUXl6qT5LguZ8c6KDt4b5pufJzeJFM6hAk
-         vMD5K65yN6/d3Nu6SHLokiJtLa1JMASV9Br1jhJSinR2+zDM9H8iFe5W+A35EPgKv1
-         yGgPpsLFCa27ELTNTKH8B4awcCLvCArkyDhs94DFnLbskt1d2rN5ippGGO9vhx4HEj
-         up1Y2mfK4yIaw==
+        b=IqQsuXTLkA4pHHdBZIiXvtRh4FXqyYePFhAcXpY1A71Du1THDOpl83/lX2wgvUKc0
+         hjVh+CJrfnIoDKIRd+D0ttmBQlDTCHeh9zxsxWmR+YcdfsKTsgkd5dRuR0CnJ0ALar
+         X6dx4DztzPigMnKrQ0z1tn+Ge/2KLM9RCLN9qBrKhwagBNIAthJ+gHj9dQqLDbAGmL
+         lI392D8mZIpV1aWRW1U1pVrpBUkfbGA3aShy9B7qG6+fGUCwg/DrEX/36VqXnDiepg
+         zVaBY/4Pi7UPAR0NiJuM3dU5nMjXP0hlAkARGoDKEcbmT16uJaQ8hZGOLGmsKYGoy2
+         aqfcwgyY4CQqQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
+Cc:     Mauro Lima <mauro.lima@eclypsium.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, patches@opensource.cirrus.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 3/7] ASoC: wm8997: Revert "ASoC: wm8997: Fix PM disable depth imbalance in wm8997_probe"
-Date:   Sun,  6 Nov 2022 12:07:00 -0500
-Message-Id: <20221106170705.1580963-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, tudor.ambarus@microchip.com,
+        pratyush@kernel.org, miquel.raynal@bootlin.com, richard@nod.at,
+        vigneshr@ti.com, linux-mtd@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 4/7] spi: intel: Fix the offset to get the 64K erase opcode
+Date:   Sun,  6 Nov 2022 12:07:01 -0500
+Message-Id: <20221106170705.1580963-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221106170705.1580963-1-sashal@kernel.org>
 References: <20221106170705.1580963-1-sashal@kernel.org>
@@ -58,48 +58,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Mauro Lima <mauro.lima@eclypsium.com>
 
-[ Upstream commit 68ce83e3bb26feba0fcdd59667fde942b3a600a1 ]
+[ Upstream commit 6a43cd02ddbc597dc9a1f82c1e433f871a2f6f06 ]
 
-This reverts commit 41a736ac20602f64773e80f0f5b32cde1830a44a.
+According to documentation, the 64K erase opcode is located in VSCC
+range [16:23] instead of [8:15].
+Use the proper value to shift the mask over the correct range.
 
-The pm_runtime_disable is redundant when error returns in
-wm8997_probe, we just revert the old patch to fix it.
-
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20221010114852.88127-4-zhangqilong3@huawei.com
+Signed-off-by: Mauro Lima <mauro.lima@eclypsium.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Link: https://lore.kernel.org/r/20221012152135.28353-1-mauro.lima@eclypsium.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8997.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/mtd/spi-nor/intel-spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wm8997.c b/sound/soc/codecs/wm8997.c
-index 9f819113af1e..bb6a95be8726 100644
---- a/sound/soc/codecs/wm8997.c
-+++ b/sound/soc/codecs/wm8997.c
-@@ -1159,6 +1159,9 @@ static int wm8997_probe(struct platform_device *pdev)
- 		regmap_update_bits(arizona->regmap, wm8997_digital_vu[i],
- 				   WM8997_DIG_VU, WM8997_DIG_VU);
+diff --git a/drivers/mtd/spi-nor/intel-spi.c b/drivers/mtd/spi-nor/intel-spi.c
+index d60cbf23d9aa..642a6f9071f2 100644
+--- a/drivers/mtd/spi-nor/intel-spi.c
++++ b/drivers/mtd/spi-nor/intel-spi.c
+@@ -116,7 +116,7 @@
+ #define ERASE_OPCODE_SHIFT		8
+ #define ERASE_OPCODE_MASK		(0xff << ERASE_OPCODE_SHIFT)
+ #define ERASE_64K_OPCODE_SHIFT		16
+-#define ERASE_64K_OPCODE_MASK		(0xff << ERASE_OPCODE_SHIFT)
++#define ERASE_64K_OPCODE_MASK		(0xff << ERASE_64K_OPCODE_SHIFT)
  
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_idle(&pdev->dev);
-+
- 	arizona_init_common(arizona);
- 
- 	ret = arizona_init_vol_limit(arizona);
-@@ -1177,9 +1180,6 @@ static int wm8997_probe(struct platform_device *pdev)
- 		goto err_spk_irqs;
- 	}
- 
--	pm_runtime_enable(&pdev->dev);
--	pm_runtime_idle(&pdev->dev);
--
- 	return ret;
- 
- err_spk_irqs:
+ #define INTEL_SPI_TIMEOUT		5000 /* ms */
+ #define INTEL_SPI_FIFO_SZ		64
 -- 
 2.35.1
 
