@@ -2,55 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 085AC61E46C
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:11:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 313BC61E456
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:10:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231129AbiKFRLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:11:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51366 "EHLO
+        id S231228AbiKFRKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:10:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230496AbiKFRKo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:10:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1470D13F5C;
-        Sun,  6 Nov 2022 09:07:12 -0800 (PST)
+        with ESMTP id S230462AbiKFRKP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:10:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEEB813E9E;
+        Sun,  6 Nov 2022 09:06:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E29ECB80C81;
-        Sun,  6 Nov 2022 17:06:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36936C43142;
-        Sun,  6 Nov 2022 17:06:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFB0C60CEC;
+        Sun,  6 Nov 2022 17:06:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E9A8C433C1;
+        Sun,  6 Nov 2022 17:06:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667754395;
-        bh=Ho1dAhjOTbjMhnAGRIHqcSukLkGM2w9YjMXGNhLKLfQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L0JlfaKtmgTXAYNXrgxh9CInXeO84Ual/7J6NZ8rVaKj2rzexYU4G2AGUZu2SC6nQ
-         7b+4RsnThzZN92GWqqbWoUu0A9Tq0Jzx2NzbAdPVtyEubsGWisvrDSPRaYKfGUgVlM
-         i6EDwWI/cQSP9xe0/uXaZ+kd4E5Al9jSR/YMyh+TQjHhNSvGngfrP3iffrUI61PH1k
-         1VRfOLqX0nfzygpF+YeNJCTFUAbLYpEjiPhfnJB4yV9A1uVEXHMjpIFHrO50MrtygY
-         9ZAYqsyVRbnaxal6B810mYEUO9JzKbAFdD+HfnwwZILmmjdHq/PMtaW59sPRd+XusK
-         HTY+6ndVlgI3Q==
+        s=k20201202; t=1667754400;
+        bh=QsbOPHdCc0XpSE+AJAJkwvXzmMbxdn3gOwMLqMDquC0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=mj4h7km47n2zvJp43DJ5TVd/37lNHf80sOv5LyyOvBUNQqPpEsd3FWZ/gnYScoor2
+         CJzRu34QWJXTtxP0ndmoLzebmpmB10zhq87GhcCfsDa6o3VtHeBLBUogY1ldA3Ym1E
+         3U4GgTas06D/PydE3jOanXshaBtWcvKewEblbawjj45WrsSez0DDl25ePuIz7ffxCH
+         evgyGBAQqiXj3G3pMaqomQx/Hul8fhAZfNvn50w59stHZBpd2HkJ9PEvQkl44rLw2B
+         XWYcam+TrpRDYqQsaNY9vtw7Q9KUGJWUE2GQQnghX6mkjbQB/tMco9bOWfi/yPxY5u
+         RnQOPMwzqROVg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, christian.koenig@amd.com, Xinhui.Pan@amd.com,
-        airlied@gmail.com, daniel@ffwll.ch, Jun.Lei@amd.com,
-        Nicholas.Kazlauskas@amd.com, mwen@igalia.com, Alvin.Lee2@amd.com,
-        wenjing.liu@amd.com, duncan.ma@amd.com, Yi-Ling.Chen2@amd.com,
-        aurabindo.pillai@amd.com, jiapeng.chong@linux.alibaba.com,
-        Sungjoon.Kim@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 16/16] drm/amd/display: Remove wrong pipe control lock
-Date:   Sun,  6 Nov 2022 12:05:53 -0500
-Message-Id: <20221106170555.1580584-16-sashal@kernel.org>
+Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 01/12] ASoC: wm5102: Revert "ASoC: wm5102: Fix PM disable depth imbalance in wm5102_probe"
+Date:   Sun,  6 Nov 2022 12:06:25 -0500
+Message-Id: <20221106170637.1580802-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221106170555.1580584-1-sashal@kernel.org>
-References: <20221106170555.1580584-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -64,92 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit ca08a1725d0d78efca8d2dbdbce5ea70355da0f2 ]
+[ Upstream commit de71d7567e358effd06dfc3e2a154b25f1331c10 ]
 
-When using a device based on DCN32/321,
-we have an issue where a second
-4k@60Hz display does not light up,
-and the system becomes unresponsive
-for a few minutes. In the debug process,
-it was possible to see a hang
-in the function dcn20_post_unlock_program_front_end
-in this part:
+This reverts commit fcbb60820cd3008bb44334a0395e5e57ccb77329.
 
-for (j = 0; j < TIMEOUT_FOR_PIPE_ENABLE_MS*1000
-	&& hubp->funcs->hubp_is_flip_pending(hubp); j++)
-	mdelay(1);
-}
+The pm_runtime_disable is redundant when error returns in
+wm5102_probe, we just revert the old patch to fix it.
 
-The hubp_is_flip_pending always returns positive
-for waiting pending flips which is a symptom of
-pipe hang. Additionally, the dmesg log shows
-this message after a few minutes:
-
-  BUG: soft lockup - CPU#4 stuck for 26s!
-  ...
-  [  +0.000003]  dcn20_post_unlock_program_front_end+0x112/0x340 [amdgpu]
-  [  +0.000171]  dc_commit_state_no_check+0x63d/0xbf0 [amdgpu]
-  [  +0.000155]  ? dc_validate_global_state+0x358/0x3d0 [amdgpu]
-  [  +0.000154]  dc_commit_state+0xe2/0xf0 [amdgpu]
-
-This confirmed the hypothesis that we had a pipe
-hanging somewhere. Next, after checking the
-ftrace entries, we have the below weird
-sequence:
-
- [..]
-  2)               |        dcn10_lock_all_pipes [amdgpu]() {
-  2)   0.120 us    |          optc1_is_tg_enabled [amdgpu]();
-  2)               |          dcn20_pipe_control_lock [amdgpu]() {
-  2)               |            dc_dmub_srv_clear_inbox0_ack [amdgpu]() {
-  2)   0.121 us    |              amdgpu_dm_dmub_reg_write [amdgpu]();
-  2)   0.551 us    |            }
-  2)               |            dc_dmub_srv_send_inbox0_cmd [amdgpu]() {
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_write [amdgpu]();
-  2)   0.511 us    |            }
-  2)               |            dc_dmub_srv_wait_for_inbox0_ack [amdgpu]() {
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
- [..]
-
-We are not expected to read from dmub register
-so many times and for so long. From the trace log,
-it was possible to identify that the function
-dcn20_pipe_control_lock was triggering the dmub
-operation when it was unnecessary and causing
-the hang issue. This commit drops the unnecessary
-dmub code and, consequently, fixes the second display not
-lighting up the issue.
-
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20221010114852.88127-2-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/wm5102.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index 8f66eef0c683..c6c4888c6665 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -1746,7 +1746,7 @@ void dcn20_post_unlock_program_front_end(
+diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
+index c5667b149c70..d6d4b4121369 100644
+--- a/sound/soc/codecs/wm5102.c
++++ b/sound/soc/codecs/wm5102.c
+@@ -2084,6 +2084,9 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		regmap_update_bits(arizona->regmap, wm5102_digital_vu[i],
+ 				   WM5102_DIG_VU, WM5102_DIG_VU);
  
- 			for (j = 0; j < TIMEOUT_FOR_PIPE_ENABLE_MS*1000
- 					&& hubp->funcs->hubp_is_flip_pending(hubp); j++)
--				mdelay(1);
-+				udelay(1);
- 		}
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_idle(&pdev->dev);
++
+ 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
+ 				  "ADSP2 Compressed IRQ", wm5102_adsp2_irq,
+ 				  wm5102);
+@@ -2116,9 +2119,6 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		goto err_spk_irqs;
  	}
  
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_idle(&pdev->dev);
+-
+ 	return ret;
+ 
+ err_spk_irqs:
 -- 
 2.35.1
 
