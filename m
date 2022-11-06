@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2707361E121
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 10:02:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68A9961E127
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 10:08:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229602AbiKFJCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 04:02:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42148 "EHLO
+        id S229676AbiKFJIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 04:08:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229564AbiKFJCa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 04:02:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F1F2663;
-        Sun,  6 Nov 2022 01:02:29 -0800 (PST)
+        with ESMTP id S229609AbiKFJIX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 04:08:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 257F7A9;
+        Sun,  6 Nov 2022 01:08:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E218B80B30;
-        Sun,  6 Nov 2022 09:02:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A2F8C433D6;
-        Sun,  6 Nov 2022 09:02:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 920DB60C07;
+        Sun,  6 Nov 2022 09:08:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B5EEC433C1;
+        Sun,  6 Nov 2022 09:08:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667725346;
-        bh=xjKCgVmFbXFxtKFBYyK+XNvbHjCTI456JH43nwr0lEc=;
+        s=k20201202; t=1667725700;
+        bh=oSY2pB7T1Vm2y2VVy5D70U7pf0RgTlyiyzQ20GmbmMg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=T9unJaNs6HLnI2qRq4XbuONifxSjf0RJRYhKfas+wxK0doTZWhX2Vxi39kuPEzrO1
-         +BV+lm/BOobR6s2lIx1pnCeyyfzWQXnIHRZ0qr9Wgc8MsPH6MehxcEhifAsz/gCVMR
-         wvbdlY7k7tV3PjNt7Ctd0UhP6JiWltIf9hTki/rSmR64249F9Up3gEhGCvzC/K1UUw
-         q9WzrK8uP8dz9slhiVl6SMQbmszxY25erslacG3LzbC9pUj69lwABU9ze9xERKJkcR
-         wekQkPj45xpacM2TntuWA291big5LixYfpfKE1aAa0O4qd/nFGMnoR+QB4LeTUmdNh
-         lMSMKTgYI6f8Q==
-Date:   Sun, 6 Nov 2022 17:02:21 +0800
+        b=k/pv7fMcaOv+eL7kiY75jtJZgr2H4SeF6Wk4jqIvV8QYy9yomZ9Ak2moOfhC9wcT+
+         Cpjc3CIIwZQ7Gv0G1lwRWVS/iBYDKvmF8u7H8UQ7hIAMGwJdSSqhqIBVlC8e+go2/2
+         aWV8wtBjgIrNkTmWMaNFQQ/MQxp/0nt5ABOx/T7xUXCoQzYa+FYJZxOH2YI3yiJLV9
+         w/lqvMZ5i3tWqEPFrUZYgrkgz/jMoQ2byJbh00w/zsXjFZzPCm6ombAcSqs4nP/l9j
+         Vp94ooQLvcQ+NBEeyapRt6JTbaw0RmY8GY10pgptlDJB8etr/xAJ0nK4vCHqTmQ4ug
+         hcdEQvCGBzvTw==
+Date:   Sun, 6 Nov 2022 17:08:15 +0800
 From:   Peter Chen <peter.chen@kernel.org>
 To:     Pawel Laszczak <pawell@cadence.com>
-Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] usb: cdnsp: fix issue with ZLP - added TD_SIZE = 1
-Message-ID: <20221106090221.GA152143@nchen-desktop>
-References: <1666620275-139704-1-git-send-email-pawell@cadence.com>
- <20221027072421.GA75844@nchen-desktop>
- <BYAPR07MB5381482129407B849BA9A616DD339@BYAPR07MB5381.namprd07.prod.outlook.com>
+Cc:     gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] usb: cdnsp: Fix issue with Clear Feature Halt Endpoint
+Message-ID: <20221106090815.GB152143@nchen-desktop>
+References: <20221026093710.449809-1-pawell@cadence.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <BYAPR07MB5381482129407B849BA9A616DD339@BYAPR07MB5381.namprd07.prod.outlook.com>
+In-Reply-To: <20221026093710.449809-1-pawell@cadence.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -56,103 +52,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 22-10-27 08:46:17, Pawel Laszczak wrote:
-> 
-> >
-> >On 22-10-24 10:04:35, Pawel Laszczak wrote:
-> >> Patch modifies the TD_SIZE in TRB before ZLP TRB.
-> >> The TD_SIZE in TRB before ZLP TRB must be set to 1 to force processing
-> >> ZLP TRB by controller.
-> >>
-> >> cc: <stable@vger.kernel.org>
-> >> Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence
-> >> USBSSP DRD Driver")
-> >> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-> >>
-> >> ---
-> >> Changelog:
-> >> v2:
-> >> - returned value for last TRB must be 0
-> >>
-> >>  drivers/usb/cdns3/cdnsp-ring.c | 7 ++++++-
-> >>  1 file changed, 6 insertions(+), 1 deletion(-)
-> >>
-> >> diff --git a/drivers/usb/cdns3/cdnsp-ring.c
-> >> b/drivers/usb/cdns3/cdnsp-ring.c index 04dfcaa08dc4..aa79bce89d8a
-> >> 100644
-> >> --- a/drivers/usb/cdns3/cdnsp-ring.c
-> >> +++ b/drivers/usb/cdns3/cdnsp-ring.c
-> >> @@ -1769,8 +1769,13 @@ static u32 cdnsp_td_remainder(struct
-> >> cdnsp_device *pdev,
-> >>
-> >>  	/* One TRB with a zero-length data packet. */
-> >>  	if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
-> >> -	    trb_buff_len == td_total_len)
-> >> +	    trb_buff_len == td_total_len) {
-> >> +		/* Before ZLP driver needs set TD_SIZE=1. */
-> >> +		if (more_trbs_coming)
-> >> +			return 1;
-> >> +
-> >>  		return 0;
-> >> +	}
-> >
-> >Does that fix the issue you want at bulk transfer, which has zero-length packet
-> >at the last packet? It seems not align with your previous fix.
-> >Would you mind explaining more?
-> 
-> Value returned by function cdnsp_td_remainder is used 
-> as TD_SIZE in TRB.
-> 
-> The last TRB in TD should have TD_SIZE=0, so trb for ZLP should have
-> set also TD_SIZE=0. If driver set TD_SIZE=0 on before the last one
-> TRB then the controller stops the transfer and ignore trb for ZLP packet.
-> 
-> To fix this, the driver in such case must set TD_SIZE = 1
-> before the last TRB. 
+On 22-10-26 05:37:10, Pawel Laszczak wrote:
+> During handling Clear Halt Endpoint Feature request driver invokes
+> Reset Endpoint command. Because this command has some issue with
 
-  	if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
- -	    trb_buff_len == td_total_len)
- +	    trb_buff_len == td_total_len) {
- +		/* Before ZLP driver needs set TD_SIZE=1. */
- +		if (more_trbs_coming)
- +			return 1;
- +
-  		return 0;
- +	}
+What are issues? Would you please explain more?
 
-How your above fix could return TD_SIZE as 1 for last non-ZLP TRB?
-Which conditions are satisfied?
+> transition endpoint from Running to Idle state the driver must
+> stop the endpoint by using Stop Endpoint command.
+> 
+> cc: <stable@vger.kernel.org>
+> Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+> ---
+>  drivers/usb/cdns3/cdnsp-gadget.c | 12 ++++--------
+>  drivers/usb/cdns3/cdnsp-ring.c   |  3 ++-
+>  2 files changed, 6 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/usb/cdns3/cdnsp-gadget.c b/drivers/usb/cdns3/cdnsp-gadget.c
+> index e2e7d16f43f4..0576f9b0e4aa 100644
+> --- a/drivers/usb/cdns3/cdnsp-gadget.c
+> +++ b/drivers/usb/cdns3/cdnsp-gadget.c
+> @@ -600,11 +600,11 @@ int cdnsp_halt_endpoint(struct cdnsp_device *pdev,
+>  
+>  	trace_cdnsp_ep_halt(value ? "Set" : "Clear");
+>  
+> -	if (value) {
+> -		ret = cdnsp_cmd_stop_ep(pdev, pep);
+> -		if (ret)
+> -			return ret;
+> +	ret = cdnsp_cmd_stop_ep(pdev, pep);
+> +	if (ret)
+> +		return ret;
+>  
 
-Peter
+In your change ,it call cdnsp_cmd_stop_ep unconditionally, no matter
+set or clear halt? Is it your expectation? If it is, why?
 
-> e.g.
+> +	if (value) {
+>  		if (GET_EP_CTX_STATE(pep->out_ctx) == EP_STATE_STOPPED) {
+>  			cdnsp_queue_halt_endpoint(pdev, pep->idx);
+>  			cdnsp_ring_cmd_db(pdev);
+> @@ -613,10 +613,6 @@ int cdnsp_halt_endpoint(struct cdnsp_device *pdev,
+>  
+>  		pep->ep_state |= EP_HALTED;
+>  	} else {
+> -		/*
+> -		 * In device mode driver can call reset endpoint command
+> -		 * from any endpoint state.
+> -		 */
+>  		cdnsp_queue_reset_ep(pdev, pep->idx);
+>  		cdnsp_ring_cmd_db(pdev);
+>  		ret = cdnsp_wait_for_cmd_compl(pdev);
+> diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c
+> index 25e5e51cf5a2..aa79bce89d8a 100644
+> --- a/drivers/usb/cdns3/cdnsp-ring.c
+> +++ b/drivers/usb/cdns3/cdnsp-ring.c
+> @@ -2081,7 +2081,8 @@ int cdnsp_cmd_stop_ep(struct cdnsp_device *pdev, struct cdnsp_ep *pep)
+>  	u32 ep_state = GET_EP_CTX_STATE(pep->out_ctx);
+>  	int ret = 0;
+>  
+> -	if (ep_state == EP_STATE_STOPPED || ep_state == EP_STATE_DISABLED) {
+> +	if (ep_state == EP_STATE_STOPPED || ep_state == EP_STATE_DISABLED ||
+> +	    ep_state == EP_STATE_HALTED) {
+>  		trace_cdnsp_ep_stopped_or_disabled(pep->out_ctx);
+>  		goto ep_stopped;
+>  	}
+> -- 
+> 2.25.1
 > 
-> TD -> TRB1  transfer_length = 64KB, TD_SIZE =0
->           TRB2 transfer_length =0, TD_SIZE = 0  - controller will
-> 		    ignore this transfer and stop transfer on previous one
-> 
-> TD -> TRB1  transfer_length = 64KB, TD_SIZE =1
->           TRB2 transfer_length =0, TD_SIZE = 0  - controller will
-> 		    execute this trb and send ZLP
-> 
-> As you noticed previously, previous fix for last TRB returned
-> TD_SIZE = 1 in some cases.
-> Previous fix was working correct but was not compliance with
-> controller specification.
-> 
-> >
-> >>
-> >>  	maxp = usb_endpoint_maxp(preq->pep->endpoint.desc);
-> >>  	total_packet_count = DIV_ROUND_UP(td_total_len, maxp);
-> >> --
-> >> 2.25.1
-> >>
-> >
-> >--
-> >
-> 
-> Thanks,
-> Pawel Laszczak
 
 -- 
 
