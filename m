@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2F1F61E3D4
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:05:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59E1561E3DB
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:05:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230245AbiKFRFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:05:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38448 "EHLO
+        id S230182AbiKFRF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:05:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230253AbiKFREr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:04:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A799FCFF;
-        Sun,  6 Nov 2022 09:04:32 -0800 (PST)
+        with ESMTP id S230040AbiKFREw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:04:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 429FAFAE1;
+        Sun,  6 Nov 2022 09:04:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1790360CD4;
-        Sun,  6 Nov 2022 17:04:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DF73C433D6;
-        Sun,  6 Nov 2022 17:04:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1855B8013C;
+        Sun,  6 Nov 2022 17:04:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E536FC433C1;
+        Sun,  6 Nov 2022 17:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667754271;
-        bh=9lowszxj6rXA/LOixd1q/TZywfUUYZTjyWLJrCLRuWE=;
+        s=k20201202; t=1667754272;
+        bh=pF7BVJ0w72uPvjNUQ0lvkh18VBptk2Pe9NBKwwTGIvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uiEdlqljGXafN6OeIqjZP1adCjnLE4EY/rZ3Dhe45CRq5VCm+06RE4o/lQUsgP8iU
-         j/pPAyvTEe44scJF35PYDJ5cY1GE0ufS2jnbNSGuHbqu02lef50bOFPksSuS7hnOkm
-         yCx1Kz63yPj6HXI3ybNSwETKAnxDQrumtYIVbEJUHur5Fyuu+V2ilL2bBPHF/5muxP
-         6V1rzM+oMeFW7QUB9lM3ib3n7nlGK9W4Tv33AGN/VQ6MuFB1UP8uBjzhNoah8oq65K
-         7uFPKtoyFpT04Lf8dVc+VdCaUUquFqpRhO1N7NpjZy4Hu5ElsBee9fTMXb74x3df1H
-         bZPnwHMh3SndA==
+        b=j23DX+b/hh6H4U+cT1/SSBqXk9YMs2d0dvQRcvE6TUiHB05cMtXVaanbxKkKfBn/T
+         F4ul+nvH85I5fqhfp1QEJPkUPK29QKqYwAI87jc9SkIvzI3ZuM7G/6Anh3AGtos88N
+         8QBGRSoe66yt7s4Ctw+mQG1wsPY4av45tbZUbGq0qNMynpN7bIjzXsGg7LxTs2Uo9T
+         n3M/03vvl4XKKQH2ZOxRtAIQBpcM5A1FYv/NRnkaARxNDBZc4KQ9IN3GVjIQgtcjT7
+         bmKThgUblM0Qj7zfAv7NWZYDl5qK+CYvD4liRpBCYXC8bTbkSjNgwXln4Tz6fk/aQg
+         kee2zGIkZ6gtg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yong Zhi <yong.zhi@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Curtis Malainey <cujomalainey@chromium.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
-        liam.r.girdwood@linux.intel.com, peter.ujfalusi@linux.intel.com,
-        ranjani.sridharan@linux.intel.com, kai.vehmanen@linux.intel.com,
-        perex@perex.cz, tiwai@suse.com, brent.lu@intel.com,
-        ajye.huang@gmail.com, mac.chiang@intel.com,
-        akihiko.odaki@gmail.com, vamshi.krishna.gopal@intel.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.0 19/30] ASoC: Intel: sof_rt5682: Add quirk for Rex board
-Date:   Sun,  6 Nov 2022 12:03:31 -0500
-Message-Id: <20221106170345.1579893-19-sashal@kernel.org>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        kernel test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 20/30] rtc: cmos: fix build on non-ACPI platforms
+Date:   Sun,  6 Nov 2022 12:03:32 -0500
+Message-Id: <20221106170345.1579893-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221106170345.1579893-1-sashal@kernel.org>
 References: <20221106170345.1579893-1-sashal@kernel.org>
@@ -64,46 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Zhi <yong.zhi@intel.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit b4dd2e3758709aa8a2abd1ac34c56bd09b980039 ]
+[ Upstream commit db4e955ae333567dea02822624106c0b96a2f84f ]
 
-Add mtl_mx98357_rt5682 driver data for Chrome Rex board support.
+Now that rtc_wake_setup is called outside of cmos_wake_setup, it also need
+to be defined on non-ACPI platforms.
 
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Curtis Malainey <cujomalainey@chromium.org>
-Signed-off-by: Yong Zhi <yong.zhi@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221017205728.210813-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20221018203512.2532407-1-alexandre.belloni@bootlin.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_rt5682.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/rtc/rtc-cmos.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
-index 045965312245..30c53dca342e 100644
---- a/sound/soc/intel/boards/sof_rt5682.c
-+++ b/sound/soc/intel/boards/sof_rt5682.c
-@@ -225,6 +225,18 @@ static const struct dmi_system_id sof_rt5682_quirk_table[] = {
- 					SOF_RT5682_SSP_AMP(2) |
- 					SOF_RT5682_NUM_HDMIDEV(4)),
- 	},
-+	{
-+		.callback = sof_rt5682_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_FAMILY, "Google_Rex"),
-+		},
-+		.driver_data = (void *)(SOF_RT5682_MCLK_EN |
-+					SOF_RT5682_SSP_CODEC(2) |
-+					SOF_SPEAKER_AMP_PRESENT |
-+					SOF_RT5682_SSP_AMP(0) |
-+					SOF_RT5682_NUM_HDMIDEV(4)
-+					),
-+	},
- 	{}
- };
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index bdb1df843c78..31aa11e0e7d4 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1344,6 +1344,9 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
+ {
+ }
  
++static void rtc_wake_setup(struct device *dev)
++{
++}
+ #endif
+ 
+ #ifdef	CONFIG_PNP
 -- 
 2.35.1
 
