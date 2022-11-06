@@ -2,49 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E92C61E47B
+	by mail.lfdr.de (Postfix) with ESMTP id AAC7261E47C
 	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:11:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231139AbiKFRLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:11:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50750 "EHLO
+        id S231343AbiKFRLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:11:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230219AbiKFRLR (ORCPT
+        with ESMTP id S231258AbiKFRLR (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:11:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50C3A11A20;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C92811838;
         Sun,  6 Nov 2022 09:07:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46933B80B3A;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2D2A60D36;
+        Sun,  6 Nov 2022 17:07:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B027AC433D6;
         Sun,  6 Nov 2022 17:06:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3051C4347C;
-        Sun,  6 Nov 2022 17:06:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667754417;
-        bh=vD0fS3vUM2Fo4/pNP8nVoqZGF21/4+JFozgreajiXVs=;
+        s=k20201202; t=1667754420;
+        bh=7r+6km4b+vXIeOkkyXEJz4P9pHvEd5OlxAOs/eJBiio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eh+RSruFh2NXkJ33KMHpl67lxp7r8no9bFBrh3MILPdiYDsIBh/Mb12cDrNS5nUTw
-         GkAnQX8kU2ju5d1GGJz8sdh/GK16s56jtGyS7gn/hmOnE65ufDRACpHQbsDGnSpBTb
-         KyrjhIeqfxrZKANS6HHvRqMHFh5A2QTddT9wPw7Lm8Jg2lS0RFwNTjgrCtLsDjcyJZ
-         7fw7t8Kk1LWPxEZCfTu7Qlgoha7e1fl2cgeKbD2JHmMUeyRmOEwT2fMS/BaGfmZt+4
-         9Ndbei2V7DKnshOB/eIscLlGO8v4nm9q5+G+C3YkDDj4QpHwA5tme6QY3vVMMDEOTC
-         LS1mRHQJu9Jaw==
+        b=R8m9ar81dl3sKRiwxID2wb+ZY5u8d0HXD9ZZrnEM84AqZsCrn7tRSq+pEG0X+BLek
+         JwDPFovoDK8Gnc2TjBfo5J8ehXCUZpb27YnSr1NHd94UotyCdh0dlI4eaYfZ1AVsGl
+         GRYUSRBPD/bPZiP0Yici43BEKhNpfwcelaOSTXUBgxykYSs9D0IhHeaUL+DgFWC8AL
+         1o18WlI0RXnwU8smxaq6EAdddL0vnSCHj5djfHLO1ZRZurqQ9xTIg6v0Ma+Jp8K3GX
+         e8B3VyrNz8RCAC09n6KSoPqfvQlOvjRJ4Cx4BPiY/fbyswNjWorSJqShXsDd4qAvbs
+         6NMYJoczYomZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Siarhei Volkau <lis8215@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, paul@crapouillou.net,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        linux-mips@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 09/12] ASoC: codecs: jz4725b: fix capture selector naming
-Date:   Sun,  6 Nov 2022 12:06:33 -0500
-Message-Id: <20221106170637.1580802-9-sashal@kernel.org>
+Cc:     =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
+        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@igalia.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, shuah@kernel.org, nathan@kernel.org,
+        ndesaulniers@google.com, usama.anjum@collabora.com,
+        guillaume.tucker@collabora.com, linux-kselftest@vger.kernel.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.4 10/12] selftests/futex: fix build for clang
+Date:   Sun,  6 Nov 2022 12:06:34 -0500
+Message-Id: <20221106170637.1580802-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221106170637.1580802-1-sashal@kernel.org>
 References: <20221106170637.1580802-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,62 +61,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siarhei Volkau <lis8215@gmail.com>
+From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
 
-[ Upstream commit 80852f8268769715db335a22305e81a0c4a38a84 ]
+[ Upstream commit 03cab65a07e083b6c1010fbc8f9b817e9aca75d9 ]
 
-At the moment Capture source selector appears on Playback
-tab in the alsamixer and has a senseless name.
+Don't use the test-specific header files as source files to force a
+target dependency, as clang will complain if more than one source file
+is used for a compile command with a single '-o' flag.
 
-Let's fix that.
+Use the proper Makefile variables instead as defined in
+tools/testing/selftests/lib.mk.
 
-Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
-Link: https://lore.kernel.org/r/20221016132648.3011729-5-lis8215@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+Reviewed-by: André Almeida <andrealmeid@igalia.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/jz4725b.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ tools/testing/selftests/futex/functional/Makefile | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
-index 1960516ac65e..ebe643e4aa2f 100644
---- a/sound/soc/codecs/jz4725b.c
-+++ b/sound/soc/codecs/jz4725b.c
-@@ -183,7 +183,7 @@ static SOC_VALUE_ENUM_SINGLE_DECL(jz4725b_codec_adc_src_enum,
- 				  jz4725b_codec_adc_src_texts,
- 				  jz4725b_codec_adc_src_values);
- static const struct snd_kcontrol_new jz4725b_codec_adc_src_ctrl =
--			SOC_DAPM_ENUM("Route", jz4725b_codec_adc_src_enum);
-+	SOC_DAPM_ENUM("ADC Source Capture Route", jz4725b_codec_adc_src_enum);
+diff --git a/tools/testing/selftests/futex/functional/Makefile b/tools/testing/selftests/futex/functional/Makefile
+index 30996306cabc..479531f5865d 100644
+--- a/tools/testing/selftests/futex/functional/Makefile
++++ b/tools/testing/selftests/futex/functional/Makefile
+@@ -3,11 +3,11 @@ INCLUDES := -I../include -I../../
+ CFLAGS := $(CFLAGS) -g -O2 -Wall -D_GNU_SOURCE -pthread $(INCLUDES)
+ LDFLAGS := $(LDFLAGS) -pthread -lrt
  
- static const struct snd_kcontrol_new jz4725b_codec_mixer_controls[] = {
- 	SOC_DAPM_SINGLE("Line In Bypass", JZ4725B_CODEC_REG_CR1,
-@@ -228,7 +228,7 @@ static const struct snd_soc_dapm_widget jz4725b_codec_dapm_widgets[] = {
- 	SND_SOC_DAPM_ADC("ADC", "Capture",
- 			 JZ4725B_CODEC_REG_PMR1, REG_PMR1_SB_ADC_OFFSET, 1),
- 
--	SND_SOC_DAPM_MUX("ADC Source", SND_SOC_NOPM, 0, 0,
-+	SND_SOC_DAPM_MUX("ADC Source Capture Route", SND_SOC_NOPM, 0, 0,
- 			 &jz4725b_codec_adc_src_ctrl),
- 
- 	/* Mixer */
-@@ -287,11 +287,11 @@ static const struct snd_soc_dapm_route jz4725b_codec_dapm_routes[] = {
- 	{"Mixer", NULL, "DAC to Mixer"},
- 
- 	{"Mixer to ADC", NULL, "Mixer"},
--	{"ADC Source", "Mixer", "Mixer to ADC"},
--	{"ADC Source", "Line In", "Line In"},
--	{"ADC Source", "Mic 1", "Mic 1"},
--	{"ADC Source", "Mic 2", "Mic 2"},
--	{"ADC", NULL, "ADC Source"},
-+	{"ADC Source Capture Route", "Mixer", "Mixer to ADC"},
-+	{"ADC Sourc Capture Routee", "Line In", "Line In"},
-+	{"ADC Source Capture Route", "Mic 1", "Mic 1"},
-+	{"ADC Source Capture Route", "Mic 2", "Mic 2"},
-+	{"ADC", NULL, "ADC Source Capture Route"},
- 
- 	{"Out Stage", NULL, "Mixer"},
- 	{"HP Out", NULL, "Out Stage"},
+-HEADERS := \
++LOCAL_HDRS := \
+ 	../include/futextest.h \
+ 	../include/atomic.h \
+ 	../include/logging.h
+-TEST_GEN_FILES := \
++TEST_GEN_PROGS := \
+ 	futex_wait_timeout \
+ 	futex_wait_wouldblock \
+ 	futex_requeue_pi \
+@@ -21,5 +21,3 @@ TEST_PROGS := run.sh
+ top_srcdir = ../../../../..
+ KSFT_KHDR_INSTALL := 1
+ include ../../lib.mk
+-
+-$(TEST_GEN_FILES): $(HEADERS)
 -- 
 2.35.1
 
