@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 130B561E47A
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDE9561E46E
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:11:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230415AbiKFRLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:11:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50708 "EHLO
+        id S231219AbiKFRL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:11:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231224AbiKFRLR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:11:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F3011A23;
-        Sun,  6 Nov 2022 09:07:17 -0800 (PST)
+        with ESMTP id S231284AbiKFRKo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:10:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D90DFAFA;
+        Sun,  6 Nov 2022 09:07:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 49F2E60D24;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17B45B80C63;
+        Sun,  6 Nov 2022 17:06:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2319DC433C1;
         Sun,  6 Nov 2022 17:06:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7AEFC433D7;
-        Sun,  6 Nov 2022 17:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667754388;
-        bh=5rig4E0gWQ2552DDEVY5T99PzN2A0F32cShy/T8DvYY=;
+        s=k20201202; t=1667754389;
+        bh=i24WV0pbEfwkpExUwAbhM6QFzgtUOGCtGVNBFbIon7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7VoOI8NECOZr0RCcWYAFEVKdsp4YFXF4sLnZYgcu77Br8Qr5beK0s30haIf1RHqF
-         NsQ49MaJlrZt0JlZgbzNosh+nc3ky3bs2gunuVx1al4mPlwhscXqKAovzbCOn3YLfL
-         wW8GetGdQwU4JQcKgRsIjFt5Q/ZuKqNROwXDAUXRewphlUU7EWLTfu0hpAtG6+YgkC
-         tOk0WZTl8YD6MF8xQysK9lmwK7GuWsFWbHEjrMwOOqTqhyH84krxOrDSXpbCLsZiiq
-         SFzvysuNmnTNxOgTQfX6wyA9L1e82UZUAr8TwzeTX3QPkeLeOQm6V4M320DGTcvpDM
-         Abtd+3erH/dTA==
+        b=TQpoc9wnij38Sg6h3W01+Lagp35eAElE+JuS4gPV/NUazFA28ZB098Snf6OGsV+I3
+         cWcKxQ1ysCMuWzh4ZWZrJEIloxy+JAnmXvpsPihj+D392dCoDwu9XzHxy/mKaag5ps
+         mJ4p7sVf2rmSxW08uDoHg83YNHBm5EqezTz1NVryhnQ4PTBDsbj6xiphFywc/CseK+
+         5esLbDi1Nd6lHAh4iTHdDLxzsm6A7NdQAZ0uQ2LEwp//hwOFq5cgDrKgrsplUeQc/M
+         QNHh95wn3BeJ97thWqH2W3Z5nvvG4Z07NlnxZW8vPhdOxHFsZFh6wYQEWgNEkgcjfZ
+         Yx1CIc7Kfk6cg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 13/16] selftests/intel_pstate: fix build for ARCH=x86_64
-Date:   Sun,  6 Nov 2022 12:05:50 -0500
-Message-Id: <20221106170555.1580584-13-sashal@kernel.org>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        kernel test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 14/16] rtc: cmos: fix build on non-ACPI platforms
+Date:   Sun,  6 Nov 2022 12:05:51 -0500
+Message-Id: <20221106170555.1580584-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221106170555.1580584-1-sashal@kernel.org>
 References: <20221106170555.1580584-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,38 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit beb7d862ed4ac6aa14625418970f22a7d55b8615 ]
+[ Upstream commit db4e955ae333567dea02822624106c0b96a2f84f ]
 
-Handle the scenario where the build is launched with the ARCH envvar
-defined as x86_64.
+Now that rtc_wake_setup is called outside of cmos_wake_setup, it also need
+to be defined on non-ACPI platforms.
 
-Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20221018203512.2532407-1-alexandre.belloni@bootlin.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/intel_pstate/Makefile | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-cmos.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/testing/selftests/intel_pstate/Makefile b/tools/testing/selftests/intel_pstate/Makefile
-index 39f0fa2a8fd6..05d66ef50c97 100644
---- a/tools/testing/selftests/intel_pstate/Makefile
-+++ b/tools/testing/selftests/intel_pstate/Makefile
-@@ -2,10 +2,10 @@
- CFLAGS := $(CFLAGS) -Wall -D_GNU_SOURCE
- LDLIBS += -lm
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 58c6382a2807..0383f49ee0d8 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1293,6 +1293,9 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
+ {
+ }
  
--uname_M := $(shell uname -m 2>/dev/null || echo not)
--ARCH ?= $(shell echo $(uname_M) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
-+ARCH ?= $(shell uname -m 2>/dev/null || echo not)
-+ARCH_PROCESSED := $(shell echo $(ARCH) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
++static void rtc_wake_setup(struct device *dev)
++{
++}
+ #endif
  
--ifeq (x86,$(ARCH))
-+ifeq (x86,$(ARCH_PROCESSED))
- TEST_GEN_FILES := msr aperf
- endif
- 
+ #ifdef	CONFIG_PNP
 -- 
 2.35.1
 
