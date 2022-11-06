@@ -2,90 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2E6461E07E
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 07:17:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2707361E121
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 10:02:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229492AbiKFGRI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 01:17:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36744 "EHLO
+        id S229602AbiKFJCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 04:02:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbiKFGRI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 01:17:08 -0500
-Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37E24DE98;
-        Sat,  5 Nov 2022 23:17:06 -0700 (PDT)
-Received: from cwcc.thunk.org (pool-173-48-120-46.bstnma.fios.verizon.net [173.48.120.46])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2A66GwOd032684
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 6 Nov 2022 01:17:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
-        t=1667715420; bh=sP0ybmGgYruTos8gDoWNUX5C6ji8NsMQXypakkdfDL8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=pVVhRdYXG6pkhIxgAn5Vcta8ftCl2Jj1hmdwl332L+T+1i02F8gEMYyvt+vTNFwxf
-         Q+9dG9d6Ry9iMon9Mr3mOj8orFskg71w019ozK28mIQGcBvQ0PGndYMkFwCcARVxdZ
-         yEF5O8JEsk37MJLlu4WmPdS43jMLFifjQdtzDc8n9bgj9Akfbt/JAQLmeQxeh8mUGj
-         N1TGPhUN4DGhUpAKbOPo647FkbkF/tK/elPhXP2SMTTZl3G/JngeX1Q/RiyQzz2Ncv
-         AAjPrckdVTBQLGpVq1XA8JRqSpyxYVPellKK0UGN28urhr52l7wUUjXm7uTL1k1ZXU
-         FQcKYT3fPW4Gw==
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id 127DD15C45B9; Sun,  6 Nov 2022 01:16:58 -0500 (EST)
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
-        Andreas Dilger <adilger.kernel@dilger.ca>
-Cc:     "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, linux-ext4@vger.kernel.org
-Subject: Re: [PATCH v2] ext4: fix BUG_ON() when directory entry has invalid rec_len
-Date:   Sun,  6 Nov 2022 01:16:51 -0500
-Message-Id: <166771539910.127460.13255978172835793776.b4-ty@mit.edu>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20221012131330.32456-1-lhenriques@suse.de>
-References: <20221010142035.2051-1-lhenriques@suse.de> <20221012131330.32456-1-lhenriques@suse.de>
+        with ESMTP id S229564AbiKFJCa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 04:02:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F1F2663;
+        Sun,  6 Nov 2022 01:02:29 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E218B80B30;
+        Sun,  6 Nov 2022 09:02:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A2F8C433D6;
+        Sun,  6 Nov 2022 09:02:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1667725346;
+        bh=xjKCgVmFbXFxtKFBYyK+XNvbHjCTI456JH43nwr0lEc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=T9unJaNs6HLnI2qRq4XbuONifxSjf0RJRYhKfas+wxK0doTZWhX2Vxi39kuPEzrO1
+         +BV+lm/BOobR6s2lIx1pnCeyyfzWQXnIHRZ0qr9Wgc8MsPH6MehxcEhifAsz/gCVMR
+         wvbdlY7k7tV3PjNt7Ctd0UhP6JiWltIf9hTki/rSmR64249F9Up3gEhGCvzC/K1UUw
+         q9WzrK8uP8dz9slhiVl6SMQbmszxY25erslacG3LzbC9pUj69lwABU9ze9xERKJkcR
+         wekQkPj45xpacM2TntuWA291big5LixYfpfKE1aAa0O4qd/nFGMnoR+QB4LeTUmdNh
+         lMSMKTgYI6f8Q==
+Date:   Sun, 6 Nov 2022 17:02:21 +0800
+From:   Peter Chen <peter.chen@kernel.org>
+To:     Pawel Laszczak <pawell@cadence.com>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] usb: cdnsp: fix issue with ZLP - added TD_SIZE = 1
+Message-ID: <20221106090221.GA152143@nchen-desktop>
+References: <1666620275-139704-1-git-send-email-pawell@cadence.com>
+ <20221027072421.GA75844@nchen-desktop>
+ <BYAPR07MB5381482129407B849BA9A616DD339@BYAPR07MB5381.namprd07.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
-        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BYAPR07MB5381482129407B849BA9A616DD339@BYAPR07MB5381.namprd07.prod.outlook.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 12 Oct 2022 14:13:30 +0100, Luís Henriques wrote:
-> The rec_len field in the directory entry has to be a multiple of 4.  A
-> corrupted filesystem image can be used to hit a BUG() in
-> ext4_rec_len_to_disk(), called from make_indexed_dir().
+On 22-10-27 08:46:17, Pawel Laszczak wrote:
 > 
->  ------------[ cut here ]------------
->  kernel BUG at fs/ext4/ext4.h:2413!
->  ...
->  RIP: 0010:make_indexed_dir+0x53f/0x5f0
->  ...
->  Call Trace:
->   <TASK>
->   ? add_dirent_to_buf+0x1b2/0x200
->   ext4_add_entry+0x36e/0x480
->   ext4_add_nondir+0x2b/0xc0
->   ext4_create+0x163/0x200
->   path_openat+0x635/0xe90
->   do_filp_open+0xb4/0x160
->   ? __create_object.isra.0+0x1de/0x3b0
->   ? _raw_spin_unlock+0x12/0x30
->   do_sys_openat2+0x91/0x150
->   __x64_sys_open+0x6c/0xa0
->   do_syscall_64+0x3c/0x80
->   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+> >
+> >On 22-10-24 10:04:35, Pawel Laszczak wrote:
+> >> Patch modifies the TD_SIZE in TRB before ZLP TRB.
+> >> The TD_SIZE in TRB before ZLP TRB must be set to 1 to force processing
+> >> ZLP TRB by controller.
+> >>
+> >> cc: <stable@vger.kernel.org>
+> >> Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence
+> >> USBSSP DRD Driver")
+> >> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+> >>
+> >> ---
+> >> Changelog:
+> >> v2:
+> >> - returned value for last TRB must be 0
+> >>
+> >>  drivers/usb/cdns3/cdnsp-ring.c | 7 ++++++-
+> >>  1 file changed, 6 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/drivers/usb/cdns3/cdnsp-ring.c
+> >> b/drivers/usb/cdns3/cdnsp-ring.c index 04dfcaa08dc4..aa79bce89d8a
+> >> 100644
+> >> --- a/drivers/usb/cdns3/cdnsp-ring.c
+> >> +++ b/drivers/usb/cdns3/cdnsp-ring.c
+> >> @@ -1769,8 +1769,13 @@ static u32 cdnsp_td_remainder(struct
+> >> cdnsp_device *pdev,
+> >>
+> >>  	/* One TRB with a zero-length data packet. */
+> >>  	if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
+> >> -	    trb_buff_len == td_total_len)
+> >> +	    trb_buff_len == td_total_len) {
+> >> +		/* Before ZLP driver needs set TD_SIZE=1. */
+> >> +		if (more_trbs_coming)
+> >> +			return 1;
+> >> +
+> >>  		return 0;
+> >> +	}
+> >
+> >Does that fix the issue you want at bulk transfer, which has zero-length packet
+> >at the last packet? It seems not align with your previous fix.
+> >Would you mind explaining more?
 > 
-> [...]
+> Value returned by function cdnsp_td_remainder is used 
+> as TD_SIZE in TRB.
+> 
+> The last TRB in TD should have TD_SIZE=0, so trb for ZLP should have
+> set also TD_SIZE=0. If driver set TD_SIZE=0 on before the last one
+> TRB then the controller stops the transfer and ignore trb for ZLP packet.
+> 
+> To fix this, the driver in such case must set TD_SIZE = 1
+> before the last TRB. 
 
-Applied, thanks!
+  	if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
+ -	    trb_buff_len == td_total_len)
+ +	    trb_buff_len == td_total_len) {
+ +		/* Before ZLP driver needs set TD_SIZE=1. */
+ +		if (more_trbs_coming)
+ +			return 1;
+ +
+  		return 0;
+ +	}
 
-[1/1] ext4: fix BUG_ON() when directory entry has invalid rec_len
-      commit: 17a0bc9bd697f75cfdf9b378d5eb2d7409c91340
+How your above fix could return TD_SIZE as 1 for last non-ZLP TRB?
+Which conditions are satisfied?
 
-Best regards,
+Peter
+
+> e.g.
+> 
+> TD -> TRB1  transfer_length = 64KB, TD_SIZE =0
+>           TRB2 transfer_length =0, TD_SIZE = 0  - controller will
+> 		    ignore this transfer and stop transfer on previous one
+> 
+> TD -> TRB1  transfer_length = 64KB, TD_SIZE =1
+>           TRB2 transfer_length =0, TD_SIZE = 0  - controller will
+> 		    execute this trb and send ZLP
+> 
+> As you noticed previously, previous fix for last TRB returned
+> TD_SIZE = 1 in some cases.
+> Previous fix was working correct but was not compliance with
+> controller specification.
+> 
+> >
+> >>
+> >>  	maxp = usb_endpoint_maxp(preq->pep->endpoint.desc);
+> >>  	total_packet_count = DIV_ROUND_UP(td_total_len, maxp);
+> >> --
+> >> 2.25.1
+> >>
+> >
+> >--
+> >
+> 
+> Thanks,
+> Pawel Laszczak
+
 -- 
-Theodore Ts'o <tytso@mit.edu>
+
+Thanks,
+Peter Chen
