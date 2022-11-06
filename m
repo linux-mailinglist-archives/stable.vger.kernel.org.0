@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37F9661E3FF
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:06:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86CE761E40A
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:07:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230388AbiKFRGh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:06:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38632 "EHLO
+        id S230490AbiKFRHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:07:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230320AbiKFRF6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:05:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A9AB10FEF;
-        Sun,  6 Nov 2022 09:05:09 -0800 (PST)
+        with ESMTP id S230235AbiKFRGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:06:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CE7811822;
+        Sun,  6 Nov 2022 09:05:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE979B80C6D;
-        Sun,  6 Nov 2022 17:05:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A5B3C433D6;
-        Sun,  6 Nov 2022 17:05:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 65432B80B2F;
+        Sun,  6 Nov 2022 17:05:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA81EC433B5;
+        Sun,  6 Nov 2022 17:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667754307;
-        bh=/NiMo/wrEOascdcvbbrGjZmpvDphjSdGKHk1PUjRYWU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kpu/uX2pLsgX3IqrtJBlw1sFhlt4TmtYe+rUIcOWRY6zBqkhRUzJ8PvwdB4zhFT67
-         AalqIhjq+j+A9rvKRw/cZSz3V3DhlN/AMjbKvO5isjQ1oyHBUyI7WmLGscjAZobqJf
-         PmXwDyuFhRxBLdEmqTvkOSe8niaY+c+2/15BFa8Gs4tn9Sd5y4B79bqI8Oga5lGaXb
-         XMRG+bneO3Gm62iQE7sxUxeZAaqhmZYRs6hwl0dLhGDlAkPOnCHKIqI2jFvBm1+/iz
-         C41L6xLFnwXBlpM67lJjalreriUUiC8TNnJmKO2j/VTC87JywDkDsYJOYm6W/W47lY
-         rM4EOOjWOKMIw==
+        s=k20201202; t=1667754312;
+        bh=0962/nnKhBf2bAmZiiQyeQHRPm1jDKsRvyc8iH052qE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=H0KrOs/EieNO4jYP/9GyMpVKh6g5KkvwOTr+ZOyG4hScgtTf63RAFM5KUMnZIWqEu
+         bXh9mIun6zktp8GGjpJBxGKYGlHX4qiaCYZWNFFD5MndbdGRDGXHzqgiBshOqWvode
+         Vm/1qOkEvqrhOdnhdfvBeRV7pJX5zQpI7ydNbxsRPI8BufNu8jihhaCDhGNYAZsPgV
+         pJrnrbeC8n8bSnNl+SpAEpwrDK8rdVf3lkKWPdM0AKB8a2j+3Taca8DAspAAKYzxtU
+         hqMI7l6ZNpZ1AyYdDcjnccS874VIAkuLD0/QCbNYiEaBdDm4mhCv6wmhZk+GErqvcC
+         n0pImiLP+biZw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 30/30] ACPI: scan: Add LATT2021 to acpi_ignore_dep_ids[]
-Date:   Sun,  6 Nov 2022 12:03:42 -0500
-Message-Id: <20221106170345.1579893-30-sashal@kernel.org>
+Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 01/18] ASoC: wm5102: Revert "ASoC: wm5102: Fix PM disable depth imbalance in wm5102_probe"
+Date:   Sun,  6 Nov 2022 12:04:50 -0500
+Message-Id: <20221106170509.1580304-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221106170345.1579893-1-sashal@kernel.org>
-References: <20221106170345.1579893-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,42 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit fa153b7cddce795662d38f78a87612c166c0f692 ]
+[ Upstream commit de71d7567e358effd06dfc3e2a154b25f1331c10 ]
 
-Some x86/ACPI laptops with MIPI cameras have a LATT2021 ACPI device
-in the _DEP dependency list of the ACPI devices for the camera-sensors
-(which have flags.honor_deps set).
+This reverts commit fcbb60820cd3008bb44334a0395e5e57ccb77329.
 
-The _DDN for the LATT2021 device is "Lattice FW Update Client Driver",
-suggesting that this is used for firmware updates of something. There
-is no Linux driver for this and if Linux gets support for updates it
-will likely be in userspace through fwupd.
+The pm_runtime_disable is redundant when error returns in
+wm5102_probe, we just revert the old patch to fix it.
 
-For now add the LATT2021 HID to acpi_ignore_dep_ids[] so that
-acpi_dev_ready_for_enumeration() will return true once the other _DEP
-dependencies are met.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20221010114852.88127-2-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/scan.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/wm5102.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 42cec8120f18..adfeb5770efd 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -796,6 +796,7 @@ static bool acpi_info_matches_ids(struct acpi_device_info *info,
- static const char * const acpi_ignore_dep_ids[] = {
- 	"PNP0D80", /* Windows-compatible System Power Management Controller */
- 	"INT33BD", /* Intel Baytrail Mailbox Device */
-+	"LATT2021", /* Lattice FW Update Client Driver */
- 	NULL
- };
+diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
+index c8adce8936bc..621598608bf0 100644
+--- a/sound/soc/codecs/wm5102.c
++++ b/sound/soc/codecs/wm5102.c
+@@ -2087,6 +2087,9 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		regmap_update_bits(arizona->regmap, wm5102_digital_vu[i],
+ 				   WM5102_DIG_VU, WM5102_DIG_VU);
  
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_idle(&pdev->dev);
++
+ 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
+ 				  "ADSP2 Compressed IRQ", wm5102_adsp2_irq,
+ 				  wm5102);
+@@ -2119,9 +2122,6 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		goto err_spk_irqs;
+ 	}
+ 
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_idle(&pdev->dev);
+-
+ 	return ret;
+ 
+ err_spk_irqs:
 -- 
 2.35.1
 
