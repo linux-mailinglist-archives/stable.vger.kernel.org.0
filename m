@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ADC961E3E3
-	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:05:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC18C61E3EF
+	for <lists+stable@lfdr.de>; Sun,  6 Nov 2022 18:05:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230289AbiKFRFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 12:05:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38358 "EHLO
+        id S230419AbiKFRFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 12:05:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230347AbiKFRFH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:05:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76DA0DF51;
-        Sun,  6 Nov 2022 09:04:50 -0800 (PST)
+        with ESMTP id S230369AbiKFRFQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 12:05:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9C6110FE4;
+        Sun,  6 Nov 2022 09:04:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 122C560C3F;
-        Sun,  6 Nov 2022 17:04:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 157BAC433D6;
-        Sun,  6 Nov 2022 17:04:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 338F8B80C6D;
+        Sun,  6 Nov 2022 17:04:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5FC8C433D7;
+        Sun,  6 Nov 2022 17:04:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667754289;
-        bh=J9ji/8TZrXD4KZtfa1JT6SnAI6YRK9WSYwssv/EIJ9s=;
+        s=k20201202; t=1667754290;
+        bh=GBvxC92X5aZMOeIL3/LdoqGdqXcHCSF6AmwTzSf1DqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EmbYf9wbveCdvt20SYeQgR9V1glIwbOB0fulArkiyf45RQB2h7f7ZHYcTcOuSh/BZ
-         dJcWqxKRKuNn7m0+oVmWSohuob7lNobk187kgkbcjg3ekCPRgPAogHRQFbhdCmasiT
-         WWbbITAMlLPM25knHOGVxplrK1PNt01x3c1017+hAgpnPLIL+nA3GXCEpeNzgA/ZZ/
-         Q/y7SGGrMozL0Xt8zHMEpfwDUVJdYXXcqqf18CXE5GYmYtftBRykFJ0+IPweEUrCsA
-         ilN9zQIu1uLXqNfWsjgdi1MJ1Uu/Ouo0DxEWk8PoZuCed07jZVFlGDuhEMgSKzH104
-         CjUniAwDo16nA==
+        b=ctINbgcnuEkbaOGsJI45YC6XuqcL81sJ4ciAzHxqiNuFB5c7Jf8VSeHECAnDPqAWL
+         RmIxpExusH+fYt1yfMqp1JL894BRKycSdsKm2iN3iU7EwikXom1D47tk2L0Rj1ebxy
+         JCd3T8yQs49RxjE3ZsnY0s5IEbLYxta9MX4BOHT8dxc8O6mfZXrwEayVMbbXPCyaSO
+         17PxeNAsiASBj+YDxa470HA1/DNLgZN3Vj+eJYfnFkOq3vS0Ngpu4hMZC/rdkfxBRv
+         V/CVjht00VXzR+Hp3QtwbfLO4M5PBJWMKUEqd6n0npwhZIoneJPgI3pzHlX4vstozX
+         z6/ArrtHuqMXA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yiqing Yao <yiqing.yao@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        Jack.Xiao@amd.com, Hawking.Zhang@amd.com, Graham.Sider@amd.com,
-        yifan1.zhang@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 24/30] drm/amdgpu: Adjust MES polling timeout for sriov
-Date:   Sun,  6 Nov 2022 12:03:36 -0500
-Message-Id: <20221106170345.1579893-24-sashal@kernel.org>
+Cc:     Jelle van der Waa <jvanderwaa@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, hmh@hmh.eng.br,
+        markgross@kernel.org, ibm-acpi-devel@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 25/30] platform/x86: thinkpad_acpi: Fix reporting a non present second fan on some models
+Date:   Sun,  6 Nov 2022 12:03:37 -0500
+Message-Id: <20221106170345.1579893-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221106170345.1579893-1-sashal@kernel.org>
 References: <20221106170345.1579893-1-sashal@kernel.org>
@@ -59,55 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yiqing Yao <yiqing.yao@amd.com>
+From: Jelle van der Waa <jvanderwaa@redhat.com>
 
-[ Upstream commit 226dcfad349f23f7744d02b24f8ec3bc4f6198ac ]
+[ Upstream commit a10d50983f7befe85acf95ea7dbf6ba9187c2d70 ]
 
-[why]
-MES response time in sriov may be longer than default value
-due to reset or init in other VF. A timeout value specific
-to sriov is needed.
+thinkpad_acpi was reporting 2 fans on a ThinkPad T14s gen 1, even though
+the laptop has only 1 fan.
 
-[how]
-When in sriov, adjust the timeout value to calculated
-worst case scenario.
+The second, not present fan always reads 65535 (-1 in 16 bit signed),
+ignore fans which report 65535 to avoid reporting the non present fan.
 
-Signed-off-by: Yiqing Yao <yiqing.yao@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Jelle van der Waa <jvanderwaa@redhat.com>
+Link: https://lore.kernel.org/r/20221019194751.5392-1-jvanderwaa@redhat.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/mes_v11_0.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/platform/x86/thinkpad_acpi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
-index f92744b8d79d..e758b4083874 100644
---- a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
-@@ -96,7 +96,14 @@ static int mes_v11_0_submit_pkt_and_poll_completion(struct amdgpu_mes *mes,
- 	struct amdgpu_device *adev = mes->adev;
- 	struct amdgpu_ring *ring = &mes->ring;
- 	unsigned long flags;
-+	signed long timeout = adev->usec_timeout;
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 2dbb9fc011a7..353507d18e11 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -263,6 +263,8 @@ enum tpacpi_hkey_event_t {
+ #define TPACPI_DBG_BRGHT	0x0020
+ #define TPACPI_DBG_MIXER	0x0040
  
-+	if (amdgpu_emu_mode) {
-+		timeout *= 100;
-+	} else if (amdgpu_sriov_vf(adev)) {
-+		/* Worst case in sriov where all other 15 VF timeout, each VF needs about 600ms */
-+		timeout = 15 * 600 * 1000;
-+	}
- 	BUG_ON(size % 4 != 0);
++#define FAN_NOT_PRESENT		65535
++
+ #define strlencmp(a, b) (strncmp((a), (b), strlen(b)))
  
- 	spin_lock_irqsave(&mes->ring_lock, flags);
-@@ -116,7 +123,7 @@ static int mes_v11_0_submit_pkt_and_poll_completion(struct amdgpu_mes *mes,
- 	DRM_DEBUG("MES msg=%d was emitted\n", x_pkt->header.opcode);
  
- 	r = amdgpu_fence_wait_polling(ring, ring->fence_drv.sync_seq,
--		      adev->usec_timeout * (amdgpu_emu_mode ? 100 : 1));
-+		      timeout);
- 	if (r < 1) {
- 		DRM_ERROR("MES failed to response msg=%d\n",
- 			  x_pkt->header.opcode);
+@@ -8876,7 +8878,7 @@ static int __init fan_init(struct ibm_init_struct *iibm)
+ 			/* Try and probe the 2nd fan */
+ 			tp_features.second_fan = 1; /* needed for get_speed to work */
+ 			res = fan2_get_speed(&speed);
+-			if (res >= 0) {
++			if (res >= 0 && speed != FAN_NOT_PRESENT) {
+ 				/* It responded - so let's assume it's there */
+ 				tp_features.second_fan = 1;
+ 				tp_features.second_fan_ctl = 1;
 -- 
 2.35.1
 
