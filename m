@@ -2,128 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B2EC61F041
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 11:22:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE0C061F0BB
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 11:33:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231524AbiKGKV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 05:21:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33020 "EHLO
+        id S230363AbiKGKd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 05:33:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231563AbiKGKVt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 05:21:49 -0500
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97BF317E16
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 02:21:26 -0800 (PST)
-Received: by mail-oi1-x244.google.com with SMTP id n83so11608731oif.11
-        for <stable@vger.kernel.org>; Mon, 07 Nov 2022 02:21:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=AOmtRIzmF5dcnWrT0j3skK83MYTC+QvduwZ6ndeN2Ks=;
-        b=L9okY7Icb0Gf5ctoFsS3m7Ms6FyffuhIG/wumllqb99pGSDM0eKoVdXRomu4k2Vvje
-         vaAAA5b5CG4T9vL3DYzTbt6i7ilTYVRiZHeAf51qWroCKMi/06UV8twkwYbbvcb58b0c
-         O8aiXYIeKLPGKFxD8AeTNjdm9XiiwAwYXXYnxXnBzQtt4ZaPQYbu2mn3d4/wBF5dq0sI
-         fYgKey8dWac3TMQ3pm+aZLL8XgADS0c8wc9DQhJYDoGLimjkDspSigMMA/pe1/be4Mmf
-         FTMTprRtatoAeN10/4e16TIuQYPcJ6zZ7AsqjnUqg8Bde3BWUPkO4V20s/KjpolOjYbD
-         1dVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=AOmtRIzmF5dcnWrT0j3skK83MYTC+QvduwZ6ndeN2Ks=;
-        b=Te3lKdVFZoyAOek80nPNd3yFxKCGGaQu/c3yt5tL7zGnApB1S+5i4vjE/T9oNVju3y
-         4M+xDO5F1GFVGTsinWdQc+ErsJeE7GBx/c6zuPziHLNOvaRHF+rZOmcluLBf82v0Haqo
-         +AfUdgLS90rE+QjJJlYrrcw9wnbDeXe5cJn5AJXI5b7Lj/ATjAoQnGUc7bY7is2PMNf6
-         +Gt7QW71KDULMSj0ercveRKlKHZAlNIsVwNO/1wKehqHtopXGD6cfF7OKS+nh9oTKQ0c
-         BS6pGWLWqAehO+96ptKWgNCQGs1SnF+gV8BzBEVvnveb1ME/QzdSMjwDtqpla56qr5UK
-         XGYA==
-X-Gm-Message-State: ACrzQf2DJo3FkgKPIvLeYmo0SPp6XGMTUpzBuHgAp2vc4dzo+ddItt66
-        SZoXfG0es9L/A8HD8e/6AyxvDqwpoLbKsHpRmp9xK5X44MQ=
-X-Google-Smtp-Source: AMsMyM4Z92xjGZXgCyg2wym9Bu3/u65n6EL2ZpWI9kWf7s8xWZden0QG/zdZVfFd3uCVmOfceIs+YigxV7lXSF4Af+Y=
-X-Received: by 2002:a17:90b:2393:b0:213:ecb2:2e04 with SMTP id
- mr19-20020a17090b239300b00213ecb22e04mr38944517pjb.100.1667816475223; Mon, 07
- Nov 2022 02:21:15 -0800 (PST)
+        with ESMTP id S229659AbiKGKdw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 05:33:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD47B273B;
+        Mon,  7 Nov 2022 02:33:49 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DF7160FBA;
+        Mon,  7 Nov 2022 10:33:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9FBAC433D6;
+        Mon,  7 Nov 2022 10:33:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1667817228;
+        bh=xMmwTKgR8xLv7D04js/Rsm1kq7uL9UsHHojenyPZTeU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WriRVPK6jCgwq0iia9J5qANNqDfT/vbLN3rLaezsJL95JRMRaEeLvqa5CTqYs0KlF
+         657Xnf6DBkkRdAxCIEF+2O0Ztjakt8B3kkXaf8f2Cj/I/9d2kMCEV/i4tCHOt7fqE6
+         ju3CqWZaT5zXCUlG5lNM9OLz0wCnDer+mKM5iqrBTThtlXpK4NSR1AaPz0KXVfjm2m
+         g8UuhojD3yCtFkaOegtZkihpAnBJEhL4Xbljnnyizd1jE9+IxXz7EZGRWagiPsGik6
+         imaoqukvWyPbK08pt2eY28kTt77HUi/89g5W/G9Lib/nU9ughrZKw1V4wGfD9hHMY6
+         SbF9J2AQmCc2w==
+Date:   Mon, 7 Nov 2022 10:33:43 +0000
+From:   Lee Jones <lee@kernel.org>
+To:     Rob Herring <robh@kernel.org>
+Cc:     Frank Rowand <frowand.list@gmail.com>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] scripts/dtc: Update to upstream version
+ v1.6.1-63-g55778a03df61
+Message-ID: <Y2jfB2YErvi+EIvN@google.com>
+References: <20221101181427.1808703-1-robh@kernel.org>
 MIME-Version: 1.0
-Received: by 2002:a05:6a06:925:b0:587:19e0:c567 with HTTP; Mon, 7 Nov 2022
- 02:21:14 -0800 (PST)
-Reply-To: contact@ammico.it
-From:   =?UTF-8?Q?Mrs=2E_Monika_Everenov=C3=A1?= <977638ib@gmail.com>
-Date:   Mon, 7 Nov 2022 11:21:14 +0100
-Message-ID: <CAHAXD+Z_SoFK+TjW_6apBCCLtc_awXEjaqOdf77jdLRxxup3TA@mail.gmail.com>
-Subject: Re:
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=5.8 required=5.0 tests=ADVANCE_FEE_2_NEW_MONEY,
-        BAYES_40,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_FROM,FROM_STARTS_WITH_NUMS,LOTS_OF_MONEY,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,UNDISC_MONEY autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:244 listed in]
-        [list.dnswl.org]
-        * -0.0 BAYES_40 BODY: Bayes spam probability is 20 to 40%
-        *      [score: 0.2207]
-        *  0.7 FROM_STARTS_WITH_NUMS From: starts with several numbers
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [977638ib[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  3.3 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-        *  2.0 ADVANCE_FEE_2_NEW_MONEY Advance Fee fraud and lots of money
-X-Spam-Level: *****
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20221101181427.1808703-1-robh@kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hei ja miten voit?
-Nimeni on rouva Evereen, l=C3=A4het=C3=A4n t=C3=A4m=C3=A4n viestin suurella=
- toivolla
-v=C3=A4lit=C3=B6n vastaus, koska minun on teht=C3=A4v=C3=A4 uusi syd=C3=A4n=
-leikkaus
-t=C3=A4ll=C3=A4 hetkell=C3=A4 huonokuntoinen ja v=C3=A4h=C3=A4iset mahdolli=
-suudet selviyty=C3=A4.
-Mutta ennen kuin min=C3=A4
-Tee toinen vaarallinen operaatio, annan sen sinulle
-Minulla on 6 550 000 dollaria yhdysvaltalaisella pankkitilill=C3=A4
-sijoittamista, hallinnointia ja k=C3=A4ytt=C3=B6=C3=A4 varten
-voittoa hyv=C3=A4ntekev=C3=A4isyysprojektin toteuttamiseen. Tarkoitan saira=
-iden auttamista
-ja k=C3=B6yh=C3=A4t ovat viimeinen haluni maan p=C3=A4=C3=A4ll=C3=A4, sill=
-=C3=A4 minulla ei ole niit=C3=A4
-kenelt=C3=A4 perii rahaa.
-Vastaa minulle nopeasti
-terveisi=C3=A4
-Rouva Monika Evereen
-Florida, Amerikan Yhdysvallat
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-Hi and how are you?
-My name is Mrs. Evereen, I am sending this message with great hope for
-an immediate response, as I have to undergo heart reoperation in my
-current poor health with little chance of survival. But before I
-undertake the second dangerous operation, I will give you the
-$6,550,000 I have in my US bank account to invest well, manage and use
-the profits to run a charity project for me. I count helping the sick
-and the poor as my last wish on earth, because I have no one to
-inherit money from.
-Please give me a quick reply
-regards
-Mrs. Monika Evereen
-Florida, United States of America
+On Tue, 01 Nov 2022, Rob Herring wrote:
+
+> It's been a while since the last sync and Lee needs commit 73590342fc85
+> ("libfdt: prevent integer overflow in fdt_next_tag").
+> 
+> This adds the following commits from upstream:
+> 
+> 55778a03df61 libfdt: tests: add get_next_tag_invalid_prop_len
+> 73590342fc85 libfdt: prevent integer overflow in fdt_next_tag
+> 035fb90d5375 libfdt: add fdt_get_property_by_offset_w helper
+> 98a07006c48d Makefile: fix infinite recursion by dropping non-existent `%.output`
+> a036cc7b0c10 Makefile: limit make re-execution to avoid infinite spin
+> c6e92108bcd9 libdtc: remove duplicate judgments
+> e37c25677dc9 Don't generate erroneous fixups from reference to path
+> 50454658f2b5 libfdt: Don't mask fdt_get_name() returned error
+> e64a204196c9 manual.txt: Follow README.md and remove Jon
+> f508c83fe6f0 Update README in MANIFEST.in and setup.py to README.md
+> c2ccf8a77dd2 Add description of Signed-off-by lines
+> 90b9d9de42ca Split out information for contributors to CONTRIBUTING.md
+> 0ee1d479b23a Remove Jon Loeliger from maintainers list
+> b33a73c62c1c Convert README to README.md
+> 7ad60734b1c1 Allow static building with meson
+> fd9b8c96c780 Allow static building with make
+> fda71da26e7f libfdt: Handle failed get_name() on BEGIN_NODE
+> c7c7f17a83d5 Fix test script to run also on dash shell
+> 01f23ffe1679 Add missing relref_merge test to meson test list
+> ed310803ea89 pylibfdt: add FdtRo.get_path()
+> c001fc01a43e pylibfdt: fix swig build in install
+> 26c54f840d23 tests: add test cases for label-relative path references
+> ec7986e682cf dtc: introduce label relative path references
+> 651410e54cb9 util: introduce xstrndup helper
+> 4048aed12b81 setup.py: fix out of tree build
+> ff5afb96d0c0 Handle integer overflow in check_property_phandle_args()
+> ca7294434309 README: Explain how to add a new API function
+> c0c2e115f82e Fix a UB when fdt_get_string return null
+> cd5f69cbc0d4 tests: setprop_inplace: use xstrdup instead of unchecked strdup
+> a04f69025003 pylibfdt: add Property.as_*int*_array()
+> 83102717d7c4 pylibfdt: add Property.as_stringlist()
+> d152126bb029 Fix Python crash on getprop deallocation
+> 17739b7ef510 Support 'r' format for printing raw bytes with fdtget
+> 45f3d1a095dd libfdt: overlay: make overlay_get_target() public
+> c19a4bafa514 libfdt: fix an incorrect integer promotion
+> 1cc41b1c969f pylibfdt: Add packaging metadata
+> db72398cd437 README: Update pylibfdt install instructions
+> 383e148b70a4 pylibfdt: fix with Python 3.10
+> 23b56cb7e189 pylibfdt: Move setup.py to the top level
+> 69a760747d8d pylibfdt: Split setup.py author name and email
+> 0b106a77dbdc pylibfdt: Use setuptools_scm for the version
+> c691776ddb26 pylibfdt: Use setuptools instead of distutils
+> 5216f3f1bbb7 libfdt: Add static lib to meson build
+> 4eda2590f481 CI: Cirrus: bump used FreeBSD from 12.1 to 13.0
+
+At least one of these patches fixes security concerns.
+
+Could we also have this in Stable please?
+
+> Signed-off-by: Rob Herring <robh@kernel.org>
+> ---
+>  scripts/dtc/checks.c               | 15 +++++++-----
+>  scripts/dtc/dtc-lexer.l            |  2 +-
+>  scripts/dtc/dtc-parser.y           | 13 ++++++++++
+>  scripts/dtc/libfdt/fdt.c           | 20 +++++++++------
+>  scripts/dtc/libfdt/fdt.h           |  4 +--
+>  scripts/dtc/libfdt/fdt_addresses.c |  2 +-
+>  scripts/dtc/libfdt/fdt_overlay.c   | 29 ++++++----------------
+>  scripts/dtc/libfdt/fdt_ro.c        |  2 +-
+>  scripts/dtc/libfdt/libfdt.h        | 25 +++++++++++++++++++
+>  scripts/dtc/livetree.c             | 39 +++++++++++++++++++++++++++---
+>  scripts/dtc/util.c                 | 15 ++++++++++--
+>  scripts/dtc/util.h                 |  4 ++-
+>  scripts/dtc/version_gen.h          |  2 +-
+>  13 files changed, 124 insertions(+), 48 deletions(-)
+
+-- 
+Lee Jones [李琼斯]
