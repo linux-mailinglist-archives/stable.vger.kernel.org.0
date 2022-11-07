@@ -2,111 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C67D61F778
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 16:21:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 731F761F77F
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 16:23:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232091AbiKGPVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 10:21:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59242 "EHLO
+        id S232315AbiKGPX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 10:23:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231990AbiKGPV3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 10:21:29 -0500
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80410289;
-        Mon,  7 Nov 2022 07:21:28 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id z18so18087212edb.9;
-        Mon, 07 Nov 2022 07:21:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=tGC52wQ3g/9VRF1d+6K6tt2aG94zpt4OAawBYFo8Iis=;
-        b=kH8SBO+tp4AMT0a02LfVAJ/roIifj+4DFD9DkKUAJHl/yrYagfDQiYL6odMWJVCKdS
-         f07BfDfar0sWZuSOFwmIzXAnHoB24dlrsOCAk0LFr1+yE2HcWm3W8BFYhQFQXd3snNhZ
-         70BuLlNJYUDzBEnrHdCFx9f9GbPV9N62q3VaO2VCbKmGHR7a6Hv+H56/5v9z2y++B6aB
-         eBFRZ8ES8TVlF152zLvFOvAmpzENknfcBCk73LgqILEjluRZklZe20fXEMTNsvQDokG6
-         MdtH4kavIi2/N5Y6ewUjO4lV2F2wGy5FxajFriVbhg4Jnq6glwgRfx1D8co2IKzvkGkn
-         emlQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=tGC52wQ3g/9VRF1d+6K6tt2aG94zpt4OAawBYFo8Iis=;
-        b=DWITQ6T7vTf65JtD45LdEQ4XS50X9/ixBCDSRINdu250Sx6g32MxUouLKvZaXpWNH8
-         gzHeOhZxsvREQVvLKjRJzRQDntO/pY5wWbL3lZ1oCQppiig5GjEovByshG3v/Ik327Cf
-         wIXEPIRyheAeAJhD1vvxA4lN8sxq9qFwSZMFnI4/TrCnL+tY1GRrKgp1BahbONfInEX7
-         +UvF9VAX29BZROCXpxAPLgjiTDpXBdUVEUpt0r3OriaGgr2Zw0iKhIVz8Bikcvk+uHmP
-         TRrQ5mRXYyK4H+Ke6r58CWvfaZO83ZvHVvObjqowzDhhpgSD71HTJAslSfnykLI2CTVQ
-         FQaA==
-X-Gm-Message-State: ANoB5pk3mcUqJyoBw5UzLhzWF6E4gX35v9MDaHJPvdTdSasM8b6NFgN8
-        5A6ZLAqTpmo4K1LS1/cT8SXB70m4frxfOIiYYM4=
-X-Google-Smtp-Source: AA0mqf6jNBn6B9i7WSxD0/bT61dL4nPvbUizVjV0H5ZQ9T9I+sQLLMacwo6O5LLhmz1DT2Cl/1IdB82FGElXClRYy7k=
-X-Received: by 2002:a50:8742:0:b0:466:45c8:1e35 with SMTP id
- 2-20020a508742000000b0046645c81e35mr8815127edv.395.1667834487136; Mon, 07 Nov
- 2022 07:21:27 -0800 (PST)
+        with ESMTP id S232861AbiKGPXY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 10:23:24 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 582D0CD9;
+        Mon,  7 Nov 2022 07:23:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=4vgRGnuVtkTGEKsFjUHCzmRGxBEch8B2PbVdx00wfIY=; b=r4KpmD8YQg8XB7hbcAadnPrE6n
+        jwfLNXaVezrfXQi1O1mdc+6ow3TXholNpOy0J4rqHFRyl2Ty5kq35FtNMUIfir/x8qCdnt4q7vf1H
+        uq/Iu1Z5luOhf/DKVmfEA9RFMvRIY4jE6WJ4otVcaUj0TCHzpCe8RIf0PHf73ju3bzwJ2k2MBBV+L
+        m5vqNMv/b+hVsIVuKHOA3bgtEaudnRJBjdm4baPQN3WYwG7B6JBfpuaaPiBhsgCcrzhcBIMQTyx/0
+        OGNTa4lCru3Jc5RLzKQvXgyLtCXLnD6GAmB+GKO27jX3LAuu3lMDDITO/dPfhyVfAcSAjm4MCwo7Q
+        +xhekxJA==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1os3y2-009SXw-B1; Mon, 07 Nov 2022 15:23:18 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id A69EE30007E;
+        Mon,  7 Nov 2022 16:23:12 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 8F2942B8046C9; Mon,  7 Nov 2022 16:23:12 +0100 (CET)
+Date:   Mon, 7 Nov 2022 16:23:12 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        nathan@kernel.org, thomas.lendacky@amd.com,
+        andrew.cooper3@citrix.com, jmattson@google.com, seanjc@google.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4/8] KVM: SVM: move guest vmsave/vmload to assembly
+Message-ID: <Y2ki4Iz8AZzTODKS@hirez.programming.kicks-ass.net>
+References: <20221107145436.276079-1-pbonzini@redhat.com>
+ <20221107145436.276079-5-pbonzini@redhat.com>
 MIME-Version: 1.0
-References: <20221107071759.32000-1-xiubli@redhat.com>
-In-Reply-To: <20221107071759.32000-1-xiubli@redhat.com>
-From:   Ilya Dryomov <idryomov@gmail.com>
-Date:   Mon, 7 Nov 2022 16:21:15 +0100
-Message-ID: <CAOi1vP-orfs-CK+KjWyMXiRRQqZxcw=r_yvLRDAVMEvrrOw8vg@mail.gmail.com>
-Subject: Re: [PATCH] ceph: avoid putting the realm twice when docoding snaps fails
-To:     xiubli@redhat.com
-Cc:     ceph-devel@vger.kernel.org, lhenriques@suse.de, jlayton@kernel.org,
-        mchangir@redhat.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221107145436.276079-5-pbonzini@redhat.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 7, 2022 at 8:18 AM <xiubli@redhat.com> wrote:
->
-> From: Xiubo Li <xiubli@redhat.com>
->
-> When decoding the snaps fails it maybe leaving the 'first_realm'
-> and 'realm' pointing to the same snaprealm memory. And then it'll
-> put it twice and could cause random use-after-free, BUG_ON, etc
-> issues.
->
-> Cc: stable@vger.kernel.org
-> URL: https://tracker.ceph.com/issues/57686
-> Signed-off-by: Xiubo Li <xiubli@redhat.com>
-> ---
->  fs/ceph/snap.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->
-> diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
-> index 9bceed2ebda3..baf17df05107 100644
-> --- a/fs/ceph/snap.c
-> +++ b/fs/ceph/snap.c
-> @@ -849,10 +849,12 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
->         if (realm_to_rebuild && p >= e)
->                 rebuild_snap_realms(realm_to_rebuild, &dirty_realms);
->
-> -       if (!first_realm)
-> +       if (!first_realm) {
->                 first_realm = realm;
-> -       else
-> +               realm = NULL;
+On Mon, Nov 07, 2022 at 09:54:32AM -0500, Paolo Bonzini wrote:
+> @@ -56,6 +59,16 @@ SYM_FUNC_START(__svm_vcpu_run)
+>  	/* Move @svm to RDI. */
+>  	mov %_ASM_ARG2, %_ASM_DI
+>  
+> +	/*
+> +	 * Use a single vmcb (vmcb01 because it's always valid) for
+> +	 * context switching guest state via VMLOAD/VMSAVE, that way
+> +	 * the state doesn't need to be copied between vmcb01 and
+> +	 * vmcb02 when switching vmcbs for nested virtualization.
+> +	 */
+> +	mov SVM_vmcb01_pa(%_ASM_DI), %_ASM_AX
+> +1:	vmload %_ASM_AX
+> +2:
+> +
+>  	/* "POP" @vmcb to RAX. */
+>  	pop %_ASM_AX
+>  
+> @@ -80,16 +93,11 @@ SYM_FUNC_START(__svm_vcpu_run)
+>  	/* Enter guest mode */
+>  	sti
+>  
+> +3:	vmrun %_ASM_AX
+> +4:
+> +	cli
+>  
+> +	/* Pop @svm to RAX while it's the only available register. */
+>  	pop %_ASM_AX
+>  
+>  	/* Save all guest registers.  */
 
-Hi Xiubo,
+So Andrew noted that once the vmload has executed any exception taken
+(say at 3) will crash and burn because %gs is scribbled.
 
-I wonder why realm is cleared only in !first_realm branch?  Can't
-the same issue occur with realm?
+Might be good to make a record of this in the code so it can be cleaned
+up some day.
 
-    first_realm is already set, ceph_put_snap_realm(realm)
-    p < e, goto more
-    decoding fails, goto bad
-    realm is still set and not IS_ERR, ceph_put_snap_realm(realm)
-    <realm is put twice>
-
-Thanks,
-
-                Ilya
+> @@ -159,11 +179,19 @@ SYM_FUNC_START(__svm_vcpu_run)
+>  	pop %_ASM_BP
+>  	RET
+>  
+> +10:	cmpb $0, kvm_rebooting
+>  	jne 2b
+>  	ud2
+> +30:	cmpb $0, kvm_rebooting
+> +	jne 4b
+> +	ud2
+> +50:	cmpb $0, kvm_rebooting
+> +	jne 6b
+> +	ud2
+>  
+> +	_ASM_EXTABLE(1b, 10b)
+> +	_ASM_EXTABLE(3b, 30b)
+> +	_ASM_EXTABLE(5b, 50b)
