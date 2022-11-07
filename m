@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3286B61FA51
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:47:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0ABC61FA52
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:47:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232231AbiKGQru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 11:47:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41460 "EHLO
+        id S231324AbiKGQrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 11:47:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232211AbiKGQrt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:47:49 -0500
+        with ESMTP id S232211AbiKGQrw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:47:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFF341F2C9
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:47:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E551F2EC
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:47:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76F32611C1
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:47:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80C18C433D7;
-        Mon,  7 Nov 2022 16:47:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E990611C0
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:47:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F075C433B5;
+        Mon,  7 Nov 2022 16:47:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667839667;
-        bh=DwlEp+fpLnUCANQb7Znu9lrTiw4MA0u6wlx+avoG78Q=;
+        s=korg; t=1667839670;
+        bh=gHkjBTpJn1FZF/FdMBB3Zd4bMNKCr0COGvi+c7a0ksE=;
         h=Subject:To:Cc:From:Date:From;
-        b=av4mI8qBKwR+5hZfZlQ4maSYuMqo/qLaWb+TfKihknMrFcCgLnvDDqrAoFwBIQslJ
-         E5NMxC8Krf9TxLvQsxB2GZlBhmSF1mzAdz7lPORGz1fv/f2TRBWyvS3fmHTXuuNdji
-         DrmoBxHyP+Wj8kgbRGcLGqufLFinsFJbJ2eJZqMs=
-Subject: FAILED: patch "[PATCH] KVM: x86: Mask off reserved bits in CPUID.8000001AH" failed to apply to 4.14-stable tree
+        b=B7SCL7A/7DA073UDLkmo/VRQCETHlAjqOXmjpAvTVyYv+gku3UrbVbAEsUL+ZNTWT
+         d91bsmSXuMeqKmpPnHbUg1mA+rEHLvuUd/GYwnBLbeJH06uxU96KMPmMQBpyY2BsON
+         bPL8SIInkBnADFx6KPVnxjnQUBzKpCvmEskAB/n8=
+Subject: FAILED: patch "[PATCH] KVM: x86: Mask off reserved bits in CPUID.8000001AH" failed to apply to 4.9-stable tree
 To:     jmattson@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Nov 2022 17:47:36 +0100
-Message-ID: <1667839656176141@kroah.com>
+Date:   Mon, 07 Nov 2022 17:47:37 +0100
+Message-ID: <166783965724104@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
