@@ -2,180 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89E1861FB90
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 18:37:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19F9661FCE0
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 19:09:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232085AbiKGRhX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 12:37:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47930 "EHLO
+        id S232038AbiKGSJt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 13:09:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232854AbiKGRhW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 12:37:22 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58F1723177
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 09:36:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667842585;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nl6PigmsrqrYF158XeHabBGrVbZA9yih4rZ/4bxbZV8=;
-        b=d8ongo4tB4CCVnMB8e6cZqR2cDPJMZKxqtNOlMvdCsf+QQ+d1PSK6aWfNtnPi6Zi7kbMYd
-        TL5lZy/YTeRU9LOb3Dfxj/olpNZXSlFiAe89K/EtXpoKfLZDX1CZ/NBJHHFSyzsmW54Qpa
-        3i/BvUPWL0CMuGXyalFo+Ghf8b1Hcvc=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-218-BnhMqDn-Oaeeihro1OYu2Q-1; Mon, 07 Nov 2022 12:36:24 -0500
-X-MC-Unique: BnhMqDn-Oaeeihro1OYu2Q-1
-Received: by mail-wr1-f69.google.com with SMTP id d23-20020adfa417000000b002364a31b7c9so3047118wra.15
-        for <stable@vger.kernel.org>; Mon, 07 Nov 2022 09:36:24 -0800 (PST)
+        with ESMTP id S232575AbiKGSJf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 13:09:35 -0500
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E81C264AD
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 10:06:09 -0800 (PST)
+Received: by mail-yb1-xb4a.google.com with SMTP id f126-20020a255184000000b006cb2aebd124so11825383ybb.11
+        for <stable@vger.kernel.org>; Mon, 07 Nov 2022 10:06:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=j60fk1GX1r+NlL9MlNZCmp8WSDoORaTrNw5+KLoJy/4=;
+        b=Mf6r8tPrYM3LamVKchqSLk/dmvuFcNjB5NxU9/TNA/LJR4+Uh6XqGidKCN9FLz9j6m
+         5gN67h9p+bLYpCjhvc8IX2CAcX4UVPj8TTNmTLQlD8LZNhhCBfuUhNVOyi4YFV9Cslm6
+         AhdPCARfNOufm6rPh+qX4CH2KdXaRwv31osB1U4pHViwGvPXTpaxGAj8nSPx7FSGxRB4
+         +bKsZS3bxkBP2fqFSyYSg3BcOjx2bkaxsJ2wtpBxsnFPpuiZfD1FUTU7e48qA9xSUo21
+         QvC3cJW2wJT2ZTT75eLJOPbDmwnzWYEohD/r29NC7k+wM2btkY3eRlPA4CapntnDrd5R
+         pr/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=nl6PigmsrqrYF158XeHabBGrVbZA9yih4rZ/4bxbZV8=;
-        b=VgJCy5TVGirG4LrqXoaeCrg+s7yB+Iw0mWF8v47KVLcPkoGFAoK9ctWZShtYCMmukZ
-         VUlyBqIorgvXDrYeMw6zuhGzr76q9ZXhG4Yr3RqxvgwckTHAmhFEoJSm6ApE50UQwIeT
-         fN6EO6PE3sLtI/rVmBEfLJoqCnakb4413MfRD3vZrYFx/ApA1Smz+wAqo7Vb+ZjPiZ6V
-         YB1Ss2oXptv5+6/Hn2olzQuMKWk3pq2UM2SWd3XWf/L21naeOXt9edW1czL9VwBedngM
-         NwFr8+WGMt5K729FRfxYcdJMz8gSDI75KdqZS3gynj3QRs05hanzjZz7mbjCpsKL/3A+
-         ON1g==
-X-Gm-Message-State: ACrzQf15ebHpW9+aURHWDt8qDVeHvbeyLo5Ifd5awaD5trysZpBIq0rZ
-        /wzeiw4AktYou556OY7ALhko9W/zRyA0/+B63KLY7ZZbh6/gWFxKm13QuJKbKg9Dp4d+OF42Ms0
-        5cP+MJMVSWcK5Bybn
-X-Received: by 2002:adf:f781:0:b0:236:5559:215b with SMTP id q1-20020adff781000000b002365559215bmr32866505wrp.16.1667842583167;
-        Mon, 07 Nov 2022 09:36:23 -0800 (PST)
-X-Google-Smtp-Source: AMsMyM77Pa61NR6xu9Ntx+EjzyzNbGvCxuDdApim1+QETi5e/cbTSUAqTgB4iFEEHhowEcbV94Bu0g==
-X-Received: by 2002:adf:f781:0:b0:236:5559:215b with SMTP id q1-20020adff781000000b002365559215bmr32866485wrp.16.1667842582852;
-        Mon, 07 Nov 2022 09:36:22 -0800 (PST)
-Received: from ?IPV6:2001:b07:6468:f312:9af8:e5f5:7516:fa89? ([2001:b07:6468:f312:9af8:e5f5:7516:fa89])
-        by smtp.googlemail.com with ESMTPSA id k28-20020a5d525c000000b0022e653f5abbsm7758610wrc.69.2022.11.07.09.36.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Nov 2022 09:36:22 -0800 (PST)
-Message-ID: <3ca5e8b6-c786-2f15-8f81-fd6353c43692@redhat.com>
-Date:   Mon, 7 Nov 2022 18:36:21 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Content-Language: en-US
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        nathan@kernel.org, thomas.lendacky@amd.com,
-        andrew.cooper3@citrix.com, peterz@infradead.org,
-        jmattson@google.com, stable@vger.kernel.org
-References: <20221107145436.276079-1-pbonzini@redhat.com>
- <20221107145436.276079-2-pbonzini@redhat.com> <Y2k7o8i/qhBm9bpC@google.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 1/8] KVM: SVM: extract VMCB accessors to a new file
-In-Reply-To: <Y2k7o8i/qhBm9bpC@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=j60fk1GX1r+NlL9MlNZCmp8WSDoORaTrNw5+KLoJy/4=;
+        b=xEaLNUNuURYCEL2pnNh7mskpxoLBVxFjz8d/vQZHjbgnLGUgbzFX60q9cRAqlwP0M+
+         EtYtm9Td8wq9G5Qy/YG194DXFhiGKELKri2TdNXzpZtyM6PKHgpLXwz7FUNoPAlfGyXu
+         ABHfbDl9KW/wru54n1TKHxT3YYY9m2ZXg2tGtJoGSRZrmW2QfkU3mEF/CLxWjDG7GGNO
+         oXipsyrnB2xast1vQWduT9uQWsBtEBT6r6Z1+4oMmVjCZu450vuQbcI5MvHOmUVMxDlD
+         92q7ofkSMrq9s3kK+eG1TvXzV+g28GzeSsnfArBqqn1SGW3fRZv3lUHi+KQp8XtnVx/2
+         S/8w==
+X-Gm-Message-State: ACrzQf11gjajwnDC8MpP+M7Rq1hjFwJvhYJ6MFuDn9gWYZZNjUnxDkuh
+        FHcIn3ydhP0pqNQJHUaNj2kVAPblKZQQUr3D
+X-Google-Smtp-Source: AMsMyM7RHwAxsAmUPng5raelGOKXR8aFY878B1n1s2rNW5vI6CWnaeE3l0ZswkUAr2+iO/m1XeFXM+P1fxqlCA2J
+X-Received: from jthoughton.c.googlers.com ([fda3:e722:ac3:cc00:14:4d90:c0a8:2a4f])
+ (user=jthoughton job=sendgmr) by 2002:a81:e0f:0:b0:349:a047:655e with SMTP id
+ 15-20020a810e0f000000b00349a047655emr50840803ywo.373.1667844368522; Mon, 07
+ Nov 2022 10:06:08 -0800 (PST)
+Date:   Mon,  7 Nov 2022 18:05:48 +0000
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
+Message-ID: <20221107180548.2095056-1-jthoughton@google.com>
+Subject: [PATCH v2] hugetlbfs: don't delete error page from pagecache
+From:   James Houghton <jthoughton@google.com>
+To:     Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Yang Shi <shy828301@gmail.com>,
+        Axel Rasmussen <axelrasmussen@google.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        James Houghton <jthoughton@google.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/7/22 18:08, Sean Christopherson wrote:
-> On Mon, Nov 07, 2022, Paolo Bonzini wrote:
->> Having inline functions confuses the compilation of asm-offsets.c,
->> which cannot find kvm_cache_regs.h because arch/x86/kvm is not in
->> asm-offset.c's include path.  Just extract the functions to a
->> new file.
->>
->> No functional change intended.
->>
->> Cc: stable@vger.kernel.org
->> Fixes: f14eec0a3203 ("KVM: SVM: move more vmentry code to assembly")
->> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
->> ---
->>   arch/x86/kvm/svm/avic.c         |   1 +
->>   arch/x86/kvm/svm/nested.c       |   1 +
->>   arch/x86/kvm/svm/sev.c          |   1 +
->>   arch/x86/kvm/svm/svm.c          |   1 +
->>   arch/x86/kvm/svm/svm.h          | 200 ------------------------------
->>   arch/x86/kvm/svm/svm_onhyperv.c |   1 +
->>   arch/x86/kvm/svm/vmcb.h         | 211 ++++++++++++++++++++++++++++++++
-> 
-> I don't think vmcb.h is a good name.  The logical inclusion sequence would be for
-> svm.h to include vmcb.h, e.g. SVM requires knowledge about VMCBs, but this requires
-> vmcb.h to include svm.h to dereference "struct vcpu_svm".
-> Unlike VMX's vmcs.h, the new file isn't a "pure" VMCB helper, it also holds a
-> decent amount of KVM's SVM logic.
+This change is very similar to the change that was made for shmem [1],
+and it solves the same problem but for HugeTLBFS instead.
 
-Yes, it's basically the wrappers that KVM uses to access the VMCB fields.
+Currently, when poison is found in a HugeTLB page, the page is removed
+from the page cache. That means that attempting to map or read that
+hugepage in the future will result in a new hugepage being allocated
+instead of notifying the user that the page was poisoned. As [1] states,
+this is effectively memory corruption.
 
-> What about making KVM self-sufficient?
+The fix is to leave the page in the page cache. If the user attempts to
+use a poisoned HugeTLB page with a syscall, the syscall will fail with
+EIO, the same error code that shmem uses. For attempts to map the page,
+the thread will get a BUS_MCEERR_AR SIGBUS.
 
-You mean having a different asm-offsets.h file just for arch/x86/kvm/?
+[1]: commit a76054266661 ("mm: shmem: don't truncate page if memory failure happens")
 
-> The includes in asm-offsets.c are quite ugly
-> 
->   #include "../kvm/vmx/vmx.h"
->   #include "../kvm/svm/svm.h"
-> 
-> or as a stopgap to make backporting easier, just include kvm_cache_regs.h?
+Fixes: 78bb920344b8 ("mm: hwpoison: dissolve in-use hugepage in unrecoverable memory error")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: James Houghton <jthoughton@google.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Tested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+---
+ fs/hugetlbfs/inode.c | 13 ++++++-------
+ mm/hugetlb.c         |  4 ++++
+ mm/memory-failure.c  |  5 ++++-
+ 3 files changed, 14 insertions(+), 8 deletions(-)
 
-The problem is that the _existing_ include of kvm_cache_regs.h in svm.h 
-fails, with
-
-arch/x86/kernel/../kvm/svm/svm.h:25:10: fatal error: kvm_cache_regs.h: 
-No such file or directory
-    25 | #include "kvm_cache_regs.h"
-       |          ^~~~~~~~~~~~~~~~~~
-compilation terminated.
-
-The other two solutions here are:
-
-1) move kvm_cache_regs.h to arch/x86/include/asm/ so it can be included 
-normally
-
-2) extract the structs to arch/x86/kvm/svm/svm_types.h and include that 
-from asm-offsets.h, basically the opposite of this patch.
-
-(2) is my preference if having a different asm-offsets.h file turns out 
-to be too complex.  We can do the same for VMX as well.
-
-Paolo
-
->>   void svm_leave_nested(struct kvm_vcpu *vcpu);
->> diff --git a/arch/x86/kvm/svm/svm_onhyperv.c b/arch/x86/kvm/svm/svm_onhyperv.c
->> index 8cdc62c74a96..ae0a101329e6 100644
->> --- a/arch/x86/kvm/svm/svm_onhyperv.c
->> +++ b/arch/x86/kvm/svm/svm_onhyperv.c
->> @@ -8,6 +8,7 @@
->>   #include <asm/mshyperv.h>
->>   
->>   #include "svm.h"
->> +#include "vmcb.h"
->>   #include "svm_ops.h"
->>   
->>   #include "hyperv.h"
->> diff --git a/arch/x86/kvm/svm/vmcb.h b/arch/x86/kvm/svm/vmcb.h
->> new file mode 100644
->> index 000000000000..8757cda27e3a
->> --- /dev/null
->> +++ b/arch/x86/kvm/svm/vmcb.h
->> @@ -0,0 +1,211 @@
->> +// SPDX-License-Identifier: GPL-2.0-only
->> +/*
->> + * Kernel-based Virtual Machine driver for Linux
->> + *
->> + * AMD SVM support - VMCB accessors
->> + */
->> +
->> +#ifndef __SVM_VMCB_H
->> +#define __SVM_VMCB_H
->> +
->> +#include "kvm_cache_regs.h"
-> 
-> This should include "svm.h" instead of relying on the parent to include said file.
-> 
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index dd54f67e47fd..df7772335dc0 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -328,6 +328,12 @@ static ssize_t hugetlbfs_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 		} else {
+ 			unlock_page(page);
+ 
++			if (PageHWPoison(page)) {
++				put_page(page);
++				retval = -EIO;
++				break;
++			}
++
+ 			/*
+ 			 * We have the page, copy it to user space buffer.
+ 			 */
+@@ -1111,13 +1117,6 @@ static int hugetlbfs_migrate_folio(struct address_space *mapping,
+ static int hugetlbfs_error_remove_page(struct address_space *mapping,
+ 				struct page *page)
+ {
+-	struct inode *inode = mapping->host;
+-	pgoff_t index = page->index;
+-
+-	hugetlb_delete_from_page_cache(page);
+-	if (unlikely(hugetlb_unreserve_pages(inode, index, index + 1, 1)))
+-		hugetlb_fix_reserve_counts(inode);
+-
+ 	return 0;
+ }
+ 
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 546df97c31e4..e48f8ef45b17 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -6111,6 +6111,10 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
+ 
+ 	ptl = huge_pte_lock(h, dst_mm, dst_pte);
+ 
++	ret = -EIO;
++	if (PageHWPoison(page))
++		goto out_release_unlock;
++
+ 	/*
+ 	 * We allow to overwrite a pte marker: consider when both MISSING|WP
+ 	 * registered, we firstly wr-protect a none pte which has no page cache
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index 145bb561ddb3..bead6bccc7f2 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1080,6 +1080,7 @@ static int me_huge_page(struct page_state *ps, struct page *p)
+ 	int res;
+ 	struct page *hpage = compound_head(p);
+ 	struct address_space *mapping;
++	bool extra_pins = false;
+ 
+ 	if (!PageHuge(hpage))
+ 		return MF_DELAYED;
+@@ -1087,6 +1088,8 @@ static int me_huge_page(struct page_state *ps, struct page *p)
+ 	mapping = page_mapping(hpage);
+ 	if (mapping) {
+ 		res = truncate_error_page(hpage, page_to_pfn(p), mapping);
++		/* The page is kept in page cache. */
++		extra_pins = true;
+ 		unlock_page(hpage);
+ 	} else {
+ 		unlock_page(hpage);
+@@ -1104,7 +1107,7 @@ static int me_huge_page(struct page_state *ps, struct page *p)
+ 		}
+ 	}
+ 
+-	if (has_extra_refcount(ps, p, false))
++	if (has_extra_refcount(ps, p, extra_pins))
+ 		res = MF_FAILED;
+ 
+ 	return res;
+-- 
+2.38.1.431.g37b22c650d-goog
 
