@@ -2,135 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D3D661E855
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 02:38:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28F1E61E877
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 03:01:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230289AbiKGBiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 20:38:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41532 "EHLO
+        id S230146AbiKGCBm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 21:01:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230274AbiKGBiE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 20:38:04 -0500
-X-Greylist: delayed 719 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 06 Nov 2022 17:38:02 PST
-Received: from smtp.tom.com (smtprz25.163.net [106.38.219.110])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BA7CBC19
-        for <stable@vger.kernel.org>; Sun,  6 Nov 2022 17:38:02 -0800 (PST)
-Received: from my-app02.tom.com (my-app02.tom.com [127.0.0.1])
-        by freemail02.tom.com (Postfix) with ESMTP id 4E939B00D30
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 09:25:52 +0800 (CST)
-Received: from my-app02.tom.com (HELO smtp.tom.com) ([127.0.0.1])
-          by my-app02 (TOM SMTP Server) with SMTP ID -1407226815
-          for <stable@vger.kernel.org>;
-          Mon, 07 Nov 2022 09:25:52 +0800 (CST)
-Received: from antispam1.tom.com (unknown [172.25.16.55])
-        by freemail02.tom.com (Postfix) with ESMTP id 38F97B00CC4
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 09:25:52 +0800 (CST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tom.com; s=201807;
-        t=1667784352; bh=CZPj/gYTHe0cbu9G9cAtpVDX1hQqwl2Q6jjzkB5MRCc=;
-        h=Date:To:Cc:From:Subject:From;
-        b=47wVSV6nWbPm08Uve4CGAOehwmYxDbJ5MhtygKl8AkO1oUdMXEufdf4orjw/kuF1T
-         kPfKPJvSOApBm55ewmnO4n8ETqWR5qGtA1Tq7i+FgwTI9M6n89Rtq/gDL7n/BNqChe
-         FlBXYqUkHXbrRHbaLiRmxhHcilyY/u358Op3I8zE=
-Received: from antispam1.tom.com (antispam1.tom.com [127.0.0.1])
-        by antispam1.tom.com (Postfix) with ESMTP id 222FED419C3
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 09:25:52 +0800 (CST)
-X-Virus-Scanned: Debian amavisd-new at antispam1.tom.com
-Received: from antispam1.tom.com ([127.0.0.1])
-        by antispam1.tom.com (antispam1.tom.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id V5nVKn7Te75p for <stable@vger.kernel.org>;
-        Mon,  7 Nov 2022 09:25:50 +0800 (CST)
-Received: from [192.168.0.106] (unknown [120.207.227.204])
-        by antispam1.tom.com (Postfix) with ESMTPA id CB421D41357;
-        Mon,  7 Nov 2022 09:25:49 +0800 (CST)
-Message-ID: <39ebab39-fb03-4be4-ec00-c5665f19fbdd@tom.com>
-Date:   Mon, 7 Nov 2022 09:25:51 +0800
+        with ESMTP id S230136AbiKGCBl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 21:01:41 -0500
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F72DEB8;
+        Sun,  6 Nov 2022 18:01:38 -0800 (PST)
+Received: from dggpeml500021.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4N5Ds12pM8zpWCN;
+        Mon,  7 Nov 2022 09:57:57 +0800 (CST)
+Received: from [10.174.177.174] (10.174.177.174) by
+ dggpeml500021.china.huawei.com (7.185.36.21) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Mon, 7 Nov 2022 10:01:34 +0800
+Message-ID: <230c5303-2aed-7c36-3147-2c05361067ef@huawei.com>
+Date:   Mon, 7 Nov 2022 10:01:34 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-To:     stable@vger.kernel.org
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.1.2
+Subject: Re: [PATCH v2] ext4: fix use-after-free in ext4_ext_shift_extents
 Content-Language: en-US
-Cc:     regressions@lists.linux.dev
-From:   malaizhichun <malaizhichun@tom.com>
-Subject: This is about the acip-bios problem
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+To:     Theodore Ts'o <tytso@mit.edu>, <linux-ext4@vger.kernel.org>
+CC:     <lczerner@redhat.com>, <chengzhihao1@huawei.com>,
+        <enwlinux@gmail.com>, <linux-kernel@vger.kernel.org>,
+        <ritesh.list@gmail.com>, <stable@vger.kernel.org>,
+        <adilger.kernel@dilger.ca>, <yebin10@huawei.com>, <jack@suse.cz>,
+        <yi.zhang@huawei.com>, <yukuai3@huawei.com>
+References: <20220922120434.1294789-1-libaokun1@huawei.com>
+ <166450797717.256913.12979997291945870141.b4-ty@mit.edu>
+From:   Baokun Li <libaokun1@huawei.com>
+In-Reply-To: <166450797717.256913.12979997291945870141.b4-ty@mit.edu>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.177.174]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpeml500021.china.huawei.com (7.185.36.21)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please what time  the acpi-bios error reported by the dmesg command will 
-be fixed, it's really annoying. I have never been able to eliminate such 
-reports, it's only to insert loglevel=3 in grub settings to block. But 
-it doesn't solve the problem, and  I use google search , it's tells me 
-that fix this problem need a bios upgrade, but actually my hardware has  
-stopped upgrade, so I don't know how to do fix this, thanks
+On 2022/9/30 11:19, Theodore Ts'o wrote:
+> On Thu, 22 Sep 2022 20:04:34 +0800, Baokun Li wrote:
+>> If the starting position of our insert range happens to be in the hole
+>> between the two ext4_extent_idx, because the lblk of the ext4_extent in
+>> the previous ext4_extent_idx is always less than the start, which leads
+>> to the "extent" variable access across the boundary, the following UAF is
+>> triggered:
+>> ==================================================================
+>> BUG: KASAN: use-after-free in ext4_ext_shift_extents+0x257/0x790
+>> Read of size 4 at addr ffff88819807a008 by task fallocate/8010
+>> CPU: 3 PID: 8010 Comm: fallocate Tainted: G            E     5.10.0+ #492
+>> Call Trace:
+>>   dump_stack+0x7d/0xa3
+>>   print_address_description.constprop.0+0x1e/0x220
+>>   kasan_report.cold+0x67/0x7f
+>>   ext4_ext_shift_extents+0x257/0x790
+>>   ext4_insert_range+0x5b6/0x700
+>>   ext4_fallocate+0x39e/0x3d0
+>>   vfs_fallocate+0x26f/0x470
+>>   ksys_fallocate+0x3a/0x70
+>>   __x64_sys_fallocate+0x4f/0x60
+>>   do_syscall_64+0x33/0x40
+>>   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>> ==================================================================
+>>
+>> [...]
+> Applied, thanks!
+>
+> [1/1] ext4: fix use-after-free in ext4_ext_shift_extents
+>        (no commit info)
+>
+> Best regards,
 
+Hi Theodore,
 
-[    0.160900] ACPI: Added _OSI(Processor Aggregator Device)
-[    0.160900] ACPI: Added _OSI(Linux-Dell-Video)
-[    0.160900] ACPI: Added _OSI(Linux-Lenovo-NV-HDMI-Audio)
-[    0.160900] ACPI: Added _OSI(Linux-HPI-Hybrid-Graphics)
-[    0.219876] ACPI BIOS Error (bug): Failure creating named object 
-[\_SB.PCI0.XHC.RHUB.TPLD], AE_ALREADY_EXISTS (20220331/dswload2-326)
-[    0.219885] ACPI Error: AE_ALREADY_EXISTS, During name lookup/catalog 
-(20220331/psobject-220)
-[    0.219889] ACPI: Skipping parse of AML opcode: OpcodeName 
-unavailable (0x0014)
-[    0.219944] ACPI BIOS Error (bug): Could not resolve symbol 
-[\_SB.PCI0.XHC.RHUB.HS01], AE_NOT_FOUND (20220331/dswload2-162)
-[    0.219950] ACPI Error: AE_NOT_FOUND, During name lookup/catalog 
-(20220331/psobject-220)
-[    0.219953] ACPI: Skipping parse of AML opcode: OpcodeName 
-unavailable (0x0010)
-[    0.219983] ACPI BIOS Error (bug): Could not resolve symbol 
-[\_SB.PCI0.XHC.RHUB.HS02], AE_NOT_FOUND (20220331/dswload2-162)
-[    0.219987] ACPI Error: AE_NOT_FOUND, During name lookup/catalog 
-(20220331/psobject-220)
-[    0.219990] ACPI: Skipping parse of AML opcode: OpcodeName 
-unavailable (0x0010)
-[    0.220019] ACPI BIOS Error (bug): Could not resolve symbol 
-[\_SB.PCI0.XHC.RHUB.HS03], AE_NOT_FOUND (20220331/dswload2-162)
-[    0.220023] ACPI Error: AE_NOT_FOUND, During name lookup/catalog 
-(20220331/psobject-220)
-[    0.220026] ACPI: Skipping parse of AML opcode: OpcodeName 
-unavailable (0x0010)
-[    0.220055] ACPI BIOS Error (bug): Could not resolve symbol 
-[\_SB.PCI0.XHC.RHUB.HS04], AE_NOT_FOUND (20220331/dswload2-162)
-[    0.220059] ACPI Error: AE_NOT_FOUND, During name lookup/catalog 
-(20220331/psobject-220)
-[    0.220062] ACPI: Skipping parse of AML opcode: OpcodeName 
-unavailable (0x0010)
-[    0.220090] ACPI BIOS Error (bug): Could not resolve symbol 
-[\_SB.PCI0.XHC.RHUB.HS05], AE_NOT_FOUND (20220331/dswload2-162)
-[    0.220095] ACPI Error: AE_NOT_FOUND, During name lookup/catalog 
-(20220331/psobject-220)
-[    0.220098] ACPI: Skipping parse of AML opcode: OpcodeName 
-unavailable (0x0010)
-[    0.220126] ACPI BIOS Error (bug): Could not resolve symbol 
-[\_SB.PCI0.XHC.RHUB.HS06], AE_NOT_FOUND (20220331/dswload2-162)
-[    0.220130] ACPI Error: AE_NOT_FOUND, During name lookup/catalog 
-(20220331/psobject-220)
-[    0.220133] ACPI: Skipping parse of AML opcode: OpcodeName 
-unavailable (0x0010)
-[    0.220162] ACPI BIOS Error (bug): Could not resolve symbol 
-[\_SB.PCI0.XHC.RHUB.HS07], AE_NOT_FOUND (20220331/dswload2-162)
-[    0.220166] ACPI Error: AE_NOT_FOUND, During name lookup/catalog 
-(20220331/psobject-220)
-[    0.220169] ACPI: Skipping parse of AML opcode: OpcodeName 
-unavailable (0x0010)
-[    0.220197] ACPI BIOS Error (bug): Could not resolve symbol 
-[\_SB.PCI0.XHC.RHUB.HS08], AE_NOT_FOUND (20220331/dswload2-162)
-[    0.220202] ACPI Error: AE_NOT_FOUND, During name lookup/catalog 
-(20220331/psobject-220)
-[    0.220205] ACPI: Skipping parse of AML opcode: OpcodeName 
-unavailable (0x0010)
-[    0.220233] ACPI BIOS Error (bug): Could not resolve symbol 
-[\_SB.PCI0.XHC.RHUB.HS09], AE_NOT_FOUND (20220331/dswload2-162)
-[    0.220237] ACPI Error: AE_NOT_FOUND, During name lookup/catalog 
-(20220331/psobject-220)
+Could you tell me why this patch has been applied, but there is no cmmit 
+info,
+
+and the patch cannot be found on any branch?
+
+-- 
+With Best Regards,
+Baokun Li
 
