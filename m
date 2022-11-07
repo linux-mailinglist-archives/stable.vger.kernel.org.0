@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A265F61FA88
+	by mail.lfdr.de (Postfix) with ESMTP id 554DD61FA87
 	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:51:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232127AbiKGQvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 11:51:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43494 "EHLO
+        id S232020AbiKGQvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 11:51:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232800AbiKGQvc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:51:32 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6A842250B
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:51:30 -0800 (PST)
+        with ESMTP id S232879AbiKGQve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:51:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 553F922528
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:51:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 391C9CE1251
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:51:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 379E4C433B5;
-        Mon,  7 Nov 2022 16:51:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0778CB815A0
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:51:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B24AC433D7;
+        Mon,  7 Nov 2022 16:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667839887;
-        bh=NllAtLlmmDxeKZQuIWiH4yln51Ky32jVgJXyR+Fs3VY=;
+        s=korg; t=1667839890;
+        bh=FipgHP9JEckK61JtRxqBYHIRWUb5mbogfc+aErpWnBo=;
         h=Subject:To:Cc:From:Date:From;
-        b=qL1/7sVD3v/Ky1LUeOGGsjEwmh/gJvFN0IYh4H+dE+risz/MNWogIdxRY+rCmpKRC
-         Yw9TkdJ6kmkbKsnML1FEzFcymel4inyaTw81dDq6OjCr2SDhjJVv36f8R1eoWlZBLc
-         Hz2FR7TuaxTIDLKwjtoGQ/kuUcNH4ISdS4FZKcv4=
-Subject: FAILED: patch "[PATCH] KVM: x86: emulator: update the emulation mode after rsm" failed to apply to 5.10-stable tree
+        b=wZ4GjRswS1DwJnb6eRruzBBWgfi8KuXe6zGndzo5OLzDirO++TRSzwq47xHDgLtMn
+         wvTIQTmuoPBTeLEo+ieS1zS96aOTYYhwUjHq7tsSJelyFOCm4ruUoMiZfY6VQZgD0T
+         628QCjJsNA0yBTKFX/KzPPqMpcje+AxRqOPch+qA=
+Subject: FAILED: patch "[PATCH] KVM: x86: emulator: update the emulation mode after rsm" failed to apply to 5.4-stable tree
 To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Nov 2022 17:51:24 +0100
-Message-ID: <1667839884181243@kroah.com>
+Date:   Mon, 07 Nov 2022 17:51:25 +0100
+Message-ID: <166783988517653@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
