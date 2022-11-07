@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45B3D61F324
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 13:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88DD361F326
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 13:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232224AbiKGM1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 07:27:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52564 "EHLO
+        id S231643AbiKGM1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 07:27:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232234AbiKGM1k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 07:27:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 128E71B1C1
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 04:27:37 -0800 (PST)
+        with ESMTP id S232242AbiKGM1p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 07:27:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7997F14D05
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 04:27:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A20F16101F
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 12:27:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CE91C433D6;
-        Mon,  7 Nov 2022 12:27:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0682860FF9
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 12:27:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC4AFC433C1;
+        Mon,  7 Nov 2022 12:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667824056;
-        bh=WVtKVrybUCGgVdte9PQaMCkwD6/oYpliIzJdrPMsFsw=;
+        s=korg; t=1667824063;
+        bh=MXtJCEdxMFvBKiheyzEloG3gbGmdaby/3O8tfHEFw7w=;
         h=Subject:To:Cc:From:Date:From;
-        b=pTVaHSP8GOXTX+fRxD9+7M0NFFf8iy4SwnDbXczxeqMHC37nsX8YqdrPBDB8sh3qC
-         6qk2yoUHjIu4xV1SXNdM4EPF7yTTVQPF5N0tOgLB2sS2SzYbk9TJ3d4UtH1bhAUQpV
-         mwPpoiAR6D9u91v1Hbw7+d+K8G21f29PsXE3HgJ0=
-Subject: FAILED: patch "[PATCH] ftrace: Fix use-after-free for dynamic ftrace_ops" failed to apply to 4.14-stable tree
+        b=JE/qVfW02yGYkWyrVBhj/ON1rtBvIgs8rUnOYtUtEQqoETtDU/LM4j0Pw+rp24X/u
+         V4ku8Et+4NE0hHlp4zaq053TX6XxxLQccMEU/WBDVguKkdQW2YmDHAasy2F7m2x/LU
+         MyKfWwVuZbsltHAMxl7ojatD/j/6jldzGVhk4xxA=
+Subject: FAILED: patch "[PATCH] ftrace: Fix use-after-free for dynamic ftrace_ops" failed to apply to 4.9-stable tree
 To:     lihuafei1@huawei.com, rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Nov 2022 13:27:29 +0100
-Message-ID: <1667824049187126@kroah.com>
+Date:   Mon, 07 Nov 2022 13:27:31 +0100
+Message-ID: <1667824051131161@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,6 +61,19 @@ b3a88803ac5b ("ftrace: Kill FTRACE_OPS_FL_PER_CPU")
 aba4b5c22cba ("ftrace: Save module init functions kallsyms symbols for tracing")
 3e234289f86b ("ftrace: Allow module init functions to be traced")
 6cafbe159416 ("ftrace: Add a ftrace_free_mem() function for modules to use")
+edb096e00724 ("ftrace: Fix memleak when unregistering dynamic ops when tracing disabled")
+8c08f0d5c6fb ("ftrace: Have cached module filters be an active filter")
+d7fbf8df7ca0 ("ftrace: Implement cached modules tracing on module load")
+673feb9d76ab ("ftrace: Add :mod: caching infrastructure to trace_array")
+d0ba52f1d764 ("ftrace: Add missing comment for FTRACE_OPS_FL_RCU")
+04ec7bb642b7 ("tracing: Have the trace_array hold the list of registered func probes")
+eee8ded131f1 ("ftrace: Have the function probes call their own function")
+1ec3a81a0cf4 ("ftrace: Have each function probe use its own ftrace_ops")
+d3d532d798c5 ("ftrace: Have unregister_ftrace_function_probe_func() return a value")
+1a48df0041c2 ("ftrace: Remove data field from ftrace_func_probe structure")
+02b77e2afb49 ("ftrace: Remove printing of data in showing of a function probe")
+78f78e07d51e ("ftrace: Remove unused unregister_ftrace_function_probe_all() function")
+0fe7e7e3f839 ("ftrace: Remove unused unregister_ftrace_function_probe() function")
 
 thanks,
 
