@@ -2,108 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5104461F735
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 16:10:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30CE061F764
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 16:17:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232754AbiKGPKV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 10:10:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51936 "EHLO
+        id S231836AbiKGPRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 10:17:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232764AbiKGPKQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 10:10:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01BAB1E734;
-        Mon,  7 Nov 2022 07:10:12 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94182B811FE;
-        Mon,  7 Nov 2022 15:10:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84BF6C433D6;
-        Mon,  7 Nov 2022 15:10:09 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="npXTMzp6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1667833806;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=6E8sfh+KSW/lm2DELWM82NFs3eR+f8Xe/dkT5NK6VD0=;
-        b=npXTMzp6yxpCXYiMribA+Dky7Ipee3hui1bOJgH1hzYBZEWIZJOHrQwjIyBeXcLdOZUnSe
-        6FKLMierw6qCWpDb8iU4Mwb/sVA8QRhovFI61nau5UeiSXVyDqEUTpe3/gQWl8N0lfhaWO
-        OpgxtnC9EP/w3D/5kPMExHv01wrd8WE=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 146ef571 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Mon, 7 Nov 2022 15:10:06 +0000 (UTC)
-Date:   Mon, 7 Nov 2022 16:09:58 +0100
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Gabriel Krisman Bertazi <krisman@suse.de>
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        krisman@collabora.com, jirislaby@kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] unicode: don't write -1 after NUL terminator
-Message-ID: <Y2kfxmf3x5bF6tkR@zx2c4.com>
-References: <79db9616-a2ee-9a1a-9a35-b82f65b6d15e@kernel.org>
- <20221103113021.3271-1-Jason@zx2c4.com>
- <87sfiux1q2.fsf@suse.de>
+        with ESMTP id S231481AbiKGPRf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 10:17:35 -0500
+Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D85261EAF8
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 07:17:34 -0800 (PST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 47F005C0165;
+        Mon,  7 Nov 2022 10:17:34 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Mon, 07 Nov 2022 10:17:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1667834254; x=1667920654; bh=CUkidtKBWW
+        HcMNGXxiC5dIRtRiBf96s5Ar+SA4WMLoM=; b=Ib8siO1V8SvKVBQwHzZbNFbU+K
+        x9OjCH8RUOp4dI8TESxSYQMG7h2tHOZnGGvUz17Zp9EWvfBMCbB7a1MQUikJDEcQ
+        6i0oXQzUjrVkkQPaCZk0e3VZHdAF/XAAufzHyGiw0MIu/PabcMZ+NVSqLMhfNTBO
+        sxYs30v6dOAXZalITF75sPA/wAuiS2qICzVqRpgsZ6yZtkr1Ue5aZbjfUwBMBBey
+        ly3QSI0ni7J32DqTUvj0Vv6niz9iyNNHEO/rQNvPQdLio6gSvIXyfeanfsKrwYqA
+        xMUxTldcD9I7ejYnIpE4PPMWIc67trey7KMPHn8eTzc03zNEBi+pjTCArM6w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; t=1667834254; x=1667920654; bh=CUkidtKBWWHcMNGXxiC5dIRtRiBf
+        96s5Ar+SA4WMLoM=; b=ioR1pi+s2Ghoy2YKCLYD+pk1J5w3war0+CfwgwciJ+Te
+        kLvVwT6OrUZY6wCuNfohcvyGRYf1zg0jlTdZWlPuTRpRxlnhTBBz43clXu65OOH1
+        g2ei0Dv10eNuNbWaTTZy1kcNj2hv4jpyOtCDdEwdimI/wBIVX8YQ/T26gdm5w1O/
+        6UeFToCHgp8kjZBqTzEg4YpIggisMskQm3ZZnk9RrdzROfDucSVm79Navjv+aXYc
+        89EMYHemLQ6Fn4ZQe9X8vHXrUm5PRD+AgOlauwS81bz1aa28wD1bd71e3esAgA0u
+        6dD00jWCqUipbX3hSJ5m8xV4g6AFFxQD7g+r9j2DCQ==
+X-ME-Sender: <xms:jSFpY_PJx4cqrJddvKnrTJVpWRTLPU7nT1iKfW8Vlbgzk8-QrurqXQ>
+    <xme:jSFpY59qe30agYtvNASkZdZK0hqJTKqhHlzqbphdgdFcG1yO_miQK6Q3V1yWZUejx
+    uSksFOgEx2Yew>
+X-ME-Received: <xmr:jSFpY-SXS3Mueysw9ag-TnUZolzTS8hQKKdcVBjgT3LGm6DpCfggLh-Dxbgh2oRCvVdkBHUSfWED4D1lJlNl5IPT622qqPeW>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrvdekgdejvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeegheeuhe
+    fgtdeluddtleekfeegjeetgeeikeehfeduieffvddufeefleevtddtvdenucffohhmrghi
+    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:jiFpYzvwuQTB-pklmJpPdwgyup8fLh-nVQ7Hd-9I7-agHwLlFBCXVA>
+    <xmx:jiFpY3cPqO3XXsqL8y9uMY7G41zOflou5PVcsSynG_y1ENIyPyLQlw>
+    <xmx:jiFpY_0bDiMeHIQzhn49c_HZgG550a_g4YX2ZIb1dNsMUh9woDnjdg>
+    <xmx:jiFpY-7Bw24Pbz_SsTPpW2NIItbVdGiGa4fF5FQzyfQAJDkxvLSarg>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 7 Nov 2022 10:17:33 -0500 (EST)
+Date:   Mon, 7 Nov 2022 16:17:23 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc:     stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH 4.14] tcp/udp: Make early_demux back namespacified.
+Message-ID: <Y2khg2DvyLLgQDYi@kroah.com>
+References: <20221103235033.47512-1-kuniyu@amazon.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87sfiux1q2.fsf@suse.de>
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20221103235033.47512-1-kuniyu@amazon.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Gabriel,
+On Thu, Nov 03, 2022 at 04:50:33PM -0700, Kuniyuki Iwashima wrote:
+> commit 11052589cf5c0bab3b4884d423d5f60c38fcf25d upstream
+> 
+> Commit e21145a9871a ("ipv4: namespacify ip_early_demux sysctl knob") made
+> it possible to enable/disable early_demux on a per-netns basis.  Then, we
+> introduced two knobs, tcp_early_demux and udp_early_demux, to switch it for
+> TCP/UDP in commit dddb64bcb346 ("net: Add sysctl to toggle early demux for
+> tcp and udp").  However, the .proc_handler() was wrong and actually
+> disabled us from changing the behaviour in each netns.
+> 
+> We can execute early_demux if net.ipv4.ip_early_demux is on and each proto
+> .early_demux() handler is not NULL.  When we toggle (tcp|udp)_early_demux,
+> the change itself is saved in each netns variable, but the .early_demux()
+> handler is a global variable, so the handler is switched based on the
+> init_net's sysctl variable.  Thus, netns (tcp|udp)_early_demux knobs have
+> nothing to do with the logic.  Whether we CAN execute proto .early_demux()
+> is always decided by init_net's sysctl knob, and whether we DO it or not is
+> by each netns ip_early_demux knob.
+> 
+> This patch namespacifies (tcp|udp)_early_demux again.  For now, the users
+> of the .early_demux() handler are TCP and UDP only, and they are called
+> directly to avoid retpoline.  So, we can remove the .early_demux() handler
+> from inet6?_protos and need not dereference them in ip6?_rcv_finish_core().
+> If another proto needs .early_demux(), we can restore it at that time.
+> 
+> Fixes: dddb64bcb346 ("net: Add sysctl to toggle early demux for tcp and udp")
+> Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+> Link: https://lore.kernel.org/r/20220713175207.7727-1-kuniyu@amazon.com
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-On Mon, Nov 07, 2022 at 09:45:25AM -0500, Gabriel Krisman Bertazi wrote:
-> "Jason A. Donenfeld" <Jason@zx2c4.com> writes:
-> 
-> > If the intention is to overwrite the first NUL with a -1, s[strlen(s)]
-> > is the first NUL, not s[strlen(s)+1].
-> 
-> Hi Jason,
-> 
-> This code is part of the verification of the trie that done at the end
-> of utf8data generation. It is making sure the tree is not corrupted, by
-> ensuring that utf8byte doesn't see something past the correct end of the
-> string (the first NULL byte).  Note it is not a bad memory access
-> either, since we guarantee to have allocated enough space.
-> 
-> So I think the code is correct as is. if you apply your patch and
-> regenerate utf8data.h_shipped, utf8byte will reach that -1 and fail the
-> verification.
+All now queued up, thanks.
 
-Ah, okay. "Replace NUL" would seem to be wrong/confusing comment text I
-suppose. Thanks for the explanation anyhow, and sorry for the noise.
-
-Jason
-
-> 
-> > Cc: Gabriel Krisman Bertazi <krisman@collabora.com>
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> > ---
-> >  fs/unicode/mkutf8data.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/fs/unicode/mkutf8data.c b/fs/unicode/mkutf8data.c
-> > index bc1a7c8b5c8d..61800e0d3226 100644
-> > --- a/fs/unicode/mkutf8data.c
-> > +++ b/fs/unicode/mkutf8data.c
-> > @@ -3194,7 +3194,7 @@ static int normalize_line(struct tree *tree)
-> >  	/* Second test: length-limited string. */
-> >  	s = buf2;
-> >  	/* Replace NUL with a value that will cause an error if seen. */
-> > -	s[strlen(s) + 1] = -1;
-> > +	s[strlen(s)] = -1;
-> >  	t = buf3;
-> >  	if (utf8cursor(&u8c, tree, s))
-> >  		return -1;
-> 
-> -- 
-> Gabriel Krisman Bertazi
+greg k-h
