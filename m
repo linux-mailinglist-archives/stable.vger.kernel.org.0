@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BCA961FA50
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:47:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3286B61FA51
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:47:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231462AbiKGQrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 11:47:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41412 "EHLO
+        id S232231AbiKGQru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 11:47:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231324AbiKGQrl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:47:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 592191F2C9
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:47:41 -0800 (PST)
+        with ESMTP id S232211AbiKGQrt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:47:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFF341F2C9
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:47:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8682611BD
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:47:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21184C433D7;
-        Mon,  7 Nov 2022 16:47:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76F32611C1
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:47:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80C18C433D7;
+        Mon,  7 Nov 2022 16:47:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667839660;
-        bh=4JNzNv67iPrmMNR+GgWuWVNSg9M2aB0xRURsNiLlxu0=;
+        s=korg; t=1667839667;
+        bh=DwlEp+fpLnUCANQb7Znu9lrTiw4MA0u6wlx+avoG78Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=kS0wGxvk/5vsLLhompYkg0w44ihIAg1ylFKTMjtOIk2jLbi18T+4vOU/xoa1AAi9W
-         Xj2qqrinS+KrwNm5uhwNB3wHu2CAZ2R847liKxrQA9gzI83lcPJjknkBU/I4YYMHu+
-         4FC8oxYS6f5FVdT3iECyN1p3lOtCCWWuq2kZE51c=
-Subject: FAILED: patch "[PATCH] KVM: x86: Mask off reserved bits in CPUID.8000001AH" failed to apply to 4.19-stable tree
+        b=av4mI8qBKwR+5hZfZlQ4maSYuMqo/qLaWb+TfKihknMrFcCgLnvDDqrAoFwBIQslJ
+         E5NMxC8Krf9TxLvQsxB2GZlBhmSF1mzAdz7lPORGz1fv/f2TRBWyvS3fmHTXuuNdji
+         DrmoBxHyP+Wj8kgbRGcLGqufLFinsFJbJ2eJZqMs=
+Subject: FAILED: patch "[PATCH] KVM: x86: Mask off reserved bits in CPUID.8000001AH" failed to apply to 4.14-stable tree
 To:     jmattson@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Nov 2022 17:47:35 +0100
-Message-ID: <166783965535251@kroah.com>
+Date:   Mon, 07 Nov 2022 17:47:36 +0100
+Message-ID: <1667839656176141@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
