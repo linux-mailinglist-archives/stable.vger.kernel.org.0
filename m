@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BE5661F7BF
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 16:35:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9659A61F7C4
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 16:36:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232145AbiKGPfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 10:35:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39622 "EHLO
+        id S232511AbiKGPgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 10:36:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231433AbiKGPfE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 10:35:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0E3EC35
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 07:35:03 -0800 (PST)
+        with ESMTP id S232555AbiKGPgH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 10:36:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C5B11C12E
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 07:36:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DC706090B
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 15:35:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CEE1C433D6;
-        Mon,  7 Nov 2022 15:35:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4CBD1B81215
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 15:36:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40335C433B5;
+        Mon,  7 Nov 2022 15:36:03 +0000 (UTC)
 Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="GOCo5F0W"
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="hA+JxDQ6"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1667835300;
+        t=1667835360;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=mExtcoYhJMoCLqx21YbsynviZd1Yl09W55tzkj9rMB8=;
-        b=GOCo5F0W7TlWmQSsybgGMs940AKPQQ6P04y7LiusWoWdEhILeZWEnAkgxBe1xdlPMRS/ee
-        y5Iv8r3NNOt1KX9JWORrDoHg6/buk17D4XFYqfBhe3pl/4wKd7Sq1kh9VUFegttYpR/VDf
-        ekgJblM87WTW1yolCNUOIPe4eSAa3Mg=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id fcb65fcf (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Mon, 7 Nov 2022 15:34:59 +0000 (UTC)
+        bh=D9vocWNXJBjlYSYi1SYn5MPKJb2/JhDTTJ5KWtoy7jY=;
+        b=hA+JxDQ6mxS8rDVgn/HTM0pqPZtz6fltXkfA70WdmXBRL0a6FANTFP0Anmbh4zoeXnnn/g
+        7TCtm/FeRGq/dEhMxI5/udsNp5LZZ2I1XoFDb5rAgKkNny2O2RXBcWIl+IJTMEJwlgf9nk
+        Cd/6siTo9lPDvfYXqWzdOrmdveA2jZY=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 8f40a478 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Mon, 7 Nov 2022 15:36:00 +0000 (UTC)
 From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
 To:     gregkh@linuxfoundation.org
 Cc:     Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org,
         "Jason A . Donenfeld" <Jason@zx2c4.com>,
         Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Subject: [PATCH 4.19.y] efi: random: reduce seed size to 32 bytes
-Date:   Mon,  7 Nov 2022 16:34:44 +0100
-Message-Id: <20221107153444.21657-1-Jason@zx2c4.com>
-In-Reply-To: <1667834910140236@kroah.com>
-References: <1667834910140236@kroah.com>
+Subject: [PATCH 4.14.y] efi: random: reduce seed size to 32 bytes
+Date:   Mon,  7 Nov 2022 16:35:52 +0100
+Message-Id: <20221107153552.21981-1-Jason@zx2c4.com>
+In-Reply-To: <16678349111147@kroah.com>
+References: <16678349111147@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -82,10 +82,10 @@ Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 7098744f9276..f0ef2643b70e 100644
+index 24365601fbbf..ed981f5e29ae 100644
 --- a/drivers/firmware/efi/efi.c
 +++ b/drivers/firmware/efi/efi.c
-@@ -556,7 +556,7 @@ int __init efi_config_parse_tables(void *config_tables, int count, int sz,
+@@ -532,7 +532,7 @@ int __init efi_config_parse_tables(void *config_tables, int count, int sz,
  
  		seed = early_memremap(efi.rng_seed, sizeof(*seed));
  		if (seed != NULL) {
@@ -95,10 +95,10 @@ index 7098744f9276..f0ef2643b70e 100644
  		} else {
  			pr_err("Could not map UEFI random seed!\n");
 diff --git a/include/linux/efi.h b/include/linux/efi.h
-index ec89e8bcc92f..789a194e18a4 100644
+index 2c63afd68978..8b25cd2bed40 100644
 --- a/include/linux/efi.h
 +++ b/include/linux/efi.h
-@@ -1655,7 +1655,7 @@ efi_status_t efi_exit_boot_services(efi_system_table_t *sys_table,
+@@ -1607,7 +1607,7 @@ efi_status_t efi_exit_boot_services(efi_system_table_t *sys_table,
  				    void *priv,
  				    efi_exit_boot_map_processing priv_func);
  
