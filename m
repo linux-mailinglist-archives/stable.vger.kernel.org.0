@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1355061F7A0
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 16:28:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC54361F7A1
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 16:29:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231754AbiKGP2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 10:28:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35212 "EHLO
+        id S231795AbiKGP3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 10:29:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232331AbiKGP2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 10:28:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36D1F12D06
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 07:28:44 -0800 (PST)
+        with ESMTP id S231675AbiKGP3B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 10:29:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28BF21E9
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 07:29:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADA0361196
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 15:28:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4B09C433D6;
-        Mon,  7 Nov 2022 15:28:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A94A1B812AA
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 15:28:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 049FCC433D7;
+        Mon,  7 Nov 2022 15:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667834923;
-        bh=FJtbIMc0QBwKfVt8fb7WzYrChNllIkYGqoKR6RRzigc=;
+        s=korg; t=1667834937;
+        bh=e6XbszgIr9MEcwdIa+Z/nqTBFBh38vxavEKCHeqQin0=;
         h=Subject:To:Cc:From:Date:From;
-        b=Zyabge5Zig1j4Ii66TklyYJv9/VV8ia2ajKgsHaBhiDTWfhhjRawFINIDUeGKMwqQ
-         0+pXvbk83oqXU94BjI/A3w3j2Sw+x8BhLwymQSs9V3HTgEjtqdq7Ofpppai/1dsuej
-         IDnJrAmpUy2u51pd6fBg8Om3EVMDWbI281r9mVUs=
-Subject: FAILED: patch "[PATCH] efi: random: reduce seed size to 32 bytes" failed to apply to 4.14-stable tree
-To:     ardb@kernel.org, Jason@zx2c4.com, ilias.apalodimas@linaro.org,
+        b=Pye4wVeMOtfB4pg7xY+dVBXhiQ3HsMW8dvxaAecf9gOWOo+FH+YrHnO3z5pc1vMDo
+         8R/yKpWPm5rqToKUBEhL0Sg+ANCJK3ci50UsTckgCZzfvOzyJv6Q5nKIvskLLXGsGq
+         g+Z7efGEVmIzUP4Lk32xgdI0rPzq5w61SoVDA7b0=
+Subject: FAILED: patch "[PATCH] efi: random: Use 'ACPI reclaim' memory for random seed" failed to apply to 5.4-stable tree
+To:     ardb@kernel.org, ilias.apalodimas@linaro.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Nov 2022 16:28:31 +0100
-Message-ID: <16678349111147@kroah.com>
+Date:   Mon, 07 Nov 2022 16:28:54 +0100
+Message-ID: <166783493412438@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,15 +48,33 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-161a438d730d ("efi: random: reduce seed size to 32 bytes")
-6120681bdf1a ("Merge branch 'efi/urgent' into efi/core, to pick up fixes")
+7d866e38c7e9 ("efi: random: Use 'ACPI reclaim' memory for random seed")
+966291f6344d ("efi/libstub: Rename efi_call_early/_runtime macros to be more intuitive")
+99ea8b1db2d2 ("efi/libstub: Drop 'table' argument from efi_table_attr() macro")
+47c0fd39b7b8 ("efi/libstub: Drop protocol argument from efi_call_proto() macro")
+cd33a5c1d53e ("efi/libstub: Remove 'sys_table_arg' from all function prototypes")
+8173ec7905b5 ("efi/libstub: Drop sys_table_arg from printk routines")
+c3710de5065d ("efi/libstub/x86: Drop __efi_early() export and efi_config struct")
+dc29da14ed94 ("efi/libstub: Unify the efi_char16_printk implementations")
+2fcdad2a80a6 ("efi/libstub: Get rid of 'sys_table_arg' macro parameter")
+afc4cc71cf78 ("efi/libstub/x86: Avoid thunking for native firmware calls")
+960a8d01834e ("efi/libstub: Use stricter typing for firmware function pointers")
+e8bd5ddf60ee ("efi/libstub: Drop explicit 32/64-bit protocol definitions")
+f958efe97596 ("efi/libstub: Distinguish between native/mixed not 32/64 bit")
+1786e8301164 ("efi/libstub: Extend native protocol definitions with mixed_mode aliases")
+2732ea0d5c0a ("efi/libstub: Use a helper to iterate over a EFI handle array")
+58ec655a7573 ("efi/libstub: Remove unused __efi_call_early() macro")
+8de8788d2182 ("efi/gop: Unify 32/64-bit functions")
+44c84b4ada73 ("efi/gop: Convert GOP structures to typedef and clean up some types")
+8d62af177812 ("efi/gop: Remove bogus packed attribute from GOP structures")
+4911ee401b7c ("x86/efistub: Disable paging at mixed mode entry")
 
 thanks,
 
@@ -64,49 +82,57 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 161a438d730dade2ba2b1bf8785f0759aba4ca5f Mon Sep 17 00:00:00 2001
+From 7d866e38c7e9ece8a096d0d098fa9d92b9d4f97e Mon Sep 17 00:00:00 2001
 From: Ard Biesheuvel <ardb@kernel.org>
-Date: Thu, 20 Oct 2022 10:39:08 +0200
-Subject: [PATCH] efi: random: reduce seed size to 32 bytes
+Date: Thu, 20 Oct 2022 10:39:09 +0200
+Subject: [PATCH] efi: random: Use 'ACPI reclaim' memory for random seed
 
-We no longer need at least 64 bytes of random seed to permit the early
-crng init to complete. The RNG is now based on Blake2s, so reduce the
-EFI seed size to the Blake2s hash size, which is sufficient for our
-purposes.
+EFI runtime services data is guaranteed to be preserved by the OS,
+making it a suitable candidate for the EFI random seed table, which may
+be passed to kexec kernels as well (after refreshing the seed), and so
+we need to ensure that the memory is preserved without support from the
+OS itself.
 
-While at it, drop the READ_ONCE(), which was supposed to prevent size
-from being evaluated after seed was unmapped. However, this cannot
-actually happen, so READ_ONCE() is unnecessary here.
+However, runtime services data is intended for allocations that are
+relevant to the implementations of the runtime services themselves, and
+so they are unmapped from the kernel linear map, and mapped into the EFI
+page tables that are active while runtime service invocations are in
+progress. None of this is needed for the RNG seed.
+
+So let's switch to EFI 'ACPI reclaim' memory: in spite of the name,
+there is nothing exclusively ACPI about it, it is simply a type of
+allocation that carries firmware provided data which may or may not be
+relevant to the OS, and it is left up to the OS to decide whether to
+reclaim it after having consumed its contents.
+
+Given that in Linux, we never reclaim these allocations, it is a good
+choice for the EFI RNG seed, as the allocation is guaranteed to survive
+kexec reboots.
+
+One additional reason for changing this now is to align it with the
+upcoming recommendation for EFI bootloader provided RNG seeds, which
+must not use EFI runtime services code/data allocations.
 
 Cc: <stable@vger.kernel.org> # v4.14+
 Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 
-diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 3ecdc43a3f2b..a46df5d1d094 100644
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -611,7 +611,7 @@ int __init efi_config_parse_tables(const efi_config_table_t *config_tables,
+diff --git a/drivers/firmware/efi/libstub/random.c b/drivers/firmware/efi/libstub/random.c
+index 24aa37535372..33ab56769595 100644
+--- a/drivers/firmware/efi/libstub/random.c
++++ b/drivers/firmware/efi/libstub/random.c
+@@ -75,7 +75,12 @@ efi_status_t efi_random_get_seed(void)
+ 	if (status != EFI_SUCCESS)
+ 		return status;
  
- 		seed = early_memremap(efi_rng_seed, sizeof(*seed));
- 		if (seed != NULL) {
--			size = READ_ONCE(seed->size);
-+			size = min(seed->size, EFI_RANDOM_SEED_SIZE);
- 			early_memunmap(seed, sizeof(*seed));
- 		} else {
- 			pr_err("Could not map UEFI random seed!\n");
-diff --git a/include/linux/efi.h b/include/linux/efi.h
-index 80f3c1c7827d..929d559ad41d 100644
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -1222,7 +1222,7 @@ efi_status_t efi_random_get_seed(void);
- 	arch_efi_call_virt_teardown();					\
- })
- 
--#define EFI_RANDOM_SEED_SIZE		64U
-+#define EFI_RANDOM_SEED_SIZE		32U // BLAKE2S_HASH_SIZE
- 
- struct linux_efi_random_seed {
- 	u32	size;
+-	status = efi_bs_call(allocate_pool, EFI_RUNTIME_SERVICES_DATA,
++	/*
++	 * Use EFI_ACPI_RECLAIM_MEMORY here so that it is guaranteed that the
++	 * allocation will survive a kexec reboot (although we refresh the seed
++	 * beforehand)
++	 */
++	status = efi_bs_call(allocate_pool, EFI_ACPI_RECLAIM_MEMORY,
+ 			     sizeof(*seed) + EFI_RANDOM_SEED_SIZE,
+ 			     (void **)&seed);
+ 	if (status != EFI_SUCCESS)
 
