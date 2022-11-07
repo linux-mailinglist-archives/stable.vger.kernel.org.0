@@ -2,106 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B73061F71B
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 16:05:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5104461F735
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 16:10:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232690AbiKGPFv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 10:05:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48988 "EHLO
+        id S232754AbiKGPKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 10:10:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232648AbiKGPFv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 10:05:51 -0500
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDBB815FEA
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 07:05:49 -0800 (PST)
-Received: by mail-pf1-x434.google.com with SMTP id v28so10857990pfi.12
-        for <stable@vger.kernel.org>; Mon, 07 Nov 2022 07:05:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=z6Knqsiq6vna0ldkWZeA3B+r2w8EfWBBb6+KgxrzBHA=;
-        b=y5bJcBbwgeikIPF6JX/HJKGom1C/1b8vdu258KUadd30brjgTfEZANG/Kha2t38TQH
-         toLYQ7eFW6o+AHXG9o1jq0WPTZgycNxFn5XQmGLECXTRgTvXz4PX7LPQR4rt2nbf+hNd
-         kEiL9x4LHcnbnTLDdM7p/NhjpWNi/nyS1o3XU22bjKGKXvZLy3Hu812y9FBfIuaVgheh
-         lypU6gSFXnQbLjDQ3X5xhITKamz9+TwXrkfLObezI1qp8ZH3flkT16sHLsFlJvmWMpL0
-         qfXMg4Xltyu4i05vG3Ahc6sWCoy3dGRMnpiqo/g6mW8QcyuO+OAcMczFxVfeQv/ENO4M
-         5tSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=z6Knqsiq6vna0ldkWZeA3B+r2w8EfWBBb6+KgxrzBHA=;
-        b=2IvbQy0x13Cj4htEky9QIPtpkpbV0HTKmDiliALdhWPzg/crx6R56ZyLhq3GjcmDPw
-         B/ZhjOKzazK/jOSvFCyAryRwlTKG0t5q6ivNqNgJqH5NXxo+kU2cB2R0WDYZE92LgQ2/
-         ODAYJT+Lbeyf1TyLCcN9HPWamOjucb+2njlLtTAH4c3/5qrIt/Tt4M7ZAHIDDkKxasVp
-         C+RXcDlMg6f2McJ66eJXB+h6bnOQXR3MhRep6+L5w01RTA2Mrq0pm8CssSBQTkw8BiFM
-         lssvrmP0MJImeUTsb6LdrU8bGff6RvS/0vXZkaiNIjq3iaznajtuTeXPhi6mueg+GGz1
-         ejvw==
-X-Gm-Message-State: ACrzQf3Ho9H5Lwq/u0nAKrwoX6AhRiA6EC3sahzK0UFqq4T3QucMcW0M
-        5wTUYB3rUNqaGJXJFMLoZnPs3Q==
-X-Google-Smtp-Source: AMsMyM66R0V2WVVWJ13espn3QxPLwHi3aPrKR3wMyMlXVj+fZClycfNJHZWzhP0GEy0pB+sVPmO4Iw==
-X-Received: by 2002:a63:485f:0:b0:458:764a:2224 with SMTP id x31-20020a63485f000000b00458764a2224mr42765354pgk.620.1667833549288;
-        Mon, 07 Nov 2022 07:05:49 -0800 (PST)
-Received: from [10.255.93.192] ([139.177.225.251])
-        by smtp.gmail.com with ESMTPSA id a10-20020a170902b58a00b00187033cac81sm5110920pls.145.2022.11.07.07.05.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Nov 2022 07:05:48 -0800 (PST)
-Message-ID: <4736d199-7e70-6bc3-30e6-0f644c81a10c@bytedance.com>
-Date:   Mon, 7 Nov 2022 23:05:42 +0800
+        with ESMTP id S232764AbiKGPKQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 10:10:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01BAB1E734;
+        Mon,  7 Nov 2022 07:10:12 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94182B811FE;
+        Mon,  7 Nov 2022 15:10:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84BF6C433D6;
+        Mon,  7 Nov 2022 15:10:09 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="npXTMzp6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1667833806;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=6E8sfh+KSW/lm2DELWM82NFs3eR+f8Xe/dkT5NK6VD0=;
+        b=npXTMzp6yxpCXYiMribA+Dky7Ipee3hui1bOJgH1hzYBZEWIZJOHrQwjIyBeXcLdOZUnSe
+        6FKLMierw6qCWpDb8iU4Mwb/sVA8QRhovFI61nau5UeiSXVyDqEUTpe3/gQWl8N0lfhaWO
+        OpgxtnC9EP/w3D/5kPMExHv01wrd8WE=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 146ef571 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Mon, 7 Nov 2022 15:10:06 +0000 (UTC)
+Date:   Mon, 7 Nov 2022 16:09:58 +0100
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     Gabriel Krisman Bertazi <krisman@suse.de>
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        krisman@collabora.com, jirislaby@kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] unicode: don't write -1 after NUL terminator
+Message-ID: <Y2kfxmf3x5bF6tkR@zx2c4.com>
+References: <79db9616-a2ee-9a1a-9a35-b82f65b6d15e@kernel.org>
+ <20221103113021.3271-1-Jason@zx2c4.com>
+ <87sfiux1q2.fsf@suse.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.3.3
-Subject: Re: [PATCH] mm: fix unexpected changes to
- {failslab|fail_page_alloc}.attr
-Content-Language: en-US
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     dvyukov@google.com, willy@infradead.org, akinobu.mita@gmail.com,
-        akpm@linux-foundation.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-fsdevel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <CACT4Y+Zc21Aj+5KjeTEsvOysJGHRYDSKgu_+_xN1LUYfG_H0sg@mail.gmail.com>
- <20221107033109.59709-1-zhengqi.arch@bytedance.com>
- <Y2j9Q/yMmqgPPUoO@nvidia.com>
-From:   Qi Zheng <zhengqi.arch@bytedance.com>
-In-Reply-To: <Y2j9Q/yMmqgPPUoO@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <87sfiux1q2.fsf@suse.de>
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Gabriel,
 
-
-On 2022/11/7 20:42, Jason Gunthorpe wrote:
-> On Mon, Nov 07, 2022 at 11:31:09AM +0800, Qi Zheng wrote:
+On Mon, Nov 07, 2022 at 09:45:25AM -0500, Gabriel Krisman Bertazi wrote:
+> "Jason A. Donenfeld" <Jason@zx2c4.com> writes:
 > 
->> @@ -31,9 +33,9 @@ bool __should_failslab(struct kmem_cache *s, gfp_t gfpflags)
->>   		return false;
->>   
->>   	if (gfpflags & __GFP_NOWARN)
->> -		failslab.attr.no_warn = true;
->> +		flags |= FAULT_NOWARN;
+> > If the intention is to overwrite the first NUL with a -1, s[strlen(s)]
+> > is the first NUL, not s[strlen(s)+1].
 > 
-> You should add a comment here about why this is required, to avoid
-> deadlocking printk
+> Hi Jason,
+> 
+> This code is part of the verification of the trie that done at the end
+> of utf8data generation. It is making sure the tree is not corrupted, by
+> ensuring that utf8byte doesn't see something past the correct end of the
+> string (the first NULL byte).  Note it is not a bad memory access
+> either, since we guarantee to have allocated enough space.
+> 
+> So I think the code is correct as is. if you apply your patch and
+> regenerate utf8data.h_shipped, utf8byte will reach that -1 and fail the
+> verification.
 
-I think this comment should be placed where __GFP_NOWARN is specified
-instead of here. What do you think? :)
+Ah, okay. "Replace NUL" would seem to be wrong/confusing comment text I
+suppose. Thanks for the explanation anyhow, and sorry for the noise.
 
-Thanks,
-Qi
+Jason
 
 > 
-> Jason
-
--- 
-Thanks,
-Qi
+> > Cc: Gabriel Krisman Bertazi <krisman@collabora.com>
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> > ---
+> >  fs/unicode/mkutf8data.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/fs/unicode/mkutf8data.c b/fs/unicode/mkutf8data.c
+> > index bc1a7c8b5c8d..61800e0d3226 100644
+> > --- a/fs/unicode/mkutf8data.c
+> > +++ b/fs/unicode/mkutf8data.c
+> > @@ -3194,7 +3194,7 @@ static int normalize_line(struct tree *tree)
+> >  	/* Second test: length-limited string. */
+> >  	s = buf2;
+> >  	/* Replace NUL with a value that will cause an error if seen. */
+> > -	s[strlen(s) + 1] = -1;
+> > +	s[strlen(s)] = -1;
+> >  	t = buf3;
+> >  	if (utf8cursor(&u8c, tree, s))
+> >  		return -1;
+> 
+> -- 
+> Gabriel Krisman Bertazi
