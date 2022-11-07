@@ -2,41 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61F3F61FF2A
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 21:08:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 403D46200C9
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 22:15:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232764AbiKGUII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 15:08:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46880 "EHLO
+        id S232258AbiKGVPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 16:15:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232706AbiKGUIE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 15:08:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EAA12AC6C;
-        Mon,  7 Nov 2022 12:08:01 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S233490AbiKGVOV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 16:14:21 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 446142E9F1
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 13:10:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667855434;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=SzHKQ14nNjsViFBZiKyyfTIyPTT6hamOAKSnybTM1Zw=;
+        b=hByG6/KMyHiHtd9MWM+xKwJljVmmZu2yIsMSl2hrkKwufLLf6bSqkudHiZspoBTHaudyZ0
+        ggd7L8lgrp/r+BnJWKyS6M/3Uv/8Vy8nbnKqbzgJPwseRFJjGV2EYbi1ujT3HLTDJAEdY8
+        xULO40Vx4kL2IQnVGsf+aDBtLM4H5JM=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-586-ae7_CcN2MzCInPJVtmyiNA-1; Mon, 07 Nov 2022 16:10:31 -0500
+X-MC-Unique: ae7_CcN2MzCInPJVtmyiNA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B96B6B815E9;
-        Mon,  7 Nov 2022 20:07:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CFAAC433C1;
-        Mon,  7 Nov 2022 20:07:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1667851678;
-        bh=lRVwPbiW9Ke3lUP7cnc9X5B7hikZ/+lOO4v31Zn6Gxw=;
-        h=Date:To:From:Subject:From;
-        b=exSwZ97j0PPo0ccjrPsDcbuL9Y5d64QbRD83N7gQLTcLxTue9U2W3LtWmfR7raZtH
-         wcWOqi65Gf1Mhlhzl0LgxNR+frdy7RqPZA4ZPWDVdr8ThTBoH3Kxiax11g8fjeWKlX
-         4QIlFKzjROZLAAQm2wRF2JuCMOyRPeDX+uoTUkeg=
-Date:   Mon, 07 Nov 2022 12:07:57 -0800
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org, sj@kernel.org,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-damon-dbgfs-check-if-rm_contexts-input-is-for-a-real-context.patch added to mm-hotfixes-unstable branch
-Message-Id: <20221107200758.4CFAAC433C1@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D1270101A5AD;
+        Mon,  7 Nov 2022 21:10:30 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id CC5ED2027063;
+        Mon,  7 Nov 2022 21:10:30 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 2A7LAUnq004909;
+        Mon, 7 Nov 2022 16:10:30 -0500
+Received: from localhost (mpatocka@localhost)
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 2A7LAUQG004905;
+        Mon, 7 Nov 2022 16:10:30 -0500
+X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
+Date:   Mon, 7 Nov 2022 16:10:30 -0500 (EST)
+From:   Mikulas Patocka <mpatocka@redhat.com>
+X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
+To:     Greg KH <gregkh@linuxfoundation.org>
+cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 5.15 2/2] provide arch_test_bit_acquire for architectures
+ that define test_bit
+In-Reply-To: <Y2kiGNpHW8pYBVk6@kroah.com>
+Message-ID: <alpine.LRH.2.21.2211071541450.2058@file01.intranet.prod.int.rdu2.redhat.com>
+References: <alpine.LRH.2.21.2210270841040.22202@file01.intranet.prod.int.rdu2.redhat.com> <Y2kiGNpHW8pYBVk6@kroah.com>
+User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -44,111 +68,68 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/damon/dbgfs: check if rm_contexts input is for a real context
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-damon-dbgfs-check-if-rm_contexts-input-is-for-a-real-context.patch
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-damon-dbgfs-check-if-rm_contexts-input-is-for-a-real-context.patch
+On Mon, 7 Nov 2022, Greg KH wrote:
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+> On Thu, Oct 27, 2022 at 08:41:45AM -0400, Mikulas Patocka wrote:
+> > commit d6ffe6067a54972564552ea45d320fb98db1ac5e upstream.
+> > 
+> > Some architectures define their own arch_test_bit and they also need
+> > arch_test_bit_acquire, otherwise they won't compile.  We also clean up
+> > the code by using the generic test_bit if that is equivalent to the
+> > arch-specific version.
+> > 
+> > Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+> > Cc: stable@vger.kernel.org
+> > Fixes: 8238b4579866 ("wait_on_bit: add an acquire memory barrier")
+> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > 
+> > ---
+> >  arch/alpha/include/asm/bitops.h   |    7 +++++++
+> >  arch/h8300/include/asm/bitops.h   |    3 ++-
+> >  arch/hexagon/include/asm/bitops.h |   15 +++++++++++++++
+> >  arch/ia64/include/asm/bitops.h    |    7 +++++++
+> >  arch/m68k/include/asm/bitops.h    |    6 ++++++
+> >  arch/s390/include/asm/bitops.h    |    7 +++++++
+> >  arch/sh/include/asm/bitops-op32.h |    7 +++++++
+> >  7 files changed, 51 insertions(+), 1 deletion(-)
+> 
+> This is _very_ different from the upstream change that you are trying to
+> backport here.
+> 
+> Are you sure it is correct?
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+I compile-tested it with all the cross-compilers downloaded from 
+https://mirrors.edge.kernel.org/pub/tools/crosstool/ (I tried to compile 
+the file kernel/sched/build_utility.o that includes wait_bit.c)
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+> You are adding real functions for these
+> arches, while the original backport was _REMOVING_ them and having the
+> arch code call the generic functions.
 
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
+The kernels 5.19 and older don't contain the function generic_test_bit - 
+and they don't contain the file 
+"include/asm-generic/bitops/generic-non-atomic.h" where this function is 
+defined. The test_bit code was refactored in 6.0 - see the commits
 
-------------------------------------------------------
-From: SeongJae Park <sj@kernel.org>
-Subject: mm/damon/dbgfs: check if rm_contexts input is for a real context
-Date: Mon, 7 Nov 2022 16:50:00 +0000
+21bb8af513d35c005c401706030f4eb469538d1d
+0e862838f290147ea9c16db852d8d494b552d38d
+bb7379bfa680bd48b468e856475778db2ad866c1
+e69eb9c460f128b71c6b995d75a05244e4b6cc3e
+b03fc1173c0c2bb8fad61902a862985cecdc4b1b
 
-A user could write a name of a file under 'damon/' debugfs directory,
-which is not a user-created context, to 'rm_contexts' file.  In the case,
-'dbgfs_rm_context()' just assumes it's the valid DAMON context directory
-only if a file of the name exist.  As a result, invalid memory access
-could happen as below.  Fix the bug by checking if the given input is for
-a directory.  This check can filter out non-context inputs because
-directories under 'damon/' debugfs directory can be created via only
-'mk_contexts' file.
+So, the upstream patch doesn't apply to the older kernels.
 
-This bug has found by syzbot[1].
+> So why is this the same?
 
-[1] https://lore.kernel.org/damon/000000000000ede3ac05ec4abf8e@google.com/
+Functionally, it is equivalent if you define a function test_bit_acquire 
+or refer to an existing generic_test_bit_acquire that has the same 
+content.
 
-Link: https://lkml.kernel.org/r/20221107165001.5717-2-sj@kernel.org
-Fixes: 75c1c2b53c78 ("mm/damon/dbgfs: support multiple contexts")
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Reported-by: syzbot+6087eafb76a94c4ac9eb@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>	[5.15.x]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+Mikulas
 
- mm/damon/dbgfs.c |    7 +++++++
- 1 file changed, 7 insertions(+)
-
---- a/mm/damon/dbgfs.c~mm-damon-dbgfs-check-if-rm_contexts-input-is-for-a-real-context
-+++ a/mm/damon/dbgfs.c
-@@ -890,6 +890,7 @@ out:
- static int dbgfs_rm_context(char *name)
- {
- 	struct dentry *root, *dir, **new_dirs;
-+	struct inode *inode;
- 	struct damon_ctx **new_ctxs;
- 	int i, j;
- 	int ret = 0;
-@@ -905,6 +906,12 @@ static int dbgfs_rm_context(char *name)
- 	if (!dir)
- 		return -ENOENT;
- 
-+	inode = d_inode(dir);
-+	if (!S_ISDIR(inode->i_mode)) {
-+		ret = -EINVAL;
-+		goto out_dput;
-+	}
-+
- 	new_dirs = kmalloc_array(dbgfs_nr_ctxs - 1, sizeof(*dbgfs_dirs),
- 			GFP_KERNEL);
- 	if (!new_dirs) {
-_
-
-Patches currently in -mm which might be from sj@kernel.org are
-
-mm-damon-dbgfs-check-if-rm_contexts-input-is-for-a-real-context.patch
-mm-damon-core-split-out-damos-charged-region-skip-logic-into-a-new-function.patch
-mm-damon-core-split-damos-application-logic-into-a-new-function.patch
-mm-damon-core-split-out-scheme-stat-update-logic-into-a-new-function.patch
-mm-damon-core-split-out-scheme-quota-adjustment-logic-into-a-new-function.patch
-mm-damon-sysfs-use-damon_addr_range-for-regions-start-and-end-values.patch
-mm-damon-sysfs-remove-parameters-of-damon_sysfs_region_alloc.patch
-mm-damon-sysfs-move-sysfs_lock-to-common-module.patch
-mm-damon-sysfs-move-unsigned-long-range-directory-to-common-module.patch
-mm-damon-sysfs-split-out-kdamond-independent-schemes-stats-update-logic-into-a-new-function.patch
-mm-damon-sysfs-split-out-schemes-directory-implementation-to-separate-file.patch
-mm-damon-modules-deduplicate-init-steps-for-damon-context-setup.patch
-mm-damon-reclaimlru_sort-remove-unnecessarily-included-headers.patch
-mm-damon-reclaim-enable-and-disable-synchronously.patch
-selftests-damon-add-tests-for-damon_reclaims-enabled-parameter.patch
-mm-damon-lru_sort-enable-and-disable-synchronously.patch
-selftests-damon-add-tests-for-damon_lru_sorts-enabled-parameter.patch
-docs-admin-guide-mm-damon-usage-describe-the-rules-of-sysfs-region-directories.patch
-docs-admin-guide-mm-damon-usage-fix-wrong-usage-example-of-init_regions-file.patch
-mm-damon-core-add-a-callback-for-scheme-target-regions-check.patch
-mm-damon-sysfs-schemes-implement-schemes-tried_regions-directory.patch
-mm-damon-sysfs-schemes-implement-scheme-region-directory.patch
-mm-damon-sysfs-implement-damos-tried-regions-update-command.patch
-mm-damon-sysfs-schemes-implement-damos-tried-regions-clear-command.patch
-tools-selftets-damon-sysfs-test-tried_regions-directory-existence.patch
-docs-admin-guide-mm-damon-usage-document-schemes-s-tried_regions-sysfs-directory.patch
-docs-abi-damon-document-schemes-s-tried_regions-sysfs-directory.patch
-selftests-damon-test-non-context-inputs-to-rm_contexts-file.patch
+> confused,
+> 
+> greg k-h
+> 
 
