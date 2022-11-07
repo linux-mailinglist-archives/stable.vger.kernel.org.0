@@ -2,59 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 569B461F2F4
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 13:24:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D7D861F2EC
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 13:24:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232186AbiKGMYV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 07:24:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50266 "EHLO
+        id S231373AbiKGMYA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 07:24:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232174AbiKGMYQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 07:24:16 -0500
+        with ESMTP id S232159AbiKGMX6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 07:23:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5CF2262D;
-        Mon,  7 Nov 2022 04:24:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 923231B7B0
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 04:23:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 646D26101C;
-        Mon,  7 Nov 2022 12:24:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC3B1C433D7;
-        Mon,  7 Nov 2022 12:24:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667823853;
-        bh=iQ5ViS/Km14zaC7mgBP0y2BtAXFP1Zx2+Nc0cPz+2qA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Cjo/qXHYDinqnN1BP/cR4oeVGmag98le5Rk5ncBzR62I69Fw268at7QCX1YlMexDs
-         cYsR6k3RHR3tfPbvEeOzkiaWT6N9rawd5MC1JTSWjOpi02oykFYTdnYSEEZrKRshkS
-         lZRGonQGVwvMXfHpmxqhifkluwQLYdW2ric5Ig0eODnqS3Vp/5oU7aFwKcyW7IFeNb
-         hjpmQDzp7CktfXP5ghOjSepmNfg2eTsoOo02ssHsmhDeojtrjRS900yNpfXGzJipJK
-         XNKzSCLix4khBHtq05cl/AVx0RXjO9Zy27GtkoYKeaG7vTHok6UmjqZcANYTz1Ytj1
-         OFPJ+xVgD9Hcw==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1os1AL-0004DQ-56; Mon, 07 Nov 2022 13:23:49 +0100
-Date:   Mon, 7 Nov 2022 13:23:49 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Brian Masney <bmasney@redhat.com>
-Cc:     Johan Hovold <johan+linaro@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Andy Gross <agross@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Shazad Hussain <quic_shazhuss@quicinc.com>,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] arm64: dts: qcom: sc8280xp: fix UFS reference clocks
-Message-ID: <Y2j41epn0FTT2Asb@hovoldconsulting.com>
-References: <20221104092045.17410-1-johan+linaro@kernel.org>
- <20221104092045.17410-2-johan+linaro@kernel.org>
- <Y2jnWJ0FI6Fmy8/O@x1>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 572AB60FD2
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 12:23:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57103C433C1;
+        Mon,  7 Nov 2022 12:23:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1667823834;
+        bh=ambzPS5wlzP/1vPj9gJhF8dT1MQkR7HipKAJ2xdW5Uw=;
+        h=Subject:To:Cc:From:Date:From;
+        b=b9PZpmp9Mh8RbB7qsRb9GpllwK4qo3dRIMIff2mWfychxcfgVtw2VzO29Az0KHZSu
+         pe3DN0FrLczcAUFNxrV5PnT1XTv36tyldSLtUhGkKNBeGcCpEiC0qlDaoV53nR2BgS
+         k1RmAlD2+fl/r3K6Mil+oiM4TGU8mOjRoLQaX3z4=
+Subject: FAILED: patch "[PATCH] btrfs: fix tree mod log mishandling of reallocated nodes" failed to apply to 5.10-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 07 Nov 2022 13:23:51 +0100
+Message-ID: <1667823831119118@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y2jnWJ0FI6Fmy8/O@x1>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -64,37 +46,222 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 07, 2022 at 06:09:12AM -0500, Brian Masney wrote:
-> On Fri, Nov 04, 2022 at 10:20:44AM +0100, Johan Hovold wrote:
-> > There are three UFS reference clocks on SC8280XP which are used as
-> > follows:
-> > 
-> >  - The GCC_UFS_REF_CLKREF_CLK clock is fed to any UFS device connected
-> >    to either controller.
-> > 
-> >  - The GCC_UFS_1_CARD_CLKREF_CLK and GCC_UFS_CARD_CLKREF_CLK clocks
-> >    provide reference clocks to the two PHYs.
-> > 
-> > Note that this depends on first updating the clock driver to reflect
-> > that all three clocks are sourced from CXO. Specifically, the UFS
-> > controller driver expects the device reference clock to have a valid
-> > frequency:
-> > 
-> > 	ufshcd-qcom 1d84000.ufs: invalid ref_clk setting = 0
-> > 
-> > Fixes: 152d1faf1e2f ("arm64: dts: qcom: add SC8280XP platform")
-> > Fixes: 8d6b458ce6e9 ("arm64: dts: qcom: sc8280xp: fix ufs_card_phy ref clock")
-> > Fixes: f3aa975e230e ("arm64: dts: qcom: sc8280xp: correct ref clock for ufs_mem_phy")
-> > Link: https://lore.kernel.org/lkml/Y2OEjNAPXg5BfOxH@hovoldconsulting.com/
-> > Cc: stable@vger.kernel.org	# 5.20
-> > Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-> 
-> Reviewed-by: Brian Masney <bmasney@redhat.com>
-> 
-> Note that there was no 5.20 kernel; that should be 6.0. Bjorn should be
-> able to fix this up during merge.
 
-Good catch. I based this on a tag created before 6.0 was released and
-failed to notice.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Johan
+Possible dependencies:
+
+968b71583130 ("btrfs: fix tree mod log mishandling of reallocated nodes")
+888dd183390d ("btrfs: use the new bit BTRFS_FS_TREE_MOD_LOG_USERS at btrfs_free_tree_block()")
+485df7555425 ("btrfs: always pin deleted leaves when there are active tree mod log users")
+d3575156f662 ("btrfs: zoned: redirty released extent buffers")
+169e0da91a21 ("btrfs: zoned: track unusable bytes for zones")
+a94794d50d78 ("btrfs: zoned: calculate allocation offset for conventional zones")
+08e11a3db098 ("btrfs: zoned: load zone's allocation offset")
+1cd6121f2a38 ("btrfs: zoned: implement zoned chunk allocator")
+760f991f1428 ("btrfs: make attach_extent_buffer_page() handle subpage case")
+cac06d843f25 ("btrfs: introduce the skeleton of btrfs_subpage structure")
+c0f0a9e71653 ("btrfs: introduce helper to grab an existing extent buffer from a page")
+997e3e2e71b3 ("btrfs: only mark bg->needs_free_space if free space tree is on")
+12659251ca5d ("btrfs: implement log-structured superblock for ZONED mode")
+5d1ab66c56fe ("btrfs: disallow space_cache in ZONED mode")
+862931c76327 ("btrfs: introduce max_zone_append_size")
+b70f509774ad ("btrfs: check and enable ZONED mode")
+5b316468983d ("btrfs: get zone information of zoned block devices")
+fb22e9c4cd57 ("btrfs: use detach_page_private() in alloc_extent_buffer()")
+bacce86ae8a7 ("btrfs: drop unused argument step from btrfs_free_extra_devids")
+0d01e247a06b ("btrfs: assert page mapping lock in attach_extent_buffer_page")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 968b71583130b6104c9f33ba60446d598e327a8b Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Fri, 14 Oct 2022 08:52:46 -0400
+Subject: [PATCH] btrfs: fix tree mod log mishandling of reallocated nodes
+
+We have been seeing the following panic in production
+
+  kernel BUG at fs/btrfs/tree-mod-log.c:677!
+  invalid opcode: 0000 [#1] SMP
+  RIP: 0010:tree_mod_log_rewind+0x1b4/0x200
+  RSP: 0000:ffffc9002c02f890 EFLAGS: 00010293
+  RAX: 0000000000000003 RBX: ffff8882b448c700 RCX: 0000000000000000
+  RDX: 0000000000008000 RSI: 00000000000000a7 RDI: ffff88877d831c00
+  RBP: 0000000000000002 R08: 000000000000009f R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000100c40 R12: 0000000000000001
+  R13: ffff8886c26d6a00 R14: ffff88829f5424f8 R15: ffff88877d831a00
+  FS:  00007fee1d80c780(0000) GS:ffff8890400c0000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fee1963a020 CR3: 0000000434f33002 CR4: 00000000007706e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  PKRU: 55555554
+  Call Trace:
+   btrfs_get_old_root+0x12b/0x420
+   btrfs_search_old_slot+0x64/0x2f0
+   ? tree_mod_log_oldest_root+0x3d/0xf0
+   resolve_indirect_ref+0xfd/0x660
+   ? ulist_alloc+0x31/0x60
+   ? kmem_cache_alloc_trace+0x114/0x2c0
+   find_parent_nodes+0x97a/0x17e0
+   ? ulist_alloc+0x30/0x60
+   btrfs_find_all_roots_safe+0x97/0x150
+   iterate_extent_inodes+0x154/0x370
+   ? btrfs_search_path_in_tree+0x240/0x240
+   iterate_inodes_from_logical+0x98/0xd0
+   ? btrfs_search_path_in_tree+0x240/0x240
+   btrfs_ioctl_logical_to_ino+0xd9/0x180
+   btrfs_ioctl+0xe2/0x2ec0
+   ? __mod_memcg_lruvec_state+0x3d/0x280
+   ? do_sys_openat2+0x6d/0x140
+   ? kretprobe_dispatcher+0x47/0x70
+   ? kretprobe_rethook_handler+0x38/0x50
+   ? rethook_trampoline_handler+0x82/0x140
+   ? arch_rethook_trampoline_callback+0x3b/0x50
+   ? kmem_cache_free+0xfb/0x270
+   ? do_sys_openat2+0xd5/0x140
+   __x64_sys_ioctl+0x71/0xb0
+   do_syscall_64+0x2d/0x40
+
+Which is this code in tree_mod_log_rewind()
+
+	switch (tm->op) {
+        case BTRFS_MOD_LOG_KEY_REMOVE_WHILE_FREEING:
+		BUG_ON(tm->slot < n);
+
+This occurs because we replay the nodes in order that they happened, and
+when we do a REPLACE we will log a REMOVE_WHILE_FREEING for every slot,
+starting at 0.  'n' here is the number of items in this block, which in
+this case was 1, but we had 2 REMOVE_WHILE_FREEING operations.
+
+The actual root cause of this was that we were replaying operations for
+a block that shouldn't have been replayed.  Consider the following
+sequence of events
+
+1. We have an already modified root, and we do a btrfs_get_tree_mod_seq().
+2. We begin removing items from this root, triggering KEY_REPLACE for
+   it's child slots.
+3. We remove one of the 2 children this root node points to, thus triggering
+   the root node promotion of the remaining child, and freeing this node.
+4. We modify a new root, and re-allocate the above node to the root node of
+   this other root.
+
+The tree mod log looks something like this
+
+	logical 0	op KEY_REPLACE (slot 1)			seq 2
+	logical 0	op KEY_REMOVE (slot 1)			seq 3
+	logical 0	op KEY_REMOVE_WHILE_FREEING (slot 0)	seq 4
+	logical 4096	op LOG_ROOT_REPLACE (old logical 0)	seq 5
+	logical 8192	op KEY_REMOVE_WHILE_FREEING (slot 1)	seq 6
+	logical 8192	op KEY_REMOVE_WHILE_FREEING (slot 0)	seq 7
+	logical 0	op LOG_ROOT_REPLACE (old logical 8192)	seq 8
+
+>From here the bug is triggered by the following steps
+
+1.  Call btrfs_get_old_root() on the new_root.
+2.  We call tree_mod_log_oldest_root(btrfs_root_node(new_root)), which is
+    currently logical 0.
+3.  tree_mod_log_oldest_root() calls tree_mod_log_search_oldest(), which
+    gives us the KEY_REPLACE seq 2, and since that's not a
+    LOG_ROOT_REPLACE we incorrectly believe that we don't have an old
+    root, because we expect that the most recent change should be a
+    LOG_ROOT_REPLACE.
+4.  Back in tree_mod_log_oldest_root() we don't have a LOG_ROOT_REPLACE,
+    so we don't set old_root, we simply use our existing extent buffer.
+5.  Since we're using our existing extent buffer (logical 0) we call
+    tree_mod_log_search(0) in order to get the newest change to start the
+    rewind from, which ends up being the LOG_ROOT_REPLACE at seq 8.
+6.  Again since we didn't find an old_root we simply clone logical 0 at
+    it's current state.
+7.  We call tree_mod_log_rewind() with the cloned extent buffer.
+8.  Set n = btrfs_header_nritems(logical 0), which would be whatever the
+    original nritems was when we COWed the original root, say for this
+    example it's 2.
+9.  We start from the newest operation and work our way forward, so we
+    see LOG_ROOT_REPLACE which we ignore.
+10. Next we see KEY_REMOVE_WHILE_FREEING for slot 0, which triggers the
+    BUG_ON(tm->slot < n), because it expects if we've done this we have a
+    completely empty extent buffer to replay completely.
+
+The correct thing would be to find the first LOG_ROOT_REPLACE, and then
+get the old_root set to logical 8192.  In fact making that change fixes
+this particular problem.
+
+However consider the much more complicated case.  We have a child node
+in this tree and the above situation.  In the above case we freed one
+of the child blocks at the seq 3 operation.  If this block was also
+re-allocated and got new tree mod log operations we would have a
+different problem.  btrfs_search_old_slot(orig root) would get down to
+the logical 0 root that still pointed at that node.  However in
+btrfs_search_old_slot() we call tree_mod_log_rewind(buf) directly.  This
+is not context aware enough to know which operations we should be
+replaying.  If the block was re-allocated multiple times we may only
+want to replay a range of operations, and determining what that range is
+isn't possible to determine.
+
+We could maybe solve this by keeping track of which root the node
+belonged to at every tree mod log operation, and then passing this
+around to make sure we're only replaying operations that relate to the
+root we're trying to rewind.
+
+However there's a simpler way to solve this problem, simply disallow
+reallocations if we have currently running tree mod log users.  We
+already do this for leaf's, so we're simply expanding this to nodes as
+well.  This is a relatively uncommon occurrence, and the problem is
+complicated enough I'm worried that we will still have corner cases in
+the reallocation case.  So fix this in the most straightforward way
+possible.
+
+Fixes: bd989ba359f2 ("Btrfs: add tree modification log functions")
+CC: stable@vger.kernel.org # 3.3+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index cd2d36580f1a..2801c991814f 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -3295,21 +3295,22 @@ void btrfs_free_tree_block(struct btrfs_trans_handle *trans,
+ 		}
+ 
+ 		/*
+-		 * If this is a leaf and there are tree mod log users, we may
+-		 * have recorded mod log operations that point to this leaf.
+-		 * So we must make sure no one reuses this leaf's extent before
+-		 * mod log operations are applied to a node, otherwise after
+-		 * rewinding a node using the mod log operations we get an
+-		 * inconsistent btree, as the leaf's extent may now be used as
+-		 * a node or leaf for another different btree.
++		 * If there are tree mod log users we may have recorded mod log
++		 * operations for this node.  If we re-allocate this node we
++		 * could replay operations on this node that happened when it
++		 * existed in a completely different root.  For example if it
++		 * was part of root A, then was reallocated to root B, and we
++		 * are doing a btrfs_old_search_slot(root b), we could replay
++		 * operations that happened when the block was part of root A,
++		 * giving us an inconsistent view of the btree.
++		 *
+ 		 * We are safe from races here because at this point no other
+ 		 * node or root points to this extent buffer, so if after this
+-		 * check a new tree mod log user joins, it will not be able to
+-		 * find a node pointing to this leaf and record operations that
+-		 * point to this leaf.
++		 * check a new tree mod log user joins we will not have an
++		 * existing log of operations on this node that we have to
++		 * contend with.
+ 		 */
+-		if (btrfs_header_level(buf) == 0 &&
+-		    test_bit(BTRFS_FS_TREE_MOD_LOG_USERS, &fs_info->flags))
++		if (test_bit(BTRFS_FS_TREE_MOD_LOG_USERS, &fs_info->flags))
+ 			must_pin = true;
+ 
+ 		if (must_pin || btrfs_is_zoned(fs_info)) {
+
