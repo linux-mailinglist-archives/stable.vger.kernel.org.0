@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F251C61FA89
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:51:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEDA761FA8A
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:51:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231756AbiKGQvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 11:51:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44988 "EHLO
+        id S232135AbiKGQvs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 11:51:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232705AbiKGQvh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:51:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0608A20BFE
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:51:37 -0800 (PST)
+        with ESMTP id S232216AbiKGQvn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:51:43 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D92D02181F
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:51:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A14AEB815A0
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:51:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0273EC433B5;
-        Mon,  7 Nov 2022 16:51:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B7A01CE1167
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:51:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7109EC433B5;
+        Mon,  7 Nov 2022 16:51:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667839894;
-        bh=WAADxS8waKRX9wz7FwqdoVg6zwMW38qukloGSuZzzTg=;
+        s=korg; t=1667839897;
+        bh=K/22hS+vn0Dzk6i58CsXsax9VPo5+27verciPwYYGj4=;
         h=Subject:To:Cc:From:Date:From;
-        b=IzTAfcNdw83MFkIdCUPF/okctBuk9wyTj/KXogj7P+tXG1Y3NZzk/cSVDswCVnR6w
-         gsdciWyPIKLwW6uEiez8yMHJtDgTVYSK5CGBjeH+RLHlxXnQ9UrqNF2HiIX5Q14zeg
-         14GYwIU9L8lTwmbeF5SUVmBXXKaeYXel4T437XmY=
-Subject: FAILED: patch "[PATCH] KVM: x86: emulator: update the emulation mode after rsm" failed to apply to 4.14-stable tree
+        b=qp4AYoTAqhAneQ3hgOzAcRTQ0n/cGC8qDm/GjEjZhE4VYDZorFmjFgrT7LxDdIrNo
+         MC8uG6A3MqP1EpsbTKev+JKGRqjKn2VY2uCzKo9OwV30w0Jsd/EWd2pc78E6/EVXoq
+         uKX6x97At9yGRK4T25h9wE0zKlPrx6yzwyKAtDMM=
+Subject: FAILED: patch "[PATCH] KVM: x86: emulator: update the emulation mode after rsm" failed to apply to 4.19-stable tree
 To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 07 Nov 2022 17:51:26 +0100
-Message-ID: <1667839886235135@kroah.com>
+Message-ID: <166783988622470@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,12 +68,6 @@ a821bab2d1ee ("KVM: VMX: Move VMX specific files to a "vmx" subdirectory")
 a633e41e7362 ("KVM: nVMX: assimilate nested_vmx_entry_failure() into nested_vmx_enter_non_root_mode()")
 7671ce21b13b ("KVM: nVMX: move check_vmentry_postreqs() call to nested_vmx_enter_non_root_mode()")
 d63907dc7dd1 ("KVM: nVMX: rename enter_vmx_non_root_mode to nested_vmx_enter_non_root_mode")
-7e7126846c95 ("kvm: nVMX: fix entry with pending interrupt if APICv is enabled")
-e6c67d8cf117 ("KVM: nVMX: Wake blocked vCPU in guest-mode if pending interrupt in virtual APICv")
-b5861e5cf2fc ("KVM: nVMX: Fix loss of pending IRQ/NMI before entering L2")
-61ada7488ffd ("KVM: nVMX: Cache shadow vmcs12 on VMEntry and flush to memory on VMExit")
-8fcc4b5923af ("kvm: nVMX: Introduce KVM_CAP_NESTED_STATE")
-7f7f1ba33cf2 ("KVM: x86: do not load vmcs12 pages while still in SMM")
 
 thanks,
 
