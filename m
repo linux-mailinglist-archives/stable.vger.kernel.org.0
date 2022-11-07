@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BE5261FA2B
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:43:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D64261FA2E
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:43:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231646AbiKGQnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 11:43:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38998 "EHLO
+        id S231580AbiKGQnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 11:43:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232017AbiKGQna (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:43:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE3C2AD3
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:43:28 -0800 (PST)
+        with ESMTP id S231153AbiKGQnj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:43:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B1060CC
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:43:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB7E1B815A0
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:43:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34824C43145;
-        Mon,  7 Nov 2022 16:43:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25896B81151
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:43:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7988CC433D6;
+        Mon,  7 Nov 2022 16:43:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667839405;
-        bh=XwR8R3ch3I8292FirvpUnliSUsxrO6OOwYZEP4EJAmg=;
+        s=korg; t=1667839414;
+        bh=1XbiB8rBb7io64jMbW7+7C5II2TJlXX3Vbh4wKalYs8=;
         h=Subject:To:Cc:From:Date:From;
-        b=SNwR7P6+6m6r6FYdDXiDx4MgRllHJ/hyx0IbcfxMDpGQTpL9yO1O9lo4qByUXUFDy
-         YFjioH63pUsBfccT/kDixQOCiAIGL8I9hfJPAU4lyULEey5wVZF9fEh4mzno2BxVJA
-         RFnjkW67eb3xv8rVCrvaKqUxU2T5pJIj+HhK2578=
-Subject: FAILED: patch "[PATCH] parisc: Avoid printing the hardware path twice" failed to apply to 4.14-stable tree
+        b=WQK00O4XJk+n9g+LFW/h6bJZrE64h1qst/dyOeq/3RFrGCbFtvyPUF/WT3P2p0hW2
+         sCtBA9PyivPOiwm14NtCH7f3UCBeetb/Tsk9DR8oF4J5zTzG7b2uQ0J2HduVvZ1XbW
+         iOjoVb68Tv919L+wChVGS+2Betl5e0sJWngn34Gk=
+Subject: FAILED: patch "[PATCH] parisc: Avoid printing the hardware path twice" failed to apply to 4.9-stable tree
 To:     deller@gmx.de, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Nov 2022 17:43:22 +0100
-Message-ID: <1667839402172103@kroah.com>
+Date:   Mon, 07 Nov 2022 17:43:23 +0100
+Message-ID: <166783940341190@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
