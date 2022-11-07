@@ -2,216 +2,431 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88DD361F326
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 13:27:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A53661F329
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 13:28:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231643AbiKGM1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 07:27:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
+        id S232213AbiKGM2B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 07:28:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232242AbiKGM1p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 07:27:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7997F14D05
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 04:27:44 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0682860FF9
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 12:27:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC4AFC433C1;
-        Mon,  7 Nov 2022 12:27:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667824063;
-        bh=MXtJCEdxMFvBKiheyzEloG3gbGmdaby/3O8tfHEFw7w=;
-        h=Subject:To:Cc:From:Date:From;
-        b=JE/qVfW02yGYkWyrVBhj/ON1rtBvIgs8rUnOYtUtEQqoETtDU/LM4j0Pw+rp24X/u
-         V4ku8Et+4NE0hHlp4zaq053TX6XxxLQccMEU/WBDVguKkdQW2YmDHAasy2F7m2x/LU
-         MyKfWwVuZbsltHAMxl7ojatD/j/6jldzGVhk4xxA=
-Subject: FAILED: patch "[PATCH] ftrace: Fix use-after-free for dynamic ftrace_ops" failed to apply to 4.9-stable tree
-To:     lihuafei1@huawei.com, rostedt@goodmis.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Nov 2022 13:27:31 +0100
-Message-ID: <1667824051131161@kroah.com>
+        with ESMTP id S232230AbiKGM1y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 07:27:54 -0500
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94C8F1AD9C
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 04:27:53 -0800 (PST)
+Received: by mail-pj1-x1034.google.com with SMTP id u8-20020a17090a5e4800b002106dcdd4a0so14438707pji.1
+        for <stable@vger.kernel.org>; Mon, 07 Nov 2022 04:27:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=3ooVFbKnNtuDHFIs+JOH3XJVKfgqCnnaQ2AzZkJ6C/g=;
+        b=G/7ardzE+62tKU4VohLRZufkmOZKzDlEFV9v/P0ugfsYwks7Vl8WE6hDMH1MEdZ3ke
+         M60ITr0oHbQT0vVgFi/n108XupLFXpyYFjfi+ZQptOGMqfiaT5k5hJ1bF8i89P9t3tHk
+         CzAPuOndTPeDswmndWKjWBwfWfEfZ+XLvtAhm1C+VCieDBBAs2wcLXfFlV4rCmj4L8P9
+         q9lVTJh2mgMRfVijsY4D/aFTaugOWGlC3CqDGNyA+2oNYKJMZfokIjzI8Fk8ohV9F3z/
+         g1VajY8CyOgXmvE9L/1KBzNXVlF/cxl5jVYV/pe/CWaCrIZYSufPWhDLo7ljKjZi7jNp
+         o8ag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=3ooVFbKnNtuDHFIs+JOH3XJVKfgqCnnaQ2AzZkJ6C/g=;
+        b=qeNFMW0rlKoXxUg+NyK3L1rHVnXvI6CEWVv5aRPD31kieStPb866QYftINlMkoPIF2
+         J9akS+VTgOH3g6+3rYTDBkxEXl88gjCD/0tKqmadRPdrXzg1r8N8jpWbupBEJEPKEhzP
+         W7uhZaHp6DpYTtCgqnzVduHWpgv9r2IiRMOONdtORH4+qbwxxUx2LpYrzUd0G1QV+15G
+         08zs3GnRtw7wg3ke59B7VidigccJwcSe4rpLJyveCL2XyMWVBljNKc44GFRyy3kOpPiD
+         Ofv7BGfQUzAm2HI280WSyxtlxPMELmx4xH8HJ9zXH5RGanHBjlalzT+7B0eq4RGFsYma
+         T2yQ==
+X-Gm-Message-State: ACrzQf1K/PBbAr339RPuEdhoF8dUIeYSiqfmo+Kb4LshIopbEZUw0X+6
+        McnOJXEp/zSX3sVSQP3dYpywHbiB7sDRXsWM
+X-Google-Smtp-Source: AMsMyM4vFv7WorswUmXN2unhmSbb/6fc0UWXKrAR6UOmnPghAB2j3tDhKz6spY9hyuQdIyLNdtXAAQ==
+X-Received: by 2002:a17:903:234c:b0:187:28b2:85f6 with SMTP id c12-20020a170903234c00b0018728b285f6mr40081816plh.106.1667824072908;
+        Mon, 07 Nov 2022 04:27:52 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b5-20020a170902e94500b00176d218889esm4865561pll.228.2022.11.07.04.27.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Nov 2022 04:27:52 -0800 (PST)
+Message-ID: <6368f9c8.170a0220.e24ed.7147@mx.google.com>
+Date:   Mon, 07 Nov 2022 04:27:52 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.332-20-g6ba04d5b05d0
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.9.y baseline: 78 runs,
+ 9 regressions (v4.9.332-20-g6ba04d5b05d0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.9.y baseline: 78 runs, 9 regressions (v4.9.332-20-g6ba04d=
+5b05d0)
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-Possible dependencies:
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre  | gcc-10   | defconfig  =
+                | 1          =
 
-0e792b89e680 ("ftrace: Fix use-after-free for dynamic ftrace_ops")
-fc0ea795f53c ("ftrace: Add symbols for ftrace trampolines")
-b3a88803ac5b ("ftrace: Kill FTRACE_OPS_FL_PER_CPU")
-6171a0310a06 ("ftrace/kallsyms: Have /proc/kallsyms show saved mod init functions")
-aba4b5c22cba ("ftrace: Save module init functions kallsyms symbols for tracing")
-3e234289f86b ("ftrace: Allow module init functions to be traced")
-6cafbe159416 ("ftrace: Add a ftrace_free_mem() function for modules to use")
-edb096e00724 ("ftrace: Fix memleak when unregistering dynamic ops when tracing disabled")
-8c08f0d5c6fb ("ftrace: Have cached module filters be an active filter")
-d7fbf8df7ca0 ("ftrace: Implement cached modules tracing on module load")
-673feb9d76ab ("ftrace: Add :mod: caching infrastructure to trace_array")
-d0ba52f1d764 ("ftrace: Add missing comment for FTRACE_OPS_FL_RCU")
-04ec7bb642b7 ("tracing: Have the trace_array hold the list of registered func probes")
-eee8ded131f1 ("ftrace: Have the function probes call their own function")
-1ec3a81a0cf4 ("ftrace: Have each function probe use its own ftrace_ops")
-d3d532d798c5 ("ftrace: Have unregister_ftrace_function_probe_func() return a value")
-1a48df0041c2 ("ftrace: Remove data field from ftrace_func_probe structure")
-02b77e2afb49 ("ftrace: Remove printing of data in showing of a function probe")
-78f78e07d51e ("ftrace: Remove unused unregister_ftrace_function_probe_all() function")
-0fe7e7e3f839 ("ftrace: Remove unused unregister_ftrace_function_probe() function")
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre  | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
 
-thanks,
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre  | gcc-10   | defconfig  =
+                | 1          =
 
-greg k-h
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre  | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
 
------------------- original commit in Linus's tree ------------------
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre  | gcc-10   | defconfig  =
+                | 1          =
 
-From 0e792b89e6800cd9cb4757a76a96f7ef3e8b6294 Mon Sep 17 00:00:00 2001
-From: Li Huafei <lihuafei1@huawei.com>
-Date: Thu, 3 Nov 2022 11:10:10 +0800
-Subject: [PATCH] ftrace: Fix use-after-free for dynamic ftrace_ops
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre  | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
 
-KASAN reported a use-after-free with ftrace ops [1]. It was found from
-vmcore that perf had registered two ops with the same content
-successively, both dynamic. After unregistering the second ops, a
-use-after-free occurred.
+qemu_arm64-virt-gicv3      | arm64 | lab-collabora | gcc-10   | defconfig  =
+                | 1          =
 
-In ftrace_shutdown(), when the second ops is unregistered, the
-FTRACE_UPDATE_CALLS command is not set because there is another enabled
-ops with the same content.  Also, both ops are dynamic and the ftrace
-callback function is ftrace_ops_list_func, so the
-FTRACE_UPDATE_TRACE_FUNC command will not be set. Eventually the value
-of 'command' will be 0 and ftrace_shutdown() will skip the rcu
-synchronization.
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre  | gcc-10   | defconfig  =
+                | 1          =
 
-However, ftrace may be activated. When the ops is released, another CPU
-may be accessing the ops.  Add the missing synchronization to fix this
-problem.
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre  | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
 
-[1]
-BUG: KASAN: use-after-free in __ftrace_ops_list_func kernel/trace/ftrace.c:7020 [inline]
-BUG: KASAN: use-after-free in ftrace_ops_list_func+0x2b0/0x31c kernel/trace/ftrace.c:7049
-Read of size 8 at addr ffff56551965bbc8 by task syz-executor.2/14468
 
-CPU: 1 PID: 14468 Comm: syz-executor.2 Not tainted 5.10.0 #7
-Hardware name: linux,dummy-virt (DT)
-Call trace:
- dump_backtrace+0x0/0x40c arch/arm64/kernel/stacktrace.c:132
- show_stack+0x30/0x40 arch/arm64/kernel/stacktrace.c:196
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1b4/0x248 lib/dump_stack.c:118
- print_address_description.constprop.0+0x28/0x48c mm/kasan/report.c:387
- __kasan_report mm/kasan/report.c:547 [inline]
- kasan_report+0x118/0x210 mm/kasan/report.c:564
- check_memory_region_inline mm/kasan/generic.c:187 [inline]
- __asan_load8+0x98/0xc0 mm/kasan/generic.c:253
- __ftrace_ops_list_func kernel/trace/ftrace.c:7020 [inline]
- ftrace_ops_list_func+0x2b0/0x31c kernel/trace/ftrace.c:7049
- ftrace_graph_call+0x0/0x4
- __might_sleep+0x8/0x100 include/linux/perf_event.h:1170
- __might_fault mm/memory.c:5183 [inline]
- __might_fault+0x58/0x70 mm/memory.c:5171
- do_strncpy_from_user lib/strncpy_from_user.c:41 [inline]
- strncpy_from_user+0x1f4/0x4b0 lib/strncpy_from_user.c:139
- getname_flags+0xb0/0x31c fs/namei.c:149
- getname+0x2c/0x40 fs/namei.c:209
- [...]
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.332-20-g6ba04d5b05d0/plan/baseline/
 
-Allocated by task 14445:
- kasan_save_stack+0x24/0x50 mm/kasan/common.c:48
- kasan_set_track mm/kasan/common.c:56 [inline]
- __kasan_kmalloc mm/kasan/common.c:479 [inline]
- __kasan_kmalloc.constprop.0+0x110/0x13c mm/kasan/common.c:449
- kasan_kmalloc+0xc/0x14 mm/kasan/common.c:493
- kmem_cache_alloc_trace+0x440/0x924 mm/slub.c:2950
- kmalloc include/linux/slab.h:563 [inline]
- kzalloc include/linux/slab.h:675 [inline]
- perf_event_alloc.part.0+0xb4/0x1350 kernel/events/core.c:11230
- perf_event_alloc kernel/events/core.c:11733 [inline]
- __do_sys_perf_event_open kernel/events/core.c:11831 [inline]
- __se_sys_perf_event_open+0x550/0x15f4 kernel/events/core.c:11723
- __arm64_sys_perf_event_open+0x6c/0x80 kernel/events/core.c:11723
- [...]
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.332-20-g6ba04d5b05d0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6ba04d5b05d0fa40a92d5232d4e79af5aff5b447 =
 
-Freed by task 14445:
- kasan_save_stack+0x24/0x50 mm/kasan/common.c:48
- kasan_set_track+0x24/0x34 mm/kasan/common.c:56
- kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:358
- __kasan_slab_free.part.0+0x11c/0x1b0 mm/kasan/common.c:437
- __kasan_slab_free mm/kasan/common.c:445 [inline]
- kasan_slab_free+0x2c/0x40 mm/kasan/common.c:446
- slab_free_hook mm/slub.c:1569 [inline]
- slab_free_freelist_hook mm/slub.c:1608 [inline]
- slab_free mm/slub.c:3179 [inline]
- kfree+0x12c/0xc10 mm/slub.c:4176
- perf_event_alloc.part.0+0xa0c/0x1350 kernel/events/core.c:11434
- perf_event_alloc kernel/events/core.c:11733 [inline]
- __do_sys_perf_event_open kernel/events/core.c:11831 [inline]
- __se_sys_perf_event_open+0x550/0x15f4 kernel/events/core.c:11723
- [...]
 
-Link: https://lore.kernel.org/linux-trace-kernel/20221103031010.166498-1-lihuafei1@huawei.com
 
-Fixes: edb096e00724f ("ftrace: Fix memleak when unregistering dynamic ops when tracing disabled")
-Cc: stable@vger.kernel.org
-Suggested-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Test Regressions
+---------------- =
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index fbf2543111c0..7dc023641bf1 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -3028,18 +3028,8 @@ int ftrace_shutdown(struct ftrace_ops *ops, int command)
- 		command |= FTRACE_UPDATE_TRACE_FUNC;
- 	}
- 
--	if (!command || !ftrace_enabled) {
--		/*
--		 * If these are dynamic or per_cpu ops, they still
--		 * need their data freed. Since, function tracing is
--		 * not currently active, we can just free them
--		 * without synchronizing all CPUs.
--		 */
--		if (ops->flags & FTRACE_OPS_FL_DYNAMIC)
--			goto free_ops;
--
--		return 0;
--	}
-+	if (!command || !ftrace_enabled)
-+		goto out;
- 
- 	/*
- 	 * If the ops uses a trampoline, then it needs to be
-@@ -3076,6 +3066,7 @@ int ftrace_shutdown(struct ftrace_ops *ops, int command)
- 	removed_ops = NULL;
- 	ops->flags &= ~FTRACE_OPS_FL_REMOVING;
- 
-+out:
- 	/*
- 	 * Dynamic ops may be freed, we must make sure that all
- 	 * callers are done before leaving this function.
-@@ -3103,7 +3094,6 @@ int ftrace_shutdown(struct ftrace_ops *ops, int command)
- 		if (IS_ENABLED(CONFIG_PREEMPTION))
- 			synchronize_rcu_tasks();
- 
-- free_ops:
- 		ftrace_trampoline_free(ops);
- 	}
- 
 
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre  | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6368c71a067df5b459e7db54
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6368c71a067df5b459e7d=
+b55
+        failing since 181 days (last pass: v4.9.312-44-g77a374c13dc5, first=
+ fail: v4.9.312-60-g806e59090c6c) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre  | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6368c8bfa3c4157dd7e7db6b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
+line-qemu_arm64-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
+line-qemu_arm64-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6368c8bfa3c4157dd7e7d=
+b6c
+        failing since 181 days (last pass: v4.9.312-36-gbfd3fd9fa677, first=
+ fail: v4.9.312-60-g806e59090c6c) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre  | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6368c71b3a35908d91e7db5e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6368c71b3a35908d91e7d=
+b5f
+        failing since 181 days (last pass: v4.9.312-44-g77a374c13dc5, first=
+ fail: v4.9.312-60-g806e59090c6c) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre  | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6368c8c1c412bac80be7db6b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
+line-qemu_arm64-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
+line-qemu_arm64-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6368c8c1c412bac80be7d=
+b6c
+        failing since 181 days (last pass: v4.9.312-36-gbfd3fd9fa677, first=
+ fail: v4.9.312-60-g806e59090c6c) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre  | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6368c71952d81de29de7db4f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6368c71952d81de29de7d=
+b50
+        failing since 65 days (last pass: v4.9.302-27-ge4a64678c410, first =
+fail: v4.9.326-32-g24fc65df6e8a8) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre  | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6368c8bda3c4157dd7e7db68
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
+line-qemu_arm64-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
+line-qemu_arm64-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6368c8bda3c4157dd7e7d=
+b69
+        failing since 181 days (last pass: v4.9.312-36-gbfd3fd9fa677, first=
+ fail: v4.9.312-60-g806e59090c6c) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-collabora | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6368c708f77ec67343e7db6b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-=
+virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-=
+virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6368c708f77ec67343e7d=
+b6c
+        failing since 65 days (last pass: v4.9.302-27-ge4a64678c410, first =
+fail: v4.9.326-32-g24fc65df6e8a8) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre  | gcc-10   | defconfig  =
+                | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6368c7183a35908d91e7db56
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6368c7183a35908d91e7d=
+b57
+        failing since 181 days (last pass: v4.9.312-44-g77a374c13dc5, first=
+ fail: v4.9.312-60-g806e59090c6c) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+                | regressions
+---------------------------+-------+---------------+----------+------------=
+----------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre  | gcc-10   | defconfig+a=
+rm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6368c8c3a3c4157dd7e7db6e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
+line-qemu_arm64-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.332=
+-20-g6ba04d5b05d0/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
+line-qemu_arm64-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6368c8c3a3c4157dd7e7d=
+b6f
+        failing since 181 days (last pass: v4.9.312-36-gbfd3fd9fa677, first=
+ fail: v4.9.312-60-g806e59090c6c) =
+
+ =20
