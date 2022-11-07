@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D64261FA2E
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:43:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E602561FA4D
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:46:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231580AbiKGQnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 11:43:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39038 "EHLO
+        id S232558AbiKGQqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 11:46:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231153AbiKGQnj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:43:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B1060CC
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:43:37 -0800 (PST)
+        with ESMTP id S231462AbiKGQqj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:46:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 458701F2EC
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:46:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25896B81151
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:43:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7988CC433D6;
-        Mon,  7 Nov 2022 16:43:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F274DB815A0
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:46:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4400AC433D6;
+        Mon,  7 Nov 2022 16:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667839414;
-        bh=1XbiB8rBb7io64jMbW7+7C5II2TJlXX3Vbh4wKalYs8=;
+        s=korg; t=1667839595;
+        bh=12X+lkgaoTS4+UHyoiDqB5nT1dpdIjCWQ9q4JitD9i0=;
         h=Subject:To:Cc:From:Date:From;
-        b=WQK00O4XJk+n9g+LFW/h6bJZrE64h1qst/dyOeq/3RFrGCbFtvyPUF/WT3P2p0hW2
-         sCtBA9PyivPOiwm14NtCH7f3UCBeetb/Tsk9DR8oF4J5zTzG7b2uQ0J2HduVvZ1XbW
-         iOjoVb68Tv919L+wChVGS+2Betl5e0sJWngn34Gk=
-Subject: FAILED: patch "[PATCH] parisc: Avoid printing the hardware path twice" failed to apply to 4.9-stable tree
-To:     deller@gmx.de, stable@vger.kernel.org
+        b=Xk2nsuBgpY47pz2sTDEV3xHOeYjuZ/elIl9HVBPmfDCqYruvdBEYg7Q0U2erGJGlM
+         qzX4TQcVElpzq0DzOuVin7+J6OP8cKnXln50zQET9yRbW22k6urJvfNE6nIW5VEVpQ
+         YbY0/VIU7UqZ4ZHKWd6LEWIznDIC3imXYe/ruwnM=
+Subject: WTF: patch "[PATCH] KVM: debugfs: Return retval of simple_attr_open() if it fails" was seriously submitted to be applied to the 6.0-stable tree?
+To:     houwenlong.hwl@antgroup.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Nov 2022 17:43:23 +0100
-Message-ID: <166783940341190@kroah.com>
+Date:   Mon, 07 Nov 2022 17:46:32 +0100
+Message-ID: <166783959219142@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -46,18 +46,15 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The patch below was submitted to be applied to the 6.0-stable tree.
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I fail to see how this patch meets the stable kernel rules as found at
+Documentation/process/stable-kernel-rules.rst.
 
-Possible dependencies:
-
-2b6ae0962b42 ("parisc: Avoid printing the hardware path twice")
-4f80b70e1953 ("parisc: Use proper printk format for resource_size_t")
-5e791d2e4785 ("parisc: Convert printk(KERN_LEVEL) to pr_lvl()")
-0ae60d0c4f19 ("parisc: Show unhashed hardware inventory")
+I could be totally wrong, and if so, please respond to 
+<stable@vger.kernel.org> and let me know why this patch should be
+applied.  Otherwise, it is now dropped from my patch queues, never to be
+seen again.
 
 thanks,
 
@@ -65,76 +62,53 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2b6ae0962b421103feb41a80406732944b0665b3 Mon Sep 17 00:00:00 2001
-From: Helge Deller <deller@gmx.de>
-Date: Fri, 28 Oct 2022 18:12:49 +0200
-Subject: [PATCH] parisc: Avoid printing the hardware path twice
+From 180418e2eb33be5c8d0b703c843e0ebc045aef80 Mon Sep 17 00:00:00 2001
+From: Hou Wenlong <houwenlong.hwl@antgroup.com>
+Date: Mon, 17 Oct 2022 11:06:10 +0800
+Subject: [PATCH] KVM: debugfs: Return retval of simple_attr_open() if it fails
 
-Avoid that the hardware path is shown twice in the kernel log, and clean
-up the output of the version numbers to show up in the same order as
-they are listed in the hardware database in the hardware.c file.
-Additionally, optimize the memory footprint of the hardware database
-and mark some code as init code.
+Although simple_attr_open() fails only with -ENOMEM with current code
+base, it would be nicer to return retval of simple_attr_open() directly
+in kvm_debugfs_open().
 
-Fixes: cab56b51ec0e ("parisc: Fix device names in /proc/iomem")
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v4.9+
+No functional change intended.
 
-diff --git a/arch/parisc/include/asm/hardware.h b/arch/parisc/include/asm/hardware.h
-index 9d3d7737c58b..a005ebc54779 100644
---- a/arch/parisc/include/asm/hardware.h
-+++ b/arch/parisc/include/asm/hardware.h
-@@ -10,12 +10,12 @@
- #define SVERSION_ANY_ID		PA_SVERSION_ANY_ID
+Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
+Message-Id: <69d64d93accd1f33691b8a383ae555baee80f943.1665975828.git.houwenlong.hwl@antgroup.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 1376a47fedee..f1df24c2bc84 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -5409,6 +5409,7 @@ static int kvm_debugfs_open(struct inode *inode, struct file *file,
+ 			   int (*get)(void *, u64 *), int (*set)(void *, u64),
+ 			   const char *fmt)
+ {
++	int ret;
+ 	struct kvm_stat_data *stat_data = (struct kvm_stat_data *)
+ 					  inode->i_private;
  
- struct hp_hardware {
--	unsigned short	hw_type:5;	/* HPHW_xxx */
--	unsigned short	hversion;
--	unsigned long	sversion:28;
--	unsigned short	opt;
--	const char	name[80];	/* The hardware description */
--};
-+	unsigned int	hw_type:8;	/* HPHW_xxx */
-+	unsigned int	hversion:12;
-+	unsigned int	sversion:12;
-+	unsigned char	opt;
-+	unsigned char	name[59];	/* The hardware description */
-+} __packed;
+@@ -5420,15 +5421,13 @@ static int kvm_debugfs_open(struct inode *inode, struct file *file,
+ 	if (!kvm_get_kvm_safe(stat_data->kvm))
+ 		return -ENOENT;
  
- struct parisc_device;
+-	if (simple_attr_open(inode, file, get,
+-		    kvm_stats_debugfs_mode(stat_data->desc) & 0222
+-		    ? set : NULL,
+-		    fmt)) {
++	ret = simple_attr_open(inode, file, get,
++			       kvm_stats_debugfs_mode(stat_data->desc) & 0222
++			       ? set : NULL, fmt);
++	if (ret)
+ 		kvm_put_kvm(stat_data->kvm);
+-		return -ENOMEM;
+-	}
  
-diff --git a/arch/parisc/kernel/drivers.c b/arch/parisc/kernel/drivers.c
-index d126e78e101a..e7ee0c0c91d3 100644
---- a/arch/parisc/kernel/drivers.c
-+++ b/arch/parisc/kernel/drivers.c
-@@ -882,15 +882,13 @@ void __init walk_central_bus(void)
- 			&root);
+-	return 0;
++	return ret;
  }
  
--static void print_parisc_device(struct parisc_device *dev)
-+static __init void print_parisc_device(struct parisc_device *dev)
- {
--	char hw_path[64];
--	static int count;
-+	static int count __initdata;
- 
--	print_pa_hwpath(dev, hw_path);
--	pr_info("%d. %s at %pap [%s] { %d, 0x%x, 0x%.3x, 0x%.5x }",
--		++count, dev->name, &(dev->hpa.start), hw_path, dev->id.hw_type,
--		dev->id.hversion_rev, dev->id.hversion, dev->id.sversion);
-+	pr_info("%d. %s at %pap { type:%d, hv:%#x, sv:%#x, rev:%#x }",
-+		++count, dev->name, &(dev->hpa.start), dev->id.hw_type,
-+		dev->id.hversion, dev->id.sversion, dev->id.hversion_rev);
- 
- 	if (dev->num_addrs) {
- 		int k;
-@@ -1079,7 +1077,7 @@ static __init int qemu_print_iodc_data(struct device *lin_dev, void *data)
- 
- 
- 
--static int print_one_device(struct device * dev, void * data)
-+static __init int print_one_device(struct device * dev, void * data)
- {
- 	struct parisc_device * pdev = to_parisc_device(dev);
- 
+ static int kvm_debugfs_release(struct inode *inode, struct file *file)
 
