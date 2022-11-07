@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABA7861F2F0
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 13:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0459B61F2F6
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 13:24:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231516AbiKGMYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 07:24:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50240 "EHLO
+        id S232163AbiKGMYW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 07:24:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231755AbiKGMYN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 07:24:13 -0500
+        with ESMTP id S231755AbiKGMYR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 07:24:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA4A6262D
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 04:24:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 541A76247
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 04:24:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 746CFB810B9
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 12:24:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D9ACC433D6;
-        Mon,  7 Nov 2022 12:24:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1058AB810BC
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 12:24:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62114C433C1;
+        Mon,  7 Nov 2022 12:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667823849;
-        bh=9dRSeK7lpUfHJXFHKn7zV40875yO6zqhGbIfw8RT3XA=;
+        s=korg; t=1667823852;
+        bh=dyo0ECz0Uf0r4Skkj7tFw+wwMECX0I3Wwk23fo48Jko=;
         h=Subject:To:Cc:From:Date:From;
-        b=W7NRWA1xhZMvpqQ2KkCHsgokGSWFyyzu5IR/jyuROXvA9yVc1uy4HWRcshpLZq1TA
-         Asz3BFqdpGAiyf1cJ6rM5Cbt/f6BYigaThd63HnG3mvKVTRUeC/7y1mflTnLrGEK2i
-         MqA1bnkHm6RBBJg0RMtgqWDKcU4mzf75mCNlooIE=
-Subject: FAILED: patch "[PATCH] btrfs: fix tree mod log mishandling of reallocated nodes" failed to apply to 4.19-stable tree
+        b=la5hEW/pa6lexSI/bLPs2zNLnreTYHI4xxnMkcNe4sTs8eu4IB07Inxl/MIJNtgNa
+         QA7LuO04ZKnc+l8MDgM9YMBki+HMRO4fB4rZpYJRcYaBssF+PHeVReky2KnOnMCiAl
+         EG/8+xJZvOentKO1t53uSQu4T9fvAsXQeAejj8+o=
+Subject: FAILED: patch "[PATCH] btrfs: fix tree mod log mishandling of reallocated nodes" failed to apply to 4.14-stable tree
 To:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Nov 2022 13:24:00 +0100
-Message-ID: <1667823840234249@kroah.com>
+Date:   Mon, 07 Nov 2022 13:24:09 +0100
+Message-ID: <16678238492374@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
