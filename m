@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ECFF61FA5B
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:48:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B9C61FA5D
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 17:48:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232550AbiKGQsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 11:48:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42360 "EHLO
+        id S232616AbiKGQsh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 11:48:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232592AbiKGQsb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:48:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF4F62C7
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:48:30 -0800 (PST)
+        with ESMTP id S232575AbiKGQsc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 11:48:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED72CBDD
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 08:48:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CEA2FB815D5
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:48:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07CFFC433B5;
-        Mon,  7 Nov 2022 16:48:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B5A0611BD
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 16:48:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CBD3C433D7;
+        Mon,  7 Nov 2022 16:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667839707;
-        bh=Da0sHFf7R+ek/NV1K3ny7d5lyVK/V4ENsbJx+P6B8AY=;
+        s=korg; t=1667839711;
+        bh=vebeXtMOerqT0IvUFtldK1CpEcOm1zeSX8w707K1OKQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=B2C2/lKKQFuElhwDDHBPBRmfEQQwiWL7BA6SEUBtyswo1/AjcYNkJDqqUMIzLQs8K
-         rNLs2iKERAnEDRIwbo2yZUh0HIrQu/bpFmbIe7SnUeBvg7YllrMxxOGVTql38YjDxD
-         c9T6kfwEFKQdpmWYwHMH2XgS5P2YeIcQ0RKHCRd4=
-Subject: FAILED: patch "[PATCH] KVM: x86: Mask off reserved bits in CPUID.8000001FH" failed to apply to 5.4-stable tree
+        b=zJnLIYDqNKamZTwk4lOVFKCPQwM1sh59Uxj3X2d06hzcM3ntXNDTyNS2MxG83qOcc
+         qbQjmoMErIDtCb9mT6V/kdAqzEYyLafFllbbHhtNPUq3ZbXf31ncMRboPB7LEcm0c5
+         rOfWDjo9VxE0lOS7+RkP8vCw6aJ7EJzM9Sx075Gw=
+Subject: FAILED: patch "[PATCH] KVM: x86: Mask off reserved bits in CPUID.8000001FH" failed to apply to 5.10-stable tree
 To:     jmattson@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 07 Nov 2022 17:48:23 +0100
-Message-ID: <166783970395162@kroah.com>
+Message-ID: <1667839703108195@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -64,16 +64,6 @@ d9db0fd6c5c9 ("KVM: SEV: Mask CPUID[0x8000001F].eax according to supported featu
 e42033342293 ("KVM: x86: Advertise INVPCID by default")
 916391a2d1dc ("KVM: SVM: Add support for SEV-ES capability in KVM")
 9d4747d02376 ("KVM: SVM: Remove the call to sev_platform_status() during setup")
-dc46515cf838 ("KVM: x86: Move illegal GPA helper out of the MMU code")
-1dbf5d68af6f ("KVM: VMX: Add guest physical address check in EPT violation and misconfig")
-a0c134347baf ("KVM: VMX: introduce vmx_need_pf_intercept")
-ec7771ab471b ("KVM: x86: mmu: Add guest physical address check in translate_gpa()")
-cd313569f581 ("KVM: x86: mmu: Move translate_gpa() to mmu.c")
-985ab2780164 ("KVM: x86/mmu: Make kvm_mmu_page definition and accessor internal-only")
-6ca9a6f3adef ("KVM: x86/mmu: Add MMU-internal header")
-06e7852c0ffb ("KVM: SVM: Add vmcb_ prefix to mark_*() functions")
-f25a9dec2da3 ("KVM: x86/mmu: Drop kvm_arch_write_log_dirty() wrapper")
-2dbebf7ae1ed ("KVM: nVMX: Plumb L2 GPA through to PML emulation")
 
 thanks,
 
