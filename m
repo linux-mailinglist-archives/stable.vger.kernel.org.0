@@ -2,91 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D4A761F7D4
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 16:39:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE74C61F7DE
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 16:41:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232161AbiKGPjb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 10:39:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42630 "EHLO
+        id S231700AbiKGPl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 10:41:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232912AbiKGPj3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 10:39:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DBD81F9E8
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 07:39:28 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15BE5B812A5
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 15:39:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E89C433D6;
-        Mon,  7 Nov 2022 15:39:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667835565;
-        bh=5K8NeW0gSrFhiRP0tfETItIqnZ/muvfX7Zbg3Ro36YE=;
-        h=Subject:To:Cc:From:Date:From;
-        b=tRneAFy3LPkshvmeL31w8k66H3g/xqD/J5PcY6vXupQ4FRW4P3uCg87ikE1BxpW32
-         YNhbzDaGFwIwVtmZMYo84YDQd6Cw5shMkkbd2X22eVh+DE7rRBBZyCfCkBw2HV4OBH
-         UfXAwH/sm6lcOdZ+wXainnhQfCwbbjTLkriTVmW8=
-Subject: FAILED: patch "[PATCH] fuse: add file_modified() to fallocate" failed to apply to 4.19-stable tree
-To:     mszeredi@redhat.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 07 Nov 2022 16:39:18 +0100
-Message-ID: <1667835558230184@kroah.com>
+        with ESMTP id S231676AbiKGPl0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 10:41:26 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076B11F63A
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 07:40:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667835628;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=0RG2qjH57v6es353SUCFI/Tv9kwI5E+OcxJV2Spp6Rc=;
+        b=bv1m3mHfe7KYKlT2PLyX4Wn5WadEVll/s3G6Y/0R15VcgUN4K8l7tYATdXoefYKCvR93JX
+        9Ooi89gVdqXnsVFnCgTDbhnoOLOrNvDEXMo2QJp1vl83MtBU0lb3CieAuL9dPLuJqDxnxA
+        KXNr9a1eezNIl7efUSq7RD1v4WJAfpk=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-116-s1eZiK5YOxGuOVm2gzoVAA-1; Mon, 07 Nov 2022 10:40:26 -0500
+X-MC-Unique: s1eZiK5YOxGuOVm2gzoVAA-1
+Received: by mail-wm1-f71.google.com with SMTP id az40-20020a05600c602800b003cfa26c40easo2284193wmb.1
+        for <stable@vger.kernel.org>; Mon, 07 Nov 2022 07:40:26 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=0RG2qjH57v6es353SUCFI/Tv9kwI5E+OcxJV2Spp6Rc=;
+        b=olcOCOAUIcWj2o8EmWsxN73A7ie3Mc45INPIO0afZxLDf6MUIFgLUhDW9fmX603UoW
+         +54DnR2o0vZbLMg4tNIfftdLc4SvxrX5eba23I4KAregzSZd3vXN4W0Be3aZz5OdHuw4
+         ToN5pvbLn5Fzq0uUKM3ULy0vDu8WULUzjP/u+LulxeQGiQCMPuIxGIPqlTHdy3JNAiPR
+         1BxzAZBH5VB4eBwwTCWf18SKQPSSMShkkGQo/CUlCK+hLatuiXuD3/q/yIzbZyG57jgy
+         FqrrGs/FfjXG4aDP3OVDGhMEjWxIpcx6dBCiOZ+ldRMR7tYTxU5XGHhw8OsIMd+y4qDs
+         +zoA==
+X-Gm-Message-State: ACrzQf0UO2yP9oMAkkhGKHN9JnLGo/gidRyqIZZT4pOKJLML5eo+XvxZ
+        nM6KcOX4SCLPFB/Kq+k6+T9ae/WRar5MvUZFYOPYo52ckIC9i249faSlMoOTH68JrwCtTQ6Oy+x
+        jRhgcydO1K6g4a8p3
+X-Received: by 2002:a05:6000:1a41:b0:22e:3667:d306 with SMTP id t1-20020a0560001a4100b0022e3667d306mr31781645wry.21.1667835625846;
+        Mon, 07 Nov 2022 07:40:25 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM43CzSLo45txkBr/LR1HD0u4aQzeSZDSSshQoLseGKtmzaSgzMFWVPFWTNHLrm4+Jz2aV2pkw==
+X-Received: by 2002:a05:6000:1a41:b0:22e:3667:d306 with SMTP id t1-20020a0560001a4100b0022e3667d306mr31781627wry.21.1667835625649;
+        Mon, 07 Nov 2022 07:40:25 -0800 (PST)
+Received: from ?IPV6:2001:b07:6468:f312:9af8:e5f5:7516:fa89? ([2001:b07:6468:f312:9af8:e5f5:7516:fa89])
+        by smtp.googlemail.com with ESMTPSA id t20-20020a05600c199400b003cf9bf5208esm10359646wmq.19.2022.11.07.07.40.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Nov 2022 07:40:24 -0800 (PST)
+Message-ID: <4427cc5b-82fd-5656-da68-186b87dbe666@redhat.com>
+Date:   Mon, 7 Nov 2022 16:40:23 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [PATCH 4/8] KVM: SVM: move guest vmsave/vmload to assembly
+Content-Language: en-US
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        nathan@kernel.org, thomas.lendacky@amd.com,
+        andrew.cooper3@citrix.com, jmattson@google.com, seanjc@google.com,
+        stable@vger.kernel.org
+References: <20221107145436.276079-1-pbonzini@redhat.com>
+ <20221107145436.276079-5-pbonzini@redhat.com>
+ <Y2ki4Iz8AZzTODKS@hirez.programming.kicks-ass.net>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <Y2ki4Iz8AZzTODKS@hirez.programming.kicks-ass.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 11/7/22 16:23, Peter Zijlstra wrote:
+>>   
+>> +3:	vmrun %_ASM_AX
+>> +4:
+>> +	cli
+>>   
+>> +	/* Pop @svm to RAX while it's the only available register. */
+>>   	pop %_ASM_AX
+>>   
+>>   	/* Save all guest registers.  */
+> So Andrew noted that once the vmload has executed any exception taken
+> (say at 3) will crash and burn because %gs is scribbled.
+> 
+> Might be good to make a record of this in the code so it can be cleaned
+> up some day.
+> 
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Yeah, it won't happen because clgi/stgi blocks setting kvm_rebooting so 
+I thought of killing the three exception fixups after the first.  In the 
+end I kept them for simplicity and to keep the normal/SEV-ES versions as 
+similar as possible.
 
-Possible dependencies:
-
-4a6f278d4827 ("fuse: add file_modified() to fallocate")
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 4a6f278d4827b59ba26ceae0ff4529ee826aa258 Mon Sep 17 00:00:00 2001
-From: Miklos Szeredi <mszeredi@redhat.com>
-Date: Fri, 28 Oct 2022 14:25:20 +0200
-Subject: [PATCH] fuse: add file_modified() to fallocate
-
-Add missing file_modified() call to fuse_file_fallocate().  Without this
-fallocate on fuse failed to clear privileges.
-
-Fixes: 05ba1f082300 ("fuse: add FALLOCATE operation")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index 1a3afd469e3a..71bfb663aac5 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -3001,6 +3001,10 @@ static long fuse_file_fallocate(struct file *file, int mode, loff_t offset,
- 			goto out;
- 	}
- 
-+	err = file_modified(file);
-+	if (err)
-+		goto out;
-+
- 	if (!(mode & FALLOC_FL_KEEP_SIZE))
- 		set_bit(FUSE_I_SIZE_UNSTABLE, &fi->state);
- 
+Paolo
 
