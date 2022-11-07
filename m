@@ -2,138 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F1861EA05
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 05:04:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1657A61EA07
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 05:04:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230349AbiKGED5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Nov 2022 23:03:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36730 "EHLO
+        id S230350AbiKGED7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Nov 2022 23:03:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230342AbiKGEDu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 23:03:50 -0500
+        with ESMTP id S230332AbiKGED5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Nov 2022 23:03:57 -0500
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC6A660D6;
-        Sun,  6 Nov 2022 20:03:48 -0800 (PST)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A72xwmd017547;
-        Mon, 7 Nov 2022 04:03:43 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5152A60C5;
+        Sun,  6 Nov 2022 20:03:54 -0800 (PST)
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2A6M2YNw018998;
+        Mon, 7 Nov 2022 04:03:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version; s=corp-2022-7-12;
- bh=ucvSQw+aVhXfgUqiGQBDmCkEH2aHGArLUrEw4EncLME=;
- b=AuaKL+C22T/vinWtlyJFrqVdgBRQv/IrqbYTmC3iBXSOTErOHOoL0BArXeHbQ8ISuh14
- xkS9IQmgqd0YefdvIofPDe3JoCqwJTpknx/Mek2+TI9lKJmVSwDVmrS4k8yehtl/2ULZ
- 2NQ/J5DGiCXlEuKsZj9ES1RF6zNJ1XyLRazUkbOvhA+eNVgeSm6viLscd6rKsV5NsPF1
- iTU1r17wm6Chpw8PA3/hjL9Hbq7w8jYbIk+EyusbwTokEE1/qmmcFZKP4dL0Quj6LHU2
- iG1Tg91QfWd9k5hUur2u5MH5bnGhv0JjTAXLY0D+SvViVpqiEF/YWmHzTyYq7UXmHzCb 2w== 
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3kngnutfsq-1
+ bh=7yDuZMRnQVX4upvcVRoezSLbFbtsrRyePEW13VB8zqc=;
+ b=x8DTvOrm6aDielyx1dzwLbiUYgaC/oLJLU9O+kwsxX5uNUKum97+bdSX/72ry+nsPi66
+ LJu8GqBt95d0XRcVof0YMJqy00whfg7UZ5wbftU9RiuX9swzz1TvHbb1R6lokSp7v7YE
+ 5fQnKpOvmMsWV+Z009Om/6mMgCRbHayI+q2ye1kiQ4FvMcCxHC6Ql+DpMGKx1zpp745i
+ 4O6nPHoKABPpewlLeyB8OWorMyz8zRzUxNnKScO75/vdhKozqQHZGBcfGgGKfG+RbZ80
+ WhOKNPdEqSW370WP2lIFvN5bhnD/oAnYvAXwyK32+1hEa4Ckx1b4pnUBbO4Ucrd9OU1Q CQ== 
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3kngmj2eau-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 07 Nov 2022 04:03:43 +0000
-Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 2A73U8xf040240;
-        Mon, 7 Nov 2022 04:03:42 GMT
+        Mon, 07 Nov 2022 04:03:50 +0000
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 2A73ugbT024352;
+        Mon, 7 Nov 2022 04:03:49 GMT
 Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2174.outbound.protection.outlook.com [104.47.57.174])
-        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3kpcym3pjd-1
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3kpcsbv6f5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 07 Nov 2022 04:03:42 +0000
+        Mon, 07 Nov 2022 04:03:49 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=hnMUMLnZDamwvAl1dAMVg1cW9TJGVAgBrrOuxcc1UEeN+EGti8bjKpCJtSHhUTlPfljMYQlH8SQmlNa7poQQ1IBuuI3nJsAZ5q5E/a1tQH44yongyFEzPvUROhVg0X6bLGdeqkwF5txdbhnNfEcP8v/CwvtB0uyJF+aOynMQU7H82FK//ED2IFT0vHMGsMTA7EMzcn/MyeOK/oh8p170lNh3s1/zqdy+zfyO1/GlBu3XwcnQxHVgjKSJF0AgZkobck9g/ddd2gYsMgTmfgbFC0/9rpAumczrTL6hj1S4ttCT94TXDW90dRg7TflDcNiFHKlraA57pDhTEv2s4XzPkw==
+ b=e3Db1QNWHI6pj76NvECHhHzKCiDHenz+dDFZFAaCoMUlGkHfB16UfxLRDv277vttrHITLSzM9xNiF+sH2Ymde1Ubfx5/YoevgRFWp0OEnvNofz7x8py+mitnCxcq6UmKq3GMqKDsYIdHnvek4qCUwaupudiYXDy1xJui1tLcBhMtRlaJUCV3YIof0nu7rrzdqc1rUQ74WAC1N6vaiv4rnoeI/jAd46te3xHGRlYSab8n7PV5R4lt2BvRA8Ogd1fsRnRQ1E7J9zy4sTF5Sn7BkOr72tOyX8Q2RheMU8NVIooxSSeGbJn9knC0wV9uRxEXhPBQywAKjgRP3Eqhim3H/w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ucvSQw+aVhXfgUqiGQBDmCkEH2aHGArLUrEw4EncLME=;
- b=EfPTcgq8Q96RblB6NbKzQ+3QYgzZ3HGP3L6KRW6WEZnieeq2zMywDaqAhdeI7mnL4DlKAUU05ANHwxs/JDbfy3/QSlu1s2ODTfqSA0WqIqQAmr632hfSXHy7St6QCHOpevdcp+mAf6FaM3BY7Lei8O4Q9JNGl2EETK2p9PY0Ob5EKGRJwKRC2MLO10tz5zH3MN+0kOZ5MUztqHmR3ycrOrwmYLqMN7fP6aFNOHnvgoldDWNg9usNqxif8cgbgV8gQi5V+mQN9oUmqkAvLBgBbo2tCt4pVpw5fDfJ9qeBoeOmXZO/PsfRGzqVpHKhQOpzR/TX+KnGO9L9eN27ZicWnA==
+ bh=7yDuZMRnQVX4upvcVRoezSLbFbtsrRyePEW13VB8zqc=;
+ b=UJdXpfPs5FV8W5IhVlztVtURNNb0pMOga/8uFZoDI5sIcFndkpz4Q1TC5ZXj23iB80W6s6ng/FJeByXa1GBloKaB/TZ0m86FVM1q6gcMfWXDvgoOBukHpyOIgLqDVqOlHRMJyTcnyroz41vYtuMYziJjMEUJJbMK0+YtGHswMWnIirWWhA41dShA5hGdYIZ5AXnRbGlg5rqkFGpNNq3uaqFzDxobB5V6Pndtb0NR3MZn6ENRIAPLWDbRNqFc/kdefw9Xmex/FOw23/is5l+W3O0Ut6nGBhoYfAXibQ/XFFSrpZ+V3+oCfcORwPcRaROoGFX5jTgkeoa3kp2KUx7LQA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ucvSQw+aVhXfgUqiGQBDmCkEH2aHGArLUrEw4EncLME=;
- b=sOJZySvyFtHfSQ6LB9MBhe+4p0dnZwbSZMEI3KSELNcc7kNUbweZ4+W/OM8ZdayD5SI0zLLiQD1GNOluqJdZX6d5f8boB2xGY02Y0Cpsrlm2mtDCWP6++DOEuVjD9TKlF8GVtt4wQbjmUDez2SBwPDc3O/CLYp5ZrRfaLASarHI=
+ bh=7yDuZMRnQVX4upvcVRoezSLbFbtsrRyePEW13VB8zqc=;
+ b=Nm+1593ReROY4bYUrILxmYwTmKajwuSL9x6j81xw05rzFubA7aQQ2dh8xuKf0vjnfnj3SleIHEmoAiYjBYfu7toJsjKSDUfJajWWEfmQqWQSxbtVLoDYkGXw3DunYcYHe8QhTL0zXSRHeTdm3XRi5mhJi25UJPAuyR2G5z9eqY0=
 Received: from PH0PR10MB5872.namprd10.prod.outlook.com (2603:10b6:510:146::15)
  by BN0PR10MB5077.namprd10.prod.outlook.com (2603:10b6:408:12e::17) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5791.26; Mon, 7 Nov
- 2022 04:03:40 +0000
+ 2022 04:03:47 +0000
 Received: from PH0PR10MB5872.namprd10.prod.outlook.com
  ([fe80::3523:c039:eec9:c78b]) by PH0PR10MB5872.namprd10.prod.outlook.com
  ([fe80::3523:c039:eec9:c78b%4]) with mapi id 15.20.5791.025; Mon, 7 Nov 2022
- 04:03:40 +0000
+ 04:03:47 +0000
 From:   Chandan Babu R <chandan.babu@oracle.com>
 To:     gregkh@linuxfoundation.org
 Cc:     sashal@kernel.org, mcgrof@kernel.org, linux-xfs@vger.kernel.org,
         stable@vger.kernel.org, djwong@kernel.org, chandan.babu@oracle.com,
         amir73il@gmail.com, leah.rumancik@gmail.com
-Subject: [PATCH 5.4 1/6] xfs: don't fail verifier on empty attr3 leaf block
-Date:   Mon,  7 Nov 2022 09:33:22 +0530
-Message-Id: <20221107040327.132719-2-chandan.babu@oracle.com>
+Subject: [PATCH 5.4 2/6] xfs: use ordered buffers to initialize dquot buffers during quotacheck
+Date:   Mon,  7 Nov 2022 09:33:23 +0530
+Message-Id: <20221107040327.132719-3-chandan.babu@oracle.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221107040327.132719-1-chandan.babu@oracle.com>
 References: <20221107040327.132719-1-chandan.babu@oracle.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: SG2PR01CA0122.apcprd01.prod.exchangelabs.com
- (2603:1096:4:40::26) To PH0PR10MB5872.namprd10.prod.outlook.com
+X-ClientProxiedBy: SI2PR02CA0035.apcprd02.prod.outlook.com
+ (2603:1096:4:195::22) To PH0PR10MB5872.namprd10.prod.outlook.com
  (2603:10b6:510:146::15)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: PH0PR10MB5872:EE_|BN0PR10MB5077:EE_
-X-MS-Office365-Filtering-Correlation-Id: b5a3cb22-8318-439e-580c-08dac0750e19
+X-MS-Office365-Filtering-Correlation-Id: e397637d-58a2-4a32-85ef-08dac07511df
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 2c7YcppE9ppxqTUXSv3SvT46Zf3kENuQJAwGmyXhNy+B1OEvUYw3/Dv3wF9yf757TP6rNRTSQLf/8M13XJZuKSWceqCu/k8l3TKKk6x9KWW/J2wtZp0ZiEIw5R0hVztb2OseaBf95bDaO0/6xRaEccXIojLYUAyfdBShnVtyxIweEzGLezZGR2Sw+yQzy1hqpWaTxEFLZkdgxy65MGGZvljqtYnNTeYMq17xqyVzx04R68BbG7as7py1g6awVqXN07DXXHwOvHDTNhGujVI8CxDaQHM4ONg5Aa5Xy+DQFNziiKygEHJy74Lc5AlRBqwsyyE8Te7JvP3HKGppgGwZHl6Mvwr/VKHUT13GH70MQ+oTeYtcePh7iunbh4AHaYtvMJQ8UYRFZ4seQ2OH58MVtxSF0Y+JAe3/PwBkqLiZqJNPd4qXeinLp+PasQPzbwGLi7jwBYL/d4S2liGJg8tlL6+8+1VwiFX+R+5w9pRrbZJzGSLdAhm81S8AZgmxHjJraQcUhM97ZOb661JQ3mslQCFEYcqiMTmkPLo7caD2yZFKC8VsJCoqPHF+Z+WS2PEOOsm37FdrYo5dU0XWmkX0Gy4t9qObektgxBg+r4wherCK+gq+4ORG9QGce+P4S6VNB8RxIqHIWMfmsg9WmM3sX31Hin71DgzKcVLVibOUvB14IfJik/LqPSjOCU31ZViOymWqLPkWtBS4eV04g4Cofg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5872.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(366004)(136003)(346002)(376002)(39860400002)(396003)(451199015)(1076003)(186003)(6512007)(26005)(6666004)(6506007)(2616005)(83380400001)(2906002)(478600001)(6916009)(6486002)(38100700002)(5660300002)(41300700001)(8936002)(316002)(8676002)(66476007)(66556008)(4326008)(66946007)(36756003)(86362001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: vy4966872r1aNuTyq1eX5W9NLdtHvReVIJzIAF24r6zaqRoEBKDXCas6/wKsYTmZDxe3GHvemfASXqxUy/2LsKZ9ybC2OELoM8sQ0TTo1IvfRLbZj8BB165kEfNVA+xSdLaXbFZxjQ5zL8Iz2/tsPaXCX6U3CeMI3wwAti5zp95yjj4+3UuPGgAH9jxDSYjbPRy3QdPt8jy3fYyWvNgRbRviENqm0Isx5yE2DY25cl00LgfJcfKOlQgnDL6S01ZwNI0Yuxy4j6Cmk24EBVG8se1uyZDzD2swafxXRdpb7JuYj0P2C8pEBAgcrVyShPH6TQKH6Pyp/g58xaQH7jHm21C4nx4+nKPuOlCz//u/Nwp5JAqUfWAZB2h6dgB5pFi9HST84/i5bYgapsN+jnhPZ/Wi+5lq81NEl8XcfAXchjs3yEdm3UYjFm8KTUvIv3ExADnxLYrzhlpO+ENaT1q8Gyz6g17Fs8DfE5n6Y3ENfDwH5NW9wP6VJLNEJY6NJ+gZJ4QPwr3KGKH146IWkmcl5yyRLw4J/NbsBxz6nYmoHhwXYiYKxVVbHpjS2t2RsWudJ40eh00qERbOrIa1FMVZ8QJe9QZet0K2iXYJjpOFJjq9UxfxY03Xp8WDbV3RNg6k1OTqL4ueF4onfVgHli8IvyM8JyDWdKJZridnfCMBN2sNzK+OZHVqmx7FJckBybpJsGxDahoTJ6YOHwjPnpT1bQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5872.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(366004)(136003)(346002)(376002)(39860400002)(396003)(451199015)(1076003)(186003)(6512007)(26005)(6666004)(6506007)(2616005)(83380400001)(15650500001)(2906002)(478600001)(6916009)(6486002)(38100700002)(5660300002)(41300700001)(8936002)(316002)(8676002)(66476007)(66556008)(4326008)(66946007)(36756003)(86362001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?ebxKtzLWLn70R+TJl4EaF2Ix0wD2eEHiv/ZHJhTs8adKEOFY2fA4HYkr78dR?=
- =?us-ascii?Q?KZCdXcIhsV3MNh2OOnNYKjYTViYOFs14ICSCKv+3qppFL53iUhGBnqCu7EU9?=
- =?us-ascii?Q?l/hbBZqyPZrLKrbbIjFrvip6VY9SgleCYp/UZ7AMGna4tEAAwftMUztsitr8?=
- =?us-ascii?Q?AKLp8q+kf3WSzwSPKbI4wyq49K/ar2pTXxTDiu8NpUt8N9EqOnh4xhqAeCVM?=
- =?us-ascii?Q?wFesUSWpjwTobNXLwlWxhgad3OIEhnqVP7TC3bVjs6n8GtAjSqP7j5qb4j6v?=
- =?us-ascii?Q?Ca6Z1EhKvvJYr3fvygekOQjSaCllmosZ4i8fR07flu0vbAdXSoxbRoU8bU5R?=
- =?us-ascii?Q?EpMyoex6xDscuD3T6wDwlq5YJHIIHYc4cSFLbKKKibtHhjfsMS7wwGtvU7t6?=
- =?us-ascii?Q?TliKyhsfNz5ZSOqeJGVr/ybwSU+HA2tm2SBVHdpkJhhHkU9tcBOS4C24F0s6?=
- =?us-ascii?Q?K91neUn+ANeL+4zg+bv/Kt2QesbWk40V/Nzz6yIPnHu0u13gcVVsJfyae9bU?=
- =?us-ascii?Q?C15A9gQ2epkIj39fMw8dJxX1YcYcUy+Y02MUtSMhcLTNUKqO8lu4DtEhw8pf?=
- =?us-ascii?Q?OANBqxR7e/01nfaajMNR7cD4/buQ2gD88Zk47TeLzh+Stf+bg5gioAiv7/ce?=
- =?us-ascii?Q?M0Cof5oy/L7JohH0tTqUqSDzjhc76rERgay2oCRfAH+kdtUeiyymIq9i7DQQ?=
- =?us-ascii?Q?BnEeja2hS73pAg1+TZrkDqAy7hbMJDJfXqhIMmAqVI2MShMETedQSVHk4883?=
- =?us-ascii?Q?CqfGzEWpP/7Wrw6MvxnhlyCf5LWJ9AaWvIMXev4+2WjlfdycnfdrQYukYPNy?=
- =?us-ascii?Q?ZyTSJ63CB/eqgVDJ+/WpzNFWYrMForb2DhdFLzj+Lh8PjsSfiPW6coB3Jsa6?=
- =?us-ascii?Q?ADeRGb5nrtQuA2wqvS7OIrFTIBHZoYW1389GhOfTkSMr5jr1M3RPoGyCczTC?=
- =?us-ascii?Q?VR8nczMeKxa0B3dW4mp4HGbaA12+Ii2W69JOCa6PSK/lNbP6rb9kkHBzMO1d?=
- =?us-ascii?Q?35jJNPh8i7vvcd9Rj8NDEgZdHAJbRLd4D7XgzbEHvcarwbe5ejDReszhoA3T?=
- =?us-ascii?Q?J8wVSwTRTjmT9jE1lSDdN/wEPXNhC9wP6D2bqkXffx49a3sqmy5f/yFbdOCC?=
- =?us-ascii?Q?qpxfLF0R9YPT5Hv5uJC32egHSgmr5vMxK1bRG6FZHIfI9M113f8PPGZTcqdM?=
- =?us-ascii?Q?NkZOlNjGK3tO2uhXoTPKcFNeavNP+D1nBu02r+kf+OXM8p8cDiYM6upkO9M0?=
- =?us-ascii?Q?a7AGDhMcRk6nD5213xmK0N+d+M9X0kYjMjz/4hOfzuiV1s9VWtuWUVrZ3qR3?=
- =?us-ascii?Q?0mbQWW+eyATuWDlFTZZ88DFy3LnUMhzyHkw83Zdlr0uRq81wpuB5LnqSDIxV?=
- =?us-ascii?Q?HP7kk07SsLou/Mu1nwztphOM3ll5y17VNZX4ZgjB88YrqaGTjUAU2A2CzhI0?=
- =?us-ascii?Q?K3kyMSJ3W/BF0NSDzHzI5ddeDrDZI97daGVJpZsjNlPy8KkACCKKtTW0uCDM?=
- =?us-ascii?Q?Rn6+9i2cDtr2G9HbzlLwfNRug4HrnkVuRC7XXAszZ00H6V9OHRcwEmaW3EOi?=
- =?us-ascii?Q?XWDXfZcJ3emQb4HYHEQLSq4eGeO/RxCqGMnZ54cZ?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?uFu4bb2VLuEIpaWsa/qLO+B6u9hUBGwQZ+iZBK3sg8WG6S304VVG1RBcWxb4?=
+ =?us-ascii?Q?G0bTBLFrxJJii/o1wxUVTACN+c55M+HHgOeX6ly+AHpGl6bIGVVCtkyK/ynd?=
+ =?us-ascii?Q?PbdzkrAHjAFOP27Pr6t5uBGBHx2NyPmjoh/+mOt6ZKASAUPrYR8p8KITf67/?=
+ =?us-ascii?Q?6GbSTqO5PWvv9FOUO+sUXnkOJzKnwLc5633QUqzeSLB9/QggOpQLVzjrJAtO?=
+ =?us-ascii?Q?JXxZGeXFx1mHuZzS9J8ebWL1p5z6VB9AWdBQt6wR6IhdxOLI/1/gBWTpuyha?=
+ =?us-ascii?Q?TfgDtJGKiQsSVlJzH+iMxO0Qt9cIX4zyPvILUDJPcLY2YKKu9WWoEMcX8Jc9?=
+ =?us-ascii?Q?KU7/QX2CCYfDw35dMYA1n3KuR7B85dzR6t8XlltVoyjGZ1EbUG96ViZa3lTm?=
+ =?us-ascii?Q?/sK4MQjRqbIV/sc5W8B0ghRwUgQVWjZPo5tCtKvuBD0t6pK+WJWmwtiWs+7J?=
+ =?us-ascii?Q?l8MLOHyFoX4meH4PEgU6t/uJ+29w0Tm3FNIb1+LAWjQr19Tu5AsP9XOUClSo?=
+ =?us-ascii?Q?YMgrbrLfwy2+clgqyMw+kxyJkUW1c7As+JioUQCHm+LX0glQgctXng4dRzTF?=
+ =?us-ascii?Q?FKPciwXSTEJkUoRvIxPwrPpiSR+aquJT9hMMO+fQ7PGIcRS4d6tUe4CrxdQJ?=
+ =?us-ascii?Q?hJT+2QdOZ0VAuOwQ9ISY8VHoloPL6Om7EkFP2sfn3LykLjWFoGxrXghyvzPJ?=
+ =?us-ascii?Q?C29OW6SBeZN7YbTUhFsyLTdCIdtU6XBxbZvglF4lVK55hqAl3PsBqQ2Lo/0d?=
+ =?us-ascii?Q?iOKdU+WFxrv8VLi7Y6GG6qli41D/8269xtfDQ3EN6HULhsWkBoaFDEQ6fV3I?=
+ =?us-ascii?Q?V20gs+8R2+5QwRNXRqEHarmu/RlrzximvWSrN50mrLLq4i1KFnPyoEDsPo+o?=
+ =?us-ascii?Q?ugpDsFaJzvq4KBoHMY/XkTVQPJS7a+BPC5xheQJDXrItARReuFkBVh1eh2Q2?=
+ =?us-ascii?Q?HQRwQfO3VHSuw7RSpQPRMmxorNJ98VwWdmgAF/vl99XrTNk2SsQY7tHErtyA?=
+ =?us-ascii?Q?Os5wl0uJ5gr0NVS2kTnYqWIo9bz6h3nZ80bnPYre5i1BspxkzFzjHe1pyVES?=
+ =?us-ascii?Q?fDsKUCadud3IsA2sntiQKLjlIRGA/u+LxlhWfrSAOMr2l+MBPdcYJNzuH3Yd?=
+ =?us-ascii?Q?UFkJJtgwNfglaUj+E1HaXAN6tmajsfIQ9YW6uv8KGK819Fl7OFI19S/zOPeh?=
+ =?us-ascii?Q?edpTeFe69cHyUkxfG8PlRwV/A1zKuM0grqZM6cy4agssJ5ceh8jW6dOI5Kyz?=
+ =?us-ascii?Q?XAyJ7bBnuCbKHkknj4Ej2BkpUIZSxvwmdp1QBaQTx6NI9mEquD9+x0KcEy1L?=
+ =?us-ascii?Q?f1C1IrRMYwn6y844qFQg5glD2R/X8KjKuTo825FlhT9IffbHC0ihleeOkY5z?=
+ =?us-ascii?Q?dQu4KPibxxKOtiUqFgesmWb32ERFVbWHChNrgQgAkNRZzb1Dzwcus78TtjRX?=
+ =?us-ascii?Q?EUnJLclEeRxol5VfzFDFX2LNVfWr1vvFZxhQ8fovRr4UNf0056WDS3vEwD8R?=
+ =?us-ascii?Q?GnziW99zeyD652dp957OP5CNPkAxt9eOmoj6tgFeYxQYqvNt3lr+9hrpT0lP?=
+ =?us-ascii?Q?nuRy/6zPLMhMTIblVSe0BIfcSUYpR1SLfOIn36NK?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b5a3cb22-8318-439e-580c-08dac0750e19
+X-MS-Exchange-CrossTenant-Network-Message-Id: e397637d-58a2-4a32-85ef-08dac07511df
 X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB5872.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Nov 2022 04:03:40.7531
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Nov 2022 04:03:47.2570
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: sKnbGPdcPwgMQv6WJ/Ndvlm9wfGN/HLQUPS4HLfKF6UV0hX9JSmxs9oVR0njXfI5ZrVdkTHHZ7rBccgdXvSs2w==
+X-MS-Exchange-CrossTenant-UserPrincipalName: R2Il3zk+7iyzDdVuY6B4ZGKnirtZtFWraysIWRp3IjYJbH6IelN9kJDdkLxRJypouGY7mE8B/uFZ+9WEhgi3Aw==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR10MB5077
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-06_16,2022-11-03_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 malwarescore=0
- adultscore=0 mlxscore=0 mlxlogscore=999 phishscore=0 suspectscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 mlxscore=0 spamscore=0
+ adultscore=0 malwarescore=0 mlxlogscore=999 bulkscore=0 suspectscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
  definitions=main-2211070032
-X-Proofpoint-GUID: T6iVejm3skmKbg1kaYKaqMVAIzQJPm7J
-X-Proofpoint-ORIG-GUID: T6iVejm3skmKbg1kaYKaqMVAIzQJPm7J
+X-Proofpoint-GUID: qtF7wVdbMsjJMDSpkd5g92z5PxCP7vz-
+X-Proofpoint-ORIG-GUID: qtF7wVdbMsjJMDSpkd5g92z5PxCP7vz-
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
@@ -144,67 +144,207 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-commit f28cef9e4daca11337cb9f144cdebedaab69d78c upstream.
+commit 78bba5c812cc651cee51b64b786be926ab7fe2a9 upstream.
 
-The attr fork can transition from shortform to leaf format while
-empty if the first xattr doesn't fit in shortform. While this empty
-leaf block state is intended to be transient, it is technically not
-due to the transactional implementation of the xattr set operation.
+While QAing the new xfs_repair quotacheck code, I uncovered a quota
+corruption bug resulting from a bad interaction between dquot buffer
+initialization and quotacheck.  The bug can be reproduced with the
+following sequence:
 
-We historically have a couple of bandaids to work around this
-problem. The first is to hold the buffer after the format conversion
-to prevent premature writeback of the empty leaf buffer and the
-second is to bypass the xattr count check in the verifier during
-recovery. The latter assumes that the xattr set is also in the log
-and will be recovered into the buffer soon after the empty leaf
-buffer is reconstructed. This is not guaranteed, however.
+# mkfs.xfs -f /dev/sdf
+# mount /dev/sdf /opt -o usrquota
+# su nobody -s /bin/bash -c 'touch /opt/barf'
+# sync
+# xfs_quota -x -c 'report -ahi' /opt
+User quota on /opt (/dev/sdf)
+                        Inodes
+User ID      Used   Soft   Hard Warn/Grace
+---------- ---------------------------------
+root            3      0      0  00 [------]
+nobody          1      0      0  00 [------]
 
-If the filesystem crashes after the format conversion but before the
-xattr set that induced it, only the format conversion may exist in
-the log. When recovered, this creates a latent corrupted state on
-the inode as any subsequent attempts to read the buffer fail due to
-verifier failure. This includes further attempts to set xattrs on
-the inode or attempts to destroy the attr fork, which prevents the
-inode from ever being removed from the unlinked list.
+# xfs_io -x -c 'shutdown' /opt
+# umount /opt
+# mount /dev/sdf /opt -o usrquota
+# touch /opt/man2
+# xfs_quota -x -c 'report -ahi' /opt
+User quota on /opt (/dev/sdf)
+                        Inodes
+User ID      Used   Soft   Hard Warn/Grace
+---------- ---------------------------------
+root            1      0      0  00 [------]
+nobody          1      0      0  00 [------]
 
-To avoid this condition, accept that an empty attr leaf block is a
-valid state and remove the count check from the verifier. This means
-that on rare occasions an attr fork might exist in an unexpected
-state, but is otherwise consistent and functional. Note that we
-retain the logic to avoid racing with metadata writeback to reduce
-the window where this can occur.
+# umount /opt
 
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Notice how the initial quotacheck set the root dquot icount to 3
+(rootino, rbmino, rsumino), but after shutdown -> remount -> recovery,
+xfs_quota reports that the root dquot has only 1 icount.  We haven't
+deleted anything from the filesystem, which means that quota is now
+under-counting.  This behavior is not limited to icount or the root
+dquot, but this is the shortest reproducer.
+
+I traced the cause of this discrepancy to the way that we handle ondisk
+dquot updates during quotacheck vs. regular fs activity.  Normally, when
+we allocate a disk block for a dquot, we log the buffer as a regular
+(dquot) buffer.  Subsequent updates to the dquots backed by that block
+are done via separate dquot log item updates, which means that they
+depend on the logged buffer update being written to disk before the
+dquot items.  Because individual dquots have their own LSN fields, that
+initial dquot buffer must always be recovered.
+
+However, the story changes for quotacheck, which can cause dquot block
+allocations but persists the final dquot counter values via a delwri
+list.  Because recovery doesn't gate dquot buffer replay on an LSN, this
+means that the initial dquot buffer can be replayed over the (newer)
+contents that were delwritten at the end of quotacheck.  In effect, this
+re-initializes the dquot counters after they've been updated.  If the
+log does not contain any other dquot items to recover, the obsolete
+dquot contents will not be corrected by log recovery.
+
+Because quotacheck uses a transaction to log the setting of the CHKD
+flags in the superblock, we skip quotacheck during the second mount
+call, which allows the incorrect icount to remain.
+
+Fix this by changing the ondisk dquot initialization function to use
+ordered buffers to write out fresh dquot blocks if it detects that we're
+running quotacheck.  If the system goes down before quotacheck can
+complete, the CHKD flags will not be set in the superblock and the next
+mount will run quotacheck again, which can fix uninitialized dquot
+buffers.  This requires amending the defer code to maintaine ordered
+buffer state across defer rolls for the sake of the dquot allocation
+code.
+
+For regular operations we preserve the current behavior since the dquot
+items require properly initialized ondisk dquot records.
+
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
 ---
- fs/xfs/libxfs/xfs_attr_leaf.c | 8 --------
- 1 file changed, 8 deletions(-)
+ fs/xfs/libxfs/xfs_defer.c | 10 ++++++-
+ fs/xfs/xfs_dquot.c        | 56 ++++++++++++++++++++++++++++++---------
+ 2 files changed, 52 insertions(+), 14 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
-index e69332d8f1cb..3d5e09f7e3a7 100644
---- a/fs/xfs/libxfs/xfs_attr_leaf.c
-+++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-@@ -250,14 +250,6 @@ xfs_attr3_leaf_verify(
- 	if (fa)
- 		return fa;
+diff --git a/fs/xfs/libxfs/xfs_defer.c b/fs/xfs/libxfs/xfs_defer.c
+index 22557527cfdb..8cc3faa62404 100644
+--- a/fs/xfs/libxfs/xfs_defer.c
++++ b/fs/xfs/libxfs/xfs_defer.c
+@@ -234,10 +234,13 @@ xfs_defer_trans_roll(
+ 	struct xfs_log_item		*lip;
+ 	struct xfs_buf			*bplist[XFS_DEFER_OPS_NR_BUFS];
+ 	struct xfs_inode		*iplist[XFS_DEFER_OPS_NR_INODES];
++	unsigned int			ordered = 0; /* bitmap */
+ 	int				bpcount = 0, ipcount = 0;
+ 	int				i;
+ 	int				error;
  
--	/*
--	 * In recovery there is a transient state where count == 0 is valid
--	 * because we may have transitioned an empty shortform attr to a leaf
--	 * if the attr didn't fit in shortform.
--	 */
--	if (!xfs_log_in_recovery(mp) && ichdr.count == 0)
--		return __this_address;
--
- 	/*
- 	 * firstused is the block offset of the first name info structure.
- 	 * Make sure it doesn't go off the block or crash into the header.
++	BUILD_BUG_ON(NBBY * sizeof(ordered) < XFS_DEFER_OPS_NR_BUFS);
++
+ 	list_for_each_entry(lip, &tp->t_items, li_trans) {
+ 		switch (lip->li_type) {
+ 		case XFS_LI_BUF:
+@@ -248,7 +251,10 @@ xfs_defer_trans_roll(
+ 					ASSERT(0);
+ 					return -EFSCORRUPTED;
+ 				}
+-				xfs_trans_dirty_buf(tp, bli->bli_buf);
++				if (bli->bli_flags & XFS_BLI_ORDERED)
++					ordered |= (1U << bpcount);
++				else
++					xfs_trans_dirty_buf(tp, bli->bli_buf);
+ 				bplist[bpcount++] = bli->bli_buf;
+ 			}
+ 			break;
+@@ -289,6 +295,8 @@ xfs_defer_trans_roll(
+ 	/* Rejoin the buffers and dirty them so the log moves forward. */
+ 	for (i = 0; i < bpcount; i++) {
+ 		xfs_trans_bjoin(tp, bplist[i]);
++		if (ordered & (1U << i))
++			xfs_trans_ordered_buf(tp, bplist[i]);
+ 		xfs_trans_bhold(tp, bplist[i]);
+ 	}
+ 
+diff --git a/fs/xfs/xfs_dquot.c b/fs/xfs/xfs_dquot.c
+index 9596b86e7de9..6231b155e7f3 100644
+--- a/fs/xfs/xfs_dquot.c
++++ b/fs/xfs/xfs_dquot.c
+@@ -205,16 +205,18 @@ xfs_qm_adjust_dqtimers(
+  */
+ STATIC void
+ xfs_qm_init_dquot_blk(
+-	xfs_trans_t	*tp,
+-	xfs_mount_t	*mp,
+-	xfs_dqid_t	id,
+-	uint		type,
+-	xfs_buf_t	*bp)
++	struct xfs_trans	*tp,
++	struct xfs_mount	*mp,
++	xfs_dqid_t		id,
++	uint			type,
++	struct xfs_buf		*bp)
+ {
+ 	struct xfs_quotainfo	*q = mp->m_quotainfo;
+-	xfs_dqblk_t	*d;
+-	xfs_dqid_t	curid;
+-	int		i;
++	struct xfs_dqblk	*d;
++	xfs_dqid_t		curid;
++	unsigned int		qflag;
++	unsigned int		blftype;
++	int			i;
+ 
+ 	ASSERT(tp);
+ 	ASSERT(xfs_buf_islocked(bp));
+@@ -238,11 +240,39 @@ xfs_qm_init_dquot_blk(
+ 		}
+ 	}
+ 
+-	xfs_trans_dquot_buf(tp, bp,
+-			    (type & XFS_DQ_USER ? XFS_BLF_UDQUOT_BUF :
+-			    ((type & XFS_DQ_PROJ) ? XFS_BLF_PDQUOT_BUF :
+-			     XFS_BLF_GDQUOT_BUF)));
+-	xfs_trans_log_buf(tp, bp, 0, BBTOB(q->qi_dqchunklen) - 1);
++	if (type & XFS_DQ_USER) {
++		qflag = XFS_UQUOTA_CHKD;
++		blftype = XFS_BLF_UDQUOT_BUF;
++	} else if (type & XFS_DQ_PROJ) {
++		qflag = XFS_PQUOTA_CHKD;
++		blftype = XFS_BLF_PDQUOT_BUF;
++	} else {
++		qflag = XFS_GQUOTA_CHKD;
++		blftype = XFS_BLF_GDQUOT_BUF;
++	}
++
++	xfs_trans_dquot_buf(tp, bp, blftype);
++
++	/*
++	 * quotacheck uses delayed writes to update all the dquots on disk in an
++	 * efficient manner instead of logging the individual dquot changes as
++	 * they are made. However if we log the buffer allocated here and crash
++	 * after quotacheck while the logged initialisation is still in the
++	 * active region of the log, log recovery can replay the dquot buffer
++	 * initialisation over the top of the checked dquots and corrupt quota
++	 * accounting.
++	 *
++	 * To avoid this problem, quotacheck cannot log the initialised buffer.
++	 * We must still dirty the buffer and write it back before the
++	 * allocation transaction clears the log. Therefore, mark the buffer as
++	 * ordered instead of logging it directly. This is safe for quotacheck
++	 * because it detects and repairs allocated but initialized dquot blocks
++	 * in the quota inodes.
++	 */
++	if (!(mp->m_qflags & qflag))
++		xfs_trans_ordered_buf(tp, bp);
++	else
++		xfs_trans_log_buf(tp, bp, 0, BBTOB(q->qi_dqchunklen) - 1);
+ }
+ 
+ /*
 -- 
 2.35.1
 
