@@ -2,97 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC9B61F178
-	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 12:07:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AE6061F194
+	for <lists+stable@lfdr.de>; Mon,  7 Nov 2022 12:11:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231627AbiKGLHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 06:07:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60356 "EHLO
+        id S231752AbiKGLLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 06:11:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231518AbiKGLHe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 06:07:34 -0500
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0239618386;
-        Mon,  7 Nov 2022 03:07:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1667819253; x=1699355253;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=GX897nypwCJ78jjUOfdNotVKqeArdhyavQ6h8PsVU8c=;
-  b=iBAai1hLFbwA3ysMoxykDt0hyJZiRbCzyzWNyAomHd9iwAdfPIpenazq
-   DAJ4xRaUCowz/bCuNKsj+ayqCsQPHwU5eLHsdLPI4J12fu/Cm1tlh0ztK
-   QSDAkQgYXb7v9lj6SuDozCuXagovBnDlqEwUPXqpGTcwy4BKcBwD46JEK
-   ecZuik8nyNhIB2JLA/og0EDA1NXsDBOLadHV8GEycOEf3eXBscNamUU/k
-   08zrALZsJb3jXpCG6dZaXL0JtegYjufovr9mxUvOgeRtxf50Wm5wUR+zx
-   /sEK8i7wpdDIzcNZl0u6GumAdST+Qhj6EMcRalvEEz+p3wnkKlR6KJG1J
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10523"; a="290773043"
-X-IronPort-AV: E=Sophos;i="5.96,143,1665471600"; 
-   d="scan'208";a="290773043"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Nov 2022 03:07:33 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10523"; a="586932381"
-X-IronPort-AV: E=Sophos;i="5.96,143,1665471600"; 
-   d="scan'208";a="586932381"
-Received: from gschoede-mobl1.ger.corp.intel.com (HELO ijarvine-MOBL2.ger.corp.intel.com) ([10.252.46.211])
-  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Nov 2022 03:07:31 -0800
-From:   =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc:     =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        stable@vger.kernel.org, Gilles BULOZ <gilles.buloz@kontron.com>
-Subject: [PATCH 4/4] serial: 8250: Flush DMA Rx on RLSI
-Date:   Mon,  7 Nov 2022 13:07:08 +0200
-Message-Id: <20221107110708.58223-5-ilpo.jarvinen@linux.intel.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20221107110708.58223-1-ilpo.jarvinen@linux.intel.com>
-References: <20221107110708.58223-1-ilpo.jarvinen@linux.intel.com>
+        with ESMTP id S231995AbiKGLLD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 06:11:03 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBAC21AF04
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 03:09:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667819356;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=n8Cl/06MPGSPm5RCcGRmqHy2+qFfaHoF23PzrGUHbl0=;
+        b=gQAFVSogdmVtbnkqTjnaxFmeniAc/QMWZGR9xNJgztcS+f7/a47sEe/gZ5O4Wc9t+sd8A1
+        ATpFIKv2x91TKhjXvsA+ViEGFjtgK76Okyk74q3oxliXYrrEJCfE/wmlJ7iqb5rt0F7OGW
+        hDFY2oAKVeJD646tEZuu/aRq0rTG2dE=
+Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
+ [209.85.160.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-439-asMujcUPO3i9RWzcSRstzw-1; Mon, 07 Nov 2022 06:09:15 -0500
+X-MC-Unique: asMujcUPO3i9RWzcSRstzw-1
+Received: by mail-qt1-f199.google.com with SMTP id u31-20020a05622a199f00b003a51fa90654so7886203qtc.19
+        for <stable@vger.kernel.org>; Mon, 07 Nov 2022 03:09:14 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=user-agent:in-reply-to:content-disposition:mime-version:references
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=n8Cl/06MPGSPm5RCcGRmqHy2+qFfaHoF23PzrGUHbl0=;
+        b=0JrmhTq5Xm/b81/KZ0vNr8hW7+a3TxOBnKvQM0TN2oTZCINU9YCvcHc2X5QIcWADKm
+         V5pM5PJ7MLbGm3edvMUzQuDT2B8DaF+NMs+pdmhI+Bc0siA2n5a9T+blb/kdPXuuue1t
+         9EW1r6h3FWB3NdUlH1E8OFyYPwsnmu+c5y1WHdUmLfvmZjkt64BJ8zJaykf1YMbpum/C
+         srQ5USg3ZMYTK0TdvAqHX+AjbTuVqo2j908fiHLjOwAXc+EPB3UmCehGBaPraX9s7FD3
+         +ExKToANG6yKXEBvAteiXHwDHoF7NARvwdsmmw2zJngbyD9RiHcIb5u7n8ljyRUaReCP
+         t+6g==
+X-Gm-Message-State: ACrzQf1Z8dg33crzBLy6TRswYORgarefcJbocFgb30dc6aQd6sFUofra
+        FjSvL8mZ2N7y9HxwnOn5bigGNmDi5Nnx+5GUgpUo0keo+5iTr9r4/Yc/WbHkSjHF3biEMbpjhe4
+        lEKzxsSUamujq6OV6
+X-Received: by 2002:a05:6214:b6b:b0:4bb:9fea:f53a with SMTP id ey11-20020a0562140b6b00b004bb9feaf53amr44142072qvb.7.1667819354528;
+        Mon, 07 Nov 2022 03:09:14 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM4P+NUQULfed2HggHKoSQY6kh/nJD0vPq50SemRAN1ssl+3+ZctfwFB6qqd/+YR3SsRBOdEJw==
+X-Received: by 2002:a05:6214:b6b:b0:4bb:9fea:f53a with SMTP id ey11-20020a0562140b6b00b004bb9feaf53amr44142058qvb.7.1667819354338;
+        Mon, 07 Nov 2022 03:09:14 -0800 (PST)
+Received: from x1 (c-73-214-169-22.hsd1.pa.comcast.net. [73.214.169.22])
+        by smtp.gmail.com with ESMTPSA id c8-20020a05620a134800b006ecb9dfdd15sm6481524qkl.92.2022.11.07.03.09.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Nov 2022 03:09:13 -0800 (PST)
+Date:   Mon, 7 Nov 2022 06:09:12 -0500
+From:   Brian Masney <bmasney@redhat.com>
+To:     Johan Hovold <johan+linaro@kernel.org>
+Cc:     Bjorn Andersson <andersson@kernel.org>,
+        Andy Gross <agross@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Shazad Hussain <quic_shazhuss@quicinc.com>,
+        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] arm64: dts: qcom: sc8280xp: fix UFS reference clocks
+Message-ID: <Y2jnWJ0FI6Fmy8/O@x1>
+References: <20221104092045.17410-1-johan+linaro@kernel.org>
+ <20221104092045.17410-2-johan+linaro@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221104092045.17410-2-johan+linaro@kernel.org>
+User-Agent: Mutt/2.2.7 (2022-08-07)
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Returning true from handle_rx_dma() without flushing DMA first creates
-a data ordering hazard. If DMA Rx has handled any character at the
-point when RLSI occurs, the non-DMA path handles any pending characters
-jumping them ahead of those characters that are pending under DMA.
+On Fri, Nov 04, 2022 at 10:20:44AM +0100, Johan Hovold wrote:
+> There are three UFS reference clocks on SC8280XP which are used as
+> follows:
+> 
+>  - The GCC_UFS_REF_CLKREF_CLK clock is fed to any UFS device connected
+>    to either controller.
+> 
+>  - The GCC_UFS_1_CARD_CLKREF_CLK and GCC_UFS_CARD_CLKREF_CLK clocks
+>    provide reference clocks to the two PHYs.
+> 
+> Note that this depends on first updating the clock driver to reflect
+> that all three clocks are sourced from CXO. Specifically, the UFS
+> controller driver expects the device reference clock to have a valid
+> frequency:
+> 
+> 	ufshcd-qcom 1d84000.ufs: invalid ref_clk setting = 0
+> 
+> Fixes: 152d1faf1e2f ("arm64: dts: qcom: add SC8280XP platform")
+> Fixes: 8d6b458ce6e9 ("arm64: dts: qcom: sc8280xp: fix ufs_card_phy ref clock")
+> Fixes: f3aa975e230e ("arm64: dts: qcom: sc8280xp: correct ref clock for ufs_mem_phy")
+> Link: https://lore.kernel.org/lkml/Y2OEjNAPXg5BfOxH@hovoldconsulting.com/
+> Cc: stable@vger.kernel.org	# 5.20
+> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 
-Fixes: 75df022b5f89 ("serial: 8250_dma: Fix RX handling")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
----
-Cc: Gilles BULOZ <gilles.buloz@kontron.com>
+Reviewed-by: Brian Masney <bmasney@redhat.com>
 
- drivers/tty/serial/8250/8250_port.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Note that there was no 5.20 kernel; that should be 6.0. Bjorn should be
+able to fix this up during merge.
 
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 92dd18716169..388172289627 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1901,10 +1901,9 @@ static bool handle_rx_dma(struct uart_8250_port *up, unsigned int iir)
- 		if (!up->dma->rx_running)
- 			break;
- 		fallthrough;
-+	case UART_IIR_RLSI:
- 	case UART_IIR_RX_TIMEOUT:
- 		serial8250_rx_dma_flush(up);
--		fallthrough;
--	case UART_IIR_RLSI:
- 		return true;
- 	}
- 	return up->dma->rx_dma(up);
--- 
-2.30.2
+https://en.wikipedia.org/wiki/Linux_kernel_version_history
 
