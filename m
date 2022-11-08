@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8EE3621344
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19EFE621589
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234601AbiKHNso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:48:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48340 "EHLO
+        id S235292AbiKHONC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:13:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234605AbiKHNsl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:41 -0500
+        with ESMTP id S235342AbiKHOMr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:47 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3E49F5AE
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B855257B4E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:12:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41C95615A1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D055C433C1;
-        Tue,  8 Nov 2022 13:48:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2E24615B2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:12:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2BF4C433C1;
+        Tue,  8 Nov 2022 14:12:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915310;
-        bh=ClXyQch+Nl+6xkEqNczDWfPQPpZjjEbI9GKnHvqKi4s=;
+        s=korg; t=1667916758;
+        bh=Ibt0SZ8FFXftkZUueDEBBfZ4Gc5X+0ePSCcr3bV5Ft0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eugBz0L+gRRgM4u97I7qWjzGyjKZiG37IMhO8ffxCxkGp/4wkyIHmslrjixFUHxIU
-         bUrafTjxTTCUPQedH1LBLm9H1+rtuVIeZmM7JZ4YHL7dQtdrvmBYGAXiuLprG6/of0
-         8u1tCNmsGrAhQr6Us3HqavSQLMu3x6CSMhR7p66Y=
+        b=sC9UjFFiIKbRYXkRtA4IuiMFlQaAngwVtilO3FhQOuLkiz/QY8tj5DwFm59VSqoNP
+         pEs3hf39+7hGjVkA/qUFezhMsrxnvPYhkZrVCQ2MVofIZ/WVSB1+wPpMQJwJ67cHxZ
+         RqHZNM+UpiuCbQ7efzai5dMIE3yyQ+6FT1lKDltY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxim Mikityanskiy <maxtram95@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 25/74] Bluetooth: L2CAP: Fix use-after-free caused by l2cap_reassemble_sdu
+Subject: [PATCH 6.0 095/197] clk: renesas: r8a779g0: Fix HSCIF parent clocks
 Date:   Tue,  8 Nov 2022 14:38:53 +0100
-Message-Id: <20221108133334.764976404@linuxfoundation.org>
+Message-Id: <20221108133359.176536804@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,173 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maxtram95@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 3aff8aaca4e36dc8b17eaa011684881a80238966 ]
+[ Upstream commit a9003f74f5a2f487e101f3aa1dd5c3d3a78c6999 ]
 
-Fix the race condition between the following two flows that run in
-parallel:
+As serial communication requires a clean clock signal, the High Speed
+Serial Communication Interfaces with FIFO (HSCIF) is clocked by a clock
+that is not affected by Spread Spectrum or Fractional Multiplication.
 
-1. l2cap_reassemble_sdu -> chan->ops->recv (l2cap_sock_recv_cb) ->
-   __sock_queue_rcv_skb.
+Hence change the parent clocks for the HSCIF modules from the S0D3_PER
+clock to the SASYNCPERD1 clock (which has the same clock rate), cfr.
+R-Car V4H Hardware User's Manual rev. 0.54.
 
-2. bt_sock_recvmsg -> skb_recv_datagram, skb_free_datagram.
-
-An SKB can be queued by the first flow and immediately dequeued and
-freed by the second flow, therefore the callers of l2cap_reassemble_sdu
-can't use the SKB after that function returns. However, some places
-continue accessing struct l2cap_ctrl that resides in the SKB's CB for a
-short time after l2cap_reassemble_sdu returns, leading to a
-use-after-free condition (the stack trace is below, line numbers for
-kernel 5.19.8).
-
-Fix it by keeping a local copy of struct l2cap_ctrl.
-
-BUG: KASAN: use-after-free in l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
-Read of size 1 at addr ffff88812025f2f0 by task kworker/u17:3/43169
-
-Workqueue: hci0 hci_rx_work [bluetooth]
-Call Trace:
- <TASK>
- dump_stack_lvl (lib/dump_stack.c:107 (discriminator 4))
- print_report.cold (mm/kasan/report.c:314 mm/kasan/report.c:429)
- ? l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
- kasan_report (mm/kasan/report.c:162 mm/kasan/report.c:493)
- ? l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
- l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
- l2cap_rx (net/bluetooth/l2cap_core.c:7236 net/bluetooth/l2cap_core.c:7271) bluetooth
- ret_from_fork (arch/x86/entry/entry_64.S:306)
- </TASK>
-
-Allocated by task 43169:
- kasan_save_stack (mm/kasan/common.c:39)
- __kasan_slab_alloc (mm/kasan/common.c:45 mm/kasan/common.c:436 mm/kasan/common.c:469)
- kmem_cache_alloc_node (mm/slab.h:750 mm/slub.c:3243 mm/slub.c:3293)
- __alloc_skb (net/core/skbuff.c:414)
- l2cap_recv_frag (./include/net/bluetooth/bluetooth.h:425 net/bluetooth/l2cap_core.c:8329) bluetooth
- l2cap_recv_acldata (net/bluetooth/l2cap_core.c:8442) bluetooth
- hci_rx_work (net/bluetooth/hci_core.c:3642 net/bluetooth/hci_core.c:3832) bluetooth
- process_one_work (kernel/workqueue.c:2289)
- worker_thread (./include/linux/list.h:292 kernel/workqueue.c:2437)
- kthread (kernel/kthread.c:376)
- ret_from_fork (arch/x86/entry/entry_64.S:306)
-
-Freed by task 27920:
- kasan_save_stack (mm/kasan/common.c:39)
- kasan_set_track (mm/kasan/common.c:45)
- kasan_set_free_info (mm/kasan/generic.c:372)
- ____kasan_slab_free (mm/kasan/common.c:368 mm/kasan/common.c:328)
- slab_free_freelist_hook (mm/slub.c:1780)
- kmem_cache_free (mm/slub.c:3536 mm/slub.c:3553)
- skb_free_datagram (./include/net/sock.h:1578 ./include/net/sock.h:1639 net/core/datagram.c:323)
- bt_sock_recvmsg (net/bluetooth/af_bluetooth.c:295) bluetooth
- l2cap_sock_recvmsg (net/bluetooth/l2cap_sock.c:1212) bluetooth
- sock_read_iter (net/socket.c:1087)
- new_sync_read (./include/linux/fs.h:2052 fs/read_write.c:401)
- vfs_read (fs/read_write.c:482)
- ksys_read (fs/read_write.c:620)
- do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
- entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-
-Link: https://lore.kernel.org/linux-bluetooth/CAKErNvoqga1WcmoR3-0875esY6TVWFQDandbVZncSiuGPBQXLA@mail.gmail.com/T/#u
-Fixes: d2a7ac5d5d3a ("Bluetooth: Add the ERTM receive state machine")
-Fixes: 4b51dae96731 ("Bluetooth: Add streaming mode receive and incoming packet classifier")
-Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 0ab55cf1834177a2 ("clk: renesas: cpg-mssr: Add support for R-Car V4H")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lore.kernel.org/r/b7928abc8b9f53d5b06ec8624342f449de3d24ec.1665147497.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 48 ++++++++++++++++++++++++++++++++------
- 1 file changed, 41 insertions(+), 7 deletions(-)
+ drivers/clk/renesas/r8a779g0-cpg-mssr.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 2d28b4e49b7a..5fa9a4e7d3ee 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -6273,6 +6273,7 @@ static int l2cap_rx_state_recv(struct l2cap_chan *chan,
- 			       struct l2cap_ctrl *control,
- 			       struct sk_buff *skb, u8 event)
- {
-+	struct l2cap_ctrl local_control;
- 	int err = 0;
- 	bool skb_in_use = false;
+diff --git a/drivers/clk/renesas/r8a779g0-cpg-mssr.c b/drivers/clk/renesas/r8a779g0-cpg-mssr.c
+index 3fc4233b1ead..c9c59c6f7139 100644
+--- a/drivers/clk/renesas/r8a779g0-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a779g0-cpg-mssr.c
+@@ -150,10 +150,10 @@ static const struct cpg_core_clk r8a779g0_core_clks[] __initconst = {
+ };
  
-@@ -6297,15 +6298,32 @@ static int l2cap_rx_state_recv(struct l2cap_chan *chan,
- 			chan->buffer_seq = chan->expected_tx_seq;
- 			skb_in_use = true;
+ static const struct mssr_mod_clk r8a779g0_mod_clks[] __initconst = {
+-	DEF_MOD("hscif0",	514,	R8A779G0_CLK_S0D3_PER),
+-	DEF_MOD("hscif1",	515,	R8A779G0_CLK_S0D3_PER),
+-	DEF_MOD("hscif2",	516,	R8A779G0_CLK_S0D3_PER),
+-	DEF_MOD("hscif3",	517,	R8A779G0_CLK_S0D3_PER),
++	DEF_MOD("hscif0",	514,	R8A779G0_CLK_SASYNCPERD1),
++	DEF_MOD("hscif1",	515,	R8A779G0_CLK_SASYNCPERD1),
++	DEF_MOD("hscif2",	516,	R8A779G0_CLK_SASYNCPERD1),
++	DEF_MOD("hscif3",	517,	R8A779G0_CLK_SASYNCPERD1),
+ };
  
-+			/* l2cap_reassemble_sdu may free skb, hence invalidate
-+			 * control, so make a copy in advance to use it after
-+			 * l2cap_reassemble_sdu returns and to avoid the race
-+			 * condition, for example:
-+			 *
-+			 * The current thread calls:
-+			 *   l2cap_reassemble_sdu
-+			 *     chan->ops->recv == l2cap_sock_recv_cb
-+			 *       __sock_queue_rcv_skb
-+			 * Another thread calls:
-+			 *   bt_sock_recvmsg
-+			 *     skb_recv_datagram
-+			 *     skb_free_datagram
-+			 * Then the current thread tries to access control, but
-+			 * it was freed by skb_free_datagram.
-+			 */
-+			local_control = *control;
- 			err = l2cap_reassemble_sdu(chan, skb, control);
- 			if (err)
- 				break;
- 
--			if (control->final) {
-+			if (local_control.final) {
- 				if (!test_and_clear_bit(CONN_REJ_ACT,
- 							&chan->conn_state)) {
--					control->final = 0;
--					l2cap_retransmit_all(chan, control);
-+					local_control.final = 0;
-+					l2cap_retransmit_all(chan, &local_control);
- 					l2cap_ertm_send(chan);
- 				}
- 			}
-@@ -6685,11 +6703,27 @@ static int l2cap_rx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
- static int l2cap_stream_rx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
- 			   struct sk_buff *skb)
- {
-+	/* l2cap_reassemble_sdu may free skb, hence invalidate control, so store
-+	 * the txseq field in advance to use it after l2cap_reassemble_sdu
-+	 * returns and to avoid the race condition, for example:
-+	 *
-+	 * The current thread calls:
-+	 *   l2cap_reassemble_sdu
-+	 *     chan->ops->recv == l2cap_sock_recv_cb
-+	 *       __sock_queue_rcv_skb
-+	 * Another thread calls:
-+	 *   bt_sock_recvmsg
-+	 *     skb_recv_datagram
-+	 *     skb_free_datagram
-+	 * Then the current thread tries to access control, but it was freed by
-+	 * skb_free_datagram.
-+	 */
-+	u16 txseq = control->txseq;
-+
- 	BT_DBG("chan %p, control %p, skb %p, state %d", chan, control, skb,
- 	       chan->rx_state);
- 
--	if (l2cap_classify_txseq(chan, control->txseq) ==
--	    L2CAP_TXSEQ_EXPECTED) {
-+	if (l2cap_classify_txseq(chan, txseq) == L2CAP_TXSEQ_EXPECTED) {
- 		l2cap_pass_to_tx(chan, control);
- 
- 		BT_DBG("buffer_seq %d->%d", chan->buffer_seq,
-@@ -6712,8 +6746,8 @@ static int l2cap_stream_rx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
- 		}
- 	}
- 
--	chan->last_acked_seq = control->txseq;
--	chan->expected_tx_seq = __next_seq(chan, control->txseq);
-+	chan->last_acked_seq = txseq;
-+	chan->expected_tx_seq = __next_seq(chan, txseq);
- 
- 	return 0;
- }
+ /*
 -- 
 2.35.1
 
