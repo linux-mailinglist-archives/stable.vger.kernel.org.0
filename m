@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E16E621522
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:08:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D1A46213A2
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235162AbiKHOIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:08:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43796 "EHLO
+        id S234661AbiKHNwd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:52:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235168AbiKHOIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:08:31 -0500
+        with ESMTP id S234674AbiKHNwQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F3FE1116C
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:08:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8621562383
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B00D5615B4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:08:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95B73C433C1;
-        Tue,  8 Nov 2022 14:08:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9244615A2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A7C1C433C1;
+        Tue,  8 Nov 2022 13:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916509;
-        bh=eY1qeHXjjqGgAk9WBBtxoyan8XZigRsHeeGRd4tIcRI=;
+        s=korg; t=1667915524;
+        bh=6xaAmRgLxiRyNIq34czyt6GYCwULg6GzyHFS+UfW0Cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5CkzNayPvGsAaSAJoB+k8T3nB3AzhArfumGlMg/A50ezIQpH1l6OmVClV4ICKXlk
-         1ROE6A2G87kZw0EvNAA4BkHNJfkLt9+KqXkCwOL7T6bevt+edlEiyyEt52rOV6rtp/
-         aL391deSEJjEQyFHndghQB6YhhjRZo7rwxvU/0TM=
+        b=T2Kc7vtPvQ0ve2XrcI2m+2jkg2qC4INgBfo7yS1cU2XrtT6MpzAUWddF2ThPXa0xN
+         KOD9kVrtLRc7WwkLv3XPUTSN/aADQmY4WjYm2H0LktWlhyB4FaP/SltqPIPTStxjnD
+         wZ4hELPck4hNfuloUOYLloyQO9koLqr4mbB1rkko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Zeng Guang <guang.zeng@intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 043/197] mISDN: fix possible memory leak in mISDN_register_device()
+Subject: [PATCH 5.10 003/118] KVM: nVMX: Pull KVM L0s desired controls directly from vmcs01
 Date:   Tue,  8 Nov 2022 14:38:01 +0100
-Message-Id: <20221108133356.767353835@linuxfoundation.org>
+Message-Id: <20221108133340.853387797@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit e7d1d4d9ac0dfa40be4c2c8abd0731659869b297 ]
+[ Upstream commit 389ab25216c9d09e0d335e764eeeb84c2089614f ]
 
-Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
-bus_id string array"), the name of device is allocated dynamically,
-add put_device() to give up the reference, so that the name can be
-freed in kobject_cleanup() when the refcount is 0.
+When preparing controls for vmcs02, grab KVM's desired controls from
+vmcs01's shadow state instead of recalculating the controls from scratch,
+or in the secondary execution controls, instead of using the dedicated
+cache.  Calculating secondary exec controls is eye-poppingly expensive
+due to the guest CPUID checks, hence the dedicated cache, but the other
+calculations aren't exactly free either.
 
-Set device class before put_device() to avoid null release() function
-WARN message in device_release().
+Explicitly clear several bits (x2APIC, DESC exiting, and load EFER on
+exit) as appropriate as they may be set in vmcs01, whereas the previous
+implementation relied on dynamic bits being cleared in the calculator.
 
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Intentionally propagate VM_{ENTRY,EXIT}_LOAD_IA32_PERF_GLOBAL_CTRL from
+vmcs01 to vmcs02.  Whether or not PERF_GLOBAL_CTRL is loaded depends on
+whether or not perf itself is active, so unless perf stops between the
+exit from L1 and entry to L2, vmcs01 will hold the desired value.  This
+is purely an optimization as atomic_switch_perf_msrs() will set/clear
+the control as needed at VM-Enter, i.e. it avoids two extra VMWRITEs in
+the case where perf is active (versus starting with the bits clear in
+vmcs02, which was the previous behavior).
+
+Cc: Zeng Guang <guang.zeng@intel.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210810171952.2758100-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Stable-dep-of: def9d705c05e ("KVM: nVMX: Don't propagate vmcs12's PERF_GLOBAL_CTRL settings to vmcs02")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/mISDN/core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/nested.c | 25 ++++++++++++++++---------
+ arch/x86/kvm/vmx/vmx.h    |  6 +++++-
+ 2 files changed, 21 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
-index a41b4b264594..7ea0100f218a 100644
---- a/drivers/isdn/mISDN/core.c
-+++ b/drivers/isdn/mISDN/core.c
-@@ -233,11 +233,12 @@ mISDN_register_device(struct mISDNdevice *dev,
- 	if (debug & DEBUG_CORE)
- 		printk(KERN_DEBUG "mISDN_register %s %d\n",
- 		       dev_name(&dev->dev), dev->id);
-+	dev->dev.class = &mISDN_class;
-+
- 	err = create_stack(dev);
- 	if (err)
- 		goto error1;
- 
--	dev->dev.class = &mISDN_class;
- 	dev->dev.platform_data = dev;
- 	dev->dev.parent = parent;
- 	dev_set_drvdata(&dev->dev, dev);
-@@ -249,8 +250,8 @@ mISDN_register_device(struct mISDNdevice *dev,
- 
- error3:
- 	delete_stack(dev);
--	return err;
- error1:
-+	put_device(&dev->dev);
- 	return err;
- 
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 7f15e2b2a0d6..2395387945a8 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -2232,7 +2232,8 @@ static void prepare_vmcs02_early_rare(struct vcpu_vmx *vmx,
+ 	}
  }
+ 
+-static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct vmcs12 *vmcs12)
++static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct loaded_vmcs *vmcs01,
++				 struct vmcs12 *vmcs12)
+ {
+ 	u32 exec_control, vmcs12_exec_ctrl;
+ 	u64 guest_efer = nested_vmx_calc_efer(vmx, vmcs12);
+@@ -2243,7 +2244,7 @@ static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct vmcs12 *vmcs12)
+ 	/*
+ 	 * PIN CONTROLS
+ 	 */
+-	exec_control = vmx_pin_based_exec_ctrl(vmx);
++	exec_control = __pin_controls_get(vmcs01);
+ 	exec_control |= (vmcs12->pin_based_vm_exec_control &
+ 			 ~PIN_BASED_VMX_PREEMPTION_TIMER);
+ 
+@@ -2258,7 +2259,7 @@ static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct vmcs12 *vmcs12)
+ 	/*
+ 	 * EXEC CONTROLS
+ 	 */
+-	exec_control = vmx_exec_control(vmx); /* L0's desires */
++	exec_control = __exec_controls_get(vmcs01); /* L0's desires */
+ 	exec_control &= ~CPU_BASED_INTR_WINDOW_EXITING;
+ 	exec_control &= ~CPU_BASED_NMI_WINDOW_EXITING;
+ 	exec_control &= ~CPU_BASED_TPR_SHADOW;
+@@ -2295,17 +2296,20 @@ static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct vmcs12 *vmcs12)
+ 	 * SECONDARY EXEC CONTROLS
+ 	 */
+ 	if (cpu_has_secondary_exec_ctrls()) {
+-		exec_control = vmx->secondary_exec_control;
++		exec_control = __secondary_exec_controls_get(vmcs01);
+ 
+ 		/* Take the following fields only from vmcs12 */
+ 		exec_control &= ~(SECONDARY_EXEC_VIRTUALIZE_APIC_ACCESSES |
++				  SECONDARY_EXEC_VIRTUALIZE_X2APIC_MODE |
+ 				  SECONDARY_EXEC_ENABLE_INVPCID |
+ 				  SECONDARY_EXEC_ENABLE_RDTSCP |
+ 				  SECONDARY_EXEC_XSAVES |
+ 				  SECONDARY_EXEC_ENABLE_USR_WAIT_PAUSE |
+ 				  SECONDARY_EXEC_VIRTUAL_INTR_DELIVERY |
+ 				  SECONDARY_EXEC_APIC_REGISTER_VIRT |
+-				  SECONDARY_EXEC_ENABLE_VMFUNC);
++				  SECONDARY_EXEC_ENABLE_VMFUNC |
++				  SECONDARY_EXEC_DESC);
++
+ 		if (nested_cpu_has(vmcs12,
+ 				   CPU_BASED_ACTIVATE_SECONDARY_CONTROLS)) {
+ 			vmcs12_exec_ctrl = vmcs12->secondary_vm_exec_control &
+@@ -2342,8 +2346,9 @@ static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct vmcs12 *vmcs12)
+ 	 * on the related bits (if supported by the CPU) in the hope that
+ 	 * we can avoid VMWrites during vmx_set_efer().
+ 	 */
+-	exec_control = (vmcs12->vm_entry_controls | vmx_vmentry_ctrl()) &
+-			~VM_ENTRY_IA32E_MODE & ~VM_ENTRY_LOAD_IA32_EFER;
++	exec_control = __vm_entry_controls_get(vmcs01);
++	exec_control |= vmcs12->vm_entry_controls;
++	exec_control &= ~(VM_ENTRY_IA32E_MODE | VM_ENTRY_LOAD_IA32_EFER);
+ 	if (cpu_has_load_ia32_efer()) {
+ 		if (guest_efer & EFER_LMA)
+ 			exec_control |= VM_ENTRY_IA32E_MODE;
+@@ -2359,9 +2364,11 @@ static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct vmcs12 *vmcs12)
+ 	 * we should use its exit controls. Note that VM_EXIT_LOAD_IA32_EFER
+ 	 * bits may be modified by vmx_set_efer() in prepare_vmcs02().
+ 	 */
+-	exec_control = vmx_vmexit_ctrl();
++	exec_control = __vm_exit_controls_get(vmcs01);
+ 	if (cpu_has_load_ia32_efer() && guest_efer != host_efer)
+ 		exec_control |= VM_EXIT_LOAD_IA32_EFER;
++	else
++		exec_control &= ~VM_EXIT_LOAD_IA32_EFER;
+ 	vm_exit_controls_set(vmx, exec_control);
+ 
+ 	/*
+@@ -3370,7 +3377,7 @@ enum nvmx_vmentry_status nested_vmx_enter_non_root_mode(struct kvm_vcpu *vcpu,
+ 
+ 	vmx_switch_vmcs(vcpu, &vmx->nested.vmcs02);
+ 
+-	prepare_vmcs02_early(vmx, vmcs12);
++	prepare_vmcs02_early(vmx, &vmx->vmcs01, vmcs12);
+ 
+ 	if (from_vmentry) {
+ 		if (unlikely(!nested_get_vmcs12_pages(vcpu))) {
+diff --git a/arch/x86/kvm/vmx/vmx.h b/arch/x86/kvm/vmx/vmx.h
+index 24903f05c204..ed4b6da83aa8 100644
+--- a/arch/x86/kvm/vmx/vmx.h
++++ b/arch/x86/kvm/vmx/vmx.h
+@@ -386,9 +386,13 @@ static inline void lname##_controls_set(struct vcpu_vmx *vmx, u32 val)	    \
+ 		vmx->loaded_vmcs->controls_shadow.lname = val;		    \
+ 	}								    \
+ }									    \
++static inline u32 __##lname##_controls_get(struct loaded_vmcs *vmcs)	    \
++{									    \
++	return vmcs->controls_shadow.lname;				    \
++}									    \
+ static inline u32 lname##_controls_get(struct vcpu_vmx *vmx)		    \
+ {									    \
+-	return vmx->loaded_vmcs->controls_shadow.lname;			    \
++	return __##lname##_controls_get(vmx->loaded_vmcs);		    \
+ }									    \
+ static inline void lname##_controls_setbit(struct vcpu_vmx *vmx, u32 val)   \
+ {									    \
 -- 
 2.35.1
 
