@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9522262139E
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E85E62152C
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:09:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234737AbiKHNw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:52:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51168 "EHLO
+        id S234752AbiKHOJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:09:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234686AbiKHNwE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65C076238A
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:51:56 -0800 (PST)
+        with ESMTP id S235113AbiKHOJB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:09:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF631BF7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:09:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F318261595
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:51:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7D3DC433D6;
-        Tue,  8 Nov 2022 13:51:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B21EB81B01
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:08:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAACCC43470;
+        Tue,  8 Nov 2022 14:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915515;
-        bh=FTLELSZacEIFvtaKyRilsJ2hfyQuJXB6jn6YycAor8k=;
+        s=korg; t=1667916538;
+        bh=YGxcpfROpz/fTBHuZd5SIdh6+XyR58FqvmtSuUWkkHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bp9sv6ocJKBRup60i+eCawizuifi6CydmrGjJJxiakmOFdvJbY/J679pKSzwa4nIG
-         77Qfz4Pqjpw/9D3wK9Ie7rLpnVNNhClp6UMe+HnT40z2wEQ1rhn74/StCy23X4P9dn
-         ljFgi8eYrLiAUHKtImxmqbNsNvLr81c5RzMkXEEI=
+        b=TZIZ25M7k7nLSre6ltpE5qzNLUpIa6L00C/9roVlm0fE88VpEdKtWK1X2R2L4tIst
+         TI0I1NJSIfPUSffRTk51pmkWd8lrJE9oRM03vPvavrI3Aylw1VU4TzzTL0Zx93qLO/
+         EwDPND6yM3aj9TOrzeyvl8u401TIAlPFV8Snu5iI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Andrew Randrianasulu <randrianasulu@gmail.com>,
-        Alexander Graf <graf@amazon.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 012/118] KVM: x86: Add compat handler for KVM_X86_SET_MSR_FILTER
+Subject: [PATCH 6.0 052/197] Bluetooth: L2CAP: fix use-after-free in l2cap_conn_del()
 Date:   Tue,  8 Nov 2022 14:38:10 +0100
-Message-Id: <20221108133341.237515955@linuxfoundation.org>
+Message-Id: <20221108133357.182813924@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,97 +53,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Graf <graf@amazon.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 1739c7017fb1d759965dcbab925ff5980a5318cb ]
+[ Upstream commit 0d0e2d032811280b927650ff3c15fe5020e82533 ]
 
-The KVM_X86_SET_MSR_FILTER ioctls contains a pointer in the passed in
-struct which means it has a different struct size depending on whether
-it gets called from 32bit or 64bit code.
+When l2cap_recv_frame() is invoked to receive data, and the cid is
+L2CAP_CID_A2MP, if the channel does not exist, it will create a channel.
+However, after a channel is created, the hold operation of the channel
+is not performed. In this case, the value of channel reference counting
+is 1. As a result, after hci_error_reset() is triggered, l2cap_conn_del()
+invokes the close hook function of A2MP to release the channel. Then
+ l2cap_chan_unlock(chan) will trigger UAF issue.
 
-This patch introduces compat code that converts from the 32bit struct to
-its 64bit counterpart which then gets used going forward internally.
-With this applied, 32bit QEMU can successfully set MSR bitmaps when
-running on 64bit kernels.
+The process is as follows:
+Receive data:
+l2cap_data_channel()
+    a2mp_channel_create()  --->channel ref is 2
+    l2cap_chan_put()       --->channel ref is 1
 
-Reported-by: Andrew Randrianasulu <randrianasulu@gmail.com>
-Fixes: 1a155254ff937 ("KVM: x86: Introduce MSR filtering")
-Signed-off-by: Alexander Graf <graf@amazon.com>
-Message-Id: <20221017184541.2658-4-graf@amazon.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Triger event:
+    hci_error_reset()
+        hci_dev_do_close()
+        ...
+        l2cap_disconn_cfm()
+            l2cap_conn_del()
+                l2cap_chan_hold()    --->channel ref is 2
+                l2cap_chan_del()     --->channel ref is 1
+                a2mp_chan_close_cb() --->channel ref is 0, release channel
+                l2cap_chan_unlock()  --->UAF of channel
+
+The detailed Call Trace is as follows:
+BUG: KASAN: use-after-free in __mutex_unlock_slowpath+0xa6/0x5e0
+Read of size 8 at addr ffff8880160664b8 by task kworker/u11:1/7593
+Workqueue: hci0 hci_error_reset
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xcd/0x134
+ print_report.cold+0x2ba/0x719
+ kasan_report+0xb1/0x1e0
+ kasan_check_range+0x140/0x190
+ __mutex_unlock_slowpath+0xa6/0x5e0
+ l2cap_conn_del+0x404/0x7b0
+ l2cap_disconn_cfm+0x8c/0xc0
+ hci_conn_hash_flush+0x11f/0x260
+ hci_dev_close_sync+0x5f5/0x11f0
+ hci_dev_do_close+0x2d/0x70
+ hci_error_reset+0x9e/0x140
+ process_one_work+0x98a/0x1620
+ worker_thread+0x665/0x1080
+ kthread+0x2e4/0x3a0
+ ret_from_fork+0x1f/0x30
+ </TASK>
+
+Allocated by task 7593:
+ kasan_save_stack+0x1e/0x40
+ __kasan_kmalloc+0xa9/0xd0
+ l2cap_chan_create+0x40/0x930
+ amp_mgr_create+0x96/0x990
+ a2mp_channel_create+0x7d/0x150
+ l2cap_recv_frame+0x51b8/0x9a70
+ l2cap_recv_acldata+0xaa3/0xc00
+ hci_rx_work+0x702/0x1220
+ process_one_work+0x98a/0x1620
+ worker_thread+0x665/0x1080
+ kthread+0x2e4/0x3a0
+ ret_from_fork+0x1f/0x30
+
+Freed by task 7593:
+ kasan_save_stack+0x1e/0x40
+ kasan_set_track+0x21/0x30
+ kasan_set_free_info+0x20/0x30
+ ____kasan_slab_free+0x167/0x1c0
+ slab_free_freelist_hook+0x89/0x1c0
+ kfree+0xe2/0x580
+ l2cap_chan_put+0x22a/0x2d0
+ l2cap_conn_del+0x3fc/0x7b0
+ l2cap_disconn_cfm+0x8c/0xc0
+ hci_conn_hash_flush+0x11f/0x260
+ hci_dev_close_sync+0x5f5/0x11f0
+ hci_dev_do_close+0x2d/0x70
+ hci_error_reset+0x9e/0x140
+ process_one_work+0x98a/0x1620
+ worker_thread+0x665/0x1080
+ kthread+0x2e4/0x3a0
+ ret_from_fork+0x1f/0x30
+
+Last potentially related work creation:
+ kasan_save_stack+0x1e/0x40
+ __kasan_record_aux_stack+0xbe/0xd0
+ call_rcu+0x99/0x740
+ netlink_release+0xe6a/0x1cf0
+ __sock_release+0xcd/0x280
+ sock_close+0x18/0x20
+ __fput+0x27c/0xa90
+ task_work_run+0xdd/0x1a0
+ exit_to_user_mode_prepare+0x23c/0x250
+ syscall_exit_to_user_mode+0x19/0x50
+ do_syscall_64+0x42/0x80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Second to last potentially related work creation:
+ kasan_save_stack+0x1e/0x40
+ __kasan_record_aux_stack+0xbe/0xd0
+ call_rcu+0x99/0x740
+ netlink_release+0xe6a/0x1cf0
+ __sock_release+0xcd/0x280
+ sock_close+0x18/0x20
+ __fput+0x27c/0xa90
+ task_work_run+0xdd/0x1a0
+ exit_to_user_mode_prepare+0x23c/0x250
+ syscall_exit_to_user_mode+0x19/0x50
+ do_syscall_64+0x42/0x80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: d0be8347c623 ("Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 56 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
+ net/bluetooth/l2cap_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index be4326b143e1..0ac80b3ff0f5 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -5493,6 +5493,62 @@ static int kvm_vm_ioctl_set_msr_filter(struct kvm *kvm,
- 	return 0;
- }
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 2283871d3f01..9a32ce634919 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -7615,6 +7615,7 @@ static void l2cap_data_channel(struct l2cap_conn *conn, u16 cid,
+ 				return;
+ 			}
  
-+#ifdef CONFIG_KVM_COMPAT
-+/* for KVM_X86_SET_MSR_FILTER */
-+struct kvm_msr_filter_range_compat {
-+	__u32 flags;
-+	__u32 nmsrs;
-+	__u32 base;
-+	__u32 bitmap;
-+};
-+
-+struct kvm_msr_filter_compat {
-+	__u32 flags;
-+	struct kvm_msr_filter_range_compat ranges[KVM_MSR_FILTER_MAX_RANGES];
-+};
-+
-+#define KVM_X86_SET_MSR_FILTER_COMPAT _IOW(KVMIO, 0xc6, struct kvm_msr_filter_compat)
-+
-+long kvm_arch_vm_compat_ioctl(struct file *filp, unsigned int ioctl,
-+			      unsigned long arg)
-+{
-+	void __user *argp = (void __user *)arg;
-+	struct kvm *kvm = filp->private_data;
-+	long r = -ENOTTY;
-+
-+	switch (ioctl) {
-+	case KVM_X86_SET_MSR_FILTER_COMPAT: {
-+		struct kvm_msr_filter __user *user_msr_filter = argp;
-+		struct kvm_msr_filter_compat filter_compat;
-+		struct kvm_msr_filter filter;
-+		int i;
-+
-+		if (copy_from_user(&filter_compat, user_msr_filter,
-+				   sizeof(filter_compat)))
-+			return -EFAULT;
-+
-+		filter.flags = filter_compat.flags;
-+		for (i = 0; i < ARRAY_SIZE(filter.ranges); i++) {
-+			struct kvm_msr_filter_range_compat *cr;
-+
-+			cr = &filter_compat.ranges[i];
-+			filter.ranges[i] = (struct kvm_msr_filter_range) {
-+				.flags = cr->flags,
-+				.nmsrs = cr->nmsrs,
-+				.base = cr->base,
-+				.bitmap = (__u8 *)(ulong)cr->bitmap,
-+			};
-+		}
-+
-+		r = kvm_vm_ioctl_set_msr_filter(kvm, &filter);
-+		break;
-+	}
-+	}
-+
-+	return r;
-+}
-+#endif
-+
- long kvm_arch_vm_ioctl(struct file *filp,
- 		       unsigned int ioctl, unsigned long arg)
- {
++			l2cap_chan_hold(chan);
+ 			l2cap_chan_lock(chan);
+ 		} else {
+ 			BT_DBG("unknown cid 0x%4.4x", cid);
 -- 
 2.35.1
 
