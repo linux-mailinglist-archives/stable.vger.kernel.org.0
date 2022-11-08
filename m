@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F456212E8
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CC686213FD
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:56:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234323AbiKHNoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:44:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44230 "EHLO
+        id S234806AbiKHN4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:56:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234487AbiKHNoM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE7FF554CE
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:44:10 -0800 (PST)
+        with ESMTP id S234799AbiKHN4G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:56:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC3960EB1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:56:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E502B81AF1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:44:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAA18C433C1;
-        Tue,  8 Nov 2022 13:44:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DEAADB81AF2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:56:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A67DC433C1;
+        Tue,  8 Nov 2022 13:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915048;
-        bh=xHf6fJTauj9jtN1phcI7d/ATUq9cYTafOqEyCrgKDn8=;
+        s=korg; t=1667915763;
+        bh=XNfvEsicZoKYolNSv7Q0eLp8TsdfrI59UdhkaPMFJeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BMNV208otphBGGLRHVTo/PDwOLN6KPw90IEV/sQJ5vBBB1whePqZHeyOMM6QDGxb9
-         c1S8Z7yYy6rF5UVECUh8aMlggwu0NYYG+2DvrVjGeeJL3ilnwIQsyAHNp9DDvvowam
-         YD3+gEkb393ESGSDPczhYE5ft+1xBTbAnu3p4FK0=
+        b=hawGY2AigqM8tNYrtFE8yQHr8b42T3efWCLtB40lwQHPGNTq1AUK/DqaxLL5rBv02
+         zl8q3Cp6TaPmjd1AW4z+nyd0o6sHZ5lHXnCRp50BwDJD21dDXSO8q5jE/uDAqczMx2
+         qrtKb2AQzDfVXobBuz3XHrL02svoxa0iyvhqO3aU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/40] net: fec: fix improper use of NETDEV_TX_BUSY
+Subject: [PATCH 5.10 054/118] mtd: parsers: bcm47xxpart: print correct offset on read error
 Date:   Tue,  8 Nov 2022 14:38:52 +0100
-Message-Id: <20221108133328.645795850@linuxfoundation.org>
+Message-Id: <20221108133343.045375531@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
-References: <20221108133328.351887714@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 06a4df5863f73af193a4ff7abf7cb04058584f06 ]
+[ Upstream commit 4c38eded807043f40f4dc49da6df097f9dcac393 ]
 
-The ndo_start_xmit() method must not free skb when returning
-NETDEV_TX_BUSY, since caller is going to requeue freed skb.
+mtd_read() gets called with offset + 0x8000 as argument so use the same
+value in pr_err().
 
-Fix it by returning NETDEV_TX_OK in case of dma_map_single() fails.
-
-Fixes: 79f339125ea3 ("net: fec: Add software TSO support")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220317114316.29827-1-zajec5@gmail.com
+Stable-dep-of: 05e258c6ec66 ("mtd: parsers: bcm47xxpart: Fix halfblock reads")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mtd/parsers/bcm47xxpart.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 6f7ffd975631..c6fc77a211ea 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -582,7 +582,7 @@ fec_enet_txq_put_data_tso(struct fec_enet_priv_tx_q *txq, struct sk_buff *skb,
- 		dev_kfree_skb_any(skb);
- 		if (net_ratelimit())
- 			netdev_err(ndev, "Tx DMA memory map failed\n");
--		return NETDEV_TX_BUSY;
-+		return NETDEV_TX_OK;
- 	}
- 
- 	bdp->cbd_datlen = cpu_to_fec16(size);
-@@ -644,7 +644,7 @@ fec_enet_txq_put_hdr_tso(struct fec_enet_priv_tx_q *txq,
- 			dev_kfree_skb_any(skb);
- 			if (net_ratelimit())
- 				netdev_err(ndev, "Tx DMA memory map failed\n");
--			return NETDEV_TX_BUSY;
-+			return NETDEV_TX_OK;
+diff --git a/drivers/mtd/parsers/bcm47xxpart.c b/drivers/mtd/parsers/bcm47xxpart.c
+index 6012a10f10c8..50fcf4c2174b 100644
+--- a/drivers/mtd/parsers/bcm47xxpart.c
++++ b/drivers/mtd/parsers/bcm47xxpart.c
+@@ -237,7 +237,7 @@ static int bcm47xxpart_parse(struct mtd_info *master,
+ 			       (uint8_t *)buf);
+ 		if (err && !mtd_is_bitflip(err)) {
+ 			pr_err("mtd_read error while parsing (offset: 0x%X): %d\n",
+-			       offset, err);
++			       offset + 0x8000, err);
+ 			continue;
  		}
- 	}
  
 -- 
 2.35.1
