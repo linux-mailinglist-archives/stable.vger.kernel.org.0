@@ -2,87 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 364B16213F5
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:55:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C6EA621583
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234795AbiKHNzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:55:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57632 "EHLO
+        id S235220AbiKHOMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:12:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234804AbiKHNzn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:55:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A081365E48
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:55:42 -0800 (PST)
+        with ESMTP id S235182AbiKHOMk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81AF8C8A14
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:12:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D26A6130A
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:55:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A8D5C433C1;
-        Tue,  8 Nov 2022 13:55:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3BB7AB81AF7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:12:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F21BC433C1;
+        Tue,  8 Nov 2022 14:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915741;
-        bh=/Ld49mFKtOLhBM4mFfSgci/2Wpz5Aox9sGuwa7SDw5M=;
+        s=korg; t=1667916739;
+        bh=5z2Vp29ni1obbjA2WMDLQfFtsHYt6OGBrCA2pUSFwLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRyVsEBaaakMQFDpf8yFQK1G6OoJbnWQzZeoujWjuPhh/hqJCMWdlVHIRDOk2GChw
-         4NrjN72E7eA/avU4OJemvdTxOGuRL+OxBfqAlXLHKwqyRN78tFpQ9BoSm9/VE48jsZ
-         apmCwk2LeOPy3TrSaEP8gQcHstyxgc/+f/bdD3/I=
+        b=N9reCndu5LqoJ4kExLVyclFUyJlG5C8tHBnvHIPT9miyAE1L0AJYn60WhYsiUj2q9
+         RMVOykDWaZloxlUCsvboY38KUb1PqFyi7Vbl5VybFZiDq0t48rbU7JvZ/GvBZGjvVf
+         yetFA5ATCS49p0TtVUwadLY/G3LOrI0IjvwNULlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Tam=C3=A1s=20Koczka?= <poprdi@google.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Tedd Ho-Jeong An <tedd.an@intel.com>
-Subject: [PATCH 5.10 077/118] Bluetooth: L2CAP: Fix attempting to access uninitialized memory
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 117/197] firmware: arm_scmi: Make Rx chan_setup fail on memory errors
 Date:   Tue,  8 Nov 2022 14:39:15 +0100
-Message-Id: <20221108133344.077648453@linuxfoundation.org>
+Message-Id: <20221108133400.292094049@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-commit b1a2cd50c0357f243b7435a732b4e62ba3157a2e upstream.
+[ Upstream commit be9ba1f7f9e0b565b19f4294f5871da9d654bc6d ]
 
-On l2cap_parse_conf_req the variable efs is only initialized if
-remote_efs has been set.
+SCMI Rx channels are optional and they can fail to be setup when not
+present but anyway channels setup routines must bail-out on memory errors.
 
-CVE: CVE-2022-42895
-CC: stable@vger.kernel.org
-Reported-by: Tamás Koczka <poprdi@google.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Make channels setup, and related probing, fail when memory errors are
+reported on Rx channels.
+
+Fixes: 5c8a47a5a91d ("firmware: arm_scmi: Make scmi core independent of the transport type")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Link: https://lore.kernel.org/r/20221028140833.280091-4-cristian.marussi@arm.com
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/firmware/arm_scmi/driver.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -3760,7 +3760,8 @@ done:
- 			l2cap_add_conf_opt(&ptr, L2CAP_CONF_RFC,
- 					   sizeof(rfc), (unsigned long) &rfc, endptr - ptr);
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index 1b9aa34b8e47..9022f5ee29aa 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -2044,8 +2044,12 @@ scmi_txrx_setup(struct scmi_info *info, struct device *dev, int prot_id)
+ {
+ 	int ret = scmi_chan_setup(info, dev, prot_id, true);
  
--			if (test_bit(FLAG_EFS_ENABLE, &chan->flags)) {
-+			if (remote_efs &&
-+			    test_bit(FLAG_EFS_ENABLE, &chan->flags)) {
- 				chan->remote_id = efs.id;
- 				chan->remote_stype = efs.stype;
- 				chan->remote_msdu = le16_to_cpu(efs.msdu);
+-	if (!ret) /* Rx is optional, hence no error check */
+-		scmi_chan_setup(info, dev, prot_id, false);
++	if (!ret) {
++		/* Rx is optional, report only memory errors */
++		ret = scmi_chan_setup(info, dev, prot_id, false);
++		if (ret && ret != -ENOMEM)
++			ret = 0;
++	}
+ 
+ 	return ret;
+ }
+-- 
+2.35.1
+
 
 
