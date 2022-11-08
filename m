@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBFCD62142E
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 702856214BE
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:04:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234849AbiKHN6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:58:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60442 "EHLO
+        id S235022AbiKHOEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:04:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234873AbiKHN6L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:58:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E2A366CA9
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:58:09 -0800 (PST)
+        with ESMTP id S235019AbiKHOEh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:04:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF9C6686AA
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:04:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73804B81AE8
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:58:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB5CDC433C1;
-        Tue,  8 Nov 2022 13:58:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C7D26158F
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:04:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53F86C433C1;
+        Tue,  8 Nov 2022 14:04:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915887;
-        bh=dLVNErzZtauks6Yl2u4CLWcZhQV5tw31w7JgjdBfV9E=;
+        s=korg; t=1667916275;
+        bh=8qMJrL8jM4NOzuN0P8gzaWT2Ees7y+uYk191o5DiUvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n8TlkGVMRhFHsIMvLu1UCuTv/jxxnaHnCEY4pWZ6LT7qAAHcBLuXMoPbaUJgOGH4i
-         EE8bpnVM3ZEmBdHIxHChQ+2MzAVK/RoxOG29EbdOuzLqpQbLxtdMLu/Fou6e9Ao93P
-         A0MAi5eCglSsvFaIm/0yOLjcsJiGofeypnKjhPrs=
+        b=EtBi33VFaWs5TKNuOs4YZbkSfNsN/c+Qf30l1PnjWALeNK6kPa4A2XzvbB8JHKgNZ
+         3fV9L8PuTuog0dt5g8fWEKPbKAdFVQ24c1GB3h+vLQB3oEBI4mQPofsQtXaEvWitoL
+         RXgkI0UN9Hhm/2yWNZzSyHgtqnyTsP6pFFT0Xg20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Jintao Yin <nicememory@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.10 113/118] ext4,f2fs: fix readahead of verity data
-Date:   Tue,  8 Nov 2022 14:39:51 +0100
-Message-Id: <20221108133345.604552927@linuxfoundation.org>
+        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Subject: [PATCH 5.15 115/144] efi: random: Use ACPI reclaim memory for random seed
+Date:   Tue,  8 Nov 2022 14:39:52 +0100
+Message-Id: <20221108133350.161316198@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +52,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 4fa0e3ff217f775cb58d2d6d51820ec519243fb9 upstream.
+commit 7d866e38c7e9ece8a096d0d098fa9d92b9d4f97e upstream.
 
-The recent change of page_cache_ra_unbounded() arguments was buggy in the
-two callers, causing us to readahead the wrong pages.  Move the definition
-of ractl down to after the index is set correctly.  This affected
-performance on configurations that use fs-verity.
+EFI runtime services data is guaranteed to be preserved by the OS,
+making it a suitable candidate for the EFI random seed table, which may
+be passed to kexec kernels as well (after refreshing the seed), and so
+we need to ensure that the memory is preserved without support from the
+OS itself.
 
-Link: https://lkml.kernel.org/r/20221012193419.1453558-1-willy@infradead.org
-Fixes: 73bb49da50cd ("mm/readahead: make page_cache_ra_unbounded take a readahead_control")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reported-by: Jintao Yin <nicememory@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+However, runtime services data is intended for allocations that are
+relevant to the implementations of the runtime services themselves, and
+so they are unmapped from the kernel linear map, and mapped into the EFI
+page tables that are active while runtime service invocations are in
+progress. None of this is needed for the RNG seed.
+
+So let's switch to EFI 'ACPI reclaim' memory: in spite of the name,
+there is nothing exclusively ACPI about it, it is simply a type of
+allocation that carries firmware provided data which may or may not be
+relevant to the OS, and it is left up to the OS to decide whether to
+reclaim it after having consumed its contents.
+
+Given that in Linux, we never reclaim these allocations, it is a good
+choice for the EFI RNG seed, as the allocation is guaranteed to survive
+kexec reboots.
+
+One additional reason for changing this now is to align it with the
+upcoming recommendation for EFI bootloader provided RNG seeds, which
+must not use EFI runtime services code/data allocations.
+
+Cc: <stable@vger.kernel.org> # v4.14+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/verity.c |    3 ++-
- fs/f2fs/verity.c |    3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/libstub/random.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/verity.c
-+++ b/fs/ext4/verity.c
-@@ -370,13 +370,14 @@ static struct page *ext4_read_merkle_tre
- 					       pgoff_t index,
- 					       unsigned long num_ra_pages)
- {
--	DEFINE_READAHEAD(ractl, NULL, inode->i_mapping, index);
- 	struct page *page;
+--- a/drivers/firmware/efi/libstub/random.c
++++ b/drivers/firmware/efi/libstub/random.c
+@@ -75,7 +75,12 @@ efi_status_t efi_random_get_seed(void)
+ 	if (status != EFI_SUCCESS)
+ 		return status;
  
- 	index += ext4_verity_metadata_pos(inode) >> PAGE_SHIFT;
- 
- 	page = find_get_page_flags(inode->i_mapping, index, FGP_ACCESSED);
- 	if (!page || !PageUptodate(page)) {
-+		DEFINE_READAHEAD(ractl, NULL, inode->i_mapping, index);
-+
- 		if (page)
- 			put_page(page);
- 		else if (num_ra_pages > 1)
---- a/fs/f2fs/verity.c
-+++ b/fs/f2fs/verity.c
-@@ -261,13 +261,14 @@ static struct page *f2fs_read_merkle_tre
- 					       pgoff_t index,
- 					       unsigned long num_ra_pages)
- {
--	DEFINE_READAHEAD(ractl, NULL, inode->i_mapping, index);
- 	struct page *page;
- 
- 	index += f2fs_verity_metadata_pos(inode) >> PAGE_SHIFT;
- 
- 	page = find_get_page_flags(inode->i_mapping, index, FGP_ACCESSED);
- 	if (!page || !PageUptodate(page)) {
-+		DEFINE_READAHEAD(ractl, NULL, inode->i_mapping, index);
-+
- 		if (page)
- 			put_page(page);
- 		else if (num_ra_pages > 1)
+-	status = efi_bs_call(allocate_pool, EFI_RUNTIME_SERVICES_DATA,
++	/*
++	 * Use EFI_ACPI_RECLAIM_MEMORY here so that it is guaranteed that the
++	 * allocation will survive a kexec reboot (although we refresh the seed
++	 * beforehand)
++	 */
++	status = efi_bs_call(allocate_pool, EFI_ACPI_RECLAIM_MEMORY,
+ 			     sizeof(*seed) + EFI_RANDOM_SEED_SIZE,
+ 			     (void **)&seed);
+ 	if (status != EFI_SUCCESS)
 
 
