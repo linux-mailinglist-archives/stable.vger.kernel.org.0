@@ -2,248 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D1CF6213D4
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:54:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32BE7621444
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234665AbiKHNyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:54:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54022 "EHLO
+        id S234821AbiKHN7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:59:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234679AbiKHNyQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:54:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D20721A6
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:54:15 -0800 (PST)
+        with ESMTP id S234884AbiKHN7W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:59:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2F1166CAC
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:59:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC4C4B81AE8
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:54:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02FCEC43470;
-        Tue,  8 Nov 2022 13:54:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D0596159E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:59:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51078C433C1;
+        Tue,  8 Nov 2022 13:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915652;
-        bh=70A0BMttabRFUwbNBoBO+vOEa4Ih14RbeOPICurCA68=;
+        s=korg; t=1667915960;
+        bh=P2wuFFCR0fz6nEOkbcdmC4Oj/ajE811iA75rKOqpMMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBjOnrBtcCVoqZfvTgalhgPXIwTD1wmjIG9sJ7i0Lzu26qdEVk56vfIMWAyP65rJR
-         CeIhOIPTmg/MLsEJgEcoYoMdocV6dvsmjuurQmMnuLJw4IwEMEfg36DBmKsrqPlLi1
-         ogGQmI+8lUjo4XfD+Y89ei81I0CSEDW776Nmbelo=
+        b=08Wr65BEZ2qTZD4BLnLCfP44XdHJB64hr179edhOjyR+MVuXmnMX2jZLSsRWSSket
+         V0ny/iPQU6HGVzhMM7uXzpIvCVS9/08valMfSmCXnc8Z3jcYsR3fn2Fu3wjyEwPZJ1
+         ZJrrbmeMHEhMQ9uG9HQFIj8h7EoKDRS2/Y2CvhxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 022/118] nfc: fdp: drop ftrace-like debugging messages
+Subject: [PATCH 5.15 023/144] nfs4: Fix kmemleak when allocate slot failed
 Date:   Tue,  8 Nov 2022 14:38:20 +0100
-Message-Id: <20221108133341.633848667@linuxfoundation.org>
+Message-Id: <20221108133346.274440326@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,WEIRD_QUOTING autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 9571289ddf71694de0e023afc5e88d90cfd067b5 ]
+[ Upstream commit 7e8436728e22181c3f12a5dbabd35ed3a8b8c593 ]
 
-Now that the kernel has ftrace, any debugging calls that just do "made
-it to this function!" and "leaving this function!" can be removed.
-Better to use standard debugging tools.
+If one of the slot allocate failed, should cleanup all the other
+allocated slots, otherwise, the allocated slots will leak:
 
-This allows also to remove several local variables and entire
-fdp_nci_recv_frame() function (whose purpose was only to log).
+  unreferenced object 0xffff8881115aa100 (size 64):
+    comm ""mount.nfs"", pid 679, jiffies 4294744957 (age 115.037s)
+    hex dump (first 32 bytes):
+      00 cc 19 73 81 88 ff ff 00 a0 5a 11 81 88 ff ff  ...s......Z.....
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    backtrace:
+      [<000000007a4c434a>] nfs4_find_or_create_slot+0x8e/0x130
+      [<000000005472a39c>] nfs4_realloc_slot_table+0x23f/0x270
+      [<00000000cd8ca0eb>] nfs40_init_client+0x4a/0x90
+      [<00000000128486db>] nfs4_init_client+0xce/0x270
+      [<000000008d2cacad>] nfs4_set_client+0x1a2/0x2b0
+      [<000000000e593b52>] nfs4_create_server+0x300/0x5f0
+      [<00000000e4425dd2>] nfs4_try_get_tree+0x65/0x110
+      [<00000000d3a6176f>] vfs_get_tree+0x41/0xf0
+      [<0000000016b5ad4c>] path_mount+0x9b3/0xdd0
+      [<00000000494cae71>] __x64_sys_mount+0x190/0x1d0
+      [<000000005d56bdec>] do_syscall_64+0x35/0x80
+      [<00000000687c9ae4>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210531073522.6720-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Stable-dep-of: 8e4aae6b8ca7 ("nfc: fdp: Fix potential memory leak in fdp_nci_send()")
+Fixes: abf79bb341bf ("NFS: Add a slot table to struct nfs_client for NFSv4.0 transport blocking")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/fdp/fdp.c | 31 -------------------------------
- drivers/nfc/fdp/fdp.h |  1 -
- drivers/nfc/fdp/i2c.c | 12 +-----------
- 3 files changed, 1 insertion(+), 43 deletions(-)
+ fs/nfs/nfs4client.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nfc/fdp/fdp.c b/drivers/nfc/fdp/fdp.c
-index 4dc7bd7e02b6..52c60d11849c 100644
---- a/drivers/nfc/fdp/fdp.c
-+++ b/drivers/nfc/fdp/fdp.c
-@@ -238,9 +238,6 @@ static int fdp_nci_open(struct nci_dev *ndev)
- {
- 	int r;
- 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
--	struct device *dev = &info->phy->i2c_dev->dev;
--
--	dev_dbg(dev, "%s\n", __func__);
- 
- 	r = info->phy_ops->enable(info->phy);
- 
-@@ -249,19 +246,12 @@ static int fdp_nci_open(struct nci_dev *ndev)
- 
- static int fdp_nci_close(struct nci_dev *ndev)
- {
--	struct fdp_nci_info *info = nci_get_drvdata(ndev);
--	struct device *dev = &info->phy->i2c_dev->dev;
--
--	dev_dbg(dev, "%s\n", __func__);
- 	return 0;
- }
- 
- static int fdp_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
- {
- 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
--	struct device *dev = &info->phy->i2c_dev->dev;
--
--	dev_dbg(dev, "%s\n", __func__);
- 
- 	if (atomic_dec_and_test(&info->data_pkt_counter))
- 		info->data_pkt_counter_cb(ndev);
-@@ -269,16 +259,6 @@ static int fdp_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
- 	return info->phy_ops->write(info->phy, skb);
- }
- 
--int fdp_nci_recv_frame(struct nci_dev *ndev, struct sk_buff *skb)
--{
--	struct fdp_nci_info *info = nci_get_drvdata(ndev);
--	struct device *dev = &info->phy->i2c_dev->dev;
--
--	dev_dbg(dev, "%s\n", __func__);
--	return nci_recv_frame(ndev, skb);
--}
--EXPORT_SYMBOL(fdp_nci_recv_frame);
--
- static int fdp_nci_request_firmware(struct nci_dev *ndev)
- {
- 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
-@@ -489,8 +469,6 @@ static int fdp_nci_setup(struct nci_dev *ndev)
- 	int r;
- 	u8 patched = 0;
- 
--	dev_dbg(dev, "%s\n", __func__);
--
- 	r = nci_core_init(ndev);
- 	if (r)
- 		goto error;
-@@ -598,9 +576,7 @@ static int fdp_nci_core_reset_ntf_packet(struct nci_dev *ndev,
- 					  struct sk_buff *skb)
- {
- 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
--	struct device *dev = &info->phy->i2c_dev->dev;
- 
--	dev_dbg(dev, "%s\n", __func__);
- 	info->setup_reset_ntf = 1;
- 	wake_up(&info->setup_wq);
- 
-@@ -611,9 +587,7 @@ static int fdp_nci_prop_patch_ntf_packet(struct nci_dev *ndev,
- 					  struct sk_buff *skb)
- {
- 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
--	struct device *dev = &info->phy->i2c_dev->dev;
- 
--	dev_dbg(dev, "%s\n", __func__);
- 	info->setup_patch_ntf = 1;
- 	info->setup_patch_status = skb->data[0];
- 	wake_up(&info->setup_wq);
-@@ -786,11 +760,6 @@ EXPORT_SYMBOL(fdp_nci_probe);
- 
- void fdp_nci_remove(struct nci_dev *ndev)
- {
--	struct fdp_nci_info *info = nci_get_drvdata(ndev);
--	struct device *dev = &info->phy->i2c_dev->dev;
--
--	dev_dbg(dev, "%s\n", __func__);
--
- 	nci_unregister_device(ndev);
- 	nci_free_device(ndev);
- }
-diff --git a/drivers/nfc/fdp/fdp.h b/drivers/nfc/fdp/fdp.h
-index 9bd1f3f23e2d..ead3b21ccae6 100644
---- a/drivers/nfc/fdp/fdp.h
-+++ b/drivers/nfc/fdp/fdp.h
-@@ -25,6 +25,5 @@ int fdp_nci_probe(struct fdp_i2c_phy *phy, struct nfc_phy_ops *phy_ops,
- 		  struct nci_dev **ndev, int tx_headroom, int tx_tailroom,
- 		  u8 clock_type, u32 clock_freq, u8 *fw_vsc_cfg);
- void fdp_nci_remove(struct nci_dev *ndev);
--int fdp_nci_recv_frame(struct nci_dev *ndev, struct sk_buff *skb);
- 
- #endif /* __LOCAL_FDP_H_ */
-diff --git a/drivers/nfc/fdp/i2c.c b/drivers/nfc/fdp/i2c.c
-index ad0abb1f0bae..5e300788be52 100644
---- a/drivers/nfc/fdp/i2c.c
-+++ b/drivers/nfc/fdp/i2c.c
-@@ -49,7 +49,6 @@ static int fdp_nci_i2c_enable(void *phy_id)
- {
- 	struct fdp_i2c_phy *phy = phy_id;
- 
--	dev_dbg(&phy->i2c_dev->dev, "%s\n", __func__);
- 	fdp_nci_i2c_reset(phy);
- 
- 	return 0;
-@@ -59,7 +58,6 @@ static void fdp_nci_i2c_disable(void *phy_id)
- {
- 	struct fdp_i2c_phy *phy = phy_id;
- 
--	dev_dbg(&phy->i2c_dev->dev, "%s\n", __func__);
- 	fdp_nci_i2c_reset(phy);
- }
- 
-@@ -197,7 +195,6 @@ static int fdp_nci_i2c_read(struct fdp_i2c_phy *phy, struct sk_buff **skb)
- static irqreturn_t fdp_nci_i2c_irq_thread_fn(int irq, void *phy_id)
- {
- 	struct fdp_i2c_phy *phy = phy_id;
--	struct i2c_client *client;
- 	struct sk_buff *skb;
- 	int r;
- 
-@@ -206,9 +203,6 @@ static irqreturn_t fdp_nci_i2c_irq_thread_fn(int irq, void *phy_id)
- 		return IRQ_NONE;
+diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
+index ed06b68b2b4e..1bf7a72ebda6 100644
+--- a/fs/nfs/nfs4client.c
++++ b/fs/nfs/nfs4client.c
+@@ -346,6 +346,7 @@ int nfs40_init_client(struct nfs_client *clp)
+ 	ret = nfs4_setup_slot_table(tbl, NFS4_MAX_SLOT_TABLE,
+ 					"NFSv4.0 transport Slot table");
+ 	if (ret) {
++		nfs4_shutdown_slot_table(tbl);
+ 		kfree(tbl);
+ 		return ret;
  	}
- 
--	client = phy->i2c_dev;
--	dev_dbg(&client->dev, "%s\n", __func__);
--
- 	r = fdp_nci_i2c_read(phy, &skb);
- 
- 	if (r == -EREMOTEIO)
-@@ -217,7 +211,7 @@ static irqreturn_t fdp_nci_i2c_irq_thread_fn(int irq, void *phy_id)
- 		return IRQ_HANDLED;
- 
- 	if (skb != NULL)
--		fdp_nci_recv_frame(phy->ndev, skb);
-+		nci_recv_frame(phy->ndev, skb);
- 
- 	return IRQ_HANDLED;
- }
-@@ -288,8 +282,6 @@ static int fdp_nci_i2c_probe(struct i2c_client *client)
- 	u32 clock_freq;
- 	int r = 0;
- 
--	dev_dbg(dev, "%s\n", __func__);
--
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
- 		nfc_err(dev, "No I2C_FUNC_I2C support\n");
- 		return -ENODEV;
-@@ -351,8 +343,6 @@ static int fdp_nci_i2c_remove(struct i2c_client *client)
- {
- 	struct fdp_i2c_phy *phy = i2c_get_clientdata(client);
- 
--	dev_dbg(&client->dev, "%s\n", __func__);
--
- 	fdp_nci_remove(phy->ndev);
- 	fdp_nci_i2c_disable(phy);
- 
 -- 
 2.35.1
 
