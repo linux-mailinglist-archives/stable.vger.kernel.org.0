@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A773B621374
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:50:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A51C662142C
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:58:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234624AbiKHNu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:50:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50434 "EHLO
+        id S234875AbiKHN6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:58:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234644AbiKHNu0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:50:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9342010545
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:50:25 -0800 (PST)
+        with ESMTP id S234845AbiKHN6G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:58:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9EC263F0
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:58:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9D5B61561
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:50:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9B3EC433D7;
-        Tue,  8 Nov 2022 13:50:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68E72B816DD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:58:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B36C7C433C1;
+        Tue,  8 Nov 2022 13:58:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915424;
-        bh=Ysn1Mpn4SCzp4jdh/IG/erezJbmrl677BUxf8uQl/vc=;
+        s=korg; t=1667915881;
+        bh=BQim041SmGuYekg7uBcARMxoVK1GehVQgWkXJHeBtB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oX5jAzl89u1C8lYNGpZDNcq+2TBJD/FBJtb9CozaE1E2BOkolVUodsTsdR7TWQEN9
-         Bbf2y7mdHLS2L2FXwomsplJWBIAL9Oa+58ujrDzZgG44KjAgPIVXMRFeD1ok644ESt
-         jH7qamZmT4fTmoMc56RDU+01fzM6bq4HTwIhycWE=
+        b=ZiyIzSR9FiYSQrHZ4YdcmLgBcZOrrUCyN0w/fcc2HWqVj/i/9QupoK4tltrSKrR0y
+         UC7+0PsXu3kSIUwCb9ZhK/DEHzusU6MGn9zJAwQZh+EY8k5VlRieYKTBY+aN7Z1ZIN
+         ETG97iYzkr0N8WAv/E2gavBBMOlUOaa1pHQ+2OW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 59/74] parisc: Make 8250_gsc driver dependend on CONFIG_PARISC
+        patches@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>,
+        Li Huafei <lihuafei1@huawei.com>
+Subject: [PATCH 5.10 089/118] ftrace: Fix use-after-free for dynamic ftrace_ops
 Date:   Tue,  8 Nov 2022 14:39:27 +0100
-Message-Id: <20221108133336.185987714@linuxfoundation.org>
+Message-Id: <20221108133344.570909968@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +52,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Li Huafei <lihuafei1@huawei.com>
 
-commit e8a18e3f00f3ee8d07c17ab1ea3ad4df4a3b6fe0 upstream.
+commit 0e792b89e6800cd9cb4757a76a96f7ef3e8b6294 upstream.
 
-Although the name of the driver 8250_gsc.c suggests that it handles
-only serial ports on the GSC bus, it does handle serial ports listed
-in the parisc machine inventory as well, e.g. the serial ports in a
-C8000 PCI-only workstation.
+KASAN reported a use-after-free with ftrace ops [1]. It was found from
+vmcore that perf had registered two ops with the same content
+successively, both dynamic. After unregistering the second ops, a
+use-after-free occurred.
 
-Change the dependency to CONFIG_PARISC, so that the driver gets included
-in the kernel even if CONFIG_GSC isn't set.
+In ftrace_shutdown(), when the second ops is unregistered, the
+FTRACE_UPDATE_CALLS command is not set because there is another enabled
+ops with the same content.  Also, both ops are dynamic and the ftrace
+callback function is ftrace_ops_list_func, so the
+FTRACE_UPDATE_TRACE_FUNC command will not be set. Eventually the value
+of 'command' will be 0 and ftrace_shutdown() will skip the rcu
+synchronization.
 
-Reported-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+However, ftrace may be activated. When the ops is released, another CPU
+may be accessing the ops.  Add the missing synchronization to fix this
+problem.
+
+[1]
+BUG: KASAN: use-after-free in __ftrace_ops_list_func kernel/trace/ftrace.c:7020 [inline]
+BUG: KASAN: use-after-free in ftrace_ops_list_func+0x2b0/0x31c kernel/trace/ftrace.c:7049
+Read of size 8 at addr ffff56551965bbc8 by task syz-executor.2/14468
+
+CPU: 1 PID: 14468 Comm: syz-executor.2 Not tainted 5.10.0 #7
+Hardware name: linux,dummy-virt (DT)
+Call trace:
+ dump_backtrace+0x0/0x40c arch/arm64/kernel/stacktrace.c:132
+ show_stack+0x30/0x40 arch/arm64/kernel/stacktrace.c:196
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1b4/0x248 lib/dump_stack.c:118
+ print_address_description.constprop.0+0x28/0x48c mm/kasan/report.c:387
+ __kasan_report mm/kasan/report.c:547 [inline]
+ kasan_report+0x118/0x210 mm/kasan/report.c:564
+ check_memory_region_inline mm/kasan/generic.c:187 [inline]
+ __asan_load8+0x98/0xc0 mm/kasan/generic.c:253
+ __ftrace_ops_list_func kernel/trace/ftrace.c:7020 [inline]
+ ftrace_ops_list_func+0x2b0/0x31c kernel/trace/ftrace.c:7049
+ ftrace_graph_call+0x0/0x4
+ __might_sleep+0x8/0x100 include/linux/perf_event.h:1170
+ __might_fault mm/memory.c:5183 [inline]
+ __might_fault+0x58/0x70 mm/memory.c:5171
+ do_strncpy_from_user lib/strncpy_from_user.c:41 [inline]
+ strncpy_from_user+0x1f4/0x4b0 lib/strncpy_from_user.c:139
+ getname_flags+0xb0/0x31c fs/namei.c:149
+ getname+0x2c/0x40 fs/namei.c:209
+ [...]
+
+Allocated by task 14445:
+ kasan_save_stack+0x24/0x50 mm/kasan/common.c:48
+ kasan_set_track mm/kasan/common.c:56 [inline]
+ __kasan_kmalloc mm/kasan/common.c:479 [inline]
+ __kasan_kmalloc.constprop.0+0x110/0x13c mm/kasan/common.c:449
+ kasan_kmalloc+0xc/0x14 mm/kasan/common.c:493
+ kmem_cache_alloc_trace+0x440/0x924 mm/slub.c:2950
+ kmalloc include/linux/slab.h:563 [inline]
+ kzalloc include/linux/slab.h:675 [inline]
+ perf_event_alloc.part.0+0xb4/0x1350 kernel/events/core.c:11230
+ perf_event_alloc kernel/events/core.c:11733 [inline]
+ __do_sys_perf_event_open kernel/events/core.c:11831 [inline]
+ __se_sys_perf_event_open+0x550/0x15f4 kernel/events/core.c:11723
+ __arm64_sys_perf_event_open+0x6c/0x80 kernel/events/core.c:11723
+ [...]
+
+Freed by task 14445:
+ kasan_save_stack+0x24/0x50 mm/kasan/common.c:48
+ kasan_set_track+0x24/0x34 mm/kasan/common.c:56
+ kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:358
+ __kasan_slab_free.part.0+0x11c/0x1b0 mm/kasan/common.c:437
+ __kasan_slab_free mm/kasan/common.c:445 [inline]
+ kasan_slab_free+0x2c/0x40 mm/kasan/common.c:446
+ slab_free_hook mm/slub.c:1569 [inline]
+ slab_free_freelist_hook mm/slub.c:1608 [inline]
+ slab_free mm/slub.c:3179 [inline]
+ kfree+0x12c/0xc10 mm/slub.c:4176
+ perf_event_alloc.part.0+0xa0c/0x1350 kernel/events/core.c:11434
+ perf_event_alloc kernel/events/core.c:11733 [inline]
+ __do_sys_perf_event_open kernel/events/core.c:11831 [inline]
+ __se_sys_perf_event_open+0x550/0x15f4 kernel/events/core.c:11723
+ [...]
+
+Link: https://lore.kernel.org/linux-trace-kernel/20221103031010.166498-1-lihuafei1@huawei.com
+
+Fixes: edb096e00724f ("ftrace: Fix memleak when unregistering dynamic ops when tracing disabled")
+Cc: stable@vger.kernel.org
+Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Li Huafei <lihuafei1@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/ftrace.c |   16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
---- a/drivers/tty/serial/8250/Kconfig
-+++ b/drivers/tty/serial/8250/Kconfig
-@@ -108,7 +108,7 @@ config SERIAL_8250_CONSOLE
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -2946,18 +2946,8 @@ int ftrace_shutdown(struct ftrace_ops *o
+ 		command |= FTRACE_UPDATE_TRACE_FUNC;
+ 	}
  
- config SERIAL_8250_GSC
- 	tristate
--	depends on SERIAL_8250 && GSC
-+	depends on SERIAL_8250 && PARISC
- 	default SERIAL_8250
+-	if (!command || !ftrace_enabled) {
+-		/*
+-		 * If these are dynamic or per_cpu ops, they still
+-		 * need their data freed. Since, function tracing is
+-		 * not currently active, we can just free them
+-		 * without synchronizing all CPUs.
+-		 */
+-		if (ops->flags & FTRACE_OPS_FL_DYNAMIC)
+-			goto free_ops;
+-
+-		return 0;
+-	}
++	if (!command || !ftrace_enabled)
++		goto out;
  
- config SERIAL_8250_DMA
+ 	/*
+ 	 * If the ops uses a trampoline, then it needs to be
+@@ -2994,6 +2984,7 @@ int ftrace_shutdown(struct ftrace_ops *o
+ 	removed_ops = NULL;
+ 	ops->flags &= ~FTRACE_OPS_FL_REMOVING;
+ 
++out:
+ 	/*
+ 	 * Dynamic ops may be freed, we must make sure that all
+ 	 * callers are done before leaving this function.
+@@ -3021,7 +3012,6 @@ int ftrace_shutdown(struct ftrace_ops *o
+ 		if (IS_ENABLED(CONFIG_PREEMPTION))
+ 			synchronize_rcu_tasks();
+ 
+- free_ops:
+ 		ftrace_trampoline_free(ops);
+ 	}
+ 
 
 
