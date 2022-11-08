@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 653F2621486
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13EDF621353
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:49:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234960AbiKHOCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:02:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36536 "EHLO
+        id S234561AbiKHNtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:49:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234988AbiKHOCB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:02:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FFE462399
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:02:00 -0800 (PST)
+        with ESMTP id S234564AbiKHNtS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:49:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884B56314
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:49:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C19C361595
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B748AC433D6;
-        Tue,  8 Nov 2022 14:01:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48541B81AE8
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:49:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A32AC433D6;
+        Tue,  8 Nov 2022 13:49:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916119;
-        bh=N3UOjv83K1NG4QJv42MB/rhQscliIwrIK2Vp7z5gNt8=;
+        s=korg; t=1667915355;
+        bh=RuYchei7QOwh8d7mI7NwwXlTPRmugQtjgst3vuEKIvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MLHs2NW2cuQ48c6+YAn1bKbnUXi1GsltAwzSwn0YjhsLyuqkHtc7ntfBrBkn3YPWE
-         Jl7lz4Kk8vKcnx/B2TorzMHdB9K+F/JktPXm4Zf5ajI3D1w+XWiCSpF7tQz7WcsH+V
-         DOuQWWLgOUVNDRQhWfa00/Sao86gs9wlfWCOssbM=
+        b=onZDsD3RWTIAvDJKtKkDa7hZPMBrqjL25rW5uhldAWmw32218//t4UaryJljy1LeN
+         KP6v2l36RtlqkbvVrI+pXXrBoo9VFp0uihDd/cjUwjLey6t6yVaDt7mnjkkxmCOXfe
+         mLP0VdX8MU9mUKVcv47O/UzjfjZRC9dTAsP+HLiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 068/144] s390/cio: fix out-of-bounds access on cio_ignore free
+        patches@lists.linux.dev, Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Chandan Babu R <chandan.babu@oracle.com>
+Subject: [PATCH 5.4 37/74] xfs: dont fail verifier on empty attr3 leaf block
 Date:   Tue,  8 Nov 2022 14:39:05 +0100
-Message-Id: <20221108133348.154344678@linuxfoundation.org>
+Message-Id: <20221108133335.235304148@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Oberparleiter <oberpar@linux.ibm.com>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit 1b6074112742f65ece71b0f299ca5a6a887d2db6 ]
+commit f28cef9e4daca11337cb9f144cdebedaab69d78c upstream.
 
-The channel-subsystem-driver scans for newly available devices whenever
-device-IDs are removed from the cio_ignore list using a command such as:
+The attr fork can transition from shortform to leaf format while
+empty if the first xattr doesn't fit in shortform. While this empty
+leaf block state is intended to be transient, it is technically not
+due to the transactional implementation of the xattr set operation.
 
-  echo free >/proc/cio_ignore
+We historically have a couple of bandaids to work around this
+problem. The first is to hold the buffer after the format conversion
+to prevent premature writeback of the empty leaf buffer and the
+second is to bypass the xattr count check in the verifier during
+recovery. The latter assumes that the xattr set is also in the log
+and will be recovered into the buffer soon after the empty leaf
+buffer is reconstructed. This is not guaranteed, however.
 
-Since an I/O device scan might interfer with running I/Os, commit
-172da89ed0ea ("s390/cio: avoid excessive path-verification requests")
-introduced an optimization to exclude online devices from the scan.
+If the filesystem crashes after the format conversion but before the
+xattr set that induced it, only the format conversion may exist in
+the log. When recovered, this creates a latent corrupted state on
+the inode as any subsequent attempts to read the buffer fail due to
+verifier failure. This includes further attempts to set xattrs on
+the inode or attempts to destroy the attr fork, which prevents the
+inode from ever being removed from the unlinked list.
 
-The newly added check for online devices incorrectly assumes that
-an I/O-subchannel's drvdata points to a struct io_subchannel_private.
-For devices that are bound to a non-default I/O subchannel driver, such
-as the vfio_ccw driver, this results in an out-of-bounds read access
-during each scan.
+To avoid this condition, accept that an empty attr leaf block is a
+valid state and remove the count check from the verifier. This means
+that on rare occasions an attr fork might exist in an unexpected
+state, but is otherwise consistent and functional. Note that we
+retain the logic to avoid racing with metadata writeback to reduce
+the window where this can occur.
 
-Fix this by changing the scan logic to rely on a driver-independent
-online indication. For this we can use struct subchannel->config.ena,
-which is the driver's requested subchannel-enabled state. Since I/Os
-can only be started on enabled subchannels, this matches the intent
-of the original optimization of not scanning devices where I/O might
-be running.
-
-Fixes: 172da89ed0ea ("s390/cio: avoid excessive path-verification requests")
-Fixes: 0c3812c347bf ("s390/cio: derive cdev information only for IO-subchannels")
-Cc: <stable@vger.kernel.org> # v5.15
-Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/cio/css.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ fs/xfs/libxfs/xfs_attr_leaf.c |    8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index ce9e7517430f..2ba9e0135565 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -792,13 +792,9 @@ static int __unset_online(struct device *dev, void *data)
- {
- 	struct idset *set = data;
- 	struct subchannel *sch = to_subchannel(dev);
--	struct ccw_device *cdev;
+--- a/fs/xfs/libxfs/xfs_attr_leaf.c
++++ b/fs/xfs/libxfs/xfs_attr_leaf.c
+@@ -251,14 +251,6 @@ xfs_attr3_leaf_verify(
+ 		return fa;
  
--	if (sch->st == SUBCHANNEL_TYPE_IO) {
--		cdev = sch_get_cdev(sch);
--		if (cdev && cdev->online)
--			idset_sch_del(set, sch->schid);
--	}
-+	if (sch->st == SUBCHANNEL_TYPE_IO && sch->config.ena)
-+		idset_sch_del(set, sch->schid);
- 
- 	return 0;
- }
--- 
-2.35.1
-
+ 	/*
+-	 * In recovery there is a transient state where count == 0 is valid
+-	 * because we may have transitioned an empty shortform attr to a leaf
+-	 * if the attr didn't fit in shortform.
+-	 */
+-	if (!xfs_log_in_recovery(mp) && ichdr.count == 0)
+-		return __this_address;
+-
+-	/*
+ 	 * firstused is the block offset of the first name info structure.
+ 	 * Make sure it doesn't go off the block or crash into the header.
+ 	 */
 
 
