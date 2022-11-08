@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 543DA621398
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AD586212DD
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:43:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234732AbiKHNwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:52:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51832 "EHLO
+        id S234177AbiKHNnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:43:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234605AbiKHNvi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:51:38 -0500
+        with ESMTP id S234453AbiKHNni (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:43:38 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD6F665E4C
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:51:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7719DFF4
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:43:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CFAC61561
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:51:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69F71C433C1;
-        Tue,  8 Nov 2022 13:51:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62AB261582
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:43:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C1E0C433C1;
+        Tue,  8 Nov 2022 13:43:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915496;
-        bh=L6RSxyS58v6yYt6HfXv4poqGg9tYqqREq/83YoUmBEY=;
+        s=korg; t=1667915013;
+        bh=5BMlWFFWZoOD2Q0tTV55KLZvL+V0ZBJL67UenP8VFZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VWiehHFTIBFuRv7rnvXCK46CjKkTVzrFNhopzGrEwCdjxrUncqLUmMc+VPOvmit9T
-         ZGNpumuKmmBcpAI1CgFoVVnNvzXVN3M0Sp3VU+ZZdO1Tbfz8R30+lP7S1MPwZ1Lpu7
-         b8M79a3/W1VbAOe8y139MaaSBr2A9FUzfcsXl5ZA=
+        b=elZHileQ5/dt1ylTcuctShKu+8kuDcinhJjYukrcId1qhZCXhfGAU5SGQSqfk1YIF
+         grAcIWGjIB6cs6APq94GR1b32mwtQ0XauAJg6OUsbfpuU7TkSwilZPyqeAQL80Gb7t
+         nUMcp8bGsPydr9jOGCzhDsscTN8c9OMkYRfx5byg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chuhong Yuan <hslester96@gmail.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 42/74] xfs: Add the missed xfs_perag_put() for xfs_ifree_cluster()
+        patches@lists.linux.dev, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 25/40] btrfs: fix type of parameter generation in btrfs_get_dentry
 Date:   Tue,  8 Nov 2022 14:39:10 +0100
-Message-Id: <20221108133335.453606651@linuxfoundation.org>
+Message-Id: <20221108133329.333235389@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
+References: <20221108133328.351887714@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: David Sterba <dsterba@suse.com>
 
-commit 8cc0072469723459dc6bd7beff81b2b3149f4cf4 upstream.
+commit 2398091f9c2c8e0040f4f9928666787a3e8108a7 upstream.
 
-xfs_ifree_cluster() calls xfs_perag_get() at the beginning, but forgets to
-call xfs_perag_put() in one failed path.
-Add the missed function call to fix it.
+The type of parameter generation has been u32 since the beginning,
+however all callers pass a u64 generation, so unify the types to prevent
+potential loss.
 
-Fixes: ce92464c180b ("xfs: make xfs_trans_get_buf return an error code")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_inode.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/btrfs/export.c |    2 +-
+ fs/btrfs/export.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -2592,8 +2592,10 @@ xfs_ifree_cluster(
- 					mp->m_bsize * igeo->blocks_per_cluster,
- 					XBF_UNMAPPED);
+--- a/fs/btrfs/export.c
++++ b/fs/btrfs/export.c
+@@ -57,7 +57,7 @@ static int btrfs_encode_fh(struct inode
+ }
  
--		if (!bp)
-+		if (!bp) {
-+			xfs_perag_put(pag);
- 			return -ENOMEM;
-+		}
+ struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
+-				u64 root_objectid, u32 generation,
++				u64 root_objectid, u64 generation,
+ 				int check_generation)
+ {
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(sb);
+--- a/fs/btrfs/export.h
++++ b/fs/btrfs/export.h
+@@ -18,7 +18,7 @@ struct btrfs_fid {
+ } __attribute__ ((packed));
  
- 		/*
- 		 * This buffer may not have been correctly initialised as we
+ struct dentry *btrfs_get_dentry(struct super_block *sb, u64 objectid,
+-				u64 root_objectid, u32 generation,
++				u64 root_objectid, u64 generation,
+ 				int check_generation);
+ struct dentry *btrfs_get_parent(struct dentry *child);
+ 
 
 
