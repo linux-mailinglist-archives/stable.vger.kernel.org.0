@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC63062142F
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:58:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E6786215D6
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:16:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234305AbiKHN6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:58:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60490 "EHLO
+        id S235287AbiKHOQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:16:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234857AbiKHN6P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:58:15 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CB8D63F0
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:58:14 -0800 (PST)
+        with ESMTP id S235345AbiKHOQA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:16:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0AA0686B1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:15:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6BF5FCE1B94
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:58:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 307C5C433C1;
-        Tue,  8 Nov 2022 13:58:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59B1DB81ADB
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:15:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A2C3C433D6;
+        Tue,  8 Nov 2022 14:15:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915890;
-        bh=BQwo9hfsiwVPOQyyAzrORC8RUrMblkwCLCzIcx+o5BE=;
+        s=korg; t=1667916956;
+        bh=3GbL4dcmGlWKmU83u3q3YZQkedmXKpi+Ui/bhZ57wR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A7s0wBygEgyQZ++MoHnLdtg+sm80MUj0mAzhpwYWNQzgOQT3+lmXXC310j1rSGTct
-         dMZq/5q9k8sLvMzfDZq5hty+uMz0XWsWgfkEOvYQLp5KqLPqTBPUhUk/T3Jt5BU+D6
-         A2zjghHIISe0YVzMR/uAmSRxpG1Orz/HYmlS93+w=
+        b=irj6gSrpunGTTcDV9yJc42+3cjG24aZhAqJ5/UMRC+2mauQsy3yFlOBLFdS/rF4DJ
+         1NGIQB/Dgw3VTJbcvSzzRnWSoCZCuwGZOe/ls9Ps0RHtbZ7HXzc7qj8Pi+ucm3hHtt
+         +qLbpG1h3RfvvQHtFdmX/FAJv8bijHsZ5IJ9Q5Vo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Norris <briannorris@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.10 114/118] drm/rockchip: dsi: Force synchronous probe
-Date:   Tue,  8 Nov 2022 14:39:52 +0100
-Message-Id: <20221108133345.641594440@linuxfoundation.org>
+        patches@lists.linux.dev, petrben@gmail.com,
+        Petr Benes <petr.benes@ysoft.com>,
+        =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 6.0 155/197] ARM: dts: imx6dl-yapp4: Do not allow PM to switch PU regulator off on Q/QP
+Date:   Tue,  8 Nov 2022 14:39:53 +0100
+Message-Id: <20221108133401.992825285@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Petr Benes <petr.benes@ysoft.com>
 
-commit 81e592f86f7afdb76d655e7fbd7803d7b8f985d8 upstream.
+commit 5e67d47d0b010f0704aca469d6d27637b1dcb2ce upstream.
 
-We can't safely probe a dual-DSI display asynchronously
-(driver_async_probe='*' or driver_async_probe='dw-mipi-dsi-rockchip'
-cmdline), because dw_mipi_dsi_rockchip_find_second() pokes one DSI
-device's drvdata from the other device without any locking.
+Fix our design flaw in supply voltage distribution on the Quad and QuadPlus
+based boards.
 
-Request synchronous probe, at least until this driver learns some
-appropriate locking for dual-DSI initialization.
+The problem is that we supply the SoC cache (VDD_CACHE_CAP) from VDD_PU
+instead of VDD_SOC. The VDD_PU internal regulator can be disabled by PM
+if VPU or GPU is not used. If that happens the system freezes. To prevent
+that configure the reg_pu regulator to be always on.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221019170255.2.I6b985b0ca372b7e35c6d9ea970b24bcb262d4fc1@changeid
+Fixes: 0de4ab81ab26 ("ARM: dts: imx6dl-yapp4: Add Y Soft IOTA Crux/Crux+ board")
+Cc: petrben@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Petr Benes <petr.benes@ysoft.com>
+Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/imx6q-yapp4-crux.dts       | 4 ++++
+ arch/arm/boot/dts/imx6qp-yapp4-crux-plus.dts | 4 ++++
+ 2 files changed, 8 insertions(+)
 
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-@@ -1286,5 +1286,11 @@ struct platform_driver dw_mipi_dsi_rockc
- 		.of_match_table = dw_mipi_dsi_rockchip_dt_ids,
- 		.pm	= &dw_mipi_dsi_rockchip_pm_ops,
- 		.name	= "dw-mipi-dsi-rockchip",
-+		/*
-+		 * For dual-DSI display, one DSI pokes at the other DSI's
-+		 * drvdata in dw_mipi_dsi_rockchip_find_second(). This is not
-+		 * safe for asynchronous probe.
-+		 */
-+		.probe_type = PROBE_FORCE_SYNCHRONOUS,
- 	},
+diff --git a/arch/arm/boot/dts/imx6q-yapp4-crux.dts b/arch/arm/boot/dts/imx6q-yapp4-crux.dts
+index 15f4824a5142..bddf3822ebf7 100644
+--- a/arch/arm/boot/dts/imx6q-yapp4-crux.dts
++++ b/arch/arm/boot/dts/imx6q-yapp4-crux.dts
+@@ -33,6 +33,10 @@ &oled_1309 {
+ 	status = "okay";
  };
+ 
++&reg_pu {
++	regulator-always-on;
++};
++
+ &reg_usb_h1_vbus {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/imx6qp-yapp4-crux-plus.dts b/arch/arm/boot/dts/imx6qp-yapp4-crux-plus.dts
+index cea165f2161a..afaf4a6759d4 100644
+--- a/arch/arm/boot/dts/imx6qp-yapp4-crux-plus.dts
++++ b/arch/arm/boot/dts/imx6qp-yapp4-crux-plus.dts
+@@ -33,6 +33,10 @@ &oled_1309 {
+ 	status = "okay";
+ };
+ 
++&reg_pu {
++	regulator-always-on;
++};
++
+ &reg_usb_h1_vbus {
+ 	status = "okay";
+ };
+-- 
+2.38.1
+
 
 
