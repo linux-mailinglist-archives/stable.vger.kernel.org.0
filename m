@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43EF962136E
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:50:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5840A621428
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:57:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234585AbiKHNuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:50:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
+        id S234770AbiKHN5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:57:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234624AbiKHNuM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:50:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 697C063F0
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:50:12 -0800 (PST)
+        with ESMTP id S234305AbiKHN5y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:57:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF1860EB1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:57:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 073C2615A3
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:50:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 123C1C433D7;
-        Tue,  8 Nov 2022 13:50:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DEA8B816DD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:57:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9301DC433D6;
+        Tue,  8 Nov 2022 13:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915411;
-        bh=ravxm6RvOKV3wTkK9yfdUMIYcy+FOZZceg3Prsg4fBU=;
+        s=korg; t=1667915871;
+        bh=ACQcIMZT9yIl/kr96IyqLQTV/N7asKEOLVM0IcDc3Ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDf9m9GT7P4UjcRBMRnpeU0rSWDTbo2KIM3u4mQ6N7FsNtiBVEJI+B6JNhr7Jgzy7
-         K6Mx+0jqyl90iHFrts9PAJ86+C+7IJucx3tQb26ebASzP/eDqBC/gAEg8c5KiwcrW7
-         4clK1VrLZ0r4BL84aSAvfoiJtW6+CzRPKF56CTdk=
+        b=zyQYXkKofrAjulfqqx3GTQ+1kXHsUzh8Gpi9RDQARTHhUEw4UU4XNd2dcP0ZZXQmz
+         xP84gv5r5afnfUgCpx5uMErVnta8YNQZlQJb4IT6eVSS2RwLC3iCfnP4HV7/dY3xkU
+         PJboGmHVPbrI+HTpUMFCYJcEgZ9V1rc41hzB2a+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Subject: [PATCH 5.4 55/74] efi: random: reduce seed size to 32 bytes
-Date:   Tue,  8 Nov 2022 14:39:23 +0100
-Message-Id: <20221108133336.015931064@linuxfoundation.org>
+        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Liam Howlett <liam.howlett@oracle.com>,
+        Carlos Llamas <cmllamas@google.com>,
+        Todd Kjos <tkjos@google.com>
+Subject: [PATCH 5.10 086/118] binder: fix UAF of alloc->vma in race with munmap()
+Date:   Tue,  8 Nov 2022 14:39:24 +0100
+Message-Id: <20221108133344.451318926@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +56,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Carlos Llamas <cmllamas@google.com>
 
-commit 161a438d730dade2ba2b1bf8785f0759aba4ca5f upstream.
+In commit 720c24192404 ("ANDROID: binder: change down_write to
+down_read") binder assumed the mmap read lock is sufficient to protect
+alloc->vma inside binder_update_page_range(). This used to be accurate
+until commit dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in
+munmap"), which now downgrades the mmap_lock after detaching the vma
+from the rbtree in munmap(). Then it proceeds to teardown and free the
+vma with only the read lock held.
 
-We no longer need at least 64 bytes of random seed to permit the early
-crng init to complete. The RNG is now based on Blake2s, so reduce the
-EFI seed size to the Blake2s hash size, which is sufficient for our
-purposes.
+This means that accesses to alloc->vma in binder_update_page_range() now
+will race with vm_area_free() in munmap() and can cause a UAF as shown
+in the following KASAN trace:
 
-While at it, drop the READ_ONCE(), which was supposed to prevent size
-from being evaluated after seed was unmapped. However, this cannot
-actually happen, so READ_ONCE() is unnecessary here.
+  ==================================================================
+  BUG: KASAN: use-after-free in vm_insert_page+0x7c/0x1f0
+  Read of size 8 at addr ffff16204ad00600 by task server/558
 
-Cc: <stable@vger.kernel.org> # v4.14+
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+  CPU: 3 PID: 558 Comm: server Not tainted 5.10.150-00001-gdc8dcf942daa #1
+  Hardware name: linux,dummy-virt (DT)
+  Call trace:
+   dump_backtrace+0x0/0x2a0
+   show_stack+0x18/0x2c
+   dump_stack+0xf8/0x164
+   print_address_description.constprop.0+0x9c/0x538
+   kasan_report+0x120/0x200
+   __asan_load8+0xa0/0xc4
+   vm_insert_page+0x7c/0x1f0
+   binder_update_page_range+0x278/0x50c
+   binder_alloc_new_buf+0x3f0/0xba0
+   binder_transaction+0x64c/0x3040
+   binder_thread_write+0x924/0x2020
+   binder_ioctl+0x1610/0x2e5c
+   __arm64_sys_ioctl+0xd4/0x120
+   el0_svc_common.constprop.0+0xac/0x270
+   do_el0_svc+0x38/0xa0
+   el0_svc+0x1c/0x2c
+   el0_sync_handler+0xe8/0x114
+   el0_sync+0x180/0x1c0
+
+  Allocated by task 559:
+   kasan_save_stack+0x38/0x6c
+   __kasan_kmalloc.constprop.0+0xe4/0xf0
+   kasan_slab_alloc+0x18/0x2c
+   kmem_cache_alloc+0x1b0/0x2d0
+   vm_area_alloc+0x28/0x94
+   mmap_region+0x378/0x920
+   do_mmap+0x3f0/0x600
+   vm_mmap_pgoff+0x150/0x17c
+   ksys_mmap_pgoff+0x284/0x2dc
+   __arm64_sys_mmap+0x84/0xa4
+   el0_svc_common.constprop.0+0xac/0x270
+   do_el0_svc+0x38/0xa0
+   el0_svc+0x1c/0x2c
+   el0_sync_handler+0xe8/0x114
+   el0_sync+0x180/0x1c0
+
+  Freed by task 560:
+   kasan_save_stack+0x38/0x6c
+   kasan_set_track+0x28/0x40
+   kasan_set_free_info+0x24/0x4c
+   __kasan_slab_free+0x100/0x164
+   kasan_slab_free+0x14/0x20
+   kmem_cache_free+0xc4/0x34c
+   vm_area_free+0x1c/0x2c
+   remove_vma+0x7c/0x94
+   __do_munmap+0x358/0x710
+   __vm_munmap+0xbc/0x130
+   __arm64_sys_munmap+0x4c/0x64
+   el0_svc_common.constprop.0+0xac/0x270
+   do_el0_svc+0x38/0xa0
+   el0_svc+0x1c/0x2c
+   el0_sync_handler+0xe8/0x114
+   el0_sync+0x180/0x1c0
+
+  [...]
+  ==================================================================
+
+To prevent the race above, revert back to taking the mmap write lock
+inside binder_update_page_range(). One might expect an increase of mmap
+lock contention. However, binder already serializes these calls via top
+level alloc->mutex. Also, there was no performance impact shown when
+running the binder benchmark tests.
+
+Note this patch is specific to stable branches 5.4 and 5.10. Since in
+newer kernel releases binder no longer caches a pointer to the vma.
+Instead, it has been refactored to use vma_lookup() which avoids the
+issue described here. This switch was introduced in commit a43cfc87caaf
+("android: binder: stop saving a pointer to the VMA").
+
+Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
+Reported-by: Jann Horn <jannh@google.com>
+Cc: <stable@vger.kernel.org> # 5.10.x
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Yang Shi <yang.shi@linux.alibaba.com>
+Cc: Liam Howlett <liam.howlett@oracle.com>
+Signed-off-by: Carlos Llamas <cmllamas@google.com>
+Acked-by: Todd Kjos <tkjos@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/efi.c |    2 +-
- include/linux/efi.h        |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/android/binder_alloc.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -546,7 +546,7 @@ int __init efi_config_parse_tables(void
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -212,7 +212,7 @@ static int binder_update_page_range(stru
+ 		mm = alloc->vma_vm_mm;
  
- 		seed = early_memremap(efi.rng_seed, sizeof(*seed));
- 		if (seed != NULL) {
--			size = READ_ONCE(seed->size);
-+			size = min(seed->size, EFI_RANDOM_SEED_SIZE);
- 			early_memunmap(seed, sizeof(*seed));
- 		} else {
- 			pr_err("Could not map UEFI random seed!\n");
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -1715,7 +1715,7 @@ efi_status_t efi_exit_boot_services(efi_
- 				    void *priv,
- 				    efi_exit_boot_map_processing priv_func);
+ 	if (mm) {
+-		mmap_read_lock(mm);
++		mmap_write_lock(mm);
+ 		vma = alloc->vma;
+ 	}
  
--#define EFI_RANDOM_SEED_SIZE		64U
-+#define EFI_RANDOM_SEED_SIZE		32U // BLAKE2S_HASH_SIZE
- 
- struct linux_efi_random_seed {
- 	u32	size;
+@@ -270,7 +270,7 @@ static int binder_update_page_range(stru
+ 		trace_binder_alloc_page_end(alloc, index);
+ 	}
+ 	if (mm) {
+-		mmap_read_unlock(mm);
++		mmap_write_unlock(mm);
+ 		mmput(mm);
+ 	}
+ 	return 0;
+@@ -303,7 +303,7 @@ err_page_ptr_cleared:
+ 	}
+ err_no_vma:
+ 	if (mm) {
+-		mmap_read_unlock(mm);
++		mmap_write_unlock(mm);
+ 		mmput(mm);
+ 	}
+ 	return vma ? -ENOMEM : -ESRCH;
 
 
