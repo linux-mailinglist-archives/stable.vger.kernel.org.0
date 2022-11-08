@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81251621550
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC03E62145D
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:00:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235213AbiKHOKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:10:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47008 "EHLO
+        id S234910AbiKHOAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:00:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235223AbiKHOKS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:10:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6155F18B33
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:10:15 -0800 (PST)
+        with ESMTP id S234935AbiKHOAZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:00:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9C9E6868B
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:00:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1C56615B8
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:10:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED94AC433D7;
-        Tue,  8 Nov 2022 14:10:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E4A3B81AF2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:00:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADE39C433C1;
+        Tue,  8 Nov 2022 14:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916614;
-        bh=aWWKt+ul8OJyODn7hJWxMis7sxtGLPT1ptklxe2XRB4=;
+        s=korg; t=1667916021;
+        bh=Hxbh8xigZ9hspUrXbZ0I38XT80UQlageKi7z8cEFaAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q6KvTG/3W8pO/0RpRQSF+k50LsTZc9dwN9PH7S79c5WKNzpgnDbYPE20mNeC21RuB
-         5LubxEsh0osWGGi4kkFHWxH3GDsnTvHvxr99b0YfhDGHmEqV5DePnO2oY4lMpTKVes
-         bzNw7VW27eoKMVlBGFB9kcx78qiz7u46bvTWKOIo=
+        b=EL7a6KSgn96455KJ7HXG57T+exJyHlwhS4GrWHfT3CNU3tfZqx1BLWNFOpZCDB/a4
+         sPgmAODZp9N5pGWy2X/GWbD66xNlNhQ9YOcsyz9qwwchf1EB88SV9GIya28cLrSRwL
+         Ar05gLewAhpWAD6O+E9NnYEp8kOeMGz2EVNXdiIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bingbu Cao <bingbu.cao@intel.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 077/197] media: v4l: subdev: Fail graciously when getting try data for NULL state
+Subject: [PATCH 5.15 038/144] ipvs: use explicitly signed chars
 Date:   Tue,  8 Nov 2022 14:38:35 +0100
-Message-Id: <20221108133358.349290488@linuxfoundation.org>
+Message-Id: <20221108133346.885123055@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 2ba3e38517f5a4ebf9c997168079dca01b7f9fc6 ]
+[ Upstream commit 5c26159c97b324dc5174a5713eafb8c855cf8106 ]
 
-The state argument for the functions for obtaining various parts of the
-state is NULL if it is called by drivers for active state. Fail graciously
-in that case instead of dereferencing a NULL pointer.
+The `char` type with no explicit sign is sometimes signed and sometimes
+unsigned. This code will break on platforms such as arm, where char is
+unsigned. So mark it here as explicitly signed, so that the
+todrop_counter decrement and subsequent comparison is correct.
 
-Suggested-by: Bingbu Cao <bingbu.cao@intel.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/media/v4l2-subdev.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/netfilter/ipvs/ip_vs_conn.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/media/v4l2-subdev.h b/include/media/v4l2-subdev.h
-index 9689f38a0af1..ec1896886dbd 100644
---- a/include/media/v4l2-subdev.h
-+++ b/include/media/v4l2-subdev.h
-@@ -1046,6 +1046,8 @@ v4l2_subdev_get_pad_format(struct v4l2_subdev *sd,
- 			   struct v4l2_subdev_state *state,
- 			   unsigned int pad)
- {
-+	if (WARN_ON(!state))
-+		return NULL;
- 	if (WARN_ON(pad >= sd->entity.num_pads))
- 		pad = 0;
- 	return &state->pads[pad].try_fmt;
-@@ -1064,6 +1066,8 @@ v4l2_subdev_get_pad_crop(struct v4l2_subdev *sd,
- 			 struct v4l2_subdev_state *state,
- 			 unsigned int pad)
- {
-+	if (WARN_ON(!state))
-+		return NULL;
- 	if (WARN_ON(pad >= sd->entity.num_pads))
- 		pad = 0;
- 	return &state->pads[pad].try_crop;
-@@ -1082,6 +1086,8 @@ v4l2_subdev_get_pad_compose(struct v4l2_subdev *sd,
- 			    struct v4l2_subdev_state *state,
- 			    unsigned int pad)
- {
-+	if (WARN_ON(!state))
-+		return NULL;
- 	if (WARN_ON(pad >= sd->entity.num_pads))
- 		pad = 0;
- 	return &state->pads[pad].try_compose;
+diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
+index fb67f1ca2495..db13288fddfa 100644
+--- a/net/netfilter/ipvs/ip_vs_conn.c
++++ b/net/netfilter/ipvs/ip_vs_conn.c
+@@ -1265,8 +1265,8 @@ static inline int todrop_entry(struct ip_vs_conn *cp)
+ 	 * The drop rate array needs tuning for real environments.
+ 	 * Called from timer bh only => no locking
+ 	 */
+-	static const char todrop_rate[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+-	static char todrop_counter[9] = {0};
++	static const signed char todrop_rate[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
++	static signed char todrop_counter[9] = {0};
+ 	int i;
+ 
+ 	/* if the conn entry hasn't lasted for 60 seconds, don't drop it.
 -- 
 2.35.1
 
