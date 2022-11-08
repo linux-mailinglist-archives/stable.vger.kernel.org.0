@@ -2,108 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 350D3621D5B
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 21:02:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F713621D78
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 21:14:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229595AbiKHUCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 15:02:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55760 "EHLO
+        id S229831AbiKHUOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 15:14:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbiKHUCs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 15:02:48 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 740BE67F50;
-        Tue,  8 Nov 2022 12:02:47 -0800 (PST)
-Date:   Tue, 08 Nov 2022 20:02:43 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1667937765;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=m957AOZ+7PMI2g5Y+f/g1wqY8SUIj2ZsgN/I1eKfwXQ=;
-        b=um3sksbWXHoJWNzO5Daa81xllF9fasZRzia2DOk4unBQLZfKahorHCk58KRrHGKvu/6icQ
-        FAOPfJebZTrn7Dd1lJs+ODz2UmqM8hH553rX8j13SrUrArgNnpseBepurE4Fg599m7uRgl
-        Svdh/d7Y8C7IGE1g0ZQIYZ/VcYmpIzzWjHLbc/aaCOYuFik1r0mcv5C31yNXikVsozP8Jv
-        OEs7TulGj8LG6apLvVtKP8+jHCXYX/gzCX/MhWny1Uc9N38TMFUCBcOVaSxeF9mKYHLBHC
-        BDsoMgRweIJY01b6Lwsic6gx+s1Xz310sJp24TYPLzzvtMbgHUGYdZD0IY8Q/A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1667937765;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=m957AOZ+7PMI2g5Y+f/g1wqY8SUIj2ZsgN/I1eKfwXQ=;
-        b=Z0T8LI2LLBegBX93t7VPAeh8mmaBSJpZTreLIVLvRoG18gD5SmP4SXT/EDiB4rxG6jRpFQ
-        SK2gEb8U8chZShAA==
-From:   tip-bot2 for Borys =?utf-8?q?Pop=C5=82awski?= 
-        <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/sgx: Add overflow check in sgx_validate_offset_length()
-Cc:     borysp@invisiblethingslab.com, Borislav Petkov <bp@suse.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>, stable@vger.kernel.org,
-        #@tip-bot2.tec.linutronix.de, v5.11+@tip-bot2.tec.linutronix.de,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <0d91ac79-6d84-abed-5821-4dbe59fa1a38@invisiblethingslab.com>
-References: <0d91ac79-6d84-abed-5821-4dbe59fa1a38@invisiblethingslab.com>
+        with ESMTP id S229861AbiKHUOk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 15:14:40 -0500
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A88F627D2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 12:14:39 -0800 (PST)
+Received: by mail-ej1-x630.google.com with SMTP id m22so4302958eji.10
+        for <stable@vger.kernel.org>; Tue, 08 Nov 2022 12:14:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=u17pHj0ChltDJ0D7lR/YzqX+TvSRsW0jbRS1U9lK73c=;
+        b=Ekbtiq+u5vZ33TKYFeiyykEfG/k2WG03QNInCOKnhJHvL40cpVYDu+KouEa/FVWFX2
+         FkYpe3Pvs73yUDEwDP9wI4zfCAN8+pT70TYsm8KvRt17pC7YBaYdD4XvILJuBXVrkPj+
+         9QvcZPGMohVO2tb0IkqrHlcEbGB4Tc4l8EJWm4mXcXVRw+uwizwLsRYwrfh4CG58hpDo
+         sFlpSxoNktbIrR79V196av1N53ABUaQA7ytfS4o+/p7RmZOMNsRWSZ438hD6V/ZNdj9d
+         5Nrn6+uzNu9UhnL7sNxs5Pq2L3bKjKq7uRMoTu9Yp3RB8PK3zkBKSnTlm3wK/95pAM0y
+         TnhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=u17pHj0ChltDJ0D7lR/YzqX+TvSRsW0jbRS1U9lK73c=;
+        b=zZnO7F5GY7HL/iDLKgOpMKnQGholEqGm9aS6TucTntpBl9sikJBGXtbohMvd7UcU4N
+         6Y0Q/30IRb0NsDiQikGhO2uRw6+oH4sF+EZKQhf0lQ0XlZhuzzxs6DhJ2kIPuWsmb9ML
+         0fjVtysls/pu1OFUDIT56ogCk/E5l+K+3m8ZKk9egjueBCXLxA16EGqh5Bk6K9/NeYGZ
+         piqrZSOxm3j12TulOYPJuCgwCjGns5RUhT3XSBXKMscfwJU8L+iHA3qsJcpDv2/mZKiT
+         0WJ4RWJ0ENlQFUjPpTcyCmhMYjNpTs46d8Nz491VnPe+HlC9s8WQVI1w4OJ5/MBJMbAD
+         E17Q==
+X-Gm-Message-State: ACrzQf01FtnR2Qy5mw85SDVj9aemqU08gAeEHiWVRmmwpnZZXaf7Q+pc
+        9yIl2aj8zWwlmlVsI9f/wbnaQldgHBxvQyym8PBV+wxrrmE=
+X-Google-Smtp-Source: AMsMyM7tH4y/W66k6uVPP2QuiuNld4WkKliXIdH3vkHSuRWLqcfdhprHYp74pblMG6J8HHOj0SB3Ot7mm/0XVEOpwZY=
+X-Received: by 2002:a17:906:4c4b:b0:7ad:a197:b58e with SMTP id
+ d11-20020a1709064c4b00b007ada197b58emr55561181ejw.203.1667938477589; Tue, 08
+ Nov 2022 12:14:37 -0800 (PST)
 MIME-Version: 1.0
-Message-ID: <166793776319.4906.4394830802759229298.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+References: <20221108123755.207438-1-Jason@zx2c4.com>
+In-Reply-To: <20221108123755.207438-1-Jason@zx2c4.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 8 Nov 2022 21:14:26 +0100
+Message-ID: <CACRpkdaxO_1w-7JqpVCcf0rt_J8xjw5Wx=NdnPsDZJR6aKvJmQ@mail.gmail.com>
+Subject: Re: [PATCH RESEND] ARM: ux500: do not directly dereference __iomem
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     linux-arm-kernel@lists.infradead.org, arnd@arndb.de,
+        olof@lixom.net, soc@kernel.org, linux@armlinux.org.uk,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On Tue, Nov 8, 2022 at 1:38 PM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
 
-Commit-ID:     f0861f49bd946ff94fce4f82509c45e167f63690
-Gitweb:        https://git.kernel.org/tip/f0861f49bd946ff94fce4f82509c45e167f=
-63690
-Author:        Borys Pop=C5=82awski <borysp@invisiblethingslab.com>
-AuthorDate:    Wed, 05 Oct 2022 00:59:03 +02:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Tue, 08 Nov 2022 20:34:05 +01:00
+> Sparse reports that calling add_device_randomness() on `uid` is a
+> violation of address spaces. And indeed the next usage uses readl()
+> properly, but that was left out when passing it toadd_device_
+> randomness(). So instead copy the whole thing to the stack first.
+>
+> Fixes: 4040d10a3d44 ("ARM: ux500: add DB serial number to entropy pool")
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: stable@vger.kernel.org
+> Link: https://lore.kernel.org/all/202210230819.loF90KDh-lkp@intel.com/
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 
-x86/sgx: Add overflow check in sgx_validate_offset_length()
+Patch applied!
+Sorry for taking so long!
 
-sgx_validate_offset_length() function verifies "offset" and "length"
-arguments provided by userspace, but was missing an overflow check on
-their addition. Add it.
-
-Fixes: c6d26d370767 ("x86/sgx: Add SGX_IOC_ENCLAVE_ADD_PAGES")
-Signed-off-by: Borys Pop=C5=82awski <borysp@invisiblethingslab.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: stable@vger.kernel.org # v5.11+
-Link: https://lore.kernel.org/r/0d91ac79-6d84-abed-5821-4dbe59fa1a38@invisibl=
-ethingslab.com
----
- arch/x86/kernel/cpu/sgx/ioctl.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/arch/x86/kernel/cpu/sgx/ioctl.c b/arch/x86/kernel/cpu/sgx/ioctl.c
-index ebe79d6..da8b8ea 100644
---- a/arch/x86/kernel/cpu/sgx/ioctl.c
-+++ b/arch/x86/kernel/cpu/sgx/ioctl.c
-@@ -356,6 +356,9 @@ static int sgx_validate_offset_length(struct sgx_encl *en=
-cl,
- 	if (!length || !IS_ALIGNED(length, PAGE_SIZE))
- 		return -EINVAL;
-=20
-+	if (offset + length < offset)
-+		return -EINVAL;
-+
- 	if (offset + length - PAGE_SIZE >=3D encl->size)
- 		return -EINVAL;
-=20
+Yours,
+Linus Walleij
