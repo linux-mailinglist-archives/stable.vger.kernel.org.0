@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58EB362138B
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:51:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5568F62141D
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:57:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234658AbiKHNv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:51:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52158 "EHLO
+        id S234855AbiKHN5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:57:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234698AbiKHNvV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:51:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C41D62386
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:51:14 -0800 (PST)
+        with ESMTP id S234834AbiKHN5K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:57:10 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F21CCCF
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:57:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF494B81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:51:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06A73C433C1;
-        Tue,  8 Nov 2022 13:51:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8A59ECE1B96
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:57:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 326FCC433B5;
+        Tue,  8 Nov 2022 13:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915471;
-        bh=oITCwJuuZ/ufrCZfyOgYBwyXos4KhhWHKw0ef/HfMM0=;
+        s=korg; t=1667915826;
+        bh=D0jJIemx6fqoLQzv6MyEpZjQy3nqd7ClP1DdBqbamak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HPoht5VfoovrUWTUwy3OQZEiXajtfVeTyD9xO93d/VwvxgodmCHh5GUKg43EqHYqh
-         ZtxdiRr9IEdq99eQnsL3RfW2V0zPh6Fs69f+lrjG01uMWCTVBdWTkR74gRwGHaBQEy
-         7MfUOxSgZ4/nN/mjXXKU5bCOlyFJdnqbjsS/YLpQ=
+        b=HWj2nsOi3ylBWXoeQVOEb88VrvrJgrUrioF+PjwjsLfYmVXVjghhJxSkJfwLx5LSD
+         Zh0Oj0/gzucZ+/bnhg5qFenqYwp1GoxdfqZYC4JLO3zoyHcoGo9tRF5mMjgrKRhCXh
+         vR4Y8mLk1reuhBvdI47VDz3R3M2PLpwSX8ApbmSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.4 72/74] drm/i915/sdvo: Setup DDC fully before output init
+        patches@lists.linux.dev, Helge Deller <deller@gmx.de>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH 5.10 102/118] parisc: Export iosapic_serial_irq() symbol for serial port driver
 Date:   Tue,  8 Nov 2022 14:39:40 +0100
-Message-Id: <20221108133336.699658864@linuxfoundation.org>
+Message-Id: <20221108133345.152513700@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,123 +52,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Helge Deller <deller@gmx.de>
 
-commit e79762512120f11c51317570519a1553c70805d8 upstream.
+commit a0c9f1f2e53b8eb2ae43987a30e547ba56b4fa18 upstream.
 
-Call intel_sdvo_select_ddc_bus() before initializing any
-of the outputs. And before that is functional (assuming no VBT)
-we have to set up the controlled_outputs thing. Otherwise DDC
-won't be functional during the output init but LVDS really
-needs it for the fixed mode setup.
+The parisc serial port driver needs this symbol when it's compiled
+as module.
 
-Note that the whole multi output support still looks very
-bogus, and more work will be needed to make it correct.
-But for now this should at least fix the LVDS EDID fixed mode
-setup.
-
-Cc: stable@vger.kernel.org
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7301
-Fixes: aa2b88074a56 ("drm/i915/sdvo: Fix multi function encoder stuff")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221026101134.20865-3-ville.syrjala@linux.intel.com
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-(cherry picked from commit 64b7b557dc8a96d9cfed6aedbf81de2df80c025d)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_sdvo.c |   31 +++++++++++-------------------
- 1 file changed, 12 insertions(+), 19 deletions(-)
+ drivers/parisc/iosapic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/i915/display/intel_sdvo.c
-+++ b/drivers/gpu/drm/i915/display/intel_sdvo.c
-@@ -2693,13 +2693,10 @@ intel_sdvo_dvi_init(struct intel_sdvo *i
- 	if (!intel_sdvo_connector)
- 		return false;
+--- a/drivers/parisc/iosapic.c
++++ b/drivers/parisc/iosapic.c
+@@ -875,6 +875,7 @@ int iosapic_serial_irq(struct parisc_dev
  
--	if (device == 0) {
--		intel_sdvo->controlled_output |= SDVO_OUTPUT_TMDS0;
-+	if (device == 0)
- 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_TMDS0;
--	} else if (device == 1) {
--		intel_sdvo->controlled_output |= SDVO_OUTPUT_TMDS1;
-+	else if (device == 1)
- 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_TMDS1;
--	}
+ 	return vi->txn_irq;
+ }
++EXPORT_SYMBOL(iosapic_serial_irq);
+ #endif
  
- 	intel_connector = &intel_sdvo_connector->base;
- 	connector = &intel_connector->base;
-@@ -2753,7 +2750,6 @@ intel_sdvo_tv_init(struct intel_sdvo *in
- 	encoder->encoder_type = DRM_MODE_ENCODER_TVDAC;
- 	connector->connector_type = DRM_MODE_CONNECTOR_SVIDEO;
  
--	intel_sdvo->controlled_output |= type;
- 	intel_sdvo_connector->output_flag = type;
- 
- 	if (intel_sdvo_connector_init(intel_sdvo_connector, intel_sdvo) < 0) {
-@@ -2794,13 +2790,10 @@ intel_sdvo_analog_init(struct intel_sdvo
- 	encoder->encoder_type = DRM_MODE_ENCODER_DAC;
- 	connector->connector_type = DRM_MODE_CONNECTOR_VGA;
- 
--	if (device == 0) {
--		intel_sdvo->controlled_output |= SDVO_OUTPUT_RGB0;
-+	if (device == 0)
- 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_RGB0;
--	} else if (device == 1) {
--		intel_sdvo->controlled_output |= SDVO_OUTPUT_RGB1;
-+	else if (device == 1)
- 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_RGB1;
--	}
- 
- 	if (intel_sdvo_connector_init(intel_sdvo_connector, intel_sdvo) < 0) {
- 		kfree(intel_sdvo_connector);
-@@ -2830,13 +2823,10 @@ intel_sdvo_lvds_init(struct intel_sdvo *
- 	encoder->encoder_type = DRM_MODE_ENCODER_LVDS;
- 	connector->connector_type = DRM_MODE_CONNECTOR_LVDS;
- 
--	if (device == 0) {
--		intel_sdvo->controlled_output |= SDVO_OUTPUT_LVDS0;
-+	if (device == 0)
- 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_LVDS0;
--	} else if (device == 1) {
--		intel_sdvo->controlled_output |= SDVO_OUTPUT_LVDS1;
-+	else if (device == 1)
- 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_LVDS1;
--	}
- 
- 	if (intel_sdvo_connector_init(intel_sdvo_connector, intel_sdvo) < 0) {
- 		kfree(intel_sdvo_connector);
-@@ -2889,8 +2879,14 @@ static u16 intel_sdvo_filter_output_flag
- static bool
- intel_sdvo_output_setup(struct intel_sdvo *intel_sdvo, u16 flags)
- {
-+	struct drm_i915_private *i915 = to_i915(intel_sdvo->base.base.dev);
-+
- 	flags = intel_sdvo_filter_output_flags(flags);
- 
-+	intel_sdvo->controlled_output = flags;
-+
-+	intel_sdvo_select_ddc_bus(i915, intel_sdvo);
-+
- 	if (flags & SDVO_OUTPUT_TMDS0)
- 		if (!intel_sdvo_dvi_init(intel_sdvo, 0))
- 			return false;
-@@ -2931,7 +2927,6 @@ intel_sdvo_output_setup(struct intel_sdv
- 	if (flags == 0) {
- 		unsigned char bytes[2];
- 
--		intel_sdvo->controlled_output = 0;
- 		memcpy(bytes, &intel_sdvo->caps.output_flags, 2);
- 		DRM_DEBUG_KMS("%s: Unknown SDVO output type (0x%02x%02x)\n",
- 			      SDVO_NAME(intel_sdvo),
-@@ -3338,8 +3333,6 @@ bool intel_sdvo_init(struct drm_i915_pri
- 	 */
- 	intel_sdvo->base.cloneable = 0;
- 
--	intel_sdvo_select_ddc_bus(dev_priv, intel_sdvo);
--
- 	/* Set the input timing to the screen. Assume always input 0. */
- 	if (!intel_sdvo_set_target_input(intel_sdvo))
- 		goto err_output;
 
 
