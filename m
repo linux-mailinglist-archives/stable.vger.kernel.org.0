@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACACD621383
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:51:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F559621596
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234637AbiKHNvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:51:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51168 "EHLO
+        id S235267AbiKHONY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:13:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234683AbiKHNuz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:50:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C73E810545
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:50:54 -0800 (PST)
+        with ESMTP id S235215AbiKHONW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:13:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C7D7B05
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:13:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5408C615A8
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:50:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B267C433C1;
-        Tue,  8 Nov 2022 13:50:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F09BBB81AF7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:13:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48531C433C1;
+        Tue,  8 Nov 2022 14:13:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915453;
-        bh=htBBrndEz5v76bYdax1J9WwcQersZTACWTuqWLplFSo=;
+        s=korg; t=1667916798;
+        bh=P7WP8C+SzAoY6ejwIMYjm8VKL2wa+36twlLdcHTtw9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/sdU3VbSPePYX82piSvSLvNKNmFtwaESVYNJxaW/4bheK+Xb5qeFicoV+JXbP7eZ
-         hZJykQuJg7fb/OcXnteYIA6JL1VRITyL2HRt75obAOgIRboTwin0cXeqNwhYWlPY9a
-         j94itXHeWfRcPg+BdAQjBWK3rVAbRvkNAH/B4NEg=
+        b=lQcbwCZEBjgt79VCIAp5RBUGK02XH5KQtI17YJkCxFJsnDVdc6ofjLAeJlbzQRtuE
+         iHLUYJkG1uVQ7IvCuEsYvveEd3fpA/LziZRO30VaIY3c4pVjhUeMyHpbsIj+2J11dc
+         +GlEYG5NdXq1DQhWaXDuVo6thxdF4a9eq8EyY4PM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 67/74] KVM: x86: emulator: introduce emulator_recalc_and_set_mode
+        patches@lists.linux.dev, Bobo WL <lmw.bobo@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 6.0 137/197] cxl/region: Fix distance calculation with passthrough ports
 Date:   Tue,  8 Nov 2022 14:39:35 +0100
-Message-Id: <20221108133336.488578332@linuxfoundation.org>
+Message-Id: <20221108133401.167552938@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,163 +54,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit d087e0f79fa0dd336a9a6b2f79ec23120f5eff73 upstream.
+commit e4f6dfa9ef756a3934a4caf618b1e86e9e8e21d0 upstream.
 
-Some instructions update the cpu execution mode, which needs to update the
-emulation mode.
+When programming port decode targets, the algorithm wants to ensure that
+two devices are compatible to be programmed as peers beneath a given
+port. A compatible peer is a target that shares the same dport, and
+where that target's interleave position also routes it to the same
+dport. Compatibility is determined by the device's interleave position
+being >= to distance. For example, if a given dport can only map every
+Nth position then positions less than N away from the last target
+programmed are incompatible.
 
-Extract this code, and make assign_eip_far use it.
+The @distance for the host-bridge's cxl_port in a simple dual-ported
+host-bridge configuration with 2 direct-attached devices is 1, i.e. An
+x2 region divided by 2 dports to reach 2 region targets.
 
-assign_eip_far now reads CS, instead of getting it via a parameter,
-which is ok, because callers always assign CS to the same value
-before calling this function.
+An x4 region under an x2 host-bridge would need 2 intervening switches
+where the @distance at the host bridge level is 2 (x4 region divided by
+2 switches to reach 4 devices).
 
-No functional change is intended.
+However, the distance between peers underneath a single ported
+host-bridge is always zero because there is no limit to the number of
+devices that can be mapped. In other words, there are no decoders to
+program in a passthrough, all descendants are mapped and distance only
+starts matters for the intervening descendant ports of the passthrough
+port.
 
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20221025124741.228045-12-mlevitsk@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Add tracking for the number of dports mapped to a port, and use that to
+detect the passthrough case for calculating @distance.
+
+Cc: <stable@vger.kernel.org>
+Reported-by: Bobo WL <lmw.bobo@gmail.com>
+Reported-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Link: http://lore.kernel.org/r/20221010172057.00001559@huawei.com
+Fixes: 27b3f8d13830 ("cxl/region: Program target lists")
+Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+Link: https://lore.kernel.org/r/166752185440.947915.6617495912508299445.stgit@dwillia2-xfh.jf.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |   85 ++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 57 insertions(+), 28 deletions(-)
+ drivers/cxl/core/port.c   |   11 +++++++++--
+ drivers/cxl/core/region.c |    9 ++++++++-
+ drivers/cxl/cxl.h         |    2 ++
+ 3 files changed, 19 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -776,8 +776,7 @@ static int linearize(struct x86_emulate_
- 			   ctxt->mode, linear);
- }
- 
--static inline int assign_eip(struct x86_emulate_ctxt *ctxt, ulong dst,
--			     enum x86emul_mode mode)
-+static inline int assign_eip(struct x86_emulate_ctxt *ctxt, ulong dst)
+--- a/drivers/cxl/core/port.c
++++ b/drivers/cxl/core/port.c
+@@ -811,6 +811,7 @@ static struct cxl_dport *find_dport(stru
+ static int add_dport(struct cxl_port *port, struct cxl_dport *new)
  {
- 	ulong linear;
- 	int rc;
-@@ -787,41 +786,71 @@ static inline int assign_eip(struct x86_
+ 	struct cxl_dport *dup;
++	int rc;
  
- 	if (ctxt->op_bytes != sizeof(unsigned long))
- 		addr.ea = dst & ((1UL << (ctxt->op_bytes << 3)) - 1);
--	rc = __linearize(ctxt, addr, &max_size, 1, false, true, mode, &linear);
-+	rc = __linearize(ctxt, addr, &max_size, 1, false, true, ctxt->mode, &linear);
- 	if (rc == X86EMUL_CONTINUE)
- 		ctxt->_eip = addr.ea;
- 	return rc;
- }
- 
-+static inline int emulator_recalc_and_set_mode(struct x86_emulate_ctxt *ctxt)
-+{
-+	u64 efer;
-+	struct desc_struct cs;
-+	u16 selector;
-+	u32 base3;
+ 	device_lock_assert(&port->dev);
+ 	dup = find_dport(port, new->port_id);
+@@ -821,8 +822,14 @@ static int add_dport(struct cxl_port *po
+ 			dev_name(dup->dport));
+ 		return -EBUSY;
+ 	}
+-	return xa_insert(&port->dports, (unsigned long)new->dport, new,
+-			 GFP_KERNEL);
 +
-+	ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
-+
-+	if (!(ctxt->ops->get_cr(ctxt, 0) & X86_CR0_PE)) {
-+		/* Real mode. cpu must not have long mode active */
-+		if (efer & EFER_LMA)
-+			return X86EMUL_UNHANDLEABLE;
-+		ctxt->mode = X86EMUL_MODE_REAL;
-+		return X86EMUL_CONTINUE;
-+	}
-+
-+	if (ctxt->eflags & X86_EFLAGS_VM) {
-+		/* Protected/VM86 mode. cpu must not have long mode active */
-+		if (efer & EFER_LMA)
-+			return X86EMUL_UNHANDLEABLE;
-+		ctxt->mode = X86EMUL_MODE_VM86;
-+		return X86EMUL_CONTINUE;
-+	}
-+
-+	if (!ctxt->ops->get_segment(ctxt, &selector, &cs, &base3, VCPU_SREG_CS))
-+		return X86EMUL_UNHANDLEABLE;
-+
-+	if (efer & EFER_LMA) {
-+		if (cs.l) {
-+			/* Proper long mode */
-+			ctxt->mode = X86EMUL_MODE_PROT64;
-+		} else if (cs.d) {
-+			/* 32 bit compatibility mode*/
-+			ctxt->mode = X86EMUL_MODE_PROT32;
-+		} else {
-+			ctxt->mode = X86EMUL_MODE_PROT16;
-+		}
-+	} else {
-+		/* Legacy 32 bit / 16 bit mode */
-+		ctxt->mode = cs.d ? X86EMUL_MODE_PROT32 : X86EMUL_MODE_PROT16;
-+	}
-+
-+	return X86EMUL_CONTINUE;
-+}
-+
- static inline int assign_eip_near(struct x86_emulate_ctxt *ctxt, ulong dst)
- {
--	return assign_eip(ctxt, dst, ctxt->mode);
-+	return assign_eip(ctxt, dst);
- }
- 
--static int assign_eip_far(struct x86_emulate_ctxt *ctxt, ulong dst,
--			  const struct desc_struct *cs_desc)
-+static int assign_eip_far(struct x86_emulate_ctxt *ctxt, ulong dst)
- {
--	enum x86emul_mode mode = ctxt->mode;
--	int rc;
-+	int rc = emulator_recalc_and_set_mode(ctxt);
- 
--#ifdef CONFIG_X86_64
--	if (ctxt->mode >= X86EMUL_MODE_PROT16) {
--		if (cs_desc->l) {
--			u64 efer = 0;
-+	if (rc != X86EMUL_CONTINUE)
++	rc = xa_insert(&port->dports, (unsigned long)new->dport, new,
++		       GFP_KERNEL);
++	if (rc)
 +		return rc;
- 
--			ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
--			if (efer & EFER_LMA)
--				mode = X86EMUL_MODE_PROT64;
--		} else
--			mode = X86EMUL_MODE_PROT32; /* temporary value */
--	}
--#endif
--	if (mode == X86EMUL_MODE_PROT16 || mode == X86EMUL_MODE_PROT32)
--		mode = cs_desc->d ? X86EMUL_MODE_PROT32 : X86EMUL_MODE_PROT16;
--	rc = assign_eip(ctxt, dst, mode);
--	if (rc == X86EMUL_CONTINUE)
--		ctxt->mode = mode;
--	return rc;
-+	return assign_eip(ctxt, dst);
++
++	port->nr_dports++;
++	return 0;
  }
  
- static inline int jmp_rel(struct x86_emulate_ctxt *ctxt, int rel)
-@@ -2237,7 +2266,7 @@ static int em_jmp_far(struct x86_emulate
- 	if (rc != X86EMUL_CONTINUE)
- 		return rc;
+ /*
+--- a/drivers/cxl/core/region.c
++++ b/drivers/cxl/core/region.c
+@@ -989,7 +989,14 @@ static int cxl_port_setup_targets(struct
+ 	if (cxl_rr->nr_targets_set) {
+ 		int i, distance;
  
--	rc = assign_eip_far(ctxt, ctxt->src.val, &new_desc);
-+	rc = assign_eip_far(ctxt, ctxt->src.val);
- 	/* Error handling is not implemented. */
- 	if (rc != X86EMUL_CONTINUE)
- 		return X86EMUL_UNHANDLEABLE;
-@@ -2318,7 +2347,7 @@ static int em_ret_far(struct x86_emulate
- 				       &new_desc);
- 	if (rc != X86EMUL_CONTINUE)
- 		return rc;
--	rc = assign_eip_far(ctxt, eip, &new_desc);
-+	rc = assign_eip_far(ctxt, eip);
- 	/* Error handling is not implemented. */
- 	if (rc != X86EMUL_CONTINUE)
- 		return X86EMUL_UNHANDLEABLE;
-@@ -3550,7 +3579,7 @@ static int em_call_far(struct x86_emulat
- 	if (rc != X86EMUL_CONTINUE)
- 		return rc;
- 
--	rc = assign_eip_far(ctxt, ctxt->src.val, &new_desc);
-+	rc = assign_eip_far(ctxt, ctxt->src.val);
- 	if (rc != X86EMUL_CONTINUE)
- 		goto fail;
- 
+-		distance = p->nr_targets / cxl_rr->nr_targets;
++		/*
++		 * Passthrough ports impose no distance requirements between
++		 * peers
++		 */
++		if (port->nr_dports == 1)
++			distance = 0;
++		else
++			distance = p->nr_targets / cxl_rr->nr_targets;
+ 		for (i = 0; i < cxl_rr->nr_targets_set; i++)
+ 			if (ep->dport == cxlsd->target[i]) {
+ 				rc = check_last_peer(cxled, ep, cxl_rr,
+--- a/drivers/cxl/cxl.h
++++ b/drivers/cxl/cxl.h
+@@ -457,6 +457,7 @@ struct cxl_pmem_region {
+  * @regions: cxl_region_ref instances, regions mapped by this port
+  * @parent_dport: dport that points to this port in the parent
+  * @decoder_ida: allocator for decoder ids
++ * @nr_dports: number of entries in @dports
+  * @hdm_end: track last allocated HDM decoder instance for allocation ordering
+  * @commit_end: cursor to track highest committed decoder for commit ordering
+  * @component_reg_phys: component register capability base address (optional)
+@@ -475,6 +476,7 @@ struct cxl_port {
+ 	struct xarray regions;
+ 	struct cxl_dport *parent_dport;
+ 	struct ida decoder_ida;
++	int nr_dports;
+ 	int hdm_end;
+ 	int commit_end;
+ 	resource_size_t component_reg_phys;
 
 
