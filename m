@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7706621585
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1067462146B
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:01:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235247AbiKHOM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:12:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49628 "EHLO
+        id S234920AbiKHOBL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:01:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235254AbiKHOMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:43 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8191A57B5C
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:12:29 -0800 (PST)
+        with ESMTP id S234936AbiKHOBH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:01:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E906168685
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:01:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F0D82CE1B76
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:12:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9439AC433D6;
-        Tue,  8 Nov 2022 14:12:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D303B816DD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F4D4C433D7;
+        Tue,  8 Nov 2022 14:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916746;
-        bh=e8tBsfk9EYh1neUMVjssmIJU9k1CMFsjsde1Uilgo88=;
+        s=korg; t=1667916062;
+        bh=PfeGDu9NINqvHece0/HXYZXzZYfTBR2wp/V7/wX6cNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RK4pJg9WoFmgoGSL9lYw4r5v3ylOuVs3YK5dMIbDW8VJqQb79BVkVpUSPCKf6t3gp
-         ReuhqSznjFGNfXyblkg3KSaNjhEaqYDEj0R6DVLB9iW30ucTraWR8nsOMkyt1dJojo
-         cRAauDobhKQu/iomwvEJ7nApyFyETnK2N0XbwWuM=
+        b=xAjj2oAYQUxXuEWyzoYBPoOpWvO4DPzaiFQJSi6tI3IAgMJHG0kD6S+8qdPUtcaeO
+         f7qQlyRurnlqxfKYYIX3FbbYrUyTmJFDomKmiA9Hp84gI5ruzAqADfyC5MdQa7ZYzO
+         ucBVDW3xL6zLm3qe+z+HRg1ny4VZ3+Diucfdn0TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 091/197] bio: safeguard REQ_ALLOC_CACHE bio put
+Subject: [PATCH 5.15 052/144] net: mdio: fix undefined behavior in bit shift for __mdiobus_register
 Date:   Tue,  8 Nov 2022 14:38:49 +0100
-Message-Id: <20221108133358.974856207@linuxfoundation.org>
+Message-Id: <20221108133347.475265440@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit d4347d50407daea6237872281ece64c4bdf1ec99 ]
+[ Upstream commit 40e4eb324c59e11fcb927aa46742d28aba6ecb8a ]
 
-bio_put() with REQ_ALLOC_CACHE assumes that it's executed not from
-an irq context. Let's add a warning if the invariant is not respected,
-especially since there is a couple of places removing REQ_POLLED by hand
-without also clearing REQ_ALLOC_CACHE.
+Shifting signed 32-bit value by 31 bits is undefined, so changing
+significant bit to unsigned. The UBSAN warning calltrace like below:
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/558d78313476c4e9c233902efa0092644c3d420a.1666122465.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+UBSAN: shift-out-of-bounds in drivers/net/phy/mdio_bus.c:586:27
+left shift of 1 by 31 places cannot be represented in type 'int'
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x7d/0xa5
+ dump_stack+0x15/0x1b
+ ubsan_epilogue+0xe/0x4e
+ __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
+ __mdiobus_register+0x49d/0x4e0
+ fixed_mdio_bus_init+0xd8/0x12d
+ do_one_initcall+0x76/0x430
+ kernel_init_freeable+0x3b3/0x422
+ kernel_init+0x24/0x1e0
+ ret_from_fork+0x1f/0x30
+ </TASK>
+
+Fixes: 4fd5f812c23c ("phylib: allow incremental scanning of an mii bus")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20221031132645.168421-1-cuigaosheng1@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 2 +-
+ drivers/net/phy/mdio_bus.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index 77e3b764a078..fc2364cf1775 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -741,7 +741,7 @@ void bio_put(struct bio *bio)
- 			return;
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index 2c0216fe58de..dd7739b5f791 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -577,7 +577,7 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
  	}
  
--	if (bio->bi_opf & REQ_ALLOC_CACHE) {
-+	if ((bio->bi_opf & REQ_ALLOC_CACHE) && !WARN_ON_ONCE(in_interrupt())) {
- 		struct bio_alloc_cache *cache;
+ 	for (i = 0; i < PHY_MAX_ADDR; i++) {
+-		if ((bus->phy_mask & (1 << i)) == 0) {
++		if ((bus->phy_mask & BIT(i)) == 0) {
+ 			struct phy_device *phydev;
  
- 		bio_uninit(bio);
+ 			phydev = mdiobus_scan(bus, i);
 -- 
 2.35.1
 
