@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F348621563
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:11:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B687621363
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:49:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235240AbiKHOLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:11:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48448 "EHLO
+        id S234614AbiKHNtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:49:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235288AbiKHOLY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:11:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17895862EF
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:11:06 -0800 (PST)
+        with ESMTP id S234610AbiKHNtu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:49:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27FA9C764
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:49:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B76F6157D
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:11:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A011BC433C1;
-        Tue,  8 Nov 2022 14:11:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCB4861595
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:49:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC5A8C43470;
+        Tue,  8 Nov 2022 13:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916666;
-        bh=3odNfFTxhlSI2oqPWmgqSTu/8N7j/fMmlaKxX+8l4aY=;
+        s=korg; t=1667915389;
+        bh=x2NhC5Ma/i46nE2zpIP/xyFIGLrlR6iobuBUby026yA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erDzYN4XDu6tpluYMKs3wbwKkevGM4KuzZIFbHrW/1x1VCEnNKQsCDag20C3z/lMP
-         JVOqEORVUXvJOszyuz3RSCElBneH0maHnFaVNiCZlXJi28jMHx8B2sHlqXNbQE2Zzg
-         wM9pVxIDgMed+yWBNnxQ0iRbapcqQaDJGLtcBw/c=
+        b=qjd+fFTyJiEgOrfApm5Zo0IWEMXR+I0Wsv0MqbOtA3diQwSRHnZZI6AKhs0y9DVvA
+         yPpJb57czQ/mjJGc2gL3dLzQqpZ68URr+qfEe1yWEFcbQyEn6OQY+0lCMY/KeT485M
+         UpvE+hQeKmULmsGSsWWuReWguhyARFzY5QUnVAOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yifan Zha <Yifan.Zha@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 087/197] drm/amdgpu: Program GC registers through RLCG interface in gfx_v11/gmc_v11
+Subject: [PATCH 5.4 17/74] ipvs: fix WARNING in __ip_vs_cleanup_batch()
 Date:   Tue,  8 Nov 2022 14:38:45 +0100
-Message-Id: <20221108133358.796309912@linuxfoundation.org>
+Message-Id: <20221108133334.407428138@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,106 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifan Zha <Yifan.Zha@amd.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 97a3d6090f5c2a165dc88bda05c1dcf9f08bf886 ]
+[ Upstream commit 3d00c6a0da8ddcf75213e004765e4a42acc71d5d ]
 
-[Why]
-L1 blocks most of GC registers accessing by MMIO.
+During the initialization of ip_vs_conn_net_init(), if file ip_vs_conn
+or ip_vs_conn_sync fails to be created, the initialization is successful
+by default. Therefore, the ip_vs_conn or ip_vs_conn_sync file doesn't
+be found during the remove.
 
-[How]
-Use RLCG interface to program GC registers under SRIOV VF in full access time.
+The following is the stack information:
+name 'ip_vs_conn_sync'
+WARNING: CPU: 3 PID: 9 at fs/proc/generic.c:712
+remove_proc_entry+0x389/0x460
+Modules linked in:
+Workqueue: netns cleanup_net
+RIP: 0010:remove_proc_entry+0x389/0x460
+Call Trace:
+<TASK>
+__ip_vs_cleanup_batch+0x7d/0x120
+ops_exit_list+0x125/0x170
+cleanup_net+0x4ea/0xb00
+process_one_work+0x9bf/0x1710
+worker_thread+0x665/0x1080
+kthread+0x2e4/0x3a0
+ret_from_fork+0x1f/0x30
+</TASK>
 
-Signed-off-by: Yifan Zha <Yifan.Zha@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 61b1ab4583e2 ("IPVS: netns, add basic init per netns.")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c |  2 +-
- drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c         |  2 +-
- drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c         | 18 +++++++++++-------
- 3 files changed, 13 insertions(+), 9 deletions(-)
+ net/netfilter/ipvs/ip_vs_conn.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c
-index 0b0a72ca5695..7e80caa05060 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c
-@@ -111,7 +111,7 @@ static int init_interrupts_v11(struct amdgpu_device *adev, uint32_t pipe_id)
+diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
+index e913ab0096cb..d66548d2e5de 100644
+--- a/net/netfilter/ipvs/ip_vs_conn.c
++++ b/net/netfilter/ipvs/ip_vs_conn.c
+@@ -1373,20 +1373,36 @@ int __net_init ip_vs_conn_net_init(struct netns_ipvs *ipvs)
+ {
+ 	atomic_set(&ipvs->conn_count, 0);
  
- 	lock_srbm(adev, mec, pipe, 0, 0);
- 
--	WREG32(SOC15_REG_OFFSET(GC, 0, regCPC_INT_CNTL),
-+	WREG32_SOC15(GC, 0, regCPC_INT_CNTL,
- 		CP_INT_CNTL_RING0__TIME_STAMP_INT_ENABLE_MASK |
- 		CP_INT_CNTL_RING0__OPCODE_ERROR_INT_ENABLE_MASK);
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-index daf8ba8235cd..03775e0a8100 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
-@@ -1729,7 +1729,7 @@ static void gfx_v11_0_init_compute_vmid(struct amdgpu_device *adev)
- 		WREG32_SOC15(GC, 0, regSH_MEM_BASES, sh_mem_bases);
- 
- 		/* Enable trap for each kfd vmid. */
--		data = RREG32(SOC15_REG_OFFSET(GC, 0, regSPI_GDBG_PER_VMID_CNTL));
-+		data = RREG32_SOC15(GC, 0, regSPI_GDBG_PER_VMID_CNTL);
- 		data = REG_SET_FIELD(data, SPI_GDBG_PER_VMID_CNTL, TRAP_EN, 1);
- 	}
- 	soc21_grbm_select(adev, 0, 0, 0, 0);
-diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c
-index 1471bfb9ae38..2475fdbe8010 100644
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c
-@@ -185,6 +185,10 @@ static void gmc_v11_0_flush_vm_hub(struct amdgpu_device *adev, uint32_t vmid,
- 	/* Use register 17 for GART */
- 	const unsigned eng = 17;
- 	unsigned int i;
-+	unsigned char hub_ip = 0;
+-	proc_create_net("ip_vs_conn", 0, ipvs->net->proc_net,
+-			&ip_vs_conn_seq_ops, sizeof(struct ip_vs_iter_state));
+-	proc_create_net("ip_vs_conn_sync", 0, ipvs->net->proc_net,
+-			&ip_vs_conn_sync_seq_ops,
+-			sizeof(struct ip_vs_iter_state));
++#ifdef CONFIG_PROC_FS
++	if (!proc_create_net("ip_vs_conn", 0, ipvs->net->proc_net,
++			     &ip_vs_conn_seq_ops,
++			     sizeof(struct ip_vs_iter_state)))
++		goto err_conn;
 +
-+	hub_ip = (vmhub == AMDGPU_GFXHUB_0) ?
-+		   GC_HWIP : MMHUB_HWIP;
++	if (!proc_create_net("ip_vs_conn_sync", 0, ipvs->net->proc_net,
++			     &ip_vs_conn_sync_seq_ops,
++			     sizeof(struct ip_vs_iter_state)))
++		goto err_conn_sync;
++#endif
++
+ 	return 0;
++
++#ifdef CONFIG_PROC_FS
++err_conn_sync:
++	remove_proc_entry("ip_vs_conn", ipvs->net->proc_net);
++err_conn:
++	return -ENOMEM;
++#endif
+ }
  
- 	spin_lock(&adev->gmc.invalidate_lock);
- 	/*
-@@ -198,8 +202,8 @@ static void gmc_v11_0_flush_vm_hub(struct amdgpu_device *adev, uint32_t vmid,
- 	if (use_semaphore) {
- 		for (i = 0; i < adev->usec_timeout; i++) {
- 			/* a read return value of 1 means semaphore acuqire */
--			tmp = RREG32_NO_KIQ(hub->vm_inv_eng0_sem +
--					    hub->eng_distance * eng);
-+			tmp = RREG32_RLC_NO_KIQ(hub->vm_inv_eng0_sem +
-+					    hub->eng_distance * eng, hub_ip);
- 			if (tmp & 0x1)
- 				break;
- 			udelay(1);
-@@ -209,12 +213,12 @@ static void gmc_v11_0_flush_vm_hub(struct amdgpu_device *adev, uint32_t vmid,
- 			DRM_ERROR("Timeout waiting for sem acquire in VM flush!\n");
- 	}
+ void __net_exit ip_vs_conn_net_cleanup(struct netns_ipvs *ipvs)
+ {
+ 	/* flush all the connection entries first */
+ 	ip_vs_conn_flush(ipvs);
++#ifdef CONFIG_PROC_FS
+ 	remove_proc_entry("ip_vs_conn", ipvs->net->proc_net);
+ 	remove_proc_entry("ip_vs_conn_sync", ipvs->net->proc_net);
++#endif
+ }
  
--	WREG32_NO_KIQ(hub->vm_inv_eng0_req + hub->eng_distance * eng, inv_req);
-+	WREG32_RLC_NO_KIQ(hub->vm_inv_eng0_req + hub->eng_distance * eng, inv_req, hub_ip);
- 
- 	/* Wait for ACK with a delay.*/
- 	for (i = 0; i < adev->usec_timeout; i++) {
--		tmp = RREG32_NO_KIQ(hub->vm_inv_eng0_ack +
--				    hub->eng_distance * eng);
-+		tmp = RREG32_RLC_NO_KIQ(hub->vm_inv_eng0_ack +
-+				    hub->eng_distance * eng, hub_ip);
- 		tmp &= 1 << vmid;
- 		if (tmp)
- 			break;
-@@ -228,8 +232,8 @@ static void gmc_v11_0_flush_vm_hub(struct amdgpu_device *adev, uint32_t vmid,
- 		 * add semaphore release after invalidation,
- 		 * write with 0 means semaphore release
- 		 */
--		WREG32_NO_KIQ(hub->vm_inv_eng0_sem +
--			      hub->eng_distance * eng, 0);
-+		WREG32_RLC_NO_KIQ(hub->vm_inv_eng0_sem +
-+			      hub->eng_distance * eng, 0, hub_ip);
- 
- 	/* Issue additional private vm invalidation to MMHUB */
- 	if ((vmhub != AMDGPU_GFXHUB_0) &&
+ int __init ip_vs_conn_init(void)
 -- 
 2.35.1
 
