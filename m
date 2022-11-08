@@ -2,97 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4AD7620A29
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 08:27:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBFFF620A60
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 08:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233461AbiKHH1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 02:27:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35178 "EHLO
+        id S233671AbiKHHim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 02:38:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbiKHH1Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 02:27:24 -0500
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA262AE11
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 23:27:23 -0800 (PST)
-Received: by mail-lf1-x12b.google.com with SMTP id b3so20024185lfv.2
-        for <stable@vger.kernel.org>; Mon, 07 Nov 2022 23:27:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=1G4HH/Un4Ldw4Kg9mAfztEcm3aw8Ky8DnIHt266GhrM=;
-        b=EU+mAyKWWGiM9Br4D7G7jyIPZOV6S82lXYDAfjm9R/v3kDvCzoQ3c1hTLKKQxc5YML
-         87tlebvjSEcbtak2J/7ykQLiWYLq1z02G0S807QAKBoOH4wXdR4jnEUOwVYFZXsVYoyF
-         /m5NHcGyNwqW5ZXwX4/ZiEFYd+4KPHAn95Sgq8yHjkdlzCJcUSLdWAiAfXxdTg8mf5cq
-         z5rIUC7tFO74UAJyz0RnRHUIsVClLxqz9n/2BIlRt5/B4GCnBBjbcG9tAWEFnhVuFpnz
-         4sx2POf17byRID6Z3A5zI2Gmb3jqW8GNgz5jqbbblhHmzUztwVb7SNi8xYBH51GS51H3
-         dclQ==
+        with ESMTP id S233699AbiKHHiN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 02:38:13 -0500
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 725F1429B9
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 23:37:52 -0800 (PST)
+Received: by mail-pl1-f180.google.com with SMTP id p21so13427800plr.7
+        for <stable@vger.kernel.org>; Mon, 07 Nov 2022 23:37:52 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=1G4HH/Un4Ldw4Kg9mAfztEcm3aw8Ky8DnIHt266GhrM=;
-        b=h3CiAULgUNwSaSJQvWoSFFcCxfBAVlC3VLzfq9k4HUD7M2fpBKKhDomKgySg3nXLXB
-         g86VZOVl8y72XafLIcKpLycuTeSf4sx63sPA5SvTGFfZVg5uV2ioyXyxb9k/RhzzGxT3
-         CoHAJBDuMg54K9n/FT9rr9UvNh6ZNaS0HJ4zkjtsHv+aBynCVSk3K7vkYx27WleiD1wK
-         y/yvauw+Ugy+Kal/r5l36Xdt1Ls8fg50DfbLaENa/7VUaDLh9pFfaUn7y9bGlJPsQjlz
-         ViGzdfWMdoBMOnJtL/7flV53shIfuvskaB/KjRDvE2yPPMOoTWuVwYy+mMHpI1Y9p1cH
-         UtDQ==
-X-Gm-Message-State: ACrzQf2oiRCb2XqeFR+BsWYdKEHz28CRHT7k+CSTmvw9Wdtz4EvEcV0l
-        zjD66aOvbc2kdqOZvLM7nnlWIZCobFndSnw8Wpw=
-X-Google-Smtp-Source: AMsMyM4hqAytU64tnjExs4Z03HIzWJxspbhHOvjz5CFg6oTRgfC0xvrUi0Vc90whVST2GmCS2N0Mfl5Obab4yh68UI4=
-X-Received: by 2002:ac2:5bc7:0:b0:4b1:7cbf:ae87 with SMTP id
- u7-20020ac25bc7000000b004b17cbfae87mr10134627lfn.488.1667892441988; Mon, 07
- Nov 2022 23:27:21 -0800 (PST)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QFgQ8c9VVCwCQa1695IsqvZFsH7CMTMS7tq3bW5Bovo=;
+        b=mCjcukznV/Q+Q+cPSWc7vqZQVivnx/widCcHDGTIDNHezsC9A9282TJ7Yu6ylu8Tss
+         0k737MdY1wSy3oOktS633BeUDAwey0FMPbZY+34Incku3GRFOFECzCIqV3orp/D426Ua
+         5OSZrxAPsJKTI6CKweQNeO03UPZJreP8CcP/AvUCLi7oGZOBJk97CbvEX39QkFazQ3LT
+         9fu0MoXBlcHdSoarBDWAXcIRUndMbQD0K3lrGLNHBilMv1ueb5gehFXfLx7Zw0xxDa77
+         MfqIOXQKhUpogrlvLRmGVWiq63XAStlMV710nEwuoLMa2h2VepYWmTdh6TaL+NvTmgbM
+         LOdg==
+X-Gm-Message-State: ACrzQf132Z0vNExnGEWCDNmh/gOHDY8tf5fL0eGeaAZDIhgwHs3i9kPa
+        ALsOObDP7NffMYKwUyzCS0oxOe/Cm5zlKg==
+X-Google-Smtp-Source: AMsMyM63aSQSj5shzxvbvF9OR2pEmLTZ0vnB/0Ni4f8eqTGQt3f0vvEYeGxdaSDDtthCFo3melxNBg==
+X-Received: by 2002:a17:90a:8504:b0:212:c1f4:ddf1 with SMTP id l4-20020a17090a850400b00212c1f4ddf1mr56939260pjn.224.1667893072011;
+        Mon, 07 Nov 2022 23:37:52 -0800 (PST)
+Received: from localhost.localdomain ([116.128.244.169])
+        by smtp.gmail.com with ESMTPSA id k21-20020a628415000000b0056bb06ce1cfsm5872043pfd.97.2022.11.07.23.37.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Nov 2022 23:37:51 -0800 (PST)
+From:   xiongxin <xiongxin@kylinos.cn>
+To:     xiongxin@kylinos.cn
+Cc:     stable@vger.kernel.org
+Subject: [PATCH v2 1/2] PM: hibernate: fix spelling mistake for annotation
+Date:   Tue,  8 Nov 2022 15:37:40 +0800
+Message-Id: <20221108073741.3837659-2-xiongxin@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221108073741.3837659-1-xiongxin@kylinos.cn>
+References: <20221108073741.3837659-1-xiongxin@kylinos.cn>
 MIME-Version: 1.0
-Received: by 2002:a05:6022:1d9:b0:32:78fe:502 with HTTP; Mon, 7 Nov 2022
- 23:27:21 -0800 (PST)
-Reply-To: Vanessagomes0000@outlook.com
-From:   Vanessa Gomes <jp2364930@gmail.com>
-Date:   Tue, 8 Nov 2022 07:27:21 +0000
-Message-ID: <CAFpYN5_jaWiReDHpS78cgGhg1Q2Ccf9e2YuD9LKpbcDeLRPJzg@mail.gmail.com>
-Subject: ///////'//////////Ugrent
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.0 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,
+        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,
+        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:12b listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5003]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [jp2364930[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [jp2364930[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [vanessagomes0000[at]outlook.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  2.9 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Can i trust you on this transaction?
-I have important business to discuss with you as soon as possible.
-This proposition will be in the best interest of you and me both.
+The actual calculation formula in the code below is:
+
+max_size = (count - (size + PAGES_FOR_IO)) / 2
+	    - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE);
+
+But function comments are written differently, the comment is wrong?
+
+By the way, what exactly do the "/ 2" and "2 *" mean?
+
+Cc: stable@vger.kernel.org
+Signed-off-by: xiongxin <xiongxin@kylinos.cn>
+---
+ kernel/power/snapshot.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
+index 2a406753af90..c20ca5fb9adc 100644
+--- a/kernel/power/snapshot.c
++++ b/kernel/power/snapshot.c
+@@ -1723,8 +1723,8 @@ static unsigned long minimum_image_size(unsigned long saveable)
+  * /sys/power/reserved_size, respectively).  To make this happen, we compute the
+  * total number of available page frames and allocate at least
+  *
+- * ([page frames total] + PAGES_FOR_IO + [metadata pages]) / 2
+- *  + 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE)
++ * ([page frames total] - PAGES_FOR_IO - [metadata pages]) / 2
++ *  - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE)
+  *
+  * of them, which corresponds to the maximum size of a hibernation image.
+  *
+-- 
+2.25.1
+
