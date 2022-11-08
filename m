@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAAA621332
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:47:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6468B621458
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:00:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234202AbiKHNrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:47:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47370 "EHLO
+        id S234919AbiKHOAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:00:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234590AbiKHNru (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:47:50 -0500
+        with ESMTP id S234943AbiKHOAM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:00:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC64D5F840
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:47:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1563C682B4
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:00:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DFFFB81AEC
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:47:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFCC7C433D6;
-        Tue,  8 Nov 2022 13:47:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF468B816DD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:00:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10E76C433D6;
+        Tue,  8 Nov 2022 14:00:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915267;
-        bh=HTNlMCeYZ+y0m948+T/oIXbLJ/ST+ZmeMgnv3c/+o+A=;
+        s=korg; t=1667916004;
+        bh=MV3LsN1YBAo3F0nQ11qgRDKoUTwrZ1JCo+rs848gggE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KxXQY8u3sCcnNvBfdwZpCdrxe49w/YYNvOnuK13jE0X0XC7a3bMR3pQrlE0o6x2VG
-         KKCAP0fiS4+v5VZxzHKknUafKzStpMDR+GaX3CnWPmyiBx+4xUAivoH2mPkeFZd2WZ
-         fchmuY8Ct/9VLcVjjMS6tSCKxhBRWtbeYsAUi+D8=
+        b=iLbZRg5ERFHDth71GMNankQH4A36m30q3Rai1Od+RJwrb7nZQIwM5WMHsIcYThobQ
+         408kv6/vl8IZcCW36azWVgnWRBg51W1zly57RmNFN9xQwO7ZCes2ge0whpe46VgZjM
+         jzBe35scrPUSamg6C1ix7qk9ULTczhYDkaCGd/lc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/74] NFSv4.1: Handle RECLAIM_COMPLETE trunking errors
+Subject: [PATCH 5.15 034/144] net: sched: Fix use after free in red_enqueue()
 Date:   Tue,  8 Nov 2022 14:38:31 +0100
-Message-Id: <20221108133333.806796999@linuxfoundation.org>
+Message-Id: <20221108133346.719267255@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 5d917cba3201e5c25059df96c29252fd99c4f6a7 ]
+[ Upstream commit 8bdc2acd420c6f3dd1f1c78750ec989f02a1e2b9 ]
 
-If RECLAIM_COMPLETE sets the NFS4CLNT_BIND_CONN_TO_SESSION flag, then we
-need to loop back in order to handle it.
+We can't use "skb" again after passing it to qdisc_enqueue().  This is
+basically identical to commit 2f09707d0c97 ("sch_sfb: Also store skb
+len before calling child enqueue").
 
-Fixes: 0048fdd06614 ("NFSv4.1: RECLAIM_COMPLETE must handle NFS4ERR_CONN_NOT_BOUND_TO_SESSION")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: d7f4f332f082 ("sch_red: update backlog as well")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/sched/sch_red.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 1d2b81a233bb..700cb36c93f3 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -2588,6 +2588,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
- 			if (status < 0)
- 				goto out_error;
- 			nfs4_state_end_reclaim_reboot(clp);
-+			continue;
- 		}
+diff --git a/net/sched/sch_red.c b/net/sched/sch_red.c
+index f1e013e3f04a..935d90874b1b 100644
+--- a/net/sched/sch_red.c
++++ b/net/sched/sch_red.c
+@@ -72,6 +72,7 @@ static int red_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ {
+ 	struct red_sched_data *q = qdisc_priv(sch);
+ 	struct Qdisc *child = q->qdisc;
++	unsigned int len;
+ 	int ret;
  
- 		/* Detect expired delegations... */
+ 	q->vars.qavg = red_calc_qavg(&q->parms,
+@@ -126,9 +127,10 @@ static int red_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 		break;
+ 	}
+ 
++	len = qdisc_pkt_len(skb);
+ 	ret = qdisc_enqueue(skb, child, to_free);
+ 	if (likely(ret == NET_XMIT_SUCCESS)) {
+-		qdisc_qstats_backlog_inc(sch, skb);
++		sch->qstats.backlog += len;
+ 		sch->q.qlen++;
+ 	} else if (net_xmit_drop_count(ret)) {
+ 		q->stats.pdrop++;
 -- 
 2.35.1
 
