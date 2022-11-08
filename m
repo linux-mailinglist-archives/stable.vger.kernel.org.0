@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12EFA621434
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:58:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C61B6214E4
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:06:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234862AbiKHN6c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:58:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60952 "EHLO
+        id S235084AbiKHOGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:06:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234784AbiKHN6b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:58:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39A8EE04
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:58:29 -0800 (PST)
+        with ESMTP id S235072AbiKHOGI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:06:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1E4E70548
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:06:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A99ECB81AFA
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:58:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0653C433D6;
-        Tue,  8 Nov 2022 13:58:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D75560025
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:06:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57DB1C433C1;
+        Tue,  8 Nov 2022 14:06:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915907;
-        bh=A5+LnWg4OyJN3vi8X5F24KJY9J+WxZtg1c3twqBGAtA=;
+        s=korg; t=1667916366;
+        bh=ZCg15C5V/EsyDptHy/1mzEKrJ/OKpxRTZ73ERj4aWpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BFPHfQtHTOZKzMkhKY/4UWS1x1F5HWU2Ic9IH4bg8JxMZbfAwJ0SmR5hO99MwxU05
-         W716npHksVXuPPwquU9qHO3JCy7yZhRsQ7sf4ibM50gCXlYBGHrrgPBjPOc52kcJQI
-         Li096AxDS0G2osHvh4VY6frTZ18kwqX8myCoSlMQ=
+        b=kXQZ68SkVCG11FExn4Keo7VE9Cy2PhPBdoNvotmVYz0XudEUtmqVDVH7owbC4HxM/
+         EAXh721hD8xjeJ4tUWodR3feFCkWOUbvnvvM0fa3UT5zG/etKf0qa0O/lRIjFxACTI
+         JKFGfnpuoFg1dv8pxSTDltspaJtjS4XN4Pa9CYZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 112/118] KVM: x86: emulator: update the emulation mode after CR0 write
+        patches@lists.linux.dev, Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.15 113/144] fuse: add file_modified() to fallocate
 Date:   Tue,  8 Nov 2022 14:39:50 +0100
-Message-Id: <20221108133345.556364464@linuxfoundation.org>
+Message-Id: <20221108133350.081314621@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,55 +51,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit ad8f9e69942c7db90758d9d774157e53bce94840 upstream.
+commit 4a6f278d4827b59ba26ceae0ff4529ee826aa258 upstream.
 
-Update the emulation mode when handling writes to CR0, because
-toggling CR0.PE switches between Real and Protected Mode, and toggling
-CR0.PG when EFER.LME=1 switches between Long and Protected Mode.
+Add missing file_modified() call to fuse_file_fallocate().  Without this
+fallocate on fuse failed to clear privileges.
 
-This is likely a benign bug because there is no writeback of state,
-other than the RIP increment, and when toggling CR0.PE, the CPU has
-to execute code from a very low memory address.
-
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20221025124741.228045-14-mlevitsk@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 05ba1f082300 ("fuse: add FALLOCATE operation")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ fs/fuse/file.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -3725,11 +3725,25 @@ static int em_movbe(struct x86_emulate_c
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -2975,6 +2975,10 @@ static long fuse_file_fallocate(struct f
+ 			goto out;
+ 	}
  
- static int em_cr_write(struct x86_emulate_ctxt *ctxt)
- {
--	if (ctxt->ops->set_cr(ctxt, ctxt->modrm_reg, ctxt->src.val))
-+	int cr_num = ctxt->modrm_reg;
-+	int r;
++	err = file_modified(file);
++	if (err)
++		goto out;
 +
-+	if (ctxt->ops->set_cr(ctxt, cr_num, ctxt->src.val))
- 		return emulate_gp(ctxt, 0);
- 
- 	/* Disable writeback. */
- 	ctxt->dst.type = OP_NONE;
-+
-+	if (cr_num == 0) {
-+		/*
-+		 * CR0 write might have updated CR0.PE and/or CR0.PG
-+		 * which can affect the cpu's execution mode.
-+		 */
-+		r = emulator_recalc_and_set_mode(ctxt);
-+		if (r != X86EMUL_CONTINUE)
-+			return r;
-+	}
-+
- 	return X86EMUL_CONTINUE;
- }
+ 	if (!(mode & FALLOC_FL_KEEP_SIZE))
+ 		set_bit(FUSE_I_SIZE_UNSTABLE, &fi->state);
  
 
 
