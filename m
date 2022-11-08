@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD0896215D4
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:15:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC63062142F
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:58:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235347AbiKHOPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:15:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54418 "EHLO
+        id S234305AbiKHN6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:58:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235287AbiKHOPy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:15:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E0166869A
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:15:53 -0800 (PST)
+        with ESMTP id S234857AbiKHN6P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:58:15 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CB8D63F0
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:58:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BCA160025
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:15:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4136C433D6;
-        Tue,  8 Nov 2022 14:15:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6BF5FCE1B94
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:58:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 307C5C433C1;
+        Tue,  8 Nov 2022 13:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916952;
-        bh=iBgDT4kT0odzojV/TTtq/9iCH+S1j0j7cuDq74dKKSo=;
+        s=korg; t=1667915890;
+        bh=BQwo9hfsiwVPOQyyAzrORC8RUrMblkwCLCzIcx+o5BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qh4E6o91Eflgn69sroT5A3xfQVhxkSQDj+vVUwJpdnNDwm0ETVUa+JAjlfLHCNBoa
-         mR6NMD6d38vzI3AwIVQLjq8yDzQODjMFBgUrkkTkvrsZVmok2qMa5KK5fno9kO/Xi6
-         nGw/EVpqJoMENF5lGSbmnGrwaf6SM3ihIShxaMSk=
+        b=A7s0wBygEgyQZ++MoHnLdtg+sm80MUj0mAzhpwYWNQzgOQT3+lmXXC310j1rSGTct
+         dMZq/5q9k8sLvMzfDZq5hty+uMz0XWsWgfkEOvYQLp5KqLPqTBPUhUk/T3Jt5BU+D6
+         A2zjghHIISe0YVzMR/uAmSRxpG1Orz/HYmlS93+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 6.0 154/197] arm64: entry: avoid kprobe recursion
+        patches@lists.linux.dev, Brian Norris <briannorris@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 5.10 114/118] drm/rockchip: dsi: Force synchronous probe
 Date:   Tue,  8 Nov 2022 14:39:52 +0100
-Message-Id: <20221108133401.955145964@linuxfoundation.org>
+Message-Id: <20221108133345.641594440@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,129 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 024f4b2e1f874934943eb2d3d288ebc52c79f55c upstream.
+commit 81e592f86f7afdb76d655e7fbd7803d7b8f985d8 upstream.
 
-The cortex_a76_erratum_1463225_debug_handler() function is called when
-handling debug exceptions (and synchronous exceptions from BRK
-instructions), and so is called when a probed function executes. If the
-compiler does not inline cortex_a76_erratum_1463225_debug_handler(), it
-can be probed.
+We can't safely probe a dual-DSI display asynchronously
+(driver_async_probe='*' or driver_async_probe='dw-mipi-dsi-rockchip'
+cmdline), because dw_mipi_dsi_rockchip_find_second() pokes one DSI
+device's drvdata from the other device without any locking.
 
-If cortex_a76_erratum_1463225_debug_handler() is probed, any debug
-exception or software breakpoint exception will result in recursive
-exceptions leading to a stack overflow. This can be triggered with the
-ftrace multiple_probes selftest, and as per the example splat below.
+Request synchronous probe, at least until this driver learns some
+appropriate locking for dual-DSI initialization.
 
-This is a regression caused by commit:
-
-  6459b8469753e9fe ("arm64: entry: consolidate Cortex-A76 erratum 1463225 workaround")
-
-... which removed the NOKPROBE_SYMBOL() annotation associated with the
-function.
-
-My intent was that cortex_a76_erratum_1463225_debug_handler() would be
-inlined into its caller, el1_dbg(), which is marked noinstr and cannot
-be probed. Mark cortex_a76_erratum_1463225_debug_handler() as
-__always_inline to ensure this.
-
-Example splat prior to this patch (with recursive entries elided):
-
-| # echo p cortex_a76_erratum_1463225_debug_handler > /sys/kernel/debug/tracing/kprobe_events
-| # echo p do_el0_svc >> /sys/kernel/debug/tracing/kprobe_events
-| # echo 1 > /sys/kernel/debug/tracing/events/kprobes/enable
-| Insufficient stack space to handle exception!
-| ESR: 0x0000000096000047 -- DABT (current EL)
-| FAR: 0xffff800009cefff0
-| Task stack:     [0xffff800009cf0000..0xffff800009cf4000]
-| IRQ stack:      [0xffff800008000000..0xffff800008004000]
-| Overflow stack: [0xffff00007fbc00f0..0xffff00007fbc10f0]
-| CPU: 0 PID: 145 Comm: sh Not tainted 6.0.0 #2
-| Hardware name: linux,dummy-virt (DT)
-| pstate: 604003c5 (nZCv DAIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-| pc : arm64_enter_el1_dbg+0x4/0x20
-| lr : el1_dbg+0x24/0x5c
-| sp : ffff800009cf0000
-| x29: ffff800009cf0000 x28: ffff000002c74740 x27: 0000000000000000
-| x26: 0000000000000000 x25: 0000000000000000 x24: 0000000000000000
-| x23: 00000000604003c5 x22: ffff80000801745c x21: 0000aaaac95ac068
-| x20: 00000000f2000004 x19: ffff800009cf0040 x18: 0000000000000000
-| x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
-| x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000000000
-| x11: 0000000000000010 x10: ffff800008c87190 x9 : ffff800008ca00d0
-| x8 : 000000000000003c x7 : 0000000000000000 x6 : 0000000000000000
-| x5 : 0000000000000000 x4 : 0000000000000000 x3 : 00000000000043a4
-| x2 : 00000000f2000004 x1 : 00000000f2000004 x0 : ffff800009cf0040
-| Kernel panic - not syncing: kernel stack overflow
-| CPU: 0 PID: 145 Comm: sh Not tainted 6.0.0 #2
-| Hardware name: linux,dummy-virt (DT)
-| Call trace:
-|  dump_backtrace+0xe4/0x104
-|  show_stack+0x18/0x4c
-|  dump_stack_lvl+0x64/0x7c
-|  dump_stack+0x18/0x38
-|  panic+0x14c/0x338
-|  test_taint+0x0/0x2c
-|  panic_bad_stack+0x104/0x118
-|  handle_bad_stack+0x34/0x48
-|  __bad_stack+0x78/0x7c
-|  arm64_enter_el1_dbg+0x4/0x20
-|  el1h_64_sync_handler+0x40/0x98
-|  el1h_64_sync+0x64/0x68
-|  cortex_a76_erratum_1463225_debug_handler+0x0/0x34
-...
-|  el1h_64_sync_handler+0x40/0x98
-|  el1h_64_sync+0x64/0x68
-|  cortex_a76_erratum_1463225_debug_handler+0x0/0x34
-...
-|  el1h_64_sync_handler+0x40/0x98
-|  el1h_64_sync+0x64/0x68
-|  cortex_a76_erratum_1463225_debug_handler+0x0/0x34
-|  el1h_64_sync_handler+0x40/0x98
-|  el1h_64_sync+0x64/0x68
-|  do_el0_svc+0x0/0x28
-|  el0t_64_sync_handler+0x84/0xf0
-|  el0t_64_sync+0x18c/0x190
-| Kernel Offset: disabled
-| CPU features: 0x0080,00005021,19001080
-| Memory Limit: none
-| ---[ end Kernel panic - not syncing: kernel stack overflow ]---
-
-With this patch, cortex_a76_erratum_1463225_debug_handler() is inlined
-into el1_dbg(), and el1_dbg() cannot be probed:
-
-| # echo p cortex_a76_erratum_1463225_debug_handler > /sys/kernel/debug/tracing/kprobe_events
-| sh: write error: No such file or directory
-| # grep -w cortex_a76_erratum_1463225_debug_handler /proc/kallsyms | wc -l
-| 0
-| # echo p el1_dbg > /sys/kernel/debug/tracing/kprobe_events
-| sh: write error: Invalid argument
-| # grep -w el1_dbg /proc/kallsyms | wc -l
-| 1
-
-Fixes: 6459b8469753 ("arm64: entry: consolidate Cortex-A76 erratum 1463225 workaround")
-Cc: <stable@vger.kernel.org> # 5.12.x
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20221017090157.2881408-1-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221019170255.2.I6b985b0ca372b7e35c6d9ea970b24bcb262d4fc1@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/entry-common.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/arm64/kernel/entry-common.c
-+++ b/arch/arm64/kernel/entry-common.c
-@@ -329,7 +329,8 @@ static void cortex_a76_erratum_1463225_s
- 	__this_cpu_write(__in_cortex_a76_erratum_1463225_wa, 0);
- }
- 
--static bool cortex_a76_erratum_1463225_debug_handler(struct pt_regs *regs)
-+static __always_inline bool
-+cortex_a76_erratum_1463225_debug_handler(struct pt_regs *regs)
- {
- 	if (!__this_cpu_read(__in_cortex_a76_erratum_1463225_wa))
- 		return false;
+--- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
++++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+@@ -1286,5 +1286,11 @@ struct platform_driver dw_mipi_dsi_rockc
+ 		.of_match_table = dw_mipi_dsi_rockchip_dt_ids,
+ 		.pm	= &dw_mipi_dsi_rockchip_pm_ops,
+ 		.name	= "dw-mipi-dsi-rockchip",
++		/*
++		 * For dual-DSI display, one DSI pokes at the other DSI's
++		 * drvdata in dw_mipi_dsi_rockchip_find_second(). This is not
++		 * safe for asynchronous probe.
++		 */
++		.probe_type = PROBE_FORCE_SYNCHRONOUS,
+ 	},
+ };
 
 
