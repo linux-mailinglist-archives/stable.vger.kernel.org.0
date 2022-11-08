@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BACF16215BF
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:14:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEC3F6214CD
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:05:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234630AbiKHOOn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:14:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53350 "EHLO
+        id S235050AbiKHOFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:05:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235318AbiKHOOm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:14:42 -0500
+        with ESMTP id S235032AbiKHOFN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:05:13 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5585413E13
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:14:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B05265EB
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:05:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 180FCB81B05
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:14:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 521F3C433D6;
-        Tue,  8 Nov 2022 14:14:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50270B81ADD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:05:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 997FDC433D6;
+        Tue,  8 Nov 2022 14:05:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916879;
-        bh=tAKWqDKsTA3xWZFdvAdpr5GjxGl/E3+Gq1dQoTETmFY=;
+        s=korg; t=1667916309;
+        bh=RzArwoPanWOW105CDEQqMco7YWpLf+h3m1OGjujdocU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UpiBqXhBoIZMOmnVFoBOVEmpKcuDdG5ulTZIi6vzzw2AaEvz1t0k3AVlWgF/F0h72
-         2e99wJa7onpqMCmrz7Vilo+L2a+S1Bn2i6X8PxcE8jKUZ+lpspPwojZhNJv0SjLtIt
-         pVd/bBZbZfCwUGEA2bKQkSA7b7iXnehmkXtRfw2Q=
+        b=AhnXlpQFL/JS1X5N9/eCjGkc5ovCdRCAFYYAzTRhmpelnF9Fju2Dhlp+gRnors85Q
+         Y83W0KlsBRLwx9elnab3yxbxGpuhsyS07VR/rpJUJgie5ANTREIbQSLMhujh1iEhla
+         TWQVEn/+v2hHpee/jBpkcC1QEIwo6FzzIu8wZQ1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
-Subject: [PATCH 6.0 163/197] parisc: Avoid printing the hardware path twice
+        patches@lists.linux.dev, stable@kernel.org,
+        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 124/144] ext4: fix BUG_ON() when directory entry has invalid rec_len
 Date:   Tue,  8 Nov 2022 14:40:01 +0100
-Message-Id: <20221108133402.353975807@linuxfoundation.org>
+Message-Id: <20221108133350.532602220@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,77 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Luís Henriques <lhenriques@suse.de>
 
-commit 2b6ae0962b421103feb41a80406732944b0665b3 upstream.
+commit 17a0bc9bd697f75cfdf9b378d5eb2d7409c91340 upstream.
 
-Avoid that the hardware path is shown twice in the kernel log, and clean
-up the output of the version numbers to show up in the same order as
-they are listed in the hardware database in the hardware.c file.
-Additionally, optimize the memory footprint of the hardware database
-and mark some code as init code.
+The rec_len field in the directory entry has to be a multiple of 4.  A
+corrupted filesystem image can be used to hit a BUG() in
+ext4_rec_len_to_disk(), called from make_indexed_dir().
 
-Fixes: cab56b51ec0e ("parisc: Fix device names in /proc/iomem")
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v4.9+
+ ------------[ cut here ]------------
+ kernel BUG at fs/ext4/ext4.h:2413!
+ ...
+ RIP: 0010:make_indexed_dir+0x53f/0x5f0
+ ...
+ Call Trace:
+  <TASK>
+  ? add_dirent_to_buf+0x1b2/0x200
+  ext4_add_entry+0x36e/0x480
+  ext4_add_nondir+0x2b/0xc0
+  ext4_create+0x163/0x200
+  path_openat+0x635/0xe90
+  do_filp_open+0xb4/0x160
+  ? __create_object.isra.0+0x1de/0x3b0
+  ? _raw_spin_unlock+0x12/0x30
+  do_sys_openat2+0x91/0x150
+  __x64_sys_open+0x6c/0xa0
+  do_syscall_64+0x3c/0x80
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+The fix simply adds a call to ext4_check_dir_entry() to validate the
+directory entry, returning -EFSCORRUPTED if the entry is invalid.
+
+CC: stable@kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216540
+Signed-off-by: Luís Henriques <lhenriques@suse.de>
+Link: https://lore.kernel.org/r/20221012131330.32456-1-lhenriques@suse.de
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/include/asm/hardware.h |   12 ++++++------
- arch/parisc/kernel/drivers.c       |   14 ++++++--------
- 2 files changed, 12 insertions(+), 14 deletions(-)
+ fs/ext4/namei.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/arch/parisc/include/asm/hardware.h
-+++ b/arch/parisc/include/asm/hardware.h
-@@ -10,12 +10,12 @@
- #define SVERSION_ANY_ID		PA_SVERSION_ANY_ID
- 
- struct hp_hardware {
--	unsigned short	hw_type:5;	/* HPHW_xxx */
--	unsigned short	hversion;
--	unsigned long	sversion:28;
--	unsigned short	opt;
--	const char	name[80];	/* The hardware description */
--};
-+	unsigned int	hw_type:8;	/* HPHW_xxx */
-+	unsigned int	hversion:12;
-+	unsigned int	sversion:12;
-+	unsigned char	opt;
-+	unsigned char	name[59];	/* The hardware description */
-+} __packed;
- 
- struct parisc_device;
- 
---- a/arch/parisc/kernel/drivers.c
-+++ b/arch/parisc/kernel/drivers.c
-@@ -882,15 +882,13 @@ void __init walk_central_bus(void)
- 			&root);
- }
- 
--static void print_parisc_device(struct parisc_device *dev)
-+static __init void print_parisc_device(struct parisc_device *dev)
- {
--	char hw_path[64];
--	static int count;
-+	static int count __initdata;
- 
--	print_pa_hwpath(dev, hw_path);
--	pr_info("%d. %s at %pap [%s] { %d, 0x%x, 0x%.3x, 0x%.5x }",
--		++count, dev->name, &(dev->hpa.start), hw_path, dev->id.hw_type,
--		dev->id.hversion_rev, dev->id.hversion, dev->id.sversion);
-+	pr_info("%d. %s at %pap { type:%d, hv:%#x, sv:%#x, rev:%#x }",
-+		++count, dev->name, &(dev->hpa.start), dev->id.hw_type,
-+		dev->id.hversion, dev->id.sversion, dev->id.hversion_rev);
- 
- 	if (dev->num_addrs) {
- 		int k;
-@@ -1079,7 +1077,7 @@ static __init int qemu_print_iodc_data(s
- 
- 
- 
--static int print_one_device(struct device * dev, void * data)
-+static __init int print_one_device(struct device * dev, void * data)
- {
- 	struct parisc_device * pdev = to_parisc_device(dev);
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -2259,8 +2259,16 @@ static int make_indexed_dir(handle_t *ha
+ 	memset(de, 0, len); /* wipe old data */
+ 	de = (struct ext4_dir_entry_2 *) data2;
+ 	top = data2 + len;
+-	while ((char *)(de2 = ext4_next_entry(de, blocksize)) < top)
++	while ((char *)(de2 = ext4_next_entry(de, blocksize)) < top) {
++		if (ext4_check_dir_entry(dir, NULL, de, bh2, data2, len,
++					 (data2 + (blocksize - csum_size) -
++					  (char *) de))) {
++			brelse(bh2);
++			brelse(bh);
++			return -EFSCORRUPTED;
++		}
+ 		de = de2;
++	}
+ 	de->rec_len = ext4_rec_len_to_disk(data2 + (blocksize - csum_size) -
+ 					   (char *) de, blocksize);
  
 
 
