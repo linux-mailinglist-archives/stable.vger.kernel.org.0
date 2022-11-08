@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C5B162159E
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 154426214AF
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:04:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235285AbiKHONn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:13:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51976 "EHLO
+        id S234981AbiKHOED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:04:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235312AbiKHONk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:13:40 -0500
+        with ESMTP id S235002AbiKHOEC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:04:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DFA214097
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:13:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E17065E7F
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:04:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75086B81AE4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:13:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 915A9C433D7;
-        Tue,  8 Nov 2022 14:13:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E3C8B81B00
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:03:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A7C7C433D7;
+        Tue,  8 Nov 2022 14:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916813;
-        bh=WbSxej2d7SJOmRdSXxGYtZUh0cUR0qZoAzZZ1cQSuWY=;
+        s=korg; t=1667916237;
+        bh=7guEXqoSESA4isc1M1kWZKDX6HffnmCOrMpjspt1RRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eJZKKsOhOlPTET+Adgmf+wtgvkJepWCchpUshXZMLiYaRy3Sxplmcwe7GlhCZKkAn
-         WgMLAOwz9G1V9XLwgpSrkUztKtpInkiprIAzHH3tQ85xfHiOmxwqzDIWnrOn95CtIX
-         f5fax0RbxXrl/Xu8f+ZmkDsihRTv6ZqNBbWu40tA=
+        b=ZuABSXoGXF0n4EONVbJ2QWvLz5wh9g5XEt6OVxSa1gbnQ4aPtUciLv2PVOnnibJet
+         l5EDClcPmHgRTELGkC7BiQ5UeoamjULt5bZEpxbadE9JV610rAk8u2nv6jxp+R/3Tm
+         2LqNNNZ87J7RPtHxAN9Zu2z6D18KBEqjTaiwm+fQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
-Subject: [PATCH 6.0 141/197] tracing: kprobe: Fix memory leak in test_gen_kprobe/kretprobe_cmd()
+        patches@lists.linux.dev,
+        =?UTF-8?q?=D0=9C=D0=B0=D1=80=D0=BA=20=D0=9A=D0=BE=D1=80=D0=B5=D0=BD=D0=B1=D0=B5=D1=80=D0=B3?= 
+        <socketpair@gmail.com>, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 102/144] btrfs: fix lost file sync on direct IO write with nowait and dsync iocb
 Date:   Tue,  8 Nov 2022 14:39:39 +0100
-Message-Id: <20221108133401.351192888@linuxfoundation.org>
+Message-Id: <20221108133349.616406557@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,114 +54,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 66f0919c953ef7b55e5ab94389a013da2ce80a2c upstream.
+commit 8184620ae21213d51eaf2e0bd4186baacb928172 upstream.
 
-test_gen_kprobe_cmd() only free buf in fail path, hence buf will leak
-when there is no failure. Move kfree(buf) from fail path to common path
-to prevent the memleak. The same reason and solution in
-test_gen_kretprobe_cmd().
+When doing a direct IO write using a iocb with nowait and dsync set, we
+end up not syncing the file once the write completes.
 
-unreferenced object 0xffff888143b14000 (size 2048):
-  comm "insmod", pid 52490, jiffies 4301890980 (age 40.553s)
-  hex dump (first 32 bytes):
-    70 3a 6b 70 72 6f 62 65 73 2f 67 65 6e 5f 6b 70  p:kprobes/gen_kp
-    72 6f 62 65 5f 74 65 73 74 20 64 6f 5f 73 79 73  robe_test do_sys
-  backtrace:
-    [<000000006d7b836b>] kmalloc_trace+0x27/0xa0
-    [<0000000009528b5b>] 0xffffffffa059006f
-    [<000000008408b580>] do_one_initcall+0x87/0x2a0
-    [<00000000c4980a7e>] do_init_module+0xdf/0x320
-    [<00000000d775aad0>] load_module+0x3006/0x3390
-    [<00000000e9a74b80>] __do_sys_finit_module+0x113/0x1b0
-    [<000000003726480d>] do_syscall_64+0x35/0x80
-    [<000000003441e93b>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+This is because we tell iomap to not call generic_write_sync(), which
+would result in calling btrfs_sync_file(), in order to avoid a deadlock
+since iomap can call it while we are holding the inode's lock and
+btrfs_sync_file() needs to acquire the inode's lock. The deadlock happens
+only if the write happens synchronously, when iomap_dio_rw() calls
+iomap_dio_complete() before it returns. Instead we do the sync ourselves
+at btrfs_do_write_iter().
 
-Link: https://lore.kernel.org/all/20221102072954.26555-1-shangxiaojing@huawei.com/
+For a nowait write however we can end up not doing the sync ourselves at
+at btrfs_do_write_iter() because the write could have been queued, and
+therefore we get -EIOCBQUEUED returned from iomap in such case. That makes
+us skip the sync call at btrfs_do_write_iter(), as we don't do it for
+any error returned from btrfs_direct_write(). We can't simply do the call
+even if -EIOCBQUEUED is returned, since that would block the task waiting
+for IO, both for the data since there are bios still in progress as well
+as potentially blocking when joining a log transaction and when syncing
+the log (writing log trees, super blocks, etc).
 
-Fixes: 64836248dda2 ("tracing: Add kprobe event command generation test module")
-Cc: stable@vger.kernel.org
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+So let iomap do the sync call itself and in order to avoid deadlocks for
+the case of synchronous writes (without nowait), use __iomap_dio_rw() and
+have ourselves call iomap_dio_complete() after unlocking the inode.
+
+A test case will later be sent for fstests, after this is fixed in Linus'
+tree.
+
+Fixes: 51bd9563b678 ("btrfs: fix deadlock due to page faults during direct IO reads and writes")
+Reported-by: Марк Коренберг <socketpair@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/CAEmTpZGRKbzc16fWPvxbr6AfFsQoLmz-Lcg-7OgJOZDboJ+SGQ@mail.gmail.com/
+CC: stable@vger.kernel.org # 6.0+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/kprobe_event_gen_test.c |   18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+ fs/btrfs/file.c |   39 ++++++++++++++++-----------------------
+ 1 file changed, 16 insertions(+), 23 deletions(-)
 
---- a/kernel/trace/kprobe_event_gen_test.c
-+++ b/kernel/trace/kprobe_event_gen_test.c
-@@ -100,20 +100,20 @@ static int __init test_gen_kprobe_cmd(vo
- 					 KPROBE_GEN_TEST_FUNC,
- 					 KPROBE_GEN_TEST_ARG0, KPROBE_GEN_TEST_ARG1);
- 	if (ret)
--		goto free;
-+		goto out;
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1906,7 +1906,6 @@ static ssize_t check_direct_IO(struct bt
  
- 	/* Use kprobe_event_add_fields to add the rest of the fields */
+ static ssize_t btrfs_direct_write(struct kiocb *iocb, struct iov_iter *from)
+ {
+-	const bool is_sync_write = (iocb->ki_flags & IOCB_DSYNC);
+ 	struct file *file = iocb->ki_filp;
+ 	struct inode *inode = file_inode(file);
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+@@ -1917,6 +1916,7 @@ static ssize_t btrfs_direct_write(struct
+ 	loff_t endbyte;
+ 	ssize_t err;
+ 	unsigned int ilock_flags = 0;
++	struct iomap_dio *dio;
  
- 	ret = kprobe_event_add_fields(&cmd, KPROBE_GEN_TEST_ARG2, KPROBE_GEN_TEST_ARG3);
- 	if (ret)
--		goto free;
-+		goto out;
- 
- 	/*
- 	 * This actually creates the event.
- 	 */
- 	ret = kprobe_event_gen_cmd_end(&cmd);
- 	if (ret)
--		goto free;
-+		goto out;
- 
- 	/*
- 	 * Now get the gen_kprobe_test event file.  We need to prevent
-@@ -136,13 +136,11 @@ static int __init test_gen_kprobe_cmd(vo
- 		goto delete;
+ 	if (iocb->ki_flags & IOCB_NOWAIT)
+ 		ilock_flags |= BTRFS_ILOCK_TRY;
+@@ -1960,15 +1960,6 @@ relock:
  	}
-  out:
-+	kfree(buf);
- 	return ret;
-  delete:
- 	/* We got an error after creating the event, delete it */
- 	ret = kprobe_event_delete("gen_kprobe_test");
-- free:
--	kfree(buf);
--
- 	goto out;
- }
- 
-@@ -170,14 +168,14 @@ static int __init test_gen_kretprobe_cmd
- 					    KPROBE_GEN_TEST_FUNC,
- 					    "$retval");
- 	if (ret)
--		goto free;
-+		goto out;
  
  	/*
- 	 * This actually creates the event.
+-	 * We remove IOCB_DSYNC so that we don't deadlock when iomap_dio_rw()
+-	 * calls generic_write_sync() (through iomap_dio_complete()), because
+-	 * that results in calling fsync (btrfs_sync_file()) which will try to
+-	 * lock the inode in exclusive/write mode.
+-	 */
+-	if (is_sync_write)
+-		iocb->ki_flags &= ~IOCB_DSYNC;
+-
+-	/*
+ 	 * The iov_iter can be mapped to the same file range we are writing to.
+ 	 * If that's the case, then we will deadlock in the iomap code, because
+ 	 * it first calls our callback btrfs_dio_iomap_begin(), which will create
+@@ -1986,12 +1977,23 @@ relock:
+ 	 * So here we disable page faults in the iov_iter and then retry if we
+ 	 * got -EFAULT, faulting in the pages before the retry.
  	 */
- 	ret = kretprobe_event_gen_cmd_end(&cmd);
- 	if (ret)
--		goto free;
-+		goto out;
+-again:
+ 	from->nofault = true;
+-	err = iomap_dio_rw(iocb, from, &btrfs_dio_iomap_ops, &btrfs_dio_ops,
+-			   IOMAP_DIO_PARTIAL, written);
++	dio = __iomap_dio_rw(iocb, from, &btrfs_dio_iomap_ops, &btrfs_dio_ops,
++			     IOMAP_DIO_PARTIAL, written);
+ 	from->nofault = false;
  
- 	/*
- 	 * Now get the gen_kretprobe_test event file.  We need to
-@@ -201,13 +199,11 @@ static int __init test_gen_kretprobe_cmd
- 		goto delete;
++	/*
++	 * iomap_dio_complete() will call btrfs_sync_file() if we have a dsync
++	 * iocb, and that needs to lock the inode. So unlock it before calling
++	 * iomap_dio_complete() to avoid a deadlock.
++	 */
++	btrfs_inode_unlock(inode, ilock_flags);
++
++	if (IS_ERR_OR_NULL(dio))
++		err = PTR_ERR_OR_ZERO(dio);
++	else
++		err = iomap_dio_complete(dio);
++
+ 	/* No increment (+=) because iomap returns a cumulative value. */
+ 	if (err > 0)
+ 		written = err;
+@@ -2017,19 +2019,10 @@ again:
+ 		} else {
+ 			fault_in_iov_iter_readable(from, left);
+ 			prev_left = left;
+-			goto again;
++			goto relock;
+ 		}
  	}
-  out:
-+	kfree(buf);
- 	return ret;
-  delete:
- 	/* We got an error after creating the event, delete it */
- 	ret = kprobe_event_delete("gen_kretprobe_test");
-- free:
--	kfree(buf);
--
- 	goto out;
- }
  
+-	btrfs_inode_unlock(inode, ilock_flags);
+-
+-	/*
+-	 * Add back IOCB_DSYNC. Our caller, btrfs_file_write_iter(), will do
+-	 * the fsync (call generic_write_sync()).
+-	 */
+-	if (is_sync_write)
+-		iocb->ki_flags |= IOCB_DSYNC;
+-
+ 	/* If 'err' is -ENOTBLK then it means we must fallback to buffered IO. */
+ 	if ((err < 0 && err != -ENOTBLK) || !iov_iter_count(from))
+ 		goto out;
 
 
