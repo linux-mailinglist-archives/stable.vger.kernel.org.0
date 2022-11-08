@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8D61621570
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2E43621482
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235327AbiKHOMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:12:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49470 "EHLO
+        id S234926AbiKHOCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:02:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235412AbiKHOMD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:03 -0500
+        with ESMTP id S234873AbiKHOBv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:01:51 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E515557B51
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:11:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00E88682AE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:01:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3039E615C2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:11:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37C78C433D6;
-        Tue,  8 Nov 2022 14:11:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9618061596
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A711AC433D7;
+        Tue,  8 Nov 2022 14:01:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916693;
-        bh=C9GrMB9bVSJmalQ6TiclBdVVNaDeMTuBF/nGJNUwN4M=;
+        s=korg; t=1667916110;
+        bh=ra344XJaZ/mUXKVyI5FxJLmOKV6W4ZGOmET+VZR+9pY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FN/76y5QtauwOmOtBI014zg5rWQQvAq6YFGSadhjISV0jWcYMSSo9gKKWTnfV/tHC
-         UOK1FspCsqNLoIpddfSvEyY51VtoEjQmTeva3K2s3bIX+gw6I9/+L54SPC/Ds82bxV
-         x2plSbOdfrgphwtXM39ok8SRsheJ8WHVJbBarUMg=
+        b=SqK7BFwF5CToeiM5EOAjh1PxsT1HGF04M8pbjz/5zGyAs1ifT+AJQf+MFId0gnlSw
+         FmOnDqEYqblJWv3rz2hXXjbZjmXCjAbRzCDkKTBJKJEyJb82m2Ba5Z8FMVjka3F4tH
+         NZEcz1BnKzPqkBl8YWTWR/For6osa3SNpYH2+jCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jacky Bai <ping.bai@nxp.com>,
-        Peng Fan <peng.fan@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 104/197] arm64: dts: imx93: add gpio clk
+Subject: [PATCH 5.15 065/144] s390/uaccess: add missing EX_TABLE entries to __clear_user()
 Date:   Tue,  8 Nov 2022 14:39:02 +0100
-Message-Id: <20221108133359.586150429@linuxfoundation.org>
+Message-Id: <20221108133348.021360716@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit e41ba695713996444c224cdac869a2f36a8514c4 ]
+[ Upstream commit 4e1b5a86a5edfbefc9396d41b0fc1a2ebd0101b6 ]
 
-Add the GPIO clk, otherwise GPIO may not work if clk driver disable the
-GPIO clk during kernel boot.
+For some exception types the instruction address points behind the
+instruction that caused the exception. Take that into account and add
+the missing exception table entries.
 
-Reviewed-by: Jacky Bai <ping.bai@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Stable-dep-of: d92a110130d4 ("arm64: dts: imx93: correct gpio-ranges")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx93.dtsi | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/s390/lib/uaccess.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx93.dtsi b/arch/arm64/boot/dts/freescale/imx93.dtsi
-index f83a07c7c9b1..b04735004fdf 100644
---- a/arch/arm64/boot/dts/freescale/imx93.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx93.dtsi
-@@ -295,6 +295,9 @@ gpio2: gpio@43810080 {
- 			interrupts = <GIC_SPI 57 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-controller;
- 			#interrupt-cells = <2>;
-+			clocks = <&clk IMX93_CLK_GPIO2_GATE>,
-+				 <&clk IMX93_CLK_GPIO2_GATE>;
-+			clock-names = "gpio", "port";
- 			gpio-ranges = <&iomuxc 0 32 32>;
- 		};
- 
-@@ -306,6 +309,9 @@ gpio3: gpio@43820080 {
- 			interrupts = <GIC_SPI 59 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-controller;
- 			#interrupt-cells = <2>;
-+			clocks = <&clk IMX93_CLK_GPIO3_GATE>,
-+				 <&clk IMX93_CLK_GPIO3_GATE>;
-+			clock-names = "gpio", "port";
- 			gpio-ranges = <&iomuxc 0 64 32>;
- 		};
- 
-@@ -317,6 +323,9 @@ gpio4: gpio@43830080 {
- 			interrupts = <GIC_SPI 189 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-controller;
- 			#interrupt-cells = <2>;
-+			clocks = <&clk IMX93_CLK_GPIO4_GATE>,
-+				 <&clk IMX93_CLK_GPIO4_GATE>;
-+			clock-names = "gpio", "port";
- 			gpio-ranges = <&iomuxc 0 96 32>;
- 		};
- 
-@@ -328,6 +337,9 @@ gpio1: gpio@47400080 {
- 			interrupts = <GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-controller;
- 			#interrupt-cells = <2>;
-+			clocks = <&clk IMX93_CLK_GPIO1_GATE>,
-+				 <&clk IMX93_CLK_GPIO1_GATE>;
-+			clock-names = "gpio", "port";
- 			gpio-ranges = <&iomuxc 0 0 32>;
- 		};
- 	};
+diff --git a/arch/s390/lib/uaccess.c b/arch/s390/lib/uaccess.c
+index a596e69d3c47..0b012ce0921c 100644
+--- a/arch/s390/lib/uaccess.c
++++ b/arch/s390/lib/uaccess.c
+@@ -212,7 +212,7 @@ static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size
+ 	asm volatile(
+ 		"   llilh 0,%[spec]\n"
+ 		"0: .insn ss,0xc80000000000,0(%0,%1),0(%4),0\n"
+-		"   jz	  4f\n"
++		"6: jz	  4f\n"
+ 		"1: algr  %0,%2\n"
+ 		"   slgr  %1,%2\n"
+ 		"   j	  0b\n"
+@@ -222,11 +222,11 @@ static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size
+ 		"   clgr  %0,%3\n"	/* copy crosses next page boundary? */
+ 		"   jnh	  5f\n"
+ 		"3: .insn ss,0xc80000000000,0(%3,%1),0(%4),0\n"
+-		"   slgr  %0,%3\n"
++		"7: slgr  %0,%3\n"
+ 		"   j	  5f\n"
+ 		"4: slgr  %0,%0\n"
+ 		"5:\n"
+-		EX_TABLE(0b,2b) EX_TABLE(3b,5b)
++		EX_TABLE(0b,2b) EX_TABLE(6b,2b) EX_TABLE(3b,5b) EX_TABLE(7b,5b)
+ 		: "+a" (size), "+a" (to), "+a" (tmp1), "=a" (tmp2)
+ 		: "a" (empty_zero_page), [spec] "K" (0x81UL)
+ 		: "cc", "memory", "0");
 -- 
 2.35.1
 
