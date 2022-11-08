@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 205616212FE
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:45:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C886213DB
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:54:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234422AbiKHNpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:45:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45412 "EHLO
+        id S234677AbiKHNym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:54:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234515AbiKHNpM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:45:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 510A14FF9B
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:45:11 -0800 (PST)
+        with ESMTP id S234721AbiKHNyl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:54:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E18EA1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:54:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0BF43B81AEF
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:45:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62297C433D6;
-        Tue,  8 Nov 2022 13:45:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4AC13B81AF2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:54:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 853F9C433D7;
+        Tue,  8 Nov 2022 13:54:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915108;
-        bh=TSd+0uUAJw4B93h//LUg6MPOu4XB0I+UuW2x4lRB344=;
+        s=korg; t=1667915678;
+        bh=7PwGxb7r347LjxhB4O5/10fNOWAkErVJVpC0gzC3rw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5eXMGOUtFBLY3v8EJnre3yBViBnUYNBzcfHBvyWvuRCZ5OYAQTvMJuRDWkjGFRzO
-         YmWrsyBlO+AkVMvkDoehc8pI88JHK+RSB3rRJx/P/8PvzcVZqnt8vHl8Wc3r9pMriM
-         q5SNr4KVxISOHhH/QVuK/sx7KtVHFf5tMOUSGq30=
+        b=Gk7OD/sIy15eVKP7rd+XLRJtvfYH44xe5jHtQwRmsHADaSXH1fOpqubOPafcX9LV6
+         NoOhe6Wms0c/FYvYre4J1CJJvHP4AiF6QjpClmvu/iBWQzy36Rn5s3kn1vrjXaQp0G
+         e73w5E/oP4pz2kzCbEFwRLXlIhWyEoUz7++N6GHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Julian Anastasov <ja@ssi.bg>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/48] ipvs: fix WARNING in __ip_vs_cleanup_batch()
+Subject: [PATCH 5.10 060/118] media: s5p_cec: limit msg.len to CEC_MAX_MSG_SIZE
 Date:   Tue,  8 Nov 2022 14:38:58 +0100
-Message-Id: <20221108133329.982556695@linuxfoundation.org>
+Message-Id: <20221108133343.325441732@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,88 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 3d00c6a0da8ddcf75213e004765e4a42acc71d5d ]
+[ Upstream commit 93f65ce036863893c164ca410938e0968964b26c ]
 
-During the initialization of ip_vs_conn_net_init(), if file ip_vs_conn
-or ip_vs_conn_sync fails to be created, the initialization is successful
-by default. Therefore, the ip_vs_conn or ip_vs_conn_sync file doesn't
-be found during the remove.
+I expect that the hardware will have limited this to 16, but just in
+case it hasn't, check for this corner case.
 
-The following is the stack information:
-name 'ip_vs_conn_sync'
-WARNING: CPU: 3 PID: 9 at fs/proc/generic.c:712
-remove_proc_entry+0x389/0x460
-Modules linked in:
-Workqueue: netns cleanup_net
-RIP: 0010:remove_proc_entry+0x389/0x460
-Call Trace:
-<TASK>
-__ip_vs_cleanup_batch+0x7d/0x120
-ops_exit_list+0x125/0x170
-cleanup_net+0x4ea/0xb00
-process_one_work+0x9bf/0x1710
-worker_thread+0x665/0x1080
-kthread+0x2e4/0x3a0
-ret_from_fork+0x1f/0x30
-</TASK>
-
-Fixes: 61b1ab4583e2 ("IPVS: netns, add basic init per netns.")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Acked-by: Julian Anastasov <ja@ssi.bg>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipvs/ip_vs_conn.c | 26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ drivers/media/cec/platform/s5p/s5p_cec.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
-index 5ebc7998529a..51679d1e2d7d 100644
---- a/net/netfilter/ipvs/ip_vs_conn.c
-+++ b/net/netfilter/ipvs/ip_vs_conn.c
-@@ -1378,20 +1378,36 @@ int __net_init ip_vs_conn_net_init(struct netns_ipvs *ipvs)
- {
- 	atomic_set(&ipvs->conn_count, 0);
- 
--	proc_create_net("ip_vs_conn", 0, ipvs->net->proc_net,
--			&ip_vs_conn_seq_ops, sizeof(struct ip_vs_iter_state));
--	proc_create_net("ip_vs_conn_sync", 0, ipvs->net->proc_net,
--			&ip_vs_conn_sync_seq_ops,
--			sizeof(struct ip_vs_iter_state));
-+#ifdef CONFIG_PROC_FS
-+	if (!proc_create_net("ip_vs_conn", 0, ipvs->net->proc_net,
-+			     &ip_vs_conn_seq_ops,
-+			     sizeof(struct ip_vs_iter_state)))
-+		goto err_conn;
-+
-+	if (!proc_create_net("ip_vs_conn_sync", 0, ipvs->net->proc_net,
-+			     &ip_vs_conn_sync_seq_ops,
-+			     sizeof(struct ip_vs_iter_state)))
-+		goto err_conn_sync;
-+#endif
-+
- 	return 0;
-+
-+#ifdef CONFIG_PROC_FS
-+err_conn_sync:
-+	remove_proc_entry("ip_vs_conn", ipvs->net->proc_net);
-+err_conn:
-+	return -ENOMEM;
-+#endif
- }
- 
- void __net_exit ip_vs_conn_net_cleanup(struct netns_ipvs *ipvs)
- {
- 	/* flush all the connection entries first */
- 	ip_vs_conn_flush(ipvs);
-+#ifdef CONFIG_PROC_FS
- 	remove_proc_entry("ip_vs_conn", ipvs->net->proc_net);
- 	remove_proc_entry("ip_vs_conn_sync", ipvs->net->proc_net);
-+#endif
- }
- 
- int __init ip_vs_conn_init(void)
+diff --git a/drivers/media/cec/platform/s5p/s5p_cec.c b/drivers/media/cec/platform/s5p/s5p_cec.c
+index 028a09a7531e..102f1af01000 100644
+--- a/drivers/media/cec/platform/s5p/s5p_cec.c
++++ b/drivers/media/cec/platform/s5p/s5p_cec.c
+@@ -115,6 +115,8 @@ static irqreturn_t s5p_cec_irq_handler(int irq, void *priv)
+ 				dev_dbg(cec->dev, "Buffer overrun (worker did not process previous message)\n");
+ 			cec->rx = STATE_BUSY;
+ 			cec->msg.len = status >> 24;
++			if (cec->msg.len > CEC_MAX_MSG_SIZE)
++				cec->msg.len = CEC_MAX_MSG_SIZE;
+ 			cec->msg.rx_status = CEC_RX_STATUS_OK;
+ 			s5p_cec_get_rx_buf(cec, cec->msg.len,
+ 					cec->msg.msg);
 -- 
 2.35.1
 
