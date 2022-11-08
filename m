@@ -2,87 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D2FB621306
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:45:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90B61621491
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234313AbiKHNpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:45:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45834 "EHLO
+        id S234647AbiKHOCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:02:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234516AbiKHNpd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:45:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5B1D58019
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:45:32 -0800 (PST)
+        with ESMTP id S234974AbiKHOCg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:02:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0A6168693
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:02:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 723F56157B
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:45:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F31AC433D6;
-        Tue,  8 Nov 2022 13:45:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D981B81B00
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:02:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9FEDC433C1;
+        Tue,  8 Nov 2022 14:02:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915131;
-        bh=kkjN/KRhh6xBx2WHw5rItKz/+zMA1O7c1FfmaB11wDA=;
+        s=korg; t=1667916153;
+        bh=u+q7QNjrPY78hgJ+fMEA5AyyLYc8rZCuHpL2Ki4aoQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2HxGWnF5/V96LavyV6UdDC3aL8WS09bzpuZL4sdKpf7rU06qJIq9flmqCsYmXfSgR
-         RGNXnh89Xy1OFNLSppsMwMBuk7vajXbzhz+PIK58XZp6THNXSC7SKKNkqpVLdkgQEM
-         wXvpzk3rosQCSsCRPPbYL2wyBuEMCRSbAGSW7Svs=
+        b=L1+sBvFcmHHm+Jijs2X1PFKIsiUfIho+Pko224FaqCjJQEqe7PDW5NEs8rPqo383f
+         eC3hvVcHZEt8/bHMzXHc8kzR+QBmX7uGJs5p663j1cxjWl53L/FSSFQk59hGIv/XX7
+         JerRVfZLICJDS4yrLz4c6NEHz8HzUULq2vXiG7F0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/48] NFSv4.1: We must always send RECLAIM_COMPLETE after a reboot
+Subject: [PATCH 5.15 050/144] Bluetooth: L2CAP: fix use-after-free in l2cap_conn_del()
 Date:   Tue,  8 Nov 2022 14:38:47 +0100
-Message-Id: <20221108133329.607896093@linuxfoundation.org>
+Message-Id: <20221108133347.392225126@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit e59679f2b7e522ecad99974e5636291ffd47c184 ]
+[ Upstream commit 0d0e2d032811280b927650ff3c15fe5020e82533 ]
 
-Currently, we are only guaranteed to send RECLAIM_COMPLETE if we have
-open state to recover. Fix the client to always send RECLAIM_COMPLETE
-after setting up the lease.
+When l2cap_recv_frame() is invoked to receive data, and the cid is
+L2CAP_CID_A2MP, if the channel does not exist, it will create a channel.
+However, after a channel is created, the hold operation of the channel
+is not performed. In this case, the value of channel reference counting
+is 1. As a result, after hci_error_reset() is triggered, l2cap_conn_del()
+invokes the close hook function of A2MP to release the channel. Then
+ l2cap_chan_unlock(chan) will trigger UAF issue.
 
-Fixes: fce5c838e133 ("nfs41: RECLAIM_COMPLETE functionality")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+The process is as follows:
+Receive data:
+l2cap_data_channel()
+    a2mp_channel_create()  --->channel ref is 2
+    l2cap_chan_put()       --->channel ref is 1
+
+Triger event:
+    hci_error_reset()
+        hci_dev_do_close()
+        ...
+        l2cap_disconn_cfm()
+            l2cap_conn_del()
+                l2cap_chan_hold()    --->channel ref is 2
+                l2cap_chan_del()     --->channel ref is 1
+                a2mp_chan_close_cb() --->channel ref is 0, release channel
+                l2cap_chan_unlock()  --->UAF of channel
+
+The detailed Call Trace is as follows:
+BUG: KASAN: use-after-free in __mutex_unlock_slowpath+0xa6/0x5e0
+Read of size 8 at addr ffff8880160664b8 by task kworker/u11:1/7593
+Workqueue: hci0 hci_error_reset
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xcd/0x134
+ print_report.cold+0x2ba/0x719
+ kasan_report+0xb1/0x1e0
+ kasan_check_range+0x140/0x190
+ __mutex_unlock_slowpath+0xa6/0x5e0
+ l2cap_conn_del+0x404/0x7b0
+ l2cap_disconn_cfm+0x8c/0xc0
+ hci_conn_hash_flush+0x11f/0x260
+ hci_dev_close_sync+0x5f5/0x11f0
+ hci_dev_do_close+0x2d/0x70
+ hci_error_reset+0x9e/0x140
+ process_one_work+0x98a/0x1620
+ worker_thread+0x665/0x1080
+ kthread+0x2e4/0x3a0
+ ret_from_fork+0x1f/0x30
+ </TASK>
+
+Allocated by task 7593:
+ kasan_save_stack+0x1e/0x40
+ __kasan_kmalloc+0xa9/0xd0
+ l2cap_chan_create+0x40/0x930
+ amp_mgr_create+0x96/0x990
+ a2mp_channel_create+0x7d/0x150
+ l2cap_recv_frame+0x51b8/0x9a70
+ l2cap_recv_acldata+0xaa3/0xc00
+ hci_rx_work+0x702/0x1220
+ process_one_work+0x98a/0x1620
+ worker_thread+0x665/0x1080
+ kthread+0x2e4/0x3a0
+ ret_from_fork+0x1f/0x30
+
+Freed by task 7593:
+ kasan_save_stack+0x1e/0x40
+ kasan_set_track+0x21/0x30
+ kasan_set_free_info+0x20/0x30
+ ____kasan_slab_free+0x167/0x1c0
+ slab_free_freelist_hook+0x89/0x1c0
+ kfree+0xe2/0x580
+ l2cap_chan_put+0x22a/0x2d0
+ l2cap_conn_del+0x3fc/0x7b0
+ l2cap_disconn_cfm+0x8c/0xc0
+ hci_conn_hash_flush+0x11f/0x260
+ hci_dev_close_sync+0x5f5/0x11f0
+ hci_dev_do_close+0x2d/0x70
+ hci_error_reset+0x9e/0x140
+ process_one_work+0x98a/0x1620
+ worker_thread+0x665/0x1080
+ kthread+0x2e4/0x3a0
+ ret_from_fork+0x1f/0x30
+
+Last potentially related work creation:
+ kasan_save_stack+0x1e/0x40
+ __kasan_record_aux_stack+0xbe/0xd0
+ call_rcu+0x99/0x740
+ netlink_release+0xe6a/0x1cf0
+ __sock_release+0xcd/0x280
+ sock_close+0x18/0x20
+ __fput+0x27c/0xa90
+ task_work_run+0xdd/0x1a0
+ exit_to_user_mode_prepare+0x23c/0x250
+ syscall_exit_to_user_mode+0x19/0x50
+ do_syscall_64+0x42/0x80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Second to last potentially related work creation:
+ kasan_save_stack+0x1e/0x40
+ __kasan_record_aux_stack+0xbe/0xd0
+ call_rcu+0x99/0x740
+ netlink_release+0xe6a/0x1cf0
+ __sock_release+0xcd/0x280
+ sock_close+0x18/0x20
+ __fput+0x27c/0xa90
+ task_work_run+0xdd/0x1a0
+ exit_to_user_mode_prepare+0x23c/0x250
+ syscall_exit_to_user_mode+0x19/0x50
+ do_syscall_64+0x42/0x80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: d0be8347c623 ("Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 1 +
+ net/bluetooth/l2cap_core.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 0679858dc3b3..5ab021f87ecf 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -1736,6 +1736,7 @@ static void nfs4_state_mark_reclaim_helper(struct nfs_client *clp,
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index d12d66f31b47..a18a1c608ed1 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -7615,6 +7615,7 @@ static void l2cap_data_channel(struct l2cap_conn *conn, u16 cid,
+ 				return;
+ 			}
  
- static void nfs4_state_start_reclaim_reboot(struct nfs_client *clp)
- {
-+	set_bit(NFS4CLNT_RECLAIM_REBOOT, &clp->cl_state);
- 	/* Mark all delegations for reclaim */
- 	nfs_delegation_mark_reclaim(clp);
- 	nfs4_state_mark_reclaim_helper(clp, nfs4_state_mark_reclaim_reboot);
++			l2cap_chan_hold(chan);
+ 			l2cap_chan_lock(chan);
+ 		} else {
+ 			BT_DBG("unknown cid 0x%4.4x", cid);
 -- 
 2.35.1
 
