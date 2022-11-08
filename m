@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D2C7621544
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:10:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F3A6621451
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:59:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235173AbiKHOKE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:10:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46224 "EHLO
+        id S234900AbiKHN75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:59:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235205AbiKHOJ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:09:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA4776379
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:09:47 -0800 (PST)
+        with ESMTP id S234894AbiKHN7u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:59:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A2CF66CA9
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:59:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82C7AB81AF7
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:09:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD6C3C433C1;
-        Tue,  8 Nov 2022 14:09:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ECE09615A7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:59:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF030C433C1;
+        Tue,  8 Nov 2022 13:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916584;
-        bh=ZGKCWIJtIoTc/0D3wapeparC4CIoSlk/PVPHoM3wg8k=;
+        s=korg; t=1667915989;
+        bh=8iG3gZbAJzyY/Ibfu7meHeqS0JhG5FB4IHS++RxZwIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z2KsnjLMVro6XM8prjr1aKlTB0c0OigapOEGziwAJMeMyDWFwY/PnVHjZOYgYsz/d
-         CnBWlrUdKNwOrZFVzDl9RkLpmDrJuK9xcwtq2s0BQcfwtMKr1PqGH7kfbQsq3uUncY
-         tbS4l3fF7Jk4JN2Cz8e5VtgHSrK4gPHRdL793JZQ=
+        b=oAPubR5jUGk7otE1QY6+OPYBO8HsPzNzminxY1JkSOH5kP+9CxlqonAaTTy++ymMx
+         Oqx0nZbe+ZymcCFv2WpBQ8iCNXBlLqBIOvPpB3ivo7Yi3t/+n1NGrZEDFjHcE5vFyM
+         /P4QRLW+fEm4b+3DtCKPtSACGs5Gq6pr1Hli8lUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 069/197] media: s5p_cec: limit msg.len to CEC_MAX_MSG_SIZE
+Subject: [PATCH 5.15 030/144] nfc: s3fwrn5: Fix potential memory leak in s3fwrn5_nci_send()
 Date:   Tue,  8 Nov 2022 14:38:27 +0100
-Message-Id: <20221108133357.991746769@linuxfoundation.org>
+Message-Id: <20221108133346.560695768@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 93f65ce036863893c164ca410938e0968964b26c ]
+[ Upstream commit 3a146b7e3099dc7cf3114f627d9b79291e2d2203 ]
 
-I expect that the hardware will have limited this to 16, but just in
-case it hasn't, check for this corner case.
+s3fwrn5_nci_send() will call s3fwrn5_i2c_write() or s3fwrn82_uart_write(),
+and free the skb if write() failed. However, even if the write() run
+succeeds, the skb will not be freed in write(). As the result, the skb
+will memleak. s3fwrn5_nci_send() should also free the skb when write()
+succeeds.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: c04c674fadeb ("nfc: s3fwrn5: Add driver for Samsung S3FWRN5 NFC Chip")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/platform/s5p/s5p_cec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/nfc/s3fwrn5/core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/cec/platform/s5p/s5p_cec.c b/drivers/media/cec/platform/s5p/s5p_cec.c
-index ce9a9d922f11..0a30e7acdc10 100644
---- a/drivers/media/cec/platform/s5p/s5p_cec.c
-+++ b/drivers/media/cec/platform/s5p/s5p_cec.c
-@@ -115,6 +115,8 @@ static irqreturn_t s5p_cec_irq_handler(int irq, void *priv)
- 				dev_dbg(cec->dev, "Buffer overrun (worker did not process previous message)\n");
- 			cec->rx = STATE_BUSY;
- 			cec->msg.len = status >> 24;
-+			if (cec->msg.len > CEC_MAX_MSG_SIZE)
-+				cec->msg.len = CEC_MAX_MSG_SIZE;
- 			cec->msg.rx_status = CEC_RX_STATUS_OK;
- 			s5p_cec_get_rx_buf(cec, cec->msg.len,
- 					cec->msg.msg);
+diff --git a/drivers/nfc/s3fwrn5/core.c b/drivers/nfc/s3fwrn5/core.c
+index 1c412007fabb..0270e05b68df 100644
+--- a/drivers/nfc/s3fwrn5/core.c
++++ b/drivers/nfc/s3fwrn5/core.c
+@@ -110,11 +110,15 @@ static int s3fwrn5_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
+ 	}
+ 
+ 	ret = s3fwrn5_write(info, skb);
+-	if (ret < 0)
++	if (ret < 0) {
+ 		kfree_skb(skb);
++		mutex_unlock(&info->mutex);
++		return ret;
++	}
+ 
++	consume_skb(skb);
+ 	mutex_unlock(&info->mutex);
+-	return ret;
++	return 0;
+ }
+ 
+ static int s3fwrn5_nci_post_setup(struct nci_dev *ndev)
 -- 
 2.35.1
 
