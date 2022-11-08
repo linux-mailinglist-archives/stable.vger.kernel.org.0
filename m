@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25ECC6215C8
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:15:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C986214D9
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:05:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235325AbiKHOPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:15:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53974 "EHLO
+        id S235107AbiKHOFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:05:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235329AbiKHOPK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:15:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEAF85F850
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:15:09 -0800 (PST)
+        with ESMTP id S235069AbiKHOFj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:05:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BEC465EB
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:05:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8578B81B05
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:15:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D52E5C433D6;
-        Tue,  8 Nov 2022 14:15:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED52A6152D
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:05:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3E5BC433D6;
+        Tue,  8 Nov 2022 14:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916907;
-        bh=fP/fk5SN5fbtEQGnExlg+5EJvXUA77KRNraNXRq65MI=;
+        s=korg; t=1667916334;
+        bh=3uU64uPCncAqLNdao3wwKcUs4r2F7gxrQtrMrvHJbKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HoG6X4ycHdCv3ajsVYrEkYB4MwJFrZWKhzINM4TvYu1Ip+3MXYd3UinGCz5emeCGc
-         5KPW8x81I6s4CEL3Re7JjWVh7gZz06F0C6VJd1og5jfJLVBUy4NRctdro5YX6JloOf
-         Rxt9QqyyeFRYp3j7mSE36Hx9qv4Pw/pYXtpft4K0=
+        b=UdI4tNllF1A4RKbYQJe4p2a64qk9Z0br2mRKwPD8btBKa3QlkEHCWxUtU+x/CTMTw
+         EAhZsF3gE6mhPvwFm7NnHHDOv5rAkBuBfWXdu+2AeTAQmsN/UUVYXpIbaNTEPbIoYb
+         06iEkcDeIt948r+tpmQDXWRWf0RFVXwJFAz3hMjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.0 171/197] KVM: x86: Mask off reserved bits in CPUID.8000001AH
+        patches@lists.linux.dev, Ryan Roberts <ryan.roberts@arm.com>,
+        Steven Price <steven.price@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.15 132/144] KVM: arm64: Fix bad dereference on MTE-enabled systems
 Date:   Tue,  8 Nov 2022 14:40:09 +0100
-Message-Id: <20221108133402.712158305@linuxfoundation.org>
+Message-Id: <20221108133350.854057282@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Ryan Roberts <ryan.roberts@arm.com>
 
-commit 079f6889818dd07903fb36c252532ab47ebb6d48 upstream.
+commit b6bcdc9f6b8321e4471ff45413b6410e16762a8d upstream.
 
-KVM_GET_SUPPORTED_CPUID should only enumerate features that KVM
-actually supports. In the case of CPUID.8000001AH, only three bits are
-currently defined. The 125 reserved bits should be masked off.
+enter_exception64() performs an MTE check, which involves dereferencing
+vcpu->kvm. While vcpu has already been fixed up to be a HYP VA pointer,
+kvm is still a pointer in the kernel VA space.
 
-Fixes: 24c82e576b78 ("KVM: Sanitize cpuid")
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20220929225203.2234702-4-jmattson@google.com>
+This only affects nVHE configurations with MTE enabled, as in other
+cases, the pointer is either valid (VHE) or not dereferenced (!MTE).
+
+Fix this by first converting kvm to a HYP VA pointer.
+
+Fixes: ea7fc1bb1cd1 ("KVM: arm64: Introduce MTE VM feature")
+Signed-off-by: Ryan Roberts <ryan.roberts@arm.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+[maz: commit message tidy-up]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/r/20221027120945.29679-1-ryan.roberts@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/kvm/hyp/exception.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -1171,6 +1171,9 @@ static inline int __do_cpuid_func(struct
- 		entry->ecx = entry->edx = 0;
- 		break;
- 	case 0x8000001a:
-+		entry->eax &= GENMASK(2, 0);
-+		entry->ebx = entry->ecx = entry->edx = 0;
-+		break;
- 	case 0x8000001e:
- 		break;
- 	case 0x8000001F:
+--- a/arch/arm64/kvm/hyp/exception.c
++++ b/arch/arm64/kvm/hyp/exception.c
+@@ -13,6 +13,7 @@
+ #include <hyp/adjust_pc.h>
+ #include <linux/kvm_host.h>
+ #include <asm/kvm_emulate.h>
++#include <asm/kvm_mmu.h>
+ 
+ #if !defined (__KVM_NVHE_HYPERVISOR__) && !defined (__KVM_VHE_HYPERVISOR__)
+ #error Hypervisor code only!
+@@ -115,7 +116,7 @@ static void enter_exception64(struct kvm
+ 	new |= (old & PSR_C_BIT);
+ 	new |= (old & PSR_V_BIT);
+ 
+-	if (kvm_has_mte(vcpu->kvm))
++	if (kvm_has_mte(kern_hyp_va(vcpu->kvm)))
+ 		new |= PSR_TCO_BIT;
+ 
+ 	new |= (old & PSR_DIT_BIT);
 
 
