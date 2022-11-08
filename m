@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C7D06213B8
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:53:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D2C7621544
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:10:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234748AbiKHNxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:53:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54204 "EHLO
+        id S235173AbiKHOKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:10:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234775AbiKHNwy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 048E260E91
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:54 -0800 (PST)
+        with ESMTP id S235205AbiKHOJ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:09:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA4776379
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:09:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 936E2615A3
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A280DC433C1;
-        Tue,  8 Nov 2022 13:52:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82C7AB81AF7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:09:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD6C3C433C1;
+        Tue,  8 Nov 2022 14:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915573;
-        bh=vgUc982+5um1Sj05/bcj04wJ6GHmCVIA6MCa4/+brT0=;
+        s=korg; t=1667916584;
+        bh=ZGKCWIJtIoTc/0D3wapeparC4CIoSlk/PVPHoM3wg8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=luwEoXhUgweNTVzmBdUOcclhZ2j8+CnRwH849O3mlgp0mCtQSLh5RrFmEntaqB9hx
-         R4yD+giJi06QakM7IQ/DC2YLXC4KGJMpL6RwdnoMCURUyJIbuo7h9N8CfYDpQcV8yV
-         8xm7kHLX+46sRQ0oXrGc1IgG01zHvzxXa+Tg0vPo=
+        b=Z2KsnjLMVro6XM8prjr1aKlTB0c0OigapOEGziwAJMeMyDWFwY/PnVHjZOYgYsz/d
+         CnBWlrUdKNwOrZFVzDl9RkLpmDrJuK9xcwtq2s0BQcfwtMKr1PqGH7kfbQsq3uUncY
+         tbS4l3fF7Jk4JN2Cz8e5VtgHSrK4gPHRdL793JZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 029/118] ata: pata_legacy: fix pdc20230_set_piomode()
+Subject: [PATCH 6.0 069/197] media: s5p_cec: limit msg.len to CEC_MAX_MSG_SIZE
 Date:   Tue,  8 Nov 2022 14:38:27 +0100
-Message-Id: <20221108133341.923573184@linuxfoundation.org>
+Message-Id: <20221108133357.991746769@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 171a93182eccd6e6835d2c86b40787f9f832efaa ]
+[ Upstream commit 93f65ce036863893c164ca410938e0968964b26c ]
 
-Clang gives a warning when compiling pata_legacy.c with 'make W=1' about
-the 'rt' local variable in pdc20230_set_piomode() being set but unused.
-Quite obviously, there is an outb() call missing to write back the updated
-variable. Moreover, checking the docs by Petr Soucek revealed that bitwise
-AND should have been done with a negated timing mask and the master/slave
-timing masks were swapped while updating...
+I expect that the hardware will have limited this to 16, but just in
+case it hasn't, check for this corner case.
 
-Fixes: 669a5db411d8 ("[libata] Add a bunch of PATA drivers.")
-Reported-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_legacy.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/cec/platform/s5p/s5p_cec.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/ata/pata_legacy.c b/drivers/ata/pata_legacy.c
-index d91ba47f2fc4..4405d255e3aa 100644
---- a/drivers/ata/pata_legacy.c
-+++ b/drivers/ata/pata_legacy.c
-@@ -278,9 +278,10 @@ static void pdc20230_set_piomode(struct ata_port *ap, struct ata_device *adev)
- 	outb(inb(0x1F4) & 0x07, 0x1F4);
- 
- 	rt = inb(0x1F3);
--	rt &= 0x07 << (3 * adev->devno);
-+	rt &= ~(0x07 << (3 * !adev->devno));
- 	if (pio)
--		rt |= (1 + 3 * pio) << (3 * adev->devno);
-+		rt |= (1 + 3 * pio) << (3 * !adev->devno);
-+	outb(rt, 0x1F3);
- 
- 	udelay(100);
- 	outb(inb(0x1F2) | 0x01, 0x1F2);
+diff --git a/drivers/media/cec/platform/s5p/s5p_cec.c b/drivers/media/cec/platform/s5p/s5p_cec.c
+index ce9a9d922f11..0a30e7acdc10 100644
+--- a/drivers/media/cec/platform/s5p/s5p_cec.c
++++ b/drivers/media/cec/platform/s5p/s5p_cec.c
+@@ -115,6 +115,8 @@ static irqreturn_t s5p_cec_irq_handler(int irq, void *priv)
+ 				dev_dbg(cec->dev, "Buffer overrun (worker did not process previous message)\n");
+ 			cec->rx = STATE_BUSY;
+ 			cec->msg.len = status >> 24;
++			if (cec->msg.len > CEC_MAX_MSG_SIZE)
++				cec->msg.len = CEC_MAX_MSG_SIZE;
+ 			cec->msg.rx_status = CEC_RX_STATUS_OK;
+ 			s5p_cec_get_rx_buf(cec, cec->msg.len,
+ 					cec->msg.msg);
 -- 
 2.35.1
 
