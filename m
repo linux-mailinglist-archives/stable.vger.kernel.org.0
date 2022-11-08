@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18619621320
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:47:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55C9D62157E
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234542AbiKHNrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:47:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
+        id S235348AbiKHOMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:12:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234559AbiKHNq4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:56 -0500
+        with ESMTP id S235307AbiKHOMg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:36 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAFEB5F846
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92D4862FF
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:12:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BD5FB81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3C78C433D6;
-        Tue,  8 Nov 2022 13:46:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4533AB81AF7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:12:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91FB5C433C1;
+        Tue,  8 Nov 2022 14:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915213;
-        bh=UCC8lyDEoZajJOcyBilNX3fzGYsshdVzFMcs3OEstNw=;
+        s=korg; t=1667916725;
+        bh=w9L85S1lcdfzFHjL3MumCN30rn1zHq4pJdi4Vv5Wd00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQaMiBTag2EZ+C+56Hx6e2Ma7v5fFqv8uZafYxqvTiFHWltt4GNfNMaaigEel6Qny
-         uj6DhiWoPFV7aW3hIvmsPqhhzaxsjbW2gXnmDR1qIlL11BAe4LVKJ9stva2mw55v/f
-         ZkOlYWE4HVMV5xMrzAns7aj4lQOUesiToUT+EilY=
+        b=d0WItIvxM+E3KESySB6rA0FZzjjLl91s1QPLYLDqYfSFMS+MQ6Q01t8VJ2uJTNcq/
+         eA5G9znnMrFRdXtGoPT/k7YB7a6sxdm9zFVBY79npKh1Q/Xjq7zFKRWiYKzsxPYzI9
+         N3sfKEKiuPDjkkw1Xw2XfR1Bncwu3l1kfgGRQflo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 26/48] media: cros-ec-cec: limit msg.len to CEC_MAX_MSG_SIZE
+Subject: [PATCH 6.0 113/197] block: Fix possible memory leak for rq_wb on add_disk failure
 Date:   Tue,  8 Nov 2022 14:39:11 +0100
-Message-Id: <20221108133330.444367239@linuxfoundation.org>
+Message-Id: <20221108133400.088924912@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 2dc73b48665411a08c4e5f0f823dea8510761603 ]
+[ Upstream commit fa81cbafbf5764ad5053512152345fab37a1fe18 ]
 
-I expect that the hardware will have limited this to 16, but just in
-case it hasn't, check for this corner case.
+kmemleak reported memory leaks in device_add_disk():
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+kmemleak: 3 new suspected memory leaks
+
+unreferenced object 0xffff88800f420800 (size 512):
+  comm "modprobe", pid 4275, jiffies 4295639067 (age 223.512s)
+  hex dump (first 32 bytes):
+    04 00 00 00 08 00 00 00 01 00 00 00 00 00 00 00  ................
+    00 e1 f5 05 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000d3662699>] kmalloc_trace+0x26/0x60
+    [<00000000edc7aadc>] wbt_init+0x50/0x6f0
+    [<0000000069601d16>] wbt_enable_default+0x157/0x1c0
+    [<0000000028fc393f>] blk_register_queue+0x2a4/0x420
+    [<000000007345a042>] device_add_disk+0x6fd/0xe40
+    [<0000000060e6aab0>] nbd_dev_add+0x828/0xbf0 [nbd]
+    ...
+
+It is because the memory allocated in wbt_enable_default() is not
+released in device_add_disk() error path.
+Normally, these memory are freed in:
+
+del_gendisk()
+  rq_qos_exit()
+    rqos->ops->exit(rqos);
+      wbt_exit()
+
+So rq_qos_exit() is called to free the rq_wb memory for wbt_init().
+However in the error path of device_add_disk(), only
+blk_unregister_queue() is called and make rq_wb memory leaked.
+
+Add rq_qos_exit() to the error path to fix it.
+
+Fixes: 83cbce957446 ("block: add error handling for device_add_disk / add_disk")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20221029071355.35462-1-chenzhongjin@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/cros-ec-cec/cros-ec-cec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ block/genhd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/cros-ec-cec/cros-ec-cec.c b/drivers/media/platform/cros-ec-cec/cros-ec-cec.c
-index 7bc4d8a9af28..1f35770245d1 100644
---- a/drivers/media/platform/cros-ec-cec/cros-ec-cec.c
-+++ b/drivers/media/platform/cros-ec-cec/cros-ec-cec.c
-@@ -44,6 +44,8 @@ static void handle_cec_message(struct cros_ec_cec *cros_ec_cec)
- 	uint8_t *cec_message = cros_ec->event_data.data.cec_message;
- 	unsigned int len = cros_ec->event_size;
- 
-+	if (len > CEC_MAX_MSG_SIZE)
-+		len = CEC_MAX_MSG_SIZE;
- 	cros_ec_cec->rx_msg.len = len;
- 	memcpy(cros_ec_cec->rx_msg.msg, cec_message, len);
- 
+diff --git a/block/genhd.c b/block/genhd.c
+index 988ba52fd331..044ff97381e3 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -519,6 +519,7 @@ int __must_check device_add_disk(struct device *parent, struct gendisk *disk,
+ 		bdi_unregister(disk->bdi);
+ out_unregister_queue:
+ 	blk_unregister_queue(disk);
++	rq_qos_exit(disk->queue);
+ out_put_slave_dir:
+ 	kobject_put(disk->slave_dir);
+ out_put_holder_dir:
 -- 
 2.35.1
 
