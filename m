@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01E4F62140A
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:56:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 507396214A6
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:03:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234822AbiKHN4n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:56:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58710 "EHLO
+        id S234987AbiKHODp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:03:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234817AbiKHN4m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:56:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD4EA623A7
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:56:41 -0800 (PST)
+        with ESMTP id S234988AbiKHODo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:03:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 944E0CD7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:03:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65D6E61595
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:56:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F056C433C1;
-        Tue,  8 Nov 2022 13:56:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7E6EB816DD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:03:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AA8CC433C1;
+        Tue,  8 Nov 2022 14:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915800;
-        bh=oro78or03vcCjFxH79JW5RAb2+OaVMD5XYGRHcMu6P8=;
+        s=korg; t=1667916217;
+        bh=Ddhz+ngOVwmUhE1diduM5r6B8mm3Sh2vfAmqrtB91EI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HT4DdnH2/ztxrbKFMrrNBxAhI2ckplI2hrLoXg10BJbk5wuBpP04X0I5w3XubgCHe
-         81VW1rJe7+isdK4FcaM5AUb02nn+fMboX+qCSVWDdP57y7SuIlKe7BmMwerrsjkLoq
-         t2tlH5BeFYvk8/RzfBnVoduS0O1gejeZ81w1rvJQ=
+        b=V4DzlsZiMgURP6HIPu/oMMVjDARNHilSVwonxfpQ8qW273GgPthqY0bd6GnruS79E
+         8dRp2fbTMQmEo9qkTcunAxiNqE/cEfjt8p3WdeYOnpDpsQs/R0XuNEnUuv5SlPF1y7
+         +HscsdUkui7rW9XIxePfvF/tgeyais7PbJHXYJ6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Serge Hallyn <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.10 095/118] capabilities: fix potential memleak on error path from vfs_getxattr_alloc()
-Date:   Tue,  8 Nov 2022 14:39:33 +0100
-Message-Id: <20221108133344.819829354@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Tam=C3=A1s=20Koczka?= <poprdi@google.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Tedd Ho-Jeong An <tedd.an@intel.com>
+Subject: [PATCH 5.15 097/144] Bluetooth: L2CAP: Fix attempting to access uninitialized memory
+Date:   Tue,  8 Nov 2022 14:39:34 +0100
+Message-Id: <20221108133349.384533960@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 8cf0a1bc12870d148ae830a4ba88cfdf0e879cee upstream.
+commit b1a2cd50c0357f243b7435a732b4e62ba3157a2e upstream.
 
-In cap_inode_getsecurity(), we will use vfs_getxattr_alloc() to
-complete the memory allocation of tmpbuf, if we have completed
-the memory allocation of tmpbuf, but failed to call handler->get(...),
-there will be a memleak in below logic:
+On l2cap_parse_conf_req the variable efs is only initialized if
+remote_efs has been set.
 
-  |-- ret = (int)vfs_getxattr_alloc(mnt_userns, ...)
-    |           /* ^^^ alloc for tmpbuf */
-    |-- value = krealloc(*xattr_value, error + 1, flags)
-    |           /* ^^^ alloc memory */
-    |-- error = handler->get(handler, ...)
-    |           /* error! */
-    |-- *xattr_value = value
-    |           /* xattr_value is &tmpbuf (memory leak!) */
-
-So we will try to free(tmpbuf) after vfs_getxattr_alloc() fails to fix it.
-
-Cc: stable@vger.kernel.org
-Fixes: 8db6c34f1dbc ("Introduce v3 namespaced file capabilities")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Acked-by: Serge Hallyn <serge@hallyn.com>
-[PM: subject line and backtrace tweaks]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+CVE: CVE-2022-42895
+CC: stable@vger.kernel.org
+Reported-by: Tamás Koczka <poprdi@google.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/commoncap.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/bluetooth/l2cap_core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -391,8 +391,10 @@ int cap_inode_getsecurity(struct inode *
- 				 &tmpbuf, size, GFP_NOFS);
- 	dput(dentry);
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -3764,7 +3764,8 @@ done:
+ 			l2cap_add_conf_opt(&ptr, L2CAP_CONF_RFC,
+ 					   sizeof(rfc), (unsigned long) &rfc, endptr - ptr);
  
--	if (ret < 0 || !tmpbuf)
--		return ret;
-+	if (ret < 0 || !tmpbuf) {
-+		size = ret;
-+		goto out_free;
-+	}
- 
- 	fs_ns = inode->i_sb->s_user_ns;
- 	cap = (struct vfs_cap_data *) tmpbuf;
+-			if (test_bit(FLAG_EFS_ENABLE, &chan->flags)) {
++			if (remote_efs &&
++			    test_bit(FLAG_EFS_ENABLE, &chan->flags)) {
+ 				chan->remote_id = efs.id;
+ 				chan->remote_stype = efs.stype;
+ 				chan->remote_msdu = le16_to_cpu(efs.msdu);
 
 
