@@ -2,70 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1D99621131
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 13:46:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB5C262114C
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 13:47:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233748AbiKHMqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 07:46:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60500 "EHLO
+        id S234202AbiKHMrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 07:47:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233657AbiKHMqB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 07:46:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A62FB51C31
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 04:46:00 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4232D61542
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 12:46:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F8CFC433D6;
-        Tue,  8 Nov 2022 12:45:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667911559;
-        bh=y+VqKYcGkampCb4ygyfheZSZxYDjetOwk+9Mg6vQiNc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hWmfra7n3zqt7VW+C+BEWhILBIQIooxphrgI/k7RcoybBTz8sMnRIRCKnCHFkenvl
-         7EjoThzfHo3k35Pud5GeOvcKMNA2Fj7GkSdLvDVaJ/l3kQPdJQ9wKo7oC+ipFyXaCb
-         dohoooZOH2mMbcYWe+aikZ1+PvGxTOuNy5GpF7+k=
-Date:   Tue, 8 Nov 2022 13:45:56 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Luiz Capitulino <luizcap@amazon.com>
-Cc:     stable@vger.kernel.org, lcapitulino@gmail.com,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Borislav Petkov <bp@alien8.de>, Borislav Petkov <bp@suse.de>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Jeff Layton <jlayton@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>, Roman Gushchin <guro@fb.com>,
-        Serge Hallyn <serge@hallyn.com>, Tejun Heo <tj@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Yutian Yang <nglaive@gmail.com>,
-        Zefan Li <lizefan.x@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 5.10, 5.4] memcg: enable accounting of ipc resources
-Message-ID: <Y2pPhBL2g8fmqdql@kroah.com>
-References: <20221104184131.17797-1-luizcap@amazon.com>
- <Y2jMXfbLTHwDBInx@kroah.com>
+        with ESMTP id S234105AbiKHMr2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 07:47:28 -0500
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6859751C36
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 04:47:27 -0800 (PST)
+Received: by mail-ej1-x630.google.com with SMTP id t25so38263071ejb.8
+        for <stable@vger.kernel.org>; Tue, 08 Nov 2022 04:47:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=ioB2Pj2dj+j6cLcAyHpva8ZzHBtOBVLLO7B5OtXKx/Q=;
+        b=Cj6OlLz8KBnHKZt4OvaJcf+I0jZpagvKQRl5AxpAe6tVH9pwiRrxSm2th7mVShhS/M
+         jJ7Gh9PNOdnWv9eEkBp4AHZ6zU4rZ0U1U4BThUnFXfDPt0yndjtxV39MAqWwpX2w6MF1
+         XBkIlowlnra90g+BzTwP6khA1v0zrzyUsONHuri0rMElWQS2dwiRc0amaSP6c6NWQBVs
+         NcZOUcqoe31SZIhwvLijPIMQvg+3x/9emE+maZgpX9NSG8L6BiAi/yKi3k4sZxzOe7Il
+         Uwz2hDpWGdw2jUZFJXnySRl/fYVlFbvFxNDGvLRr9ZtuRUpRpq8N4BFJype5ojo6d6uo
+         5pHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ioB2Pj2dj+j6cLcAyHpva8ZzHBtOBVLLO7B5OtXKx/Q=;
+        b=Mi3LyalTPKi+kY/4w9U/8o6y480DM6mDXRf/AATtL0+1oVQBiBR+rvZ6EjPVleMUbU
+         0kRRNKWobfJXSXctqXv0K/KAHErdc32r+VCFI7yr4IL63dJw3jpMXpqJG8W+5ovCsK9W
+         40LzM2OeSijD+tTGbjwCY3RQn+7PcM+IiobmWrh9Xwot/woKS0kAoai/sgCEXUqTlsam
+         Qkh2J89XfaM1i1jWlJ1llvOfFjMwnhFXheed4qok5XKkQiJ6CKkjInoNKZS1ctw1PyDs
+         FYTp5Wjmi5fl3b6z4ZzcTq9ZA2nm3p4N4Am1wP9bTZ7GGnyLoA7eA49kdPH65uQVKsAf
+         1Ctg==
+X-Gm-Message-State: ANoB5plcnsPUJePltjkHifDCdXGwOYEIjhs+gh/YdPJFIueFJlTziF7U
+        KVdIYQfmqxTcHXz9VSMxGueqUIXMRdoOi3XtHScDpg==
+X-Google-Smtp-Source: AA0mqf6zkHL4fcyjLsR4NmvEFxKaT4NYNjHVKN1t+Ks7ev0AvMSCWQ+1/4/Ai4u8IQCsXSouVkeKu2LOn4IY78C5p1U=
+X-Received: by 2002:a17:906:6acc:b0:7ae:658c:ee45 with SMTP id
+ q12-20020a1709066acc00b007ae658cee45mr11019972ejs.190.1667911646022; Tue, 08
+ Nov 2022 04:47:26 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y2jMXfbLTHwDBInx@kroah.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+References: <20221027065110.9395-1-quic_aiquny@quicinc.com>
+In-Reply-To: <20221027065110.9395-1-quic_aiquny@quicinc.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 8 Nov 2022 13:47:15 +0100
+Message-ID: <CACRpkdbCwvGr4JA+=khynduWSZSbSN8D9dtsY0h_9LxkqJuQ_Q@mail.gmail.com>
+Subject: Re: [PATCH] pinctrl: core: Make p->state in order in pinctrl_commit_state
+To:     Maria Yu <quic_aiquny@quicinc.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Cc:     linux-gpio@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -73,26 +66,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 07, 2022 at 10:14:05AM +0100, Greg Kroah-Hartman wrote:
-> On Fri, Nov 04, 2022 at 06:41:31PM +0000, Luiz Capitulino wrote:
-> > From: Vasily Averin <vvs@virtuozzo.com>
-> > 
-> > Commit 18319498fdd4cdf8c1c2c48cd432863b1f915d6f upstream.
-> > 
-> > [ This backport fixes CVE-2021-3759 for 5.10 and 5.4. Please, note that
-> >   it caused conflicts in all files being changed because upstream
-> >   changed ipc object allocation to and from kvmalloc() & friends (eg.
-> >   commits bc8136a543aa and fc37a3b8b4388e). However, I decided to keep
-> >   this backport about the memcg accounting fix only. ]
-> 
-> Looks good, now queued up, thanks.
+Hi Maria,
 
-Ah, but you missed a fix-up patch for this one {sigh}
+thanks for your patch!
 
-I've now queued up 18319498fdd4 ("memcg: enable accounting of ipc
-resources") as well.  Please be more careful in the future when
-backporting changes that you also include the fixes for those changes.
+On Thu, Oct 27, 2022 at 8:51 AM Maria Yu <quic_aiquny@quicinc.com> wrote:
 
-thanks,
+> We've got a dump that current cpu is in pinctrl_commit_state, the
+> old_state != p->state while the stack is still in the process of
+> pinmux_disable_setting. So it means even if the current p->state is
+> changed in new state, the settings are not yet up-to-date enabled
+> complete yet.
+>
+> Currently p->state in different value to synchronize the
+> pinctrl_commit_state behaviors. The p->state will have transaction like
+> old_state -> NULL -> new_state. When in old_state, it will try to
+> disable all the all state settings. And when after new state settings
+> enabled, p->state will changed to the new state after that. So use
+> smp_mb to synchronize the p->state variable and the settings in order.
+> ---
+>  drivers/pinctrl/core.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/drivers/pinctrl/core.c b/drivers/pinctrl/core.c
+> index 9e57f4c62e60..cd917a5b1a0a 100644
+> --- a/drivers/pinctrl/core.c
+> +++ b/drivers/pinctrl/core.c
+> @@ -1256,6 +1256,7 @@ static int pinctrl_commit_state(struct pinctrl *p, struct pinctrl_state *state)
+>                 }
+>         }
+>
+> +       smp_mb();
+>         p->state = NULL;
+>
+>         /* Apply all the settings for the new state - pinmux first */
+> @@ -1305,6 +1306,7 @@ static int pinctrl_commit_state(struct pinctrl *p, struct pinctrl_state *state)
+>                         pinctrl_link_add(setting->pctldev, p->dev);
+>         }
+>
+> +       smp_mb();
+>         p->state = state;
+>
+>         return 0;
 
-greg k-h
+Ow!
+
+It's not often that I loop in Paul McKenney on patches, but this is in the core
+of the subsystem used across all architectures so if this is a generic problem
+of concurrency, I really want some professional concurrency person to
+look at it before I apply it.
+
+Yours,
+Linus Walleij
