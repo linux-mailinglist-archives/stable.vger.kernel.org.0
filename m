@@ -2,91 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A41C6212D9
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:43:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAFFA621487
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233540AbiKHNnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:43:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42950 "EHLO
+        id S234952AbiKHOCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:02:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234306AbiKHNnW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:43:22 -0500
+        with ESMTP id S234999AbiKHOCE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:02:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 799D42B9
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:43:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6A6362399
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:02:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17A9B6158F
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:43:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27D79C433D6;
-        Tue,  8 Nov 2022 13:43:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D40F61595
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:02:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42DD4C433C1;
+        Tue,  8 Nov 2022 14:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915000;
-        bh=VDR8+sCKuVZtANGpgNt4BqNFssE3hHQ+UaTxBdty46U=;
+        s=korg; t=1667916122;
+        bh=Vmo3ZHg1pN7KwuHV1CJhSuXf8BQVVmcDqJbW4/gHbJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CbFQ4MuYjAU/IEsq9EdgmTbCnCObTP0ISd1tkaXPziJ1m/8r863+JznVsg9aIjDFQ
-         Dt4/PiaCFkIfOqPRW0I4WvIj7fEdyG3xoo+q22+TRSXrbUAav3dcd9NzMrZtyaIXlV
-         0cnYhxjoItdSUL0+9Zesq1Tc3uCt3BF3K6P9mnJo=
+        b=Qsc6FvXcJ9ct+JWAsJHwml/i3Dea/a7/Qcwr59IH+O79dNd4wAjfAsPrSPG7vkGXi
+         Tw9cswTaHhvqqCJXH7U+GA17Ocglf49XIwn33iykqi+LwXbaGjOjwWs4XnPhNUaWxw
+         Z/4sya3VACzKFAOAvKJIL1Ug33dGUEUraMHqgC+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Dafna Hirschfeld <dafna@fastmail.com>,
+        Paul Elder <paul.elder@ideasonboard.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/40] media: dvb-frontends/drxk: initialize err to 0
+Subject: [PATCH 5.15 069/144] media: rkisp1: Dont pass the quantization to rkisp1_csm_config()
 Date:   Tue,  8 Nov 2022 14:39:06 +0100
-Message-Id: <20221108133329.202586802@linuxfoundation.org>
+Message-Id: <20221108133348.189690530@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
-References: <20221108133328.351887714@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 20694e96ca089ce6693c2348f8f628ee621e4e74 ]
+[ Upstream commit 711d91497e203b058cf0a08c0f7d41c04efbde76 ]
 
-Fix a compiler warning:
+The rkisp1_csm_config() function takes a pointer to the rkisp1_params
+structure which contains the quantization value. There's no need to pass
+it separately to the function. Drop it from the function parameters.
 
-drivers/media/dvb-frontends/drxk_hard.c: In function 'drxk_read_ucblocks':
-drivers/media/dvb-frontends/drxk_hard.c:6673:21: warning: 'err' may be used uninitialized [-Wmaybe-uninitialized]
- 6673 |         *ucblocks = (u32) err;
-      |                     ^~~~~~~~~
-drivers/media/dvb-frontends/drxk_hard.c:6663:13: note: 'err' was declared here
- 6663 |         u16 err;
-      |             ^~~
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Dafna Hirschfeld <dafna@fastmail.com>
+Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/drxk_hard.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/rockchip/rkisp1/rkisp1-params.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/drxk_hard.c b/drivers/media/dvb-frontends/drxk_hard.c
-index 48a8aad47a74..98146e74bbdf 100644
---- a/drivers/media/dvb-frontends/drxk_hard.c
-+++ b/drivers/media/dvb-frontends/drxk_hard.c
-@@ -6700,7 +6700,7 @@ static int drxk_read_snr(struct dvb_frontend *fe, u16 *snr)
- static int drxk_read_ucblocks(struct dvb_frontend *fe, u32 *ucblocks)
- {
- 	struct drxk_state *state = fe->demodulator_priv;
--	u16 err;
-+	u16 err = 0;
+diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
+index 8fa5b0abf1f9..8461e88c1288 100644
+--- a/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
++++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
+@@ -751,7 +751,7 @@ static void rkisp1_ie_enable(struct rkisp1_params *params, bool en)
+ 	}
+ }
  
- 	dprintk(1, "\n");
+-static void rkisp1_csm_config(struct rkisp1_params *params, bool full_range)
++static void rkisp1_csm_config(struct rkisp1_params *params)
+ {
+ 	static const u16 full_range_coeff[] = {
+ 		0x0026, 0x004b, 0x000f,
+@@ -765,7 +765,7 @@ static void rkisp1_csm_config(struct rkisp1_params *params, bool full_range)
+ 	};
+ 	unsigned int i;
+ 
+-	if (full_range) {
++	if (params->quantization == V4L2_QUANTIZATION_FULL_RANGE) {
+ 		for (i = 0; i < ARRAY_SIZE(full_range_coeff); i++)
+ 			rkisp1_write(params->rkisp1, full_range_coeff[i],
+ 				     RKISP1_CIF_ISP_CC_COEFF_0 + i * 4);
+@@ -1235,11 +1235,7 @@ static void rkisp1_params_config_parameter(struct rkisp1_params *params)
+ 	rkisp1_param_set_bits(params, RKISP1_CIF_ISP_HIST_PROP,
+ 			      rkisp1_hst_params_default_config.mode);
+ 
+-	/* set the  range */
+-	if (params->quantization == V4L2_QUANTIZATION_FULL_RANGE)
+-		rkisp1_csm_config(params, true);
+-	else
+-		rkisp1_csm_config(params, false);
++	rkisp1_csm_config(params);
+ 
+ 	spin_lock_irq(&params->config_lock);
  
 -- 
 2.35.1
