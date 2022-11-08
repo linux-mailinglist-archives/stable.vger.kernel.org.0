@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77D82621340
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9009662146E
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:01:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234603AbiKHNsk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:48:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48466 "EHLO
+        id S234929AbiKHOBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:01:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234560AbiKHNsg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F69C29E
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:25 -0800 (PST)
+        with ESMTP id S234952AbiKHOBN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:01:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A24AE68692
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:01:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D257615A1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 326F7C433D6;
-        Tue,  8 Nov 2022 13:48:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D806B81AFA
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3959C433C1;
+        Tue,  8 Nov 2022 14:01:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915304;
-        bh=5cRPfngsaSxaGYvwlpHPS5LdaM6D4xSpkXwx185bp3Q=;
+        s=korg; t=1667916068;
+        bh=pyUg1ELiTpeSPM5xWlY5ivnmPGO6RWR9CpolmE2vxMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXh6Uxz5jK3+0XZLSuXAy5MPG1x1U7+ajmdznVkx+x35JPMZsqfhXz37azEqzoAw0
-         5ME6AT6+0ysrHqOb7YEmmQNMnT+Mjm136KxkuOhWN6zz2I1tYBuVAoJgL8sYpAPt2s
-         2cqmYT9+0vMz1VocRyqwe3vSlMLDWYQFJ/U85wTs=
+        b=PgwTGk6qKcwMP9sOaFjPVfOGQP1XbzLl1gHxVcGSxYiyHOWUFF1MTRv+rmm6LmBt9
+         xCBGcIJiM5aLixhAXgvl9VzOO/Dh+0DOsr+Y9nD3xwGXjpSsyDjMtCIbybTgF86zml
+         R0GQt23C8vYCt+gCqdPJV4oh/Og6bUkDclrxGOsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Liu Peibao <liupeibao@loongson.cn>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/74] btrfs: fix inode list leak during backref walking at find_parent_nodes()
+Subject: [PATCH 5.15 054/144] stmmac: dwmac-loongson: fix invalid mdio_node
 Date:   Tue,  8 Nov 2022 14:38:51 +0100
-Message-Id: <20221108133334.676187298@linuxfoundation.org>
+Message-Id: <20221108133347.548970104@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,78 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Liu Peibao <liupeibao@loongson.cn>
 
-[ Upstream commit 92876eec382a0f19f33d09d2c939e9ca49038ae5 ]
+[ Upstream commit 2ae34111fe4eebb69986f6490015b57c88804373 ]
 
-During backref walking, at find_parent_nodes(), if we are dealing with a
-data extent and we get an error while resolving the indirect backrefs, at
-resolve_indirect_refs(), or in the while loop that iterates over the refs
-in the direct refs rbtree, we end up leaking the inode lists attached to
-the direct refs we have in the direct refs rbtree that were not yet added
-to the refs ulist passed as argument to find_parent_nodes(). Since they
-were not yet added to the refs ulist and prelim_release() does not free
-the lists, on error the caller can only free the lists attached to the
-refs that were added to the refs ulist, all the remaining refs get their
-inode lists never freed, therefore leaking their memory.
+In current code "plat->mdio_node" is always NULL, the mdio
+support is lost as there is no "mdio_bus_data". The original
+driver could work as the "mdio" variable is never set to
+false, which is described in commit <b0e03950dd71> ("stmmac:
+dwmac-loongson: fix uninitialized variable ......"). And
+after this commit merged, the "mdio" variable is always
+false, causing the mdio supoort logic lost.
 
-Fix this by having prelim_release() always free any attached inode list
-to each ref found in the rbtree, and have find_parent_nodes() set the
-ref's inode list to NULL once it transfers ownership of the inode list
-to a ref added to the refs ulist passed to find_parent_nodes().
-
-Fixes: 86d5f9944252 ("btrfs: convert prelimary reference tracking to use rbtrees")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 30bba69d7db4 ("stmmac: pci: Add dwmac support for Loongson")
+Signed-off-by: Liu Peibao <liupeibao@loongson.cn>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20221101060218.16453-1-liupeibao@loongson.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 4809cc07a885..3cbca2ebdeb0 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -287,8 +287,10 @@ static void prelim_release(struct preftree *preftree)
- 	struct prelim_ref *ref, *next_ref;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
+index ecf759ee1c9f..220bb454626c 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
+@@ -51,7 +51,6 @@ static int loongson_dwmac_probe(struct pci_dev *pdev, const struct pci_device_id
+ 	struct stmmac_resources res;
+ 	struct device_node *np;
+ 	int ret, i, phy_mode;
+-	bool mdio = false;
  
- 	rbtree_postorder_for_each_entry_safe(ref, next_ref,
--					     &preftree->root.rb_root, rbnode)
-+					     &preftree->root.rb_root, rbnode) {
-+		free_inode_elem_list(ref->inode_list);
- 		free_pref(ref);
-+	}
+ 	np = dev_of_node(&pdev->dev);
  
- 	preftree->root = RB_ROOT_CACHED;
- 	preftree->count = 0;
-@@ -1383,6 +1385,12 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
- 				if (ret < 0)
- 					goto out;
- 				ref->inode_list = eie;
-+				/*
-+				 * We transferred the list ownership to the ref,
-+				 * so set to NULL to avoid a double free in case
-+				 * an error happens after this.
-+				 */
-+				eie = NULL;
- 			}
- 			ret = ulist_add_merge_ptr(refs, ref->parent,
- 						  ref->inode_list,
-@@ -1408,6 +1416,14 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
- 				eie->next = ref->inode_list;
- 			}
- 			eie = NULL;
-+			/*
-+			 * We have transferred the inode list ownership from
-+			 * this ref to the ref we added to the 'refs' ulist.
-+			 * So set this ref's inode list to NULL to avoid
-+			 * use-after-free when our caller uses it or double
-+			 * frees in case an error happens before we return.
-+			 */
-+			ref->inode_list = NULL;
- 		}
- 		cond_resched();
- 	}
+@@ -69,12 +68,10 @@ static int loongson_dwmac_probe(struct pci_dev *pdev, const struct pci_device_id
+ 	if (!plat)
+ 		return -ENOMEM;
+ 
++	plat->mdio_node = of_get_child_by_name(np, "mdio");
+ 	if (plat->mdio_node) {
+-		dev_err(&pdev->dev, "Found MDIO subnode\n");
+-		mdio = true;
+-	}
++		dev_info(&pdev->dev, "Found MDIO subnode\n");
+ 
+-	if (mdio) {
+ 		plat->mdio_bus_data = devm_kzalloc(&pdev->dev,
+ 						   sizeof(*plat->mdio_bus_data),
+ 						   GFP_KERNEL);
 -- 
 2.35.1
 
