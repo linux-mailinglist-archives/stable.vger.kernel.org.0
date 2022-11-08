@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28C5E621551
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:10:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C0EC62145E
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:00:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235230AbiKHOK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:10:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
+        id S234924AbiKHOAe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:00:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235242AbiKHOKU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:10:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6D2C77214
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:10:19 -0800 (PST)
+        with ESMTP id S234943AbiKHOA1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:00:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8940682AE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:00:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68872B81AE4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:10:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AE9BC433D7;
-        Tue,  8 Nov 2022 14:10:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55E7A6157B
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:00:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47839C433C1;
+        Tue,  8 Nov 2022 14:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916617;
-        bh=NTOMFuo0zAi61ivrDTWUeW1q31wzmTLJLPDhXfieEKo=;
+        s=korg; t=1667916024;
+        bh=DpcOIUpQMiRlNTymoOZsZ7XeQPS8HVD3nvswF3gnMvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BWBtWp+z9BZigs3mpKRPx3ND5TCxtGTwOHWsbBUmgJK90hHbcN3RxqGoyxaFJdKTT
-         mfHnAgmmyRxgHHYhop7kQqmyLhwSER1Bb8nTzPdq3OrhUaXZHrx33xIerP7eN3Alrd
-         OUBwPAQLKxpJVTV3THK+tImR2am0FqC3ZnY0EgHk=
+        b=geO0LX91F/vKQQiKhi08+WFXf+VmyDDvWbzNjh9mXU86IJEBnQBVS92VAkOINkTGV
+         XdRtJEeA9Z0w4J7NjCAIcunFsI9vyF8+je40o6t/jP3pI/aNtvGrbF+YwjsYugQcYZ
+         VVOroX85K02ixcMTsZ24FdI7ZxHvU3fCEQP+hXxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 078/197] drm/vc4: hdmi: Check the HSM rate at runtime_resume
+Subject: [PATCH 5.15 039/144] ipvs: fix WARNING in __ip_vs_cleanup_batch()
 Date:   Tue,  8 Nov 2022 14:38:36 +0100
-Message-Id: <20221108133358.392051887@linuxfoundation.org>
+Message-Id: <20221108133346.931827143@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 4190e8bbcbc77a9c36724681801cedc5229e7fc2 ]
+[ Upstream commit 3d00c6a0da8ddcf75213e004765e4a42acc71d5d ]
 
-If our HSM clock has not been properly initialized, any register access
-will silently lock up the system.
+During the initialization of ip_vs_conn_net_init(), if file ip_vs_conn
+or ip_vs_conn_sync fails to be created, the initialization is successful
+by default. Therefore, the ip_vs_conn or ip_vs_conn_sync file doesn't
+be found during the remove.
 
-Let's check that this can't happen by adding a check for the rate before
-any register access, and error out otherwise.
+The following is the stack information:
+name 'ip_vs_conn_sync'
+WARNING: CPU: 3 PID: 9 at fs/proc/generic.c:712
+remove_proc_entry+0x389/0x460
+Modules linked in:
+Workqueue: netns cleanup_net
+RIP: 0010:remove_proc_entry+0x389/0x460
+Call Trace:
+<TASK>
+__ip_vs_cleanup_batch+0x7d/0x120
+ops_exit_list+0x125/0x170
+cleanup_net+0x4ea/0xb00
+process_one_work+0x9bf/0x1710
+worker_thread+0x665/0x1080
+kthread+0x2e4/0x3a0
+ret_from_fork+0x1f/0x30
+</TASK>
 
-Link: https://lore.kernel.org/dri-devel/20220922145448.w3xfywkn5ecak2et@pengutronix.de/
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220929-rpi-pi3-unplugged-fixes-v1-2-cd22e962296c@cerno.tech
+Fixes: 61b1ab4583e2 ("IPVS: netns, add basic init per netns.")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ net/netfilter/ipvs/ip_vs_conn.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 780a19a75c3f..874c6bd787c5 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -2869,6 +2869,7 @@ static int vc4_hdmi_runtime_resume(struct device *dev)
- 	struct vc4_hdmi *vc4_hdmi = dev_get_drvdata(dev);
- 	unsigned long __maybe_unused flags;
- 	u32 __maybe_unused value;
-+	unsigned long rate;
- 	int ret;
+diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
+index db13288fddfa..cb6d68220c26 100644
+--- a/net/netfilter/ipvs/ip_vs_conn.c
++++ b/net/netfilter/ipvs/ip_vs_conn.c
+@@ -1447,20 +1447,36 @@ int __net_init ip_vs_conn_net_init(struct netns_ipvs *ipvs)
+ {
+ 	atomic_set(&ipvs->conn_count, 0);
  
- 	/*
-@@ -2884,6 +2885,21 @@ static int vc4_hdmi_runtime_resume(struct device *dev)
- 	if (ret)
- 		return ret;
- 
-+	/*
-+	 * Whenever the RaspberryPi boots without an HDMI monitor
-+	 * plugged in, the firmware won't have initialized the HSM clock
-+	 * rate and it will be reported as 0.
-+	 *
-+	 * If we try to access a register of the controller in such a
-+	 * case, it will lead to a silent CPU stall. Let's make sure we
-+	 * prevent such a case.
-+	 */
-+	rate = clk_get_rate(vc4_hdmi->hsm_clock);
-+	if (!rate) {
-+		ret = -EINVAL;
-+		goto err_disable_clk;
-+	}
+-	proc_create_net("ip_vs_conn", 0, ipvs->net->proc_net,
+-			&ip_vs_conn_seq_ops, sizeof(struct ip_vs_iter_state));
+-	proc_create_net("ip_vs_conn_sync", 0, ipvs->net->proc_net,
+-			&ip_vs_conn_sync_seq_ops,
+-			sizeof(struct ip_vs_iter_state));
++#ifdef CONFIG_PROC_FS
++	if (!proc_create_net("ip_vs_conn", 0, ipvs->net->proc_net,
++			     &ip_vs_conn_seq_ops,
++			     sizeof(struct ip_vs_iter_state)))
++		goto err_conn;
 +
- 	if (vc4_hdmi->variant->reset)
- 		vc4_hdmi->variant->reset(vc4_hdmi);
- 
-@@ -2905,6 +2921,10 @@ static int vc4_hdmi_runtime_resume(struct device *dev)
- #endif
- 
++	if (!proc_create_net("ip_vs_conn_sync", 0, ipvs->net->proc_net,
++			     &ip_vs_conn_sync_seq_ops,
++			     sizeof(struct ip_vs_iter_state)))
++		goto err_conn_sync;
++#endif
++
  	return 0;
 +
-+err_disable_clk:
-+	clk_disable_unprepare(vc4_hdmi->hsm_clock);
-+	return ret;
++#ifdef CONFIG_PROC_FS
++err_conn_sync:
++	remove_proc_entry("ip_vs_conn", ipvs->net->proc_net);
++err_conn:
++	return -ENOMEM;
++#endif
  }
  
- static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
+ void __net_exit ip_vs_conn_net_cleanup(struct netns_ipvs *ipvs)
+ {
+ 	/* flush all the connection entries first */
+ 	ip_vs_conn_flush(ipvs);
++#ifdef CONFIG_PROC_FS
+ 	remove_proc_entry("ip_vs_conn", ipvs->net->proc_net);
+ 	remove_proc_entry("ip_vs_conn_sync", ipvs->net->proc_net);
++#endif
+ }
+ 
+ int __init ip_vs_conn_init(void)
 -- 
 2.35.1
 
