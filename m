@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 077AB621305
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:45:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65EC26212C6
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:42:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234515AbiKHNpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:45:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45816 "EHLO
+        id S234469AbiKHNmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:42:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234516AbiKHNpc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:45:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B5FD58007
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:45:31 -0800 (PST)
+        with ESMTP id S234455AbiKHNmf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:42:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 923B745093
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:42:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2558FB81AF1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:45:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B95EC433D7;
-        Tue,  8 Nov 2022 13:45:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6FE9B81AEC
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:42:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F74DC433C1;
+        Tue,  8 Nov 2022 13:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915128;
-        bh=zuq/U/KF1UgRmvy7OsWTc+HHm7PAKkDsHpBcrkO8yNE=;
+        s=korg; t=1667914951;
+        bh=rl1AaJuRa6IwTrS/95nnBMCTIDscUpTk8sMi2Bg+qCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7Oui/4SXgkfqsKxJ1A7hK0kHkoISttap7DS2Ee7hAV1mk8SBJCrPdlV8tPyXG49l
-         Mg/qEByAb80VqD7S4V+iSxSoxr6n9nhS2Zea9mkZHICeb0+1yAKQYWNhAZcU40tMQP
-         nwVyJxOCxupYoyhtygaD56kXnlgpvc05SHTepZ0s=
+        b=W2wBYLvlk8zyr2zqDBfooj6zAfIIQHjqqGuHXt/Hip72ENkZRe0hL3xzAUciy6B7+
+         RCKkyn+NysBrCoeoSKKzKMXYpqWcp8rd8exGGvyG27XZ18XtE7COYbj4R6UxZfOVPN
+         lSJpKtj15IcbrmTFvEk+5cVW9iZKF3eMvVD0Qx9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/48] btrfs: fix ulist leaks in error paths of qgroup self tests
+Subject: [PATCH 4.9 16/30] net: mdio: fix undefined behavior in bit shift for __mdiobus_register
 Date:   Tue,  8 Nov 2022 14:39:04 +0100
-Message-Id: <20221108133330.182166337@linuxfoundation.org>
+Message-Id: <20221108133327.300605017@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
+References: <20221108133326.715586431@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,88 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit d37de92b38932d40e4a251e876cc388f9aee5f42 ]
+[ Upstream commit 40e4eb324c59e11fcb927aa46742d28aba6ecb8a ]
 
-In the test_no_shared_qgroup() and test_multiple_refs() qgroup self tests,
-if we fail to add the tree ref, remove the extent item or remove the
-extent ref, we are returning from the test function without freeing the
-"old_roots" ulist that was allocated by the previous calls to
-btrfs_find_all_roots(). Fix that by calling ulist_free() before returning.
+Shifting signed 32-bit value by 31 bits is undefined, so changing
+significant bit to unsigned. The UBSAN warning calltrace like below:
 
-Fixes: 442244c96332 ("btrfs: qgroup: Switch self test to extent-oriented qgroup mechanism.")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+UBSAN: shift-out-of-bounds in drivers/net/phy/mdio_bus.c:586:27
+left shift of 1 by 31 places cannot be represented in type 'int'
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x7d/0xa5
+ dump_stack+0x15/0x1b
+ ubsan_epilogue+0xe/0x4e
+ __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
+ __mdiobus_register+0x49d/0x4e0
+ fixed_mdio_bus_init+0xd8/0x12d
+ do_one_initcall+0x76/0x430
+ kernel_init_freeable+0x3b3/0x422
+ kernel_init+0x24/0x1e0
+ ret_from_fork+0x1f/0x30
+ </TASK>
+
+Fixes: 4fd5f812c23c ("phylib: allow incremental scanning of an mii bus")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20221031132645.168421-1-cuigaosheng1@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tests/qgroup-tests.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/net/phy/mdio_bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/tests/qgroup-tests.c b/fs/btrfs/tests/qgroup-tests.c
-index d07dd26194b1..24a61e524861 100644
---- a/fs/btrfs/tests/qgroup-tests.c
-+++ b/fs/btrfs/tests/qgroup-tests.c
-@@ -237,8 +237,10 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index 0fa6e2da4b5a..2aecc5ee9133 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -335,7 +335,7 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
+ 		bus->reset(bus);
  
- 	ret = insert_normal_tree_ref(root, nodesize, nodesize, 0,
- 				BTRFS_FS_TREE_OBJECTID);
--	if (ret)
-+	if (ret) {
-+		ulist_free(old_roots);
- 		return ret;
-+	}
+ 	for (i = 0; i < PHY_MAX_ADDR; i++) {
+-		if ((bus->phy_mask & (1 << i)) == 0) {
++		if ((bus->phy_mask & BIT(i)) == 0) {
+ 			struct phy_device *phydev;
  
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
- 			false);
-@@ -273,8 +275,10 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
- 	}
- 
- 	ret = remove_extent_item(root, nodesize, nodesize);
--	if (ret)
-+	if (ret) {
-+		ulist_free(old_roots);
- 		return -EINVAL;
-+	}
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
- 			false);
-@@ -338,8 +342,10 @@ static int test_multiple_refs(struct btrfs_root *root,
- 
- 	ret = insert_normal_tree_ref(root, nodesize, nodesize, 0,
- 				BTRFS_FS_TREE_OBJECTID);
--	if (ret)
-+	if (ret) {
-+		ulist_free(old_roots);
- 		return ret;
-+	}
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
- 			false);
-@@ -373,8 +379,10 @@ static int test_multiple_refs(struct btrfs_root *root,
- 
- 	ret = add_tree_ref(root, nodesize, nodesize, 0,
- 			BTRFS_FIRST_FREE_OBJECTID);
--	if (ret)
-+	if (ret) {
-+		ulist_free(old_roots);
- 		return ret;
-+	}
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
- 			false);
-@@ -414,8 +422,10 @@ static int test_multiple_refs(struct btrfs_root *root,
- 
- 	ret = remove_extent_ref(root, nodesize, nodesize, 0,
- 				BTRFS_FIRST_FREE_OBJECTID);
--	if (ret)
-+	if (ret) {
-+		ulist_free(old_roots);
- 		return ret;
-+	}
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
- 			false);
+ 			phydev = mdiobus_scan(bus, i);
 -- 
 2.35.1
 
