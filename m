@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD4F6213FA
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:56:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8292662146C
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:01:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234756AbiKHN4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:56:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57836 "EHLO
+        id S234925AbiKHOBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:01:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234793AbiKHNz7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:55:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 360F766C8D
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:55:58 -0800 (PST)
+        with ESMTP id S234939AbiKHOBJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:01:09 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69C85682B9
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:01:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C819C6158F
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:55:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26E80C433C1;
-        Tue,  8 Nov 2022 13:55:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D7CEFCE1B9C
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CCCEC433C1;
+        Tue,  8 Nov 2022 14:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915757;
-        bh=p8b2hTvH9GVMRAwvndYCtY9fxlRCRZamGuqz+oL8d9M=;
+        s=korg; t=1667916065;
+        bh=VIOVKyNBxA5MWvPBOZt+s23mY8bDL6KfWfAk+I4ppxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QydUF7iRs+FfLoXFvc7OPa68nz1/ZxnX1U/D++Y+GKgBP0I9Iji0THlNxK5M6y3f+
-         3dTnGkSsoz1StcO599suXGQLc6etrmxYDkYhTaR3BIhRqhgmN8FFSMFXwi7n2bVmz2
-         U6ax1pc0UDn3Mrh64f7vYxTBwsOg/RycUJBYdFzE=
+        b=rGydYE9av4ycugTyUETwmNU5PlRkWQvQQ0h40rMXscyf0XnDTr7Z3wa7DHbrLCi6z
+         AMfgziO43MyZx9sZ/xD/T0MRiqHkStpU9yMk8aKoL1pV/svidcgcU1dMJXbcgbYaO6
+         212fOfRaPvhWRAemszbn+ltblwZRV4OxbFICS5Vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>,
+        patches@lists.linux.dev, Nick Child <nnac123@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 052/118] video/fbdev/stifb: Implement the stifb_fillrect() function
+Subject: [PATCH 5.15 053/144] ibmvnic: Free rwi on reset success
 Date:   Tue,  8 Nov 2022 14:38:50 +0100
-Message-Id: <20221108133342.968501513@linuxfoundation.org>
+Message-Id: <20221108133347.508651143@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,91 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Nick Child <nnac123@linux.ibm.com>
 
-[ Upstream commit 9c379c65241707e44072139d782bc2dfec9b4ab3 ]
+[ Upstream commit d6dd2fe71153f0ff748bf188bd4af076fe09a0a6 ]
 
-The stifb driver (for Artist/HCRX graphics on PA-RISC) was missing
-the fillrect function.
-Tested on a 715/64 PA-RISC machine and in qemu.
+Free the rwi structure in the event that the last rwi in the list
+processed successfully. The logic in commit 4f408e1fa6e1 ("ibmvnic:
+retry reset if there are no other resets") introduces an issue that
+results in a 32 byte memory leak whenever the last rwi in the list
+gets processed.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Stable-dep-of: 776d875fd4cb ("fbdev: stifb: Fall back to cfb_fillrect() on 32-bit HCRX cards")
+Fixes: 4f408e1fa6e1 ("ibmvnic: retry reset if there are no other resets")
+Signed-off-by: Nick Child <nnac123@linux.ibm.com>
+Link: https://lore.kernel.org/r/20221031150642.13356-1-nnac123@linux.ibm.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/stifb.c | 45 +++++++++++++++++++++++++++++++++++--
- 1 file changed, 43 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/video/fbdev/stifb.c b/drivers/video/fbdev/stifb.c
-index b0470f4f595e..7753e586e65a 100644
---- a/drivers/video/fbdev/stifb.c
-+++ b/drivers/video/fbdev/stifb.c
-@@ -1041,6 +1041,47 @@ stifb_copyarea(struct fb_info *info, const struct fb_copyarea *area)
- 	SETUP_FB(fb);
- }
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 4a070724a8fb..8a92c6a6e764 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2621,19 +2621,19 @@ static void __ibmvnic_reset(struct work_struct *work)
+ 		rwi = get_next_rwi(adapter);
  
-+#define ARTIST_VRAM_SIZE			0x000804
-+#define ARTIST_VRAM_SRC				0x000808
-+#define ARTIST_VRAM_SIZE_TRIGGER_WINFILL	0x000a04
-+#define ARTIST_VRAM_DEST_TRIGGER_BLOCKMOVE	0x000b00
-+#define ARTIST_SRC_BM_ACCESS			0x018008
-+#define ARTIST_FGCOLOR				0x018010
-+#define ARTIST_BGCOLOR				0x018014
-+#define ARTIST_BITMAP_OP			0x01801c
-+
-+static void
-+stifb_fillrect(struct fb_info *info, const struct fb_fillrect *rect)
-+{
-+	struct stifb_info *fb = container_of(info, struct stifb_info, info);
-+
-+	if (rect->rop != ROP_COPY)
-+		return cfb_fillrect(info, rect);
-+
-+	SETUP_HW(fb);
-+
-+	if (fb->info.var.bits_per_pixel == 32) {
-+		WRITE_WORD(0xBBA0A000, fb, REG_10);
-+
-+		NGLE_REALLY_SET_IMAGE_PLANEMASK(fb, 0xffffffff);
-+	} else {
-+		WRITE_WORD(fb->id == S9000_ID_HCRX ? 0x13a02000 : 0x13a01000, fb, REG_10);
-+
-+		NGLE_REALLY_SET_IMAGE_PLANEMASK(fb, 0xff);
-+	}
-+
-+	WRITE_WORD(0x03000300, fb, ARTIST_BITMAP_OP);
-+	WRITE_WORD(0x2ea01000, fb, ARTIST_SRC_BM_ACCESS);
-+	NGLE_QUICK_SET_DST_BM_ACCESS(fb, 0x2ea01000);
-+	NGLE_REALLY_SET_IMAGE_FG_COLOR(fb, rect->color);
-+	WRITE_WORD(0, fb, ARTIST_BGCOLOR);
-+
-+	NGLE_SET_DSTXY(fb, (rect->dx << 16) | (rect->dy));
-+	SET_LENXY_START_RECFILL(fb, (rect->width << 16) | (rect->height));
-+
-+	SETUP_FB(fb);
-+}
-+
- static void __init
- stifb_init_display(struct stifb_info *fb)
- {
-@@ -1105,7 +1146,7 @@ static const struct fb_ops stifb_ops = {
- 	.owner		= THIS_MODULE,
- 	.fb_setcolreg	= stifb_setcolreg,
- 	.fb_blank	= stifb_blank,
--	.fb_fillrect	= cfb_fillrect,
-+	.fb_fillrect	= stifb_fillrect,
- 	.fb_copyarea	= stifb_copyarea,
- 	.fb_imageblit	= cfb_imageblit,
- };
-@@ -1297,7 +1338,7 @@ static int __init stifb_init_fb(struct sti_struct *sti, int bpp_pref)
- 		goto out_err0;
- 	}
- 	info->screen_size = fix->smem_len;
--	info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_COPYAREA;
-+	info->flags = FBINFO_HWACCEL_COPYAREA | FBINFO_HWACCEL_FILLRECT;
- 	info->pseudo_palette = &fb->pseudo_palette;
+ 		/*
+-		 * If there is another reset queued, free the previous rwi
+-		 * and process the new reset even if previous reset failed
+-		 * (the previous reset could have failed because of a fail
+-		 * over for instance, so process the fail over).
+-		 *
+ 		 * If there are no resets queued and the previous reset failed,
+ 		 * the adapter would be in an undefined state. So retry the
+ 		 * previous reset as a hard reset.
++		 *
++		 * Else, free the previous rwi and, if there is another reset
++		 * queued, process the new reset even if previous reset failed
++		 * (the previous reset could have failed because of a fail
++		 * over for instance, so process the fail over).
+ 		 */
+-		if (rwi)
+-			kfree(tmprwi);
+-		else if (rc)
++		if (!rwi && rc)
+ 			rwi = tmprwi;
++		else
++			kfree(tmprwi);
  
- 	/* This has to be done !!! */
+ 		if (rwi && (rwi->reset_reason == VNIC_RESET_FAILOVER ||
+ 			    rwi->reset_reason == VNIC_RESET_MOBILITY || rc))
 -- 
 2.35.1
 
