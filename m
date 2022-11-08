@@ -2,104 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 830F16212E2
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:43:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C324A621584
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234483AbiKHNn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:43:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43912 "EHLO
+        id S235182AbiKHOMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:12:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234473AbiKHNny (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:43:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A1CB2670
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:43:53 -0800 (PST)
+        with ESMTP id S235113AbiKHOMm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B6D157B53
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:12:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE523B81AE4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:43:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2744C433D6;
-        Tue,  8 Nov 2022 13:43:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCE3E615C2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:12:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B50BDC433D6;
+        Tue,  8 Nov 2022 14:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915030;
-        bh=BBzRH9g6qnBg0/MJQSRgdQ72HEB6/ghRm2uekXe0gwk=;
+        s=korg; t=1667916743;
+        bh=VAr6C0CXLB+EFgA0HJJwq5nnQqDB8BWNg5mgX0ovKuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zWtm+cqu7W5hJVPRiRZZvQjTul2FPmE3/srbXdQXMg07cXoCt2Q98ILg1BQo1JumA
-         hK6Zk2ZFcQzk+j8vYZAx0stl5N3cAkXiuvp3/hefcaawCMtpCNEzmaulX3Piixg8au
-         Hf5u7WflraY5MQVcDYOxD2LsbwyYCJd8zaGDSyQo=
+        b=cCWaIM+dY1VndIDB3K4zL23afOLUhXF4v9ddxVy9WZmsSuQjigCCmvmFDNe13GARp
+         brzRf416mv10knZwvml5m8x2OjT61Nk8uJbrzLf5YiTPNQfu/6rV9K65j7si0yCbD7
+         +BEcNKQQjXq25zlVVxySIieV9ZKshp+JsqkFud1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/40] nfs4: Fix kmemleak when allocate slot failed
+        patches@lists.linux.dev,
+        =?UTF-8?q?Martin=20T=C5=AFma?= <martin.tuma@digiteqautomotive.com>,
+        Michal Simek <michal.simek@amd.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 090/197] i2c: xiic: Add platform module alias
 Date:   Tue,  8 Nov 2022 14:38:48 +0100
-Message-Id: <20221108133328.483879377@linuxfoundation.org>
+Message-Id: <20221108133358.928099492@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
-References: <20221108133328.351887714@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,WEIRD_QUOTING autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Martin Tůma <martin.tuma@digiteqautomotive.com>
 
-[ Upstream commit 7e8436728e22181c3f12a5dbabd35ed3a8b8c593 ]
+[ Upstream commit b8caf0a0e04583fb71e21495bef84509182227ea ]
 
-If one of the slot allocate failed, should cleanup all the other
-allocated slots, otherwise, the allocated slots will leak:
+The missing "platform" alias is required for the mgb4 v4l2 driver to load
+the i2c controller driver when probing the HW.
 
-  unreferenced object 0xffff8881115aa100 (size 64):
-    comm ""mount.nfs"", pid 679, jiffies 4294744957 (age 115.037s)
-    hex dump (first 32 bytes):
-      00 cc 19 73 81 88 ff ff 00 a0 5a 11 81 88 ff ff  ...s......Z.....
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<000000007a4c434a>] nfs4_find_or_create_slot+0x8e/0x130
-      [<000000005472a39c>] nfs4_realloc_slot_table+0x23f/0x270
-      [<00000000cd8ca0eb>] nfs40_init_client+0x4a/0x90
-      [<00000000128486db>] nfs4_init_client+0xce/0x270
-      [<000000008d2cacad>] nfs4_set_client+0x1a2/0x2b0
-      [<000000000e593b52>] nfs4_create_server+0x300/0x5f0
-      [<00000000e4425dd2>] nfs4_try_get_tree+0x65/0x110
-      [<00000000d3a6176f>] vfs_get_tree+0x41/0xf0
-      [<0000000016b5ad4c>] path_mount+0x9b3/0xdd0
-      [<00000000494cae71>] __x64_sys_mount+0x190/0x1d0
-      [<000000005d56bdec>] do_syscall_64+0x35/0x80
-      [<00000000687c9ae4>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Fixes: abf79bb341bf ("NFS: Add a slot table to struct nfs_client for NFSv4.0 transport blocking")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Martin Tůma <martin.tuma@digiteqautomotive.com>
+Acked-by: Michal Simek <michal.simek@amd.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4client.c | 1 +
+ drivers/i2c/busses/i2c-xiic.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index c7672c89b967..da2cde96e68a 100644
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -326,6 +326,7 @@ int nfs40_init_client(struct nfs_client *clp)
- 	ret = nfs4_setup_slot_table(tbl, NFS4_MAX_SLOT_TABLE,
- 					"NFSv4.0 transport Slot table");
- 	if (ret) {
-+		nfs4_shutdown_slot_table(tbl);
- 		kfree(tbl);
- 		return ret;
- 	}
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index b3fe6b2aa3ca..277a02455cdd 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -920,6 +920,7 @@ static struct platform_driver xiic_i2c_driver = {
+ 
+ module_platform_driver(xiic_i2c_driver);
+ 
++MODULE_ALIAS("platform:" DRIVER_NAME);
+ MODULE_AUTHOR("info@mocean-labs.com");
+ MODULE_DESCRIPTION("Xilinx I2C bus driver");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.35.1
 
