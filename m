@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80B8062129E
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F456212E8
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234444AbiKHNl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:41:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40288 "EHLO
+        id S234323AbiKHNoN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:44:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234464AbiKHNlI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:41:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 493E458002
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:41:07 -0800 (PST)
+        with ESMTP id S234487AbiKHNoM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE7FF554CE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:44:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCE1261582
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:41:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9AACC433D7;
-        Tue,  8 Nov 2022 13:41:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E502B81AF1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:44:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAA18C433C1;
+        Tue,  8 Nov 2022 13:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667914866;
-        bh=LErlnjiGrOKN9DAP4DSvBPdiuVu78LfWIh/gvNUTCEA=;
+        s=korg; t=1667915048;
+        bh=xHf6fJTauj9jtN1phcI7d/ATUq9cYTafOqEyCrgKDn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uzsW21Meq9afi59JMy/ulmWwXdNCTo+hoPOzXe2FWUFhBS5CINqB5QNb8rBCENamY
-         fhUPMMQilSepsRQ5uK0y84GbqcJ2yqxp2K+Wy8qYtSQjfbdGYLSpqaIUAe3bP8+Z7x
-         32jWPKaW+clNNbCoNBW6sIWUuf45ZxyAo7Gc9mUM=
+        b=BMNV208otphBGGLRHVTo/PDwOLN6KPw90IEV/sQJ5vBBB1whePqZHeyOMM6QDGxb9
+         c1S8Z7yYy6rF5UVECUh8aMlggwu0NYYG+2DvrVjGeeJL3ilnwIQsyAHNp9DDvvowam
+         YD3+gEkb393ESGSDPczhYE5ft+1xBTbAnu3p4FK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        patches@lists.linux.dev,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 04/30] nfc: s3fwrn5: Fix potential memory leak in s3fwrn5_nci_send()
+Subject: [PATCH 4.14 07/40] net: fec: fix improper use of NETDEV_TX_BUSY
 Date:   Tue,  8 Nov 2022 14:38:52 +0100
-Message-Id: <20221108133326.874048816@linuxfoundation.org>
+Message-Id: <20221108133328.645795850@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
-References: <20221108133326.715586431@linuxfoundation.org>
+In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
+References: <20221108133328.351887714@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 3a146b7e3099dc7cf3114f627d9b79291e2d2203 ]
+[ Upstream commit 06a4df5863f73af193a4ff7abf7cb04058584f06 ]
 
-s3fwrn5_nci_send() will call s3fwrn5_i2c_write() or s3fwrn82_uart_write(),
-and free the skb if write() failed. However, even if the write() run
-succeeds, the skb will not be freed in write(). As the result, the skb
-will memleak. s3fwrn5_nci_send() should also free the skb when write()
-succeeds.
+The ndo_start_xmit() method must not free skb when returning
+NETDEV_TX_BUSY, since caller is going to requeue freed skb.
 
-Fixes: c04c674fadeb ("nfc: s3fwrn5: Add driver for Samsung S3FWRN5 NFC Chip")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Fix it by returning NETDEV_TX_OK in case of dma_map_single() fails.
+
+Fixes: 79f339125ea3 ("net: fec: Add software TSO support")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/s3fwrn5/core.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nfc/s3fwrn5/core.c b/drivers/nfc/s3fwrn5/core.c
-index 64b58455e620..f23a1e4d7e1e 100644
---- a/drivers/nfc/s3fwrn5/core.c
-+++ b/drivers/nfc/s3fwrn5/core.c
-@@ -108,11 +108,15 @@ static int s3fwrn5_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index 6f7ffd975631..c6fc77a211ea 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -582,7 +582,7 @@ fec_enet_txq_put_data_tso(struct fec_enet_priv_tx_q *txq, struct sk_buff *skb,
+ 		dev_kfree_skb_any(skb);
+ 		if (net_ratelimit())
+ 			netdev_err(ndev, "Tx DMA memory map failed\n");
+-		return NETDEV_TX_BUSY;
++		return NETDEV_TX_OK;
  	}
  
- 	ret = s3fwrn5_write(info, skb);
--	if (ret < 0)
-+	if (ret < 0) {
- 		kfree_skb(skb);
-+		mutex_unlock(&info->mutex);
-+		return ret;
-+	}
+ 	bdp->cbd_datlen = cpu_to_fec16(size);
+@@ -644,7 +644,7 @@ fec_enet_txq_put_hdr_tso(struct fec_enet_priv_tx_q *txq,
+ 			dev_kfree_skb_any(skb);
+ 			if (net_ratelimit())
+ 				netdev_err(ndev, "Tx DMA memory map failed\n");
+-			return NETDEV_TX_BUSY;
++			return NETDEV_TX_OK;
+ 		}
+ 	}
  
-+	consume_skb(skb);
- 	mutex_unlock(&info->mutex);
--	return ret;
-+	return 0;
- }
- 
- static int s3fwrn5_nci_post_setup(struct nci_dev *ndev)
 -- 
 2.35.1
 
