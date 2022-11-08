@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACEE26215BA
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:14:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA092621425
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:57:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235296AbiKHOOc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:14:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52714 "EHLO
+        id S234346AbiKHN5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:57:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235319AbiKHOOa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:14:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47E2357B63
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:14:29 -0800 (PST)
+        with ESMTP id S234840AbiKHN5n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:57:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D72568280
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:57:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 043CDB81B04
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:14:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43A06C433D6;
-        Tue,  8 Nov 2022 14:14:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35D3BB81AFA
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:57:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69F6BC433C1;
+        Tue,  8 Nov 2022 13:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916866;
-        bh=8qMJrL8jM4NOzuN0P8gzaWT2Ees7y+uYk191o5DiUvs=;
+        s=korg; t=1667915859;
+        bh=92nM+Inq/WOOU0v6zkWICM5Hd3luCbE/YNGlqZS7pjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DcfnPJBVbd9+05Xn/cZJQlJipLx0gYNEmRNjG+aFtR7GAyy2wpJakQtAeJ8S1Xx8a
-         mn9KkJhHP5+ia3AtLYZWr+ddUPzztzaiGfj5QcbjNIF2E9KFHlm8K1V4RnIVlWqJJs
-         lldF2S4dHSY/6QFDEXiSionBHIvFibWTId0+WV6Q=
+        b=v0IqCS43moBv7pnBZgNFgeLBEE93CsgmHl8kycGPjZsoluiIQ31TgjCor4FVdq7+i
+         JopnoyuQlrh3HoKZRHY9RF4MGt9Q7I8KYI+FLssfoP10m3nYAgu06Iga0G4Tj3IMhJ
+         ZoJrM0v8k6BzLpMhhP5P2EeIkEF6ylvtnGCT5Gvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Subject: [PATCH 6.0 151/197] efi: random: Use ACPI reclaim memory for random seed
+        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 111/118] KVM: x86: emulator: introduce emulator_recalc_and_set_mode
 Date:   Tue,  8 Nov 2022 14:39:49 +0100
-Message-Id: <20221108133401.837071641@linuxfoundation.org>
+Message-Id: <20221108133345.510444433@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,59 +52,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit 7d866e38c7e9ece8a096d0d098fa9d92b9d4f97e upstream.
+commit d087e0f79fa0dd336a9a6b2f79ec23120f5eff73 upstream.
 
-EFI runtime services data is guaranteed to be preserved by the OS,
-making it a suitable candidate for the EFI random seed table, which may
-be passed to kexec kernels as well (after refreshing the seed), and so
-we need to ensure that the memory is preserved without support from the
-OS itself.
+Some instructions update the cpu execution mode, which needs to update the
+emulation mode.
 
-However, runtime services data is intended for allocations that are
-relevant to the implementations of the runtime services themselves, and
-so they are unmapped from the kernel linear map, and mapped into the EFI
-page tables that are active while runtime service invocations are in
-progress. None of this is needed for the RNG seed.
+Extract this code, and make assign_eip_far use it.
 
-So let's switch to EFI 'ACPI reclaim' memory: in spite of the name,
-there is nothing exclusively ACPI about it, it is simply a type of
-allocation that carries firmware provided data which may or may not be
-relevant to the OS, and it is left up to the OS to decide whether to
-reclaim it after having consumed its contents.
+assign_eip_far now reads CS, instead of getting it via a parameter,
+which is ok, because callers always assign CS to the same value
+before calling this function.
 
-Given that in Linux, we never reclaim these allocations, it is a good
-choice for the EFI RNG seed, as the allocation is guaranteed to survive
-kexec reboots.
+No functional change is intended.
 
-One additional reason for changing this now is to align it with the
-upcoming recommendation for EFI bootloader provided RNG seeds, which
-must not use EFI runtime services code/data allocations.
-
-Cc: <stable@vger.kernel.org> # v4.14+
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20221025124741.228045-12-mlevitsk@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/libstub/random.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/x86/kvm/emulate.c |   85 ++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 57 insertions(+), 28 deletions(-)
 
---- a/drivers/firmware/efi/libstub/random.c
-+++ b/drivers/firmware/efi/libstub/random.c
-@@ -75,7 +75,12 @@ efi_status_t efi_random_get_seed(void)
- 	if (status != EFI_SUCCESS)
- 		return status;
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -796,8 +796,7 @@ static int linearize(struct x86_emulate_
+ 			   ctxt->mode, linear);
+ }
  
--	status = efi_bs_call(allocate_pool, EFI_RUNTIME_SERVICES_DATA,
-+	/*
-+	 * Use EFI_ACPI_RECLAIM_MEMORY here so that it is guaranteed that the
-+	 * allocation will survive a kexec reboot (although we refresh the seed
-+	 * beforehand)
-+	 */
-+	status = efi_bs_call(allocate_pool, EFI_ACPI_RECLAIM_MEMORY,
- 			     sizeof(*seed) + EFI_RANDOM_SEED_SIZE,
- 			     (void **)&seed);
- 	if (status != EFI_SUCCESS)
+-static inline int assign_eip(struct x86_emulate_ctxt *ctxt, ulong dst,
+-			     enum x86emul_mode mode)
++static inline int assign_eip(struct x86_emulate_ctxt *ctxt, ulong dst)
+ {
+ 	ulong linear;
+ 	int rc;
+@@ -807,41 +806,71 @@ static inline int assign_eip(struct x86_
+ 
+ 	if (ctxt->op_bytes != sizeof(unsigned long))
+ 		addr.ea = dst & ((1UL << (ctxt->op_bytes << 3)) - 1);
+-	rc = __linearize(ctxt, addr, &max_size, 1, false, true, mode, &linear);
++	rc = __linearize(ctxt, addr, &max_size, 1, false, true, ctxt->mode, &linear);
+ 	if (rc == X86EMUL_CONTINUE)
+ 		ctxt->_eip = addr.ea;
+ 	return rc;
+ }
+ 
++static inline int emulator_recalc_and_set_mode(struct x86_emulate_ctxt *ctxt)
++{
++	u64 efer;
++	struct desc_struct cs;
++	u16 selector;
++	u32 base3;
++
++	ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
++
++	if (!(ctxt->ops->get_cr(ctxt, 0) & X86_CR0_PE)) {
++		/* Real mode. cpu must not have long mode active */
++		if (efer & EFER_LMA)
++			return X86EMUL_UNHANDLEABLE;
++		ctxt->mode = X86EMUL_MODE_REAL;
++		return X86EMUL_CONTINUE;
++	}
++
++	if (ctxt->eflags & X86_EFLAGS_VM) {
++		/* Protected/VM86 mode. cpu must not have long mode active */
++		if (efer & EFER_LMA)
++			return X86EMUL_UNHANDLEABLE;
++		ctxt->mode = X86EMUL_MODE_VM86;
++		return X86EMUL_CONTINUE;
++	}
++
++	if (!ctxt->ops->get_segment(ctxt, &selector, &cs, &base3, VCPU_SREG_CS))
++		return X86EMUL_UNHANDLEABLE;
++
++	if (efer & EFER_LMA) {
++		if (cs.l) {
++			/* Proper long mode */
++			ctxt->mode = X86EMUL_MODE_PROT64;
++		} else if (cs.d) {
++			/* 32 bit compatibility mode*/
++			ctxt->mode = X86EMUL_MODE_PROT32;
++		} else {
++			ctxt->mode = X86EMUL_MODE_PROT16;
++		}
++	} else {
++		/* Legacy 32 bit / 16 bit mode */
++		ctxt->mode = cs.d ? X86EMUL_MODE_PROT32 : X86EMUL_MODE_PROT16;
++	}
++
++	return X86EMUL_CONTINUE;
++}
++
+ static inline int assign_eip_near(struct x86_emulate_ctxt *ctxt, ulong dst)
+ {
+-	return assign_eip(ctxt, dst, ctxt->mode);
++	return assign_eip(ctxt, dst);
+ }
+ 
+-static int assign_eip_far(struct x86_emulate_ctxt *ctxt, ulong dst,
+-			  const struct desc_struct *cs_desc)
++static int assign_eip_far(struct x86_emulate_ctxt *ctxt, ulong dst)
+ {
+-	enum x86emul_mode mode = ctxt->mode;
+-	int rc;
++	int rc = emulator_recalc_and_set_mode(ctxt);
+ 
+-#ifdef CONFIG_X86_64
+-	if (ctxt->mode >= X86EMUL_MODE_PROT16) {
+-		if (cs_desc->l) {
+-			u64 efer = 0;
++	if (rc != X86EMUL_CONTINUE)
++		return rc;
+ 
+-			ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
+-			if (efer & EFER_LMA)
+-				mode = X86EMUL_MODE_PROT64;
+-		} else
+-			mode = X86EMUL_MODE_PROT32; /* temporary value */
+-	}
+-#endif
+-	if (mode == X86EMUL_MODE_PROT16 || mode == X86EMUL_MODE_PROT32)
+-		mode = cs_desc->d ? X86EMUL_MODE_PROT32 : X86EMUL_MODE_PROT16;
+-	rc = assign_eip(ctxt, dst, mode);
+-	if (rc == X86EMUL_CONTINUE)
+-		ctxt->mode = mode;
+-	return rc;
++	return assign_eip(ctxt, dst);
+ }
+ 
+ static inline int jmp_rel(struct x86_emulate_ctxt *ctxt, int rel)
+@@ -2256,7 +2285,7 @@ static int em_jmp_far(struct x86_emulate
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return rc;
+ 
+-	rc = assign_eip_far(ctxt, ctxt->src.val, &new_desc);
++	rc = assign_eip_far(ctxt, ctxt->src.val);
+ 	/* Error handling is not implemented. */
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return X86EMUL_UNHANDLEABLE;
+@@ -2337,7 +2366,7 @@ static int em_ret_far(struct x86_emulate
+ 				       &new_desc);
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return rc;
+-	rc = assign_eip_far(ctxt, eip, &new_desc);
++	rc = assign_eip_far(ctxt, eip);
+ 	/* Error handling is not implemented. */
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return X86EMUL_UNHANDLEABLE;
+@@ -3554,7 +3583,7 @@ static int em_call_far(struct x86_emulat
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return rc;
+ 
+-	rc = assign_eip_far(ctxt, ctxt->src.val, &new_desc);
++	rc = assign_eip_far(ctxt, ctxt->src.val);
+ 	if (rc != X86EMUL_CONTINUE)
+ 		goto fail;
+ 
 
 
