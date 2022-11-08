@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B15696213B1
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:53:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 996D862153B
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:09:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234657AbiKHNw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:52:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52562 "EHLO
+        id S235178AbiKHOJf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:09:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234671AbiKHNwe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B842813E92
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:33 -0800 (PST)
+        with ESMTP id S235193AbiKHOJb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:09:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4759E5D
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:09:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55FDA615A2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32A31C433D7;
-        Tue,  8 Nov 2022 13:52:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6361DB81AF7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:09:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99B61C433D6;
+        Tue,  8 Nov 2022 14:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915552;
-        bh=gircjBMm/s/idxmHBnbJRXTON+VhDfEmi3AANon/C9g=;
+        s=korg; t=1667916566;
+        bh=SAVxyP0hGkSLvycEzVq7lGHEznZzAsRUthsUMzwoMZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=siHGLLXxdfgVYzIBtihagoY9Dzd1gQEZ0wYXWBoZtTzveeypactQr5I3SxUJGHfAR
-         emySiVM4WZ8t3iMFWviBsXXJA9f5wx1PXAm/dorvUVCUVWYEsJvm8ivsO6Y5C6PtYG
-         s8ol8qPPo1U/RZCUZ3h1QUVk3y5S1BsQoV0Zz53E=
+        b=nz+XtlM18I+08p1Xc8y8sbFq4V3mhCpRlI5EHAHlbqkMG9Q96LTSKbz5MM2D9tpSl
+         fKpl5z+6e1Lo+Yu95vrPCwv/Kz0dNhAE67VtMopBWkqL/z2fkHoerfE1TieSthexgF
+         /5xxyEy8fRC43rZ2wyRpgDnMXxU3ZMg9JS+aPrfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 015/118] NFSv4: Fix a potential state reclaim deadlock
+Subject: [PATCH 6.0 055/197] net: mdio: fix undefined behavior in bit shift for __mdiobus_register
 Date:   Tue,  8 Nov 2022 14:38:13 +0100
-Message-Id: <20221108133341.347934870@linuxfoundation.org>
+Message-Id: <20221108133357.318822334@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 1ba04394e028ea8b45d92685cc0d6ab582cf7647 ]
+[ Upstream commit 40e4eb324c59e11fcb927aa46742d28aba6ecb8a ]
 
-If the server reboots while we are engaged in a delegation return, and
-there is a pNFS layout with return-on-close set, then the current code
-can end up deadlocking in pnfs_roc() when nfs_inode_set_delegation()
-tries to return the old delegation.
-Now that delegreturn actually uses its own copy of the stateid, it
-should be safe to just always update the delegation stateid in place.
+Shifting signed 32-bit value by 31 bits is undefined, so changing
+significant bit to unsigned. The UBSAN warning calltrace like below:
 
-Fixes: 078000d02d57 ("pNFS: We want return-on-close to complete when evicting the inode")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+UBSAN: shift-out-of-bounds in drivers/net/phy/mdio_bus.c:586:27
+left shift of 1 by 31 places cannot be represented in type 'int'
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x7d/0xa5
+ dump_stack+0x15/0x1b
+ ubsan_epilogue+0xe/0x4e
+ __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
+ __mdiobus_register+0x49d/0x4e0
+ fixed_mdio_bus_init+0xd8/0x12d
+ do_one_initcall+0x76/0x430
+ kernel_init_freeable+0x3b3/0x422
+ kernel_init+0x24/0x1e0
+ ret_from_fork+0x1f/0x30
+ </TASK>
+
+Fixes: 4fd5f812c23c ("phylib: allow incremental scanning of an mii bus")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20221031132645.168421-1-cuigaosheng1@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/delegation.c | 36 +++++++++++++++++-------------------
- 1 file changed, 17 insertions(+), 19 deletions(-)
+ drivers/net/phy/mdio_bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
-index d6ac2c4f88b6..1eb6c7a142ff 100644
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -228,8 +228,7 @@ static int nfs_delegation_claim_opens(struct inode *inode,
-  *
-  */
- void nfs_inode_reclaim_delegation(struct inode *inode, const struct cred *cred,
--				  fmode_t type,
--				  const nfs4_stateid *stateid,
-+				  fmode_t type, const nfs4_stateid *stateid,
- 				  unsigned long pagemod_limit)
- {
- 	struct nfs_delegation *delegation;
-@@ -239,25 +238,24 @@ void nfs_inode_reclaim_delegation(struct inode *inode, const struct cred *cred,
- 	delegation = rcu_dereference(NFS_I(inode)->delegation);
- 	if (delegation != NULL) {
- 		spin_lock(&delegation->lock);
--		if (nfs4_is_valid_delegation(delegation, 0)) {
--			nfs4_stateid_copy(&delegation->stateid, stateid);
--			delegation->type = type;
--			delegation->pagemod_limit = pagemod_limit;
--			oldcred = delegation->cred;
--			delegation->cred = get_cred(cred);
--			clear_bit(NFS_DELEGATION_NEED_RECLAIM,
--				  &delegation->flags);
--			spin_unlock(&delegation->lock);
--			rcu_read_unlock();
--			put_cred(oldcred);
--			trace_nfs4_reclaim_delegation(inode, type);
--			return;
--		}
--		/* We appear to have raced with a delegation return. */
-+		nfs4_stateid_copy(&delegation->stateid, stateid);
-+		delegation->type = type;
-+		delegation->pagemod_limit = pagemod_limit;
-+		oldcred = delegation->cred;
-+		delegation->cred = get_cred(cred);
-+		clear_bit(NFS_DELEGATION_NEED_RECLAIM, &delegation->flags);
-+		if (test_and_clear_bit(NFS_DELEGATION_REVOKED,
-+				       &delegation->flags))
-+			atomic_long_inc(&nfs_active_delegations);
- 		spin_unlock(&delegation->lock);
-+		rcu_read_unlock();
-+		put_cred(oldcred);
-+		trace_nfs4_reclaim_delegation(inode, type);
-+	} else {
-+		rcu_read_unlock();
-+		nfs_inode_set_delegation(inode, cred, type, stateid,
-+					 pagemod_limit);
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index 8a2dbe849866..1bc988d9f2e8 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -583,7 +583,7 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
  	}
--	rcu_read_unlock();
--	nfs_inode_set_delegation(inode, cred, type, stateid, pagemod_limit);
- }
  
- static int nfs_do_return_delegation(struct inode *inode, struct nfs_delegation *delegation, int issync)
+ 	for (i = 0; i < PHY_MAX_ADDR; i++) {
+-		if ((bus->phy_mask & (1 << i)) == 0) {
++		if ((bus->phy_mask & BIT(i)) == 0) {
+ 			struct phy_device *phydev;
+ 
+ 			phydev = mdiobus_scan(bus, i);
 -- 
 2.35.1
 
