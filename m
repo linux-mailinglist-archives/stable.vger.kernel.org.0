@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7081E6213E0
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:54:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B25CF6212C4
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:42:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234734AbiKHNyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:54:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56736 "EHLO
+        id S234049AbiKHNme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:42:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234739AbiKHNyy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:54:54 -0500
+        with ESMTP id S234477AbiKHNm2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:42:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886D41E0
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:54:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67B1253EFE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:42:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41EEFB816DD
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:54:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 653F7C433D7;
-        Tue,  8 Nov 2022 13:54:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1867FB81AEF
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:42:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42A2EC433D6;
+        Tue,  8 Nov 2022 13:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915690;
-        bh=uqyuWR1r5w6IShtUPWv7xEGNh6pYqaTS19lYL1oAyI0=;
+        s=korg; t=1667914944;
+        bh=DXSW/RqSngyg0XsoQ7v3i0T9A1BNQM7zXvVRJ0eHr7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GSOgfbpmwHOGp/0c9+d1eVdniULgVfloUqRI+7RpGvtVNoTPYnI87Kr+ZgMk6C6Ei
-         8B//A/woJZGxns7g2moe0+nBi6REZ6VDbB4PvgppEQYHAIW5QLvROxWMLeiVCh/wPJ
-         FFLm9VWHmJAgneTBj6klSQ98QSnaT2/+4T4DrQWk=
+        b=DwqugmnIv4D0d8eLNC0un6z1ccxXYsXWf9gsXwFmYfcPdDv/KALBAIP0/BKPPgq46
+         q7QNJgXBlt8dkb52uvOLwid8xZsBgqAosgrTHM9z+I+8lRMGY5RC6q6p/URL8XnUYg
+         ZbeBzfKy1rcbj1vkou+9uKWWGyhb+owkzd5pHnpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ashish Kalra <ashish.kalra@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Maxim Mikityanskiy <maxtram95@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 064/118] ACPI: APEI: Fix integer overflow in ghes_estatus_pool_init()
+Subject: [PATCH 4.9 14/30] Bluetooth: L2CAP: Fix use-after-free caused by l2cap_reassemble_sdu
 Date:   Tue,  8 Nov 2022 14:39:02 +0100
-Message-Id: <20221108133343.522478572@linuxfoundation.org>
+Message-Id: <20221108133327.216359785@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
+References: <20221108133326.715586431@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +53,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ashish Kalra <ashish.kalra@amd.com>
+From: Maxim Mikityanskiy <maxtram95@gmail.com>
 
-[ Upstream commit 43d2748394c3feb86c0c771466f5847e274fc043 ]
+[ Upstream commit 3aff8aaca4e36dc8b17eaa011684881a80238966 ]
 
-Change num_ghes from int to unsigned int, preventing an overflow
-and causing subsequent vmalloc() to fail.
+Fix the race condition between the following two flows that run in
+parallel:
 
-The overflow happens in ghes_estatus_pool_init() when calculating
-len during execution of the statement below as both multiplication
-operands here are signed int:
+1. l2cap_reassemble_sdu -> chan->ops->recv (l2cap_sock_recv_cb) ->
+   __sock_queue_rcv_skb.
 
-len += (num_ghes * GHES_ESOURCE_PREALLOC_MAX_SIZE);
+2. bt_sock_recvmsg -> skb_recv_datagram, skb_free_datagram.
 
-The following call trace is observed because of this bug:
+An SKB can be queued by the first flow and immediately dequeued and
+freed by the second flow, therefore the callers of l2cap_reassemble_sdu
+can't use the SKB after that function returns. However, some places
+continue accessing struct l2cap_ctrl that resides in the SKB's CB for a
+short time after l2cap_reassemble_sdu returns, leading to a
+use-after-free condition (the stack trace is below, line numbers for
+kernel 5.19.8).
 
-[    9.317108] swapper/0: vmalloc error: size 18446744071562596352, exceeds total pages, mode:0xcc0(GFP_KERNEL), nodemask=(null),cpuset=/,mems_allowed=0-1
-[    9.317131] Call Trace:
-[    9.317134]  <TASK>
-[    9.317137]  dump_stack_lvl+0x49/0x5f
-[    9.317145]  dump_stack+0x10/0x12
-[    9.317146]  warn_alloc.cold+0x7b/0xdf
-[    9.317150]  ? __device_attach+0x16a/0x1b0
-[    9.317155]  __vmalloc_node_range+0x702/0x740
-[    9.317160]  ? device_add+0x17f/0x920
-[    9.317164]  ? dev_set_name+0x53/0x70
-[    9.317166]  ? platform_device_add+0xf9/0x240
-[    9.317168]  __vmalloc_node+0x49/0x50
-[    9.317170]  ? ghes_estatus_pool_init+0x43/0xa0
-[    9.317176]  vmalloc+0x21/0x30
-[    9.317177]  ghes_estatus_pool_init+0x43/0xa0
-[    9.317179]  acpi_hest_init+0x129/0x19c
-[    9.317185]  acpi_init+0x434/0x4a4
-[    9.317188]  ? acpi_sleep_proc_init+0x2a/0x2a
-[    9.317190]  do_one_initcall+0x48/0x200
-[    9.317195]  kernel_init_freeable+0x221/0x284
-[    9.317200]  ? rest_init+0xe0/0xe0
-[    9.317204]  kernel_init+0x1a/0x130
-[    9.317205]  ret_from_fork+0x22/0x30
-[    9.317208]  </TASK>
+Fix it by keeping a local copy of struct l2cap_ctrl.
 
-Signed-off-by: Ashish Kalra <ashish.kalra@amd.com>
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+BUG: KASAN: use-after-free in l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
+Read of size 1 at addr ffff88812025f2f0 by task kworker/u17:3/43169
+
+Workqueue: hci0 hci_rx_work [bluetooth]
+Call Trace:
+ <TASK>
+ dump_stack_lvl (lib/dump_stack.c:107 (discriminator 4))
+ print_report.cold (mm/kasan/report.c:314 mm/kasan/report.c:429)
+ ? l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
+ kasan_report (mm/kasan/report.c:162 mm/kasan/report.c:493)
+ ? l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
+ l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
+ l2cap_rx (net/bluetooth/l2cap_core.c:7236 net/bluetooth/l2cap_core.c:7271) bluetooth
+ ret_from_fork (arch/x86/entry/entry_64.S:306)
+ </TASK>
+
+Allocated by task 43169:
+ kasan_save_stack (mm/kasan/common.c:39)
+ __kasan_slab_alloc (mm/kasan/common.c:45 mm/kasan/common.c:436 mm/kasan/common.c:469)
+ kmem_cache_alloc_node (mm/slab.h:750 mm/slub.c:3243 mm/slub.c:3293)
+ __alloc_skb (net/core/skbuff.c:414)
+ l2cap_recv_frag (./include/net/bluetooth/bluetooth.h:425 net/bluetooth/l2cap_core.c:8329) bluetooth
+ l2cap_recv_acldata (net/bluetooth/l2cap_core.c:8442) bluetooth
+ hci_rx_work (net/bluetooth/hci_core.c:3642 net/bluetooth/hci_core.c:3832) bluetooth
+ process_one_work (kernel/workqueue.c:2289)
+ worker_thread (./include/linux/list.h:292 kernel/workqueue.c:2437)
+ kthread (kernel/kthread.c:376)
+ ret_from_fork (arch/x86/entry/entry_64.S:306)
+
+Freed by task 27920:
+ kasan_save_stack (mm/kasan/common.c:39)
+ kasan_set_track (mm/kasan/common.c:45)
+ kasan_set_free_info (mm/kasan/generic.c:372)
+ ____kasan_slab_free (mm/kasan/common.c:368 mm/kasan/common.c:328)
+ slab_free_freelist_hook (mm/slub.c:1780)
+ kmem_cache_free (mm/slub.c:3536 mm/slub.c:3553)
+ skb_free_datagram (./include/net/sock.h:1578 ./include/net/sock.h:1639 net/core/datagram.c:323)
+ bt_sock_recvmsg (net/bluetooth/af_bluetooth.c:295) bluetooth
+ l2cap_sock_recvmsg (net/bluetooth/l2cap_sock.c:1212) bluetooth
+ sock_read_iter (net/socket.c:1087)
+ new_sync_read (./include/linux/fs.h:2052 fs/read_write.c:401)
+ vfs_read (fs/read_write.c:482)
+ ksys_read (fs/read_write.c:620)
+ do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
+ entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
+
+Link: https://lore.kernel.org/linux-bluetooth/CAKErNvoqga1WcmoR3-0875esY6TVWFQDandbVZncSiuGPBQXLA@mail.gmail.com/T/#u
+Fixes: d2a7ac5d5d3a ("Bluetooth: Add the ERTM receive state machine")
+Fixes: 4b51dae96731 ("Bluetooth: Add streaming mode receive and incoming packet classifier")
+Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/apei/ghes.c | 2 +-
- include/acpi/ghes.h      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/bluetooth/l2cap_core.c | 48 ++++++++++++++++++++++++++++++++------
+ 1 file changed, 41 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
-index 5206fd3b7867..9bdb5bd5fda6 100644
---- a/drivers/acpi/apei/ghes.c
-+++ b/drivers/acpi/apei/ghes.c
-@@ -163,7 +163,7 @@ static void ghes_unmap(void __iomem *vaddr, enum fixed_addresses fixmap_idx)
- 	clear_fixmap(fixmap_idx);
- }
- 
--int ghes_estatus_pool_init(int num_ghes)
-+int ghes_estatus_pool_init(unsigned int num_ghes)
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index ec04a7ea5537..a8720e9c3b85 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -6247,6 +6247,7 @@ static int l2cap_rx_state_recv(struct l2cap_chan *chan,
+ 			       struct l2cap_ctrl *control,
+ 			       struct sk_buff *skb, u8 event)
  {
- 	unsigned long addr, len;
- 	int rc;
-diff --git a/include/acpi/ghes.h b/include/acpi/ghes.h
-index 34fb3431a8f3..292a5c40bd0c 100644
---- a/include/acpi/ghes.h
-+++ b/include/acpi/ghes.h
-@@ -71,7 +71,7 @@ int ghes_register_vendor_record_notifier(struct notifier_block *nb);
- void ghes_unregister_vendor_record_notifier(struct notifier_block *nb);
- #endif
++	struct l2cap_ctrl local_control;
+ 	int err = 0;
+ 	bool skb_in_use = false;
  
--int ghes_estatus_pool_init(int num_ghes);
-+int ghes_estatus_pool_init(unsigned int num_ghes);
+@@ -6271,15 +6272,32 @@ static int l2cap_rx_state_recv(struct l2cap_chan *chan,
+ 			chan->buffer_seq = chan->expected_tx_seq;
+ 			skb_in_use = true;
  
- /* From drivers/edac/ghes_edac.c */
++			/* l2cap_reassemble_sdu may free skb, hence invalidate
++			 * control, so make a copy in advance to use it after
++			 * l2cap_reassemble_sdu returns and to avoid the race
++			 * condition, for example:
++			 *
++			 * The current thread calls:
++			 *   l2cap_reassemble_sdu
++			 *     chan->ops->recv == l2cap_sock_recv_cb
++			 *       __sock_queue_rcv_skb
++			 * Another thread calls:
++			 *   bt_sock_recvmsg
++			 *     skb_recv_datagram
++			 *     skb_free_datagram
++			 * Then the current thread tries to access control, but
++			 * it was freed by skb_free_datagram.
++			 */
++			local_control = *control;
+ 			err = l2cap_reassemble_sdu(chan, skb, control);
+ 			if (err)
+ 				break;
  
+-			if (control->final) {
++			if (local_control.final) {
+ 				if (!test_and_clear_bit(CONN_REJ_ACT,
+ 							&chan->conn_state)) {
+-					control->final = 0;
+-					l2cap_retransmit_all(chan, control);
++					local_control.final = 0;
++					l2cap_retransmit_all(chan, &local_control);
+ 					l2cap_ertm_send(chan);
+ 				}
+ 			}
+@@ -6659,11 +6677,27 @@ static int l2cap_rx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
+ static int l2cap_stream_rx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
+ 			   struct sk_buff *skb)
+ {
++	/* l2cap_reassemble_sdu may free skb, hence invalidate control, so store
++	 * the txseq field in advance to use it after l2cap_reassemble_sdu
++	 * returns and to avoid the race condition, for example:
++	 *
++	 * The current thread calls:
++	 *   l2cap_reassemble_sdu
++	 *     chan->ops->recv == l2cap_sock_recv_cb
++	 *       __sock_queue_rcv_skb
++	 * Another thread calls:
++	 *   bt_sock_recvmsg
++	 *     skb_recv_datagram
++	 *     skb_free_datagram
++	 * Then the current thread tries to access control, but it was freed by
++	 * skb_free_datagram.
++	 */
++	u16 txseq = control->txseq;
++
+ 	BT_DBG("chan %p, control %p, skb %p, state %d", chan, control, skb,
+ 	       chan->rx_state);
+ 
+-	if (l2cap_classify_txseq(chan, control->txseq) ==
+-	    L2CAP_TXSEQ_EXPECTED) {
++	if (l2cap_classify_txseq(chan, txseq) == L2CAP_TXSEQ_EXPECTED) {
+ 		l2cap_pass_to_tx(chan, control);
+ 
+ 		BT_DBG("buffer_seq %d->%d", chan->buffer_seq,
+@@ -6686,8 +6720,8 @@ static int l2cap_stream_rx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
+ 		}
+ 	}
+ 
+-	chan->last_acked_seq = control->txseq;
+-	chan->expected_tx_seq = __next_seq(chan, control->txseq);
++	chan->last_acked_seq = txseq;
++	chan->expected_tx_seq = __next_seq(chan, txseq);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
