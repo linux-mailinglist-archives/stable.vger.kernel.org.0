@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13EDF621353
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:49:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FD86621577
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234561AbiKHNtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:49:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49292 "EHLO
+        id S235328AbiKHOMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:12:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234564AbiKHNtS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:49:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884B56314
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:49:17 -0800 (PST)
+        with ESMTP id S234705AbiKHOMS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92E2257B4E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:11:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48541B81AE8
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:49:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A32AC433D6;
-        Tue,  8 Nov 2022 13:49:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F4EF6157D
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:11:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E6E7C433C1;
+        Tue,  8 Nov 2022 14:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915355;
-        bh=RuYchei7QOwh8d7mI7NwwXlTPRmugQtjgst3vuEKIvc=;
+        s=korg; t=1667916709;
+        bh=h3M2MLR50FCIojthYG4cMTQHfXoeJNqXoOO+lt46Jys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=onZDsD3RWTIAvDJKtKkDa7hZPMBrqjL25rW5uhldAWmw32218//t4UaryJljy1LeN
-         KP6v2l36RtlqkbvVrI+pXXrBoo9VFp0uihDd/cjUwjLey6t6yVaDt7mnjkkxmCOXfe
-         mLP0VdX8MU9mUKVcv47O/UzjfjZRC9dTAsP+HLiE=
+        b=Lb90nfqib7kgQoLtvMJburLA7w4UKApTwKqSBIlDpFATBBjyVX9kJeGkxJEtES1yL
+         0Rtaq+VNXr3EHwru0ms0Bl2Y4LEg5BSiqC+Ieo7cuZLE9a7hzgrqB9zvwY65KIj/Ju
+         fD7JEgqeLz6mHhTYPnIghJgyvD/vc0RmhyFkC97E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 37/74] xfs: dont fail verifier on empty attr3 leaf block
-Date:   Tue,  8 Nov 2022 14:39:05 +0100
-Message-Id: <20221108133335.235304148@linuxfoundation.org>
+        patches@lists.linux.dev, Ioana Ciornei <ioana.ciornei@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 108/197] arm64: dts: ls208xa: specify clock frequencies for the MDIO controllers
+Date:   Tue,  8 Nov 2022 14:39:06 +0100
+Message-Id: <20221108133359.762849055@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-commit f28cef9e4daca11337cb9f144cdebedaab69d78c upstream.
+[ Upstream commit d5c921a53c80dfa942f6dff36253db5a50775a5f ]
 
-The attr fork can transition from shortform to leaf format while
-empty if the first xattr doesn't fit in shortform. While this empty
-leaf block state is intended to be transient, it is technically not
-due to the transactional implementation of the xattr set operation.
+Up until now, the external MDIO controller frequency values relied
+either on the default ones out of reset or on those setup by u-boot.
+Let's just properly specify the MDC frequency in the DTS so that even
+without u-boot's intervention Linux can drive the MDIO bus.
 
-We historically have a couple of bandaids to work around this
-problem. The first is to hold the buffer after the format conversion
-to prevent premature writeback of the empty leaf buffer and the
-second is to bypass the xattr count check in the verifier during
-recovery. The latter assumes that the xattr set is also in the log
-and will be recovered into the buffer soon after the empty leaf
-buffer is reconstructed. This is not guaranteed, however.
-
-If the filesystem crashes after the format conversion but before the
-xattr set that induced it, only the format conversion may exist in
-the log. When recovered, this creates a latent corrupted state on
-the inode as any subsequent attempts to read the buffer fail due to
-verifier failure. This includes further attempts to set xattrs on
-the inode or attempts to destroy the attr fork, which prevents the
-inode from ever being removed from the unlinked list.
-
-To avoid this condition, accept that an empty attr leaf block is a
-valid state and remove the count check from the verifier. This means
-that on rare occasions an attr fork might exist in an unexpected
-state, but is otherwise consistent and functional. Note that we
-retain the logic to avoid racing with metadata writeback to reduce
-the window where this can occur.
-
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0420dde30a90 ("arm64: dts: ls208xa: add the external MDIO nodes")
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_attr_leaf.c |    8 --------
- 1 file changed, 8 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/xfs/libxfs/xfs_attr_leaf.c
-+++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-@@ -251,14 +251,6 @@ xfs_attr3_leaf_verify(
- 		return fa;
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+index d76f1c42f3fa..7bb33933c2cb 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+@@ -533,6 +533,9 @@ emdio1: mdio@8b96000 {
+ 			little-endian;
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
++			clock-frequency = <2500000>;
++			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
++					    QORIQ_CLK_PLL_DIV(2)>;
+ 			status = "disabled";
+ 		};
  
- 	/*
--	 * In recovery there is a transient state where count == 0 is valid
--	 * because we may have transitioned an empty shortform attr to a leaf
--	 * if the attr didn't fit in shortform.
--	 */
--	if (!xfs_log_in_recovery(mp) && ichdr.count == 0)
--		return __this_address;
--
--	/*
- 	 * firstused is the block offset of the first name info structure.
- 	 * Make sure it doesn't go off the block or crash into the header.
- 	 */
+@@ -542,6 +545,9 @@ emdio2: mdio@8b97000 {
+ 			little-endian;
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
++			clock-frequency = <2500000>;
++			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
++					    QORIQ_CLK_PLL_DIV(2)>;
+ 			status = "disabled";
+ 		};
+ 
+-- 
+2.35.1
+
 
 
