@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97B1262131C
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:46:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C638862149B
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:03:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234550AbiKHNqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:46:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46570 "EHLO
+        id S234968AbiKHODJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:03:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234535AbiKHNqr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACC8C5984E
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:46 -0800 (PST)
+        with ESMTP id S234970AbiKHODI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:03:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039F968689
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:03:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69266B81AEE
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99D0FC433C1;
-        Tue,  8 Nov 2022 13:46:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94F706158F
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:03:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E1A1C433D6;
+        Tue,  8 Nov 2022 14:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915204;
-        bh=eJ8fRkh5NUCnOCS3wkbH7E6JcQdswvY0iqvo8X8JBLs=;
+        s=korg; t=1667916187;
+        bh=uTv9tt+P1tIcQ5Y1l7aubdp/2BtkGIa9V/KeAYiEYAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vi97FEWWP3Rf63g3qYgPKmoPwDwgaQajHYK0V0LONnSfKR0tYtrTew1dfUWI9pK34
-         SYOTjKZLMs6FW+KNZKPaxiDotgsTIuAkfhrPa9kdnd1Qm5ohCwRyZUhVMvBvwDZMRf
-         zBNxkTMTe92RruhCwYYYPjRht1PoCdlO3TcR+R+c=
+        b=CQ/QK8OcWehH7HnBfrV8wyrchs7HhVWzXR6ywpmc3HJEjtMGNUklKwSYbOxMk/j3+
+         N+Qx12jXTzmZ05UrAnhqAZjSbdrihtzifbs6BEvCZaaz3xK+BDybxOP2+9teODMXql
+         qayyntRnSTykqGXEKDY5DnXLgdLHHWoGtYSvd2s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.19 41/48] parisc: Avoid printing the hardware path twice
+        patches@lists.linux.dev, Ioana Ciornei <ioana.ciornei@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 089/144] arm64: dts: ls208xa: specify clock frequencies for the MDIO controllers
 Date:   Tue,  8 Nov 2022 14:39:26 +0100
-Message-Id: <20221108133331.027964937@linuxfoundation.org>
+Message-Id: <20221108133349.022948067@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,77 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-commit 2b6ae0962b421103feb41a80406732944b0665b3 upstream.
+[ Upstream commit d5c921a53c80dfa942f6dff36253db5a50775a5f ]
 
-Avoid that the hardware path is shown twice in the kernel log, and clean
-up the output of the version numbers to show up in the same order as
-they are listed in the hardware database in the hardware.c file.
-Additionally, optimize the memory footprint of the hardware database
-and mark some code as init code.
+Up until now, the external MDIO controller frequency values relied
+either on the default ones out of reset or on those setup by u-boot.
+Let's just properly specify the MDC frequency in the DTS so that even
+without u-boot's intervention Linux can drive the MDIO bus.
 
-Fixes: cab56b51ec0e ("parisc: Fix device names in /proc/iomem")
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v4.9+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0420dde30a90 ("arm64: dts: ls208xa: add the external MDIO nodes")
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/include/asm/hardware.h |   12 ++++++------
- arch/parisc/kernel/drivers.c       |   14 ++++++--------
- 2 files changed, 12 insertions(+), 14 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/parisc/include/asm/hardware.h
-+++ b/arch/parisc/include/asm/hardware.h
-@@ -10,12 +10,12 @@
- #define SVERSION_ANY_ID		PA_SVERSION_ANY_ID
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+index 1282b61da8a5..12e59777363f 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+@@ -525,6 +525,9 @@ emdio1: mdio@8b96000 {
+ 			little-endian;
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
++			clock-frequency = <2500000>;
++			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
++					    QORIQ_CLK_PLL_DIV(2)>;
+ 			status = "disabled";
+ 		};
  
- struct hp_hardware {
--	unsigned short	hw_type:5;	/* HPHW_xxx */
--	unsigned short	hversion;
--	unsigned long	sversion:28;
--	unsigned short	opt;
--	const char	name[80];	/* The hardware description */
--};
-+	unsigned int	hw_type:8;	/* HPHW_xxx */
-+	unsigned int	hversion:12;
-+	unsigned int	sversion:12;
-+	unsigned char	opt;
-+	unsigned char	name[59];	/* The hardware description */
-+} __packed;
+@@ -534,6 +537,9 @@ emdio2: mdio@8b97000 {
+ 			little-endian;
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
++			clock-frequency = <2500000>;
++			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
++					    QORIQ_CLK_PLL_DIV(2)>;
+ 			status = "disabled";
+ 		};
  
- struct parisc_device;
- 
---- a/arch/parisc/kernel/drivers.c
-+++ b/arch/parisc/kernel/drivers.c
-@@ -861,15 +861,13 @@ void __init walk_central_bus(void)
- 			&root);
- }
- 
--static void print_parisc_device(struct parisc_device *dev)
-+static __init void print_parisc_device(struct parisc_device *dev)
- {
--	char hw_path[64];
--	static int count;
-+	static int count __initdata;
- 
--	print_pa_hwpath(dev, hw_path);
--	pr_info("%d. %s at %pap [%s] { %d, 0x%x, 0x%.3x, 0x%.5x }",
--		++count, dev->name, &(dev->hpa.start), hw_path, dev->id.hw_type,
--		dev->id.hversion_rev, dev->id.hversion, dev->id.sversion);
-+	pr_info("%d. %s at %pap { type:%d, hv:%#x, sv:%#x, rev:%#x }",
-+		++count, dev->name, &(dev->hpa.start), dev->id.hw_type,
-+		dev->id.hversion, dev->id.sversion, dev->id.hversion_rev);
- 
- 	if (dev->num_addrs) {
- 		int k;
-@@ -1058,7 +1056,7 @@ static __init int qemu_print_iodc_data(s
- 
- 
- 
--static int print_one_device(struct device * dev, void * data)
-+static __init int print_one_device(struct device * dev, void * data)
- {
- 	struct parisc_device * pdev = to_parisc_device(dev);
- 
+-- 
+2.35.1
+
 
 
