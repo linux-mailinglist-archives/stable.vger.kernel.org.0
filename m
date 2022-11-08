@@ -2,86 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 053236212E4
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 391996213F7
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:55:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234478AbiKHNn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:43:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43934 "EHLO
+        id S234808AbiKHNzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:55:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234485AbiKHNn4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:43:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFDC313E17
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:43:54 -0800 (PST)
+        with ESMTP id S234793AbiKHNzs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:55:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC63D60EB7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:55:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CD266158F
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:43:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6479EC433C1;
-        Tue,  8 Nov 2022 13:43:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8BB3DB81AF7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:55:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAB5CC433D6;
+        Tue,  8 Nov 2022 13:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915033;
-        bh=ZV+YMt1PCM+/fvZUYHnijzd+9gqNpb1LsrZvBtoIxow=;
+        s=korg; t=1667915745;
+        bh=1bFuWh6Ne9uio9ieBTXTvVAx+ncIDvxbdqJuCV3t6do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W9aoZ0QuLhfYYQuIxDgKaQ/AApTT1fbKQOFE02z8dMsbbl9R0LqyqDsxZt/8ASzTB
-         TmHPnUjmddRt0HM1gj31iw8aaDMdlCc2+8od+FwHSiMUeUb74350BBfkSSe6UpTLnK
-         J99yrCZMm/1uDhMPNi5weq65KAYmL4k/tI0vIzMo=
+        b=Qn5OLWVlbYsQ+l0unO10R+75Pt+MvHYdMue+OjUUEkJ3ssEZRz1f+82Jrf8YHwlKY
+         feVq+Ate79Tsh3wU5gmO9dKdQZRfLkkL5wyW3Rl+5yUOJ2jjvMjMPbmddkZI+NREu2
+         sUv5tncSX9kgsGw4htWx4k929AgzTAOUrTizMEPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 30/40] parisc: Make 8250_gsc driver dependend on CONFIG_PARISC
-Date:   Tue,  8 Nov 2022 14:39:15 +0100
-Message-Id: <20221108133329.491374517@linuxfoundation.org>
+        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
+        Jan Kara <jack@suse.cz>, Chaitanya Kulkarni <kch@nvidia.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Khazhy Kumykov <khazhy@chromium.org>
+Subject: [PATCH 5.10 078/118] block, bfq: protect bfqd->queued by bfqd->lock
+Date:   Tue,  8 Nov 2022 14:39:16 +0100
+Message-Id: <20221108133344.115822736@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
-References: <20221108133328.351887714@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit e8a18e3f00f3ee8d07c17ab1ea3ad4df4a3b6fe0 upstream.
+commit 181490d5321806e537dc5386db5ea640b826bf78 upstream.
 
-Although the name of the driver 8250_gsc.c suggests that it handles
-only serial ports on the GSC bus, it does handle serial ports listed
-in the parisc machine inventory as well, e.g. the serial ports in a
-C8000 PCI-only workstation.
+If bfq_schedule_dispatch() is called from bfq_idle_slice_timer_body(),
+then 'bfqd->queued' is read without holding 'bfqd->lock'. This is
+wrong since it can be wrote concurrently.
 
-Change the dependency to CONFIG_PARISC, so that the driver gets included
-in the kernel even if CONFIG_GSC isn't set.
+Fix the problem by holding 'bfqd->lock' in such case.
 
-Reported-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Link: https://lore.kernel.org/r/20220513023507.2625717-2-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Khazhy Kumykov <khazhy@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/bfq-iosched.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/Kconfig
-+++ b/drivers/tty/serial/8250/Kconfig
-@@ -105,7 +105,7 @@ config SERIAL_8250_CONSOLE
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -421,6 +421,8 @@ static struct bfq_io_cq *bfq_bic_lookup(
+  */
+ void bfq_schedule_dispatch(struct bfq_data *bfqd)
+ {
++	lockdep_assert_held(&bfqd->lock);
++
+ 	if (bfqd->queued != 0) {
+ 		bfq_log(bfqd, "schedule dispatch");
+ 		blk_mq_run_hw_queues(bfqd->queue, true);
+@@ -6269,8 +6271,8 @@ bfq_idle_slice_timer_body(struct bfq_dat
+ 	bfq_bfqq_expire(bfqd, bfqq, true, reason);
  
- config SERIAL_8250_GSC
- 	tristate
--	depends on SERIAL_8250 && GSC
-+	depends on SERIAL_8250 && PARISC
- 	default SERIAL_8250
+ schedule_dispatch:
+-	spin_unlock_irqrestore(&bfqd->lock, flags);
+ 	bfq_schedule_dispatch(bfqd);
++	spin_unlock_irqrestore(&bfqd->lock, flags);
+ }
  
- config SERIAL_8250_DMA
+ /*
 
 
