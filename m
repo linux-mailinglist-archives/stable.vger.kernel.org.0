@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04853621493
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 375326212B0
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:42:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234948AbiKHOCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:02:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37046 "EHLO
+        id S233998AbiKHNmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:42:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234963AbiKHOCm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:02:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2FD0686A0
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:02:41 -0800 (PST)
+        with ESMTP id S234376AbiKHNlo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:41:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADCA74FFB1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:41:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 907BE615A9
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:02:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B97AC433D6;
-        Tue,  8 Nov 2022 14:02:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64729B81AEE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:41:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C159C433C1;
+        Tue,  8 Nov 2022 13:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916161;
-        bh=7PwGxb7r347LjxhB4O5/10fNOWAkErVJVpC0gzC3rw8=;
+        s=korg; t=1667914901;
+        bh=DEteDXpvLLB2FE0vAQOpY2PZ/VUybrPqdiRvxeIr7vA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5ynL3aDzrATIKUG+Twdwy1cHDGbln/1P5ivvGvsIIYV+zr1HUeBSBh1IFX/lp2pS
-         pnxNdt9xSSIZ67NU2EFDZkV24Ji6h5yakdyPNf0aaFESlzYMuinvcJD8GQQtoh9Xes
-         v3okShNqjjbYS8mW/QtV1ognObYhZ3hfOZtDot+M=
+        b=usp13eQYvAmI23E7uDJrXyV4wfj4UEe1FK1oYMOoLLSbq55EH/h38ES/pJN6jlzjx
+         1bECSXBX2UbdY2vGBrQXMfXieFuO6HMDXTJtOb6Nchg+LstJP9qr82nmW7zYpderDf
+         2RpfQXJ+hDLLdspNaV5qV1sJYM+w08ESUPTpXdug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 073/144] media: s5p_cec: limit msg.len to CEC_MAX_MSG_SIZE
+        patches@lists.linux.dev, John Veness <john-linux@pelago.org.uk>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 22/30] ALSA: usb-audio: Add quirks for MacroSilicon MS2100/MS2106 devices
 Date:   Tue,  8 Nov 2022 14:39:10 +0100
-Message-Id: <20221108133348.388523364@linuxfoundation.org>
+Message-Id: <20221108133327.556253655@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
+References: <20221108133326.715586431@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +52,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: John Veness <john-linux@pelago.org.uk>
 
-[ Upstream commit 93f65ce036863893c164ca410938e0968964b26c ]
+commit 6e2c9105e0b743c92a157389d40f00b81bdd09fe upstream.
 
-I expect that the hardware will have limited this to 16, but just in
-case it hasn't, check for this corner case.
+Treat the claimed 96kHz 1ch in the descriptors as 48kHz 2ch, so that
+the audio stream doesn't sound mono. Also fix initial stream
+alignment, so that left and right channels are in the correct order.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: John Veness <john-linux@pelago.org.uk>
+Link: https://lore.kernel.org/r/20220624140757.28758-1-john-linux@pelago.org.uk
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/cec/platform/s5p/s5p_cec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/usb/quirks-table.h |   58 +++++++++++++++++++++++++++++++++++++++++++++++
+ sound/usb/quirks.c       |    1 
+ 2 files changed, 59 insertions(+)
 
-diff --git a/drivers/media/cec/platform/s5p/s5p_cec.c b/drivers/media/cec/platform/s5p/s5p_cec.c
-index 028a09a7531e..102f1af01000 100644
---- a/drivers/media/cec/platform/s5p/s5p_cec.c
-+++ b/drivers/media/cec/platform/s5p/s5p_cec.c
-@@ -115,6 +115,8 @@ static irqreturn_t s5p_cec_irq_handler(int irq, void *priv)
- 				dev_dbg(cec->dev, "Buffer overrun (worker did not process previous message)\n");
- 			cec->rx = STATE_BUSY;
- 			cec->msg.len = status >> 24;
-+			if (cec->msg.len > CEC_MAX_MSG_SIZE)
-+				cec->msg.len = CEC_MAX_MSG_SIZE;
- 			cec->msg.rx_status = CEC_RX_STATUS_OK;
- 			s5p_cec_get_rx_buf(cec, cec->msg.len,
- 					cec->msg.msg);
--- 
-2.35.1
-
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -3334,6 +3334,64 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge
+ },
+ 
+ /*
++ * MacroSilicon MS2100/MS2106 based AV capture cards
++ *
++ * These claim 96kHz 1ch in the descriptors, but are actually 48kHz 2ch.
++ * They also need QUIRK_AUDIO_ALIGN_TRANSFER, which makes one wonder if
++ * they pretend to be 96kHz mono as a workaround for stereo being broken
++ * by that...
++ *
++ * They also have an issue with initial stream alignment that causes the
++ * channels to be swapped and out of phase, which is dealt with in quirks.c.
++ */
++{
++	.match_flags = USB_DEVICE_ID_MATCH_DEVICE |
++		       USB_DEVICE_ID_MATCH_INT_CLASS |
++		       USB_DEVICE_ID_MATCH_INT_SUBCLASS,
++	.idVendor = 0x534d,
++	.idProduct = 0x0021,
++	.bInterfaceClass = USB_CLASS_AUDIO,
++	.bInterfaceSubClass = USB_SUBCLASS_AUDIOCONTROL,
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.vendor_name = "MacroSilicon",
++		.product_name = "MS210x",
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = &(const struct snd_usb_audio_quirk[]) {
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_ALIGN_TRANSFER,
++			},
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_STANDARD_MIXER,
++			},
++			{
++				.ifnum = 3,
++				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
++				.data = &(const struct audioformat) {
++					.formats = SNDRV_PCM_FMTBIT_S16_LE,
++					.channels = 2,
++					.iface = 3,
++					.altsetting = 1,
++					.altset_idx = 1,
++					.attributes = 0,
++					.endpoint = 0x82,
++					.ep_attr = USB_ENDPOINT_XFER_ISOC |
++						USB_ENDPOINT_SYNC_ASYNC,
++					.rates = SNDRV_PCM_RATE_CONTINUOUS,
++					.rate_min = 48000,
++					.rate_max = 48000,
++				}
++			},
++			{
++				.ifnum = -1
++			}
++		}
++	}
++},
++
++/*
+  * MacroSilicon MS2109 based HDMI capture cards
+  *
+  * These claim 96kHz 1ch in the descriptors, but are actually 48kHz 2ch.
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1129,6 +1129,7 @@ void snd_usb_set_format_quirk(struct snd
+ 	case USB_ID(0x041e, 0x3f19): /* E-Mu 0204 USB */
+ 		set_format_emu_quirk(subs, fmt);
+ 		break;
++	case USB_ID(0x534d, 0x0021): /* MacroSilicon MS2100/MS2106 */
+ 	case USB_ID(0x534d, 0x2109): /* MacroSilicon MS2109 */
+ 		subs->stream_offset_adj = 2;
+ 		break;
 
 
