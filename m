@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 272F9621316
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:46:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22F8D6212F2
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234530AbiKHNq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:46:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46290 "EHLO
+        id S234493AbiKHNoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:44:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234538AbiKHNq2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:28 -0500
+        with ESMTP id S234503AbiKHNoh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C7575F844
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7857D4FF9B
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:44:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E9DDB81AEE
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9848EC433D6;
-        Tue,  8 Nov 2022 13:46:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 371B8B81AEC
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:44:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B9E3C433C1;
+        Tue,  8 Nov 2022 13:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915184;
-        bh=ruYVwcD0pygA3xGuMQL2vNu76g0uIown+H+aSRRP5ko=;
+        s=korg; t=1667915073;
+        bh=yTVh46LM+/J1k3y0ByhoD8RLiSh4hzAjDKqGeElp+dU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Cacf7q2XEc0/yDTPy1s0oH4khDeFZNBa2PNRMQ2t9YlNV2sKz8W55I3fp9+PpA1Y
-         FK8qk0HIbk+nFFDclOchyUukAIUXs7zuTP1s4VJXufVT8Br5B1vWopXL+yhxtPCJI5
-         Wr8RAgj1oTojByXnj+W5qJHMqo8YQc709jxtFgWU=
+        b=2KpNWclRLgY5wLyBq+R4XwHNFZvc4qfP6obGTUjUH20+xkzs6nCWAYIXM0PSda+sI
+         jki/p0wDKonRfljYzWzJj7OIkciPeBM8TxocfOU+DzEKeXX5eyA/zQ0XrDqGvo+qiz
+         Z3BylLLWBs/Uy9x7XEn3l92EXSZjXTPnzPWh5Duk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Yejian <zhengyejian1@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 4.19 35/48] tracing/histogram: Update document for KEYS_MAX size
+        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 35/40] KVM: x86: emulator: introduce emulator_recalc_and_set_mode
 Date:   Tue,  8 Nov 2022 14:39:20 +0100
-Message-Id: <20221108133330.777738519@linuxfoundation.org>
+Message-Id: <20221108133329.657113740@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
+References: <20221108133328.351887714@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +52,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit a635beeacc6d56d2b71c39e6c0103f85b53d108e upstream.
+commit d087e0f79fa0dd336a9a6b2f79ec23120f5eff73 upstream.
 
-After commit 4f36c2d85ced ("tracing: Increase tracing map KEYS_MAX size"),
-'keys' supports up to three fields.
+Some instructions update the cpu execution mode, which needs to update the
+emulation mode.
 
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Extract this code, and make assign_eip_far use it.
+
+assign_eip_far now reads CS, instead of getting it via a parameter,
+which is ok, because callers always assign CS to the same value
+before calling this function.
+
+No functional change is intended.
+
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20221025124741.228045-12-mlevitsk@redhat.com>
 Cc: stable@vger.kernel.org
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Link: https://lore.kernel.org/r/20221017103806.2479139-1-zhengyejian1@huawei.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/trace/histogram.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/emulate.c |   85 ++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 57 insertions(+), 28 deletions(-)
 
---- a/Documentation/trace/histogram.rst
-+++ b/Documentation/trace/histogram.rst
-@@ -39,7 +39,7 @@ Documentation written by Tom Zanussi
-   will use the event's kernel stacktrace as the key.  The keywords
-   'keys' or 'key' can be used to specify keys, and the keywords
-   'values', 'vals', or 'val' can be used to specify values.  Compound
--  keys consisting of up to two fields can be specified by the 'keys'
-+  keys consisting of up to three fields can be specified by the 'keys'
-   keyword.  Hashing a compound key produces a unique entry in the
-   table for each unique combination of component keys, and can be
-   useful for providing more fine-grained summaries of event data.
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -758,8 +758,7 @@ static int linearize(struct x86_emulate_
+ 			   ctxt->mode, linear);
+ }
+ 
+-static inline int assign_eip(struct x86_emulate_ctxt *ctxt, ulong dst,
+-			     enum x86emul_mode mode)
++static inline int assign_eip(struct x86_emulate_ctxt *ctxt, ulong dst)
+ {
+ 	ulong linear;
+ 	int rc;
+@@ -769,41 +768,71 @@ static inline int assign_eip(struct x86_
+ 
+ 	if (ctxt->op_bytes != sizeof(unsigned long))
+ 		addr.ea = dst & ((1UL << (ctxt->op_bytes << 3)) - 1);
+-	rc = __linearize(ctxt, addr, &max_size, 1, false, true, mode, &linear);
++	rc = __linearize(ctxt, addr, &max_size, 1, false, true, ctxt->mode, &linear);
+ 	if (rc == X86EMUL_CONTINUE)
+ 		ctxt->_eip = addr.ea;
+ 	return rc;
+ }
+ 
++static inline int emulator_recalc_and_set_mode(struct x86_emulate_ctxt *ctxt)
++{
++	u64 efer;
++	struct desc_struct cs;
++	u16 selector;
++	u32 base3;
++
++	ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
++
++	if (!(ctxt->ops->get_cr(ctxt, 0) & X86_CR0_PE)) {
++		/* Real mode. cpu must not have long mode active */
++		if (efer & EFER_LMA)
++			return X86EMUL_UNHANDLEABLE;
++		ctxt->mode = X86EMUL_MODE_REAL;
++		return X86EMUL_CONTINUE;
++	}
++
++	if (ctxt->eflags & X86_EFLAGS_VM) {
++		/* Protected/VM86 mode. cpu must not have long mode active */
++		if (efer & EFER_LMA)
++			return X86EMUL_UNHANDLEABLE;
++		ctxt->mode = X86EMUL_MODE_VM86;
++		return X86EMUL_CONTINUE;
++	}
++
++	if (!ctxt->ops->get_segment(ctxt, &selector, &cs, &base3, VCPU_SREG_CS))
++		return X86EMUL_UNHANDLEABLE;
++
++	if (efer & EFER_LMA) {
++		if (cs.l) {
++			/* Proper long mode */
++			ctxt->mode = X86EMUL_MODE_PROT64;
++		} else if (cs.d) {
++			/* 32 bit compatibility mode*/
++			ctxt->mode = X86EMUL_MODE_PROT32;
++		} else {
++			ctxt->mode = X86EMUL_MODE_PROT16;
++		}
++	} else {
++		/* Legacy 32 bit / 16 bit mode */
++		ctxt->mode = cs.d ? X86EMUL_MODE_PROT32 : X86EMUL_MODE_PROT16;
++	}
++
++	return X86EMUL_CONTINUE;
++}
++
+ static inline int assign_eip_near(struct x86_emulate_ctxt *ctxt, ulong dst)
+ {
+-	return assign_eip(ctxt, dst, ctxt->mode);
++	return assign_eip(ctxt, dst);
+ }
+ 
+-static int assign_eip_far(struct x86_emulate_ctxt *ctxt, ulong dst,
+-			  const struct desc_struct *cs_desc)
++static int assign_eip_far(struct x86_emulate_ctxt *ctxt, ulong dst)
+ {
+-	enum x86emul_mode mode = ctxt->mode;
+-	int rc;
++	int rc = emulator_recalc_and_set_mode(ctxt);
+ 
+-#ifdef CONFIG_X86_64
+-	if (ctxt->mode >= X86EMUL_MODE_PROT16) {
+-		if (cs_desc->l) {
+-			u64 efer = 0;
++	if (rc != X86EMUL_CONTINUE)
++		return rc;
+ 
+-			ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
+-			if (efer & EFER_LMA)
+-				mode = X86EMUL_MODE_PROT64;
+-		} else
+-			mode = X86EMUL_MODE_PROT32; /* temporary value */
+-	}
+-#endif
+-	if (mode == X86EMUL_MODE_PROT16 || mode == X86EMUL_MODE_PROT32)
+-		mode = cs_desc->d ? X86EMUL_MODE_PROT32 : X86EMUL_MODE_PROT16;
+-	rc = assign_eip(ctxt, dst, mode);
+-	if (rc == X86EMUL_CONTINUE)
+-		ctxt->mode = mode;
+-	return rc;
++	return assign_eip(ctxt, dst);
+ }
+ 
+ static inline int jmp_rel(struct x86_emulate_ctxt *ctxt, int rel)
+@@ -2205,7 +2234,7 @@ static int em_jmp_far(struct x86_emulate
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return rc;
+ 
+-	rc = assign_eip_far(ctxt, ctxt->src.val, &new_desc);
++	rc = assign_eip_far(ctxt, ctxt->src.val);
+ 	/* Error handling is not implemented. */
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return X86EMUL_UNHANDLEABLE;
+@@ -2286,7 +2315,7 @@ static int em_ret_far(struct x86_emulate
+ 				       &new_desc);
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return rc;
+-	rc = assign_eip_far(ctxt, eip, &new_desc);
++	rc = assign_eip_far(ctxt, eip);
+ 	/* Error handling is not implemented. */
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return X86EMUL_UNHANDLEABLE;
+@@ -3475,7 +3504,7 @@ static int em_call_far(struct x86_emulat
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return rc;
+ 
+-	rc = assign_eip_far(ctxt, ctxt->src.val, &new_desc);
++	rc = assign_eip_far(ctxt, ctxt->src.val);
+ 	if (rc != X86EMUL_CONTINUE)
+ 		goto fail;
+ 
 
 
