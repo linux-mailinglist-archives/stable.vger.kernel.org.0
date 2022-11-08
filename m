@@ -2,74 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D356214D6
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:05:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15A1362168B
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:28:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235060AbiKHOFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:05:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40594 "EHLO
+        id S234182AbiKHO25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:28:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235065AbiKHOFd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:05:33 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09483686AD;
-        Tue,  8 Nov 2022 06:05:30 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 9F3DB2249B;
-        Tue,  8 Nov 2022 14:05:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1667916329; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=zL3w8DJvA8eE/6QG4kSb7l6IPM6rB1dgJlbtR0vCZxo=;
-        b=M4fCdcd70ixEsfGK5UNng/t3q5YVm1vp3zcJWF/DoYR9vIBCnNKjBlQEIgmLo49DIKhtiz
-        c/NQw+nSKOnB3Kz9FtvuCEx06qrSpIr7I6yJ73F9LwXG4MyjjeZutwogQ97JL/z8p5nGCv
-        q8VJRrgFOSKNk7a6vY17TeJt1FzEymw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1667916329;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=zL3w8DJvA8eE/6QG4kSb7l6IPM6rB1dgJlbtR0vCZxo=;
-        b=4DgR+kSdAUt58CFnC0r6qSOc79JOm4N0GoJuNwGsHnmF2nt6In1I5W9mvPRHa/d2XqUhuy
-        wiU9d0vm9h/44JAw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 48A00139F1;
-        Tue,  8 Nov 2022 14:05:29 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id Yx4lDyliamNiHgAAMHmgww
-        (envelope-from <lhenriques@suse.de>); Tue, 08 Nov 2022 14:05:29 +0000
-Received: from localhost (brahms.olymp [local])
-        by brahms.olymp (OpenSMTPD) with ESMTPA id ffde96ab;
-        Tue, 8 Nov 2022 14:06:29 +0000 (UTC)
-Date:   Tue, 8 Nov 2022 14:06:29 +0000
-From:   =?iso-8859-1?Q?Lu=EDs?= Henriques <lhenriques@suse.de>
-To:     Theodore Ts'o <tytso@mit.edu>
-Cc:     Andreas Dilger <adilger.kernel@dilger.ca>,
-        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] ext4: fix a NULL pointer when validating an inode
- bitmap
-Message-ID: <Y2piZT22QwSjNso9@suse.de>
-References: <20221010142035.2051-1-lhenriques@suse.de>
- <20221011155623.14840-1-lhenriques@suse.de>
- <Y2cAiLNIIJhm4goP@mit.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Y2cAiLNIIJhm4goP@mit.edu>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        with ESMTP id S234291AbiKHO1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:27:39 -0500
+Received: from out3-smtp.messagingengine.com (out3-smtp.messagingengine.com [66.111.4.27])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5D054B3D;
+        Tue,  8 Nov 2022 06:26:20 -0800 (PST)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.nyi.internal (Postfix) with ESMTP id 68ED35C0068;
+        Tue,  8 Nov 2022 09:26:17 -0500 (EST)
+Received: from imap51 ([10.202.2.101])
+  by compute3.internal (MEProxy); Tue, 08 Nov 2022 09:26:17 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; t=1667917577; x=1668003977; bh=t31C4GN6S4
+        sVE3UlVhPI7zAlW4okDBRwpyOThXNzhrU=; b=CXM8d56FQRKJjch6O7e8n/H/Wa
+        pTG64nLZ6t2XTjCWTISh45J3vi/TiurXtOmqdiC8hJgbjavWTfOUfhlUHhNP5Mfm
+        hqeJiyb5hPjMnxmR4bkrI8tWGNAm4D8ie6sKwbmcCUmcr5H3ZWab4aIFYzG2jwI5
+        IVuZJ8J+NG/eZ0nwU6toPm95qM8ZMwq9+vvHJyBZ7iLkPNn/ptvokT4laJyU3YTy
+        Bn3U3EukDS/7PLvWwIrh9+V1nFJICZZuA6npJIXBqpgYxcWfZfCO2Y4Qde4rQNLo
+        XFQSZ1r3V0NGf729HAwE3EWXZ/i4YZFgoCnke7Ko0RM4WFg04knxLf79u57w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; t=1667917577; x=1668003977; bh=t31C4GN6S4sVE3UlVhPI7zAlW4ok
+        DBRwpyOThXNzhrU=; b=j+iHmmzJEe+7vBq9dN+i8q8rTl2w1nuC+ZospCVlMQFx
+        iHW3bIkMC0XG3lju0sIKj0puI1vwRAvaVoBy25Tmb3OEzKd4qaYGC55uMijHa8gn
+        GDu6FFYja6ShNJ1f0IwG9fmOjKnoDKfj3RGKH7hxER0sGjMC6rOgoWY9XrWNG0ZJ
+        oUTF9i2ITwtQrp+IjJvcdGeVQ7kbknvzM10tdXSt4qxxufPKzKHPEnedf17xuWcm
+        c3l9UkAAtI11hr9+nQiYd1G7n4jpCujKMvLSDEY7ApbNJy2ZlnKcg02tiD+uUA0u
+        jx4Xa65rdo9m9VQg3lXSo+J5iQdKe2Zf87s0Ea4o9g==
+X-ME-Sender: <xms:CGdqY-wrOEW1jYsMrvO9oeIrtJBG008ENsQLvxfnFkomruMX8dQFxA>
+    <xme:CGdqY6TX5l1JU-4gSL0ghvl4kH8CrLM_kx4OhTnkWjBld4NFbtwZYQcCyjObxbkjG
+    0U53TF0AHQTBWXnfKg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrfedtgdeiiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhn
+    ugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtth
+    gvrhhnpefhtdelhfettdetvdetvdeuueegvdeuleeuudevhfeuhfeugfdvtdevvedvfffh
+    udenucffohhmrghinheplhhinhgrrhhordhorhhgnecuvehluhhsthgvrhfuihiivgeptd
+    enucfrrghrrghmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:CWdqYwWBl1uaEV5bSzOx8gDoEQK_UBhUGWqH6hwWzNfXMgPL_Vtpfw>
+    <xmx:CWdqY0jZ66gJZlX27kSjzZb6zpHYhlRYcS73CO5cLlQ-mfZzmWxbEg>
+    <xmx:CWdqYwD4Rcx3ZZ9DYv9AhYZsWagIjptsJmzwNJSzS1bg7u__NLeCZg>
+    <xmx:CWdqYy1k-BUjK2ckG6_TsGPnuZJ8EMqX0IVZc7K0rW2Ve72W9QDidg>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id DDA82B60086; Tue,  8 Nov 2022 09:26:16 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.7.0-alpha0-1115-g8b801eadce-fm-20221102.001-g8b801ead
+Mime-Version: 1.0
+Message-Id: <660da7ca-4fd8-459a-8d9b-cace5d9e5ad3@app.fastmail.com>
+In-Reply-To: <CACRpkdb8ynRrXZ0O4cxoGSn2zQ1rr7zkDiTz78Pm+GPc30p_Nw@mail.gmail.com>
+References: <CA+G9fYv5-og6kr8PgGCg-wYUK3PGCQmvbY1YYews5-C8XwxSww@mail.gmail.com>
+ <CACRpkdb8ynRrXZ0O4cxoGSn2zQ1rr7zkDiTz78Pm+GPc30p_Nw@mail.gmail.com>
+Date:   Tue, 08 Nov 2022 15:25:53 +0100
+From:   "Arnd Bergmann" <arnd@arndb.de>
+To:     "Linus Walleij" <linus.walleij@linaro.org>,
+        "Naresh Kamboju" <naresh.kamboju@linaro.org>
+Cc:     "open list" <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        "Kees Cook" <keescook@chromium.org>,
+        "Vlastimil Babka" <vbabka@suse.cz>,
+        "David Gow" <davidgow@google.com>,
+        "Gwan-gyeong Mun" <gwan-gyeong.mun@intel.com>,
+        "Vitor Massaru Iha" <vitor@massaru.org>
+Subject: Re: KASAN / KUNIT: testing ran on qemu-arm and list of failures
+Content-Type: text/plain
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,195 +88,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 05, 2022 at 08:32:08PM -0400, Theodore Ts'o wrote:
-> First of all, you replied to this patch a completely different patch,
-> "ext4: fix BUG_ON() when directory entry has invalid rec_len".  This
-> very much confuses b4, so please don't do that.  If you send a patch
-> series, where the message-id are related, e.g.:
-> 
->     20221011155623.14840-1-lhenriques@suse.de
->     20221011155623.14840-2-lhenriques@suse.de
-> 
-> etc., b4 will figure out what is going on.  But when the message id's
-> are unrelated, e.g:
-> 
->     20221011155623.14840-1-lhenriques@suse.de
-> vs    
->     20221012131330.32456-1-lhenriques@suse.de
-> 
-> ... b4 will assume that 20221012131330.32456-1-lhenriques@suse.de is a
-> newer version of 20221011155623.14840-1-lhenriques@suse.de and there
-> is apparently no way to tell it to not try to use the "newer" version
-> of the patch.
+On Tue, Nov 8, 2022, at 14:51, Linus Walleij wrote:
+> On Wed, Nov 2, 2022 at 3:15 PM Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+>
+>> This is a report to get a quick update on kasan on qemu-arm.
+>>
+>> The KASAN / KUNIT testing ran on qemu-arm and the following test cases failed
+>> and the kernel crashed.
+>>
+>> Following tests failed,
+>>     kasan_strings - FAILED
+>>     vmalloc_oob - FAILED
+>>     kasan_memchr - FAILED
+>>     kasan - FAILED
+>>     kasan_bitops_generic - FAILED
+>>
+>> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>
+> Which isn't very strange since:
+>
+>> [  429.920201] Insufficient stack space to handle exception!
+>
+> the system ran out of stack. With VMAP stack and IRQSTACKS
+> there is really not much more memory we can provide.
+>
+> When I discussed this with syzbot it seemed they were using some
+> really big userspace program written in Go that just used up all
+> the virtual memory :P
+>
+> I don't know the nature of this test though. Using a lot of memory??
 
-Yeah, I'm really sorry for this.  As I mentioned in a reply to that email,
-I messed it up by running my scripts from shell history, without cleaning
-the extra parameters.  Lesson learned -- *never* use shell history for
-sending patches! :-(
+From the log file[1], I see that the actual problem is a
+recursive data abort. The problem is not that any particular
+piece uses too much memory, it's that each time it tries to
+handle the fault, it causes a new fault:
 
-> On Tue, Oct 11, 2022 at 04:56:24PM +0100, Luís Henriques wrote:
-> > It's possible to hit a NULL pointer exception while accessing the
-> > sb->s_group_info in ext4_validate_inode_bitmap(), when calling
-> > ext4_get_group_info().
-> 
->   ...
-> 
-> > This issue can be fixed by returning NULL in ext4_get_group_info() when
-> > ->s_group_info is NULL.  This also requires checking the return code from
-> > ext4_get_group_info() when appropriate.
-> 
-> I don't believe this is a correct diagnosis of what is going on.  Did
-> you actually confirm the line numbers associated with the call stack?
+Citing more of the output:
 
-Here's the line numbers:
+[  429.920201] Insufficient stack space to handle exception!
+[  429.920232] Task stack:     [0xfa000000..0xfa004000]
+[  429.925226] IRQ stack:      [0xf0808000..0xf080c000]
+[  429.927424] Overflow stack: [0xc4190000..0xc4191000]
+[  429.929785] Internal error: kernel stack overflow: 0 [#1] SMP ARM
+[  429.933101] Modules linked in: usbtest pci_endpoint_test pci_epf_test preemptirq_delay_test soc_utils_test(N) snd_soc_core ac97_bus snd_pcm_dmaengine snd_pcm snd_timer snd soundcore cfg80211 bluetooth crc32_arm_ce sha2_arm_ce sha256_arm sha1_arm_ce sha1_arm aes_arm_ce crypto_simd
+[  429.946324] CPU: 1 PID: 3390 Comm: grep Tainted: G    B            N 6.0.7-rc1 #1
+[  429.950389] Hardware name: Generic DT based system
+[  429.952979] PC is at trace_hardirqs_off+0x0/0x16c
+[  429.955349] LR is at __dabt_svc+0x48/0x80
+[  429.957676] pc : [<c04c98fc>]    lr : [<c0300b28>]    psr: 400f0193
+[  429.961073] sp : fa000008  ip : 00000051  fp : fa003a54
+[  429.963850] r10: c44f6c80  r9 : cc7aa100  r8 : fa0000b8
+[  429.966725] r7 : fa00003c  r6 : ffffffff  r5 : 200f0193  r4 : c05eb00c
+[  429.970284] r3 : c1b29438  r2 : fa000054  r1 : be40001f  r0 : 00000051
+[  429.973596] Flags: nZcv  IRQs off  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[  429.977644] Control: 10c5383d  Table: 4df4406a  DAC: 00000051
+...
+[  430.032192] Process grep (pid: 3390, stack limit = 0xfab94337)
+[  430.035496] Stack: (0xfa000008 to 0xfa004000)
+[  430.037882] 0000:                   fa0000f8 be40001f fa0000f8 00000003 be400035 fa0000b8
+[  430.041998] 0020: c31192e0 00000005 fa0000b8 c3119330 c44f6c80 fa003a54 00000051 fa000054
+...
+[  432.224241] 3fc0: 00000001 aeca02b0 00000000 000000f8 aec9ee5c 00000001 00000000 aec9f384
+[  432.228111] 3fe0: 000000f8 b6669814 aec16049 aebb1ae6 600b0030 00000000 00000000 00000000
+[  432.232008]  trace_hardirqs_off from __dabt_svc+0x48/0x80
+[  432.234649] Exception stack(0xfa000008 to 0xfa000050)
+[  432.237101] 0000:                   fa0000f8 be40001f fa0000f8 00000003 be400035 fa0000b8
+[  432.240995] 0020: c31192e0 00000005 fa0000b8 c3119330 c44f6c80 fa003a54 00000051 fa000054
+[  432.244861] 0040: c1b29438 c05eb00c 200f0193 ffffffff
+[  432.247286]  __dabt_svc from __asan_load4+0x30/0x88
+[  432.249665]  __asan_load4 from do_translation_fault+0x34/0x124
+[  432.252456]  do_translation_fault from do_DataAbort+0x54/0xf4
+[  432.255278]  do_DataAbort from __dabt_svc+0x50/0x80
+[  432.258226] Exception stack(0xfa0000b8 to 0xfa000100)
+[  432.260998] 00a0:                                                       fa0001a8 be400035
+[  432.265219] 00c0: fa0001a8 00000003 be40004b fa000168 c31192e0 00000005 fa000168 c3119330
+[  432.269670] 00e0: c44f6c80 fa003a54 00000051 fa000104 c1b29438 c05eb00c 200f0193 ffffffff
+[  432.273872]  __dabt_svc from __asan_load4+0x30/0x88
+[  432.276409]  __asan_load4 from do_translation_fault+0x34/0x124
+[  432.279577]  do_translation_fault from do_DataAbort+0x54/0xf4
+[  432.282646]  do_DataAbort from __dabt_svc+0x50/0x80
+...
+[  434.328344] Exception stack(0xfa0037b8 to 0xfa003800)
+[  434.331100] 37a0:                                                       fa0038a8 be400715
+[  434.335411] 37c0: fa0038a8 00000003 be40072b fa003868 c31192e0 00000005 fa003868 c3119330
+[  434.339676] 37e0: c44f6c80 fa003a54 00000051 fa003804 c1b29438 c05eb00c 200f0193 ffffffff
+[  434.344067]  __dabt_svc from __asan_load4+0x30/0x88
+[  434.346673]  __asan_load4 from do_translation_fault+0x34/0x124
+[  434.350064]  do_translation_fault from do_DataAbort+0x54/0xf4
+[  434.353242]  do_DataAbort from __dabt_svc+0x50/0x80
+[  434.355711] Exception stack(0xfa003868 to 0xfa0038b0)
+[  434.358544] 3860:                   fa003958 be40072b fa003958 00000003 be400738 fa003918
+[  434.362770] 3880: c31192e0 00000805 fa003918 c3119330 c44f6c80 fa003a54 00000051 fa0038b4
+[  434.366943] 38a0: c1b29438 c05eb00c 200f0193 ffffffff
+[  434.369838]  __dabt_svc from __asan_load4+0x30/0x88
+[  434.372308]  __asan_load4 from do_translation_fault+0x34/0x124
+[  434.375566]  do_translation_fault from do_DataAbort+0x54/0xf4
+[  434.378889]  do_DataAbort from __dabt_svc+0x50/0x80
+[  434.381535] Exception stack(0xfa003918 to 0xfa003960)
+[  434.384064] 3900:                                                       e8476d80 00000000
+[  434.388732] 3920: be400738 00000000 c30f2044 cb4f0b00 cc7aa100 2537d000 ca86ca00 ca86ca00
+[  434.393063] 3940: c44f6c80 fa003a54 fa003968 fa003968 c03a81ac c1b1d4c4 200f0113 ffffffff
+[  434.397387]  __dabt_svc from __schedule+0x590/0xfc0
+[  434.399943]  __schedule from __cond_resched+0x50/0x6c
+[  434.402576]  __cond_resched from zap_pte_range+0x56c/0xa08
+[  434.405862]  zap_pte_range from unmap_page_range+0x12c/0x364
+[  434.409044]  unmap_page_range from unmap_vmas+0x124/0x178
+[  434.411851]  unmap_vmas from exit_mmap+0x128/0x304
+[  434.414529]  exit_mmap from __mmput+0x34/0x188
+[  434.416946]  __mmput from do_exit+0x508/0xef8
+[  434.419338]  do_exit from do_group_exit+0x50/0x108
+[  434.421858]  do_group_exit from __wake_up_parent+0x0/0x34
+[  434.424729] Code: e2840d41 e2800030 e8bd41f0 eaff8cce (e92d47f0) 
+[  434.428055] ---[ end trace 0000000000000000 ]---
+[  434.430356] Fixing recursive fault but reboot is needed!
 
-$ ./scripts/faddr2line fs/ext4/ialloc.o ext4_read_inode_bitmap+0x21b/0x5a0
-ext4_read_inode_bitmap+0x21b/0x5a0:
-ext4_get_group_info at /home/miguel/kernel/linux/fs/ext4/ext4.h:3332
-(inlined by) ext4_validate_inode_bitmap at /home/miguel/kernel/linux/fs/ext4/ialloc.c:90
-(inlined by) ext4_read_inode_bitmap at /home/miguel/kernel/linux/fs/ext4/ialloc.c:210
+Note the "Exception stack(0xfa003918 to 0xfa003960)" values slightly
+shrinking with each iteration. I can see that both
+__schedule+0x590/0xfc0 and __asan_load4+0x30/0x88 trigger an
+unexpected exception here. The latter of those is what causes
+the recursion. Presumably both them try to access the same
+invalid pointer, but I have not disassembled the vmlinux
+yet to see what it's actually trying to do here.
 
-This is on a 6.1.0-rc4 kernel, where I got:
+     Arnd
 
-  RIP: 0010:ext4_read_inode_bitmap+0x21b/0x5a0
-
-So, the issue is happening in ext4_read_inode_bitmap(), when
-jumping to the 'verify' label from here:
-
-    184         if (buffer_uptodate(bh)) {
-    185                 /*
-    186                  * if not uninit if bh is uptodate,
-    187                  * bitmap is also uptodate
-    188                  */
-    189                 set_bitmap_uptodate(bh);
-    190                 unlock_buffer(bh);
-    191                 goto verify;
-    192         }
-    ...
-    209 verify:
-==> 210         err = ext4_validate_inode_bitmap(sb, desc, block_group, bh);
-    211         if (err)
-    212                 goto out;
-    213         return bh;
-    214 out:
-    215         put_bh(bh);
-    216         return ERR_PTR(err);
-    217 }
-
-> What makes you believe that?  Look at how s_group_info is initialized
-> in ext4_mb_alloc_groupinfo() in fs/ext4/mballoc.c.  It's pretty
-> careful to make sure this is not the case.
-
-Right.  I may be missing something, but I don't think we get that far.
-__ext4_fill_super() will first call ext4_setup_system_zone() (which is
-where this bug occurs) and only after that ext4_mb_init() will be invoked
-(which is where ext4_mb_alloc_groupinfo() will eventually be called).
-
-> >  EXT4-fs (loop0): warning: mounting unchecked fs, running e2fsck is recommended
-> >  EXT4-fs error (device loop0): ext4_clear_blocks:866: inode #32: comm mount: attempt to clear invalid blocks 16777450 len 1
-> >  EXT4-fs error (device loop0): ext4_free_branches:1012: inode #32: comm mount: invalid indirect mapped block 1258291200 (level 1)
-> >  EXT4-fs error (device loop0): ext4_free_branches:1012: inode #32: comm mount: invalid indirect mapped block 7379847 (level 2)
-> >  BUG: kernel NULL pointer dereference, address: 0000000000000000
-> >  ...
-> >  RIP: 0010:ext4_read_inode_bitmap+0x21b/0x5a0
-> >  ...
-> >  Call Trace:
-> >   <TASK>
-> >   ext4_free_inode+0x172/0x5c0
-> >   ext4_evict_inode+0x4a5/0x730
-> >   evict+0xc1/0x1c0
-> >   ext4_setup_system_zone+0x2ea/0x380
-> >   ext4_fill_super+0x249f/0x3910
-> >   ? ext4_reconfigure+0x880/0x880
-> >   ? snprintf+0x49/0x60
-> >   ? ext4_reconfigure+0x880/0x880
-> >   get_tree_bdev+0x169/0x260
-> >   vfs_get_tree+0x16/0x70
-> >   path_mount+0x77d/0xa30
-> >   __x64_sys_mount+0x101/0x140
-> >   do_syscall_64+0x3c/0x80
-> >   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-> 
-> So we're evicting an inode while in the middle of calling
-> ext4_setup_system_zone() in fs/ext4/block_validity.c.  That can only
-> happen if we are calling iput() on an an inode, and the only place
-> that we do that in block_validity.c is in the function
-> ext4_protect_reserved_inode() --- which we call on the journal inode.
-> 
-> Given the error messages, I suspect this was a fuzzed file system
-> where the journal inode was not in the standard reserved ino, but
-> rather in a the normal inode number, in s_journal_inum (which is a
-> leftover relic from the very early ext3 days), and that inode number
-> was then explicitly/maliciously placed on the orphan list, and then
-> hilarity ensued from there.
-
-Correct, the images do indeed have the wrong inode number (32) in
-s_journal_inum.
-
-> We need to add some better error checking to protect against this case
-> in ext4_orphan_get().
-
-Unfortunately, after some debug, I don't see ext4_orphan_get() ever being
-invoked anywhere.
-
-> 
-> Do you have the file system image which triggered this failure?  Was
-> it the same syzkaller report, or perhaps was it some other syzkaller
-> report?
-
-Yes, these were generated with a fuzzer, and the 2 images I've used as
-reproducers were picked from the bugzillas in the commit 'Link' tags:
-
-  Link: https://bugzilla.kernel.org/show_bug.cgi?id=216541
-  Link: https://bugzilla.kernel.org/show_bug.cgi?id=216539
-
-To reproduce the issue you simply need to mount those images.
-
-> 
-> 
-> > diff --git a/fs/ext4/indirect.c b/fs/ext4/indirect.c
-> > index 860fc5119009..e5ac5c2363df 100644
-> > --- a/fs/ext4/indirect.c
-> > +++ b/fs/ext4/indirect.c
-> > @@ -148,6 +148,7 @@ static Indirect *ext4_get_branch(struct inode *inode, int depth,
-> >  	struct super_block *sb = inode->i_sb;
-> >  	Indirect *p = chain;
-> >  	struct buffer_head *bh;
-> > +	unsigned int key;
-> >  	int ret = -EIO;
-> >  
-> >  	*err = 0;
-> > @@ -156,9 +157,18 @@ static Indirect *ext4_get_branch(struct inode *inode, int depth,
-> >  	if (!p->key)
-> >  		goto no_block;
-> >  	while (--depth) {
-> > -		bh = sb_getblk(sb, le32_to_cpu(p->key));
-> > +		key = le32_to_cpu(p->key);
-> > +		bh = sb_getblk(sb, key);
-> >  		if (unlikely(!bh)) {
-> > -			ret = -ENOMEM;
-> > +			/*
-> > +			 * sb_getblk() masks different errors by always
-> > +			 * returning NULL.  Let's distinguish at least the case
-> > +			 * where the block is out of range.
-> > +			 */
-> > +			if (key > ext4_blocks_count(EXT4_SB(sb)->s_es))
-> > +				ret = -EFSCORRUPTED;
-> > +			else
-> > +				ret = -ENOMEM;
-> >  			goto failure;
-> >  		}
-> >
-> 
-> And this is fixing a completely different problem and should go in a
-> different patch.  It's also not the best way of fixing it.  What we
-> should do is check whether key is out of bounds *before* calling
-> sb_getblkf(), and then call ext4_error() to mark the file system is
-> corrupted, and then return -EFSCORRUPTED.
-
-OK, makes sense.  I'll send out a separate patch for this.  Thanks a lot
-for your review, Ted.
-
-Cheers,
---
-Luís
+[1] https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.0.y/build/v6.0.6-241-g436175d0f780/testrun/12809413/suite/log-parser-test/test/check-kernel-bug/log
