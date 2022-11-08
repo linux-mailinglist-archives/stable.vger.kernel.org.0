@@ -2,233 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 390C3620B6B
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 09:44:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67627620B8C
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 09:53:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233379AbiKHIov (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 03:44:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50420 "EHLO
+        id S233679AbiKHIxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 03:53:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233480AbiKHIou (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 03:44:50 -0500
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A783418361;
-        Tue,  8 Nov 2022 00:44:47 -0800 (PST)
-Received: from canpemm500009.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4N61lk2PRVzpWKG;
-        Tue,  8 Nov 2022 16:41:06 +0800 (CST)
-Received: from [10.174.178.165] (10.174.178.165) by
- canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Tue, 8 Nov 2022 16:44:45 +0800
-Message-ID: <65863340-b32f-a2fe-67ae-f1079b19eee4@huawei.com>
-Date:   Tue, 8 Nov 2022 16:44:44 +0800
+        with ESMTP id S233352AbiKHIxm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 03:53:42 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8EF92E683
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 00:52:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667897567;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RKuZuuCI3q1K/HAD0IraHvmgBZQfdPy2jKFzjPsKHLQ=;
+        b=SKSmDgAFLkko/kLk5MCuuff3uoLHByU/tn81IeN1uW3g22GlwVpQo1eFzz8avU8CIT+N8G
+        B0xNg9HclIWyI+u6l3wE2s0eGqAf19S+qJ8j/La78SM6KQf2OmwneGJ/s8HVFCyUOKalA+
+        wCbxJKMja85tKtuttfAmPCd5903e+xY=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-163-H7ZqNTNFNJiyvFbZQcaYnA-1; Tue, 08 Nov 2022 03:52:46 -0500
+X-MC-Unique: H7ZqNTNFNJiyvFbZQcaYnA-1
+Received: by mail-wm1-f69.google.com with SMTP id l42-20020a05600c1d2a00b003cf8e70c1ecso6067342wms.4
+        for <stable@vger.kernel.org>; Tue, 08 Nov 2022 00:52:46 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=RKuZuuCI3q1K/HAD0IraHvmgBZQfdPy2jKFzjPsKHLQ=;
+        b=yYYcKmYYZT6KwtzCyu43+vd/u/xepFwsxFqsK3LEQVrXuHVZzh4ZFL3l6mdzF0hnBy
+         edRC1Zs8FkQ5/Iw+TcXa6v3df9sIm1OAPyWKF9Sx6VA143hkYP1K9iwKZ6VhKExJK15U
+         v50ct9xpH3I1In4wI5L9221Y7ubvWHC+hXn9VL3HflNEm7Lfg8WXes+6GtfTF5P4nNJe
+         qldec0IAirZG3aB48ceHuTLzkuH+p/65Q9m4suvD/tii45OdWxqSnolbOuB2JEvUce/e
+         URxqguKxRXrBFu1tVOpFE2tF/4evCmUSEiHwNPAyRL9019hljhPq8Lr3ptHdX+D58T+s
+         ajyg==
+X-Gm-Message-State: ACrzQf1C/E8V/o+oCHmSTSnzUJrA4QrY8MVrCxQO6Sakw+naEjHv3YEV
+        UDAmxFenXRf/lA6NbslWfVtVcBfzZ9kD5D+6a4QlsLWO4IQVtsA1eKKx1qZpr6HHq1/QKbbGdQF
+        KTycLJmip7SnLwmsq
+X-Received: by 2002:adf:d1ec:0:b0:236:880f:2adf with SMTP id g12-20020adfd1ec000000b00236880f2adfmr34973827wrd.617.1667897565468;
+        Tue, 08 Nov 2022 00:52:45 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM7Td3mYckln2lF/t1NuVY8SNErV7PoyhpXFlmaTgJp4otL4qyQGKPyguMnBStkFyC35OBmmZw==
+X-Received: by 2002:adf:d1ec:0:b0:236:880f:2adf with SMTP id g12-20020adfd1ec000000b00236880f2adfmr34973813wrd.617.1667897565248;
+        Tue, 08 Nov 2022 00:52:45 -0800 (PST)
+Received: from ?IPV6:2001:b07:6468:f312:e3ec:5559:7c5c:1928? ([2001:b07:6468:f312:e3ec:5559:7c5c:1928])
+        by smtp.googlemail.com with ESMTPSA id bq21-20020a5d5a15000000b00231ed902a4esm9931077wrb.5.2022.11.08.00.52.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 08 Nov 2022 00:52:44 -0800 (PST)
+Message-ID: <b9debf81-1489-6379-4377-e987f604bf96@redhat.com>
+Date:   Tue, 8 Nov 2022 09:52:43 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Subject: Re: [PATCH v2] mm: fix unexpected changes to
- {failslab|fail_page_alloc}.attr
-To:     Qi Zheng <zhengqi.arch@bytedance.com>, <dvyukov@google.com>,
-        <jgg@nvidia.com>, <willy@infradead.org>, <akinobu.mita@gmail.com>
-CC:     <akpm@linux-foundation.org>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>, <linux-fsdevel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-References: <Y2kxrerISWIxQsFO@nvidia.com>
- <20221108035232.87180-1-zhengqi.arch@bytedance.com>
-From:   Wei Yongjun <weiyongjun1@huawei.com>
-In-Reply-To: <20221108035232.87180-1-zhengqi.arch@bytedance.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [PATCH 1/8] KVM: SVM: extract VMCB accessors to a new file
+Content-Language: en-US
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        nathan@kernel.org, thomas.lendacky@amd.com,
+        andrew.cooper3@citrix.com, peterz@infradead.org,
+        jmattson@google.com, stable@vger.kernel.org
+References: <20221107145436.276079-1-pbonzini@redhat.com>
+ <20221107145436.276079-2-pbonzini@redhat.com> <Y2k7o8i/qhBm9bpC@google.com>
+ <3ca5e8b6-c786-2f15-8f81-fd6353c43692@redhat.com>
+ <Y2lLFEt3tQBoZTDe@google.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <Y2lLFEt3tQBoZTDe@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.165]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- canpemm500009.china.huawei.com (7.192.105.203)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Zheng Qi,
-
-On 2022/11/8 11:52, Qi Zheng wrote:
-> When we specify __GFP_NOWARN, we only expect that no warnings
-> will be issued for current caller. But in the __should_failslab()
-> and __should_fail_alloc_page(), the local GFP flags alter the
-> global {failslab|fail_page_alloc}.attr, which is persistent and
-> shared by all tasks. This is not what we expected, let's fix it.
+On 11/7/22 19:14, Sean Christopherson wrote:
+> On Mon, Nov 07, 2022, Paolo Bonzini wrote:
+>> On 11/7/22 18:08, Sean Christopherson wrote:
+>>> What about making KVM self-sufficient?
+>>
+>> You mean having a different asm-offsets.h file just for arch/x86/kvm/?
 > 
-> Cc: stable@vger.kernel.org
-> Fixes: 3f913fc5f974 ("mm: fix missing handler for __GFP_NOWARN")
-> Reported-by: Dmitry Vyukov <dvyukov@google.com>
-> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-> ---
->  v1: https://lore.kernel.org/lkml/20221107033109.59709-1-zhengqi.arch@bytedance.com/
-> 
->  Changelog in v1 -> v2:
->   - add comment for __should_failslab() and __should_fail_alloc_page()
->     (suggested by Jason)
-> 
->  include/linux/fault-inject.h |  7 +++++--
->  lib/fault-inject.c           | 14 +++++++++-----
->  mm/failslab.c                | 12 ++++++++++--
->  mm/page_alloc.c              |  7 +++++--
->  4 files changed, 29 insertions(+), 11 deletions(-)
-> 
-> diff --git a/include/linux/fault-inject.h b/include/linux/fault-inject.h
-> index 9f6e25467844..444236dadcf0 100644
-> --- a/include/linux/fault-inject.h
-> +++ b/include/linux/fault-inject.h
-> @@ -20,7 +20,6 @@ struct fault_attr {
->  	atomic_t space;
->  	unsigned long verbose;
->  	bool task_filter;
-> -	bool no_warn;
->  	unsigned long stacktrace_depth;
->  	unsigned long require_start;
->  	unsigned long require_end;
-> @@ -32,6 +31,10 @@ struct fault_attr {
->  	struct dentry *dname;
->  };
->  
-> +enum fault_flags {
-> +	FAULT_NOWARN =	1 << 0,
-> +};
-> +
->  #define FAULT_ATTR_INITIALIZER {					\
->  		.interval = 1,						\
->  		.times = ATOMIC_INIT(1),				\
-> @@ -40,11 +43,11 @@ struct fault_attr {
->  		.ratelimit_state = RATELIMIT_STATE_INIT_DISABLED,	\
->  		.verbose = 2,						\
->  		.dname = NULL,						\
-> -		.no_warn = false,					\
+> Yeah.
 
-How about keep no_warn attr as it be, and export it to user?
+Doh, it would have been enough to add #ifdef COMPILE_OFFSETS to 
+svm/svm.h, but it was also pretty easy to generate a separate 
+asm-offsets file so why not.
 
-When testing with fault injection, and each fault will print an backtrace.
-but not all of the testsuit can tell us which one is fault injection
-message or other is a real warning/crash like syzkaller do.
+Paolo
 
-In my case, to make things simple, we usually used a regex to detect whether
-wanring/error happend. So we disabled the slab/page fault warning message by
-default, and only enable it when debug real issue.
-
-Regards,
-
-
->  	}
->  
->  #define DECLARE_FAULT_ATTR(name) struct fault_attr name = FAULT_ATTR_INITIALIZER
->  int setup_fault_attr(struct fault_attr *attr, char *str);
-> +bool should_fail_ex(struct fault_attr *attr, ssize_t size, int flags);
->  bool should_fail(struct fault_attr *attr, ssize_t size);
->  
->  #ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
-> diff --git a/lib/fault-inject.c b/lib/fault-inject.c
-> index 4b8fafce415c..5971f7c3e49e 100644
-> --- a/lib/fault-inject.c
-> +++ b/lib/fault-inject.c
-> @@ -41,9 +41,6 @@ EXPORT_SYMBOL_GPL(setup_fault_attr);
->  
->  static void fail_dump(struct fault_attr *attr)
->  {
-> -	if (attr->no_warn)
-> -		return;
-> -
->  	if (attr->verbose > 0 && __ratelimit(&attr->ratelimit_state)) {
->  		printk(KERN_NOTICE "FAULT_INJECTION: forcing a failure.\n"
->  		       "name %pd, interval %lu, probability %lu, "
-> @@ -103,7 +100,7 @@ static inline bool fail_stacktrace(struct fault_attr *attr)
->   * http://www.nongnu.org/failmalloc/
->   */
->  
-> -bool should_fail(struct fault_attr *attr, ssize_t size)
-> +bool should_fail_ex(struct fault_attr *attr, ssize_t size, int flags)
->  {
->  	bool stack_checked = false;
->  
-> @@ -152,13 +149,20 @@ bool should_fail(struct fault_attr *attr, ssize_t size)
->  		return false;
->  
->  fail:
-> -	fail_dump(attr);
-> +	if (!(flags & FAULT_NOWARN))
-> +		fail_dump(attr);
->  
->  	if (atomic_read(&attr->times) != -1)
->  		atomic_dec_not_zero(&attr->times);
->  
->  	return true;
->  }
-> +EXPORT_SYMBOL_GPL(should_fail_ex);
-> +
-> +bool should_fail(struct fault_attr *attr, ssize_t size)
-> +{
-> +	return should_fail_ex(attr, size, 0);
-> +}
->  EXPORT_SYMBOL_GPL(should_fail);
->  
->  #ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
-> diff --git a/mm/failslab.c b/mm/failslab.c
-> index 58df9789f1d2..ffc420c0e767 100644
-> --- a/mm/failslab.c
-> +++ b/mm/failslab.c
-> @@ -16,6 +16,8 @@ static struct {
->  
->  bool __should_failslab(struct kmem_cache *s, gfp_t gfpflags)
->  {
-> +	int flags = 0;
-> +
->  	/* No fault-injection for bootstrap cache */
->  	if (unlikely(s == kmem_cache))
->  		return false;
-> @@ -30,10 +32,16 @@ bool __should_failslab(struct kmem_cache *s, gfp_t gfpflags)
->  	if (failslab.cache_filter && !(s->flags & SLAB_FAILSLAB))
->  		return false;
->  
-> +	/*
-> +	 * In some cases, it expects to specify __GFP_NOWARN
-> +	 * to avoid printing any information(not just a warning),
-> +	 * thus avoiding deadlocks. See commit 6b9dbedbe349 for
-> +	 * details.
-> +	 */
->  	if (gfpflags & __GFP_NOWARN)
-> -		failslab.attr.no_warn = true;
-> +		flags |= FAULT_NOWARN;
->  
-> -	return should_fail(&failslab.attr, s->object_size);
-> +	return should_fail_ex(&failslab.attr, s->object_size, flags);
->  }
->  
->  static int __init setup_failslab(char *str)
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 7192ded44ad0..cb6fe715d983 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -3902,6 +3902,8 @@ __setup("fail_page_alloc=", setup_fail_page_alloc);
->  
->  static bool __should_fail_alloc_page(gfp_t gfp_mask, unsigned int order)
->  {
-> +	int flags = 0;
-> +
->  	if (order < fail_page_alloc.min_order)
->  		return false;
->  	if (gfp_mask & __GFP_NOFAIL)
-> @@ -3912,10 +3914,11 @@ static bool __should_fail_alloc_page(gfp_t gfp_mask, unsigned int order)
->  			(gfp_mask & __GFP_DIRECT_RECLAIM))
->  		return false;
->  
-> +	/* See comment in __should_failslab() */
->  	if (gfp_mask & __GFP_NOWARN)
-> -		fail_page_alloc.attr.no_warn = true;
-> +		flags |= FAULT_NOWARN;
->  
-> -	return should_fail(&fail_page_alloc.attr, 1 << order);
-> +	return should_fail_ex(&fail_page_alloc.attr, 1 << order, flags);
->  }
->  
->  #ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
