@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EDB46213B3
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:53:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C56621448
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:59:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234671AbiKHNw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:52:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51470 "EHLO
+        id S234815AbiKHN7h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:59:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234725AbiKHNwj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2A846238B
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:37 -0800 (PST)
+        with ESMTP id S234884AbiKHN7g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:59:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6984262399
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:59:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CBCF615A3
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EEBFC433D6;
-        Tue,  8 Nov 2022 13:52:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EA09B81AFA
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:59:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32DB7C433D6;
+        Tue,  8 Nov 2022 13:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915556;
-        bh=uRFhGg7Ypg5wGlVbkwJUQlCJaH1yK/i5jBX9JTsvRlI=;
+        s=korg; t=1667915972;
+        bh=Y2hLqOsYpu58j1ItsbjPeNOyOeAoCF1iksxTRhhDFUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgjnL1PGyMCT7augW351Jd4iWFHLVBP07vwEhw3pL2P5EJXO6q6qnVOV3P4idJK5U
-         GMEuXWju55PIwhsrae+EMvfGuvpIc9M61WtwHh/sMR5fmPOXxfs1CmSwULYlm5ZO6o
-         ONPTVihgYh1ciA2AsXJ/5bs3P2zYCGjtjqJEUjPI=
+        b=b1L4bC0+EEQ2y43qp6xPkRvl79L/4sgNT28A5C0lqyXMldyqWIEOEeeM2KosFxUI8
+         bv8Pa8UiPKDtHaOC0fjaHtzwAi/5ZvyNyF/p2fAvfAUg32I1v4RNZHc+mCP3psGQ0C
+         OhgkbT386t1O+lCLQl69VOSK+nmFYomq0QuwDcqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, wengjianfeng <wengjianfeng@yulong.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 024/118] NFC: nxp-nci: remove unnecessary labels
-Date:   Tue,  8 Nov 2022 14:38:22 +0100
-Message-Id: <20221108133341.716314975@linuxfoundation.org>
+Subject: [PATCH 5.15 026/144] RDMA/qedr: clean up work queue on failure in qedr_alloc_resources()
+Date:   Tue,  8 Nov 2022 14:38:23 +0100
+Message-Id: <20221108133346.389086800@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,102 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wengjianfeng <wengjianfeng@yulong.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 96a19319921ceb4b2f4c49d1b9bf9de1161e30ca ]
+[ Upstream commit 7a47e077e503feb73d56e491ce89aa73b67a3972 ]
 
-Simplify the code by removing unnecessary labels and returning directly.
+Add a check for if create_singlethread_workqueue() fails and also destroy
+the work queue on failure paths.
 
-Signed-off-by: wengjianfeng <wengjianfeng@yulong.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: 7bf1ed6aff0f ("nfc: nxp-nci: Fix potential memory leak in nxp_nci_send()")
+Fixes: e411e0587e0d ("RDMA/qedr: Add iWARP connection management functions")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/Y1gBkDucQhhWj5YM@kili
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/nxp-nci/core.c | 39 +++++++++++++-------------------------
- 1 file changed, 13 insertions(+), 26 deletions(-)
+ drivers/infiniband/hw/qedr/main.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/nxp-nci/core.c b/drivers/nfc/nxp-nci/core.c
-index a0ce95a287c5..2b0c7232e91f 100644
---- a/drivers/nfc/nxp-nci/core.c
-+++ b/drivers/nfc/nxp-nci/core.c
-@@ -70,21 +70,16 @@ static int nxp_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
- 	struct nxp_nci_info *info = nci_get_drvdata(ndev);
- 	int r;
- 
--	if (!info->phy_ops->write) {
--		r = -ENOTSUPP;
--		goto send_exit;
--	}
-+	if (!info->phy_ops->write)
-+		return -EOPNOTSUPP;
- 
--	if (info->mode != NXP_NCI_MODE_NCI) {
--		r = -EINVAL;
--		goto send_exit;
--	}
-+	if (info->mode != NXP_NCI_MODE_NCI)
-+		return -EINVAL;
- 
- 	r = info->phy_ops->write(info->phy_id, skb);
- 	if (r < 0)
- 		kfree_skb(skb);
- 
--send_exit:
- 	return r;
- }
- 
-@@ -104,10 +99,8 @@ int nxp_nci_probe(void *phy_id, struct device *pdev,
- 	int r;
- 
- 	info = devm_kzalloc(pdev, sizeof(struct nxp_nci_info), GFP_KERNEL);
--	if (!info) {
--		r = -ENOMEM;
--		goto probe_exit;
--	}
-+	if (!info)
-+		return -ENOMEM;
- 
- 	info->phy_id = phy_id;
- 	info->pdev = pdev;
-@@ -120,31 +113,25 @@ int nxp_nci_probe(void *phy_id, struct device *pdev,
- 	if (info->phy_ops->set_mode) {
- 		r = info->phy_ops->set_mode(info->phy_id, NXP_NCI_MODE_COLD);
- 		if (r < 0)
--			goto probe_exit;
-+			return r;
+diff --git a/drivers/infiniband/hw/qedr/main.c b/drivers/infiniband/hw/qedr/main.c
+index 755930be01b8..6b59f97a182b 100644
+--- a/drivers/infiniband/hw/qedr/main.c
++++ b/drivers/infiniband/hw/qedr/main.c
+@@ -345,6 +345,10 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
+ 	if (IS_IWARP(dev)) {
+ 		xa_init(&dev->qps);
+ 		dev->iwarp_wq = create_singlethread_workqueue("qedr_iwarpq");
++		if (!dev->iwarp_wq) {
++			rc = -ENOMEM;
++			goto err1;
++		}
  	}
  
- 	info->mode = NXP_NCI_MODE_COLD;
+ 	/* Allocate Status blocks for CNQ */
+@@ -352,7 +356,7 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
+ 				GFP_KERNEL);
+ 	if (!dev->sb_array) {
+ 		rc = -ENOMEM;
+-		goto err1;
++		goto err_destroy_wq;
+ 	}
  
- 	info->ndev = nci_allocate_device(&nxp_nci_ops, NXP_NCI_NFC_PROTOCOLS,
- 					 NXP_NCI_HDR_LEN, 0);
--	if (!info->ndev) {
--		r = -ENOMEM;
--		goto probe_exit;
--	}
-+	if (!info->ndev)
-+		return -ENOMEM;
- 
- 	nci_set_parent_dev(info->ndev, pdev);
- 	nci_set_drvdata(info->ndev, info);
- 	r = nci_register_device(info->ndev);
--	if (r < 0)
--		goto probe_exit_free_nci;
-+	if (r < 0) {
-+		nci_free_device(info->ndev);
-+		return r;
-+	}
- 
- 	*ndev = info->ndev;
--
--	goto probe_exit;
--
--probe_exit_free_nci:
--	nci_free_device(info->ndev);
--probe_exit:
- 	return r;
- }
- EXPORT_SYMBOL(nxp_nci_probe);
+ 	dev->cnq_array = kcalloc(dev->num_cnq,
+@@ -403,6 +407,9 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
+ 	kfree(dev->cnq_array);
+ err2:
+ 	kfree(dev->sb_array);
++err_destroy_wq:
++	if (IS_IWARP(dev))
++		destroy_workqueue(dev->iwarp_wq);
+ err1:
+ 	kfree(dev->sgid_tbl);
+ 	return rc;
 -- 
 2.35.1
 
