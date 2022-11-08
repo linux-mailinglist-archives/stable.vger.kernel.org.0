@@ -2,106 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 411A16219AC
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 17:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56FE76219D1
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 17:52:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234104AbiKHQmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 11:42:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32884 "EHLO
+        id S234399AbiKHQwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 11:52:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234365AbiKHQmA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 11:42:00 -0500
-Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E0D25657B
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 08:41:59 -0800 (PST)
-Received: by mail-yb1-xb2a.google.com with SMTP id j130so18004786ybj.9
-        for <stable@vger.kernel.org>; Tue, 08 Nov 2022 08:41:59 -0800 (PST)
+        with ESMTP id S233918AbiKHQv5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 11:51:57 -0500
+Received: from smtp-fw-80007.amazon.com (smtp-fw-80007.amazon.com [99.78.197.218])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4701159856
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 08:51:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=JD3PRe74QR2mJ+orp5KCKp7oflDuwpBWOjw8obsvdQc=;
-        b=ezAdGSbLm5hnxH9a3UKs0v0CGNhaTm5NwZtDjS9EEqbMnkp1Y2iUV48IxyEfmZ+0Kx
-         unxFChxpGKrMIO/AKuVpdPRMAOH4GAvvbcqOl2jUOyIhcD0e+2cXmwK836XVVX2abv2I
-         DDn3JnLzfMjf0qZJui350cU5ptyGDxUq2cA1/rnwTac3XS4TbsbX9r7S3lYSoSRJcblK
-         divx9A5gGxFXwdlV3pQj0M3zehum+TE28Ws14aurCYj2DL903dBJ6dujNz4nMLYfgKgQ
-         8U1AKAlyaWjm/nI2lZlnL6DYCTFMALUWDcKVrQthayTqYPSYWiRh+8HOUpCN4JMHDJGb
-         fWxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JD3PRe74QR2mJ+orp5KCKp7oflDuwpBWOjw8obsvdQc=;
-        b=1f1UXKA6DuK2EBEW+zQcMADPPGg7fAUebdyLO17BqEy7bzDbRj92JkerRxCyjJkopG
-         62QiJbH7c6FzBVHvSkacoQaw87lBoSniqsYXED7WmUKrs77IsRjqi60uMIXyqCm/p40C
-         JfsKcqePqba5jxz/exUIKPfr0oWlXl91R3I513PkbT2HBYXXq7rWs3Msi+E2Tm4HEeHd
-         OV/gJXxgrx7GU8Z9cLIiPNtDDptFBOguoMfu8AzIzhgeGntC+0GnVM4VRMCpj/2ZPM5Z
-         wfwn1qtKrZLKsnsp6YEr6895KgOZXASpgMI2s2l1/SM/yhNq+Ybiy+XLPkWiNTFIk0uy
-         taDQ==
-X-Gm-Message-State: ACrzQf1s+YN9KBOS51y1v22o4N+cIv2Lo3BpFMETynsZAz5YG419jfdE
-        ucVJLo0heYb5/M5CPYw5rkbEsdPJPt50plyev6QT9A==
-X-Google-Smtp-Source: AMsMyM7b5keHpnrPp6sbB8q5Ph5lxpcIatBUP8MgjCIRGloZ+3MsJQch3obqOYW8dlqcALhXh82dmnZYmZrU003kRTI=
-X-Received: by 2002:a05:6902:722:b0:6ca:260e:cc5 with SMTP id
- l2-20020a056902072200b006ca260e0cc5mr57709150ybt.336.1667925718127; Tue, 08
- Nov 2022 08:41:58 -0800 (PST)
-MIME-Version: 1.0
-References: <20221108133340.718216105@linuxfoundation.org>
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 8 Nov 2022 22:11:46 +0530
-Message-ID: <CA+G9fYtSBS77MiW99t7HGyBPnnpxyu-6L3HUPsA+pXd_fkZRVg@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/118] 5.10.154-rc1 review
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1667926317; x=1699462317;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=sF2bCGrwrD//6ElRF5KBU9M8GZKMayt2fzTSvjNTBIA=;
+  b=GVWeCyxWl0YlL7SAo0BTwBpCXmtwDs5QYZZxdyZJdMJKE/WzkezWoEbO
+   0D7hVLIwU17DxYlzae0upXqwSjU9sgOFEXqoeCPp+PXxcgMQ5y+Zf9pO+
+   z9mPy6ZkbEmDJczq0rviR4Ka4W7h+4R3x92E7VrJ0cOmerXZYZndtjdvN
+   8=;
+X-IronPort-AV: E=Sophos;i="5.96,148,1665446400"; 
+   d="scan'208";a="148911755"
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-iad-1a-m6i4x-96feee09.us-east-1.amazon.com) ([10.25.36.214])
+  by smtp-border-fw-80007.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2022 16:51:53 +0000
+Received: from EX13MTAUEA001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-iad-1a-m6i4x-96feee09.us-east-1.amazon.com (Postfix) with ESMTPS id 4DA1B41FC7;
+        Tue,  8 Nov 2022 16:51:44 +0000 (UTC)
+Received: from EX13D25UEA004.ant.amazon.com (10.43.61.126) by
+ EX13MTAUEA001.ant.amazon.com (10.43.61.82) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.42; Tue, 8 Nov 2022 16:51:17 +0000
+Received: from EX13MTAUEA001.ant.amazon.com (10.43.61.82) by
+ EX13D25UEA004.ant.amazon.com (10.43.61.126) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.42; Tue, 8 Nov 2022 16:51:17 +0000
+Received: from dev-dsk-luizcap-1d-af6a6fef.us-east-1.amazon.com
+ (10.39.202.216) by mail-relay.amazon.com (10.43.61.243) with Microsoft SMTP
+ Server id 15.0.1497.42 via Frontend Transport; Tue, 8 Nov 2022 16:51:17 +0000
+Received: by dev-dsk-luizcap-1d-af6a6fef.us-east-1.amazon.com (Postfix, from userid 23276196)
+        id 9038F29BA; Tue,  8 Nov 2022 16:51:16 +0000 (UTC)
+Date:   Tue, 8 Nov 2022 16:51:16 +0000
+From:   Luiz Capitulino <luizcap@amazon.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+CC:     <stable@vger.kernel.org>, <lcapitulino@gmail.com>,
+        Vasily Averin <vvs@virtuozzo.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        "Andrei Vagin" <avagin@gmail.com>, Borislav Petkov <bp@alien8.de>,
+        Borislav Petkov <bp@suse.de>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        "Dmitry Safonov" <0x7f454c46@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        "J. Bruce Fields" <bfields@fieldses.org>,
+        Jeff Layton <jlayton@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Oleg Nesterov <oleg@redhat.com>, Roman Gushchin <guro@fb.com>,
+        Serge Hallyn <serge@hallyn.com>, Tejun Heo <tj@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Yutian Yang <nglaive@gmail.com>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 5.10, 5.4] memcg: enable accounting of ipc resources
+Message-ID: <20221108165116.GA9011@dev-dsk-luizcap-1d-af6a6fef.us-east-1.amazon.com>
+References: <20221104184131.17797-1-luizcap@amazon.com>
+ <Y2jMXfbLTHwDBInx@kroah.com> <Y2pPhBL2g8fmqdql@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <Y2pPhBL2g8fmqdql@kroah.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Spam-Status: No, score=-11.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 8 Nov 2022 at 19:22, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.154 release.
-> There are 118 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 10 Nov 2022 13:33:17 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.154-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
->
+On Tue, Nov 08, 2022 at 01:45:56PM +0100, Greg Kroah-Hartman wrote:
+
+> 
+> 
+> On Mon, Nov 07, 2022 at 10:14:05AM +0100, Greg Kroah-Hartman wrote:
+> > On Fri, Nov 04, 2022 at 06:41:31PM +0000, Luiz Capitulino wrote:
+> > > From: Vasily Averin <vvs@virtuozzo.com>
+> > >
+> > > Commit 18319498fdd4cdf8c1c2c48cd432863b1f915d6f upstream.
+> > >
+> > > [ This backport fixes CVE-2021-3759 for 5.10 and 5.4. Please, note that
+> > >   it caused conflicts in all files being changed because upstream
+> > >   changed ipc object allocation to and from kvmalloc() & friends (eg.
+> > >   commits bc8136a543aa and fc37a3b8b4388e). However, I decided to keep
+> > >   this backport about the memcg accounting fix only. ]
+> >
+> > Looks good, now queued up, thanks.
+> 
+> Ah, but you missed a fix-up patch for this one {sigh}
+> 
+> I've now queued up 18319498fdd4 ("memcg: enable accounting of ipc
+> resources") as well.  Please be more careful in the future when
+> backporting changes that you also include the fixes for those changes.
+
+Good catch, the fixup is actually 6a4746ba06191e23d30230738e94334b26590a8a
+
+Will try to be more careful next time.
+
+- Luiz
+
+> 
 > thanks,
->
+> 
 > greg k-h
-
-As other reported LKFT also noticed arm64 build failures.
-
-Error: /builds/linux/arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi:1296.24-25
-syntax error
-FATAL ERROR: Unable to parse input tree
-make[3]: *** [scripts/Makefile.lib:326:
-arch/arm64/boot/dts/freescale/fsl-lx2160a-clearfog-cx.dtb] Error 1
-Error: /builds/linux/arch/arm64/boot/dts/freescale/fsl-lx2160a.dtsi:1296.24-25
-syntax error
-FATAL ERROR: Unable to parse input tree
-
-URL:
-https://builds.tuxbuild.com/2HGddiHMonVVZRsckAWkubW4tdh/
-
-- Naresh
