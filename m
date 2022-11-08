@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90B61621491
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56EE96213E3
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:55:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234647AbiKHOCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:02:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37148 "EHLO
+        id S234604AbiKHNzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:55:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234974AbiKHOCg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:02:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0A6168693
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:02:35 -0800 (PST)
+        with ESMTP id S234761AbiKHNzF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:55:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA5A19C06
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:55:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D981B81B00
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:02:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9FEDC433C1;
-        Tue,  8 Nov 2022 14:02:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5FEDB81AF2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:55:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4048C433C1;
+        Tue,  8 Nov 2022 13:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916153;
-        bh=u+q7QNjrPY78hgJ+fMEA5AyyLYc8rZCuHpL2Ki4aoQo=;
+        s=korg; t=1667915701;
+        bh=mKQCnW94OFN6xpOYGjoVNWgRVfo/S9CYCA/2Y8f8LI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L1+sBvFcmHHm+Jijs2X1PFKIsiUfIho+Pko224FaqCjJQEqe7PDW5NEs8rPqo383f
-         eC3hvVcHZEt8/bHMzXHc8kzR+QBmX7uGJs5p663j1cxjWl53L/FSSFQk59hGIv/XX7
-         JerRVfZLICJDS4yrLz4c6NEHz8HzUULq2vXiG7F0=
+        b=2s/dNj7u9Avw1R5tUDCUz3lDVtDEA1cwPTxWofmeDqx6UlV1wVTCnJb1TZDrx7Rao
+         QkGcRVQ4OgLtC7PHaFBvemqtFPn8/yAJSaxKNoIf6ut3K+xa8y4CkYvvSfwWGj8mEH
+         OZHVn1jCt+hgWX4o8g6142vezIPcc9s4dfDgV4+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Sascha Hauer <s.hauer@pengutronix.de>,
+        Haibo Chen <haibo.chen@nxp.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 050/144] Bluetooth: L2CAP: fix use-after-free in l2cap_conn_del()
+Subject: [PATCH 5.10 049/118] mmc: sdhci-esdhc-imx: Propagate ESDHC_FLAG_HS400* only on 8bit bus
 Date:   Tue,  8 Nov 2022 14:38:47 +0100
-Message-Id: <20221108133347.392225126@linuxfoundation.org>
+Message-Id: <20221108133342.827504781@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,139 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit 0d0e2d032811280b927650ff3c15fe5020e82533 ]
+[ Upstream commit 1ed5c3b22fc78735c539e4767832aea58db6761c ]
 
-When l2cap_recv_frame() is invoked to receive data, and the cid is
-L2CAP_CID_A2MP, if the channel does not exist, it will create a channel.
-However, after a channel is created, the hold operation of the channel
-is not performed. In this case, the value of channel reference counting
-is 1. As a result, after hci_error_reset() is triggered, l2cap_conn_del()
-invokes the close hook function of A2MP to release the channel. Then
- l2cap_chan_unlock(chan) will trigger UAF issue.
+The core issues the warning "drop HS400 support since no 8-bit bus" when
+one of the ESDHC_FLAG_HS400* flags is set on a non 8bit capable host. To
+avoid this warning set these flags only on hosts that actually can do
+8bit, i.e. have bus-width = <8> set in the device tree.
 
-The process is as follows:
-Receive data:
-l2cap_data_channel()
-    a2mp_channel_create()  --->channel ref is 2
-    l2cap_chan_put()       --->channel ref is 1
-
-Triger event:
-    hci_error_reset()
-        hci_dev_do_close()
-        ...
-        l2cap_disconn_cfm()
-            l2cap_conn_del()
-                l2cap_chan_hold()    --->channel ref is 2
-                l2cap_chan_del()     --->channel ref is 1
-                a2mp_chan_close_cb() --->channel ref is 0, release channel
-                l2cap_chan_unlock()  --->UAF of channel
-
-The detailed Call Trace is as follows:
-BUG: KASAN: use-after-free in __mutex_unlock_slowpath+0xa6/0x5e0
-Read of size 8 at addr ffff8880160664b8 by task kworker/u11:1/7593
-Workqueue: hci0 hci_error_reset
-Call Trace:
- <TASK>
- dump_stack_lvl+0xcd/0x134
- print_report.cold+0x2ba/0x719
- kasan_report+0xb1/0x1e0
- kasan_check_range+0x140/0x190
- __mutex_unlock_slowpath+0xa6/0x5e0
- l2cap_conn_del+0x404/0x7b0
- l2cap_disconn_cfm+0x8c/0xc0
- hci_conn_hash_flush+0x11f/0x260
- hci_dev_close_sync+0x5f5/0x11f0
- hci_dev_do_close+0x2d/0x70
- hci_error_reset+0x9e/0x140
- process_one_work+0x98a/0x1620
- worker_thread+0x665/0x1080
- kthread+0x2e4/0x3a0
- ret_from_fork+0x1f/0x30
- </TASK>
-
-Allocated by task 7593:
- kasan_save_stack+0x1e/0x40
- __kasan_kmalloc+0xa9/0xd0
- l2cap_chan_create+0x40/0x930
- amp_mgr_create+0x96/0x990
- a2mp_channel_create+0x7d/0x150
- l2cap_recv_frame+0x51b8/0x9a70
- l2cap_recv_acldata+0xaa3/0xc00
- hci_rx_work+0x702/0x1220
- process_one_work+0x98a/0x1620
- worker_thread+0x665/0x1080
- kthread+0x2e4/0x3a0
- ret_from_fork+0x1f/0x30
-
-Freed by task 7593:
- kasan_save_stack+0x1e/0x40
- kasan_set_track+0x21/0x30
- kasan_set_free_info+0x20/0x30
- ____kasan_slab_free+0x167/0x1c0
- slab_free_freelist_hook+0x89/0x1c0
- kfree+0xe2/0x580
- l2cap_chan_put+0x22a/0x2d0
- l2cap_conn_del+0x3fc/0x7b0
- l2cap_disconn_cfm+0x8c/0xc0
- hci_conn_hash_flush+0x11f/0x260
- hci_dev_close_sync+0x5f5/0x11f0
- hci_dev_do_close+0x2d/0x70
- hci_error_reset+0x9e/0x140
- process_one_work+0x98a/0x1620
- worker_thread+0x665/0x1080
- kthread+0x2e4/0x3a0
- ret_from_fork+0x1f/0x30
-
-Last potentially related work creation:
- kasan_save_stack+0x1e/0x40
- __kasan_record_aux_stack+0xbe/0xd0
- call_rcu+0x99/0x740
- netlink_release+0xe6a/0x1cf0
- __sock_release+0xcd/0x280
- sock_close+0x18/0x20
- __fput+0x27c/0xa90
- task_work_run+0xdd/0x1a0
- exit_to_user_mode_prepare+0x23c/0x250
- syscall_exit_to_user_mode+0x19/0x50
- do_syscall_64+0x42/0x80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Second to last potentially related work creation:
- kasan_save_stack+0x1e/0x40
- __kasan_record_aux_stack+0xbe/0xd0
- call_rcu+0x99/0x740
- netlink_release+0xe6a/0x1cf0
- __sock_release+0xcd/0x280
- sock_close+0x18/0x20
- __fput+0x27c/0xa90
- task_work_run+0xdd/0x1a0
- exit_to_user_mode_prepare+0x23c/0x250
- syscall_exit_to_user_mode+0x19/0x50
- do_syscall_64+0x42/0x80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: d0be8347c623 ("Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Reviewed-by: Haibo Chen <haibo.chen@nxp.com>
+Fixes: 029e2476f9e6 ("mmc: sdhci-esdhc-imx: add HS400_ES support for i.MX8QXP")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221013093248.2220802-1-s.hauer@pengutronix.de
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/sdhci-esdhc-imx.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index d12d66f31b47..a18a1c608ed1 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -7615,6 +7615,7 @@ static void l2cap_data_channel(struct l2cap_conn *conn, u16 cid,
- 				return;
- 			}
+diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
+index a4bd85b200a3..be4e5cdda1fa 100644
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -1692,6 +1692,10 @@ static int sdhci_esdhc_imx_probe(struct platform_device *pdev)
+ 		host->mmc_host_ops.execute_tuning = usdhc_execute_tuning;
+ 	}
  
-+			l2cap_chan_hold(chan);
- 			l2cap_chan_lock(chan);
- 		} else {
- 			BT_DBG("unknown cid 0x%4.4x", cid);
++	err = sdhci_esdhc_imx_probe_dt(pdev, host, imx_data);
++	if (err)
++		goto disable_ahb_clk;
++
+ 	if (imx_data->socdata->flags & ESDHC_FLAG_MAN_TUNING)
+ 		sdhci_esdhc_ops.platform_execute_tuning =
+ 					esdhc_executing_tuning;
+@@ -1699,13 +1703,15 @@ static int sdhci_esdhc_imx_probe(struct platform_device *pdev)
+ 	if (imx_data->socdata->flags & ESDHC_FLAG_ERR004536)
+ 		host->quirks |= SDHCI_QUIRK_BROKEN_ADMA;
+ 
+-	if (imx_data->socdata->flags & ESDHC_FLAG_HS400)
++	if (host->caps & MMC_CAP_8_BIT_DATA &&
++	    imx_data->socdata->flags & ESDHC_FLAG_HS400)
+ 		host->quirks2 |= SDHCI_QUIRK2_CAPS_BIT63_FOR_HS400;
+ 
+ 	if (imx_data->socdata->flags & ESDHC_FLAG_BROKEN_AUTO_CMD23)
+ 		host->quirks2 |= SDHCI_QUIRK2_ACMD23_BROKEN;
+ 
+-	if (imx_data->socdata->flags & ESDHC_FLAG_HS400_ES) {
++	if (host->caps & MMC_CAP_8_BIT_DATA &&
++	    imx_data->socdata->flags & ESDHC_FLAG_HS400_ES) {
+ 		host->mmc->caps2 |= MMC_CAP2_HS400_ES;
+ 		host->mmc_host_ops.hs400_enhanced_strobe =
+ 					esdhc_hs400_enhanced_strobe;
+@@ -1727,13 +1733,6 @@ static int sdhci_esdhc_imx_probe(struct platform_device *pdev)
+ 			goto disable_ahb_clk;
+ 	}
+ 
+-	if (of_id)
+-		err = sdhci_esdhc_imx_probe_dt(pdev, host, imx_data);
+-	else
+-		err = sdhci_esdhc_imx_probe_nondt(pdev, host, imx_data);
+-	if (err)
+-		goto disable_ahb_clk;
+-
+ 	sdhci_esdhc_imx_hwinit(host);
+ 
+ 	err = sdhci_add_host(host);
 -- 
 2.35.1
 
