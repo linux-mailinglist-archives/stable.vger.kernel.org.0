@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B1FC6215D7
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:16:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC2AB621431
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:58:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235345AbiKHOQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:16:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54470 "EHLO
+        id S234607AbiKHN6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:58:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235354AbiKHOQA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:16:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 473C959847
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:16:00 -0800 (PST)
+        with ESMTP id S234863AbiKHN6V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:58:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 571B966C8E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:58:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D999C615B2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:15:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E83C9C433D7;
-        Tue,  8 Nov 2022 14:15:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15945B816DD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:58:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59A8CC433C1;
+        Tue,  8 Nov 2022 13:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916959;
-        bh=fdQPTZzvCTSi1hToKEZqGShsl5Aa5lvHrJxSWMBpPMs=;
+        s=korg; t=1667915897;
+        bh=KgVGdV0SRbHZVwUD1M04qh4rM/5YC2FKWdYA1IjVW+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qV2WtNYbr3wtaTeDzTUhqUrE/DfZ1KW9w6O7YMFDKYqSSkEWwEKktDWGxaRrZGNYu
-         nIUPY7E3H4PuhBJbzDUv2h3UqjefICZhBoYA733ZwC6GHiNge4Zwxs5Pp8BAdDwpnJ
-         jhKS/dq3LowF0CfKKzgx8kFCJ7SpDc6pDueA0vNw=
+        b=XQQ3tPiSpyZMZ+A4ICWF6DBWA8uIjpibLW/R3obBKn7xmitkgW+VGScgfHIggw5cn
+         KhOnlutAEvCcXuU1lMRYrzem5hTaFBlnkHcQG7udD5QbGitUrMfkaX2wccW8XMjqYf
+         cJCnyuagF02FZsmD3O8NWVpn5fyQZAvFVQh1/lWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Jannis Klinkenberg <jannis.klinkenberg@rwth-aachen.de>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 6.0 156/197] perf/x86/intel: Fix pebs event constraints for ICL
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.10 116/118] drm/i915/sdvo: Setup DDC fully before output init
 Date:   Tue,  8 Nov 2022 14:39:54 +0100
-Message-Id: <20221108133402.039734350@linuxfoundation.org>
+Message-Id: <20221108133345.728039557@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit acc5568b90c19ac6375508a93b9676cd18a92a35 upstream.
+commit e79762512120f11c51317570519a1553c70805d8 upstream.
 
-According to the latest event list, update the MEM_INST_RETIRED events
-which support the DataLA facility.
+Call intel_sdvo_select_ddc_bus() before initializing any
+of the outputs. And before that is functional (assuming no VBT)
+we have to set up the controlled_outputs thing. Otherwise DDC
+won't be functional during the output init but LVDS really
+needs it for the fixed mode setup.
 
-Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
-Reported-by: Jannis Klinkenberg <jannis.klinkenberg@rwth-aachen.de>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Note that the whole multi output support still looks very
+bogus, and more work will be needed to make it correct.
+But for now this should at least fix the LVDS EDID fixed mode
+setup.
+
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20221031154119.571386-1-kan.liang@linux.intel.com
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7301
+Fixes: aa2b88074a56 ("drm/i915/sdvo: Fix multi function encoder stuff")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221026101134.20865-3-ville.syrjala@linux.intel.com
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit 64b7b557dc8a96d9cfed6aedbf81de2df80c025d)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/ds.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/display/intel_sdvo.c |   31 +++++++++++-------------------
+ 1 file changed, 12 insertions(+), 19 deletions(-)
 
---- a/arch/x86/events/intel/ds.c
-+++ b/arch/x86/events/intel/ds.c
-@@ -982,8 +982,13 @@ struct event_constraint intel_icl_pebs_e
- 	INTEL_FLAGS_UEVENT_CONSTRAINT(0x0400, 0x800000000ULL),	/* SLOTS */
+--- a/drivers/gpu/drm/i915/display/intel_sdvo.c
++++ b/drivers/gpu/drm/i915/display/intel_sdvo.c
+@@ -2760,13 +2760,10 @@ intel_sdvo_dvi_init(struct intel_sdvo *i
+ 	if (!intel_sdvo_connector)
+ 		return false;
  
- 	INTEL_PLD_CONSTRAINT(0x1cd, 0xff),			/* MEM_TRANS_RETIRED.LOAD_LATENCY */
--	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_LD(0x1d0, 0xf),	/* MEM_INST_RETIRED.LOAD */
--	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_ST(0x2d0, 0xf),	/* MEM_INST_RETIRED.STORE */
-+	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_LD(0x11d0, 0xf),	/* MEM_INST_RETIRED.STLB_MISS_LOADS */
-+	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_ST(0x12d0, 0xf),	/* MEM_INST_RETIRED.STLB_MISS_STORES */
-+	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_LD(0x21d0, 0xf),	/* MEM_INST_RETIRED.LOCK_LOADS */
-+	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_LD(0x41d0, 0xf),	/* MEM_INST_RETIRED.SPLIT_LOADS */
-+	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_ST(0x42d0, 0xf),	/* MEM_INST_RETIRED.SPLIT_STORES */
-+	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_LD(0x81d0, 0xf),	/* MEM_INST_RETIRED.ALL_LOADS */
-+	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_ST(0x82d0, 0xf),	/* MEM_INST_RETIRED.ALL_STORES */
+-	if (device == 0) {
+-		intel_sdvo->controlled_output |= SDVO_OUTPUT_TMDS0;
++	if (device == 0)
+ 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_TMDS0;
+-	} else if (device == 1) {
+-		intel_sdvo->controlled_output |= SDVO_OUTPUT_TMDS1;
++	else if (device == 1)
+ 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_TMDS1;
+-	}
  
- 	INTEL_FLAGS_EVENT_CONSTRAINT_DATALA_LD_RANGE(0xd1, 0xd4, 0xf), /* MEM_LOAD_*_RETIRED.* */
+ 	intel_connector = &intel_sdvo_connector->base;
+ 	connector = &intel_connector->base;
+@@ -2821,7 +2818,6 @@ intel_sdvo_tv_init(struct intel_sdvo *in
+ 	encoder->encoder_type = DRM_MODE_ENCODER_TVDAC;
+ 	connector->connector_type = DRM_MODE_CONNECTOR_SVIDEO;
  
+-	intel_sdvo->controlled_output |= type;
+ 	intel_sdvo_connector->output_flag = type;
+ 
+ 	if (intel_sdvo_connector_init(intel_sdvo_connector, intel_sdvo) < 0) {
+@@ -2862,13 +2858,10 @@ intel_sdvo_analog_init(struct intel_sdvo
+ 	encoder->encoder_type = DRM_MODE_ENCODER_DAC;
+ 	connector->connector_type = DRM_MODE_CONNECTOR_VGA;
+ 
+-	if (device == 0) {
+-		intel_sdvo->controlled_output |= SDVO_OUTPUT_RGB0;
++	if (device == 0)
+ 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_RGB0;
+-	} else if (device == 1) {
+-		intel_sdvo->controlled_output |= SDVO_OUTPUT_RGB1;
++	else if (device == 1)
+ 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_RGB1;
+-	}
+ 
+ 	if (intel_sdvo_connector_init(intel_sdvo_connector, intel_sdvo) < 0) {
+ 		kfree(intel_sdvo_connector);
+@@ -2898,13 +2891,10 @@ intel_sdvo_lvds_init(struct intel_sdvo *
+ 	encoder->encoder_type = DRM_MODE_ENCODER_LVDS;
+ 	connector->connector_type = DRM_MODE_CONNECTOR_LVDS;
+ 
+-	if (device == 0) {
+-		intel_sdvo->controlled_output |= SDVO_OUTPUT_LVDS0;
++	if (device == 0)
+ 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_LVDS0;
+-	} else if (device == 1) {
+-		intel_sdvo->controlled_output |= SDVO_OUTPUT_LVDS1;
++	else if (device == 1)
+ 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_LVDS1;
+-	}
+ 
+ 	if (intel_sdvo_connector_init(intel_sdvo_connector, intel_sdvo) < 0) {
+ 		kfree(intel_sdvo_connector);
+@@ -2957,8 +2947,14 @@ static u16 intel_sdvo_filter_output_flag
+ static bool
+ intel_sdvo_output_setup(struct intel_sdvo *intel_sdvo, u16 flags)
+ {
++	struct drm_i915_private *i915 = to_i915(intel_sdvo->base.base.dev);
++
+ 	flags = intel_sdvo_filter_output_flags(flags);
+ 
++	intel_sdvo->controlled_output = flags;
++
++	intel_sdvo_select_ddc_bus(i915, intel_sdvo);
++
+ 	if (flags & SDVO_OUTPUT_TMDS0)
+ 		if (!intel_sdvo_dvi_init(intel_sdvo, 0))
+ 			return false;
+@@ -2999,7 +2995,6 @@ intel_sdvo_output_setup(struct intel_sdv
+ 	if (flags == 0) {
+ 		unsigned char bytes[2];
+ 
+-		intel_sdvo->controlled_output = 0;
+ 		memcpy(bytes, &intel_sdvo->caps.output_flags, 2);
+ 		DRM_DEBUG_KMS("%s: Unknown SDVO output type (0x%02x%02x)\n",
+ 			      SDVO_NAME(intel_sdvo),
+@@ -3411,8 +3406,6 @@ bool intel_sdvo_init(struct drm_i915_pri
+ 	 */
+ 	intel_sdvo->base.cloneable = 0;
+ 
+-	intel_sdvo_select_ddc_bus(dev_priv, intel_sdvo);
+-
+ 	/* Set the input timing to the screen. Assume always input 0. */
+ 	if (!intel_sdvo_set_target_input(intel_sdvo))
+ 		goto err_output;
 
 
