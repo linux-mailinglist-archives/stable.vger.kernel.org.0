@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FD006212E5
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65F156212E6
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234473AbiKHNoC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:44:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43972 "EHLO
+        id S234306AbiKHNoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:44:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234306AbiKHNoA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:00 -0500
+        with ESMTP id S234487AbiKHNoD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:03 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499002670
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:43:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9216A12AFD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:44:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D999661582
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:43:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F01F2C433D6;
-        Tue,  8 Nov 2022 13:43:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32D216158F
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:44:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 303F7C433D7;
+        Tue,  8 Nov 2022 13:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915038;
-        bh=51oU+maH7dPc57WcCLID7n977QWsZrrMC+gaJvNYxIY=;
+        s=korg; t=1667915041;
+        bh=LErlnjiGrOKN9DAP4DSvBPdiuVu78LfWIh/gvNUTCEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WkSOhbkR69v/aM1tKdZXqwWo4MRvcfLtP5YVcTdYz/bSEOtvxoCH/VxcLi93J/ehr
-         A8b9rRbnwW/ilv8wCVo6In0mzKClOtjLnX0ZoMLlgN8XZLG40N2otZfzQuvh+VcgaZ
-         Xt7b7Fo+k7jQ3CjKExEgsc1odbChb5qEjZdzpdtY=
+        b=pVW8AEt1GkIvX1o5abS03PtWyWr7Lz++KOwu69mqvjNrGPN4n7neHAaUJs1qj3r1k
+         G0lISVhPZN78puCjoKX6U6yT5eq49YnrlXIfVG4M8oguMWNUMn5bVMbdnyL3hcxlVg
+         eMOzmjgSBLCWFM2GwUpHGb2DlSOFCGfDj+cvcJNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/40] net: dsa: Fix possible memory leaks in dsa_loop_init()
-Date:   Tue,  8 Nov 2022 14:38:49 +0100
-Message-Id: <20221108133328.516510964@linuxfoundation.org>
+Subject: [PATCH 4.14 05/40] nfc: s3fwrn5: Fix potential memory leak in s3fwrn5_nci_send()
+Date:   Tue,  8 Nov 2022 14:38:50 +0100
+Message-Id: <20221108133328.560072852@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
 References: <20221108133328.351887714@linuxfoundation.org>
@@ -53,106 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 633efc8b3dc96f56f5a57f2a49764853a2fa3f50 ]
+[ Upstream commit 3a146b7e3099dc7cf3114f627d9b79291e2d2203 ]
 
-kmemleak reported memory leaks in dsa_loop_init():
+s3fwrn5_nci_send() will call s3fwrn5_i2c_write() or s3fwrn82_uart_write(),
+and free the skb if write() failed. However, even if the write() run
+succeeds, the skb will not be freed in write(). As the result, the skb
+will memleak. s3fwrn5_nci_send() should also free the skb when write()
+succeeds.
 
-kmemleak: 12 new suspected memory leaks
-
-unreferenced object 0xffff8880138ce000 (size 2048):
-  comm "modprobe", pid 390, jiffies 4295040478 (age 238.976s)
-  backtrace:
-    [<000000006a94f1d5>] kmalloc_trace+0x26/0x60
-    [<00000000a9c44622>] phy_device_create+0x5d/0x970
-    [<00000000d0ee2afc>] get_phy_device+0xf3/0x2b0
-    [<00000000dca0c71f>] __fixed_phy_register.part.0+0x92/0x4e0
-    [<000000008a834798>] fixed_phy_register+0x84/0xb0
-    [<0000000055223fcb>] dsa_loop_init+0xa9/0x116 [dsa_loop]
-    ...
-
-There are two reasons for memleak in dsa_loop_init().
-
-First, fixed_phy_register() create and register phy_device:
-
-fixed_phy_register()
-  get_phy_device()
-    phy_device_create() # freed by phy_device_free()
-  phy_device_register() # freed by phy_device_remove()
-
-But fixed_phy_unregister() only calls phy_device_remove().
-So the memory allocated in phy_device_create() is leaked.
-
-Second, when mdio_driver_register() fail in dsa_loop_init(),
-it just returns and there is no cleanup for phydevs.
-
-Fix the problems by catching the error of mdio_driver_register()
-in dsa_loop_init(), then calling both fixed_phy_unregister() and
-phy_device_free() to release phydevs.
-Also add a function for phydevs cleanup to avoid duplacate.
-
-Fixes: 98cd1552ea27 ("net: dsa: Mock-up driver")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Fixes: c04c674fadeb ("nfc: s3fwrn5: Add driver for Samsung S3FWRN5 NFC Chip")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/dsa_loop.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/nfc/s3fwrn5/core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/dsa_loop.c b/drivers/net/dsa/dsa_loop.c
-index a5a83d86bb0f..dbd21f95a700 100644
---- a/drivers/net/dsa/dsa_loop.c
-+++ b/drivers/net/dsa/dsa_loop.c
-@@ -330,6 +330,17 @@ static struct mdio_driver dsa_loop_drv = {
+diff --git a/drivers/nfc/s3fwrn5/core.c b/drivers/nfc/s3fwrn5/core.c
+index 64b58455e620..f23a1e4d7e1e 100644
+--- a/drivers/nfc/s3fwrn5/core.c
++++ b/drivers/nfc/s3fwrn5/core.c
+@@ -108,11 +108,15 @@ static int s3fwrn5_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
+ 	}
  
- #define NUM_FIXED_PHYS	(DSA_LOOP_NUM_PORTS - 2)
+ 	ret = s3fwrn5_write(info, skb);
+-	if (ret < 0)
++	if (ret < 0) {
+ 		kfree_skb(skb);
++		mutex_unlock(&info->mutex);
++		return ret;
++	}
  
-+static void dsa_loop_phydevs_unregister(void)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < NUM_FIXED_PHYS; i++)
-+		if (!IS_ERR(phydevs[i])) {
-+			fixed_phy_unregister(phydevs[i]);
-+			phy_device_free(phydevs[i]);
-+		}
-+}
-+
- static int __init dsa_loop_init(void)
- {
- 	struct fixed_phy_status status = {
-@@ -337,23 +348,23 @@ static int __init dsa_loop_init(void)
- 		.speed = SPEED_100,
- 		.duplex = DUPLEX_FULL,
- 	};
--	unsigned int i;
-+	unsigned int i, ret;
- 
- 	for (i = 0; i < NUM_FIXED_PHYS; i++)
- 		phydevs[i] = fixed_phy_register(PHY_POLL, &status, -1, NULL);
- 
--	return mdio_driver_register(&dsa_loop_drv);
-+	ret = mdio_driver_register(&dsa_loop_drv);
-+	if (ret)
-+		dsa_loop_phydevs_unregister();
-+
-+	return ret;
++	consume_skb(skb);
+ 	mutex_unlock(&info->mutex);
+-	return ret;
++	return 0;
  }
- module_init(dsa_loop_init);
  
- static void __exit dsa_loop_exit(void)
- {
--	unsigned int i;
--
- 	mdio_driver_unregister(&dsa_loop_drv);
--	for (i = 0; i < NUM_FIXED_PHYS; i++)
--		if (!IS_ERR(phydevs[i]))
--			fixed_phy_unregister(phydevs[i]);
-+	dsa_loop_phydevs_unregister();
- }
- module_exit(dsa_loop_exit);
- 
+ static int s3fwrn5_nci_post_setup(struct nci_dev *ndev)
 -- 
 2.35.1
 
