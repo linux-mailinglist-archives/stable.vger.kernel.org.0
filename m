@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 046F062133F
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7973E62129B
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:41:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234572AbiKHNsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:48:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48286 "EHLO
+        id S234201AbiKHNlT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:41:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234555AbiKHNs3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61028271D
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:22 -0800 (PST)
+        with ESMTP id S233748AbiKHNlB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:41:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21DFD4509B
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:41:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB1AE615A1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D72B6C4314D;
-        Tue,  8 Nov 2022 13:48:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA90C61582
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:41:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B65F6C433D6;
+        Tue,  8 Nov 2022 13:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915301;
-        bh=J6YkdJZoPsfqlNZ5bTOl7niHESHpPZ+gi6SEWMDCVxQ=;
+        s=korg; t=1667914860;
+        bh=6Qn56G56Gi5D/BceXKMlfSKBjn/FXMdS4NwJy3k6ar8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbL2CcBqMAOJ8UIZFMzdbJ2a1SOR5NFrcYd3e3Q1QwVR3iPL54Jy8yNK/xei2qOrh
-         UaC9qQ0/cWd6hQVDmKEG9VQJ9bnuf9iz0yT4ojW5ewZjAHMeiJ6w9WwRKhOy9Bgbck
-         MXI93rrVQW5BA2ptKhB7d39NxiD99m8eyb9Hzi5Q=
+        b=UVt2HFDkg97Bb84anu9lveANeBAgztmnZhnkg+m7MWpotqfE1QV0iEGKqDC2sOaCU
+         e1IA5mzXjh3TpTSSRMD77GrNm4tzB+YRxgzeuR9svxOo+KBAuaJ7hEaOvlMefdq2e1
+         8w8lK1mN9JpbBIelYlHDImpjs0iXSq+/7wO8a7y4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/74] btrfs: fix inode list leak during backref walking at resolve_indirect_refs()
+Subject: [PATCH 4.9 02/30] NFSv4.1: We must always send RECLAIM_COMPLETE after a reboot
 Date:   Tue,  8 Nov 2022 14:38:50 +0100
-Message-Id: <20221108133334.635928962@linuxfoundation.org>
+Message-Id: <20221108133326.813419239@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
+References: <20221108133326.715586431@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 5614dc3a47e3310fbc77ea3b67eaadd1c6417bf1 ]
+[ Upstream commit e59679f2b7e522ecad99974e5636291ffd47c184 ]
 
-During backref walking, at resolve_indirect_refs(), if we get an error
-we jump to the 'out' label and call ulist_free() on the 'parents' ulist,
-which frees all the elements in the ulist - however that does not free
-any inode lists that may be attached to elements, through the 'aux' field
-of a ulist node, so we end up leaking lists if we have any attached to
-the unodes.
+Currently, we are only guaranteed to send RECLAIM_COMPLETE if we have
+open state to recover. Fix the client to always send RECLAIM_COMPLETE
+after setting up the lease.
 
-Fix this by calling free_leaf_list() instead of ulist_free() when we exit
-from resolve_indirect_refs(). The static function free_leaf_list() is
-moved up for this to be possible and it's slightly simplified by removing
-unnecessary code.
-
-Fixes: 3301958b7c1d ("Btrfs: add inodes before dropping the extent lock in find_all_leafs")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: fce5c838e133 ("nfs41: RECLAIM_COMPLETE functionality")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c | 36 +++++++++++++++++-------------------
- 1 file changed, 17 insertions(+), 19 deletions(-)
+ fs/nfs/nfs4state.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 7147bb66a482..4809cc07a885 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -642,6 +642,18 @@ unode_aux_to_inode_list(struct ulist_node *node)
- 	return (struct extent_inode_elem *)(uintptr_t)node->aux;
- }
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index 2df0a1be5974..dcb2c8b4a14d 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -1656,6 +1656,7 @@ static void nfs4_state_mark_reclaim_helper(struct nfs_client *clp,
  
-+static void free_leaf_list(struct ulist *ulist)
-+{
-+	struct ulist_node *node;
-+	struct ulist_iterator uiter;
-+
-+	ULIST_ITER_INIT(&uiter);
-+	while ((node = ulist_next(ulist, &uiter)))
-+		free_inode_elem_list(unode_aux_to_inode_list(node));
-+
-+	ulist_free(ulist);
-+}
-+
- /*
-  * We maintain three separate rbtrees: one for direct refs, one for
-  * indirect refs which have a key, and one for indirect refs which do not
-@@ -756,7 +768,11 @@ static int resolve_indirect_refs(struct btrfs_fs_info *fs_info,
- 		cond_resched();
- 	}
- out:
--	ulist_free(parents);
-+	/*
-+	 * We may have inode lists attached to refs in the parents ulist, so we
-+	 * must free them before freeing the ulist and its refs.
-+	 */
-+	free_leaf_list(parents);
- 	return ret;
- }
- 
-@@ -1408,24 +1424,6 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
- 	return ret;
- }
- 
--static void free_leaf_list(struct ulist *blocks)
--{
--	struct ulist_node *node = NULL;
--	struct extent_inode_elem *eie;
--	struct ulist_iterator uiter;
--
--	ULIST_ITER_INIT(&uiter);
--	while ((node = ulist_next(blocks, &uiter))) {
--		if (!node->aux)
--			continue;
--		eie = unode_aux_to_inode_list(node);
--		free_inode_elem_list(eie);
--		node->aux = 0;
--	}
--
--	ulist_free(blocks);
--}
--
- /*
-  * Finds all leafs with a reference to the specified combination of bytenr and
-  * offset. key_list_head will point to a list of corresponding keys (caller must
+ static void nfs4_state_start_reclaim_reboot(struct nfs_client *clp)
+ {
++	set_bit(NFS4CLNT_RECLAIM_REBOOT, &clp->cl_state);
+ 	/* Mark all delegations for reclaim */
+ 	nfs_delegation_mark_reclaim(clp);
+ 	nfs4_state_mark_reclaim_helper(clp, nfs4_state_mark_reclaim_reboot);
 -- 
 2.35.1
 
