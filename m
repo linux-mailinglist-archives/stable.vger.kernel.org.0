@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A1B6212CD
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:42:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BBB0621300
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:45:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233694AbiKHNm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:42:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41758 "EHLO
+        id S234504AbiKHNpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:45:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234460AbiKHNmz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:42:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13CBB554D9
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:42:55 -0800 (PST)
+        with ESMTP id S234511AbiKHNpP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:45:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83FB4FFB7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:45:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A574061596
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:42:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3D2FC433D6;
-        Tue,  8 Nov 2022 13:42:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D005B81AEE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:45:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0B66C433C1;
+        Tue,  8 Nov 2022 13:45:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667914974;
-        bh=FR/XXh6JfBRql4eLs5iJZlXHQlbusBsxDexSVJGdJnY=;
+        s=korg; t=1667915112;
+        bh=vhV/YY3ItVBejGPWVtmo9R2u9cxE7gJQAXiY7SQb54o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kUx9Gc4hupMP6Ju+txB3DxedjfGlCPSwPuEwhRISscjRm14CIqnuofiaDwSbJ6ZV8
-         CyEChof+miK/zKw7p3H5cOcgwAeCJE4QGAAdBVb4X8whNX9zWvjZWvh5PQUF8IYZ8r
-         ZkD+eUrYsXuCLjTuPwr4HBqIEUrKIminRBZuriRc=
+        b=g4JuU9GrZvRdht66IuXXuHdF2insCVJ+1JH8g6yX6Ym6eV+jdetnPikJqSWLO3Ft+
+         ZFnckQ1tkWvN1++p0h3Ya/FQ2z2kRCZ0mFqYIFtYE/THQ+UWMWRs4LuuZi4sjdKFfu
+         ZFN9kOwXeKLr3wMdQJ7q+Khs3cdod3+Zy9XQS+yM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 14/40] btrfs: fix inode list leak during backref walking at resolve_indirect_refs()
+Subject: [PATCH 4.19 14/48] ipvs: fix WARNING in ip_vs_app_net_cleanup()
 Date:   Tue,  8 Nov 2022 14:38:59 +0100
-Message-Id: <20221108133328.944363861@linuxfoundation.org>
+Message-Id: <20221108133330.010959541@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
-References: <20221108133328.351887714@linuxfoundation.org>
+In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
+References: <20221108133329.533809494@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 5614dc3a47e3310fbc77ea3b67eaadd1c6417bf1 ]
+[ Upstream commit 5663ed63adb9619c98ab7479aa4606fa9b7a548c ]
 
-During backref walking, at resolve_indirect_refs(), if we get an error
-we jump to the 'out' label and call ulist_free() on the 'parents' ulist,
-which frees all the elements in the ulist - however that does not free
-any inode lists that may be attached to elements, through the 'aux' field
-of a ulist node, so we end up leaking lists if we have any attached to
-the unodes.
+During the initialization of ip_vs_app_net_init(), if file ip_vs_app
+fails to be created, the initialization is successful by default.
+Therefore, the ip_vs_app file doesn't be found during the remove in
+ip_vs_app_net_cleanup(). It will cause WRNING.
 
-Fix this by calling free_leaf_list() instead of ulist_free() when we exit
-from resolve_indirect_refs(). The static function free_leaf_list() is
-moved up for this to be possible and it's slightly simplified by removing
-unnecessary code.
+The following is the stack information:
+name 'ip_vs_app'
+WARNING: CPU: 1 PID: 9 at fs/proc/generic.c:712 remove_proc_entry+0x389/0x460
+Modules linked in:
+Workqueue: netns cleanup_net
+RIP: 0010:remove_proc_entry+0x389/0x460
+Call Trace:
+<TASK>
+ops_exit_list+0x125/0x170
+cleanup_net+0x4ea/0xb00
+process_one_work+0x9bf/0x1710
+worker_thread+0x665/0x1080
+kthread+0x2e4/0x3a0
+ret_from_fork+0x1f/0x30
+</TASK>
 
-Fixes: 3301958b7c1d ("Btrfs: add inodes before dropping the extent lock in find_all_leafs")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 457c4cbc5a3d ("[NET]: Make /proc/net per network namespace")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c | 36 +++++++++++++++++-------------------
- 1 file changed, 17 insertions(+), 19 deletions(-)
+ net/netfilter/ipvs/ip_vs_app.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 93cfbdada40f..6d761d2f9ddb 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -597,6 +597,18 @@ unode_aux_to_inode_list(struct ulist_node *node)
- 	return (struct extent_inode_elem *)(uintptr_t)node->aux;
+diff --git a/net/netfilter/ipvs/ip_vs_app.c b/net/netfilter/ipvs/ip_vs_app.c
+index 80759aadd3e0..21149f4e0b6e 100644
+--- a/net/netfilter/ipvs/ip_vs_app.c
++++ b/net/netfilter/ipvs/ip_vs_app.c
+@@ -604,13 +604,19 @@ static const struct seq_operations ip_vs_app_seq_ops = {
+ int __net_init ip_vs_app_net_init(struct netns_ipvs *ipvs)
+ {
+ 	INIT_LIST_HEAD(&ipvs->app_list);
+-	proc_create_net("ip_vs_app", 0, ipvs->net->proc_net, &ip_vs_app_seq_ops,
+-			sizeof(struct seq_net_private));
++#ifdef CONFIG_PROC_FS
++	if (!proc_create_net("ip_vs_app", 0, ipvs->net->proc_net,
++			     &ip_vs_app_seq_ops,
++			     sizeof(struct seq_net_private)))
++		return -ENOMEM;
++#endif
+ 	return 0;
  }
  
-+static void free_leaf_list(struct ulist *ulist)
-+{
-+	struct ulist_node *node;
-+	struct ulist_iterator uiter;
-+
-+	ULIST_ITER_INIT(&uiter);
-+	while ((node = ulist_next(ulist, &uiter)))
-+		free_inode_elem_list(unode_aux_to_inode_list(node));
-+
-+	ulist_free(ulist);
-+}
-+
- /*
-  * We maintain three seperate rbtrees: one for direct refs, one for
-  * indirect refs which have a key, and one for indirect refs which do not
-@@ -711,7 +723,11 @@ static int resolve_indirect_refs(struct btrfs_fs_info *fs_info,
- 		cond_resched();
- 	}
- out:
--	ulist_free(parents);
-+	/*
-+	 * We may have inode lists attached to refs in the parents ulist, so we
-+	 * must free them before freeing the ulist and its refs.
-+	 */
-+	free_leaf_list(parents);
- 	return ret;
+ void __net_exit ip_vs_app_net_cleanup(struct netns_ipvs *ipvs)
+ {
+ 	unregister_ip_vs_app(ipvs, NULL /* all */);
++#ifdef CONFIG_PROC_FS
+ 	remove_proc_entry("ip_vs_app", ipvs->net->proc_net);
++#endif
  }
- 
-@@ -1361,24 +1377,6 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
- 	return ret;
- }
- 
--static void free_leaf_list(struct ulist *blocks)
--{
--	struct ulist_node *node = NULL;
--	struct extent_inode_elem *eie;
--	struct ulist_iterator uiter;
--
--	ULIST_ITER_INIT(&uiter);
--	while ((node = ulist_next(blocks, &uiter))) {
--		if (!node->aux)
--			continue;
--		eie = unode_aux_to_inode_list(node);
--		free_inode_elem_list(eie);
--		node->aux = 0;
--	}
--
--	ulist_free(blocks);
--}
--
- /*
-  * Finds all leafs with a reference to the specified combination of bytenr and
-  * offset. key_list_head will point to a list of corresponding keys (caller must
 -- 
 2.35.1
 
