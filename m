@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 833B4621404
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:56:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5299C621590
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234810AbiKHN4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:56:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58568 "EHLO
+        id S235276AbiKHONL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:13:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234814AbiKHN4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:56:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5784066C94
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:56:29 -0800 (PST)
+        with ESMTP id S235296AbiKHONC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:13:02 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1AE757B43
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:13:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0ED58B81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:56:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B0F5C433D6;
-        Tue,  8 Nov 2022 13:56:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 450A9CE1B76
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:13:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFB01C433D6;
+        Tue,  8 Nov 2022 14:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915786;
-        bh=WbSxej2d7SJOmRdSXxGYtZUh0cUR0qZoAzZZ1cQSuWY=;
+        s=korg; t=1667916778;
+        bh=UUp/1dCVOgRocXdqFeBIj8Rec8yroF2G1c9WjgzZUfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=swOymU5LGUiet8pfnCYZLtkLt0GjbXlBWsZPUtUJF2mBfsxNoy/DCKZ7PL59nCQrg
-         ucV2QIyqzVqrXNeutvcMZ1y1MqEf2tXF44OwGX1eirF0rVZb3otIwpof53eyi2OySe
-         SMqtKc/Lex7ciOmonSnyIN7+J4k+eUXu163pQNm0=
+        b=VMRgpmaAvuTXSIHpny/4ZbXQeC0oTBaxN4HzZeoqbCGIcxgC9igNuiPEi6CyyQ0df
+         TZ6k8yYBH+oRUENDUO/4aFMc7UHZpIPImh5002JiJsISFNwZ6q03ddeflU+9tsiGMC
+         3DVY6QAlL1zn+P/obMtSZcHV3jVnoywEBr30H7Gk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
-Subject: [PATCH 5.10 091/118] tracing: kprobe: Fix memory leak in test_gen_kprobe/kretprobe_cmd()
+        patches@lists.linux.dev, Nikolay Borisov <nborisov@suse.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.0 131/197] btrfs: fix a memory allocation failure test in btrfs_submit_direct
 Date:   Tue,  8 Nov 2022 14:39:29 +0100
-Message-Id: <20221108133344.645656202@linuxfoundation.org>
+Message-Id: <20221108133400.924752280@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,114 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 66f0919c953ef7b55e5ab94389a013da2ce80a2c upstream.
+commit 063b1f21cc9be07291a1f5e227436f353c6d1695 upstream.
 
-test_gen_kprobe_cmd() only free buf in fail path, hence buf will leak
-when there is no failure. Move kfree(buf) from fail path to common path
-to prevent the memleak. The same reason and solution in
-test_gen_kretprobe_cmd().
+After allocation 'dip' is tested instead of 'dip->csums'.  Fix it.
 
-unreferenced object 0xffff888143b14000 (size 2048):
-  comm "insmod", pid 52490, jiffies 4301890980 (age 40.553s)
-  hex dump (first 32 bytes):
-    70 3a 6b 70 72 6f 62 65 73 2f 67 65 6e 5f 6b 70  p:kprobes/gen_kp
-    72 6f 62 65 5f 74 65 73 74 20 64 6f 5f 73 79 73  robe_test do_sys
-  backtrace:
-    [<000000006d7b836b>] kmalloc_trace+0x27/0xa0
-    [<0000000009528b5b>] 0xffffffffa059006f
-    [<000000008408b580>] do_one_initcall+0x87/0x2a0
-    [<00000000c4980a7e>] do_init_module+0xdf/0x320
-    [<00000000d775aad0>] load_module+0x3006/0x3390
-    [<00000000e9a74b80>] __do_sys_finit_module+0x113/0x1b0
-    [<000000003726480d>] do_syscall_64+0x35/0x80
-    [<000000003441e93b>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Link: https://lore.kernel.org/all/20221102072954.26555-1-shangxiaojing@huawei.com/
-
-Fixes: 64836248dda2 ("tracing: Add kprobe event command generation test module")
-Cc: stable@vger.kernel.org
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Fixes: 642c5d34da53 ("btrfs: allocate the btrfs_dio_private as part of the iomap dio bio")
+CC: stable@vger.kernel.org # 5.19+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/kprobe_event_gen_test.c |   18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+ fs/btrfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/kprobe_event_gen_test.c
-+++ b/kernel/trace/kprobe_event_gen_test.c
-@@ -100,20 +100,20 @@ static int __init test_gen_kprobe_cmd(vo
- 					 KPROBE_GEN_TEST_FUNC,
- 					 KPROBE_GEN_TEST_ARG0, KPROBE_GEN_TEST_ARG1);
- 	if (ret)
--		goto free;
-+		goto out;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -8142,7 +8142,7 @@ static void btrfs_submit_direct(const st
+ 		 */
+ 		status = BLK_STS_RESOURCE;
+ 		dip->csums = kcalloc(nr_sectors, fs_info->csum_size, GFP_NOFS);
+-		if (!dip)
++		if (!dip->csums)
+ 			goto out_err;
  
- 	/* Use kprobe_event_add_fields to add the rest of the fields */
- 
- 	ret = kprobe_event_add_fields(&cmd, KPROBE_GEN_TEST_ARG2, KPROBE_GEN_TEST_ARG3);
- 	if (ret)
--		goto free;
-+		goto out;
- 
- 	/*
- 	 * This actually creates the event.
- 	 */
- 	ret = kprobe_event_gen_cmd_end(&cmd);
- 	if (ret)
--		goto free;
-+		goto out;
- 
- 	/*
- 	 * Now get the gen_kprobe_test event file.  We need to prevent
-@@ -136,13 +136,11 @@ static int __init test_gen_kprobe_cmd(vo
- 		goto delete;
- 	}
-  out:
-+	kfree(buf);
- 	return ret;
-  delete:
- 	/* We got an error after creating the event, delete it */
- 	ret = kprobe_event_delete("gen_kprobe_test");
-- free:
--	kfree(buf);
--
- 	goto out;
- }
- 
-@@ -170,14 +168,14 @@ static int __init test_gen_kretprobe_cmd
- 					    KPROBE_GEN_TEST_FUNC,
- 					    "$retval");
- 	if (ret)
--		goto free;
-+		goto out;
- 
- 	/*
- 	 * This actually creates the event.
- 	 */
- 	ret = kretprobe_event_gen_cmd_end(&cmd);
- 	if (ret)
--		goto free;
-+		goto out;
- 
- 	/*
- 	 * Now get the gen_kretprobe_test event file.  We need to
-@@ -201,13 +199,11 @@ static int __init test_gen_kretprobe_cmd
- 		goto delete;
- 	}
-  out:
-+	kfree(buf);
- 	return ret;
-  delete:
- 	/* We got an error after creating the event, delete it */
- 	ret = kprobe_event_delete("gen_kretprobe_test");
-- free:
--	kfree(buf);
--
- 	goto out;
- }
- 
+ 		status = btrfs_lookup_bio_sums(inode, dio_bio, dip->csums);
 
 
