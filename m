@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A51C662142C
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:58:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 107FB62131D
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:47:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234875AbiKHN6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:58:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60338 "EHLO
+        id S234541AbiKHNqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:46:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234845AbiKHN6G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:58:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9EC263F0
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:58:03 -0800 (PST)
+        with ESMTP id S234545AbiKHNqt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3194959FFE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68E72B816DD
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:58:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B36C7C433C1;
-        Tue,  8 Nov 2022 13:58:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C38B16157B
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D731C433D6;
+        Tue,  8 Nov 2022 13:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915881;
-        bh=BQim041SmGuYekg7uBcARMxoVK1GehVQgWkXJHeBtB0=;
+        s=korg; t=1667915207;
+        bh=uRlaqjIonrS34vLL+7svteuNa0ZQBnRUWfXYK7A8KSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZiyIzSR9FiYSQrHZ4YdcmLgBcZOrrUCyN0w/fcc2HWqVj/i/9QupoK4tltrSKrR0y
-         UC7+0PsXu3kSIUwCb9ZhK/DEHzusU6MGn9zJAwQZh+EY8k5VlRieYKTBY+aN7Z1ZIN
-         ETG97iYzkr0N8WAv/E2gavBBMOlUOaa1pHQ+2OW0=
+        b=Y0Ha7euhB+/h43T+5y22Ltv3IYthbRobYY1u1AAQ2LqVdBoeqR4M+hxHd0UQcBpgk
+         9pDIQpn1dNIm8Yj1zgsQriP57CEvY7447WKP4z5Bv0kAcSx5Sb5ClFiatbQf7O8IuH
+         vK6SIctMmRYOfkMBz4mn/YzLxVZImlOs7cbHfDBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>,
-        Li Huafei <lihuafei1@huawei.com>
-Subject: [PATCH 5.10 089/118] ftrace: Fix use-after-free for dynamic ftrace_ops
+        patches@lists.linux.dev, stable@kernel.org,
+        syzbot+c740bb18df70ad00952e@syzkaller.appspotmail.com,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 42/48] ext4: fix warning in ext4_da_release_space
 Date:   Tue,  8 Nov 2022 14:39:27 +0100
-Message-Id: <20221108133344.570909968@linuxfoundation.org>
+Message-Id: <20221108133331.067804807@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
+References: <20221108133329.533809494@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,139 +54,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Huafei <lihuafei1@huawei.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 0e792b89e6800cd9cb4757a76a96f7ef3e8b6294 upstream.
+commit 1b8f787ef547230a3249bcf897221ef0cc78481b upstream.
 
-KASAN reported a use-after-free with ftrace ops [1]. It was found from
-vmcore that perf had registered two ops with the same content
-successively, both dynamic. After unregistering the second ops, a
-use-after-free occurred.
+Syzkaller report issue as follows:
+EXT4-fs (loop0): Free/Dirty block details
+EXT4-fs (loop0): free_blocks=0
+EXT4-fs (loop0): dirty_blocks=0
+EXT4-fs (loop0): Block reservation details
+EXT4-fs (loop0): i_reserved_data_blocks=0
+EXT4-fs warning (device loop0): ext4_da_release_space:1527: ext4_da_release_space: ino 18, to_free 1 with only 0 reserved data blocks
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 92 at fs/ext4/inode.c:1528 ext4_da_release_space+0x25e/0x370 fs/ext4/inode.c:1524
+Modules linked in:
+CPU: 0 PID: 92 Comm: kworker/u4:4 Not tainted 6.0.0-syzkaller-09423-g493ffd6605b2 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
+Workqueue: writeback wb_workfn (flush-7:0)
+RIP: 0010:ext4_da_release_space+0x25e/0x370 fs/ext4/inode.c:1528
+RSP: 0018:ffffc900015f6c90 EFLAGS: 00010296
+RAX: 42215896cd52ea00 RBX: 0000000000000000 RCX: 42215896cd52ea00
+RDX: 0000000000000000 RSI: 0000000080000001 RDI: 0000000000000000
+RBP: 1ffff1100e907d96 R08: ffffffff816aa79d R09: fffff520002bece5
+R10: fffff520002bece5 R11: 1ffff920002bece4 R12: ffff888021fd2000
+R13: ffff88807483ecb0 R14: 0000000000000001 R15: ffff88807483e740
+FS:  0000000000000000(0000) GS:ffff8880b9a00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00005555569ba628 CR3: 000000000c88e000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ ext4_es_remove_extent+0x1ab/0x260 fs/ext4/extents_status.c:1461
+ mpage_release_unused_pages+0x24d/0xef0 fs/ext4/inode.c:1589
+ ext4_writepages+0x12eb/0x3be0 fs/ext4/inode.c:2852
+ do_writepages+0x3c3/0x680 mm/page-writeback.c:2469
+ __writeback_single_inode+0xd1/0x670 fs/fs-writeback.c:1587
+ writeback_sb_inodes+0xb3b/0x18f0 fs/fs-writeback.c:1870
+ wb_writeback+0x41f/0x7b0 fs/fs-writeback.c:2044
+ wb_do_writeback fs/fs-writeback.c:2187 [inline]
+ wb_workfn+0x3cb/0xef0 fs/fs-writeback.c:2227
+ process_one_work+0x877/0xdb0 kernel/workqueue.c:2289
+ worker_thread+0xb14/0x1330 kernel/workqueue.c:2436
+ kthread+0x266/0x300 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+ </TASK>
 
-In ftrace_shutdown(), when the second ops is unregistered, the
-FTRACE_UPDATE_CALLS command is not set because there is another enabled
-ops with the same content.  Also, both ops are dynamic and the ftrace
-callback function is ftrace_ops_list_func, so the
-FTRACE_UPDATE_TRACE_FUNC command will not be set. Eventually the value
-of 'command' will be 0 and ftrace_shutdown() will skip the rcu
-synchronization.
+Above issue may happens as follows:
+ext4_da_write_begin
+  ext4_create_inline_data
+    ext4_clear_inode_flag(inode, EXT4_INODE_EXTENTS);
+    ext4_set_inode_flag(inode, EXT4_INODE_INLINE_DATA);
+__ext4_ioctl
+  ext4_ext_migrate -> will lead to eh->eh_entries not zero, and set extent flag
+ext4_da_write_begin
+  ext4_da_convert_inline_data_to_extent
+    ext4_da_write_inline_data_begin
+      ext4_da_map_blocks
+        ext4_insert_delayed_block
+	  if (!ext4_es_scan_clu(inode, &ext4_es_is_delonly, lblk))
+	    if (!ext4_es_scan_clu(inode, &ext4_es_is_mapped, lblk))
+	      ext4_clu_mapped(inode, EXT4_B2C(sbi, lblk)); -> will return 1
+	       allocated = true;
+          ext4_es_insert_delayed_block(inode, lblk, allocated);
+ext4_writepages
+  mpage_map_and_submit_extent(handle, &mpd, &give_up_on_write); -> return -ENOSPC
+  mpage_release_unused_pages(&mpd, give_up_on_write); -> give_up_on_write == 1
+    ext4_es_remove_extent
+      ext4_da_release_space(inode, reserved);
+        if (unlikely(to_free > ei->i_reserved_data_blocks))
+	  -> to_free == 1  but ei->i_reserved_data_blocks == 0
+	  -> then trigger warning as above
 
-However, ftrace may be activated. When the ops is released, another CPU
-may be accessing the ops.  Add the missing synchronization to fix this
-problem.
+To solve above issue, forbid inode do migrate which has inline data.
 
-[1]
-BUG: KASAN: use-after-free in __ftrace_ops_list_func kernel/trace/ftrace.c:7020 [inline]
-BUG: KASAN: use-after-free in ftrace_ops_list_func+0x2b0/0x31c kernel/trace/ftrace.c:7049
-Read of size 8 at addr ffff56551965bbc8 by task syz-executor.2/14468
-
-CPU: 1 PID: 14468 Comm: syz-executor.2 Not tainted 5.10.0 #7
-Hardware name: linux,dummy-virt (DT)
-Call trace:
- dump_backtrace+0x0/0x40c arch/arm64/kernel/stacktrace.c:132
- show_stack+0x30/0x40 arch/arm64/kernel/stacktrace.c:196
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1b4/0x248 lib/dump_stack.c:118
- print_address_description.constprop.0+0x28/0x48c mm/kasan/report.c:387
- __kasan_report mm/kasan/report.c:547 [inline]
- kasan_report+0x118/0x210 mm/kasan/report.c:564
- check_memory_region_inline mm/kasan/generic.c:187 [inline]
- __asan_load8+0x98/0xc0 mm/kasan/generic.c:253
- __ftrace_ops_list_func kernel/trace/ftrace.c:7020 [inline]
- ftrace_ops_list_func+0x2b0/0x31c kernel/trace/ftrace.c:7049
- ftrace_graph_call+0x0/0x4
- __might_sleep+0x8/0x100 include/linux/perf_event.h:1170
- __might_fault mm/memory.c:5183 [inline]
- __might_fault+0x58/0x70 mm/memory.c:5171
- do_strncpy_from_user lib/strncpy_from_user.c:41 [inline]
- strncpy_from_user+0x1f4/0x4b0 lib/strncpy_from_user.c:139
- getname_flags+0xb0/0x31c fs/namei.c:149
- getname+0x2c/0x40 fs/namei.c:209
- [...]
-
-Allocated by task 14445:
- kasan_save_stack+0x24/0x50 mm/kasan/common.c:48
- kasan_set_track mm/kasan/common.c:56 [inline]
- __kasan_kmalloc mm/kasan/common.c:479 [inline]
- __kasan_kmalloc.constprop.0+0x110/0x13c mm/kasan/common.c:449
- kasan_kmalloc+0xc/0x14 mm/kasan/common.c:493
- kmem_cache_alloc_trace+0x440/0x924 mm/slub.c:2950
- kmalloc include/linux/slab.h:563 [inline]
- kzalloc include/linux/slab.h:675 [inline]
- perf_event_alloc.part.0+0xb4/0x1350 kernel/events/core.c:11230
- perf_event_alloc kernel/events/core.c:11733 [inline]
- __do_sys_perf_event_open kernel/events/core.c:11831 [inline]
- __se_sys_perf_event_open+0x550/0x15f4 kernel/events/core.c:11723
- __arm64_sys_perf_event_open+0x6c/0x80 kernel/events/core.c:11723
- [...]
-
-Freed by task 14445:
- kasan_save_stack+0x24/0x50 mm/kasan/common.c:48
- kasan_set_track+0x24/0x34 mm/kasan/common.c:56
- kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:358
- __kasan_slab_free.part.0+0x11c/0x1b0 mm/kasan/common.c:437
- __kasan_slab_free mm/kasan/common.c:445 [inline]
- kasan_slab_free+0x2c/0x40 mm/kasan/common.c:446
- slab_free_hook mm/slub.c:1569 [inline]
- slab_free_freelist_hook mm/slub.c:1608 [inline]
- slab_free mm/slub.c:3179 [inline]
- kfree+0x12c/0xc10 mm/slub.c:4176
- perf_event_alloc.part.0+0xa0c/0x1350 kernel/events/core.c:11434
- perf_event_alloc kernel/events/core.c:11733 [inline]
- __do_sys_perf_event_open kernel/events/core.c:11831 [inline]
- __se_sys_perf_event_open+0x550/0x15f4 kernel/events/core.c:11723
- [...]
-
-Link: https://lore.kernel.org/linux-trace-kernel/20221103031010.166498-1-lihuafei1@huawei.com
-
-Fixes: edb096e00724f ("ftrace: Fix memleak when unregistering dynamic ops when tracing disabled")
-Cc: stable@vger.kernel.org
-Suggested-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Cc: stable@kernel.org
+Reported-by: syzbot+c740bb18df70ad00952e@syzkaller.appspotmail.com
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221018022701.683489-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |   16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ fs/ext4/migrate.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -2946,18 +2946,8 @@ int ftrace_shutdown(struct ftrace_ops *o
- 		command |= FTRACE_UPDATE_TRACE_FUNC;
- 	}
+--- a/fs/ext4/migrate.c
++++ b/fs/ext4/migrate.c
+@@ -443,7 +443,8 @@ int ext4_ext_migrate(struct inode *inode
+ 	 * already is extent-based, error out.
+ 	 */
+ 	if (!ext4_has_feature_extents(inode->i_sb) ||
+-	    (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)))
++	    ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS) ||
++	    ext4_has_inline_data(inode))
+ 		return -EINVAL;
  
--	if (!command || !ftrace_enabled) {
--		/*
--		 * If these are dynamic or per_cpu ops, they still
--		 * need their data freed. Since, function tracing is
--		 * not currently active, we can just free them
--		 * without synchronizing all CPUs.
--		 */
--		if (ops->flags & FTRACE_OPS_FL_DYNAMIC)
--			goto free_ops;
--
--		return 0;
--	}
-+	if (!command || !ftrace_enabled)
-+		goto out;
- 
- 	/*
- 	 * If the ops uses a trampoline, then it needs to be
-@@ -2994,6 +2984,7 @@ int ftrace_shutdown(struct ftrace_ops *o
- 	removed_ops = NULL;
- 	ops->flags &= ~FTRACE_OPS_FL_REMOVING;
- 
-+out:
- 	/*
- 	 * Dynamic ops may be freed, we must make sure that all
- 	 * callers are done before leaving this function.
-@@ -3021,7 +3012,6 @@ int ftrace_shutdown(struct ftrace_ops *o
- 		if (IS_ENABLED(CONFIG_PREEMPTION))
- 			synchronize_rcu_tasks();
- 
-- free_ops:
- 		ftrace_trampoline_free(ops);
- 	}
- 
+ 	if (S_ISLNK(inode->i_mode) && inode->i_blocks == 0)
 
 
