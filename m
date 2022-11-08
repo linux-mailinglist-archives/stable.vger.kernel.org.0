@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7680162132A
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:47:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B21A66214B4
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:04:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234562AbiKHNra (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:47:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46974 "EHLO
+        id S235002AbiKHOES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:04:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234579AbiKHNr3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:47:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B5BE5F852
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:47:29 -0800 (PST)
+        with ESMTP id S235003AbiKHOER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:04:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D24C21B1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:04:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D981DB81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:47:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B5FEC433D7;
-        Tue,  8 Nov 2022 13:47:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 025C6B81ADD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:04:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46BDDC433C1;
+        Tue,  8 Nov 2022 14:04:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915246;
-        bh=bAH1wEYZ48J1r1nrrqxYIH5Rs9o6Tx1LWeSh6W0xdNo=;
+        s=korg; t=1667916253;
+        bh=USvHquiFgiGFjM0GueEZoVxriggjzHuSZ+R9lifCgAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M/9s+CRK0mauUQbhCCoz6JnCGiroDyFQP3wF9703cwb4yBBYmtQdLmhz7AFZ/0meG
-         K82AJodPs6sQ2RW6rE4Aem9yTasfaHHisVgZMm8YnuCEhGzyLRgQ7aJzATBNqTHyY1
-         isz7F2GI3WtJEtb0aSLzegGol9tWrPLOakz7aMFQ=
+        b=e/uchaVXJs50zi64E9iaj0ruL7A2dU92FuGQCLBiFP3m5AyaLQBRjYFBwYz9tp7C4
+         s9ACgAcgidfaVIfYe6o+Td2vHum4LY+Cs+RnQY5E4vJ1PjZGcTTfVlva4WSEpZqM9K
+         uemRgJ1md1x580dynrbYJRRzrMSJ6DRuSysi5arA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Khazhy Kumykov <khazhy@chromium.org>
-Subject: [PATCH 4.19 31/48] block, bfq: protect bfqd->queued by bfqd->lock
+        patches@lists.linux.dev, Uday Shankar <ushankar@purestorage.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 079/144] scsi: core: Restrict legal sdev_state transitions via sysfs
 Date:   Tue,  8 Nov 2022 14:39:16 +0100
-Message-Id: <20221108133330.618902141@linuxfoundation.org>
+Message-Id: <20221108133348.624246046@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Uday Shankar <ushankar@purestorage.com>
 
-commit 181490d5321806e537dc5386db5ea640b826bf78 upstream.
+[ Upstream commit 2331ce6126be8864b39490e705286b66e2344aac ]
 
-If bfq_schedule_dispatch() is called from bfq_idle_slice_timer_body(),
-then 'bfqd->queued' is read without holding 'bfqd->lock'. This is
-wrong since it can be wrote concurrently.
+Userspace can currently write to sysfs to transition sdev_state to RUNNING
+or OFFLINE from any source state. This causes issues because proper
+transitioning out of some states involves steps besides just changing
+sdev_state, so allowing userspace to change sdev_state regardless of the
+source state can result in inconsistencies; e.g. with ISCSI we can end up
+with sdev_state == SDEV_RUNNING while the device queue is quiesced. Any
+task attempting I/O on the device will then hang, and in more recent
+kernels, iscsid will hang as well.
 
-Fix the problem by holding 'bfqd->lock' in such case.
+More detail about this bug is provided in my first attempt:
 
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20220513023507.2625717-2-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Khazhy Kumykov <khazhy@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+https://groups.google.com/g/open-iscsi/c/PNKca4HgPDs/m/CXaDkntOAQAJ
+
+Link: https://lore.kernel.org/r/20220924000241.2967323-1-ushankar@purestorage.com
+Signed-off-by: Uday Shankar <ushankar@purestorage.com>
+Suggested-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_sysfs.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -416,6 +416,8 @@ static struct bfq_io_cq *bfq_bic_lookup(
-  */
- void bfq_schedule_dispatch(struct bfq_data *bfqd)
- {
-+	lockdep_assert_held(&bfqd->lock);
-+
- 	if (bfqd->queued != 0) {
- 		bfq_log(bfqd, "schedule dispatch");
- 		blk_mq_run_hw_queues(bfqd->queue, true);
-@@ -5278,8 +5280,8 @@ bfq_idle_slice_timer_body(struct bfq_dat
- 	bfq_bfqq_expire(bfqd, bfqq, true, reason);
+diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+index 920aae661c5b..774864b54b97 100644
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -816,6 +816,14 @@ store_state_field(struct device *dev, struct device_attribute *attr,
+ 	}
  
- schedule_dispatch:
--	spin_unlock_irqrestore(&bfqd->lock, flags);
- 	bfq_schedule_dispatch(bfqd);
-+	spin_unlock_irqrestore(&bfqd->lock, flags);
- }
- 
- /*
+ 	mutex_lock(&sdev->state_mutex);
++	switch (sdev->sdev_state) {
++	case SDEV_RUNNING:
++	case SDEV_OFFLINE:
++		break;
++	default:
++		mutex_unlock(&sdev->state_mutex);
++		return -EINVAL;
++	}
+ 	if (sdev->sdev_state == SDEV_RUNNING && state == SDEV_RUNNING) {
+ 		ret = 0;
+ 	} else {
+-- 
+2.35.1
+
 
 
