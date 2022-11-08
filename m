@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C324A621584
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF74862133D
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235182AbiKHOMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:12:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49610 "EHLO
+        id S234536AbiKHNsU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:48:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235113AbiKHOMm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B6D157B53
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:12:24 -0800 (PST)
+        with ESMTP id S234561AbiKHNsQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5885C5F84E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CCE3E615C2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:12:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B50BDC433D6;
-        Tue,  8 Nov 2022 14:12:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC83F615A6
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D55AC433D6;
+        Tue,  8 Nov 2022 13:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916743;
-        bh=VAr6C0CXLB+EFgA0HJJwq5nnQqDB8BWNg5mgX0ovKuQ=;
+        s=korg; t=1667915295;
+        bh=eY1qeHXjjqGgAk9WBBtxoyan8XZigRsHeeGRd4tIcRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cCWaIM+dY1VndIDB3K4zL23afOLUhXF4v9ddxVy9WZmsSuQjigCCmvmFDNe13GARp
-         brzRf416mv10knZwvml5m8x2OjT61Nk8uJbrzLf5YiTPNQfu/6rV9K65j7si0yCbD7
-         +BEcNKQQjXq25zlVVxySIieV9ZKshp+JsqkFud1c=
+        b=dbCEOmr/l7ZtcsUJTUotwGbt76Oe/XCMUOgxsWOdSblQv875+NELCB5xSqtiTdoL9
+         05JnEcBytdZCZ0y145Nj6iCrI8GdVb19ZJk8khmQLfMtMrrMN8pRDUQsMyxQBD04GR
+         wVSdyLR4Rbp1CI1iCx/LnNNfD3UV1/BUtyoFPTYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Martin=20T=C5=AFma?= <martin.tuma@digiteqautomotive.com>,
-        Michal Simek <michal.simek@amd.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 090/197] i2c: xiic: Add platform module alias
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 20/74] mISDN: fix possible memory leak in mISDN_register_device()
 Date:   Tue,  8 Nov 2022 14:38:48 +0100
-Message-Id: <20221108133358.928099492@linuxfoundation.org>
+Message-Id: <20221108133334.538981759@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Tůma <martin.tuma@digiteqautomotive.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit b8caf0a0e04583fb71e21495bef84509182227ea ]
+[ Upstream commit e7d1d4d9ac0dfa40be4c2c8abd0731659869b297 ]
 
-The missing "platform" alias is required for the mgb4 v4l2 driver to load
-the i2c controller driver when probing the HW.
+Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+add put_device() to give up the reference, so that the name can be
+freed in kobject_cleanup() when the refcount is 0.
 
-Signed-off-by: Martin Tůma <martin.tuma@digiteqautomotive.com>
-Acked-by: Michal Simek <michal.simek@amd.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Set device class before put_device() to avoid null release() function
+WARN message in device_release().
+
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-xiic.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/isdn/mISDN/core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index b3fe6b2aa3ca..277a02455cdd 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -920,6 +920,7 @@ static struct platform_driver xiic_i2c_driver = {
+diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
+index a41b4b264594..7ea0100f218a 100644
+--- a/drivers/isdn/mISDN/core.c
++++ b/drivers/isdn/mISDN/core.c
+@@ -233,11 +233,12 @@ mISDN_register_device(struct mISDNdevice *dev,
+ 	if (debug & DEBUG_CORE)
+ 		printk(KERN_DEBUG "mISDN_register %s %d\n",
+ 		       dev_name(&dev->dev), dev->id);
++	dev->dev.class = &mISDN_class;
++
+ 	err = create_stack(dev);
+ 	if (err)
+ 		goto error1;
  
- module_platform_driver(xiic_i2c_driver);
+-	dev->dev.class = &mISDN_class;
+ 	dev->dev.platform_data = dev;
+ 	dev->dev.parent = parent;
+ 	dev_set_drvdata(&dev->dev, dev);
+@@ -249,8 +250,8 @@ mISDN_register_device(struct mISDNdevice *dev,
  
-+MODULE_ALIAS("platform:" DRIVER_NAME);
- MODULE_AUTHOR("info@mocean-labs.com");
- MODULE_DESCRIPTION("Xilinx I2C bus driver");
- MODULE_LICENSE("GPL v2");
+ error3:
+ 	delete_stack(dev);
+-	return err;
+ error1:
++	put_device(&dev->dev);
+ 	return err;
+ 
+ }
 -- 
 2.35.1
 
