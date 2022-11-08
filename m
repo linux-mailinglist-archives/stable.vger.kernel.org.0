@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB8F6213FE
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:56:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 403106212A0
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:41:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234797AbiKHN4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:56:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58262 "EHLO
+        id S233702AbiKHNle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:41:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234717AbiKHN4L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:56:11 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0241166C87
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:56:11 -0800 (PST)
+        with ESMTP id S234096AbiKHNlT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:41:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 853514FFB1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:41:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4DCC8CE1B8E
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:56:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18733C433D7;
-        Tue,  8 Nov 2022 13:56:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35A55B81AF1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:41:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3412EC433D6;
+        Tue,  8 Nov 2022 13:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915767;
-        bh=FKGE6f2PFdsNpwvPzMQ46wVESZS0/0Sg3wmCcvCTj6g=;
+        s=korg; t=1667914869;
+        bh=cHRPvFdv9KZoP/+MEMR61Xwze9P3ECNAtVssDDxevWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Umm5PSK8PJQZPOKekzRwtTl4o/N/x4FaULianl5XYaR8FKPe192H1Lepi6kmSqgL8
-         R3MJ30U5y3V0VnBKLPDcWngro9eIfoeyCuZN5G7sSwqeRABiS2DyF5ws1qNMfL/Og6
-         2SrGyDMDsJW55sXiqxv05eKexPC4YvbXRmCAUoRw=
+        b=QhZt1u8gLf0WpkUSfj4MkyJY56+mxxK9ix4krQHUqR4cC8Fllefn6861YnTM3ZYbg
+         5cpmtfp/UNtTdvvvlIJ7QqGuOhMpcSqQaN1vx7JOQWALGc2NTtW7Et6J1bhDp6UQRb
+         GZgegVFPUS6TJWj6gQ/YEEJhv2421QElRPtMyYVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 055/118] mtd: parsers: bcm47xxpart: Fix halfblock reads
+Subject: [PATCH 4.9 05/30] nfc: nfcmrvl: Fix potential memory leak in nfcmrvl_i2c_nci_send()
 Date:   Tue,  8 Nov 2022 14:38:53 +0100
-Message-Id: <20221108133343.087994864@linuxfoundation.org>
+Message-Id: <20221108133326.902997533@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
+References: <20221108133326.715586431@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,52 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 05e258c6ec669d6d18c494ea03d35962d6f5b545 ]
+[ Upstream commit 93d904a734a74c54d945a9884b4962977f1176cd ]
 
-There is some code in the parser that tries to read 0x8000
-bytes into a block to "read in the middle" of the block. Well
-that only works if the block is also 0x10000 bytes all the time,
-else we get these parse errors as we reach the end of the flash:
+nfcmrvl_i2c_nci_send() will be called by nfcmrvl_nci_send(), and skb
+should be freed in nfcmrvl_i2c_nci_send(). However, nfcmrvl_nci_send()
+will only free skb when i2c_master_send() return >=0, which means skb
+will memleak when i2c_master_send() failed. Free skb no matter whether
+i2c_master_send() succeeds.
 
-spi-nor spi0.0: mx25l1606e (2048 Kbytes)
-mtd_read error while parsing (offset: 0x200000): -22
-mtd_read error while parsing (offset: 0x201000): -22
-(...)
-
-Fix the code to do what I think was intended.
-
-Cc: stable@vger.kernel.org
-Fixes: f0501e81fbaa ("mtd: bcm47xxpart: alternative MAGIC for board_data partition")
-Cc: Rafał Miłecki <zajec5@gmail.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20221018091129.280026-1-linus.walleij@linaro.org
+Fixes: b5b3e23e4cac ("NFC: nfcmrvl: add i2c driver")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/parsers/bcm47xxpart.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nfc/nfcmrvl/i2c.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/parsers/bcm47xxpart.c b/drivers/mtd/parsers/bcm47xxpart.c
-index 50fcf4c2174b..13daf9bffd08 100644
---- a/drivers/mtd/parsers/bcm47xxpart.c
-+++ b/drivers/mtd/parsers/bcm47xxpart.c
-@@ -233,11 +233,11 @@ static int bcm47xxpart_parse(struct mtd_info *master,
- 		}
+diff --git a/drivers/nfc/nfcmrvl/i2c.c b/drivers/nfc/nfcmrvl/i2c.c
+index bb546cabe809..91d7ef11aba3 100644
+--- a/drivers/nfc/nfcmrvl/i2c.c
++++ b/drivers/nfc/nfcmrvl/i2c.c
+@@ -151,10 +151,15 @@ static int nfcmrvl_i2c_nci_send(struct nfcmrvl_private *priv,
+ 			ret = -EREMOTEIO;
+ 		} else
+ 			ret = 0;
++	}
++
++	if (ret) {
+ 		kfree_skb(skb);
++		return ret;
+ 	}
  
- 		/* Read middle of the block */
--		err = mtd_read(master, offset + 0x8000, 0x4, &bytes_read,
-+		err = mtd_read(master, offset + (blocksize / 2), 0x4, &bytes_read,
- 			       (uint8_t *)buf);
- 		if (err && !mtd_is_bitflip(err)) {
- 			pr_err("mtd_read error while parsing (offset: 0x%X): %d\n",
--			       offset + 0x8000, err);
-+			       offset + (blocksize / 2), err);
- 			continue;
- 		}
+-	return ret;
++	consume_skb(skb);
++	return 0;
+ }
  
+ static void nfcmrvl_i2c_nci_update_config(struct nfcmrvl_private *priv,
 -- 
 2.35.1
 
