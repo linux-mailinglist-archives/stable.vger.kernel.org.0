@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 764766212E7
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C875621588
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234474AbiKHNoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:44:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44080 "EHLO
+        id S235281AbiKHOM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:12:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234484AbiKHNoH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:07 -0500
+        with ESMTP id S235291AbiKHOMq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C59E6559
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:44:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16A317723E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:12:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 097F0615A2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:44:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E687EC433C1;
-        Tue,  8 Nov 2022 13:44:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7711615C6
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:12:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6D4BC43470;
+        Tue,  8 Nov 2022 14:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915045;
-        bh=BbNzue7SpQjXitAqH+a8cF/v+iRkSI+5ED1yYCccpeg=;
+        s=korg; t=1667916755;
+        bh=udMOj4RmnI/70++N5+1bOmwL6qZMN1Lgadg5rZz7nUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BD2AMsErJ9eyyn+U+8m0WlNOy44SYG13GSeIOZi76uPvsXmL3eS8/Ff5Jhex11NRr
-         A9CcEgj+pXUp0gB/Kwg/HUbW8K2FoPigmVDJ0TK2omth+dH6y0PGrjdmPRg66jSuKo
-         212BPpmcvrdnZnORGrbKocy6SR2uMY9f8oQ4HN6k=
+        b=Bhr3Ad90c88FVMKpaj37xuaY7irev+f85J5eG1EO4+Nm/9N9+9HUphH569rjHykN8
+         5jEyeIMB0fdPCLjRNnM44ZEyM/e2LGB0hWLobjN9fAUdXLFe5T/H8EGduveSeAefJj
+         Q71NvtvWwkpsz5lLxtOP1eOEWRxm7QFYI9coK8Qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Matthew Garrett <mjg59@google.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Bartosz Szczepanek <bsz@semihalf.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/40] nfc: nfcmrvl: Fix potential memory leak in nfcmrvl_i2c_nci_send()
-Date:   Tue,  8 Nov 2022 14:38:51 +0100
-Message-Id: <20221108133328.612500465@linuxfoundation.org>
+Subject: [PATCH 6.0 094/197] efi/tpm: Pass correct address to memblock_reserve
+Date:   Tue,  8 Nov 2022 14:38:52 +0100
+Message-Id: <20221108133359.123548908@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
-References: <20221108133328.351887714@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Jerry Snitselaar <jsnitsel@redhat.com>
 
-[ Upstream commit 93d904a734a74c54d945a9884b4962977f1176cd ]
+[ Upstream commit f4cd18c5b2000df0c382f6530eeca9141ea41faf ]
 
-nfcmrvl_i2c_nci_send() will be called by nfcmrvl_nci_send(), and skb
-should be freed in nfcmrvl_i2c_nci_send(). However, nfcmrvl_nci_send()
-will only free skb when i2c_master_send() return >=0, which means skb
-will memleak when i2c_master_send() failed. Free skb no matter whether
-i2c_master_send() succeeds.
+memblock_reserve() expects a physical address, but the address being
+passed for the TPM final events log is what was returned from
+early_memremap(). This results in something like the following:
 
-Fixes: b5b3e23e4cac ("NFC: nfcmrvl: add i2c driver")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[    0.000000] memblock_reserve: [0xffffffffff2c0000-0xffffffffff2c00e4] efi_tpm_eventlog_init+0x324/0x370
+
+Pass the address from efi like what is done for the TPM events log.
+
+Fixes: c46f3405692d ("tpm: Reserve the TPM final events table")
+Cc: Matthew Garrett <mjg59@google.com>
+Cc: Jarkko Sakkinen <jarkko@kernel.org>
+Cc: Bartosz Szczepanek <bsz@semihalf.com>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/nfcmrvl/i2c.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/firmware/efi/tpm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/nfcmrvl/i2c.c b/drivers/nfc/nfcmrvl/i2c.c
-index 3dbe209221e4..a3a465d8383b 100644
---- a/drivers/nfc/nfcmrvl/i2c.c
-+++ b/drivers/nfc/nfcmrvl/i2c.c
-@@ -151,10 +151,15 @@ static int nfcmrvl_i2c_nci_send(struct nfcmrvl_private *priv,
- 			ret = -EREMOTEIO;
- 		} else
- 			ret = 0;
-+	}
-+
-+	if (ret) {
- 		kfree_skb(skb);
-+		return ret;
+diff --git a/drivers/firmware/efi/tpm.c b/drivers/firmware/efi/tpm.c
+index 8f665678e9e3..e8d69bd548f3 100644
+--- a/drivers/firmware/efi/tpm.c
++++ b/drivers/firmware/efi/tpm.c
+@@ -97,7 +97,7 @@ int __init efi_tpm_eventlog_init(void)
+ 		goto out_calc;
  	}
  
--	return ret;
-+	consume_skb(skb);
-+	return 0;
- }
+-	memblock_reserve((unsigned long)final_tbl,
++	memblock_reserve(efi.tpm_final_log,
+ 			 tbl_size + sizeof(*final_tbl));
+ 	efi_tpm_final_log_size = tbl_size;
  
- static void nfcmrvl_i2c_nci_update_config(struct nfcmrvl_private *priv,
 -- 
 2.35.1
 
