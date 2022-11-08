@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF08A6214C1
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:04:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4AB9621432
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235019AbiKHOEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:04:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39768 "EHLO
+        id S234866AbiKHN63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:58:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235014AbiKHOEr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:04:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA0D686B1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:04:46 -0800 (PST)
+        with ESMTP id S234862AbiKHN61 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:58:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0CDE94
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:58:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF39F61567
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:04:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3DAFC433C1;
-        Tue,  8 Nov 2022 14:04:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AD766CE1B95
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:58:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84534C433B5;
+        Tue,  8 Nov 2022 13:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916285;
-        bh=t6WGiRqpDIGCNtHWs5+f1lcO6USqr5rclsr8Mlj7ogk=;
+        s=korg; t=1667915900;
+        bh=EdZmGqsJfMvjBP2tim4Fxc5rwAKSJ8eZsaDSDdHAXv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1mpf24rVjLRFZxQ/WToLuX88pnbsnpFnvnexXnki5ASCT1YsHqhX6oLyzOGEgYg/
-         et69zmLpCrJza+9lKzeVBjaS7o/4gBRaPPEreX/p4RQC58PPyRM++nvCT07kLZPRp9
-         CxogY7CaiWQ6B8zgWP0Xdex+zF3qvWwxoB1M1ulg=
+        b=MNrxY2OVTXMWiKM2x47P8J2xxsSKnFwKg9ullXCyQ+a2g6/3nL89RVokMfAs3hwo9
+         3Af/y5EVKNCz5bPHhWm7btDF0borr9hEBk75Po4/Wd0PND0b9yM8813R4eMNga0hZY
+         wjceZ1qq9jkZtQkjZzT1JpBvGXTE8B3l055f+1Z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.15 118/144] perf/x86/intel: Add Cooper Lake stepping to isolation_ucodes[]
+        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
+        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
+        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        Arend van Spriel <aspriel@gmail.com>,
+        Dokyung Song <dokyung.song@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.10 117/118] wifi: brcmfmac: Fix potential buffer overflow in brcmf_fweh_event_worker()
 Date:   Tue,  8 Nov 2022 14:39:55 +0100
-Message-Id: <20221108133350.287150699@linuxfoundation.org>
+Message-Id: <20221108133345.767093687@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +56,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Dokyung Song <dokyung.song@gmail.com>
 
-commit 6f8faf471446844bb9c318e0340221049d5c19f4 upstream.
+commit 6788ba8aed4e28e90f72d68a9d794e34eac17295 upstream.
 
-The intel_pebs_isolation quirk checks both model number and stepping.
-Cooper Lake has a different stepping (11) than the other Skylake Xeon.
-It cannot benefit from the optimization in commit 9b545c04abd4f
-("perf/x86/kvm: Avoid unnecessary work in guest filtering").
+This patch fixes an intra-object buffer overflow in brcmfmac that occurs
+when the device provides a 'bsscfgidx' equal to or greater than the
+buffer size. The patch adds a check that leads to a safe failure if that
+is the case.
 
-Add the stepping of Cooper Lake into the isolation_ucodes[] table.
+This fixes CVE-2022-3628.
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20221031154550.571663-1-kan.liang@linux.intel.com
+UBSAN: array-index-out-of-bounds in drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
+index 52 is out of range for type 'brcmf_if *[16]'
+CPU: 0 PID: 1898 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+Workqueue: events brcmf_fweh_event_worker
+Call Trace:
+ dump_stack_lvl+0x57/0x7d
+ ubsan_epilogue+0x5/0x40
+ __ubsan_handle_out_of_bounds+0x69/0x80
+ ? memcpy+0x39/0x60
+ brcmf_fweh_event_worker+0xae1/0xc00
+ ? brcmf_fweh_call_event_handler.isra.0+0x100/0x100
+ ? rcu_read_lock_sched_held+0xa1/0xd0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+ process_one_work+0x873/0x13e0
+ ? lock_release+0x640/0x640
+ ? pwq_dec_nr_in_flight+0x320/0x320
+ ? rwlock_bug.part.0+0x90/0x90
+ worker_thread+0x8b/0xd10
+ ? __kthread_parkme+0xd9/0x1d0
+ ? process_one_work+0x13e0/0x13e0
+ kthread+0x379/0x450
+ ? _raw_spin_unlock_irq+0x24/0x30
+ ? set_kthread_struct+0x100/0x100
+ ret_from_fork+0x1f/0x30
+================================================================================
+general protection fault, probably for non-canonical address 0xe5601c0020023fff: 0000 [#1] SMP KASAN
+KASAN: maybe wild-memory-access in range [0x2b0100010011fff8-0x2b0100010011ffff]
+CPU: 0 PID: 1898 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+Workqueue: events brcmf_fweh_event_worker
+RIP: 0010:brcmf_fweh_call_event_handler.isra.0+0x42/0x100
+Code: 89 f5 53 48 89 fb 48 83 ec 08 e8 79 0b 38 fe 48 85 ed 74 7e e8 6f 0b 38 fe 48 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 8b 00 00 00 4c 8b 7d 00 44 89 e0 48 ba 00 00 00
+RSP: 0018:ffffc9000259fbd8 EFLAGS: 00010207
+RAX: dffffc0000000000 RBX: ffff888115d8cd50 RCX: 0000000000000000
+RDX: 0560200020023fff RSI: ffffffff8304bc91 RDI: ffff888115d8cd50
+RBP: 2b0100010011ffff R08: ffff888112340050 R09: ffffed1023549809
+R10: ffff88811aa4c047 R11: ffffed1023549808 R12: 0000000000000045
+R13: ffffc9000259fca0 R14: ffff888112340050 R15: ffff888112340000
+FS:  0000000000000000(0000) GS:ffff88811aa00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000004053ccc0 CR3: 0000000112740000 CR4: 0000000000750ef0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ brcmf_fweh_event_worker+0x117/0xc00
+ ? brcmf_fweh_call_event_handler.isra.0+0x100/0x100
+ ? rcu_read_lock_sched_held+0xa1/0xd0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+ process_one_work+0x873/0x13e0
+ ? lock_release+0x640/0x640
+ ? pwq_dec_nr_in_flight+0x320/0x320
+ ? rwlock_bug.part.0+0x90/0x90
+ worker_thread+0x8b/0xd10
+ ? __kthread_parkme+0xd9/0x1d0
+ ? process_one_work+0x13e0/0x13e0
+ kthread+0x379/0x450
+ ? _raw_spin_unlock_irq+0x24/0x30
+ ? set_kthread_struct+0x100/0x100
+ ret_from_fork+0x1f/0x30
+Modules linked in: 88XXau(O) 88x2bu(O)
+---[ end trace 41d302138f3ff55a ]---
+RIP: 0010:brcmf_fweh_call_event_handler.isra.0+0x42/0x100
+Code: 89 f5 53 48 89 fb 48 83 ec 08 e8 79 0b 38 fe 48 85 ed 74 7e e8 6f 0b 38 fe 48 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 8b 00 00 00 4c 8b 7d 00 44 89 e0 48 ba 00 00 00
+RSP: 0018:ffffc9000259fbd8 EFLAGS: 00010207
+RAX: dffffc0000000000 RBX: ffff888115d8cd50 RCX: 0000000000000000
+RDX: 0560200020023fff RSI: ffffffff8304bc91 RDI: ffff888115d8cd50
+RBP: 2b0100010011ffff R08: ffff888112340050 R09: ffffed1023549809
+R10: ffff88811aa4c047 R11: ffffed1023549808 R12: 0000000000000045
+R13: ffffc9000259fca0 R14: ffff888112340050 R15: ffff888112340000
+FS:  0000000000000000(0000) GS:ffff88811aa00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000004053ccc0 CR3: 0000000112740000 CR4: 0000000000750ef0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Kernel panic - not syncing: Fatal exception
+
+Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
+Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Reviewed-by: Arend van Spriel <aspriel@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dokyung Song <dokyung.song@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221021061359.GA550858@laguna
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/core.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -4713,6 +4713,7 @@ static const struct x86_cpu_desc isolati
- 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 5, 0x00000000),
- 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 6, 0x00000000),
- 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 7, 0x00000000),
-+	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		11, 0x00000000),
- 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_L,		 3, 0x0000007c),
- 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE,		 3, 0x0000007c),
- 	INTEL_CPU_DESC(INTEL_FAM6_KABYLAKE,		 9, 0x0000004e),
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
+@@ -228,6 +228,10 @@ static void brcmf_fweh_event_worker(stru
+ 			  brcmf_fweh_event_name(event->code), event->code,
+ 			  event->emsg.ifidx, event->emsg.bsscfgidx,
+ 			  event->emsg.addr);
++		if (event->emsg.bsscfgidx >= BRCMF_MAX_IFS) {
++			bphy_err(drvr, "invalid bsscfg index: %u\n", event->emsg.bsscfgidx);
++			goto event_free;
++		}
+ 
+ 		/* convert event message */
+ 		emsg_be = &event->emsg;
 
 
