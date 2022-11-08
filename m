@@ -2,136 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C40D862040D
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 00:55:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 496A1620528
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 01:52:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232607AbiKGXzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 18:55:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35410 "EHLO
+        id S233050AbiKHAwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 19:52:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232650AbiKGXzo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 18:55:44 -0500
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EFC527B08;
-        Mon,  7 Nov 2022 15:55:41 -0800 (PST)
-Received: by mail-lf1-x134.google.com with SMTP id l12so7823985lfp.6;
-        Mon, 07 Nov 2022 15:55:41 -0800 (PST)
+        with ESMTP id S232391AbiKHAv5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 19:51:57 -0500
+Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66D3C1F2C4;
+        Mon,  7 Nov 2022 16:51:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=uYpG5kIVjDW6gUzmyqnTmwzAvBCwOte6nMdhHbBsYiM=;
-        b=kweB4LEI5apssc+vdQrfozDq0gau5l6+I53kgzgOAHJrzazoB1Wm/SeyQfS+br4H4/
-         lFbgvjSLnk8g6k4aH+HQFWT4Vm+uIxMTmja9OTh0x/d5kOwop+ZDwkdwNHRJRRZAXqST
-         qml/67j7av93HVQnKzUIkI4/sDQpfIGW2HnEei2dHHwwGcPfWt7l7/hd6DpyeCc8N7yq
-         WFXnBJV3kSgM0mzeFRSVoIEdmGPKbbUneetGpSIT7ZQ3HBgxJlcdaUN6+PkrB4tASl+W
-         89Mr7gcwVuSf8Xtd4YJX1bm9DlFAYCY0PaCvRWFXQhHkUd6hEu0esTpiopH3Pk7RQvbH
-         4DbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=uYpG5kIVjDW6gUzmyqnTmwzAvBCwOte6nMdhHbBsYiM=;
-        b=L4VkMhcZsLGcNKmbK+HUDUXW+YnZPIDrPPoVrEhLnVHVcPs8yAGRB/2kDoJOUOxZvN
-         2Xjlp4JBGJIj8nB8Eo8MuH/t0OoTLjXoJPzY5q579HiobkObYYtTnEeEyq86K8tdd1p8
-         YdZbGQKMszC8VcmmdJXKLzSFaOYwpF8RZ29dXw5jnLD7dvR5leGWrcJCqCzcPBz4/5cn
-         SBq0Qlh9XTPU/4c9MSCgYVvKUsMzwH6+I+bw2reAdvAKcP9r1+QyAqc/yrtPTXiG+s4S
-         t2K02Z4MbU4XRiKOE6tXRiAa6fUzW0s8L1gxWunglI4flZYTW8A0PLZLfSFAv8OcbPbO
-         d5xA==
-X-Gm-Message-State: ACrzQf1ZR1MG+EcOvt824bGCC+LDxLLLIJeOvCQ9+n7r4WsueXW3kzWC
-        Cf3UcvBwrFJsXa5CqbrtzMlbB/HOsSrzwG5Lt7m4mWMO
-X-Google-Smtp-Source: AMsMyM6uvxUMtRV2MUGugvUxU+agHp//UGoqCPruQEdbIk1tKuDNYIicX9p8nC/sDIjzMYKOvVrwqIyp3oH023i4m90=
-X-Received: by 2002:a05:6512:3c90:b0:4a2:5168:b410 with SMTP id
- h16-20020a0565123c9000b004a25168b410mr19799108lfv.163.1667865338897; Mon, 07
- Nov 2022 15:55:38 -0800 (PST)
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1667868717; x=1699404717;
+  h=from:to:cc:subject:date:message-id:
+   content-transfer-encoding:mime-version;
+  bh=kzicRcG+TGEY2Z8XrFFSHck2JvbpK3yaDfDkTtu37vI=;
+  b=Vd0AaoGY9gfnW4Y6xY/Y1mz/hQKCX/QH0hHAd2p5sL2poCQjOb12sHDE
+   DP978IyqVV+kQM8LkE486EDIoQNtslkamvZZcPDyVuvuohhJsKDA9pOZj
+   YRwSLrd5LBm7GWNFr7x+6P9TMbpSItlgquBjhza3Yvs5TRI/ciQaUzWly
+   Y=;
+X-IronPort-AV: E=Sophos;i="5.96,145,1665446400"; 
+   d="scan'208";a="277860468"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-iad-1e-m6i4x-0aba4706.us-east-1.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2022 00:51:51 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-iad-1e-m6i4x-0aba4706.us-east-1.amazon.com (Postfix) with ESMTPS id EA302A0F97;
+        Tue,  8 Nov 2022 00:51:48 +0000 (UTC)
+Received: from EX19D045UWC001.ant.amazon.com (10.13.139.223) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.42; Tue, 8 Nov 2022 00:51:48 +0000
+Received: from EX19D017UWC003.ant.amazon.com (10.13.139.227) by
+ EX19D045UWC001.ant.amazon.com (10.13.139.223) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.15; Tue, 8 Nov 2022 00:51:48 +0000
+Received: from EX19D017UWC003.ant.amazon.com ([fe80::78e9:1d67:81fd:68c5]) by
+ EX19D017UWC003.ant.amazon.com ([fe80::78e9:1d67:81fd:68c5%6]) with mapi id
+ 15.02.1118.015; Tue, 8 Nov 2022 00:51:48 +0000
+From:   "Lu, Davina" <davinalu@amazon.com>
+To:     Theodore Ts'o <tytso@mit.edu>
+CC:     "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>,
+        "adilger.kernel@dilger.ca" <adilger.kernel@dilger.ca>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Mohamed Abuelfotoh, Hazem" <abuehaze@amazon.com>,
+        hazem ahmed mohamed <hazem.ahmed.abuelfotoh@gmail.com>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        "Kiselev, Oleg" <okiselev@amazon.com>,
+        "Liu, Frank" <franklmz@amazon.com>
+Subject: configurable lazytime for EXT4, is name ok?
+Thread-Topic: configurable lazytime for EXT4, is name ok?
+Thread-Index: AdjzC8FGHNuLQ/rLSpuMIprsbw2tdw==
+Date:   Tue, 8 Nov 2022 00:51:47 +0000
+Message-ID: <173aa5e092bc4f3a8a49be9c095a7d6e@amazon.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.43.143.133]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <CAH2r5mub3G42yb48gN-KY7tgqen8oeT-mmE7y23vyQ0e5ihctQ@mail.gmail.com>
-In-Reply-To: <CAH2r5mub3G42yb48gN-KY7tgqen8oeT-mmE7y23vyQ0e5ihctQ@mail.gmail.com>
-From:   Steve French <smfrench@gmail.com>
-Date:   Mon, 7 Nov 2022 17:55:27 -0600
-Message-ID: <CAH2r5muthiUdk9Lgt5noXLZo4Kkh25VmF1x9mFnWtFVqXxAoyw@mail.gmail.com>
-Subject: Fwd: patch for stable "cifs: fix regression in very old smb1 mounts"
-To:     Stable <stable@vger.kernel.org>
-Cc:     CIFS <linux-cifs@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="0000000000000f2e0e05ecea29e8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-14.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---0000000000000f2e0e05ecea29e8
-Content-Type: text/plain; charset="UTF-8"
+Hi Ted,
 
----------- Forwarded message ---------
-From: Steve French <smfrench@gmail.com>
-Date: Mon, Nov 7, 2022 at 5:54 PM
-Subject: patch for stable "cifs: fix regression in very old smb1 mounts"
-To: Stable <stable@vger.kernel.org>
-Cc: CIFS <linux-cifs@vger.kernel.org>, Thorsten Leemhuis
-<regressions@leemhuis.info>, ronnie sahlberg
-<ronniesahlberg@gmail.com>
+Sorry to bother you with a quick question: I am doing a patch for configura=
+ble lazytime for EXT4, Before submit the patch I would like to double check=
+ the names first. I added a "lazytime_flush=3Dxxx" in mount show options, n=
+ot sure if this is ok to continue.=20
 
+As far as I know, lazytime is an option for EXT4 and other file systems. My=
+ patch make ext4 can be supported as before: without any parameters E.g. mo=
+unt -o lazytime,...=20
+Or can be supported with parameters (in ms) E.g. mount -o lazytime=3D30, ..=
+.=20
 
-commit 2f6f19c7aaad "cifs: fix regression in very old smb1 mounts" upstream
+So when we show the options by mount -t ext4, if no parameter configured, t=
+he result shows as before:
+/dev/nvme1n1 on /rdsdbdata1 type ext4 (rw,noatime,nodiratime,lazytime,data=
+=3Dordered)
 
-Also attached upstream commit.
+If has parameters configured, the result shows as below, added one "lazytim=
+e_flush=3Dxxx". Not sure if this sound ok for you?=20
+/dev/nvme1n1 on /rdsdbdata1 type ext4 (rw,noatime,nodiratime,lazytime,lazyt=
+ime_flush=3D100ms,data=3Dordered)
 
-For 5.15 and 6.0 stable kernels
+I tested "ext4/053"of latest xfstest-dev with my patch and it can pass the =
+result(I changed a bit 053 since I am running on 5.10, removed one mount op=
+tion" no_prefetch_block_bitmaps" that  5.10 doesn't support).
 
-
-
-
-
--- 
-Thanks,
-
-Steve
-
-
--- 
-Thanks,
-
-Steve
-
---0000000000000f2e0e05ecea29e8
-Content-Type: application/x-patch; 
-	name="0001-cifs-fix-regression-in-very-old-smb1-mounts.patch"
-Content-Disposition: attachment; 
-	filename="0001-cifs-fix-regression-in-very-old-smb1-mounts.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_la7fwc7i0>
-X-Attachment-Id: f_la7fwc7i0
-
-RnJvbSAyZjZmMTljN2FhYWQ1MDA1ZGM3NTI5OGE0MTNlYjAyNDNjNWQzMTJkIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBSb25uaWUgU2FobGJlcmcgPGxzYWhsYmVyQHJlZGhhdC5jb20+
-CkRhdGU6IFdlZCwgMTIgT2N0IDIwMjIgMDk6MTI6MDcgKzEwMDAKU3ViamVjdDogW1BBVENIXSBj
-aWZzOiBmaXggcmVncmVzc2lvbiBpbiB2ZXJ5IG9sZCBzbWIxIG1vdW50cwoKQlo6IDIxNTM3NQoK
-Rml4ZXM6IDc2YTNjOTJlYzllMCAoImNpZnM6IHJlbW92ZSBzdXBwb3J0IGZvciBOVExNIGFuZCB3
-ZWFrZXIgYXV0aGVudGljYXRpb24gYWxnb3JpdGhtcyIpClJldmlld2VkLWJ5OiBQYXVsbyBBbGNh
-bnRhcmEgKFNVU0UpIDxwY0BjanIubno+ClNpZ25lZC1vZmYtYnk6IFJvbm5pZSBTYWhsYmVyZyA8
-bHNhaGxiZXJAcmVkaGF0LmNvbT4KU2lnbmVkLW9mZi1ieTogU3RldmUgRnJlbmNoIDxzdGZyZW5j
-aEBtaWNyb3NvZnQuY29tPgotLS0KIGZzL2NpZnMvY29ubmVjdC5jIHwgMTEgKysrKystLS0tLS0K
-IDEgZmlsZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKyksIDYgZGVsZXRpb25zKC0pCgpkaWZmIC0t
-Z2l0IGEvZnMvY2lmcy9jb25uZWN0LmMgYi9mcy9jaWZzL2Nvbm5lY3QuYwppbmRleCA0MDkwMGFh
-Y2U0MTYuLmUxNTgyNTdkYTFjZCAxMDA2NDQKLS0tIGEvZnMvY2lmcy9jb25uZWN0LmMKKysrIGIv
-ZnMvY2lmcy9jb25uZWN0LmMKQEAgLTM5MjIsMTIgKzM5MjIsMTEgQEAgQ0lGU1RDb24oY29uc3Qg
-dW5zaWduZWQgaW50IHhpZCwgc3RydWN0IGNpZnNfc2VzICpzZXMsCiAJcFNNQi0+QW5kWENvbW1h
-bmQgPSAweEZGOwogCXBTTUItPkZsYWdzID0gY3B1X3RvX2xlMTYoVENPTl9FWFRFTkRFRF9TRUNJ
-TkZPKTsKIAliY2NfcHRyID0gJnBTTUItPlBhc3N3b3JkWzBdOwotCWlmICh0Y29uLT5waXBlIHx8
-IChzZXMtPnNlcnZlci0+c2VjX21vZGUgJiBTRUNNT0RFX1VTRVIpKSB7Ci0JCXBTTUItPlBhc3N3
-b3JkTGVuZ3RoID0gY3B1X3RvX2xlMTYoMSk7CS8qIG1pbmltdW0gKi8KLQkJKmJjY19wdHIgPSAw
-OyAvKiBwYXNzd29yZCBpcyBudWxsIGJ5dGUgKi8KLQkJYmNjX3B0cisrOyAgICAgICAgICAgICAg
-Lyogc2tpcCBwYXNzd29yZCAqLwotCQkvKiBhbHJlYWR5IGFsaWduZWQgc28gbm8gbmVlZCB0byBk
-byBpdCBiZWxvdyAqLwotCX0KKworCXBTTUItPlBhc3N3b3JkTGVuZ3RoID0gY3B1X3RvX2xlMTYo
-MSk7CS8qIG1pbmltdW0gKi8KKwkqYmNjX3B0ciA9IDA7IC8qIHBhc3N3b3JkIGlzIG51bGwgYnl0
-ZSAqLworCWJjY19wdHIrKzsgICAgICAgICAgICAgIC8qIHNraXAgcGFzc3dvcmQgKi8KKwkvKiBh
-bHJlYWR5IGFsaWduZWQgc28gbm8gbmVlZCB0byBkbyBpdCBiZWxvdyAqLwogCiAJaWYgKHNlcy0+
-c2VydmVyLT5zaWduKQogCQlzbWJfYnVmZmVyLT5GbGFnczIgfD0gU01CRkxHMl9TRUNVUklUWV9T
-SUdOQVRVUkU7Ci0tIAoyLjM0LjEKCg==
---0000000000000f2e0e05ecea29e8--
+Thanks
+Davina
