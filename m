@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73DF76214BB
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:04:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CA30621419
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:57:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235007AbiKHOEb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:04:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39406 "EHLO
+        id S234570AbiKHN5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:57:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235020AbiKHOEa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:04:30 -0500
+        with ESMTP id S234861AbiKHN5U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:57:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AD55686BF
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:04:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4D84623A5
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:57:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C2AC614D9
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:04:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19133C433D6;
-        Tue,  8 Nov 2022 14:04:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 734946157B
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:57:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55D01C433C1;
+        Tue,  8 Nov 2022 13:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916269;
-        bh=bgGONtGi4M9NWt+KZXahMBJb2M85HHVYODxBVsKYtFA=;
+        s=korg; t=1667915835;
+        bh=eRN0qe938ASEr+o/wr7xHIe6BCTy5Ww7HQZyPq8Z09E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08FHP+u23Eum22JNE3TxGnvAGfmD22pitq3b5GgFy/s0jilEKd9mVs0t7O2tTJZu2
-         ICtiZf8PIE1UYbMJ6DXeB2PEomoTTtkj67fXeoK5L8wfnzWdmxpgSqOoWzCaqVaZ+8
-         q3Qo2ThNY11qUTOTNxqTNtd7IIDMiouqiQQWNzsM=
+        b=fWd/OVfT7dXf6Et+XRIu1SDMZds5FU4kGc5S3wmxYCXLnHJP1ChY6qu+akkkEorfD
+         G04MqTJj7vqvXEy1pdtf+apICxinsVPT0onLRwKpIRdE6ObgvE5/WNWU6WaxgHtudX
+         4v/wWIRS/vGYEVJLGQsAhqhgZS4QUiIm7yhCEV+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>,
-        Li Huafei <lihuafei1@huawei.com>
-Subject: [PATCH 5.15 105/144] ftrace: Fix use-after-free for dynamic ftrace_ops
-Date:   Tue,  8 Nov 2022 14:39:42 +0100
-Message-Id: <20221108133349.738681093@linuxfoundation.org>
+        patches@lists.linux.dev, stable@kernel.org,
+        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 105/118] ext4: fix BUG_ON() when directory entry has invalid rec_len
+Date:   Tue,  8 Nov 2022 14:39:43 +0100
+Message-Id: <20221108133345.295617115@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,139 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Huafei <lihuafei1@huawei.com>
+From: Luís Henriques <lhenriques@suse.de>
 
-commit 0e792b89e6800cd9cb4757a76a96f7ef3e8b6294 upstream.
+commit 17a0bc9bd697f75cfdf9b378d5eb2d7409c91340 upstream.
 
-KASAN reported a use-after-free with ftrace ops [1]. It was found from
-vmcore that perf had registered two ops with the same content
-successively, both dynamic. After unregistering the second ops, a
-use-after-free occurred.
+The rec_len field in the directory entry has to be a multiple of 4.  A
+corrupted filesystem image can be used to hit a BUG() in
+ext4_rec_len_to_disk(), called from make_indexed_dir().
 
-In ftrace_shutdown(), when the second ops is unregistered, the
-FTRACE_UPDATE_CALLS command is not set because there is another enabled
-ops with the same content.  Also, both ops are dynamic and the ftrace
-callback function is ftrace_ops_list_func, so the
-FTRACE_UPDATE_TRACE_FUNC command will not be set. Eventually the value
-of 'command' will be 0 and ftrace_shutdown() will skip the rcu
-synchronization.
+ ------------[ cut here ]------------
+ kernel BUG at fs/ext4/ext4.h:2413!
+ ...
+ RIP: 0010:make_indexed_dir+0x53f/0x5f0
+ ...
+ Call Trace:
+  <TASK>
+  ? add_dirent_to_buf+0x1b2/0x200
+  ext4_add_entry+0x36e/0x480
+  ext4_add_nondir+0x2b/0xc0
+  ext4_create+0x163/0x200
+  path_openat+0x635/0xe90
+  do_filp_open+0xb4/0x160
+  ? __create_object.isra.0+0x1de/0x3b0
+  ? _raw_spin_unlock+0x12/0x30
+  do_sys_openat2+0x91/0x150
+  __x64_sys_open+0x6c/0xa0
+  do_syscall_64+0x3c/0x80
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-However, ftrace may be activated. When the ops is released, another CPU
-may be accessing the ops.  Add the missing synchronization to fix this
-problem.
+The fix simply adds a call to ext4_check_dir_entry() to validate the
+directory entry, returning -EFSCORRUPTED if the entry is invalid.
 
-[1]
-BUG: KASAN: use-after-free in __ftrace_ops_list_func kernel/trace/ftrace.c:7020 [inline]
-BUG: KASAN: use-after-free in ftrace_ops_list_func+0x2b0/0x31c kernel/trace/ftrace.c:7049
-Read of size 8 at addr ffff56551965bbc8 by task syz-executor.2/14468
-
-CPU: 1 PID: 14468 Comm: syz-executor.2 Not tainted 5.10.0 #7
-Hardware name: linux,dummy-virt (DT)
-Call trace:
- dump_backtrace+0x0/0x40c arch/arm64/kernel/stacktrace.c:132
- show_stack+0x30/0x40 arch/arm64/kernel/stacktrace.c:196
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1b4/0x248 lib/dump_stack.c:118
- print_address_description.constprop.0+0x28/0x48c mm/kasan/report.c:387
- __kasan_report mm/kasan/report.c:547 [inline]
- kasan_report+0x118/0x210 mm/kasan/report.c:564
- check_memory_region_inline mm/kasan/generic.c:187 [inline]
- __asan_load8+0x98/0xc0 mm/kasan/generic.c:253
- __ftrace_ops_list_func kernel/trace/ftrace.c:7020 [inline]
- ftrace_ops_list_func+0x2b0/0x31c kernel/trace/ftrace.c:7049
- ftrace_graph_call+0x0/0x4
- __might_sleep+0x8/0x100 include/linux/perf_event.h:1170
- __might_fault mm/memory.c:5183 [inline]
- __might_fault+0x58/0x70 mm/memory.c:5171
- do_strncpy_from_user lib/strncpy_from_user.c:41 [inline]
- strncpy_from_user+0x1f4/0x4b0 lib/strncpy_from_user.c:139
- getname_flags+0xb0/0x31c fs/namei.c:149
- getname+0x2c/0x40 fs/namei.c:209
- [...]
-
-Allocated by task 14445:
- kasan_save_stack+0x24/0x50 mm/kasan/common.c:48
- kasan_set_track mm/kasan/common.c:56 [inline]
- __kasan_kmalloc mm/kasan/common.c:479 [inline]
- __kasan_kmalloc.constprop.0+0x110/0x13c mm/kasan/common.c:449
- kasan_kmalloc+0xc/0x14 mm/kasan/common.c:493
- kmem_cache_alloc_trace+0x440/0x924 mm/slub.c:2950
- kmalloc include/linux/slab.h:563 [inline]
- kzalloc include/linux/slab.h:675 [inline]
- perf_event_alloc.part.0+0xb4/0x1350 kernel/events/core.c:11230
- perf_event_alloc kernel/events/core.c:11733 [inline]
- __do_sys_perf_event_open kernel/events/core.c:11831 [inline]
- __se_sys_perf_event_open+0x550/0x15f4 kernel/events/core.c:11723
- __arm64_sys_perf_event_open+0x6c/0x80 kernel/events/core.c:11723
- [...]
-
-Freed by task 14445:
- kasan_save_stack+0x24/0x50 mm/kasan/common.c:48
- kasan_set_track+0x24/0x34 mm/kasan/common.c:56
- kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:358
- __kasan_slab_free.part.0+0x11c/0x1b0 mm/kasan/common.c:437
- __kasan_slab_free mm/kasan/common.c:445 [inline]
- kasan_slab_free+0x2c/0x40 mm/kasan/common.c:446
- slab_free_hook mm/slub.c:1569 [inline]
- slab_free_freelist_hook mm/slub.c:1608 [inline]
- slab_free mm/slub.c:3179 [inline]
- kfree+0x12c/0xc10 mm/slub.c:4176
- perf_event_alloc.part.0+0xa0c/0x1350 kernel/events/core.c:11434
- perf_event_alloc kernel/events/core.c:11733 [inline]
- __do_sys_perf_event_open kernel/events/core.c:11831 [inline]
- __se_sys_perf_event_open+0x550/0x15f4 kernel/events/core.c:11723
- [...]
-
-Link: https://lore.kernel.org/linux-trace-kernel/20221103031010.166498-1-lihuafei1@huawei.com
-
-Fixes: edb096e00724f ("ftrace: Fix memleak when unregistering dynamic ops when tracing disabled")
-Cc: stable@vger.kernel.org
-Suggested-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+CC: stable@kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216540
+Signed-off-by: Luís Henriques <lhenriques@suse.de>
+Link: https://lore.kernel.org/r/20221012131330.32456-1-lhenriques@suse.de
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |   16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ fs/ext4/namei.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -2948,18 +2948,8 @@ int ftrace_shutdown(struct ftrace_ops *o
- 		command |= FTRACE_UPDATE_TRACE_FUNC;
- 	}
- 
--	if (!command || !ftrace_enabled) {
--		/*
--		 * If these are dynamic or per_cpu ops, they still
--		 * need their data freed. Since, function tracing is
--		 * not currently active, we can just free them
--		 * without synchronizing all CPUs.
--		 */
--		if (ops->flags & FTRACE_OPS_FL_DYNAMIC)
--			goto free_ops;
--
--		return 0;
--	}
-+	if (!command || !ftrace_enabled)
-+		goto out;
- 
- 	/*
- 	 * If the ops uses a trampoline, then it needs to be
-@@ -2996,6 +2986,7 @@ int ftrace_shutdown(struct ftrace_ops *o
- 	removed_ops = NULL;
- 	ops->flags &= ~FTRACE_OPS_FL_REMOVING;
- 
-+out:
- 	/*
- 	 * Dynamic ops may be freed, we must make sure that all
- 	 * callers are done before leaving this function.
-@@ -3023,7 +3014,6 @@ int ftrace_shutdown(struct ftrace_ops *o
- 		if (IS_ENABLED(CONFIG_PREEMPTION))
- 			synchronize_rcu_tasks();
- 
-- free_ops:
- 		ftrace_trampoline_free(ops);
- 	}
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -2153,8 +2153,16 @@ static int make_indexed_dir(handle_t *ha
+ 	memcpy(data2, de, len);
+ 	de = (struct ext4_dir_entry_2 *) data2;
+ 	top = data2 + len;
+-	while ((char *)(de2 = ext4_next_entry(de, blocksize)) < top)
++	while ((char *)(de2 = ext4_next_entry(de, blocksize)) < top) {
++		if (ext4_check_dir_entry(dir, NULL, de, bh2, data2, len,
++					 (data2 + (blocksize - csum_size) -
++					  (char *) de))) {
++			brelse(bh2);
++			brelse(bh);
++			return -EFSCORRUPTED;
++		}
+ 		de = de2;
++	}
+ 	de->rec_len = ext4_rec_len_to_disk(data2 + (blocksize - csum_size) -
+ 					   (char *) de, blocksize);
  
 
 
