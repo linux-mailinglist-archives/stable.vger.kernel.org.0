@@ -2,44 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1399E621498
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:03:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAE706212F5
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234959AbiKHOC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:02:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37512 "EHLO
+        id S234503AbiKHNoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:44:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234966AbiKHOC5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:02:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A98E68685
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:02:56 -0800 (PST)
+        with ESMTP id S234506AbiKHNop (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F8A550F15
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:44:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37EBE60025
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:02:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3656EC433D6;
-        Tue,  8 Nov 2022 14:02:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D09B861528
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:44:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFA62C433C1;
+        Tue,  8 Nov 2022 13:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916175;
-        bh=mmOI0QzirTEzfRvUIS0ySWDbSUsdp2/bUksz9/KrLsk=;
+        s=korg; t=1667915083;
+        bh=DWFcZWy7JG1QE8hN3qHpjStmrS/DwWtUblJR9K7w0Ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qft6fAUC4IRFXUnMiN97AYR8kt2GcKBScYEY4WmCVpZ0pkdJQC/q6d1hFX9HsWf2l
-         PM5XY6+Q7ECMozKVL6wcLDeIyB/OC2W+x4ImSxSsPLF48VbVc/q17tReu24Ep6hmB5
-         6Q0ump4LwuD1yw8OsArlS0nDeI2uqFxXh4epvGHs=
+        b=MfbSw2pcChPUzwlDLGUkuf9376jjCznSNqTKL5YIS0DYYraA/Hy14PB2ylK5m4igc
+         WD7wn3jPRgoONyYvZEPQCJsUiu0oVSc9jUqDB79mCD/qWHHUWSVPWolgmqHr4gsNq1
+         iU1vp9m8+Wa1RZJ/R2BCAk5DwndQsTZ9yIpu0cqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peng Fan <peng.fan@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 086/144] arm64: dts: imx8: correct clock order
+        patches@lists.linux.dev,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Guan Xuetao <gxt@mprc.pku.edu.cn>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        David Howells <dhowells@redhat.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Will Deacon <will.deacon@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 4.14 38/40] linux/const.h: move UL() macro to include/linux/const.h
 Date:   Tue,  8 Nov 2022 14:39:23 +0100
-Message-Id: <20221108133348.905121640@linuxfoundation.org>
+Message-Id: <20221108133329.748972060@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
+References: <20221108133328.351887714@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +61,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit 06acb824d7d00a30e9400f67eee481b218371b5a ]
+commit 2dd8a62c647691161a2346546834262597739872 upstream.
 
-Per bindings/mmc/fsl-imx-esdhc.yaml, the clock order is ipg, ahb, per,
-otherwise warning: "
-mmc@5b020000: clock-names:1: 'ahb' was expected
-mmc@5b020000: clock-names:2: 'per' was expected "
+ARM, ARM64 and UniCore32 duplicate the definition of UL():
 
-Fixes: 16c4ea7501b1 ("arm64: dts: imx8: switch to new lpcg clock binding")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  #define UL(x) _AC(x, UL)
+
+This is not actually arch-specific, so it will be useful to move it to a
+common header.  Currently, we only have the uapi variant for
+linux/const.h, so I am creating include/linux/const.h.
+
+I also added _UL(), _ULL() and ULL() because _AC() is mostly used in
+the form either _AC(..., UL) or _AC(..., ULL).  I expect they will be
+replaced in follow-up cleanups.  The underscore-prefixed ones should
+be used for exported headers.
+
+Link: http://lkml.kernel.org/r/1519301715-31798-4-git-send-email-yamada.masahiro@socionext.com
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Acked-by: Guan Xuetao <gxt@mprc.pku.edu.cn>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../arm64/boot/dts/freescale/imx8-ss-conn.dtsi | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/arm/include/asm/memory.h       |    6 ------
+ arch/arm64/include/asm/memory.h     |    6 ------
+ arch/unicore32/include/asm/memory.h |    6 ------
+ include/linux/const.h               |    9 +++++++++
+ include/uapi/linux/const.h          |    3 +++
+ 5 files changed, 12 insertions(+), 18 deletions(-)
+ create mode 100644 include/linux/const.h
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8-ss-conn.dtsi b/arch/arm64/boot/dts/freescale/imx8-ss-conn.dtsi
-index a79f42a9618e..639220dbff00 100644
---- a/arch/arm64/boot/dts/freescale/imx8-ss-conn.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8-ss-conn.dtsi
-@@ -38,9 +38,9 @@ usdhc1: mmc@5b010000 {
- 		interrupts = <GIC_SPI 232 IRQ_TYPE_LEVEL_HIGH>;
- 		reg = <0x5b010000 0x10000>;
- 		clocks = <&sdhc0_lpcg IMX_LPCG_CLK_4>,
--			 <&sdhc0_lpcg IMX_LPCG_CLK_5>,
--			 <&sdhc0_lpcg IMX_LPCG_CLK_0>;
--		clock-names = "ipg", "per", "ahb";
-+			 <&sdhc0_lpcg IMX_LPCG_CLK_0>,
-+			 <&sdhc0_lpcg IMX_LPCG_CLK_5>;
-+		clock-names = "ipg", "ahb", "per";
- 		power-domains = <&pd IMX_SC_R_SDHC_0>;
- 		status = "disabled";
- 	};
-@@ -49,9 +49,9 @@ usdhc2: mmc@5b020000 {
- 		interrupts = <GIC_SPI 233 IRQ_TYPE_LEVEL_HIGH>;
- 		reg = <0x5b020000 0x10000>;
- 		clocks = <&sdhc1_lpcg IMX_LPCG_CLK_4>,
--			 <&sdhc1_lpcg IMX_LPCG_CLK_5>,
--			 <&sdhc1_lpcg IMX_LPCG_CLK_0>;
--		clock-names = "ipg", "per", "ahb";
-+			 <&sdhc1_lpcg IMX_LPCG_CLK_0>,
-+			 <&sdhc1_lpcg IMX_LPCG_CLK_5>;
-+		clock-names = "ipg", "ahb", "per";
- 		power-domains = <&pd IMX_SC_R_SDHC_1>;
- 		fsl,tuning-start-tap = <20>;
- 		fsl,tuning-step= <2>;
-@@ -62,9 +62,9 @@ usdhc3: mmc@5b030000 {
- 		interrupts = <GIC_SPI 234 IRQ_TYPE_LEVEL_HIGH>;
- 		reg = <0x5b030000 0x10000>;
- 		clocks = <&sdhc2_lpcg IMX_LPCG_CLK_4>,
--			 <&sdhc2_lpcg IMX_LPCG_CLK_5>,
--			 <&sdhc2_lpcg IMX_LPCG_CLK_0>;
--		clock-names = "ipg", "per", "ahb";
-+			 <&sdhc2_lpcg IMX_LPCG_CLK_0>,
-+			 <&sdhc2_lpcg IMX_LPCG_CLK_5>;
-+		clock-names = "ipg", "ahb", "per";
- 		power-domains = <&pd IMX_SC_R_SDHC_2>;
- 		status = "disabled";
- 	};
--- 
-2.35.1
-
+--- a/arch/arm/include/asm/memory.h
++++ b/arch/arm/include/asm/memory.h
+@@ -22,12 +22,6 @@
+ #include <mach/memory.h>
+ #endif
+ 
+-/*
+- * Allow for constants defined here to be used from assembly code
+- * by prepending the UL suffix only with actual C code compilation.
+- */
+-#define UL(x) _AC(x, UL)
+-
+ /* PAGE_OFFSET - the virtual address of the start of the kernel image */
+ #define PAGE_OFFSET		UL(CONFIG_PAGE_OFFSET)
+ 
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -29,12 +29,6 @@
+ #include <asm/sizes.h>
+ 
+ /*
+- * Allow for constants defined here to be used from assembly code
+- * by prepending the UL suffix only with actual C code compilation.
+- */
+-#define UL(x) _AC(x, UL)
+-
+-/*
+  * Size of the PCI I/O space. This must remain a power of two so that
+  * IO_SPACE_LIMIT acts as a mask for the low bits of I/O addresses.
+  */
+--- a/arch/unicore32/include/asm/memory.h
++++ b/arch/unicore32/include/asm/memory.h
+@@ -20,12 +20,6 @@
+ #include <mach/memory.h>
+ 
+ /*
+- * Allow for constants defined here to be used from assembly code
+- * by prepending the UL suffix only with actual C code compilation.
+- */
+-#define UL(x) _AC(x, UL)
+-
+-/*
+  * PAGE_OFFSET - the virtual address of the start of the kernel image
+  * TASK_SIZE - the maximum size of a user space task.
+  * TASK_UNMAPPED_BASE - the lower boundary of the mmap VM area
+--- /dev/null
++++ b/include/linux/const.h
+@@ -0,0 +1,9 @@
++#ifndef _LINUX_CONST_H
++#define _LINUX_CONST_H
++
++#include <uapi/linux/const.h>
++
++#define UL(x)		(_UL(x))
++#define ULL(x)		(_ULL(x))
++
++#endif /* _LINUX_CONST_H */
+--- a/include/uapi/linux/const.h
++++ b/include/uapi/linux/const.h
+@@ -22,6 +22,9 @@
+ #define _AT(T,X)	((T)(X))
+ #endif
+ 
++#define _UL(x)		(_AC(x, UL))
++#define _ULL(x)		(_AC(x, ULL))
++
+ #define _BITUL(x)	(_AC(1,UL) << (x))
+ #define _BITULL(x)	(_AC(1,ULL) << (x))
+ 
 
 
