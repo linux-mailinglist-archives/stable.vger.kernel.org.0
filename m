@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0A98621327
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:47:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6CA762157F
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234502AbiKHNrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:47:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46954 "EHLO
+        id S235306AbiKHOMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:12:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234562AbiKHNrT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:47:19 -0500
+        with ESMTP id S235309AbiKHOMg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:36 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 236C25986B
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:47:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94BB05655D;
+        Tue,  8 Nov 2022 06:12:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBF75B81AF4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:47:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F29A1C433D7;
-        Tue,  8 Nov 2022 13:47:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 471F1B81AF2;
+        Tue,  8 Nov 2022 14:12:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2588C433D7;
+        Tue,  8 Nov 2022 14:12:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915236;
-        bh=pcwYCcHp1F2nlPx0ZHtK8KuH4q/blx8O+3O0+fbRhfU=;
+        s=korg; t=1667916731;
+        bh=iaEbcrkCuX8cye+YoOUheK23PYqax7r56lSiUtWcv2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CiQA9hUa5XDp6W6tclpprIUGuxIZCKqP/AvMpAkv66paCV7SYsfADcRQYjQCrkKxi
-         S+Izt5DcofApfEVSqZgr/v/gzI2lgrGFTxG3PKxmNizRVF/Y+3qlyUxh8umIRN9k5z
-         jPRonRa9crKfmm7AWDa+ngwlkK98I/R8a80hR4I0=
+        b=SSBV8Y6sP3jsA7agiZn4ZWxHc4B9z+OxMSC3C4B5X0AKxQ0t3yaFSbHRbVkbn88ME
+         9vxNgVybucdgIQ+5TCtjQ84AL2/LiMtVzrxXhcq6EZcmiti+Tzn2YryCwTzcwiT0qT
+         RBIRpoN2LIz2sZW8D2Hps2DRBm8fF331xYmTLUV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Samuel Bailey <samuel.bailey1@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 28/48] HID: saitek: add madcatz variant of MMO7 mouse device ID
+        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        linux-pm@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 115/197] ARM: dts: ux500: Add trips to battery thermal zones
 Date:   Tue,  8 Nov 2022 14:39:13 +0100
-Message-Id: <20221108133330.521353504@linuxfoundation.org>
+Message-Id: <20221108133400.187793178@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +54,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Bailey <samuel.bailey1@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 79425b297f56bd481c6e97700a9a4e44c7bcfa35 ]
+[ Upstream commit cd73adcdbad3d9e9923b045d3643409e9c148d17 ]
 
-The MadCatz variant of the MMO7 mouse has the ID 0738:1713 and the same
-quirks as the Saitek variant.
+Recent changes to the thermal framework has made the trip
+points (trips) for thermal zones compulsory, which made
+the Ux500 DTS files break validation and also stopped
+probing because of similar changes to the code.
 
-Signed-off-by: Samuel Bailey <samuel.bailey1@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fix this by adding an "outer bounding box": battery thermal
+zones should not get warmer than 70 degress, then we will
+shut down.
+
+Fixes: 8c596324232d ("dt-bindings: thermal: Fix missing required property")
+Fixes: 3fd6d6e2b4e8 ("thermal/of: Rework the thermal device tree initialization")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: linux-pm@vger.kernel.org
+Link: https://lore.kernel.org/r/20221030210854.346662-1-linus.walleij@linaro.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- drivers/hid/hid-saitek.c | 2 ++
- 3 files changed, 4 insertions(+)
+ arch/arm/boot/dts/ste-href.dtsi                    | 8 ++++++++
+ arch/arm/boot/dts/ste-snowball.dts                 | 8 ++++++++
+ arch/arm/boot/dts/ste-ux500-samsung-codina-tmo.dts | 8 ++++++++
+ arch/arm/boot/dts/ste-ux500-samsung-codina.dts     | 8 ++++++++
+ arch/arm/boot/dts/ste-ux500-samsung-gavini.dts     | 8 ++++++++
+ arch/arm/boot/dts/ste-ux500-samsung-golden.dts     | 8 ++++++++
+ arch/arm/boot/dts/ste-ux500-samsung-janice.dts     | 8 ++++++++
+ arch/arm/boot/dts/ste-ux500-samsung-kyle.dts       | 8 ++++++++
+ arch/arm/boot/dts/ste-ux500-samsung-skomer.dts     | 8 ++++++++
+ 9 files changed, 72 insertions(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 70079d29822b..00943ddbe417 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -793,6 +793,7 @@
- #define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
- #define USB_DEVICE_ID_MADCATZ_RAT5	0x1705
- #define USB_DEVICE_ID_MADCATZ_RAT9	0x1709
-+#define USB_DEVICE_ID_MADCATZ_MMO7  0x1713
+diff --git a/arch/arm/boot/dts/ste-href.dtsi b/arch/arm/boot/dts/ste-href.dtsi
+index fbaa0ce46427..8f1bb78fc1e4 100644
+--- a/arch/arm/boot/dts/ste-href.dtsi
++++ b/arch/arm/boot/dts/ste-href.dtsi
+@@ -24,6 +24,14 @@ battery-thermal {
+ 			polling-delay = <0>;
+ 			polling-delay-passive = <0>;
+ 			thermal-sensors = <&bat_therm>;
++
++			trips {
++				battery-crit-hi {
++					temperature = <70000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
+ 		};
+ 	};
  
- #define USB_VENDOR_ID_MCC		0x09db
- #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index c1b76ba85fb4..8de294aa3184 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -620,6 +620,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT5) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_MMO7) },
- #endif
- #if IS_ENABLED(CONFIG_HID_SAMSUNG)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
-diff --git a/drivers/hid/hid-saitek.c b/drivers/hid/hid-saitek.c
-index 683861f324e3..95e004d9b110 100644
---- a/drivers/hid/hid-saitek.c
-+++ b/drivers/hid/hid-saitek.c
-@@ -191,6 +191,8 @@ static const struct hid_device_id saitek_devices[] = {
- 		.driver_data = SAITEK_RELEASE_MODE_RAT7 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7),
- 		.driver_data = SAITEK_RELEASE_MODE_MMO7 },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_MMO7),
-+		.driver_data = SAITEK_RELEASE_MODE_MMO7 },
- 	{ }
- };
+diff --git a/arch/arm/boot/dts/ste-snowball.dts b/arch/arm/boot/dts/ste-snowball.dts
+index 1c9094f24893..e2f0cdacba7d 100644
+--- a/arch/arm/boot/dts/ste-snowball.dts
++++ b/arch/arm/boot/dts/ste-snowball.dts
+@@ -28,6 +28,14 @@ battery-thermal {
+ 			polling-delay = <0>;
+ 			polling-delay-passive = <0>;
+ 			thermal-sensors = <&bat_therm>;
++
++			trips {
++				battery-crit-hi {
++					temperature = <70000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
+ 		};
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/ste-ux500-samsung-codina-tmo.dts b/arch/arm/boot/dts/ste-ux500-samsung-codina-tmo.dts
+index d6940e0afa86..27a3ab7e25e1 100644
+--- a/arch/arm/boot/dts/ste-ux500-samsung-codina-tmo.dts
++++ b/arch/arm/boot/dts/ste-ux500-samsung-codina-tmo.dts
+@@ -44,6 +44,14 @@ battery-thermal {
+ 			polling-delay = <0>;
+ 			polling-delay-passive = <0>;
+ 			thermal-sensors = <&bat_therm>;
++
++			trips {
++				battery-crit-hi {
++					temperature = <70000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
+ 		};
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/ste-ux500-samsung-codina.dts b/arch/arm/boot/dts/ste-ux500-samsung-codina.dts
+index 5f41256d7f4b..b88f0c07873d 100644
+--- a/arch/arm/boot/dts/ste-ux500-samsung-codina.dts
++++ b/arch/arm/boot/dts/ste-ux500-samsung-codina.dts
+@@ -57,6 +57,14 @@ battery-thermal {
+ 			polling-delay = <0>;
+ 			polling-delay-passive = <0>;
+ 			thermal-sensors = <&bat_therm>;
++
++			trips {
++				battery-crit-hi {
++					temperature = <70000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
+ 		};
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/ste-ux500-samsung-gavini.dts b/arch/arm/boot/dts/ste-ux500-samsung-gavini.dts
+index 806da3fc33cd..7231bc745200 100644
+--- a/arch/arm/boot/dts/ste-ux500-samsung-gavini.dts
++++ b/arch/arm/boot/dts/ste-ux500-samsung-gavini.dts
+@@ -30,6 +30,14 @@ battery-thermal {
+ 			polling-delay = <0>;
+ 			polling-delay-passive = <0>;
+ 			thermal-sensors = <&bat_therm>;
++
++			trips {
++				battery-crit-hi {
++					temperature = <70000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
+ 		};
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/ste-ux500-samsung-golden.dts b/arch/arm/boot/dts/ste-ux500-samsung-golden.dts
+index b0dce91aff4b..9604695edf53 100644
+--- a/arch/arm/boot/dts/ste-ux500-samsung-golden.dts
++++ b/arch/arm/boot/dts/ste-ux500-samsung-golden.dts
+@@ -35,6 +35,14 @@ battery-thermal {
+ 			polling-delay = <0>;
+ 			polling-delay-passive = <0>;
+ 			thermal-sensors = <&bat_therm>;
++
++			trips {
++				battery-crit-hi {
++					temperature = <70000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
+ 		};
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/ste-ux500-samsung-janice.dts b/arch/arm/boot/dts/ste-ux500-samsung-janice.dts
+index ed5c79c3d04b..69387e8754a9 100644
+--- a/arch/arm/boot/dts/ste-ux500-samsung-janice.dts
++++ b/arch/arm/boot/dts/ste-ux500-samsung-janice.dts
+@@ -30,6 +30,14 @@ battery-thermal {
+ 			polling-delay = <0>;
+ 			polling-delay-passive = <0>;
+ 			thermal-sensors = <&bat_therm>;
++
++			trips {
++				battery-crit-hi {
++					temperature = <70000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
+ 		};
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/ste-ux500-samsung-kyle.dts b/arch/arm/boot/dts/ste-ux500-samsung-kyle.dts
+index c57676faf181..167846df3104 100644
+--- a/arch/arm/boot/dts/ste-ux500-samsung-kyle.dts
++++ b/arch/arm/boot/dts/ste-ux500-samsung-kyle.dts
+@@ -34,6 +34,14 @@ battery-thermal {
+ 			polling-delay = <0>;
+ 			polling-delay-passive = <0>;
+ 			thermal-sensors = <&bat_therm>;
++
++			trips {
++				battery-crit-hi {
++					temperature = <70000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
+ 		};
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/ste-ux500-samsung-skomer.dts b/arch/arm/boot/dts/ste-ux500-samsung-skomer.dts
+index 81b341a5ae45..93e5f5ed888d 100644
+--- a/arch/arm/boot/dts/ste-ux500-samsung-skomer.dts
++++ b/arch/arm/boot/dts/ste-ux500-samsung-skomer.dts
+@@ -30,6 +30,14 @@ battery-thermal {
+ 			polling-delay = <0>;
+ 			polling-delay-passive = <0>;
+ 			thermal-sensors = <&bat_therm>;
++
++			trips {
++				battery-crit-hi {
++					temperature = <70000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
+ 		};
+ 	};
  
 -- 
 2.35.1
