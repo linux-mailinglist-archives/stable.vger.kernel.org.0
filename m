@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E94A1621372
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97B1262131C
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:46:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234645AbiKHNuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:50:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50364 "EHLO
+        id S234550AbiKHNqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:46:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234632AbiKHNuW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:50:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD37DC764
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:50:21 -0800 (PST)
+        with ESMTP id S234535AbiKHNqr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACC8C5984E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ADD361561
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:50:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EDAEC433D6;
-        Tue,  8 Nov 2022 13:50:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69266B81AEE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99D0FC433C1;
+        Tue,  8 Nov 2022 13:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915420;
-        bh=DB18vLhgJdHOS0pFUnakNXd9lfOg/obb/IamW+6/siE=;
+        s=korg; t=1667915204;
+        bh=eJ8fRkh5NUCnOCS3wkbH7E6JcQdswvY0iqvo8X8JBLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jUbDm1qYjGg8kqn5Br6y5Ba5n+Q8zQPLetxucCZFF5BLjHLfdJyQSD9K5h6hlu7iu
-         u2iHvbSXMFtKOFK0AJj+CWYGHeSXxS81Hn1PvUft5hDs+k1fQRrKiUW9RhpqHDgkP4
-         f/bNMtpPrDWWVQUaPwqFf6AhV0HQ/lIVbgXz513E=
+        b=vi97FEWWP3Rf63g3qYgPKmoPwDwgaQajHYK0V0LONnSfKR0tYtrTew1dfUWI9pK34
+         SYOTjKZLMs6FW+KNZKPaxiDotgsTIuAkfhrPa9kdnd1Qm5ohCwRyZUhVMvBvwDZMRf
+         zBNxkTMTe92RruhCwYYYPjRht1PoCdlO3TcR+R+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Veness <john-linux@pelago.org.uk>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 58/74] ALSA: usb-audio: Add quirks for MacroSilicon MS2100/MS2106 devices
+        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 41/48] parisc: Avoid printing the hardware path twice
 Date:   Tue,  8 Nov 2022 14:39:26 +0100
-Message-Id: <20221108133336.146349437@linuxfoundation.org>
+Message-Id: <20221108133331.027964937@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
+References: <20221108133329.533809494@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,99 +51,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Veness <john-linux@pelago.org.uk>
+From: Helge Deller <deller@gmx.de>
 
-commit 6e2c9105e0b743c92a157389d40f00b81bdd09fe upstream.
+commit 2b6ae0962b421103feb41a80406732944b0665b3 upstream.
 
-Treat the claimed 96kHz 1ch in the descriptors as 48kHz 2ch, so that
-the audio stream doesn't sound mono. Also fix initial stream
-alignment, so that left and right channels are in the correct order.
+Avoid that the hardware path is shown twice in the kernel log, and clean
+up the output of the version numbers to show up in the same order as
+they are listed in the hardware database in the hardware.c file.
+Additionally, optimize the memory footprint of the hardware database
+and mark some code as init code.
 
-Signed-off-by: John Veness <john-linux@pelago.org.uk>
-Link: https://lore.kernel.org/r/20220624140757.28758-1-john-linux@pelago.org.uk
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: cab56b51ec0e ("parisc: Fix device names in /proc/iomem")
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org> # v4.9+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks-table.h |   58 +++++++++++++++++++++++++++++++++++++++++++++++
- sound/usb/quirks.c       |    1 
- 2 files changed, 59 insertions(+)
+ arch/parisc/include/asm/hardware.h |   12 ++++++------
+ arch/parisc/kernel/drivers.c       |   14 ++++++--------
+ 2 files changed, 12 insertions(+), 14 deletions(-)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3760,6 +3760,64 @@ ALC1220_VB_DESKTOP(0x26ce, 0x0a01), /* A
- },
+--- a/arch/parisc/include/asm/hardware.h
++++ b/arch/parisc/include/asm/hardware.h
+@@ -10,12 +10,12 @@
+ #define SVERSION_ANY_ID		PA_SVERSION_ANY_ID
  
- /*
-+ * MacroSilicon MS2100/MS2106 based AV capture cards
-+ *
-+ * These claim 96kHz 1ch in the descriptors, but are actually 48kHz 2ch.
-+ * They also need QUIRK_AUDIO_ALIGN_TRANSFER, which makes one wonder if
-+ * they pretend to be 96kHz mono as a workaround for stereo being broken
-+ * by that...
-+ *
-+ * They also have an issue with initial stream alignment that causes the
-+ * channels to be swapped and out of phase, which is dealt with in quirks.c.
-+ */
-+{
-+	.match_flags = USB_DEVICE_ID_MATCH_DEVICE |
-+		       USB_DEVICE_ID_MATCH_INT_CLASS |
-+		       USB_DEVICE_ID_MATCH_INT_SUBCLASS,
-+	.idVendor = 0x534d,
-+	.idProduct = 0x0021,
-+	.bInterfaceClass = USB_CLASS_AUDIO,
-+	.bInterfaceSubClass = USB_SUBCLASS_AUDIOCONTROL,
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.vendor_name = "MacroSilicon",
-+		.product_name = "MS210x",
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = &(const struct snd_usb_audio_quirk[]) {
-+			{
-+				.ifnum = 2,
-+				.type = QUIRK_AUDIO_ALIGN_TRANSFER,
-+			},
-+			{
-+				.ifnum = 2,
-+				.type = QUIRK_AUDIO_STANDARD_MIXER,
-+			},
-+			{
-+				.ifnum = 3,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S16_LE,
-+					.channels = 2,
-+					.iface = 3,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.attributes = 0,
-+					.endpoint = 0x82,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC |
-+						USB_ENDPOINT_SYNC_ASYNC,
-+					.rates = SNDRV_PCM_RATE_CONTINUOUS,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+				}
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
-+
-+/*
-  * MacroSilicon MS2109 based HDMI capture cards
-  *
-  * These claim 96kHz 1ch in the descriptors, but are actually 48kHz 2ch.
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1440,6 +1440,7 @@ void snd_usb_set_format_quirk(struct snd
- 	case USB_ID(0x041e, 0x3f19): /* E-Mu 0204 USB */
- 		set_format_emu_quirk(subs, fmt);
- 		break;
-+	case USB_ID(0x534d, 0x0021): /* MacroSilicon MS2100/MS2106 */
- 	case USB_ID(0x534d, 0x2109): /* MacroSilicon MS2109 */
- 		subs->stream_offset_adj = 2;
- 		break;
+ struct hp_hardware {
+-	unsigned short	hw_type:5;	/* HPHW_xxx */
+-	unsigned short	hversion;
+-	unsigned long	sversion:28;
+-	unsigned short	opt;
+-	const char	name[80];	/* The hardware description */
+-};
++	unsigned int	hw_type:8;	/* HPHW_xxx */
++	unsigned int	hversion:12;
++	unsigned int	sversion:12;
++	unsigned char	opt;
++	unsigned char	name[59];	/* The hardware description */
++} __packed;
+ 
+ struct parisc_device;
+ 
+--- a/arch/parisc/kernel/drivers.c
++++ b/arch/parisc/kernel/drivers.c
+@@ -861,15 +861,13 @@ void __init walk_central_bus(void)
+ 			&root);
+ }
+ 
+-static void print_parisc_device(struct parisc_device *dev)
++static __init void print_parisc_device(struct parisc_device *dev)
+ {
+-	char hw_path[64];
+-	static int count;
++	static int count __initdata;
+ 
+-	print_pa_hwpath(dev, hw_path);
+-	pr_info("%d. %s at %pap [%s] { %d, 0x%x, 0x%.3x, 0x%.5x }",
+-		++count, dev->name, &(dev->hpa.start), hw_path, dev->id.hw_type,
+-		dev->id.hversion_rev, dev->id.hversion, dev->id.sversion);
++	pr_info("%d. %s at %pap { type:%d, hv:%#x, sv:%#x, rev:%#x }",
++		++count, dev->name, &(dev->hpa.start), dev->id.hw_type,
++		dev->id.hversion, dev->id.sversion, dev->id.hversion_rev);
+ 
+ 	if (dev->num_addrs) {
+ 		int k;
+@@ -1058,7 +1056,7 @@ static __init int qemu_print_iodc_data(s
+ 
+ 
+ 
+-static int print_one_device(struct device * dev, void * data)
++static __init int print_one_device(struct device * dev, void * data)
+ {
+ 	struct parisc_device * pdev = to_parisc_device(dev);
+ 
 
 
