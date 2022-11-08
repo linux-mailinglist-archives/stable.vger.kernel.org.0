@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9852362208C
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 00:59:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACA2F62208D
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 00:59:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230148AbiKHX7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 18:59:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51926 "EHLO
+        id S230181AbiKHX7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 18:59:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230094AbiKHX6a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 18:58:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5AE1A1A4;
-        Tue,  8 Nov 2022 15:58:24 -0800 (PST)
+        with ESMTP id S230106AbiKHX6b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 18:58:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B74902600;
+        Tue,  8 Nov 2022 15:58:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 611CA617C6;
-        Tue,  8 Nov 2022 23:58:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8813C433C1;
-        Tue,  8 Nov 2022 23:58:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 245AB617E4;
+        Tue,  8 Nov 2022 23:58:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BA27C433D6;
+        Tue,  8 Nov 2022 23:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1667951903;
-        bh=9JouXHHQZE4qoJcgW5pkf06utlkHVCVvNi9aIoKg2TA=;
+        s=korg; t=1667951906;
+        bh=v/j4BcKetI9QOLu0i7vwgJd+47sLUqeWcAPYlKJuAVQ=;
         h=Date:To:From:Subject:From;
-        b=tYKUiF0GLkR3ZtL8guDhCknW3lIPZsaC0qyP555WRXyGJRhNRvJRbsJ6z4kMVYwm4
-         mnABy6g3LISZSxAOO6DcvluxtLSwZTQwWSesqSsND5nQFzaD0oTP5ZFG0C0HI5rSR+
-         sPuOW+L7ZulzyZuUdkxxlV2uDcUmpzfP1UGBHZjY=
-Date:   Tue, 08 Nov 2022 15:58:23 -0800
-To:     mm-commits@vger.kernel.org, syoshida@redhat.com,
-        stable@vger.kernel.org, konishi.ryusuke@gmail.com,
+        b=xfbPQt3QJQ+A6wHcloF5KCLr4Y3cAGBnu1yd8O400L4OP06myDqAwmMlVCxtaEfqx
+         0BKfGeK6dTUps6YJN2KZbspY36hHOhBnNRDDInyYkUW4G9pkDQyEWPKullT7agDIDc
+         SRKHbys37KM40cZqdSfGAObhC9vWfFtpNpVgJRMI=
+Date:   Tue, 08 Nov 2022 15:58:26 -0800
+To:     mm-commits@vger.kernel.org, ville.syrjala@linux.intel.com,
+        tglx@linutronix.de, stable@vger.kernel.org,
+        songmuchun@bytedance.com, shy828301@gmail.com, osalvador@suse.de,
+        mingo@redhat.com, mike.kravetz@oracle.com, liushixin2@huawei.com,
+        linmiaohe@huawei.com, david@redhat.com,
+        dave.hansen@linux.intel.com, bp@alien8.de, naoya.horiguchi@nec.com,
         akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] nilfs2-fix-use-after-free-bug-of-ns_writer-on-remount.patch removed from -mm tree
-Message-Id: <20221108235823.B8813C433C1@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] arch-x86-mm-hugetlbpagec-pud_huge-returns-0-when-using-2-level-paging.patch removed from -mm tree
+Message-Id: <20221108235826.7BA27C433D6@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PP_MIME_FAKE_ASCII_TEXT,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -46,131 +51,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: nilfs2: fix use-after-free bug of ns_writer on remount
+     Subject: arch/x86/mm/hugetlbpage.c: pud_huge() returns 0 when using 2-level paging
 has been removed from the -mm tree.  Its filename was
-     nilfs2-fix-use-after-free-bug-of-ns_writer-on-remount.patch
+     arch-x86-mm-hugetlbpagec-pud_huge-returns-0-when-using-2-level-paging.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Subject: nilfs2: fix use-after-free bug of ns_writer on remount
-Date: Fri, 4 Nov 2022 23:29:59 +0900
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Subject: arch/x86/mm/hugetlbpage.c: pud_huge() returns 0 when using 2-level paging
+Date: Mon, 7 Nov 2022 11:10:10 +0900
 
-If a nilfs2 filesystem is downgraded to read-only due to metadata
-corruption on disk and is remounted read/write, or if emergency read-only
-remount is performed, detaching a log writer and synchronizing the
-filesystem can be done at the same time.
+The following bug is reported to be triggered when starting X on x86-32
+system with i915:
 
-In these cases, use-after-free of the log writer (hereinafter
-nilfs->ns_writer) can happen as shown in the scenario below:
+  [  225.777375] kernel BUG at mm/memory.c:2664!
+  [  225.777391] invalid opcode: 0000 [#1] PREEMPT SMP
+  [  225.777405] CPU: 0 PID: 2402 Comm: Xorg Not tainted 6.1.0-rc3-bdg+ #86
+  [  225.777415] Hardware name:  /8I865G775-G, BIOS F1 08/29/2006
+  [  225.777421] EIP: __apply_to_page_range+0x24d/0x31c
+  [  225.777437] Code: ff ff 8b 55 e8 8b 45 cc e8 0a 11 ec ff 89 d8 83 c4 28 5b 5e 5f 5d c3 81 7d e0 a0 ef 96 c1 74 ad 8b 45 d0 e8 2d 83 49 00 eb a3 <0f> 0b 25 00 f0 ff ff 81 eb 00 00 00 40 01 c3 8b 45 ec 8b 00 e8 76
+  [  225.777446] EAX: 00000001 EBX: c53a3b58 ECX: b5c00000 EDX: c258aa00
+  [  225.777454] ESI: b5c00000 EDI: b5900000 EBP: c4b0fdb4 ESP: c4b0fd80
+  [  225.777462] DS: 007b ES: 007b FS: 00d8 GS: 0033 SS: 0068 EFLAGS: 00010202
+  [  225.777470] CR0: 80050033 CR2: b5900000 CR3: 053a3000 CR4: 000006d0
+  [  225.777479] Call Trace:
+  [  225.777486]  ? i915_memcpy_init_early+0x63/0x63 [i915]
+  [  225.777684]  apply_to_page_range+0x21/0x27
+  [  225.777694]  ? i915_memcpy_init_early+0x63/0x63 [i915]
+  [  225.777870]  remap_io_mapping+0x49/0x75 [i915]
+  [  225.778046]  ? i915_memcpy_init_early+0x63/0x63 [i915]
+  [  225.778220]  ? mutex_unlock+0xb/0xd
+  [  225.778231]  ? i915_vma_pin_fence+0x6d/0xf7 [i915]
+  [  225.778420]  vm_fault_gtt+0x2a9/0x8f1 [i915]
+  [  225.778644]  ? lock_is_held_type+0x56/0xe7
+  [  225.778655]  ? lock_is_held_type+0x7a/0xe7
+  [  225.778663]  ? 0xc1000000
+  [  225.778670]  __do_fault+0x21/0x6a
+  [  225.778679]  handle_mm_fault+0x708/0xb21
+  [  225.778686]  ? mt_find+0x21e/0x5ae
+  [  225.778696]  exc_page_fault+0x185/0x705
+  [  225.778704]  ? doublefault_shim+0x127/0x127
+  [  225.778715]  handle_exception+0x130/0x130
+  [  225.778723] EIP: 0xb700468a
 
- Task1                               Task2
- --------------------------------    ------------------------------
- nilfs_construct_segment
-   nilfs_segctor_sync
-     init_wait
-     init_waitqueue_entry
-     add_wait_queue
-     schedule
-                                     nilfs_remount (R/W remount case)
-				       nilfs_attach_log_writer
-                                         nilfs_detach_log_writer
-                                           nilfs_segctor_destroy
-                                             kfree
-     finish_wait
-       _raw_spin_lock_irqsave
-         __raw_spin_lock_irqsave
-           do_raw_spin_lock
-             debug_spin_lock_before  <-- use-after-free
+Recently pud_huge() got aware of non-present entry by commit 3a194f3f8ad0
+("mm/hugetlb: make pud_huge() and follow_huge_pud() aware of non-present
+pud entry") to handle some special states of gigantic page.  However, it's
+overlooked that pud_none() always returns false when running with 2-level
+paging, and as a result pud_huge() can return true pointlessly.
 
-While Task1 is sleeping, nilfs->ns_writer is freed by Task2.  After Task1
-waked up, Task1 accesses nilfs->ns_writer which is already freed.  This
-scenario diagram is based on the Shigeru Yoshida's post [1].
+Introduce "#if CONFIG_PGTABLE_LEVELS > 2" to pud_huge() to deal with this.
 
-This patch fixes the issue by not detaching nilfs->ns_writer on remount so
-that this UAF race doesn't happen.  Along with this change, this patch
-also inserts a few necessary read-only checks with superblock instance
-where only the ns_writer pointer was used to check if the filesystem is
-read-only.
-
-Link: https://syzkaller.appspot.com/bug?id=79a4c002e960419ca173d55e863bd09e8112df8b
-Link: https://lkml.kernel.org/r/20221103141759.1836312-1-syoshida@redhat.com [1]
-Link: https://lkml.kernel.org/r/20221104142959.28296-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+f816fa82f8783f7a02bb@syzkaller.appspotmail.com
-Reported-by: Shigeru Yoshida <syoshida@redhat.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Link: https://lkml.kernel.org/r/20221107021010.2449306-1-naoya.horiguchi@linux.dev
+Fixes: 3a194f3f8ad0 ("mm/hugetlb: make pud_huge() and follow_huge_pud() aware of non-present pud entry")
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reported-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Tested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Liu Shixin <liushixin2@huawei.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/nilfs2/segment.c |   15 ++++++++-------
- fs/nilfs2/super.c   |    2 --
- 2 files changed, 8 insertions(+), 9 deletions(-)
+ arch/x86/mm/hugetlbpage.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/nilfs2/segment.c~nilfs2-fix-use-after-free-bug-of-ns_writer-on-remount
-+++ a/fs/nilfs2/segment.c
-@@ -317,7 +317,7 @@ void nilfs_relax_pressure_in_lock(struct
- 	struct the_nilfs *nilfs = sb->s_fs_info;
- 	struct nilfs_sc_info *sci = nilfs->ns_writer;
+--- a/arch/x86/mm/hugetlbpage.c~arch-x86-mm-hugetlbpagec-pud_huge-returns-0-when-using-2-level-paging
++++ a/arch/x86/mm/hugetlbpage.c
+@@ -37,8 +37,12 @@ int pmd_huge(pmd_t pmd)
+  */
+ int pud_huge(pud_t pud)
+ {
++#if CONFIG_PGTABLE_LEVELS > 2
+ 	return !pud_none(pud) &&
+ 		(pud_val(pud) & (_PAGE_PRESENT|_PAGE_PSE)) != _PAGE_PRESENT;
++#else
++	return 0;
++#endif
+ }
  
--	if (!sci || !sci->sc_flush_request)
-+	if (sb_rdonly(sb) || unlikely(!sci) || !sci->sc_flush_request)
- 		return;
- 
- 	set_bit(NILFS_SC_PRIOR_FLUSH, &sci->sc_flags);
-@@ -2242,7 +2242,7 @@ int nilfs_construct_segment(struct super
- 	struct nilfs_sc_info *sci = nilfs->ns_writer;
- 	struct nilfs_transaction_info *ti;
- 
--	if (!sci)
-+	if (sb_rdonly(sb) || unlikely(!sci))
- 		return -EROFS;
- 
- 	/* A call inside transactions causes a deadlock. */
-@@ -2280,7 +2280,7 @@ int nilfs_construct_dsync_segment(struct
- 	struct nilfs_transaction_info ti;
- 	int err = 0;
- 
--	if (!sci)
-+	if (sb_rdonly(sb) || unlikely(!sci))
- 		return -EROFS;
- 
- 	nilfs_transaction_lock(sb, &ti, 0);
-@@ -2776,11 +2776,12 @@ int nilfs_attach_log_writer(struct super
- 
- 	if (nilfs->ns_writer) {
- 		/*
--		 * This happens if the filesystem was remounted
--		 * read/write after nilfs_error degenerated it into a
--		 * read-only mount.
-+		 * This happens if the filesystem is made read-only by
-+		 * __nilfs_error or nilfs_remount and then remounted
-+		 * read/write.  In these cases, reuse the existing
-+		 * writer.
- 		 */
--		nilfs_detach_log_writer(sb);
-+		return 0;
- 	}
- 
- 	nilfs->ns_writer = nilfs_segctor_new(sb, root);
---- a/fs/nilfs2/super.c~nilfs2-fix-use-after-free-bug-of-ns_writer-on-remount
-+++ a/fs/nilfs2/super.c
-@@ -1133,8 +1133,6 @@ static int nilfs_remount(struct super_bl
- 	if ((bool)(*flags & SB_RDONLY) == sb_rdonly(sb))
- 		goto out;
- 	if (*flags & SB_RDONLY) {
--		/* Shutting down log writer */
--		nilfs_detach_log_writer(sb);
- 		sb->s_flags |= SB_RDONLY;
- 
- 		/*
+ #ifdef CONFIG_HUGETLB_PAGE
 _
 
-Patches currently in -mm which might be from konishi.ryusuke@gmail.com are
+Patches currently in -mm which might be from naoya.horiguchi@nec.com are
 
-nilfs2-fix-shift-out-of-bounds-overflow-in-nilfs_sb2_bad_offset.patch
-nilfs2-fix-shift-out-of-bounds-due-to-too-large-exponent-of-block-size.patch
+mmhwpoisonhugetlbmemory_hotplug-hotremove-memory-section-with-hwpoisoned-hugepage.patch
+mm-hwpoison-move-definitions-of-num_poisoned_pages_-to-memory-failurec.patch
+mm-hwpoison-pass-pfn-to-num_poisoned_pages_.patch
+mm-hwpoison-introduce-per-memory_block-hwpoison-counter.patch
 
