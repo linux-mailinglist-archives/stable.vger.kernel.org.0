@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72F08621321
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:47:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 781B6621378
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:50:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234543AbiKHNrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:47:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
+        id S234636AbiKHNuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:50:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234565AbiKHNq5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F9565984E
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:57 -0800 (PST)
+        with ESMTP id S234664AbiKHNue (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:50:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71EC460EA9
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:50:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FAB461584
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D98C433C1;
-        Tue,  8 Nov 2022 13:46:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE4A0615A7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:50:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA211C433D6;
+        Tue,  8 Nov 2022 13:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915216;
-        bh=aR07L0cFrF0WL+CWnasfUvcCRiBgY6uKnKTXVd+Smv8=;
+        s=korg; t=1667915431;
+        bh=tAKWqDKsTA3xWZFdvAdpr5GjxGl/E3+Gq1dQoTETmFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zWo6fUwDEyGocrPSGXBB03M7ZUtnJTMnnKfIOZLG7EB8zfNVdHEE62whJaD1GZJIt
-         WLwXNHmaesoEq53x8qxMm9bl9wMsFuW29tykCKhzm9/4ZyhLy8gehBvDhhcCx7+w43
-         ewpAvw0Vr4tk/+vjW3xzrD3NcWyXP2+H6uLlKolg=
+        b=o4dDc+hCy60jmbpZfExUmrav3ij1ZP01jIQLTC95kwhMroDYusZlCZQG1PnzbiFc0
+         Oc2idgU4lUZercza8rDBE78k/+/Hd4eSLTwPGAo+SYD1vaMaI3tbB8L2nSBEN/ufOq
+         pt89xO1IwEj/CdAs7EvhaAxUPYy4tCneE4oDzn7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 44/48] KVM: x86: emulator: em_sysexit should update ctxt->mode
+        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.4 61/74] parisc: Avoid printing the hardware path twice
 Date:   Tue,  8 Nov 2022 14:39:29 +0100
-Message-Id: <20221108133331.152544406@linuxfoundation.org>
+Message-Id: <20221108133336.274034634@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +51,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Helge Deller <deller@gmx.de>
 
-commit 5015bb89b58225f97df6ac44383e7e8c8662c8c9 upstream.
+commit 2b6ae0962b421103feb41a80406732944b0665b3 upstream.
 
-SYSEXIT is one of the instructions that can change the
-processor mode, thus ctxt->mode should be updated after it.
+Avoid that the hardware path is shown twice in the kernel log, and clean
+up the output of the version numbers to show up in the same order as
+they are listed in the hardware database in the hardware.c file.
+Additionally, optimize the memory footprint of the hardware database
+and mark some code as init code.
 
-Note that this is likely a benign bug, because the only problematic
-mode change is from 32 bit to 64 bit which can lead to truncation of RIP,
-and it is not possible to do with sysexit,
-since sysexit running in 32 bit mode will be limited to 32 bit version.
-
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20221025124741.228045-11-mlevitsk@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: cab56b51ec0e ("parisc: Fix device names in /proc/iomem")
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org> # v4.9+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/parisc/include/asm/hardware.h |   12 ++++++------
+ arch/parisc/kernel/drivers.c       |   14 ++++++--------
+ 2 files changed, 12 insertions(+), 14 deletions(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -2895,6 +2895,7 @@ static int em_sysexit(struct x86_emulate
- 	ops->set_segment(ctxt, ss_sel, &ss, 0, VCPU_SREG_SS);
+--- a/arch/parisc/include/asm/hardware.h
++++ b/arch/parisc/include/asm/hardware.h
+@@ -10,12 +10,12 @@
+ #define SVERSION_ANY_ID		PA_SVERSION_ANY_ID
  
- 	ctxt->_eip = rdx;
-+	ctxt->mode = usermode;
- 	*reg_write(ctxt, VCPU_REGS_RSP) = rcx;
+ struct hp_hardware {
+-	unsigned short	hw_type:5;	/* HPHW_xxx */
+-	unsigned short	hversion;
+-	unsigned long	sversion:28;
+-	unsigned short	opt;
+-	const char	name[80];	/* The hardware description */
+-};
++	unsigned int	hw_type:8;	/* HPHW_xxx */
++	unsigned int	hversion:12;
++	unsigned int	sversion:12;
++	unsigned char	opt;
++	unsigned char	name[59];	/* The hardware description */
++} __packed;
  
- 	return X86EMUL_CONTINUE;
+ struct parisc_device;
+ 
+--- a/arch/parisc/kernel/drivers.c
++++ b/arch/parisc/kernel/drivers.c
+@@ -882,15 +882,13 @@ void __init walk_central_bus(void)
+ 			&root);
+ }
+ 
+-static void print_parisc_device(struct parisc_device *dev)
++static __init void print_parisc_device(struct parisc_device *dev)
+ {
+-	char hw_path[64];
+-	static int count;
++	static int count __initdata;
+ 
+-	print_pa_hwpath(dev, hw_path);
+-	pr_info("%d. %s at %pap [%s] { %d, 0x%x, 0x%.3x, 0x%.5x }",
+-		++count, dev->name, &(dev->hpa.start), hw_path, dev->id.hw_type,
+-		dev->id.hversion_rev, dev->id.hversion, dev->id.sversion);
++	pr_info("%d. %s at %pap { type:%d, hv:%#x, sv:%#x, rev:%#x }",
++		++count, dev->name, &(dev->hpa.start), dev->id.hw_type,
++		dev->id.hversion, dev->id.sversion, dev->id.hversion_rev);
+ 
+ 	if (dev->num_addrs) {
+ 		int k;
+@@ -1079,7 +1077,7 @@ static __init int qemu_print_iodc_data(s
+ 
+ 
+ 
+-static int print_one_device(struct device * dev, void * data)
++static __init int print_one_device(struct device * dev, void * data)
+ {
+ 	struct parisc_device * pdev = to_parisc_device(dev);
+ 
 
 
