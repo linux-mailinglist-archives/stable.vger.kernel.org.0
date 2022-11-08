@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42ADA6212DC
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:43:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9CA46214BA
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:04:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234200AbiKHNnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:43:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43454 "EHLO
+        id S235017AbiKHOE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:04:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234456AbiKHNnd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:43:33 -0500
+        with ESMTP id S235016AbiKHOE2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:04:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF94CAE56
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:43:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D02B686B7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:04:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CF5DB81AE4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:43:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AC32C433C1;
-        Tue,  8 Nov 2022 13:43:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DD8AB81AF2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:04:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50474C433D6;
+        Tue,  8 Nov 2022 14:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915010;
-        bh=x7/giUgv7EAZK+BmVoOtl36ZxalTYpP+mBzKQ4pmluU=;
+        s=korg; t=1667916264;
+        bh=CmSRNfBV86EsQV9BETmdAkbeneeSLp94EZfRDV42lKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E5Hie0MZkwbAf1l3vEyIZ942Ee/cxc2YWK8i5ySXNK7JOku7N7eDCvF8bT8VoxC+L
-         LFEPulXJfaaUkf8ARGscaItOjo9Em48emQXIBCF3dtpUGCI8PSFjfo9AB2WkdKOgHa
-         r5KwuIZORB6fmyIti6xv2if+vA7JlPlclU7CalQI=
+        b=rdGyW22C0pssiYjYqKBXLRPs3N2rE4V9m1DTh+J4eExXDv8Wg7X4YYBK+uq6cuNWp
+         yACD+W5uj1LaUx/Hnu7QTwfJ9f6qL1zwfyIAeT5kHtLVk/cOVUBM9ZXTiiNos98+XZ
+         bMGP9FFCBR5yleOqHRnN+D0oo3lNhDMtHSTZRRls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Khazhy Kumykov <khazhy@chromium.org>
-Subject: [PATCH 4.14 24/40] block, bfq: protect bfqd->queued by bfqd->lock
+        patches@lists.linux.dev,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Paul Elder <paul.elder@ideasonboard.com>,
+        Dafna Hirschfeld <dafna@fastmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 072/144] media: rkisp1: Zero v4l2_subdev_format fields in when validating links
 Date:   Tue,  8 Nov 2022 14:39:09 +0100
-Message-Id: <20221108133329.294120328@linuxfoundation.org>
+Message-Id: <20221108133348.339580950@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
-References: <20221108133328.351887714@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-commit 181490d5321806e537dc5386db5ea640b826bf78 upstream.
+[ Upstream commit c53e3a049f35978a150526671587fd46b1ae7ca1 ]
 
-If bfq_schedule_dispatch() is called from bfq_idle_slice_timer_body(),
-then 'bfqd->queued' is read without holding 'bfqd->lock'. This is
-wrong since it can be wrote concurrently.
+The local sd_fmt variable in rkisp1_capture_link_validate() has
+uninitialized fields, which causes random failures when calling the
+subdev .get_fmt() operation. Fix it by initializing the variable when
+declaring it, which zeros all other fields.
 
-Fix the problem by holding 'bfqd->lock' in such case.
-
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20220513023507.2625717-2-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Khazhy Kumykov <khazhy@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
+Reviewed-by: Dafna Hirschfeld <dafna@fastmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/rockchip/rkisp1/rkisp1-capture.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -298,6 +298,8 @@ static struct bfq_io_cq *bfq_bic_lookup(
-  */
- void bfq_schedule_dispatch(struct bfq_data *bfqd)
- {
-+	lockdep_assert_held(&bfqd->lock);
-+
- 	if (bfqd->queued != 0) {
- 		bfq_log(bfqd, "schedule dispatch");
- 		blk_mq_run_hw_queues(bfqd->queue, true);
-@@ -4584,8 +4586,8 @@ bfq_idle_slice_timer_body(struct bfq_dat
- 	bfq_bfqq_expire(bfqd, bfqq, true, reason);
+diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-capture.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-capture.c
+index 41988eb0ec0a..0f980f68058c 100644
+--- a/drivers/media/platform/rockchip/rkisp1/rkisp1-capture.c
++++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-capture.c
+@@ -1270,11 +1270,12 @@ static int rkisp1_capture_link_validate(struct media_link *link)
+ 	struct rkisp1_capture *cap = video_get_drvdata(vdev);
+ 	const struct rkisp1_capture_fmt_cfg *fmt =
+ 		rkisp1_find_fmt_cfg(cap, cap->pix.fmt.pixelformat);
+-	struct v4l2_subdev_format sd_fmt;
++	struct v4l2_subdev_format sd_fmt = {
++		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
++		.pad = link->source->index,
++	};
+ 	int ret;
  
- schedule_dispatch:
--	spin_unlock_irqrestore(&bfqd->lock, flags);
- 	bfq_schedule_dispatch(bfqd);
-+	spin_unlock_irqrestore(&bfqd->lock, flags);
- }
- 
- /*
+-	sd_fmt.which = V4L2_SUBDEV_FORMAT_ACTIVE;
+-	sd_fmt.pad = link->source->index;
+ 	ret = v4l2_subdev_call(sd, pad, get_fmt, NULL, &sd_fmt);
+ 	if (ret)
+ 		return ret;
+-- 
+2.35.1
+
 
 
