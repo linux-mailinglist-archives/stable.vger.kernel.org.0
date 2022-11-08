@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28FDD6215A0
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0809162141C
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:57:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235291AbiKHONq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:13:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52138 "EHLO
+        id S234864AbiKHN5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:57:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235272AbiKHONl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:13:41 -0500
+        with ESMTP id S234832AbiKHN5L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:57:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3245F57B43
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:13:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1BC666C87
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:57:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5ED46159E
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:13:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8360C433C1;
-        Tue,  8 Nov 2022 14:13:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EC556130A
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:57:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F98C433D6;
+        Tue,  8 Nov 2022 13:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916819;
-        bh=E1LmpNVliSGZIkNGktuij19/8LIdGPIeZZGSAg8TBVk=;
+        s=korg; t=1667915829;
+        bh=JBgKi61SnkelSBLo+mumzcaIUjIX8zyQ1yORAMwXkcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OlF3CnErZvKTXbcF02gmgpiSpqB1LT7so6jb37eTGnKjq6/L1xBKHRd/CheE4AOdT
-         jEZCOTIsYdf+UF2TnKeN0M5jXPCbYqM1vbZ1fnvZOGSvaEXgDfgv62m4XzwOT8MCyi
-         C93QB1SBBTXOzI/FzCBov5SECWKho53LnIYKWnQs=
+        b=o+9RY3kjl/rDrNFYkZC5iy1RN4sP0Df1oFfFbuQxK5aBc5NWi7IKHhL48gbrEqwfh
+         13jnr4WlUfr6DexCXzxlbGrQB/eBTi0S+EAd07ZQsKGUR5YTdOfohPf3CFqqvzvwNe
+         ihbQSKykw64fCmhsOm3Iu2RHNS4AMafJbDmK8nfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steven Noonan <steven.noonan@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Roland Ruckerbauer <roland.rucky@gmail.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.0 143/197] ring-buffer: Check for NULL cpu_buffer in ring_buffer_wake_waiters()
+        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.10 103/118] parisc: Avoid printing the hardware path twice
 Date:   Tue,  8 Nov 2022 14:39:41 +0100
-Message-Id: <20221108133401.443870354@linuxfoundation.org>
+Message-Id: <20221108133345.202219530@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +51,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Helge Deller <deller@gmx.de>
 
-commit 7433632c9ff68a991bd0bc38cabf354e9d2de410 upstream.
+commit 2b6ae0962b421103feb41a80406732944b0665b3 upstream.
 
-On some machines the number of listed CPUs may be bigger than the actual
-CPUs that exist. The tracing subsystem allocates a per_cpu directory with
-access to the per CPU ring buffer via a cpuX file. But to save space, the
-ring buffer will only allocate buffers for online CPUs, even though the
-CPU array will be as big as the nr_cpu_ids.
+Avoid that the hardware path is shown twice in the kernel log, and clean
+up the output of the version numbers to show up in the same order as
+they are listed in the hardware database in the hardware.c file.
+Additionally, optimize the memory footprint of the hardware database
+and mark some code as init code.
 
-With the addition of waking waiters on the ring buffer when closing the
-file, the ring_buffer_wake_waiters() now needs to make sure that the
-buffer is allocated (with the irq_work allocated with it) before trying to
-wake waiters, as it will cause a NULL pointer dereference.
-
-While debugging this, I added a NULL check for the buffer itself (which is
-OK to do), and also NULL pointer checks against buffer->buffers (which is
-not fine, and will WARN) as well as making sure the CPU number passed in
-is within the nr_cpu_ids (which is also not fine if it isn't).
-
-Link: https://lore.kernel.org/all/87h6zklb6n.wl-tiwai@suse.de/
-Link: https://lore.kernel.org/all/CAM6Wdxc0KRJMXVAA0Y=u6Jh2V=uWB-_Fn6M4xRuNppfXzL1mUg@mail.gmail.com/
-Link: https://lkml.kernel.org/linux-trace-kernel/20221101191009.1e7378c8@rorschach.local.home
-
-Cc: stable@vger.kernel.org
-Cc: Steven Noonan <steven.noonan@gmail.com>
-Bugzilla: https://bugzilla.opensuse.org/show_bug.cgi?id=1204705
-Reported-by: Takashi Iwai <tiwai@suse.de>
-Reported-by: Roland Ruckerbauer <roland.rucky@gmail.com>
-Fixes: f3ddb74ad079 ("tracing: Wake up ring buffer waiters on closing of the file")
-Reviewed-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: cab56b51ec0e ("parisc: Fix device names in /proc/iomem")
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org> # v4.9+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/parisc/include/asm/hardware.h |   12 ++++++------
+ arch/parisc/kernel/drivers.c       |   14 ++++++--------
+ 2 files changed, 12 insertions(+), 14 deletions(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -937,6 +937,9 @@ void ring_buffer_wake_waiters(struct tra
- 	struct ring_buffer_per_cpu *cpu_buffer;
- 	struct rb_irq_work *rbwork;
+--- a/arch/parisc/include/asm/hardware.h
++++ b/arch/parisc/include/asm/hardware.h
+@@ -10,12 +10,12 @@
+ #define SVERSION_ANY_ID		PA_SVERSION_ANY_ID
  
-+	if (!buffer)
-+		return;
-+
- 	if (cpu == RING_BUFFER_ALL_CPUS) {
+ struct hp_hardware {
+-	unsigned short	hw_type:5;	/* HPHW_xxx */
+-	unsigned short	hversion;
+-	unsigned long	sversion:28;
+-	unsigned short	opt;
+-	const char	name[80];	/* The hardware description */
+-};
++	unsigned int	hw_type:8;	/* HPHW_xxx */
++	unsigned int	hversion:12;
++	unsigned int	sversion:12;
++	unsigned char	opt;
++	unsigned char	name[59];	/* The hardware description */
++} __packed;
  
- 		/* Wake up individual ones too. One level recursion */
-@@ -945,7 +948,15 @@ void ring_buffer_wake_waiters(struct tra
+ struct parisc_device;
  
- 		rbwork = &buffer->irq_work;
- 	} else {
-+		if (WARN_ON_ONCE(!buffer->buffers))
-+			return;
-+		if (WARN_ON_ONCE(cpu >= nr_cpu_ids))
-+			return;
-+
- 		cpu_buffer = buffer->buffers[cpu];
-+		/* The CPU buffer may not have been initialized yet */
-+		if (!cpu_buffer)
-+			return;
- 		rbwork = &cpu_buffer->irq_work;
- 	}
+--- a/arch/parisc/kernel/drivers.c
++++ b/arch/parisc/kernel/drivers.c
+@@ -883,15 +883,13 @@ void __init walk_central_bus(void)
+ 			&root);
+ }
+ 
+-static void print_parisc_device(struct parisc_device *dev)
++static __init void print_parisc_device(struct parisc_device *dev)
+ {
+-	char hw_path[64];
+-	static int count;
++	static int count __initdata;
+ 
+-	print_pa_hwpath(dev, hw_path);
+-	pr_info("%d. %s at %pap [%s] { %d, 0x%x, 0x%.3x, 0x%.5x }",
+-		++count, dev->name, &(dev->hpa.start), hw_path, dev->id.hw_type,
+-		dev->id.hversion_rev, dev->id.hversion, dev->id.sversion);
++	pr_info("%d. %s at %pap { type:%d, hv:%#x, sv:%#x, rev:%#x }",
++		++count, dev->name, &(dev->hpa.start), dev->id.hw_type,
++		dev->id.hversion, dev->id.sversion, dev->id.hversion_rev);
+ 
+ 	if (dev->num_addrs) {
+ 		int k;
+@@ -1080,7 +1078,7 @@ static __init int qemu_print_iodc_data(s
+ 
+ 
+ 
+-static int print_one_device(struct device * dev, void * data)
++static __init int print_one_device(struct device * dev, void * data)
+ {
+ 	struct parisc_device * pdev = to_parisc_device(dev);
  
 
 
