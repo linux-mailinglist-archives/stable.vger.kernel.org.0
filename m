@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19EFE621589
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25E9E621311
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:46:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235292AbiKHONC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:13:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48136 "EHLO
+        id S233942AbiKHNqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:46:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235342AbiKHOMr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B855257B4E
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:12:39 -0800 (PST)
+        with ESMTP id S234524AbiKHNqM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D0C05986D
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2E24615B2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:12:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2BF4C433C1;
-        Tue,  8 Nov 2022 14:12:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2EF2FB81AEE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C73BBC433C1;
+        Tue,  8 Nov 2022 13:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916758;
-        bh=Ibt0SZ8FFXftkZUueDEBBfZ4Gc5X+0ePSCcr3bV5Ft0=;
+        s=korg; t=1667915168;
+        bh=qBov9fG66/qTE/IoGCpz8o8d2PkOzUe+S1cyvVcpNdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sC9UjFFiIKbRYXkRtA4IuiMFlQaAngwVtilO3FhQOuLkiz/QY8tj5DwFm59VSqoNP
-         pEs3hf39+7hGjVkA/qUFezhMsrxnvPYhkZrVCQ2MVofIZ/WVSB1+wPpMQJwJ67cHxZ
-         RqHZNM+UpiuCbQ7efzai5dMIE3yyQ+6FT1lKDltY=
+        b=Nrkm/RFaSx45ukwoIG8oqRxzkPp6VBddR8gHq82lY60suDOYKaNh+mLoINCBAt4i1
+         Yr57gtV51zQwbOJ75mnqKalAuqdUcwO6KKJlEgzkQ8jpwZwAjS/Biz8dRhbFCkmyuq
+         35WJDGRpcaaXhSn+rYepxNfmKMifn1UVAoiqH1h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Stephen Boyd <sboyd@kernel.org>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 095/197] clk: renesas: r8a779g0: Fix HSCIF parent clocks
-Date:   Tue,  8 Nov 2022 14:38:53 +0100
-Message-Id: <20221108133359.176536804@linuxfoundation.org>
+Subject: [PATCH 4.19 09/48] ata: pata_legacy: fix pdc20230_set_piomode()
+Date:   Tue,  8 Nov 2022 14:38:54 +0100
+Message-Id: <20221108133329.860648526@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
+References: <20221108133329.533809494@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit a9003f74f5a2f487e101f3aa1dd5c3d3a78c6999 ]
+[ Upstream commit 171a93182eccd6e6835d2c86b40787f9f832efaa ]
 
-As serial communication requires a clean clock signal, the High Speed
-Serial Communication Interfaces with FIFO (HSCIF) is clocked by a clock
-that is not affected by Spread Spectrum or Fractional Multiplication.
+Clang gives a warning when compiling pata_legacy.c with 'make W=1' about
+the 'rt' local variable in pdc20230_set_piomode() being set but unused.
+Quite obviously, there is an outb() call missing to write back the updated
+variable. Moreover, checking the docs by Petr Soucek revealed that bitwise
+AND should have been done with a negated timing mask and the master/slave
+timing masks were swapped while updating...
 
-Hence change the parent clocks for the HSCIF modules from the S0D3_PER
-clock to the SASYNCPERD1 clock (which has the same clock rate), cfr.
-R-Car V4H Hardware User's Manual rev. 0.54.
-
-Fixes: 0ab55cf1834177a2 ("clk: renesas: cpg-mssr: Add support for R-Car V4H")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lore.kernel.org/r/b7928abc8b9f53d5b06ec8624342f449de3d24ec.1665147497.git.geert+renesas@glider.be
+Fixes: 669a5db411d8 ("[libata] Add a bunch of PATA drivers.")
+Reported-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/r8a779g0-cpg-mssr.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/ata/pata_legacy.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/renesas/r8a779g0-cpg-mssr.c b/drivers/clk/renesas/r8a779g0-cpg-mssr.c
-index 3fc4233b1ead..c9c59c6f7139 100644
---- a/drivers/clk/renesas/r8a779g0-cpg-mssr.c
-+++ b/drivers/clk/renesas/r8a779g0-cpg-mssr.c
-@@ -150,10 +150,10 @@ static const struct cpg_core_clk r8a779g0_core_clks[] __initconst = {
- };
+diff --git a/drivers/ata/pata_legacy.c b/drivers/ata/pata_legacy.c
+index 52cea1b3ea70..591778024054 100644
+--- a/drivers/ata/pata_legacy.c
++++ b/drivers/ata/pata_legacy.c
+@@ -292,9 +292,10 @@ static void pdc20230_set_piomode(struct ata_port *ap, struct ata_device *adev)
+ 	outb(inb(0x1F4) & 0x07, 0x1F4);
  
- static const struct mssr_mod_clk r8a779g0_mod_clks[] __initconst = {
--	DEF_MOD("hscif0",	514,	R8A779G0_CLK_S0D3_PER),
--	DEF_MOD("hscif1",	515,	R8A779G0_CLK_S0D3_PER),
--	DEF_MOD("hscif2",	516,	R8A779G0_CLK_S0D3_PER),
--	DEF_MOD("hscif3",	517,	R8A779G0_CLK_S0D3_PER),
-+	DEF_MOD("hscif0",	514,	R8A779G0_CLK_SASYNCPERD1),
-+	DEF_MOD("hscif1",	515,	R8A779G0_CLK_SASYNCPERD1),
-+	DEF_MOD("hscif2",	516,	R8A779G0_CLK_SASYNCPERD1),
-+	DEF_MOD("hscif3",	517,	R8A779G0_CLK_SASYNCPERD1),
- };
+ 	rt = inb(0x1F3);
+-	rt &= 0x07 << (3 * adev->devno);
++	rt &= ~(0x07 << (3 * !adev->devno));
+ 	if (pio)
+-		rt |= (1 + 3 * pio) << (3 * adev->devno);
++		rt |= (1 + 3 * pio) << (3 * !adev->devno);
++	outb(rt, 0x1F3);
  
- /*
+ 	udelay(100);
+ 	outb(inb(0x1F2) | 0x01, 0x1F2);
 -- 
 2.35.1
 
