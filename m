@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1A2E62149A
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:03:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45B9062131B
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:46:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234958AbiKHODH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:03:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37606 "EHLO
+        id S234538AbiKHNqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:46:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234964AbiKHODF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:03:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D55268685
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:03:04 -0800 (PST)
+        with ESMTP id S234536AbiKHNqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69C9459859
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEB1E611B7
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:03:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0F13C433C1;
-        Tue,  8 Nov 2022 14:03:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C320B81AEE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FF48C433D6;
+        Tue,  8 Nov 2022 13:46:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916183;
-        bh=X0nzHPYLtmIUK9eixaaSWe3KnfzzeaoH9n+49uWusOs=;
+        s=korg; t=1667915200;
+        bh=epfwt4R+Vqb2uPFXpJPcuM80qjAyy3Lx/TZgZKiqD3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hbkdqrIOIwHb11wPKiumXXc8jiLlar71xJu+V4mwVMZv3VOgPShry71hfQWb+PXz9
-         QGxKLvxLKVW18m8kLYnL0/aK8UGyovBF455ZwMhUM6qHCEC+zlLoxBXMF//J5qjP27
-         OJWhJ7gws3jdRFuxZ2rGuDt15Kob1rmU7ykX+Zpg=
+        b=uUkyaMN5/AO8fY7nkg9a6joalRtq4YkttM7AJ48n9ixCG9/eRXSBWDbXsw7HxAHXZ
+         FDs32V/7lYv4habhkz1g0O4NBmfDCYh2E/n6U1moNb6dm18or9G8Iq2w2zOB7RC5VB
+         5zoGUgqILoOCP+gKbmf++1VAvT+ypW3YviaLm6pM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 088/144] arm64: dts: ls1088a: specify clock frequencies for the MDIO controllers
+        patches@lists.linux.dev, Helge Deller <deller@gmx.de>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH 4.19 40/48] parisc: Export iosapic_serial_irq() symbol for serial port driver
 Date:   Tue,  8 Nov 2022 14:39:25 +0100
-Message-Id: <20221108133348.982586515@linuxfoundation.org>
+Message-Id: <20221108133330.978772900@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
+References: <20221108133329.533809494@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +52,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ioana Ciornei <ioana.ciornei@nxp.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit d78a57426e64fc4c61e6189e450a0432d24536ca ]
+commit a0c9f1f2e53b8eb2ae43987a30e547ba56b4fa18 upstream.
 
-Up until now, the external MDIO controller frequency values relied
-either on the default ones out of reset or on those setup by u-boot.
-Let's just properly specify the MDC frequency in the DTS so that even
-without u-boot's intervention Linux can drive the MDIO bus.
+The parisc serial port driver needs this symbol when it's compiled
+as module.
 
-Fixes: bbe75af7b092 ("arm64: dts: ls1088a: add external MDIO device nodes")
-Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/parisc/iosapic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-index 605072317243..63441028622a 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
-@@ -758,6 +758,9 @@ emdio1: mdio@8b96000 {
- 			little-endian;
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-+			clock-frequency = <2500000>;
-+			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
-+					    QORIQ_CLK_PLL_DIV(1)>;
- 			status = "disabled";
- 		};
+--- a/drivers/parisc/iosapic.c
++++ b/drivers/parisc/iosapic.c
+@@ -889,6 +889,7 @@ int iosapic_serial_irq(struct parisc_dev
  
-@@ -767,6 +770,9 @@ emdio2: mdio@8b97000 {
- 			little-endian;
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-+			clock-frequency = <2500000>;
-+			clocks = <&clockgen QORIQ_CLK_PLATFORM_PLL
-+					    QORIQ_CLK_PLL_DIV(1)>;
- 			status = "disabled";
- 		};
+ 	return vi->txn_irq;
+ }
++EXPORT_SYMBOL(iosapic_serial_irq);
+ #endif
  
--- 
-2.35.1
-
+ 
 
 
