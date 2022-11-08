@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5081A6213AF
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3AA062144A
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:59:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234707AbiKHNwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:52:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52530 "EHLO
+        id S234884AbiKHN7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:59:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234693AbiKHNwb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5A6F623A1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:28 -0800 (PST)
+        with ESMTP id S234880AbiKHN7m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:59:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32E50528A4
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:59:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F12CB81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4CCAC433D6;
-        Tue,  8 Nov 2022 13:52:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E73B7B816DD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:59:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30DBEC433C1;
+        Tue,  8 Nov 2022 13:59:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915546;
-        bh=a0O9IAWTr2P9u5Jmag+tbnMoZyrPWATfZ1XPehq+nWw=;
+        s=korg; t=1667915979;
+        bh=0z0w+ocXjP6J97oYW7wDq51o9+MIFMuPNfxY2/dh04U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q8fMVYlb45s0uRFCdDlIDIlS2rmvKLE/4So5C0qSIPL0Uj3706OdpTsUIoy+rmhwA
-         HOmLXv1f3H6LUpPGidGYEgOt6426uAB+CJwFR67op4U6HTBdmAUiLdwaQCSSJGjgw3
-         JhMxH3dzyJS6+MhwvKFywUOQc6h1XFAAVKPE1bso=
+        b=yP1VfNQxLjlfiyjUR/kbWHUDlKw7PH4qIN3GmNjnoeEvpX/ZKmOpbB23uUYIn1e9K
+         9/Gztic/kCOErZG8+UuS5Oj2HDRnjeMIhYnSYDGZJ6ApvS0kIrB85SMJ6Jln4j+E4k
+         IkdYPMW/O0y6VJXGYlVx7zWoOklMkm62KqzMSlZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Len Brown <len.brown@intel.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+        patches@lists.linux.dev, Aaron Lewis <aaronlewis@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 009/118] x86/topology: Fix duplicated core ID within a package
+Subject: [PATCH 5.15 010/144] KVM: x86: Protect the unused bits in MSR exiting flags
 Date:   Tue,  8 Nov 2022 14:38:07 +0100
-Message-Id: <20221108133341.111032249@linuxfoundation.org>
+Message-Id: <20221108133345.768115061@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Rui <rui.zhang@intel.com>
+From: Aaron Lewis <aaronlewis@google.com>
 
-[ Upstream commit 71eac7063698b7d7b8fafb1683ac24a034541141 ]
+[ Upstream commit cf5029d5dd7cb0aaa53250fa9e389abd231606b3 ]
 
-Today, core ID is assumed to be unique within each package.
+The flags for KVM_CAP_X86_USER_SPACE_MSR and KVM_X86_SET_MSR_FILTER
+have no protection for their unused bits.  Without protection, future
+development for these features will be difficult.  Add the protection
+needed to make it possible to extend these features in the future.
 
-But an AlderLake-N platform adds a Module level between core and package,
-Linux excludes the unknown modules bits from the core ID, resulting in
-duplicate core ID's.
-
-To keep core ID unique within a package, Linux must include all APIC-ID
-bits for known or unknown levels above the core and below the package
-in the core ID.
-
-It is important to understand that core ID's have always come directly
-from the APIC-ID encoding, which comes from the BIOS. Thus there is no
-guarantee that they start at 0, or that they are contiguous.
-As such, naively using them for array indexes can be problematic.
-
-[ dhansen: un-known -> unknown ]
-
-Fixes: 7745f03eb395 ("x86/topology: Add CPUID.1F multi-die/package support")
-Suggested-by: Len Brown <len.brown@intel.com>
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Len Brown <len.brown@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20221014090147.1836-5-rui.zhang@intel.com
+Signed-off-by: Aaron Lewis <aaronlewis@google.com>
+Message-Id: <20220714161314.1715227-1-aaronlewis@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Stable-dep-of: 2e3272bc1790 ("KVM: x86: Copy filter arg outside kvm_vm_ioctl_set_msr_filter()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/topology.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/x86.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/topology.c b/arch/x86/kernel/cpu/topology.c
-index 696309749d62..37d48ab3d077 100644
---- a/arch/x86/kernel/cpu/topology.c
-+++ b/arch/x86/kernel/cpu/topology.c
-@@ -141,7 +141,7 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
- 		sub_index++;
- 	}
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index cd22557e2645..59c9eb55e6d1 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -5770,6 +5770,11 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
+ 		r = 0;
+ 		break;
+ 	case KVM_CAP_X86_USER_SPACE_MSR:
++		r = -EINVAL;
++		if (cap->args[0] & ~(KVM_MSR_EXIT_REASON_INVAL |
++				     KVM_MSR_EXIT_REASON_UNKNOWN |
++				     KVM_MSR_EXIT_REASON_FILTER))
++			break;
+ 		kvm->arch.user_space_msr_mask = cap->args[0];
+ 		r = 0;
+ 		break;
+@@ -5903,6 +5908,9 @@ static int kvm_vm_ioctl_set_msr_filter(struct kvm *kvm, void __user *argp)
+ 	if (copy_from_user(&filter, user_msr_filter, sizeof(filter)))
+ 		return -EFAULT;
  
--	core_select_mask = (~(-1 << core_plus_mask_width)) >> ht_mask_width;
-+	core_select_mask = (~(-1 << pkg_mask_width)) >> ht_mask_width;
- 	die_select_mask = (~(-1 << die_plus_mask_width)) >>
- 				core_plus_mask_width;
++	if (filter.flags & ~KVM_MSR_FILTER_DEFAULT_DENY)
++		return -EINVAL;
++
+ 	for (i = 0; i < ARRAY_SIZE(filter.ranges); i++)
+ 		empty &= !filter.ranges[i].nmsrs;
  
 -- 
 2.35.1
