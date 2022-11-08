@@ -2,123 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A1C5620D08
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 11:19:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F666620BB1
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 10:03:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233838AbiKHKTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 05:19:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46770 "EHLO
+        id S233641AbiKHJDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 04:03:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233887AbiKHKTQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 05:19:16 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8313A17E0D
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 02:19:15 -0800 (PST)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1osLhJ-0006Mr-N7
-        for stable@vger.kernel.org; Tue, 08 Nov 2022 11:19:13 +0100
-Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id 58BBC115C98
-        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 13:32:35 +0000 (UTC)
-Received: from hardanger.blackshift.org (unknown [172.20.34.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id 170AE115C74;
-        Mon,  7 Nov 2022 13:32:30 +0000 (UTC)
-Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 555be2db;
-        Mon, 7 Nov 2022 13:32:20 +0000 (UTC)
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Biju Das <biju.das.jz@bp.renesas.com>, stable@vger.kernel.org,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH net 6/6] can: rcar_canfd: Add missing ECC error checks for channels 2-7
-Date:   Mon,  7 Nov 2022 14:32:17 +0100
-Message-Id: <20221107133217.59861-7-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221107133217.59861-1-mkl@pengutronix.de>
-References: <20221107133217.59861-1-mkl@pengutronix.de>
+        with ESMTP id S233680AbiKHJDE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 04:03:04 -0500
+X-Greylist: delayed 433 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 08 Nov 2022 01:03:02 PST
+Received: from mail.serakhis.pl (mail.serakhis.pl [51.75.66.155])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C2B303D8
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 01:03:02 -0800 (PST)
+Received: by mail.serakhis.pl (Postfix, from userid 1002)
+        id B7041A22CF; Tue,  8 Nov 2022 08:55:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=serakhis.pl; s=mail;
+        t=1667897747; bh=qPXa+3AN/7//2XMoc/U9VpAAp7uyRjtux92T8toI2wk=;
+        h=Date:From:To:Subject:From;
+        b=iRUJy76I7J8m9ELLkuWC+D097Pf8UqfSk5AhAgOeLkCDBWlRxY0FS/IUwvtEPlxST
+         t9/zlJfvT0vJNpKFWlNkIbXFooMni9yexAewE76N8Y5fYjYPIRgT/4jQoQSk1fTovM
+         mYcuX0FUUuJQVgXucPGw6FRRkOSRz5lX551a6muCB2n2RPVtbYNVJvZyfvJpcKSZel
+         wVwHezZYsOdOH2eWExpytF8QU0xQp2CWf23tR8lVbzxWyU2nniNZjywkzkXFbPeEc1
+         shNQHi/uvopcFPnhajsV0urUHmElmI1oQ50A/3vpwjH24bcVSEBc/RmShgcabYxdSC
+         pJSa9XLcSBwFw==
+Received: by mail.serakhis.pl for <stable@vger.kernel.org>; Tue,  8 Nov 2022 08:55:30 GMT
+Message-ID: <20221108074500-0.1.63.jnvg.0.92l4hum8fe@serakhis.pl>
+Date:   Tue,  8 Nov 2022 08:55:30 GMT
+From:   "Marek Laskowski" <marek.laskowski@serakhis.pl>
+To:     <stable@vger.kernel.org>
+Subject: =?UTF-8?Q?Nowy_sprz=C4=99t_dla_firmy?=
+X-Mailer: mail.serakhis.pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=1.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_VALIDITY_RPBL,
+        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: *
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+Dzie=C5=84 dobry,
 
-When introducing support for R-Car V3U, which has 8 instead of 2
-channels, the ECC error bitmask was extended to take into account the
-extra channels, but rcar_canfd_global_error() was not updated to act
-upon the extra bits.
+dostarczamy kompletne, nowoczesne laptopy wraz z oprogramowaniem, gotowe =
+do pracy.
 
-Replace the RCANFD_GERFL_EEF[01] macros by a new macro that takes the
-channel number, fixing R-Car V3U while simplifying the code.
+Jako autoryzowany partner Dell oraz Lenovo z platynowym statusem zapewnia=
+my nowy sprz=C4=99t z mo=C5=BCliwo=C5=9Bci=C4=85 konfiguracji wed=C5=82ug=
+ potrzeb u=C5=BCytkownik=C3=B3w.=20
 
-Fixes: 45721c406dcf50d4 ("can: rcar_canfd: Add support for r8a779a0 SoC")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/all/4edb2ea46cc64d0532a08a924179827481e14b4f.1666951503.git.geert+renesas@glider.be
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- drivers/net/can/rcar/rcar_canfd.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+Stale wyposa=C5=BCamy wiele du=C5=BCych organizacji, m.in, Polkomtel, Net=
+ia, Beko, Canal+, BO=C5=9A Bank w nowoczesnych sprz=C4=99t, kt=C3=B3ry za=
+pewnia bezpiecze=C5=84stwo i ci=C4=85g=C5=82o=C5=9B=C4=87 dzia=C5=82ania =
+biznesu.=20
 
-diff --git a/drivers/net/can/rcar/rcar_canfd.c b/drivers/net/can/rcar/rcar_canfd.c
-index d530e986f7fa..b306cf554634 100644
---- a/drivers/net/can/rcar/rcar_canfd.c
-+++ b/drivers/net/can/rcar/rcar_canfd.c
-@@ -81,8 +81,7 @@ enum rcanfd_chip_id {
- 
- /* RSCFDnCFDGERFL / RSCFDnGERFL */
- #define RCANFD_GERFL_EEF0_7		GENMASK(23, 16)
--#define RCANFD_GERFL_EEF1		BIT(17)
--#define RCANFD_GERFL_EEF0		BIT(16)
-+#define RCANFD_GERFL_EEF(ch)		BIT(16 + (ch))
- #define RCANFD_GERFL_CMPOF		BIT(3)	/* CAN FD only */
- #define RCANFD_GERFL_THLES		BIT(2)
- #define RCANFD_GERFL_MES		BIT(1)
-@@ -90,7 +89,7 @@ enum rcanfd_chip_id {
- 
- #define RCANFD_GERFL_ERR(gpriv, x) \
- 	((x) & (reg_v3u(gpriv, RCANFD_GERFL_EEF0_7, \
--			RCANFD_GERFL_EEF0 | RCANFD_GERFL_EEF1) | \
-+			RCANFD_GERFL_EEF(0) | RCANFD_GERFL_EEF(1)) | \
- 		RCANFD_GERFL_MES | \
- 		((gpriv)->fdmode ? RCANFD_GERFL_CMPOF : 0)))
- 
-@@ -936,12 +935,8 @@ static void rcar_canfd_global_error(struct net_device *ndev)
- 	u32 ridx = ch + RCANFD_RFFIFO_IDX;
- 
- 	gerfl = rcar_canfd_read(priv->base, RCANFD_GERFL);
--	if ((gerfl & RCANFD_GERFL_EEF0) && (ch == 0)) {
--		netdev_dbg(ndev, "Ch0: ECC Error flag\n");
--		stats->tx_dropped++;
--	}
--	if ((gerfl & RCANFD_GERFL_EEF1) && (ch == 1)) {
--		netdev_dbg(ndev, "Ch1: ECC Error flag\n");
-+	if (gerfl & RCANFD_GERFL_EEF(ch)) {
-+		netdev_dbg(ndev, "Ch%u: ECC Error flag\n", ch);
- 		stats->tx_dropped++;
- 	}
- 	if (gerfl & RCANFD_GERFL_MES) {
--- 
-2.35.1
+Wysoka dost=C4=99pno=C5=9B=C4=87 sprz=C4=99tu, do=C5=9Bwiadczenie we wsp=C3=
+=B3=C5=82pracy z wieloma Partnerami Pa=C5=84stwa formatu pozwala nam zape=
+wni=C4=87 Pa=C5=84stwu wydajno=C5=9B=C4=87 i ergonomi=C4=99 laptop=C3=B3w=
+, a tak=C5=BCe inne, najlepsze parametry.
+
+M=C3=B3g=C5=82bym zaprezentowa=C4=87 odpowiadaj=C4=85ce Pa=C5=84stwu rozw=
+i=C4=85zania?
 
 
+Pozdrawiam
+Marek Laskowski
