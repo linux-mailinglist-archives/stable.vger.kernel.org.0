@@ -2,77 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C00C6206EF
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 03:46:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0E386206F8
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 03:48:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233050AbiKHCqN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Nov 2022 21:46:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60638 "EHLO
+        id S233092AbiKHCsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Nov 2022 21:48:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233179AbiKHCp5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 21:45:57 -0500
-Received: from mx0b-00230701.pphosted.com (mx0b-00230701.pphosted.com [148.163.158.9])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF4462E6AC;
-        Mon,  7 Nov 2022 18:45:56 -0800 (PST)
-Received: from pps.filterd (m0297265.ppops.net [127.0.0.1])
-        by mx0a-00230701.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2A82C8we023278;
-        Mon, 7 Nov 2022 18:45:47 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com; h=date : message-id :
- from : subject : to : cc; s=pfptdkimsnps;
- bh=TqzLKH76Zqq6Q5Rw+ueeiEiqiFsefTQugN9X6IWAGEU=;
- b=vVamYg0khl4AGnYtsQDgeRm/hF/Qf2To/t8pkT1/M1nbVni6e5XyBIeC00gtb5bmywSv
- 4DPdHKmPPcbZjaGuS+vZzlqy/l1a5XDapVA+DVz/PQvQ5ZI5PCmn0+cZW++KTEpRLwYc
- x4CdxkOvrM7FhmBDbZstBTIHPhn3mQheYnuvVKRU8zB0Z/uiKbEti8qDSKo0Pr6HvLqw
- YYRyBYnfS3iPsyQ9lCEPJ4unUtYFhA2yOgjw/kPaR7XVcHFBSlR57Y0jQJKMQvKWIu8U
- ygwSLug+lMPOs7cf2DTk0KH1xAMo6jZP5CamzBY48+UGAk4BiOXh1yGjvDDhm7KuqCim Dg== 
-Received: from smtprelay-out1.synopsys.com (smtprelay-out1.synopsys.com [149.117.73.133])
-        by mx0a-00230701.pphosted.com (PPS) with ESMTPS id 3knprukrmy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Nov 2022 18:45:47 -0800
-Received: from mailhost.synopsys.com (sv2-mailhost2.synopsys.com [10.205.2.134])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (Client CN "mailhost.synopsys.com", Issuer "SNPSica2" (verified OK))
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 335B940133;
-        Tue,  8 Nov 2022 02:45:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1667875546; bh=NFW5CphxACF8dTMW7zJzXJW7DfXWvvU2QzJ2c92fsvY=;
-        h=Date:From:Subject:To:Cc:From;
-        b=aBQ9VpIwZmnyjKuFHRPYruofY43hC51Tc/UFeG0AKywjxrC+SYDfZxuFsVdm4e+vy
-         Wl0+NHxME+Cw/+T6wFPegCkqK/xj7O/LyXmEqe6KDfzm0Lih9oHH6oRB1B5Dw8n5cd
-         gNpl7p4o5rHaDHc7IuyXAC38n/rVrudkSbV7FdYswlZZ73DwLmdVdlk3qZtqBjujcb
-         icKdTMveQ1WSno2Jx+YrzkeN3NpIcATyF91ih6Fkn7i8zA3L10qZP6UbMYYEO9jtCU
-         IQnmBQCt8F1eGbjQx9GlQNZpVGBTyiI9dup3ySDwbUTyUAa99diGds8Ts3axWg4RnB
-         /gYQcwR38XSmw==
-Received: from te-lab16-v2 (nanobot.internal.synopsys.com [10.204.48.11])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (Client did not present a certificate)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id 6EF58A00B6;
-        Tue,  8 Nov 2022 02:45:44 +0000 (UTC)
-Received: by te-lab16-v2 (sSMTP sendmail emulation); Mon, 07 Nov 2022 18:45:44 -0800
-Date:   Mon, 07 Nov 2022 18:45:44 -0800
-Message-Id: <3421859485cb32d77e2068549679a6c07a7797bc.1667875427.git.Thinh.Nguyen@synopsys.com>
-X-SNPS-Relay: synopsys.com
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH] usb: dwc3: gadget: Return -ESHUTDOWN on ep disable
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        linux-usb@vger.kernel.org,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>
-Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
-X-Proofpoint-ORIG-GUID: vQJbCgciC6XR47Z9tbzPNObC6F2J-pBk
-X-Proofpoint-GUID: vQJbCgciC6XR47Z9tbzPNObC6F2J-pBk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-07_11,2022-11-07_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_active_cloned_notspam policy=outbound_active_cloned score=0
- adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0 mlxlogscore=612
- lowpriorityscore=0 priorityscore=1501 phishscore=0 mlxscore=0
- suspectscore=0 clxscore=1015 spamscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.12.0-2210170000
- definitions=main-2211080012
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
+        with ESMTP id S233040AbiKHCsG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Nov 2022 21:48:06 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F2ED2ED7A
+        for <stable@vger.kernel.org>; Mon,  7 Nov 2022 18:48:05 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id q1-20020a17090a750100b002139ec1e999so12172774pjk.1
+        for <stable@vger.kernel.org>; Mon, 07 Nov 2022 18:48:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=cb+qNTf4zZw7M49/6HjMGiu6w5l1+cn6hrjaUdr0DHU=;
+        b=3hhW4zT1sCYAOPA96ae3wbs82Byb/dVx1bVdVIfMX6vZCuBfxtEJQu9+4MfFDDLc6O
+         4/xG4ynRn8sMpO5Kho4YSJ7IhrrPYEDAF2Ccm/mY3H3wU+nD04ZPFKRa9VKJr5xU+hke
+         qn0d/TwtZQ8GcT8eGv/ob/7xcGTQC+u/8OrqGaY6ZixXcqj13v1GMJ6leMG3qH1Us+I+
+         +eTJMMetsZv5/S0aHE1PJyzU+4bo3LsHV1KxPxbN+CSEidENJCNA5beDEJkP1jXxKLRo
+         wPpkHa6m9oGoQcBCxkEW2K7asp5ctT+jKl0+rlyjVKj/WVOYgOmKKlCYcL4EWjxJ8R9y
+         Fe+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=cb+qNTf4zZw7M49/6HjMGiu6w5l1+cn6hrjaUdr0DHU=;
+        b=uygz9PjkKlv5kJs3727DW/uT8h3BCVFHsvTn1GBdymp7WlXrjwTqBvuPfBafgRDw9j
+         mgyTscKSJf3cE3tSXOmFLm2GZnLxZTX9fTv/AYWyaf1lDl+7fifnjB6Jltl1eQ0iMAwd
+         +2p5bjPetdwpnrYP8wtB7jAFzUn9IZ3pTBMMZkyFRgk/mc32nVUGBKWPYosZADCWm5KC
+         3Yfe/0zSLfgO/wy/DZQ5M9iJmfnPymR2PpxC+Q4jM5A4lAZOtKFauZNbDeHm6mTCCqSF
+         1tMXnnN2C/UE1hcFTX0/HfBAA8tGV9SLN4/z+XG4WgVgvF+jeAo3KfDIkD/clUqoFm04
+         yS9g==
+X-Gm-Message-State: ACrzQf0Zo6i04pUNDhvlT/4H/5RU5vVYv+DN1cjOq0NsC+jzxDwRJVtl
+        g3WSSjRozXZDCIPW+XX8GqsJIQ==
+X-Google-Smtp-Source: AMsMyM7BbG3pWsplO2ijPGakSOF6da3rpSXH6xgjk9w0ZQAiCfSjkEhQDkKZzWadc75CnndQoDi2Dw==
+X-Received: by 2002:a17:903:284:b0:186:bb2c:b041 with SMTP id j4-20020a170903028400b00186bb2cb041mr53044475plr.36.1667875684569;
+        Mon, 07 Nov 2022 18:48:04 -0800 (PST)
+Received: from [10.255.93.192] ([139.177.225.251])
+        by smtp.gmail.com with ESMTPSA id v6-20020aa799c6000000b0056ee49d6e95sm3837717pfi.86.2022.11.07.18.48.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Nov 2022 18:48:04 -0800 (PST)
+Message-ID: <0fd0c72d-badc-ad75-f0fe-91bc148820f2@bytedance.com>
+Date:   Tue, 8 Nov 2022 10:47:58 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.3.3
+Subject: Re: [PATCH] mm: fix unexpected changes to
+ {failslab|fail_page_alloc}.attr
+Content-Language: en-US
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     dvyukov@google.com, willy@infradead.org, akinobu.mita@gmail.com,
+        akpm@linux-foundation.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-fsdevel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <CACT4Y+Zc21Aj+5KjeTEsvOysJGHRYDSKgu_+_xN1LUYfG_H0sg@mail.gmail.com>
+ <20221107033109.59709-1-zhengqi.arch@bytedance.com>
+ <Y2j9Q/yMmqgPPUoO@nvidia.com>
+ <4736d199-7e70-6bc3-30e6-0f644c81a10c@bytedance.com>
+ <Y2kxrerISWIxQsFO@nvidia.com>
+From:   Qi Zheng <zhengqi.arch@bytedance.com>
+In-Reply-To: <Y2kxrerISWIxQsFO@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -80,34 +80,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The usb_request API clearly noted that removed requests due to disabled
-endpoint should have -ESHUTDOWN status returned. Don't change this
-behavior.
 
-Fixes: b44c0e7fef51 ("usb: dwc3: gadget: conditionally remove requests")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
----
-Note: Patch revert have conflicts, so let's do this instead of a revert.
 
- drivers/usb/dwc3/gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 2022/11/8 00:26, Jason Gunthorpe wrote:
+> On Mon, Nov 07, 2022 at 11:05:42PM +0800, Qi Zheng wrote:
+>>
+>>
+>> On 2022/11/7 20:42, Jason Gunthorpe wrote:
+>>> On Mon, Nov 07, 2022 at 11:31:09AM +0800, Qi Zheng wrote:
+>>>
+>>>> @@ -31,9 +33,9 @@ bool __should_failslab(struct kmem_cache *s, gfp_t gfpflags)
+>>>>    		return false;
+>>>>    	if (gfpflags & __GFP_NOWARN)
+>>>> -		failslab.attr.no_warn = true;
+>>>> +		flags |= FAULT_NOWARN;
+>>>
+>>> You should add a comment here about why this is required, to avoid
+>>> deadlocking printk
+>>
+>> I think this comment should be placed where __GFP_NOWARN is specified
+>> instead of here. What do you think? :)
+> 
+> NOWARN is clear what it does, it is this specifically that is very
+> subtle about avoiding deadlock aginst allocations triggered by
+> printk/etc code.
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 5fe2d136dff5..026d4029bda6 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1029,7 +1029,7 @@ static int __dwc3_gadget_ep_disable(struct dwc3_ep *dep)
- 		dep->endpoint.desc = NULL;
- 	}
- 
--	dwc3_remove_requests(dwc, dep, -ECONNRESET);
-+	dwc3_remove_requests(dwc, dep, -ESHUTDOWN);
- 
- 	dep->stream_capable = false;
- 	dep->type = 0;
+Oh, maybe I understand your concern. Some people may think that this
+is just a print of fault injection information, not a warning. I'll
+add a comment explaining why in some cases there must be no printing.
 
-base-commit: 30a0b95b1335e12efef89dd78518ed3e4a71a763
+Thanks,
+Qi
+
+> 
+> Jason
+
 -- 
-2.28.0
-
+Thanks,
+Qi
