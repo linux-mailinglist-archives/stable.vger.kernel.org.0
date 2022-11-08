@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16520621591
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E0B46214A0
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:03:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235278AbiKHONM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:13:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48400 "EHLO
+        id S234966AbiKHOD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:03:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235215AbiKHONF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:13:05 -0500
+        with ESMTP id S234979AbiKHODZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:03:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01646186FF
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:13:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACAA310A
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:03:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91F29615BF
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:13:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AEB1C433D6;
-        Tue,  8 Nov 2022 14:13:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A496614D9
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:03:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B6D6C433D6;
+        Tue,  8 Nov 2022 14:03:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916782;
-        bh=kRYR5pRRyNqouJfXY93OGO7T/ovl5yAJGGCNdxlPAOk=;
+        s=korg; t=1667916202;
+        bh=XyzBNQ8BORZFEpR78LHsZh6iOCwV2oBn3jc3KRX3jeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cYtT8htSC1fW5XN5cqUoyo2eMpjfNBbBLdzORfj4QfRKLBZ9HeYs/WboMYKIiP3Qc
-         Uowl6tnHw84I4QzkaJK+hJxIQnkf5YEsS9GsUoKfQkaeWb2rcdMFcqkjKq1bLVqew5
-         r02qsvXT0qcHt3vSTDd6P2wvn59R8gn3HyHTTLUw=
+        b=hramJsevwdIhqo8ZSaf6yv6oHpKolw/bm6m+SmJFMto9iXyvF22b/6qUQx31AEnE/
+         L3tKdl+9u2iVaaAR2h5xwh8LyCH7pW652KUXwRG2cIyyZT8BpNRoXDja6Qr88BH08G
+         nASOXr0eGz34nE2NiNFog106Kbsc9vafu+eNCd+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Alison Schofield <alison.schofield@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 6.0 132/197] ACPI: NUMA: Add CXL CFMWS nodes to the possible nodes set
+        Peter Hilber <peter.hilber@opensynergy.com>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 093/144] firmware: arm_scmi: Fix devres allocation device in virtio transport
 Date:   Tue,  8 Nov 2022 14:39:30 +0100
-Message-Id: <20221108133400.960173497@linuxfoundation.org>
+Message-Id: <20221108133349.188948701@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-commit 24f0692bfd41fd207d99c993a5785c3426762046 upstream.
+[ Upstream commit 5ffc1c4cb896f8d2cf10309422da3633a616d60f ]
 
-The ACPI CEDT.CFMWS indicates a range of possible address where new CXL
-regions can appear. Each range is associated with a QTG id (QoS
-Throttling Group id). For each range + QTG pair that is not covered by a proximity
-domain in the SRAT, Linux creates a new NUMA node. However, the commit
-that added the new ranges missed updating the node_possible mask which
-causes memory_group_register() to fail. Add the new nodes to the
-nodes_possible mask.
+SCMI virtio transport device managed allocations must use the main
+platform device in devres operations instead of the channel devices.
 
-Cc: <stable@vger.kernel.org>
-Fixes: fd49f99c1809 ("ACPI: NUMA: Add a node and memblk for each CFMWS not in SRAT")
-Cc: Alison Schofield <alison.schofield@intel.com>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reported-by: Vishal Verma <vishal.l.verma@intel.com>
-Tested-by: Vishal Verma <vishal.l.verma@intel.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Link: https://lore.kernel.org/r/166631003537.1167078.9373680312035292395.stgit@dwillia2-xfh.jf.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Peter Hilber <peter.hilber@opensynergy.com>
+Fixes: 46abe13b5e3d ("firmware: arm_scmi: Add virtio transport")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Link: https://lore.kernel.org/r/20221028140833.280091-5-cristian.marussi@arm.com
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/numa/srat.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/firmware/arm_scmi/virtio.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/acpi/numa/srat.c
-+++ b/drivers/acpi/numa/srat.c
-@@ -327,6 +327,7 @@ static int __init acpi_parse_cfmws(union
- 		pr_warn("ACPI NUMA: Failed to add memblk for CFMWS node %d [mem %#llx-%#llx]\n",
- 			node, start, end);
- 	}
-+	node_set(node, numa_nodes_parsed);
+diff --git a/drivers/firmware/arm_scmi/virtio.c b/drivers/firmware/arm_scmi/virtio.c
+index 87039c5c03fd..0c351eeee746 100644
+--- a/drivers/firmware/arm_scmi/virtio.c
++++ b/drivers/firmware/arm_scmi/virtio.c
+@@ -247,19 +247,19 @@ static int virtio_chan_setup(struct scmi_chan_info *cinfo, struct device *dev,
+ 	for (i = 0; i < vioch->max_msg; i++) {
+ 		struct scmi_vio_msg *msg;
  
- 	/* Set the next available fake_pxm value */
- 	(*fake_pxm)++;
+-		msg = devm_kzalloc(cinfo->dev, sizeof(*msg), GFP_KERNEL);
++		msg = devm_kzalloc(dev, sizeof(*msg), GFP_KERNEL);
+ 		if (!msg)
+ 			return -ENOMEM;
+ 
+ 		if (tx) {
+-			msg->request = devm_kzalloc(cinfo->dev,
++			msg->request = devm_kzalloc(dev,
+ 						    VIRTIO_SCMI_MAX_PDU_SIZE,
+ 						    GFP_KERNEL);
+ 			if (!msg->request)
+ 				return -ENOMEM;
+ 		}
+ 
+-		msg->input = devm_kzalloc(cinfo->dev, VIRTIO_SCMI_MAX_PDU_SIZE,
++		msg->input = devm_kzalloc(dev, VIRTIO_SCMI_MAX_PDU_SIZE,
+ 					  GFP_KERNEL);
+ 		if (!msg->input)
+ 			return -ENOMEM;
+-- 
+2.35.1
+
 
 
