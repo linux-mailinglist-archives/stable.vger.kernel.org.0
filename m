@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 193F7621454
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:00:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51288621545
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:10:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234921AbiKHOAM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:00:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34086 "EHLO
+        id S235208AbiKHOKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:10:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234922AbiKHN76 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:59:58 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78F9B682A5
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:59:56 -0800 (PST)
+        with ESMTP id S235206AbiKHOJ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:09:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4735C18B33
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:09:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E38F7CE1B94
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:59:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80FB0C433D6;
-        Tue,  8 Nov 2022 13:59:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B610615D4
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:09:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A6F6C433C1;
+        Tue,  8 Nov 2022 14:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915993;
-        bh=wcz8x0Fwl292mmc7QsYOKU3kIM185gGcXb52qFsXcLc=;
+        s=korg; t=1667916587;
+        bh=0EKF43HEq8O5ijotbSuBiQhZ8XlCp3GAnSXEbb9WZ0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fcC5g1Bn+CbjFPw0QrnYuovJBirdeICNfE6OWo6VQyGiplzXnp/9ldGTusDmOlii3
-         1gZ0VRaDg4wb7mqIWqAiscjVGhZ/EIgBomLWgShiVY0YAcBe8BT4Qi8OFEdm3vjRW1
-         ToAIRIYFpQsh4qqmWpJVD67paKpXv2+BfBeCMqj4=
+        b=dLt4QQhiORjHCOiSzJF67/HX0iPUBwL0+1jF6Vunv9P/M1OwZ81p85TamNNxnRyOp
+         FFBkZ8dxjQCADNeH5zML8mUCLd0z52Dr8wQlQZKfTKao0T9lGb/1Il5kjZau+1XN50
+         W0Ldw44SCG0YzkwT7ql+DcP/FqHKl+L/NPSnvxyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 031/144] nfc: nfcmrvl: Fix potential memory leak in nfcmrvl_i2c_nci_send()
+Subject: [PATCH 6.0 070/197] media: cros-ec-cec: limit msg.len to CEC_MAX_MSG_SIZE
 Date:   Tue,  8 Nov 2022 14:38:28 +0100
-Message-Id: <20221108133346.598808554@linuxfoundation.org>
+Message-Id: <20221108133358.041718412@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 93d904a734a74c54d945a9884b4962977f1176cd ]
+[ Upstream commit 2dc73b48665411a08c4e5f0f823dea8510761603 ]
 
-nfcmrvl_i2c_nci_send() will be called by nfcmrvl_nci_send(), and skb
-should be freed in nfcmrvl_i2c_nci_send(). However, nfcmrvl_nci_send()
-will only free skb when i2c_master_send() return >=0, which means skb
-will memleak when i2c_master_send() failed. Free skb no matter whether
-i2c_master_send() succeeds.
+I expect that the hardware will have limited this to 16, but just in
+case it hasn't, check for this corner case.
 
-Fixes: b5b3e23e4cac ("NFC: nfcmrvl: add i2c driver")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/nfcmrvl/i2c.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/media/cec/platform/cros-ec/cros-ec-cec.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nfc/nfcmrvl/i2c.c b/drivers/nfc/nfcmrvl/i2c.c
-index 01329b91d59d..a902720cd849 100644
---- a/drivers/nfc/nfcmrvl/i2c.c
-+++ b/drivers/nfc/nfcmrvl/i2c.c
-@@ -132,10 +132,15 @@ static int nfcmrvl_i2c_nci_send(struct nfcmrvl_private *priv,
- 			ret = -EREMOTEIO;
- 		} else
- 			ret = 0;
-+	}
-+
-+	if (ret) {
- 		kfree_skb(skb);
-+		return ret;
- 	}
+diff --git a/drivers/media/cec/platform/cros-ec/cros-ec-cec.c b/drivers/media/cec/platform/cros-ec/cros-ec-cec.c
+index 3b583ed4da9d..e5ebaa58be45 100644
+--- a/drivers/media/cec/platform/cros-ec/cros-ec-cec.c
++++ b/drivers/media/cec/platform/cros-ec/cros-ec-cec.c
+@@ -44,6 +44,8 @@ static void handle_cec_message(struct cros_ec_cec *cros_ec_cec)
+ 	uint8_t *cec_message = cros_ec->event_data.data.cec_message;
+ 	unsigned int len = cros_ec->event_size;
  
--	return ret;
-+	consume_skb(skb);
-+	return 0;
- }
++	if (len > CEC_MAX_MSG_SIZE)
++		len = CEC_MAX_MSG_SIZE;
+ 	cros_ec_cec->rx_msg.len = len;
+ 	memcpy(cros_ec_cec->rx_msg.msg, cec_message, len);
  
- static void nfcmrvl_i2c_nci_update_config(struct nfcmrvl_private *priv,
 -- 
 2.35.1
 
