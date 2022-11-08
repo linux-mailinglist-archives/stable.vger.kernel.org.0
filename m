@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F9E62149F
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:03:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5E09621322
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:47:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234970AbiKHODX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:03:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38036 "EHLO
+        id S234546AbiKHNrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:47:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234971AbiKHODW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:03:22 -0500
+        with ESMTP id S234577AbiKHNrA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:47:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E33668696
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:03:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 342DD5F845
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:47:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B61E611B7
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:03:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D7BDC433C1;
-        Tue,  8 Nov 2022 14:03:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5E0161568
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2F71C433C1;
+        Tue,  8 Nov 2022 13:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916199;
-        bh=qAsy4P85RRqJEZ5DZ6zSBDGHq7SA/+NEoOYs103X56s=;
+        s=korg; t=1667915219;
+        bh=Qjutl5cfAobsE0TyfO0ANJBjVevZWHrybjUQActuUj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ZihFiSP/9aRaakTpxJw2svNgj12UZR3K9EA3gly7j7vwiD3R/N9InRRe7pP7r9pl
-         lPNi2rJcM3u5lIgJ5pJH8kXJWRGLwi/QUhVXymfeRxBdZD6mzrOcijc7JE31FAKHGQ
-         9dNZYQabvHlZ2wKBVWKiY79c/fqMkqLgsPyez0lo=
+        b=WmsgsRRPojby2yKSEcqea3QA8jqwVdvGvMcWQZG/wPYhyTGTihCxQiTFU8+dlS96R
+         06rYvvRn/Y+yfUDpGPdlZbHvbKjAi59DzAcWBhZuKgM0OZwcJtRhKveXmBUtaojT1P
+         /oAH3J0cGHnmUmdANJBxvWIZkwE0OASN18ChhlMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 092/144] firmware: arm_scmi: Make Rx chan_setup fail on memory errors
-Date:   Tue,  8 Nov 2022 14:39:29 +0100
-Message-Id: <20221108133349.150569928@linuxfoundation.org>
+        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 45/48] KVM: x86: emulator: introduce emulator_recalc_and_set_mode
+Date:   Tue,  8 Nov 2022 14:39:30 +0100
+Message-Id: <20221108133331.193162644@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
+References: <20221108133329.533809494@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +52,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-[ Upstream commit be9ba1f7f9e0b565b19f4294f5871da9d654bc6d ]
+commit d087e0f79fa0dd336a9a6b2f79ec23120f5eff73 upstream.
 
-SCMI Rx channels are optional and they can fail to be setup when not
-present but anyway channels setup routines must bail-out on memory errors.
+Some instructions update the cpu execution mode, which needs to update the
+emulation mode.
 
-Make channels setup, and related probing, fail when memory errors are
-reported on Rx channels.
+Extract this code, and make assign_eip_far use it.
 
-Fixes: 5c8a47a5a91d ("firmware: arm_scmi: Make scmi core independent of the transport type")
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Link: https://lore.kernel.org/r/20221028140833.280091-4-cristian.marussi@arm.com
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+assign_eip_far now reads CS, instead of getting it via a parameter,
+which is ok, because callers always assign CS to the same value
+before calling this function.
+
+No functional change is intended.
+
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20221025124741.228045-12-mlevitsk@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/arm_scmi/driver.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/x86/kvm/emulate.c |   85 ++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 57 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
-index 2c1d5f943dd3..16569af4a2ba 100644
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -1516,8 +1516,12 @@ scmi_txrx_setup(struct scmi_info *info, struct device *dev, int prot_id)
- {
- 	int ret = scmi_chan_setup(info, dev, prot_id, true);
- 
--	if (!ret) /* Rx is optional, hence no error check */
--		scmi_chan_setup(info, dev, prot_id, false);
-+	if (!ret) {
-+		/* Rx is optional, report only memory errors */
-+		ret = scmi_chan_setup(info, dev, prot_id, false);
-+		if (ret && ret != -ENOMEM)
-+			ret = 0;
-+	}
- 
- 	return ret;
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -759,8 +759,7 @@ static int linearize(struct x86_emulate_
+ 			   ctxt->mode, linear);
  }
--- 
-2.35.1
-
+ 
+-static inline int assign_eip(struct x86_emulate_ctxt *ctxt, ulong dst,
+-			     enum x86emul_mode mode)
++static inline int assign_eip(struct x86_emulate_ctxt *ctxt, ulong dst)
+ {
+ 	ulong linear;
+ 	int rc;
+@@ -770,41 +769,71 @@ static inline int assign_eip(struct x86_
+ 
+ 	if (ctxt->op_bytes != sizeof(unsigned long))
+ 		addr.ea = dst & ((1UL << (ctxt->op_bytes << 3)) - 1);
+-	rc = __linearize(ctxt, addr, &max_size, 1, false, true, mode, &linear);
++	rc = __linearize(ctxt, addr, &max_size, 1, false, true, ctxt->mode, &linear);
+ 	if (rc == X86EMUL_CONTINUE)
+ 		ctxt->_eip = addr.ea;
+ 	return rc;
+ }
+ 
++static inline int emulator_recalc_and_set_mode(struct x86_emulate_ctxt *ctxt)
++{
++	u64 efer;
++	struct desc_struct cs;
++	u16 selector;
++	u32 base3;
++
++	ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
++
++	if (!(ctxt->ops->get_cr(ctxt, 0) & X86_CR0_PE)) {
++		/* Real mode. cpu must not have long mode active */
++		if (efer & EFER_LMA)
++			return X86EMUL_UNHANDLEABLE;
++		ctxt->mode = X86EMUL_MODE_REAL;
++		return X86EMUL_CONTINUE;
++	}
++
++	if (ctxt->eflags & X86_EFLAGS_VM) {
++		/* Protected/VM86 mode. cpu must not have long mode active */
++		if (efer & EFER_LMA)
++			return X86EMUL_UNHANDLEABLE;
++		ctxt->mode = X86EMUL_MODE_VM86;
++		return X86EMUL_CONTINUE;
++	}
++
++	if (!ctxt->ops->get_segment(ctxt, &selector, &cs, &base3, VCPU_SREG_CS))
++		return X86EMUL_UNHANDLEABLE;
++
++	if (efer & EFER_LMA) {
++		if (cs.l) {
++			/* Proper long mode */
++			ctxt->mode = X86EMUL_MODE_PROT64;
++		} else if (cs.d) {
++			/* 32 bit compatibility mode*/
++			ctxt->mode = X86EMUL_MODE_PROT32;
++		} else {
++			ctxt->mode = X86EMUL_MODE_PROT16;
++		}
++	} else {
++		/* Legacy 32 bit / 16 bit mode */
++		ctxt->mode = cs.d ? X86EMUL_MODE_PROT32 : X86EMUL_MODE_PROT16;
++	}
++
++	return X86EMUL_CONTINUE;
++}
++
+ static inline int assign_eip_near(struct x86_emulate_ctxt *ctxt, ulong dst)
+ {
+-	return assign_eip(ctxt, dst, ctxt->mode);
++	return assign_eip(ctxt, dst);
+ }
+ 
+-static int assign_eip_far(struct x86_emulate_ctxt *ctxt, ulong dst,
+-			  const struct desc_struct *cs_desc)
++static int assign_eip_far(struct x86_emulate_ctxt *ctxt, ulong dst)
+ {
+-	enum x86emul_mode mode = ctxt->mode;
+-	int rc;
++	int rc = emulator_recalc_and_set_mode(ctxt);
+ 
+-#ifdef CONFIG_X86_64
+-	if (ctxt->mode >= X86EMUL_MODE_PROT16) {
+-		if (cs_desc->l) {
+-			u64 efer = 0;
++	if (rc != X86EMUL_CONTINUE)
++		return rc;
+ 
+-			ctxt->ops->get_msr(ctxt, MSR_EFER, &efer);
+-			if (efer & EFER_LMA)
+-				mode = X86EMUL_MODE_PROT64;
+-		} else
+-			mode = X86EMUL_MODE_PROT32; /* temporary value */
+-	}
+-#endif
+-	if (mode == X86EMUL_MODE_PROT16 || mode == X86EMUL_MODE_PROT32)
+-		mode = cs_desc->d ? X86EMUL_MODE_PROT32 : X86EMUL_MODE_PROT16;
+-	rc = assign_eip(ctxt, dst, mode);
+-	if (rc == X86EMUL_CONTINUE)
+-		ctxt->mode = mode;
+-	return rc;
++	return assign_eip(ctxt, dst);
+ }
+ 
+ static inline int jmp_rel(struct x86_emulate_ctxt *ctxt, int rel)
+@@ -2192,7 +2221,7 @@ static int em_jmp_far(struct x86_emulate
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return rc;
+ 
+-	rc = assign_eip_far(ctxt, ctxt->src.val, &new_desc);
++	rc = assign_eip_far(ctxt, ctxt->src.val);
+ 	/* Error handling is not implemented. */
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return X86EMUL_UNHANDLEABLE;
+@@ -2273,7 +2302,7 @@ static int em_ret_far(struct x86_emulate
+ 				       &new_desc);
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return rc;
+-	rc = assign_eip_far(ctxt, eip, &new_desc);
++	rc = assign_eip_far(ctxt, eip);
+ 	/* Error handling is not implemented. */
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return X86EMUL_UNHANDLEABLE;
+@@ -3492,7 +3521,7 @@ static int em_call_far(struct x86_emulat
+ 	if (rc != X86EMUL_CONTINUE)
+ 		return rc;
+ 
+-	rc = assign_eip_far(ctxt, ctxt->src.val, &new_desc);
++	rc = assign_eip_far(ctxt, ctxt->src.val);
+ 	if (rc != X86EMUL_CONTINUE)
+ 		goto fail;
+ 
 
 
