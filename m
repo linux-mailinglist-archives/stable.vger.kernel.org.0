@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C7DC6214C8
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:05:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BACF16215BF
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235041AbiKHOFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:05:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39986 "EHLO
+        id S234630AbiKHOOn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:14:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235032AbiKHOFG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:05:06 -0500
+        with ESMTP id S235318AbiKHOOm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:14:42 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 010DF686B3
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:05:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5585413E13
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:14:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD213B81AFA
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:05:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC68CC43142;
-        Tue,  8 Nov 2022 14:05:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 180FCB81B05
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:14:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 521F3C433D6;
+        Tue,  8 Nov 2022 14:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916302;
-        bh=hfFVETcDNQK4vJNnA8WcgX90OOkPlpb+3X8UrPc7eFQ=;
+        s=korg; t=1667916879;
+        bh=tAKWqDKsTA3xWZFdvAdpr5GjxGl/E3+Gq1dQoTETmFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQTL+SftqPAMeyn1TPJZxvzPNjQ/aZlXeX8D+NPyKfeptlakh7yhbuxRpdzj43wzx
-         OB2McSfbrlk/iZpVmkAliukmR8rPF3CPcILj5NtArdS9kIftk7jUVD/VnQ+PVGVFrQ
-         hdmM+vwirCXnpOXYBKExnqtMMQA8lmuk3huasL38=
+        b=UpiBqXhBoIZMOmnVFoBOVEmpKcuDdG5ulTZIi6vzzw2AaEvz1t0k3AVlWgF/F0h72
+         2e99wJa7onpqMCmrz7Vilo+L2a+S1Bn2i6X8PxcE8jKUZ+lpspPwojZhNJv0SjLtIt
+         pVd/bBZbZfCwUGEA2bKQkSA7b7iXnehmkXtRfw2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        syzbot+c740bb18df70ad00952e@syzkaller.appspotmail.com,
-        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.15 123/144] ext4: fix warning in ext4_da_release_space
-Date:   Tue,  8 Nov 2022 14:40:00 +0100
-Message-Id: <20221108133350.487827228@linuxfoundation.org>
+        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
+Subject: [PATCH 6.0 163/197] parisc: Avoid printing the hardware path twice
+Date:   Tue,  8 Nov 2022 14:40:01 +0100
+Message-Id: <20221108133402.353975807@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +51,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Helge Deller <deller@gmx.de>
 
-commit 1b8f787ef547230a3249bcf897221ef0cc78481b upstream.
+commit 2b6ae0962b421103feb41a80406732944b0665b3 upstream.
 
-Syzkaller report issue as follows:
-EXT4-fs (loop0): Free/Dirty block details
-EXT4-fs (loop0): free_blocks=0
-EXT4-fs (loop0): dirty_blocks=0
-EXT4-fs (loop0): Block reservation details
-EXT4-fs (loop0): i_reserved_data_blocks=0
-EXT4-fs warning (device loop0): ext4_da_release_space:1527: ext4_da_release_space: ino 18, to_free 1 with only 0 reserved data blocks
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 92 at fs/ext4/inode.c:1528 ext4_da_release_space+0x25e/0x370 fs/ext4/inode.c:1524
-Modules linked in:
-CPU: 0 PID: 92 Comm: kworker/u4:4 Not tainted 6.0.0-syzkaller-09423-g493ffd6605b2 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
-Workqueue: writeback wb_workfn (flush-7:0)
-RIP: 0010:ext4_da_release_space+0x25e/0x370 fs/ext4/inode.c:1528
-RSP: 0018:ffffc900015f6c90 EFLAGS: 00010296
-RAX: 42215896cd52ea00 RBX: 0000000000000000 RCX: 42215896cd52ea00
-RDX: 0000000000000000 RSI: 0000000080000001 RDI: 0000000000000000
-RBP: 1ffff1100e907d96 R08: ffffffff816aa79d R09: fffff520002bece5
-R10: fffff520002bece5 R11: 1ffff920002bece4 R12: ffff888021fd2000
-R13: ffff88807483ecb0 R14: 0000000000000001 R15: ffff88807483e740
-FS:  0000000000000000(0000) GS:ffff8880b9a00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00005555569ba628 CR3: 000000000c88e000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- ext4_es_remove_extent+0x1ab/0x260 fs/ext4/extents_status.c:1461
- mpage_release_unused_pages+0x24d/0xef0 fs/ext4/inode.c:1589
- ext4_writepages+0x12eb/0x3be0 fs/ext4/inode.c:2852
- do_writepages+0x3c3/0x680 mm/page-writeback.c:2469
- __writeback_single_inode+0xd1/0x670 fs/fs-writeback.c:1587
- writeback_sb_inodes+0xb3b/0x18f0 fs/fs-writeback.c:1870
- wb_writeback+0x41f/0x7b0 fs/fs-writeback.c:2044
- wb_do_writeback fs/fs-writeback.c:2187 [inline]
- wb_workfn+0x3cb/0xef0 fs/fs-writeback.c:2227
- process_one_work+0x877/0xdb0 kernel/workqueue.c:2289
- worker_thread+0xb14/0x1330 kernel/workqueue.c:2436
- kthread+0x266/0x300 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
- </TASK>
+Avoid that the hardware path is shown twice in the kernel log, and clean
+up the output of the version numbers to show up in the same order as
+they are listed in the hardware database in the hardware.c file.
+Additionally, optimize the memory footprint of the hardware database
+and mark some code as init code.
 
-Above issue may happens as follows:
-ext4_da_write_begin
-  ext4_create_inline_data
-    ext4_clear_inode_flag(inode, EXT4_INODE_EXTENTS);
-    ext4_set_inode_flag(inode, EXT4_INODE_INLINE_DATA);
-__ext4_ioctl
-  ext4_ext_migrate -> will lead to eh->eh_entries not zero, and set extent flag
-ext4_da_write_begin
-  ext4_da_convert_inline_data_to_extent
-    ext4_da_write_inline_data_begin
-      ext4_da_map_blocks
-        ext4_insert_delayed_block
-	  if (!ext4_es_scan_clu(inode, &ext4_es_is_delonly, lblk))
-	    if (!ext4_es_scan_clu(inode, &ext4_es_is_mapped, lblk))
-	      ext4_clu_mapped(inode, EXT4_B2C(sbi, lblk)); -> will return 1
-	       allocated = true;
-          ext4_es_insert_delayed_block(inode, lblk, allocated);
-ext4_writepages
-  mpage_map_and_submit_extent(handle, &mpd, &give_up_on_write); -> return -ENOSPC
-  mpage_release_unused_pages(&mpd, give_up_on_write); -> give_up_on_write == 1
-    ext4_es_remove_extent
-      ext4_da_release_space(inode, reserved);
-        if (unlikely(to_free > ei->i_reserved_data_blocks))
-	  -> to_free == 1  but ei->i_reserved_data_blocks == 0
-	  -> then trigger warning as above
-
-To solve above issue, forbid inode do migrate which has inline data.
-
-Cc: stable@kernel.org
-Reported-by: syzbot+c740bb18df70ad00952e@syzkaller.appspotmail.com
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221018022701.683489-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: cab56b51ec0e ("parisc: Fix device names in /proc/iomem")
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org> # v4.9+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/migrate.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/parisc/include/asm/hardware.h |   12 ++++++------
+ arch/parisc/kernel/drivers.c       |   14 ++++++--------
+ 2 files changed, 12 insertions(+), 14 deletions(-)
 
---- a/fs/ext4/migrate.c
-+++ b/fs/ext4/migrate.c
-@@ -425,7 +425,8 @@ int ext4_ext_migrate(struct inode *inode
- 	 * already is extent-based, error out.
- 	 */
- 	if (!ext4_has_feature_extents(inode->i_sb) ||
--	    (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)))
-+	    ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS) ||
-+	    ext4_has_inline_data(inode))
- 		return -EINVAL;
+--- a/arch/parisc/include/asm/hardware.h
++++ b/arch/parisc/include/asm/hardware.h
+@@ -10,12 +10,12 @@
+ #define SVERSION_ANY_ID		PA_SVERSION_ANY_ID
  
- 	if (S_ISLNK(inode->i_mode) && inode->i_blocks == 0)
+ struct hp_hardware {
+-	unsigned short	hw_type:5;	/* HPHW_xxx */
+-	unsigned short	hversion;
+-	unsigned long	sversion:28;
+-	unsigned short	opt;
+-	const char	name[80];	/* The hardware description */
+-};
++	unsigned int	hw_type:8;	/* HPHW_xxx */
++	unsigned int	hversion:12;
++	unsigned int	sversion:12;
++	unsigned char	opt;
++	unsigned char	name[59];	/* The hardware description */
++} __packed;
+ 
+ struct parisc_device;
+ 
+--- a/arch/parisc/kernel/drivers.c
++++ b/arch/parisc/kernel/drivers.c
+@@ -882,15 +882,13 @@ void __init walk_central_bus(void)
+ 			&root);
+ }
+ 
+-static void print_parisc_device(struct parisc_device *dev)
++static __init void print_parisc_device(struct parisc_device *dev)
+ {
+-	char hw_path[64];
+-	static int count;
++	static int count __initdata;
+ 
+-	print_pa_hwpath(dev, hw_path);
+-	pr_info("%d. %s at %pap [%s] { %d, 0x%x, 0x%.3x, 0x%.5x }",
+-		++count, dev->name, &(dev->hpa.start), hw_path, dev->id.hw_type,
+-		dev->id.hversion_rev, dev->id.hversion, dev->id.sversion);
++	pr_info("%d. %s at %pap { type:%d, hv:%#x, sv:%#x, rev:%#x }",
++		++count, dev->name, &(dev->hpa.start), dev->id.hw_type,
++		dev->id.hversion, dev->id.sversion, dev->id.hversion_rev);
+ 
+ 	if (dev->num_addrs) {
+ 		int k;
+@@ -1079,7 +1077,7 @@ static __init int qemu_print_iodc_data(s
+ 
+ 
+ 
+-static int print_one_device(struct device * dev, void * data)
++static __init int print_one_device(struct device * dev, void * data)
+ {
+ 	struct parisc_device * pdev = to_parisc_device(dev);
+ 
 
 
