@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 389F262146F
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:01:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80B8062129E
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:41:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234918AbiKHOBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:01:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35688 "EHLO
+        id S234444AbiKHNl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:41:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234956AbiKHOBR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:01:17 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE0AE68685
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:01:15 -0800 (PST)
+        with ESMTP id S234464AbiKHNlI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:41:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 493E458002
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:41:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BA54DCE1BA0
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95B30C433C1;
-        Tue,  8 Nov 2022 14:01:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCE1261582
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:41:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9AACC433D7;
+        Tue,  8 Nov 2022 13:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916071;
-        bh=La/1SLU8H/SWTWo8e3p9cAeYVWwrXsirLwRN9fWfIDk=;
+        s=korg; t=1667914866;
+        bh=LErlnjiGrOKN9DAP4DSvBPdiuVu78LfWIh/gvNUTCEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=170cdtK9wqbqVHNDGUcav5u+gbRXad1GfQliodhqxVA8+ZYGJ/lA07YxS6xjJU0MN
-         hMoGi35R0nLPeD+Dj1CZjydXAMoxNuSl8JnHMkcZ1IG6ZfNXyu2AZI5MrV74VM4Lgw
-         8lNoDyGWPA1bCpIwWj14wfn6hhlwOyM6wnMMr1h4=
+        b=uzsW21Meq9afi59JMy/ulmWwXdNCTo+hoPOzXe2FWUFhBS5CINqB5QNb8rBCENamY
+         fhUPMMQilSepsRQ5uK0y84GbqcJ2yqxp2K+Wy8qYtSQjfbdGYLSpqaIUAe3bP8+Z7x
+         32jWPKaW+clNNbCoNBW6sIWUuf45ZxyAo7Gc9mUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 055/144] net/smc: Fix possible leaked pernet namespace in smc_init()
+Subject: [PATCH 4.9 04/30] nfc: s3fwrn5: Fix potential memory leak in s3fwrn5_nci_send()
 Date:   Tue,  8 Nov 2022 14:38:52 +0100
-Message-Id: <20221108133347.597420205@linuxfoundation.org>
+Message-Id: <20221108133326.874048816@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
+References: <20221108133326.715586431@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 62ff373da2534534c55debe6c724c7fe14adb97f ]
+[ Upstream commit 3a146b7e3099dc7cf3114f627d9b79291e2d2203 ]
 
-In smc_init(), register_pernet_subsys(&smc_net_stat_ops) is called
-without any error handling.
-If it fails, registering of &smc_net_ops won't be reverted.
-And if smc_nl_init() fails, &smc_net_stat_ops itself won't be reverted.
+s3fwrn5_nci_send() will call s3fwrn5_i2c_write() or s3fwrn82_uart_write(),
+and free the skb if write() failed. However, even if the write() run
+succeeds, the skb will not be freed in write(). As the result, the skb
+will memleak. s3fwrn5_nci_send() should also free the skb when write()
+succeeds.
 
-This leaves wild ops in subsystem linkedlist and when another module
-tries to call register_pernet_operations() it triggers page fault:
-
-BUG: unable to handle page fault for address: fffffbfff81b964c
-RIP: 0010:register_pernet_operations+0x1b9/0x5f0
-Call Trace:
-  <TASK>
-  register_pernet_subsys+0x29/0x40
-  ebtables_init+0x58/0x1000 [ebtables]
-  ...
-
-Fixes: 194730a9beb5 ("net/smc: Make SMC statistics network namespace aware")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221101093722.127223-1-chenzhongjin@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: c04c674fadeb ("nfc: s3fwrn5: Add driver for Samsung S3FWRN5 NFC Chip")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/nfc/s3fwrn5/core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 26f81e2e1dfb..d5ddf283ed8e 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2744,14 +2744,14 @@ static int __init smc_init(void)
+diff --git a/drivers/nfc/s3fwrn5/core.c b/drivers/nfc/s3fwrn5/core.c
+index 64b58455e620..f23a1e4d7e1e 100644
+--- a/drivers/nfc/s3fwrn5/core.c
++++ b/drivers/nfc/s3fwrn5/core.c
+@@ -108,11 +108,15 @@ static int s3fwrn5_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
+ 	}
  
- 	rc = register_pernet_subsys(&smc_net_stat_ops);
- 	if (rc)
--		return rc;
-+		goto out_pernet_subsys;
+ 	ret = s3fwrn5_write(info, skb);
+-	if (ret < 0)
++	if (ret < 0) {
+ 		kfree_skb(skb);
++		mutex_unlock(&info->mutex);
++		return ret;
++	}
  
- 	smc_ism_init();
- 	smc_clc_init();
++	consume_skb(skb);
+ 	mutex_unlock(&info->mutex);
+-	return ret;
++	return 0;
+ }
  
- 	rc = smc_nl_init();
- 	if (rc)
--		goto out_pernet_subsys;
-+		goto out_pernet_subsys_stat;
- 
- 	rc = smc_pnet_init();
- 	if (rc)
-@@ -2829,6 +2829,8 @@ static int __init smc_init(void)
- 	smc_pnet_exit();
- out_nl:
- 	smc_nl_exit();
-+out_pernet_subsys_stat:
-+	unregister_pernet_subsys(&smc_net_stat_ops);
- out_pernet_subsys:
- 	unregister_pernet_subsys(&smc_net_ops);
- 
+ static int s3fwrn5_nci_post_setup(struct nci_dev *ndev)
 -- 
 2.35.1
 
