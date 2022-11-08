@@ -2,44 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C0E3621593
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53C45621324
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:47:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235150AbiKHONP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:13:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49074 "EHLO
+        id S234544AbiKHNrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:47:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235218AbiKHONM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:13:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB60F56548
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:13:11 -0800 (PST)
+        with ESMTP id S234578AbiKHNrI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:47:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 583D659FFB
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:47:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D8C6B81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:13:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C31C4C433C1;
-        Tue,  8 Nov 2022 14:13:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBE9461596
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:47:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F7C6C433D6;
+        Tue,  8 Nov 2022 13:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916789;
-        bh=YLInMk2egbkxgurOopNLJ/iKMVJkqvZY+xbvNRaEKm0=;
+        s=korg; t=1667915226;
+        bh=zVE9XDRz+edugEbeJdtj1GY4OT/u0TFtO2/Z3aVO/U0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vQ2jeyYtf0AprkgN9RwhuklOUGZhey+SI+K2+12QOd8f3k0F1bYxmJDQnouUiiATr
-         M9uSnjAIk/WIM6MmTQSGTtDqVNG4g1lnVx1ClJWN8VoEA8aYGXCLtuD2LF9HJ+/1uN
-         aQUYojQNqQ0hqXb5R0dZxSKHD2kv1aBeYhf3zzyU=
+        b=iU5+m5d94sj720DRDWov+ZOqTyzPJ0Px2P5n6UacrLNst0dil8+SJTHpCwe6qxruI
+         SBInc0GRN6sEFuzQZ/wpK8YuI6AXetGEL/UA7oPvkBUxLy1lSXmkrj+UgS+CIj9UAA
+         gS8L112wnWbs/xZ+b3Jx2ld0eSYeQKSV6kaQSVKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>
-Subject: [PATCH 6.0 134/197] cxl/region: Fix decoder allocation crash
+        patches@lists.linux.dev,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 4.19 47/48] linux/bits.h: make BIT(), GENMASK(), and friends available in assembly
 Date:   Tue,  8 Nov 2022 14:39:32 +0100
-Message-Id: <20221108133401.039240599@linuxfoundation.org>
+Message-Id: <20221108133331.270530793@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
+References: <20221108133329.533809494@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,144 +61,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Verma <vishal.l.verma@intel.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-commit 71ee71d7adcba648077997a29a91158d20c40b09 upstream.
+commit 95b980d62d52c4c1768ee719e8db3efe27ef52b2 upstream.
 
-When an intermediate port's decoders have been exhausted by existing
-regions, and creating a new region with the port in question in it's
-hierarchical path is attempted, cxl_port_attach_region() fails to find a
-port decoder (as would be expected), and drops into the failure / cleanup
-path.
+BIT(),  GENMASK(), etc. are useful to define register bits of hardware.
+However, low-level code is often written in assembly, where they are
+not available due to the hard-coded 1UL, 0UL.
 
-However, during cleanup of the region reference, a sanity check attempts
-to dereference the decoder, which in the above case didn't exist. This
-causes a NULL pointer dereference BUG.
+In fact, in-kernel headers such as arch/arm64/include/asm/sysreg.h
+use _BITUL() instead of BIT() so that the register bit macros are
+available in assembly.
 
-To fix this, refactor the decoder allocation and de-allocation into
-helper routines, and in this 'free' routine, check that the decoder,
-@cxld, is valid before attempting any operations on it.
+Using macros in include/uapi/linux/const.h have two reasons:
 
-Cc: <stable@vger.kernel.org>
-Suggested-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Fixes: 384e624bb211 ("cxl/region: Attach endpoint decoders")
-Link: https://lore.kernel.org/r/20221101074100.1732003-1-vishal.l.verma@intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+[1] For use in uapi headers
+  We should use underscore-prefixed variants for user-space.
+
+[2] For use in assembly code
+  Since _BITUL() uses UL(1) instead of 1UL, it can be used as an
+  alternative of BIT().
+
+For [2], it is pretty easy to change BIT() etc. for use in assembly.
+
+This allows to replace _BUTUL() in kernel-space headers with BIT().
+
+Link: http://lkml.kernel.org/r/20190609153941.17249-1-yamada.masahiro@socionext.com
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cxl/core/region.c |   67 ++++++++++++++++++++++++++++------------------
- 1 file changed, 41 insertions(+), 26 deletions(-)
+ include/linux/bits.h |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
---- a/drivers/cxl/core/region.c
-+++ b/drivers/cxl/core/region.c
-@@ -686,18 +686,27 @@ static struct cxl_region_ref *alloc_regi
- 	return cxl_rr;
- }
- 
--static void free_region_ref(struct cxl_region_ref *cxl_rr)
-+static void cxl_rr_free_decoder(struct cxl_region_ref *cxl_rr)
- {
--	struct cxl_port *port = cxl_rr->port;
- 	struct cxl_region *cxlr = cxl_rr->region;
- 	struct cxl_decoder *cxld = cxl_rr->decoder;
- 
-+	if (!cxld)
-+		return;
+--- a/include/linux/bits.h
++++ b/include/linux/bits.h
+@@ -1,13 +1,15 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ #ifndef __LINUX_BITS_H
+ #define __LINUX_BITS_H
 +
- 	dev_WARN_ONCE(&cxlr->dev, cxld->region != cxlr, "region mismatch\n");
- 	if (cxld->region == cxlr) {
- 		cxld->region = NULL;
- 		put_device(&cxlr->dev);
- 	}
-+}
++#include <linux/const.h>
+ #include <asm/bitsperlong.h>
  
-+static void free_region_ref(struct cxl_region_ref *cxl_rr)
-+{
-+	struct cxl_port *port = cxl_rr->port;
-+	struct cxl_region *cxlr = cxl_rr->region;
-+
-+	cxl_rr_free_decoder(cxl_rr);
- 	xa_erase(&port->regions, (unsigned long)cxlr);
- 	xa_destroy(&cxl_rr->endpoints);
- 	kfree(cxl_rr);
-@@ -728,6 +737,33 @@ static int cxl_rr_ep_add(struct cxl_regi
- 	return 0;
- }
+-#define BIT(nr)			(1UL << (nr))
+-#define BIT_ULL(nr)		(1ULL << (nr))
+-#define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
++#define BIT(nr)			(UL(1) << (nr))
++#define BIT_ULL(nr)		(ULL(1) << (nr))
++#define BIT_MASK(nr)		(UL(1) << ((nr) % BITS_PER_LONG))
+ #define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
+-#define BIT_ULL_MASK(nr)	(1ULL << ((nr) % BITS_PER_LONG_LONG))
++#define BIT_ULL_MASK(nr)	(ULL(1) << ((nr) % BITS_PER_LONG_LONG))
+ #define BIT_ULL_WORD(nr)	((nr) / BITS_PER_LONG_LONG)
+ #define BITS_PER_BYTE		8
  
-+static int cxl_rr_alloc_decoder(struct cxl_port *port, struct cxl_region *cxlr,
-+				struct cxl_endpoint_decoder *cxled,
-+				struct cxl_region_ref *cxl_rr)
-+{
-+	struct cxl_decoder *cxld;
-+
-+	if (port == cxled_to_port(cxled))
-+		cxld = &cxled->cxld;
-+	else
-+		cxld = cxl_region_find_decoder(port, cxlr);
-+	if (!cxld) {
-+		dev_dbg(&cxlr->dev, "%s: no decoder available\n",
-+			dev_name(&port->dev));
-+		return -EBUSY;
-+	}
-+
-+	if (cxld->region) {
-+		dev_dbg(&cxlr->dev, "%s: %s already attached to %s\n",
-+			dev_name(&port->dev), dev_name(&cxld->dev),
-+			dev_name(&cxld->region->dev));
-+		return -EBUSY;
-+	}
-+
-+	cxl_rr->decoder = cxld;
-+	return 0;
-+}
-+
- /**
-  * cxl_port_attach_region() - track a region's interest in a port by endpoint
-  * @port: port to add a new region reference 'struct cxl_region_ref'
-@@ -794,12 +830,6 @@ static int cxl_port_attach_region(struct
- 			cxl_rr->nr_targets++;
- 			nr_targets_inc = true;
- 		}
--
--		/*
--		 * The decoder for @cxlr was allocated when the region was first
--		 * attached to @port.
--		 */
--		cxld = cxl_rr->decoder;
- 	} else {
- 		cxl_rr = alloc_region_ref(port, cxlr);
- 		if (IS_ERR(cxl_rr)) {
-@@ -810,26 +840,11 @@ static int cxl_port_attach_region(struct
- 		}
- 		nr_targets_inc = true;
+@@ -17,10 +19,11 @@
+  * GENMASK_ULL(39, 21) gives us the 64bit vector 0x000000ffffe00000.
+  */
+ #define GENMASK(h, l) \
+-	(((~0UL) - (1UL << (l)) + 1) & (~0UL >> (BITS_PER_LONG - 1 - (h))))
++	(((~UL(0)) - (UL(1) << (l)) + 1) & \
++	 (~UL(0) >> (BITS_PER_LONG - 1 - (h))))
  
--		if (port == cxled_to_port(cxled))
--			cxld = &cxled->cxld;
--		else
--			cxld = cxl_region_find_decoder(port, cxlr);
--		if (!cxld) {
--			dev_dbg(&cxlr->dev, "%s: no decoder available\n",
--				dev_name(&port->dev));
--			goto out_erase;
--		}
--
--		if (cxld->region) {
--			dev_dbg(&cxlr->dev, "%s: %s already attached to %s\n",
--				dev_name(&port->dev), dev_name(&cxld->dev),
--				dev_name(&cxld->region->dev));
--			rc = -EBUSY;
-+		rc = cxl_rr_alloc_decoder(port, cxlr, cxled, cxl_rr);
-+		if (rc)
- 			goto out_erase;
--		}
--
--		cxl_rr->decoder = cxld;
- 	}
-+	cxld = cxl_rr->decoder;
+ #define GENMASK_ULL(h, l) \
+-	(((~0ULL) - (1ULL << (l)) + 1) & \
+-	 (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
++	(((~ULL(0)) - (ULL(1) << (l)) + 1) & \
++	 (~ULL(0) >> (BITS_PER_LONG_LONG - 1 - (h))))
  
- 	rc = cxl_rr_ep_add(cxl_rr, cxled);
- 	if (rc) {
+ #endif	/* __LINUX_BITS_H */
 
 
