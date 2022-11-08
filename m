@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2E43621482
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7081E6213E0
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:54:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234926AbiKHOCN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:02:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36414 "EHLO
+        id S234734AbiKHNyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:54:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234873AbiKHOBv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:01:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00E88682AE
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:01:51 -0800 (PST)
+        with ESMTP id S234739AbiKHNyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:54:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886D41E0
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:54:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9618061596
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A711AC433D7;
-        Tue,  8 Nov 2022 14:01:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41EEFB816DD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:54:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 653F7C433D7;
+        Tue,  8 Nov 2022 13:54:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916110;
-        bh=ra344XJaZ/mUXKVyI5FxJLmOKV6W4ZGOmET+VZR+9pY=;
+        s=korg; t=1667915690;
+        bh=uqyuWR1r5w6IShtUPWv7xEGNh6pYqaTS19lYL1oAyI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SqK7BFwF5CToeiM5EOAjh1PxsT1HGF04M8pbjz/5zGyAs1ifT+AJQf+MFId0gnlSw
-         FmOnDqEYqblJWv3rz2hXXjbZjmXCjAbRzCDkKTBJKJEyJb82m2Ba5Z8FMVjka3F4tH
-         NZEcz1BnKzPqkBl8YWTWR/For6osa3SNpYH2+jCg=
+        b=GSOgfbpmwHOGp/0c9+d1eVdniULgVfloUqRI+7RpGvtVNoTPYnI87Kr+ZgMk6C6Ei
+         8B//A/woJZGxns7g2moe0+nBi6REZ6VDbB4PvgppEQYHAIW5QLvROxWMLeiVCh/wPJ
+         FFLm9VWHmJAgneTBj6klSQ98QSnaT2/+4T4DrQWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        patches@lists.linux.dev, Ashish Kalra <ashish.kalra@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 065/144] s390/uaccess: add missing EX_TABLE entries to __clear_user()
+Subject: [PATCH 5.10 064/118] ACPI: APEI: Fix integer overflow in ghes_estatus_pool_init()
 Date:   Tue,  8 Nov 2022 14:39:02 +0100
-Message-Id: <20221108133348.021360716@linuxfoundation.org>
+Message-Id: <20221108133343.522478572@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Ashish Kalra <ashish.kalra@amd.com>
 
-[ Upstream commit 4e1b5a86a5edfbefc9396d41b0fc1a2ebd0101b6 ]
+[ Upstream commit 43d2748394c3feb86c0c771466f5847e274fc043 ]
 
-For some exception types the instruction address points behind the
-instruction that caused the exception. Take that into account and add
-the missing exception table entries.
+Change num_ghes from int to unsigned int, preventing an overflow
+and causing subsequent vmalloc() to fail.
 
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+The overflow happens in ghes_estatus_pool_init() when calculating
+len during execution of the statement below as both multiplication
+operands here are signed int:
+
+len += (num_ghes * GHES_ESOURCE_PREALLOC_MAX_SIZE);
+
+The following call trace is observed because of this bug:
+
+[    9.317108] swapper/0: vmalloc error: size 18446744071562596352, exceeds total pages, mode:0xcc0(GFP_KERNEL), nodemask=(null),cpuset=/,mems_allowed=0-1
+[    9.317131] Call Trace:
+[    9.317134]  <TASK>
+[    9.317137]  dump_stack_lvl+0x49/0x5f
+[    9.317145]  dump_stack+0x10/0x12
+[    9.317146]  warn_alloc.cold+0x7b/0xdf
+[    9.317150]  ? __device_attach+0x16a/0x1b0
+[    9.317155]  __vmalloc_node_range+0x702/0x740
+[    9.317160]  ? device_add+0x17f/0x920
+[    9.317164]  ? dev_set_name+0x53/0x70
+[    9.317166]  ? platform_device_add+0xf9/0x240
+[    9.317168]  __vmalloc_node+0x49/0x50
+[    9.317170]  ? ghes_estatus_pool_init+0x43/0xa0
+[    9.317176]  vmalloc+0x21/0x30
+[    9.317177]  ghes_estatus_pool_init+0x43/0xa0
+[    9.317179]  acpi_hest_init+0x129/0x19c
+[    9.317185]  acpi_init+0x434/0x4a4
+[    9.317188]  ? acpi_sleep_proc_init+0x2a/0x2a
+[    9.317190]  do_one_initcall+0x48/0x200
+[    9.317195]  kernel_init_freeable+0x221/0x284
+[    9.317200]  ? rest_init+0xe0/0xe0
+[    9.317204]  kernel_init+0x1a/0x130
+[    9.317205]  ret_from_fork+0x22/0x30
+[    9.317208]  </TASK>
+
+Signed-off-by: Ashish Kalra <ashish.kalra@amd.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/lib/uaccess.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/acpi/apei/ghes.c | 2 +-
+ include/acpi/ghes.h      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/lib/uaccess.c b/arch/s390/lib/uaccess.c
-index a596e69d3c47..0b012ce0921c 100644
---- a/arch/s390/lib/uaccess.c
-+++ b/arch/s390/lib/uaccess.c
-@@ -212,7 +212,7 @@ static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size
- 	asm volatile(
- 		"   llilh 0,%[spec]\n"
- 		"0: .insn ss,0xc80000000000,0(%0,%1),0(%4),0\n"
--		"   jz	  4f\n"
-+		"6: jz	  4f\n"
- 		"1: algr  %0,%2\n"
- 		"   slgr  %1,%2\n"
- 		"   j	  0b\n"
-@@ -222,11 +222,11 @@ static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size
- 		"   clgr  %0,%3\n"	/* copy crosses next page boundary? */
- 		"   jnh	  5f\n"
- 		"3: .insn ss,0xc80000000000,0(%3,%1),0(%4),0\n"
--		"   slgr  %0,%3\n"
-+		"7: slgr  %0,%3\n"
- 		"   j	  5f\n"
- 		"4: slgr  %0,%0\n"
- 		"5:\n"
--		EX_TABLE(0b,2b) EX_TABLE(3b,5b)
-+		EX_TABLE(0b,2b) EX_TABLE(6b,2b) EX_TABLE(3b,5b) EX_TABLE(7b,5b)
- 		: "+a" (size), "+a" (to), "+a" (tmp1), "=a" (tmp2)
- 		: "a" (empty_zero_page), [spec] "K" (0x81UL)
- 		: "cc", "memory", "0");
+diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
+index 5206fd3b7867..9bdb5bd5fda6 100644
+--- a/drivers/acpi/apei/ghes.c
++++ b/drivers/acpi/apei/ghes.c
+@@ -163,7 +163,7 @@ static void ghes_unmap(void __iomem *vaddr, enum fixed_addresses fixmap_idx)
+ 	clear_fixmap(fixmap_idx);
+ }
+ 
+-int ghes_estatus_pool_init(int num_ghes)
++int ghes_estatus_pool_init(unsigned int num_ghes)
+ {
+ 	unsigned long addr, len;
+ 	int rc;
+diff --git a/include/acpi/ghes.h b/include/acpi/ghes.h
+index 34fb3431a8f3..292a5c40bd0c 100644
+--- a/include/acpi/ghes.h
++++ b/include/acpi/ghes.h
+@@ -71,7 +71,7 @@ int ghes_register_vendor_record_notifier(struct notifier_block *nb);
+ void ghes_unregister_vendor_record_notifier(struct notifier_block *nb);
+ #endif
+ 
+-int ghes_estatus_pool_init(int num_ghes);
++int ghes_estatus_pool_init(unsigned int num_ghes);
+ 
+ /* From drivers/edac/ghes_edac.c */
+ 
 -- 
 2.35.1
 
