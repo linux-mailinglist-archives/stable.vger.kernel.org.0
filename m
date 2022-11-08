@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0512F6215B4
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:14:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C1F8621319
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235352AbiKHOOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:14:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52782 "EHLO
+        id S234534AbiKHNqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:46:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235341AbiKHOOS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:14:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A9A613F2F;
-        Tue,  8 Nov 2022 06:14:16 -0800 (PST)
+        with ESMTP id S234541AbiKHNqh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BD2359859
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D528B81AF2;
-        Tue,  8 Nov 2022 14:14:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B262C433C1;
-        Tue,  8 Nov 2022 14:14:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 480ABB81AEE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65085C433D6;
+        Tue,  8 Nov 2022 13:46:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916854;
-        bh=LtiLebdILSFohdyxct2LMv4z0ap2fvKdkykw0NHhuu4=;
+        s=korg; t=1667915194;
+        bh=A3mc1LLXa/cJ/FSWeM8gs+6IPUjIulq6HWBCWB0ygQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SVw2cPOFdG5651IrTZtNMRcUk9D91C3JQ5bcHo4WXUK7qNMnQPoni4jfK2ExsNK3l
-         FmuA3C6PNaUyARM6SIart89Y4s/lwgmIGVxD9kslDSSvxbKI4Kwc6hOkc+x+vHWf5N
-         Aq6liR7G52APw7fQF4lUugdasIA/X5Vn2TwypU3w=
+        b=OrKhKAzivrfFMMQU/npLyRuYcQH/eDRIGopjKJ3djp2i/24qSSVlmtmt11RDg9eug
+         ZXLxfMEUXcua7EzSgDLX+p+Hk9xyLxExSYxyEQKtj5Rrui++Yf28x2H1EP4RXjnDMA
+         tqJUUvNAN3NHUpY2/6u4cTaU1E8VTxp2mvuMM+Oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-fscrypt@vger.kernel.org,
-        syzbot+104c2a89561289cec13e@syzkaller.appspotmail.com,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 6.0 125/197] fscrypt: fix keyring memory leak on mount failure
+        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Subject: [PATCH 4.19 38/48] efi: random: reduce seed size to 32 bytes
 Date:   Tue,  8 Nov 2022 14:39:23 +0100
-Message-Id: <20221108133400.653266211@linuxfoundation.org>
+Message-Id: <20221108133330.886678382@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
+References: <20221108133329.533809494@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit ccd30a476f8e864732de220bd50e6f372f5ebcab upstream.
+commit 161a438d730dade2ba2b1bf8785f0759aba4ca5f upstream.
 
-Commit d7e7b9af104c ("fscrypt: stop using keyrings subsystem for
-fscrypt_master_key") moved the keyring destruction from __put_super() to
-generic_shutdown_super() so that the filesystem's block device(s) are
-still available.  Unfortunately, this causes a memory leak in the case
-where a mount is attempted with the test_dummy_encryption mount option,
-but the mount fails after the option has already been processed.
+We no longer need at least 64 bytes of random seed to permit the early
+crng init to complete. The RNG is now based on Blake2s, so reduce the
+EFI seed size to the Blake2s hash size, which is sufficient for our
+purposes.
 
-To fix this, attempt the keyring destruction in both places.
+While at it, drop the READ_ONCE(), which was supposed to prevent size
+from being evaluated after seed was unmapped. However, this cannot
+actually happen, so READ_ONCE() is unnecessary here.
 
-Reported-by: syzbot+104c2a89561289cec13e@syzkaller.appspotmail.com
-Fixes: d7e7b9af104c ("fscrypt: stop using keyrings subsystem for fscrypt_master_key")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Link: https://lore.kernel.org/r/20221011213838.209879-1-ebiggers@kernel.org
+Cc: <stable@vger.kernel.org> # v4.14+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/crypto/keyring.c     |   17 +++++++++++------
- fs/super.c              |    3 ++-
- include/linux/fscrypt.h |    4 ++--
- 3 files changed, 15 insertions(+), 9 deletions(-)
+ drivers/firmware/efi/efi.c |    2 +-
+ include/linux/efi.h        |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/crypto/keyring.c
-+++ b/fs/crypto/keyring.c
-@@ -202,14 +202,19 @@ static int allocate_filesystem_keyring(s
- }
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -556,7 +556,7 @@ int __init efi_config_parse_tables(void
  
- /*
-- * This is called at unmount time to release all encryption keys that have been
-- * added to the filesystem, along with the keyring that contains them.
-+ * Release all encryption keys that have been added to the filesystem, along
-+ * with the keyring that contains them.
-  *
-- * Note that besides clearing and freeing memory, this might need to evict keys
-- * from the keyslots of an inline crypto engine.  Therefore, this must be called
-- * while the filesystem's underlying block device(s) are still available.
-+ * This is called at unmount time.  The filesystem's underlying block device(s)
-+ * are still available at this time; this is important because after user file
-+ * accesses have been allowed, this function may need to evict keys from the
-+ * keyslots of an inline crypto engine, which requires the block device(s).
-+ *
-+ * This is also called when the super_block is being freed.  This is needed to
-+ * avoid a memory leak if mounting fails after the "test_dummy_encryption"
-+ * option was processed, as in that case the unmount-time call isn't made.
-  */
--void fscrypt_sb_delete(struct super_block *sb)
-+void fscrypt_destroy_keyring(struct super_block *sb)
- {
- 	struct fscrypt_keyring *keyring = sb->s_master_keys;
- 	size_t i;
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -291,6 +291,7 @@ static void __put_super(struct super_blo
- 		WARN_ON(s->s_inode_lru.node);
- 		WARN_ON(!list_empty(&s->s_mounts));
- 		security_sb_free(s);
-+		fscrypt_destroy_keyring(s);
- 		put_user_ns(s->s_user_ns);
- 		kfree(s->s_subtype);
- 		call_rcu(&s->rcu, destroy_super_rcu);
-@@ -479,7 +480,7 @@ void generic_shutdown_super(struct super
- 		evict_inodes(sb);
- 		/* only nonzero refcount inodes can have marks */
- 		fsnotify_sb_delete(sb);
--		fscrypt_sb_delete(sb);
-+		fscrypt_destroy_keyring(sb);
- 		security_sb_delete(sb);
+ 		seed = early_memremap(efi.rng_seed, sizeof(*seed));
+ 		if (seed != NULL) {
+-			size = seed->size;
++			size = min(seed->size, EFI_RANDOM_SEED_SIZE);
+ 			early_memunmap(seed, sizeof(*seed));
+ 		} else {
+ 			pr_err("Could not map UEFI random seed!\n");
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -1655,7 +1655,7 @@ efi_status_t efi_exit_boot_services(efi_
+ 				    void *priv,
+ 				    efi_exit_boot_map_processing priv_func);
  
- 		if (sb->s_dio_done_wq) {
---- a/include/linux/fscrypt.h
-+++ b/include/linux/fscrypt.h
-@@ -312,7 +312,7 @@ fscrypt_free_dummy_policy(struct fscrypt
- }
+-#define EFI_RANDOM_SEED_SIZE		64U
++#define EFI_RANDOM_SEED_SIZE		32U // BLAKE2S_HASH_SIZE
  
- /* keyring.c */
--void fscrypt_sb_delete(struct super_block *sb);
-+void fscrypt_destroy_keyring(struct super_block *sb);
- int fscrypt_ioctl_add_key(struct file *filp, void __user *arg);
- int fscrypt_add_test_dummy_key(struct super_block *sb,
- 			       const struct fscrypt_dummy_policy *dummy_policy);
-@@ -526,7 +526,7 @@ fscrypt_free_dummy_policy(struct fscrypt
- }
- 
- /* keyring.c */
--static inline void fscrypt_sb_delete(struct super_block *sb)
-+static inline void fscrypt_destroy_keyring(struct super_block *sb)
- {
- }
- 
+ struct linux_efi_random_seed {
+ 	u32	size;
 
 
