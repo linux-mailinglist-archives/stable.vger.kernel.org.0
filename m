@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D246621525
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:08:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6515C6213A8
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235174AbiKHOIz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:08:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44082 "EHLO
+        id S234753AbiKHNwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:52:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235218AbiKHOIk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:08:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51A55205F1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:08:39 -0800 (PST)
+        with ESMTP id S234771AbiKHNwV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8297260EA6
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B3EF615B4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:08:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD4F6C433C1;
-        Tue,  8 Nov 2022 14:08:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E995B81AA1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F2B1C433C1;
+        Tue,  8 Nov 2022 13:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916518;
-        bh=5U8sLmTBw8Ut83qWgEywZbemcr1+i/L4PTe5GJxq/6U=;
+        s=korg; t=1667915535;
+        bh=WxmRxd5Nq6ECvhL1sSqfRqhT64RhDHCmmLUu3mBwQT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IsAK+jne8p7INbVfBvcEp9pqC/eRhdEGQx5nXfnUoe8bF3+KChS9eTvAYPpYzmYDN
-         vm18Ibvm1v3MTpoQjNLXhhSOo3k/EzaCl6yOR9/HsA+KV1vByjejNS8Z7texV2ppLF
-         7ENPKfmo/XzSFf5ScZBdWlX5N6lFiHhJ6kEpaU6Q=
+        b=AHC6rNlOQZYTfOV0+r3kLtE9jp9ea1KC6JEXbb7qEKwr7A0V/p7Jblcx/ut9JEKW1
+         jogA1/CIg8TDefST7hjXgUYwGZnyZojcuQYyESWQna0DmpQqEA4FFWGhYpv2RvvRrw
+         Ts4D304cdzUsJmUfpB64dJeS00VmNbDTeJWpbb5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 046/197] btrfs: fix inode list leak during backref walking at find_parent_nodes()
+Subject: [PATCH 5.10 006/118] KVM: x86: Treat #DBs from the emulator as fault-like (code and DR7.GD=1)
 Date:   Tue,  8 Nov 2022 14:38:04 +0100
-Message-Id: <20221108133356.913094579@linuxfoundation.org>
+Message-Id: <20221108133340.984196950@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,78 +54,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 92876eec382a0f19f33d09d2c939e9ca49038ae5 ]
+[ Upstream commit 5623f751bd9c438ed12840e086f33c4646440d19 ]
 
-During backref walking, at find_parent_nodes(), if we are dealing with a
-data extent and we get an error while resolving the indirect backrefs, at
-resolve_indirect_refs(), or in the while loop that iterates over the refs
-in the direct refs rbtree, we end up leaking the inode lists attached to
-the direct refs we have in the direct refs rbtree that were not yet added
-to the refs ulist passed as argument to find_parent_nodes(). Since they
-were not yet added to the refs ulist and prelim_release() does not free
-the lists, on error the caller can only free the lists attached to the
-refs that were added to the refs ulist, all the remaining refs get their
-inode lists never freed, therefore leaking their memory.
+Add a dedicated "exception type" for #DBs, as #DBs can be fault-like or
+trap-like depending the sub-type of #DB, and effectively defer the
+decision of what to do with the #DB to the caller.
 
-Fix this by having prelim_release() always free any attached inode list
-to each ref found in the rbtree, and have find_parent_nodes() set the
-ref's inode list to NULL once it transfers ownership of the inode list
-to a ref added to the refs ulist passed to find_parent_nodes().
+For the emulator's two calls to exception_type(), treat the #DB as
+fault-like, as the emulator handles only code breakpoint and general
+detect #DBs, both of which are fault-like.
 
-Fixes: 86d5f9944252 ("btrfs: convert prelimary reference tracking to use rbtrees")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+For event injection, which uses exception_type() to determine whether to
+set EFLAGS.RF=1 on the stack, keep the current behavior of not setting
+RF=1 for #DBs.  Intel and AMD explicitly state RF isn't set on code #DBs,
+so exempting by failing the "== EXCPT_FAULT" check is correct.  The only
+other fault-like #DB is General Detect, and despite Intel and AMD both
+strongly implying (through omission) that General Detect #DBs should set
+RF=1, hardware (multiple generations of both Intel and AMD), in fact does
+not.  Through insider knowledge, extreme foresight, sheer dumb luck, or
+some combination thereof, KVM correctly handled RF for General Detect #DBs.
+
+Fixes: 38827dbd3fb8 ("KVM: x86: Do not update EFLAGS on faulting emulation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Link: https://lore.kernel.org/r/20220830231614.3580124-9-seanjc@google.com
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ arch/x86/kvm/x86.c | 27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 90702a74f90c..21c478df6aef 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -289,8 +289,10 @@ static void prelim_release(struct preftree *preftree)
- 	struct prelim_ref *ref, *next_ref;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 17bb3d0e2d13..e07607eed35c 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -459,6 +459,7 @@ static int exception_class(int vector)
+ #define EXCPT_TRAP		1
+ #define EXCPT_ABORT		2
+ #define EXCPT_INTERRUPT		3
++#define EXCPT_DB		4
  
- 	rbtree_postorder_for_each_entry_safe(ref, next_ref,
--					     &preftree->root.rb_root, rbnode)
-+					     &preftree->root.rb_root, rbnode) {
-+		free_inode_elem_list(ref->inode_list);
- 		free_pref(ref);
-+	}
+ static int exception_type(int vector)
+ {
+@@ -469,8 +470,14 @@ static int exception_type(int vector)
  
- 	preftree->root = RB_ROOT_CACHED;
- 	preftree->count = 0;
-@@ -1384,6 +1386,12 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
- 				if (ret < 0)
- 					goto out;
- 				ref->inode_list = eie;
-+				/*
-+				 * We transferred the list ownership to the ref,
-+				 * so set to NULL to avoid a double free in case
-+				 * an error happens after this.
-+				 */
-+				eie = NULL;
- 			}
- 			ret = ulist_add_merge_ptr(refs, ref->parent,
- 						  ref->inode_list,
-@@ -1409,6 +1417,14 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
- 				eie->next = ref->inode_list;
- 			}
- 			eie = NULL;
-+			/*
-+			 * We have transferred the inode list ownership from
-+			 * this ref to the ref we added to the 'refs' ulist.
-+			 * So set this ref's inode list to NULL to avoid
-+			 * use-after-free when our caller uses it or double
-+			 * frees in case an error happens before we return.
-+			 */
-+			ref->inode_list = NULL;
- 		}
- 		cond_resched();
- 	}
+ 	mask = 1 << vector;
+ 
+-	/* #DB is trap, as instruction watchpoints are handled elsewhere */
+-	if (mask & ((1 << DB_VECTOR) | (1 << BP_VECTOR) | (1 << OF_VECTOR)))
++	/*
++	 * #DBs can be trap-like or fault-like, the caller must check other CPU
++	 * state, e.g. DR6, to determine whether a #DB is a trap or fault.
++	 */
++	if (mask & (1 << DB_VECTOR))
++		return EXCPT_DB;
++
++	if (mask & ((1 << BP_VECTOR) | (1 << OF_VECTOR)))
+ 		return EXCPT_TRAP;
+ 
+ 	if (mask & ((1 << DF_VECTOR) | (1 << MC_VECTOR)))
+@@ -7560,6 +7567,12 @@ int x86_emulate_instruction(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
+ 		unsigned long rflags = kvm_x86_ops.get_rflags(vcpu);
+ 		toggle_interruptibility(vcpu, ctxt->interruptibility);
+ 		vcpu->arch.emulate_regs_need_sync_to_vcpu = false;
++
++		/*
++		 * Note, EXCPT_DB is assumed to be fault-like as the emulator
++		 * only supports code breakpoints and general detect #DB, both
++		 * of which are fault-like.
++		 */
+ 		if (!ctxt->have_exception ||
+ 		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
+ 			kvm_rip_write(vcpu, ctxt->eip);
+@@ -8409,6 +8422,16 @@ static void inject_pending_event(struct kvm_vcpu *vcpu, bool *req_immediate_exit
+ 
+ 	/* try to inject new event if pending */
+ 	if (vcpu->arch.exception.pending) {
++		/*
++		 * Fault-class exceptions, except #DBs, set RF=1 in the RFLAGS
++		 * value pushed on the stack.  Trap-like exception and all #DBs
++		 * leave RF as-is (KVM follows Intel's behavior in this regard;
++		 * AMD states that code breakpoint #DBs excplitly clear RF=0).
++		 *
++		 * Note, most versions of Intel's SDM and AMD's APM incorrectly
++		 * describe the behavior of General Detect #DBs, which are
++		 * fault-like.  They do _not_ set RF, a la code breakpoints.
++		 */
+ 		if (exception_type(vcpu->arch.exception.nr) == EXCPT_FAULT)
+ 			__kvm_set_rflags(vcpu, kvm_get_rflags(vcpu) |
+ 					     X86_EFLAGS_RF);
 -- 
 2.35.1
 
