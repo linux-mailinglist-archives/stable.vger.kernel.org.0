@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21152621467
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:00:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0026F6213A9
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234914AbiKHOA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:00:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35174 "EHLO
+        id S234760AbiKHNwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:52:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234916AbiKHOA4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:00:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B833B66CA9
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:00:55 -0800 (PST)
+        with ESMTP id S234704AbiKHNw0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24D1F65E70
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C755B81B00
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:00:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D150C433C1;
-        Tue,  8 Nov 2022 14:00:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5021D615A2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ECB8C433C1;
+        Tue,  8 Nov 2022 13:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916052;
-        bh=8ro7dzLjVrRKyWSWVs5/XMEWZLUK8sBKp8O0DY2Kpi8=;
+        s=korg; t=1667915539;
+        bh=CqGaXFlVl0vjU4TpAlaxXLb1f+jGKs3faf/uTr7rs2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FcEXRF7k2/ExH+s6nXemNpRcB7YtyYcmAdVB7x5qFBv1tKrznzi/kI2vscECnGUZD
-         D90TrGf0RaZNPc/iweJy4Xr+2BQzn4YJe2u89RX4jwrwFv1A2448Op2tNyOEjCQ+dv
-         OTMbUZU7PVZ1XXu8mvZpNGw++j15oIpxob4u6ALI=
+        b=OxfZNfRREr/sR2mIx1tCwahZw78XNtCTmbOrNurp/C+UUlnE06DN0YtdALjfFWVnC
+         1XM+EWAZ8Vi714FjhTg6by7uuGIIIdLnAtet25pbNL1G/BVGi1KgGjdBkgM34Slc33
+         woxK6lQFt+KShs6fvS51/u5/0e1GN4hX6XdwHh8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        David Hildenbrand <david@redhat.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 008/144] mm/hugetlb: fix races when looking up a CONT-PTE/PMD size hugetlb page
+        patches@lists.linux.dev, Borislav Petkov <bp@alien8.de>,
+        Yazen Ghannam <yazen.ghannam@amd.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 007/118] x86/topology: Set cpu_die_id only if DIE_TYPE found
 Date:   Tue,  8 Nov 2022 14:38:05 +0100
-Message-Id: <20221108133345.678847820@linuxfoundation.org>
+Message-Id: <20221108133341.032643577@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,177 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
+From: Yazen Ghannam <yazen.ghannam@amd.com>
 
-[ Upstream commit fac35ba763ed07ba93154c95ffc0c4a55023707f ]
+[ Upstream commit cb09a379724d299c603a7a79f444f52a9a75b8d2 ]
 
-On some architectures (like ARM64), it can support CONT-PTE/PMD size
-hugetlb, which means it can support not only PMD/PUD size hugetlb (2M and
-1G), but also CONT-PTE/PMD size(64K and 32M) if a 4K page size specified.
+CPUID Leaf 0x1F defines a DIE_TYPE level (nb: ECX[8:15] level type == 0x5),
+but CPUID Leaf 0xB does not. However, detect_extended_topology() will
+set struct cpuinfo_x86.cpu_die_id regardless of whether a valid Die ID
+was found.
 
-So when looking up a CONT-PTE size hugetlb page by follow_page(), it will
-use pte_offset_map_lock() to get the pte entry lock for the CONT-PTE size
-hugetlb in follow_page_pte().  However this pte entry lock is incorrect
-for the CONT-PTE size hugetlb, since we should use huge_pte_lock() to get
-the correct lock, which is mm->page_table_lock.
+Only set cpu_die_id if a DIE_TYPE level is found. CPU topology code may
+use another value for cpu_die_id, e.g. the AMD NodeId on AMD-based
+systems. Code ordering should be maintained so that the CPUID Leaf 0x1F
+Die ID value will take precedence on systems that may use another value.
 
-That means the pte entry of the CONT-PTE size hugetlb under current pte
-lock is unstable in follow_page_pte(), we can continue to migrate or
-poison the pte entry of the CONT-PTE size hugetlb, which can cause some
-potential race issues, even though they are under the 'pte lock'.
-
-For example, suppose thread A is trying to look up a CONT-PTE size hugetlb
-page by move_pages() syscall under the lock, however antoher thread B can
-migrate the CONT-PTE hugetlb page at the same time, which will cause
-thread A to get an incorrect page, if thread A also wants to do page
-migration, then data inconsistency error occurs.
-
-Moreover we have the same issue for CONT-PMD size hugetlb in
-follow_huge_pmd().
-
-To fix above issues, rename the follow_huge_pmd() as follow_huge_pmd_pte()
-to handle PMD and PTE level size hugetlb, which uses huge_pte_lock() to
-get the correct pte entry lock to make the pte entry stable.
-
-Mike said:
-
-Support for CONT_PMD/_PTE was added with bb9dd3df8ee9 ("arm64: hugetlb:
-refactor find_num_contig()").  Patch series "Support for contiguous pte
-hugepages", v4.  However, I do not believe these code paths were
-executed until migration support was added with 5480280d3f2d ("arm64/mm:
-enable HugeTLB migration for contiguous bit HugeTLB pages") I would go
-with 5480280d3f2d for the Fixes: targe.
-
-Link: https://lkml.kernel.org/r/635f43bdd85ac2615a58405da82b4d33c6e5eb05.1662017562.git.baolin.wang@linux.alibaba.com
-Fixes: 5480280d3f2d ("arm64/mm: enable HugeTLB migration for contiguous bit HugeTLB pages")
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Suggested-by: Borislav Petkov <bp@alien8.de>
+Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20201109210659.754018-5-Yazen.Ghannam@amd.com
+Stable-dep-of: 2b12a7a126d6 ("x86/topology: Fix multiple packages shown on a single-package system")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/hugetlb.h |  8 ++++----
- mm/gup.c                | 14 +++++++++++++-
- mm/hugetlb.c            | 27 +++++++++++++--------------
- 3 files changed, 30 insertions(+), 19 deletions(-)
+ arch/x86/kernel/cpu/topology.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index 22c1d935e22d..af8e7045017f 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -198,8 +198,8 @@ struct page *follow_huge_addr(struct mm_struct *mm, unsigned long address,
- struct page *follow_huge_pd(struct vm_area_struct *vma,
- 			    unsigned long address, hugepd_t hpd,
- 			    int flags, int pdshift);
--struct page *follow_huge_pmd(struct mm_struct *mm, unsigned long address,
--				pmd_t *pmd, int flags);
-+struct page *follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address,
-+				 int flags);
- struct page *follow_huge_pud(struct mm_struct *mm, unsigned long address,
- 				pud_t *pud, int flags);
- struct page *follow_huge_pgd(struct mm_struct *mm, unsigned long address,
-@@ -286,8 +286,8 @@ static inline struct page *follow_huge_pd(struct vm_area_struct *vma,
- 	return NULL;
- }
+diff --git a/arch/x86/kernel/cpu/topology.c b/arch/x86/kernel/cpu/topology.c
+index 91288da29599..8678864ce712 100644
+--- a/arch/x86/kernel/cpu/topology.c
++++ b/arch/x86/kernel/cpu/topology.c
+@@ -96,6 +96,7 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
+ 	unsigned int ht_mask_width, core_plus_mask_width, die_plus_mask_width;
+ 	unsigned int core_select_mask, core_level_siblings;
+ 	unsigned int die_select_mask, die_level_siblings;
++	bool die_level_present = false;
+ 	int leaf;
  
--static inline struct page *follow_huge_pmd(struct mm_struct *mm,
--				unsigned long address, pmd_t *pmd, int flags)
-+static inline struct page *follow_huge_pmd_pte(struct vm_area_struct *vma,
-+				unsigned long address, int flags)
- {
- 	return NULL;
- }
-diff --git a/mm/gup.c b/mm/gup.c
-index 1a23cd0b4fba..69e45cbe58f8 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -509,6 +509,18 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
- 			 (FOLL_PIN | FOLL_GET)))
- 		return ERR_PTR(-EINVAL);
+ 	leaf = detect_extended_topology_leaf(c);
+@@ -126,6 +127,7 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
+ 			die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+ 		}
+ 		if (LEAFB_SUBTYPE(ecx) == DIE_TYPE) {
++			die_level_present = true;
+ 			die_level_siblings = LEVEL_MAX_SIBLINGS(ebx);
+ 			die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+ 		}
+@@ -139,8 +141,12 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
+ 
+ 	c->cpu_core_id = apic->phys_pkg_id(c->initial_apicid,
+ 				ht_mask_width) & core_select_mask;
+-	c->cpu_die_id = apic->phys_pkg_id(c->initial_apicid,
+-				core_plus_mask_width) & die_select_mask;
 +
-+	/*
-+	 * Considering PTE level hugetlb, like continuous-PTE hugetlb on
-+	 * ARM64 architecture.
-+	 */
-+	if (is_vm_hugetlb_page(vma)) {
-+		page = follow_huge_pmd_pte(vma, address, flags);
-+		if (page)
-+			return page;
-+		return no_page_table(vma, flags);
++	if (die_level_present) {
++		c->cpu_die_id = apic->phys_pkg_id(c->initial_apicid,
++					core_plus_mask_width) & die_select_mask;
 +	}
 +
- retry:
- 	if (unlikely(pmd_bad(*pmd)))
- 		return no_page_table(vma, flags);
-@@ -652,7 +664,7 @@ static struct page *follow_pmd_mask(struct vm_area_struct *vma,
- 	if (pmd_none(pmdval))
- 		return no_page_table(vma, flags);
- 	if (pmd_huge(pmdval) && is_vm_hugetlb_page(vma)) {
--		page = follow_huge_pmd(mm, address, pmd, flags);
-+		page = follow_huge_pmd_pte(vma, address, flags);
- 		if (page)
- 			return page;
- 		return no_page_table(vma, flags);
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index f5f8929fad51..dbb63ec3b5fa 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -6182,12 +6182,13 @@ follow_huge_pd(struct vm_area_struct *vma,
- }
- 
- struct page * __weak
--follow_huge_pmd(struct mm_struct *mm, unsigned long address,
--		pmd_t *pmd, int flags)
-+follow_huge_pmd_pte(struct vm_area_struct *vma, unsigned long address, int flags)
- {
-+	struct hstate *h = hstate_vma(vma);
-+	struct mm_struct *mm = vma->vm_mm;
- 	struct page *page = NULL;
- 	spinlock_t *ptl;
--	pte_t pte;
-+	pte_t *ptep, pte;
- 
- 	/* FOLL_GET and FOLL_PIN are mutually exclusive. */
- 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
-@@ -6195,17 +6196,15 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
- 		return NULL;
- 
- retry:
--	ptl = pmd_lockptr(mm, pmd);
--	spin_lock(ptl);
--	/*
--	 * make sure that the address range covered by this pmd is not
--	 * unmapped from other threads.
--	 */
--	if (!pmd_huge(*pmd))
--		goto out;
--	pte = huge_ptep_get((pte_t *)pmd);
-+	ptep = huge_pte_offset(mm, address, huge_page_size(h));
-+	if (!ptep)
-+		return NULL;
-+
-+	ptl = huge_pte_lock(h, mm, ptep);
-+	pte = huge_ptep_get(ptep);
- 	if (pte_present(pte)) {
--		page = pmd_page(*pmd) + ((address & ~PMD_MASK) >> PAGE_SHIFT);
-+		page = pte_page(pte) +
-+			((address & ~huge_page_mask(h)) >> PAGE_SHIFT);
- 		/*
- 		 * try_grab_page() should always succeed here, because: a) we
- 		 * hold the pmd (ptl) lock, and b) we've just checked that the
-@@ -6221,7 +6220,7 @@ follow_huge_pmd(struct mm_struct *mm, unsigned long address,
- 	} else {
- 		if (is_hugetlb_entry_migration(pte)) {
- 			spin_unlock(ptl);
--			__migration_entry_wait(mm, (pte_t *)pmd, ptl);
-+			__migration_entry_wait(mm, ptep, ptl);
- 			goto retry;
- 		}
- 		/*
+ 	c->phys_proc_id = apic->phys_pkg_id(c->initial_apicid,
+ 				die_plus_mask_width);
+ 	/*
 -- 
 2.35.1
 
