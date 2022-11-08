@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44ECA621342
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 389F262146F
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234558AbiKHNso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:48:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48504 "EHLO
+        id S234918AbiKHOBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:01:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234600AbiKHNsk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C97BC9C
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:30 -0800 (PST)
+        with ESMTP id S234956AbiKHOBR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:01:17 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE0AE68685
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:01:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C95A3B81AEC
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F6B4C433D6;
-        Tue,  8 Nov 2022 13:48:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BA54DCE1BA0
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95B30C433C1;
+        Tue,  8 Nov 2022 14:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915307;
-        bh=4IQ6f5N2YreyDw0mV1lMP5GHXdc3mGHr6XRSf6KWMYo=;
+        s=korg; t=1667916071;
+        bh=La/1SLU8H/SWTWo8e3p9cAeYVWwrXsirLwRN9fWfIDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKG6a+1XyGYHnblL+9VJ9DcxG2Xuy2c8DFdxVsPDwttMptaXTU4hZN+nbNc5GNi87
-         NXvHsTmnInId7CFGBJXZ/QQkRUxWjXp1WW+sMVwYx+pryHWhXDvlI2GX2UX7cXhYFL
-         fZH4nG+0pO9O/FvIXW97fdnDoKtG0L/ssI5GZvo4=
+        b=170cdtK9wqbqVHNDGUcav5u+gbRXad1GfQliodhqxVA8+ZYGJ/lA07YxS6xjJU0MN
+         hMoGi35R0nLPeD+Dj1CZjydXAMoxNuSl8JnHMkcZ1IG6ZfNXyu2AZI5MrV74VM4Lgw
+         8lNoDyGWPA1bCpIwWj14wfn6hhlwOyM6wnMMr1h4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/74] btrfs: fix ulist leaks in error paths of qgroup self tests
+Subject: [PATCH 5.15 055/144] net/smc: Fix possible leaked pernet namespace in smc_init()
 Date:   Tue,  8 Nov 2022 14:38:52 +0100
-Message-Id: <20221108133334.715532708@linuxfoundation.org>
+Message-Id: <20221108133347.597420205@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,88 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit d37de92b38932d40e4a251e876cc388f9aee5f42 ]
+[ Upstream commit 62ff373da2534534c55debe6c724c7fe14adb97f ]
 
-In the test_no_shared_qgroup() and test_multiple_refs() qgroup self tests,
-if we fail to add the tree ref, remove the extent item or remove the
-extent ref, we are returning from the test function without freeing the
-"old_roots" ulist that was allocated by the previous calls to
-btrfs_find_all_roots(). Fix that by calling ulist_free() before returning.
+In smc_init(), register_pernet_subsys(&smc_net_stat_ops) is called
+without any error handling.
+If it fails, registering of &smc_net_ops won't be reverted.
+And if smc_nl_init() fails, &smc_net_stat_ops itself won't be reverted.
 
-Fixes: 442244c96332 ("btrfs: qgroup: Switch self test to extent-oriented qgroup mechanism.")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+This leaves wild ops in subsystem linkedlist and when another module
+tries to call register_pernet_operations() it triggers page fault:
+
+BUG: unable to handle page fault for address: fffffbfff81b964c
+RIP: 0010:register_pernet_operations+0x1b9/0x5f0
+Call Trace:
+  <TASK>
+  register_pernet_subsys+0x29/0x40
+  ebtables_init+0x58/0x1000 [ebtables]
+  ...
+
+Fixes: 194730a9beb5 ("net/smc: Make SMC statistics network namespace aware")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Link: https://lore.kernel.org/r/20221101093722.127223-1-chenzhongjin@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tests/qgroup-tests.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ net/smc/af_smc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/tests/qgroup-tests.c b/fs/btrfs/tests/qgroup-tests.c
-index ac035a6fa003..f312ed5abb19 100644
---- a/fs/btrfs/tests/qgroup-tests.c
-+++ b/fs/btrfs/tests/qgroup-tests.c
-@@ -237,8 +237,10 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 26f81e2e1dfb..d5ddf283ed8e 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2744,14 +2744,14 @@ static int __init smc_init(void)
  
- 	ret = insert_normal_tree_ref(root, nodesize, nodesize, 0,
- 				BTRFS_FS_TREE_OBJECTID);
--	if (ret)
-+	if (ret) {
-+		ulist_free(old_roots);
- 		return ret;
-+	}
+ 	rc = register_pernet_subsys(&smc_net_stat_ops);
+ 	if (rc)
+-		return rc;
++		goto out_pernet_subsys;
  
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
- 			false);
-@@ -273,8 +275,10 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
- 	}
+ 	smc_ism_init();
+ 	smc_clc_init();
  
- 	ret = remove_extent_item(root, nodesize, nodesize);
--	if (ret)
-+	if (ret) {
-+		ulist_free(old_roots);
- 		return -EINVAL;
-+	}
+ 	rc = smc_nl_init();
+ 	if (rc)
+-		goto out_pernet_subsys;
++		goto out_pernet_subsys_stat;
  
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
- 			false);
-@@ -338,8 +342,10 @@ static int test_multiple_refs(struct btrfs_root *root,
+ 	rc = smc_pnet_init();
+ 	if (rc)
+@@ -2829,6 +2829,8 @@ static int __init smc_init(void)
+ 	smc_pnet_exit();
+ out_nl:
+ 	smc_nl_exit();
++out_pernet_subsys_stat:
++	unregister_pernet_subsys(&smc_net_stat_ops);
+ out_pernet_subsys:
+ 	unregister_pernet_subsys(&smc_net_ops);
  
- 	ret = insert_normal_tree_ref(root, nodesize, nodesize, 0,
- 				BTRFS_FS_TREE_OBJECTID);
--	if (ret)
-+	if (ret) {
-+		ulist_free(old_roots);
- 		return ret;
-+	}
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
- 			false);
-@@ -373,8 +379,10 @@ static int test_multiple_refs(struct btrfs_root *root,
- 
- 	ret = add_tree_ref(root, nodesize, nodesize, 0,
- 			BTRFS_FIRST_FREE_OBJECTID);
--	if (ret)
-+	if (ret) {
-+		ulist_free(old_roots);
- 		return ret;
-+	}
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
- 			false);
-@@ -414,8 +422,10 @@ static int test_multiple_refs(struct btrfs_root *root,
- 
- 	ret = remove_extent_ref(root, nodesize, nodesize, 0,
- 				BTRFS_FIRST_FREE_OBJECTID);
--	if (ret)
-+	if (ret) {
-+		ulist_free(old_roots);
- 		return ret;
-+	}
- 
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
- 			false);
 -- 
 2.35.1
 
