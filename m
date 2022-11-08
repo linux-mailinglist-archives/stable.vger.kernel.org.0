@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C875621588
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44ECA621342
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235281AbiKHOM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:12:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
+        id S234558AbiKHNso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:48:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235291AbiKHOMq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16A317723E
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:12:36 -0800 (PST)
+        with ESMTP id S234600AbiKHNsk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C97BC9C
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7711615C6
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:12:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6D4BC43470;
-        Tue,  8 Nov 2022 14:12:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C95A3B81AEC
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F6B4C433D6;
+        Tue,  8 Nov 2022 13:48:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916755;
-        bh=udMOj4RmnI/70++N5+1bOmwL6qZMN1Lgadg5rZz7nUo=;
+        s=korg; t=1667915307;
+        bh=4IQ6f5N2YreyDw0mV1lMP5GHXdc3mGHr6XRSf6KWMYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bhr3Ad90c88FVMKpaj37xuaY7irev+f85J5eG1EO4+Nm/9N9+9HUphH569rjHykN8
-         5jEyeIMB0fdPCLjRNnM44ZEyM/e2LGB0hWLobjN9fAUdXLFe5T/H8EGduveSeAefJj
-         Q71NvtvWwkpsz5lLxtOP1eOEWRxm7QFYI9coK8Qc=
+        b=lKG6a+1XyGYHnblL+9VJ9DcxG2Xuy2c8DFdxVsPDwttMptaXTU4hZN+nbNc5GNi87
+         NXvHsTmnInId7CFGBJXZ/QQkRUxWjXp1WW+sMVwYx+pryHWhXDvlI2GX2UX7cXhYFL
+         fZH4nG+0pO9O/FvIXW97fdnDoKtG0L/ssI5GZvo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthew Garrett <mjg59@google.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Bartosz Szczepanek <bsz@semihalf.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
+        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 094/197] efi/tpm: Pass correct address to memblock_reserve
+Subject: [PATCH 5.4 24/74] btrfs: fix ulist leaks in error paths of qgroup self tests
 Date:   Tue,  8 Nov 2022 14:38:52 +0100
-Message-Id: <20221108133359.123548908@linuxfoundation.org>
+Message-Id: <20221108133334.715532708@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry Snitselaar <jsnitsel@redhat.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit f4cd18c5b2000df0c382f6530eeca9141ea41faf ]
+[ Upstream commit d37de92b38932d40e4a251e876cc388f9aee5f42 ]
 
-memblock_reserve() expects a physical address, but the address being
-passed for the TPM final events log is what was returned from
-early_memremap(). This results in something like the following:
+In the test_no_shared_qgroup() and test_multiple_refs() qgroup self tests,
+if we fail to add the tree ref, remove the extent item or remove the
+extent ref, we are returning from the test function without freeing the
+"old_roots" ulist that was allocated by the previous calls to
+btrfs_find_all_roots(). Fix that by calling ulist_free() before returning.
 
-[    0.000000] memblock_reserve: [0xffffffffff2c0000-0xffffffffff2c00e4] efi_tpm_eventlog_init+0x324/0x370
-
-Pass the address from efi like what is done for the TPM events log.
-
-Fixes: c46f3405692d ("tpm: Reserve the TPM final events table")
-Cc: Matthew Garrett <mjg59@google.com>
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: Bartosz Szczepanek <bsz@semihalf.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 442244c96332 ("btrfs: qgroup: Switch self test to extent-oriented qgroup mechanism.")
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/tpm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/tests/qgroup-tests.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/firmware/efi/tpm.c b/drivers/firmware/efi/tpm.c
-index 8f665678e9e3..e8d69bd548f3 100644
---- a/drivers/firmware/efi/tpm.c
-+++ b/drivers/firmware/efi/tpm.c
-@@ -97,7 +97,7 @@ int __init efi_tpm_eventlog_init(void)
- 		goto out_calc;
+diff --git a/fs/btrfs/tests/qgroup-tests.c b/fs/btrfs/tests/qgroup-tests.c
+index ac035a6fa003..f312ed5abb19 100644
+--- a/fs/btrfs/tests/qgroup-tests.c
++++ b/fs/btrfs/tests/qgroup-tests.c
+@@ -237,8 +237,10 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
+ 
+ 	ret = insert_normal_tree_ref(root, nodesize, nodesize, 0,
+ 				BTRFS_FS_TREE_OBJECTID);
+-	if (ret)
++	if (ret) {
++		ulist_free(old_roots);
+ 		return ret;
++	}
+ 
+ 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
+ 			false);
+@@ -273,8 +275,10 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
  	}
  
--	memblock_reserve((unsigned long)final_tbl,
-+	memblock_reserve(efi.tpm_final_log,
- 			 tbl_size + sizeof(*final_tbl));
- 	efi_tpm_final_log_size = tbl_size;
+ 	ret = remove_extent_item(root, nodesize, nodesize);
+-	if (ret)
++	if (ret) {
++		ulist_free(old_roots);
+ 		return -EINVAL;
++	}
  
+ 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
+ 			false);
+@@ -338,8 +342,10 @@ static int test_multiple_refs(struct btrfs_root *root,
+ 
+ 	ret = insert_normal_tree_ref(root, nodesize, nodesize, 0,
+ 				BTRFS_FS_TREE_OBJECTID);
+-	if (ret)
++	if (ret) {
++		ulist_free(old_roots);
+ 		return ret;
++	}
+ 
+ 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
+ 			false);
+@@ -373,8 +379,10 @@ static int test_multiple_refs(struct btrfs_root *root,
+ 
+ 	ret = add_tree_ref(root, nodesize, nodesize, 0,
+ 			BTRFS_FIRST_FREE_OBJECTID);
+-	if (ret)
++	if (ret) {
++		ulist_free(old_roots);
+ 		return ret;
++	}
+ 
+ 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
+ 			false);
+@@ -414,8 +422,10 @@ static int test_multiple_refs(struct btrfs_root *root,
+ 
+ 	ret = remove_extent_ref(root, nodesize, nodesize, 0,
+ 				BTRFS_FIRST_FREE_OBJECTID);
+-	if (ret)
++	if (ret) {
++		ulist_free(old_roots);
+ 		return ret;
++	}
+ 
+ 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
+ 			false);
 -- 
 2.35.1
 
