@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FDE362131E
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:47:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE5A262158F
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234540AbiKHNrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:47:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46660 "EHLO
+        id S235113AbiKHONJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:13:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234544AbiKHNqx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAB135986D
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:52 -0800 (PST)
+        with ESMTP id S235255AbiKHOM5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5DF112A8A
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:12:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B9F6B81AE8
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD7F1C433D6;
-        Tue,  8 Nov 2022 13:46:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 624D4615C6
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:12:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7544FC433C1;
+        Tue,  8 Nov 2022 14:12:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915210;
-        bh=hBkod+R+WqwZbgC2AWHLsd0pEz+0eOGKiuK3R44KKVg=;
+        s=korg; t=1667916774;
+        bh=fqPdWBbXadNh3lhUozUpva2BMcjiXmqoqPs0Fue6JfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7agxWWYusNNVTMXuB2CfZDVEQYfZ3RCV2y2zBXq5ZtQb9sQCdnvCufRZ1cuKr+cs
-         cUAUrZfZXvcsNaAn9hhYLdihxIUT72B8dCJNIxsErgRCgq/jjZuKenQGrVrubO82Pw
-         RX+clMC+GW0usmsp4armGMkcPGSawgdHz8Ue+ikM=
+        b=FjBWtanlbVpUYH3QrzEQ0JxMDPLwLy8z81533lr3sgtvK9xpXrdGodfwhHUwiPej+
+         R3KzULOd6ZfYO+CYPR/VCkX39RVwF+//FMdsP+8CqU9hbxzcKNnpBBESLkhBc/93N2
+         YXVbbz9K2DAV023jT/YzLjN+h0Z/e0NGM5Xtcls4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 43/48] KVM: x86: Mask off reserved bits in CPUID.80000008H
+        patches@lists.linux.dev, kernel test robot <oliver.sang@intel.com>,
+        Viktor Kuzmin <kvaster@gmail.com>, Su Yue <glass@fydeos.io>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.0 130/197] btrfs: dont use btrfs_chunk::sub_stripes from disk
 Date:   Tue,  8 Nov 2022 14:39:28 +0100
-Message-Id: <20221108133331.108014672@linuxfoundation.org>
+Message-Id: <20221108133400.884091198@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 7030d8530e533844e2f4b0e7476498afcd324634 upstream.
+commit 76a66ba101329316a5d7f4275070be22eb85fdf2 upstream.
 
-KVM_GET_SUPPORTED_CPUID should only enumerate features that KVM
-actually supports. The following ranges of CPUID.80000008H are reserved
-and should be masked off:
-    ECX[31:18]
-    ECX[11:8]
+[BUG]
+There are two reports (the earliest one from LKP, a more recent one from
+kernel bugzilla) that we can have some chunks with 0 as sub_stripes.
 
-In addition, the PerfTscSize field at ECX[17:16] should also be zero
-because KVM does not set the PERFTSC bit at CPUID.80000001H.ECX[27].
+This will cause divide-by-zero errors at btrfs_rmap_block, which is
+introduced by a recent kernel patch ac0677348f3c ("btrfs: merge
+calculations for simple striped profiles in btrfs_rmap_block"):
 
-Fixes: 24c82e576b78 ("KVM: Sanitize cpuid")
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20220929225203.2234702-3-jmattson@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+		if (map->type & (BTRFS_BLOCK_GROUP_RAID0 |
+				 BTRFS_BLOCK_GROUP_RAID10)) {
+			stripe_nr = stripe_nr * map->num_stripes + i;
+			stripe_nr = div_u64(stripe_nr, map->sub_stripes); <<<
+		}
+
+[CAUSE]
+>From the more recent report, it has been proven that we have some chunks
+with 0 as sub_stripes, mostly caused by older mkfs.
+
+It turns out that the mkfs.btrfs fix is only introduced in 6718ab4d33aa
+("btrfs-progs: Initialize sub_stripes to 1 in btrfs_alloc_data_chunk")
+which is included in v5.4 btrfs-progs release.
+
+So there would be quite some old filesystems with such 0 sub_stripes.
+
+[FIX]
+Just don't trust the sub_stripes values from disk.
+
+We have a trusted btrfs_raid_array[] to fetch the correct sub_stripes
+numbers for each profile and that are fixed.
+
+By this, we can keep the compatibility with older filesystems while
+still avoid divide-by-zero bugs.
+
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Reported-by: Viktor Kuzmin <kvaster@gmail.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=216559
+Fixes: ac0677348f3c ("btrfs: merge calculations for simple striped profiles in btrfs_rmap_block")
+CC: stable@vger.kernel.org # 6.0
+Reviewed-by: Su Yue <glass@fydeos.io>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/volumes.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -680,6 +680,7 @@ static inline int __do_cpuid_ent(struct
- 			g_phys_as = phys_as;
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -7029,6 +7029,7 @@ static int read_one_chunk(struct btrfs_k
+ 	u64 devid;
+ 	u64 type;
+ 	u8 uuid[BTRFS_UUID_SIZE];
++	int index;
+ 	int num_stripes;
+ 	int ret;
+ 	int i;
+@@ -7036,6 +7037,7 @@ static int read_one_chunk(struct btrfs_k
+ 	logical = key->offset;
+ 	length = btrfs_chunk_length(leaf, chunk);
+ 	type = btrfs_chunk_type(leaf, chunk);
++	index = btrfs_bg_flags_to_raid_index(type);
+ 	num_stripes = btrfs_chunk_num_stripes(leaf, chunk);
  
- 		entry->eax = g_phys_as | (virt_as << 8);
-+		entry->ecx &= ~(GENMASK(31, 16) | GENMASK(11, 8));
- 		entry->edx = 0;
- 		/*
- 		 * IBRS, IBPB and VIRT_SSBD aren't necessarily present in
+ #if BITS_PER_LONG == 32
+@@ -7089,7 +7091,15 @@ static int read_one_chunk(struct btrfs_k
+ 	map->io_align = btrfs_chunk_io_align(leaf, chunk);
+ 	map->stripe_len = btrfs_chunk_stripe_len(leaf, chunk);
+ 	map->type = type;
+-	map->sub_stripes = btrfs_chunk_sub_stripes(leaf, chunk);
++	/*
++	 * We can't use the sub_stripes value, as for profiles other than
++	 * RAID10, they may have 0 as sub_stripes for filesystems created by
++	 * older mkfs (<v5.4).
++	 * In that case, it can cause divide-by-zero errors later.
++	 * Since currently sub_stripes is fixed for each profile, let's
++	 * use the trusted value instead.
++	 */
++	map->sub_stripes = btrfs_raid_array[index].sub_stripes;
+ 	map->verified_stripes = 0;
+ 	em->orig_block_len = btrfs_calc_stripe_length(em);
+ 	for (i = 0; i < num_stripes; i++) {
 
 
