@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0841A621490
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72FDB621573
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234977AbiKHOCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:02:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37052 "EHLO
+        id S235280AbiKHOMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:12:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234991AbiKHOCb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:02:31 -0500
+        with ESMTP id S235281AbiKHOMK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:10 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0420768685
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:02:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C966379
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:11:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9580061595
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:02:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F8E3C433C1;
-        Tue,  8 Nov 2022 14:02:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CFBC6157D
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:11:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B42C433D6;
+        Tue,  8 Nov 2022 14:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916149;
-        bh=iLi94TTNHaRfdweBO4NUQ7y7X3VKREWQspFqTt0diRg=;
+        s=korg; t=1667916700;
+        bh=3jXtpSIwEXAW4EAq4OZoPSPi8/gX8DtutC4ENnfdEM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ILASNCSbVQYULC0sKVNSISJOhcouRZocIrEnK8mCIwWSZa3x2AVjnPDMYEfqWjHH
-         Ci58EtnyL1j3eZO67o9toTHzv9HwYe0jcs7tFvX7fgF0nZRhh6uBEfbyePPImTp1WK
-         bp+x8N7Tve2TQFW17h6jfuGQ2gM1SB8bWoXoKqfQ=
+        b=m33dkys7o0Jw6ySkSefFwgoWWh2+CoiE2lTlElRI4QBPHoZo3USA6LCysahh23fl+
+         mMsn9/VMDN/id260G4iVapHtU8xW6+7oayA/WTVAnDTkMFhB9qf2Q7ZoxOy1S88xe1
+         M5w9opXPfylsCI1RONkoGNQ37TUPNkLrEJIWW50g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Soenke Huster <soenke.huster@eknoes.de>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, YuBiao Wang <YuBiao.Wang@amd.com>,
+        Jack Xiao <Jack.Xiao@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 049/144] Bluetooth: virtio_bt: Use skb_put to set length
+Subject: [PATCH 6.0 088/197] drm/amdgpu: dequeue mes scheduler during fini
 Date:   Tue,  8 Nov 2022 14:38:46 +0100
-Message-Id: <20221108133347.352485484@linuxfoundation.org>
+Message-Id: <20221108133358.844088061@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Soenke Huster <soenke.huster@eknoes.de>
+From: YuBiao Wang <YuBiao.Wang@amd.com>
 
-[ Upstream commit 160fbcf3bfb93c3c086427f9f4c8bc70f217e9be ]
+[ Upstream commit 2abe92c7adc9c0397ba51bf74909b85bc0fff84b ]
 
-By using skb_put we ensure that skb->tail is set
-correctly. Currently, skb->tail is always zero, which
-leads to errors, such as the following page fault in
-rfcomm_recv_frame:
+[Why]
+If mes is not dequeued during fini, mes will be in an uncleaned state
+during reload, then mes couldn't receive some commands which leads to
+reload failure.
 
-    BUG: unable to handle page fault for address: ffffed1021de29ff
-    #PF: supervisor read access in kernel mode
-    #PF: error_code(0x0000) - not-present page
-    RIP: 0010:rfcomm_run+0x831/0x4040 (net/bluetooth/rfcomm/core.c:1751)
+[How]
+Perform MES dequeue via MMIO after all the unmap jobs are done by mes
+and before kiq fini.
 
-Fixes: afd2daa26c7a ("Bluetooth: Add support for virtio transport driver")
-Signed-off-by: Soenke Huster <soenke.huster@eknoes.de>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+v2: Move the dequeue operation inside kiq_hw_fini.
+
+Signed-off-by: YuBiao Wang <YuBiao.Wang@amd.com>
+Reviewed-by: Jack Xiao <Jack.Xiao@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/virtio_bt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/mes_v11_0.c | 42 ++++++++++++++++++++++++--
+ 1 file changed, 39 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/bluetooth/virtio_bt.c b/drivers/bluetooth/virtio_bt.c
-index 076e4942a3f0..612f10456849 100644
---- a/drivers/bluetooth/virtio_bt.c
-+++ b/drivers/bluetooth/virtio_bt.c
-@@ -219,7 +219,7 @@ static void virtbt_rx_work(struct work_struct *work)
- 	if (!skb)
- 		return;
+diff --git a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
+index f92744b8d79d..2dd827472d6e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
+@@ -1145,6 +1145,42 @@ static int mes_v11_0_sw_fini(void *handle)
+ 	return 0;
+ }
  
--	skb->len = len;
-+	skb_put(skb, len);
- 	virtbt_rx_handle(vbt, skb);
++static void mes_v11_0_kiq_dequeue_sched(struct amdgpu_device *adev)
++{
++	uint32_t data;
++	int i;
++
++	mutex_lock(&adev->srbm_mutex);
++	soc21_grbm_select(adev, 3, AMDGPU_MES_SCHED_PIPE, 0, 0);
++
++	/* disable the queue if it's active */
++	if (RREG32_SOC15(GC, 0, regCP_HQD_ACTIVE) & 1) {
++		WREG32_SOC15(GC, 0, regCP_HQD_DEQUEUE_REQUEST, 1);
++		for (i = 0; i < adev->usec_timeout; i++) {
++			if (!(RREG32_SOC15(GC, 0, regCP_HQD_ACTIVE) & 1))
++				break;
++			udelay(1);
++		}
++	}
++	data = RREG32_SOC15(GC, 0, regCP_HQD_PQ_DOORBELL_CONTROL);
++	data = REG_SET_FIELD(data, CP_HQD_PQ_DOORBELL_CONTROL,
++				DOORBELL_EN, 0);
++	data = REG_SET_FIELD(data, CP_HQD_PQ_DOORBELL_CONTROL,
++				DOORBELL_HIT, 1);
++	WREG32_SOC15(GC, 0, regCP_HQD_PQ_DOORBELL_CONTROL, data);
++
++	WREG32_SOC15(GC, 0, regCP_HQD_PQ_DOORBELL_CONTROL, 0);
++
++	WREG32_SOC15(GC, 0, regCP_HQD_PQ_WPTR_LO, 0);
++	WREG32_SOC15(GC, 0, regCP_HQD_PQ_WPTR_HI, 0);
++	WREG32_SOC15(GC, 0, regCP_HQD_PQ_RPTR, 0);
++
++	soc21_grbm_select(adev, 0, 0, 0, 0);
++	mutex_unlock(&adev->srbm_mutex);
++
++	adev->mes.ring.sched.ready = false;
++}
++
+ static void mes_v11_0_kiq_setting(struct amdgpu_ring *ring)
+ {
+ 	uint32_t tmp;
+@@ -1196,6 +1232,9 @@ static int mes_v11_0_kiq_hw_init(struct amdgpu_device *adev)
  
- 	if (virtbt_add_inbuf(vbt) < 0)
+ static int mes_v11_0_kiq_hw_fini(struct amdgpu_device *adev)
+ {
++	if (adev->mes.ring.sched.ready)
++		mes_v11_0_kiq_dequeue_sched(adev);
++
+ 	mes_v11_0_enable(adev, false);
+ 	return 0;
+ }
+@@ -1251,9 +1290,6 @@ static int mes_v11_0_hw_init(void *handle)
+ 
+ static int mes_v11_0_hw_fini(void *handle)
+ {
+-	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+-
+-	adev->mes.ring.sched.ready = false;
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
