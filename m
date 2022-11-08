@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7402A621336
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 376976213C0
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:53:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234476AbiKHNsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:48:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47506 "EHLO
+        id S234762AbiKHNxs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:53:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234593AbiKHNr6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:47:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1BB959876
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:47:57 -0800 (PST)
+        with ESMTP id S234773AbiKHNxe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:53:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21807271C
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:53:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 804586158F
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:47:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98537C433C1;
-        Tue,  8 Nov 2022 13:47:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CBDE4B81AE8
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:53:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19B30C433C1;
+        Tue,  8 Nov 2022 13:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915276;
-        bh=bJoihr3C7IrxlfE0vBiU8a9VsVFvgPp8C4N1PA3tR9M=;
+        s=korg; t=1667915599;
+        bh=tRA57BzhGvqWb6l8iUVKP8gYZ6bH22jiKTH5/LMcxwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ztv2gahIGDloDQbkWgbIYWq+DFXSocf3kI2Qe+KX0zzcukokNOshtH+SQFsjpQ9yv
-         oV+w2ZPchuxoNjqaQgthbg0+JH1caFb0DmJBQqmKK5f4v5CYP2wcRrx/5RoYfhjOPA
-         X7q/4gQU3n+hYtIoNmiaXv011h1S+Zpc2NI7r2ng=
+        b=aZjJ5fQBb6CrS+I16i7xJOF829AyIW/EmbjY1rsN7z2XlleB+Qein+gzTeJ6HS5bb
+         4xqN5CTbe5Iain3hzQoChl6za+DnFT6TrxesUa+pnsqvFsSAnTS2RR0PRgfdYOYheZ
+         KkndnzUp68E+kue0l9R/xWYscntCzYo7YcT/dv+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 06/74] net: dsa: Fix possible memory leaks in dsa_loop_init()
+Subject: [PATCH 5.10 036/118] rose: Fix NULL pointer dereference in rose_send_frame()
 Date:   Tue,  8 Nov 2022 14:38:34 +0100
-Message-Id: <20221108133333.928044205@linuxfoundation.org>
+Message-Id: <20221108133342.234691337@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,106 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 633efc8b3dc96f56f5a57f2a49764853a2fa3f50 ]
+[ Upstream commit e97c089d7a49f67027395ddf70bf327eeac2611e ]
 
-kmemleak reported memory leaks in dsa_loop_init():
+The syzkaller reported an issue:
 
-kmemleak: 12 new suspected memory leaks
+KASAN: null-ptr-deref in range [0x0000000000000380-0x0000000000000387]
+CPU: 0 PID: 4069 Comm: kworker/0:15 Not tainted 6.0.0-syzkaller-02734-g0326074ff465 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
+Workqueue: rcu_gp srcu_invoke_callbacks
+RIP: 0010:rose_send_frame+0x1dd/0x2f0 net/rose/rose_link.c:101
+Call Trace:
+ <IRQ>
+ rose_transmit_clear_request+0x1d5/0x290 net/rose/rose_link.c:255
+ rose_rx_call_request+0x4c0/0x1bc0 net/rose/af_rose.c:1009
+ rose_loopback_timer+0x19e/0x590 net/rose/rose_loopback.c:111
+ call_timer_fn+0x1a0/0x6b0 kernel/time/timer.c:1474
+ expire_timers kernel/time/timer.c:1519 [inline]
+ __run_timers.part.0+0x674/0xa80 kernel/time/timer.c:1790
+ __run_timers kernel/time/timer.c:1768 [inline]
+ run_timer_softirq+0xb3/0x1d0 kernel/time/timer.c:1803
+ __do_softirq+0x1d0/0x9c8 kernel/softirq.c:571
+ [...]
+ </IRQ>
 
-unreferenced object 0xffff8880138ce000 (size 2048):
-  comm "modprobe", pid 390, jiffies 4295040478 (age 238.976s)
-  backtrace:
-    [<000000006a94f1d5>] kmalloc_trace+0x26/0x60
-    [<00000000a9c44622>] phy_device_create+0x5d/0x970
-    [<00000000d0ee2afc>] get_phy_device+0xf3/0x2b0
-    [<00000000dca0c71f>] __fixed_phy_register.part.0+0x92/0x4e0
-    [<000000008a834798>] fixed_phy_register+0x84/0xb0
-    [<0000000055223fcb>] dsa_loop_init+0xa9/0x116 [dsa_loop]
-    ...
+It triggers NULL pointer dereference when 'neigh->dev->dev_addr' is
+called in the rose_send_frame(). It's the first occurrence of the
+`neigh` is in rose_loopback_timer() as `rose_loopback_neigh', and
+the 'dev' in 'rose_loopback_neigh' is initialized sa nullptr.
 
-There are two reasons for memleak in dsa_loop_init().
+It had been fixed by commit 3b3fd068c56e3fbea30090859216a368398e39bf
+("rose: Fix Null pointer dereference in rose_send_frame()") ever.
+But it's introduced by commit 3c53cd65dece47dd1f9d3a809f32e59d1d87b2b8
+("rose: check NULL rose_loopback_neigh->loopback") again.
 
-First, fixed_phy_register() create and register phy_device:
+We fix it by add NULL check in rose_transmit_clear_request(). When
+the 'dev' in 'neigh' is NULL, we don't reply the request and just
+clear it.
 
-fixed_phy_register()
-  get_phy_device()
-    phy_device_create() # freed by phy_device_free()
-  phy_device_register() # freed by phy_device_remove()
+syzkaller don't provide repro, and I provide a syz repro like:
+r0 = syz_init_net_socket$bt_sco(0x1f, 0x5, 0x2)
+ioctl$sock_inet_SIOCSIFFLAGS(r0, 0x8914, &(0x7f0000000180)={'rose0\x00', 0x201})
+r1 = syz_init_net_socket$rose(0xb, 0x5, 0x0)
+bind$rose(r1, &(0x7f00000000c0)=@full={0xb, @dev, @null, 0x0, [@null, @null, @netrom, @netrom, @default, @null]}, 0x40)
+connect$rose(r1, &(0x7f0000000240)=@short={0xb, @dev={0xbb, 0xbb, 0xbb, 0x1, 0x0}, @remote={0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0x1}, 0x1, @netrom={0xbb, 0xbb, 0xbb, 0xbb, 0xbb, 0x0, 0x0}}, 0x1c)
 
-But fixed_phy_unregister() only calls phy_device_remove().
-So the memory allocated in phy_device_create() is leaked.
-
-Second, when mdio_driver_register() fail in dsa_loop_init(),
-it just returns and there is no cleanup for phydevs.
-
-Fix the problems by catching the error of mdio_driver_register()
-in dsa_loop_init(), then calling both fixed_phy_unregister() and
-phy_device_free() to release phydevs.
-Also add a function for phydevs cleanup to avoid duplacate.
-
-Fixes: 98cd1552ea27 ("net: dsa: Mock-up driver")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Fixes: 3c53cd65dece ("rose: check NULL rose_loopback_neigh->loopback")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/dsa_loop.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ net/rose/rose_link.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/dsa/dsa_loop.c b/drivers/net/dsa/dsa_loop.c
-index 0df6c2b9484a..e99e38c6738e 100644
---- a/drivers/net/dsa/dsa_loop.c
-+++ b/drivers/net/dsa/dsa_loop.c
-@@ -329,6 +329,17 @@ static struct mdio_driver dsa_loop_drv = {
+diff --git a/net/rose/rose_link.c b/net/rose/rose_link.c
+index f6102e6f5161..730d2205f197 100644
+--- a/net/rose/rose_link.c
++++ b/net/rose/rose_link.c
+@@ -236,6 +236,9 @@ void rose_transmit_clear_request(struct rose_neigh *neigh, unsigned int lci, uns
+ 	unsigned char *dptr;
+ 	int len;
  
- #define NUM_FIXED_PHYS	(DSA_LOOP_NUM_PORTS - 2)
- 
-+static void dsa_loop_phydevs_unregister(void)
-+{
-+	unsigned int i;
++	if (!neigh->dev)
++		return;
 +
-+	for (i = 0; i < NUM_FIXED_PHYS; i++)
-+		if (!IS_ERR(phydevs[i])) {
-+			fixed_phy_unregister(phydevs[i]);
-+			phy_device_free(phydevs[i]);
-+		}
-+}
-+
- static int __init dsa_loop_init(void)
- {
- 	struct fixed_phy_status status = {
-@@ -336,23 +347,23 @@ static int __init dsa_loop_init(void)
- 		.speed = SPEED_100,
- 		.duplex = DUPLEX_FULL,
- 	};
--	unsigned int i;
-+	unsigned int i, ret;
+ 	len = AX25_BPQ_HEADER_LEN + AX25_MAX_HEADER_LEN + ROSE_MIN_LEN + 3;
  
- 	for (i = 0; i < NUM_FIXED_PHYS; i++)
- 		phydevs[i] = fixed_phy_register(PHY_POLL, &status, NULL);
- 
--	return mdio_driver_register(&dsa_loop_drv);
-+	ret = mdio_driver_register(&dsa_loop_drv);
-+	if (ret)
-+		dsa_loop_phydevs_unregister();
-+
-+	return ret;
- }
- module_init(dsa_loop_init);
- 
- static void __exit dsa_loop_exit(void)
- {
--	unsigned int i;
--
- 	mdio_driver_unregister(&dsa_loop_drv);
--	for (i = 0; i < NUM_FIXED_PHYS; i++)
--		if (!IS_ERR(phydevs[i]))
--			fixed_phy_unregister(phydevs[i]);
-+	dsa_loop_phydevs_unregister();
- }
- module_exit(dsa_loop_exit);
- 
+ 	if ((skb = alloc_skb(len, GFP_ATOMIC)) == NULL)
 -- 
 2.35.1
 
