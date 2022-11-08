@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B564621422
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:57:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4F036214E0
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:06:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234874AbiKHN5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:57:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59210 "EHLO
+        id S235052AbiKHOGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:06:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234845AbiKHN5b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:57:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B01466C97
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:57:29 -0800 (PST)
+        with ESMTP id S234930AbiKHOF6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:05:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8533A70548
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:05:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC2496130A
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:57:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF5F9C433D6;
-        Tue,  8 Nov 2022 13:57:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21C9F6152D
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:05:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D91BC433D6;
+        Tue,  8 Nov 2022 14:05:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915848;
-        bh=rjWxhgbkosM9Hp0TQLB7xGjeaqqqeWhofSp0qszvgtY=;
+        s=korg; t=1667916356;
+        bh=rv4OH1ZlDyLYsx392EQr/NEouE8InVf9CyhZ7tlJGnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BdSAODCDDpaAoeINSbmHCPrKPcpC3CBlfvB+NUgOBL0YYXBmSHjhniyBqL3GkWS1B
-         naYHNBDLujGHqzGFBLyst/QtQG68AJwWCM8pIkpD5O3T3W1njuxyhd1iBNuzXxIeBH
-         8eVRswFtd3LI4OZ+k0lV//dqyYvGFGJ3WT8JfVRs=
+        b=yqQ1XIxlDXQUnhv9dXZMGFDbbgW4JPaNYbNFA5L4GJuo7CQKdA39eNwNnqO88j1W8
+         JkhEVcCPqIpqinmahpLE/ZSw5oZKwBnpG8Wkdzb+gFnMxSge4zL54IONML0/F7udQV
+         QZ5b++ZFCeVpnIN6tLapOrNLhR9VbT9P3vyu9sfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 109/118] KVM: x86: Mask off reserved bits in CPUID.80000001H
+        patches@lists.linux.dev,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Willy Tarreau <w@1wt.eu>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.15 110/144] tools/nolibc/string: Fix memcmp() implementation
 Date:   Tue,  8 Nov 2022 14:39:47 +0100
-Message-Id: <20221108133345.450397530@linuxfoundation.org>
+Message-Id: <20221108133349.963572091@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,32 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit 0469e56a14bf8cfb80507e51b7aeec0332cdbc13 upstream.
+commit b3f4f51ea68a495f8a5956064c33dce711a2df91 upstream.
 
-KVM_GET_SUPPORTED_CPUID should only enumerate features that KVM
-actually supports. CPUID.80000001:EBX[27:16] are reserved bits and
-should be masked off.
+The C standard says that memcmp() must treat the buffers as consisting
+of "unsigned chars". If char happens to be unsigned, the casts are ok,
+but then obviously the c1 variable can never contain a negative
+value. And when char is signed, the casts are wrong, and there's still
+a problem with using an 8-bit quantity to hold the difference, because
+that can range from -255 to +255.
 
-Fixes: 0771671749b5 ("KVM: Enhance guest cpuid management")
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+For example, assuming char is signed, comparing two 1-byte buffers,
+one containing 0x00 and another 0x80, the current implementation would
+return -128 for both memcmp(a, b, 1) and memcmp(b, a, 1), whereas one
+of those should of course return something positive.
+
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Fixes: 66b6f755ad45 ("rcutorture: Import a copy of nolibc")
+Cc: stable@vger.kernel.org # v5.0+
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c |    1 +
- 1 file changed, 1 insertion(+)
+ tools/include/nolibc/nolibc.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -813,6 +813,7 @@ static inline int __do_cpuid_func(struct
- 		entry->eax = min(entry->eax, 0x8000001f);
- 		break;
- 	case 0x80000001:
-+		entry->ebx &= ~GENMASK(27, 16);
- 		cpuid_entry_override(entry, CPUID_8000_0001_EDX);
- 		cpuid_entry_override(entry, CPUID_8000_0001_ECX);
- 		break;
+--- a/tools/include/nolibc/nolibc.h
++++ b/tools/include/nolibc/nolibc.h
+@@ -2408,9 +2408,9 @@ static __attribute__((unused))
+ int memcmp(const void *s1, const void *s2, size_t n)
+ {
+ 	size_t ofs = 0;
+-	char c1 = 0;
++	int c1 = 0;
+ 
+-	while (ofs < n && !(c1 = ((char *)s1)[ofs] - ((char *)s2)[ofs])) {
++	while (ofs < n && !(c1 = ((unsigned char *)s1)[ofs] - ((unsigned char *)s2)[ofs])) {
+ 		ofs++;
+ 	}
+ 	return c1;
 
 
