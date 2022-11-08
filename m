@@ -2,158 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11DA262130C
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:45:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3630762133E
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234485AbiKHNp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:45:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46002 "EHLO
+        id S234545AbiKHNsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:48:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234496AbiKHNpz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:45:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CD9D59FEA
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:45:54 -0800 (PST)
+        with ESMTP id S234352AbiKHNsT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1571B5F84E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58DBCB81AE4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:45:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB290C433D6;
-        Tue,  8 Nov 2022 13:45:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6C94615A1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7C4AC433D6;
+        Tue,  8 Nov 2022 13:48:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915152;
-        bh=nLUkhrd+SjCKnmbiXr8kRpXFZ3+z5VqJ3YBktH3Kzqs=;
+        s=korg; t=1667915298;
+        bh=KWaQKktsbFlyJSg7oCSpxjfuY1MR5MTrUy/T5IqU3cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KVozvCOBU6kWRsdR3RshGxoSVQXDRMM8NwtWfH7FE8NG8lZIx8r8SeePlHonhpMr8
-         iuNq8PdjfJQG7VCCrBflzlHAS2puEYSccTQc0khNp9j4nNrAOMPOOOI7oCe764M7et
-         x9d3HO9XHKxcmVi0fBZi2t3d1yad66ldFoN27H9Q=
+        b=eUfxNXhqqFrkW65GJ1fwAJV5KC5CIov0/zzhrCx5dDLW6gBZ0GXSGs9C1XKYEj/Eu
+         KUxchuFwXWf7yU/WEm0yOZyy3oBMzEKaUf2alrftKTTaO4g63YT7tvypd2AbigXMNV
+         X9j312XPi5wgVwsA1LDsAYCMsmt/S0mBZkALp45E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/48] net: dsa: Fix possible memory leaks in dsa_loop_init()
+Subject: [PATCH 5.4 21/74] isdn: mISDN: netjet: fix wrong check of device registration
 Date:   Tue,  8 Nov 2022 14:38:49 +0100
-Message-Id: <20221108133329.686871924@linuxfoundation.org>
+Message-Id: <20221108133334.588660091@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 633efc8b3dc96f56f5a57f2a49764853a2fa3f50 ]
+[ Upstream commit bf00f5426074249058a106a6edbb89e4b25a4d79 ]
 
-kmemleak reported memory leaks in dsa_loop_init():
+The class is set in mISDN_register_device(), but if device_add() returns
+error, it will lead to delete a device without added, fix this by using
+device_is_registered() to check if the device is registered.
 
-kmemleak: 12 new suspected memory leaks
-
-unreferenced object 0xffff8880138ce000 (size 2048):
-  comm "modprobe", pid 390, jiffies 4295040478 (age 238.976s)
-  backtrace:
-    [<000000006a94f1d5>] kmalloc_trace+0x26/0x60
-    [<00000000a9c44622>] phy_device_create+0x5d/0x970
-    [<00000000d0ee2afc>] get_phy_device+0xf3/0x2b0
-    [<00000000dca0c71f>] __fixed_phy_register.part.0+0x92/0x4e0
-    [<000000008a834798>] fixed_phy_register+0x84/0xb0
-    [<0000000055223fcb>] dsa_loop_init+0xa9/0x116 [dsa_loop]
-    ...
-
-There are two reasons for memleak in dsa_loop_init().
-
-First, fixed_phy_register() create and register phy_device:
-
-fixed_phy_register()
-  get_phy_device()
-    phy_device_create() # freed by phy_device_free()
-  phy_device_register() # freed by phy_device_remove()
-
-But fixed_phy_unregister() only calls phy_device_remove().
-So the memory allocated in phy_device_create() is leaked.
-
-Second, when mdio_driver_register() fail in dsa_loop_init(),
-it just returns and there is no cleanup for phydevs.
-
-Fix the problems by catching the error of mdio_driver_register()
-in dsa_loop_init(), then calling both fixed_phy_unregister() and
-phy_device_free() to release phydevs.
-Also add a function for phydevs cleanup to avoid duplacate.
-
-Fixes: 98cd1552ea27 ("net: dsa: Mock-up driver")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Fixes: a900845e5661 ("mISDN: Add support for Traverse Technologies NETJet PCI cards")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/dsa_loop.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/isdn/hardware/mISDN/netjet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/dsa_loop.c b/drivers/net/dsa/dsa_loop.c
-index 990de7c54b46..30f8f0117a30 100644
---- a/drivers/net/dsa/dsa_loop.c
-+++ b/drivers/net/dsa/dsa_loop.c
-@@ -333,6 +333,17 @@ static struct mdio_driver dsa_loop_drv = {
+diff --git a/drivers/isdn/hardware/mISDN/netjet.c b/drivers/isdn/hardware/mISDN/netjet.c
+index 8299defff55a..6d818d5d1377 100644
+--- a/drivers/isdn/hardware/mISDN/netjet.c
++++ b/drivers/isdn/hardware/mISDN/netjet.c
+@@ -956,7 +956,7 @@ nj_release(struct tiger_hw *card)
+ 	}
+ 	if (card->irq > 0)
+ 		free_irq(card->irq, card);
+-	if (card->isac.dch.dev.dev.class)
++	if (device_is_registered(&card->isac.dch.dev.dev))
+ 		mISDN_unregister_device(&card->isac.dch.dev);
  
- #define NUM_FIXED_PHYS	(DSA_LOOP_NUM_PORTS - 2)
- 
-+static void dsa_loop_phydevs_unregister(void)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < NUM_FIXED_PHYS; i++)
-+		if (!IS_ERR(phydevs[i])) {
-+			fixed_phy_unregister(phydevs[i]);
-+			phy_device_free(phydevs[i]);
-+		}
-+}
-+
- static int __init dsa_loop_init(void)
- {
- 	struct fixed_phy_status status = {
-@@ -340,23 +351,23 @@ static int __init dsa_loop_init(void)
- 		.speed = SPEED_100,
- 		.duplex = DUPLEX_FULL,
- 	};
--	unsigned int i;
-+	unsigned int i, ret;
- 
- 	for (i = 0; i < NUM_FIXED_PHYS; i++)
- 		phydevs[i] = fixed_phy_register(PHY_POLL, &status, -1, NULL);
- 
--	return mdio_driver_register(&dsa_loop_drv);
-+	ret = mdio_driver_register(&dsa_loop_drv);
-+	if (ret)
-+		dsa_loop_phydevs_unregister();
-+
-+	return ret;
- }
- module_init(dsa_loop_init);
- 
- static void __exit dsa_loop_exit(void)
- {
--	unsigned int i;
--
- 	mdio_driver_unregister(&dsa_loop_drv);
--	for (i = 0; i < NUM_FIXED_PHYS; i++)
--		if (!IS_ERR(phydevs[i]))
--			fixed_phy_unregister(phydevs[i]);
-+	dsa_loop_phydevs_unregister();
- }
- module_exit(dsa_loop_exit);
- 
+ 	for (i = 0; i < 2; i++) {
 -- 
 2.35.1
 
