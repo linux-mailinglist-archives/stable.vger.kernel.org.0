@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CDDB621302
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:45:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45DD962134F
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:49:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234170AbiKHNpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:45:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
+        id S234555AbiKHNtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:49:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234518AbiKHNpY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:45:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25DB459848
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:45:22 -0800 (PST)
+        with ESMTP id S234561AbiKHNtG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:49:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C70129E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:49:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4567B81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:45:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE195C433C1;
-        Tue,  8 Nov 2022 13:45:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D66EEB81AF7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:49:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00E46C43140;
+        Tue,  8 Nov 2022 13:49:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915119;
-        bh=/wGlT+QhkWG2h4FTk1k4oTukuTiH9gjGcU7KB5wHmPM=;
+        s=korg; t=1667915343;
+        bh=NpTtqdMNxT1KjmVtp4h6K8oH+flM8cd/rKUZBHfnVow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sg2dFdg4UKcq0e+9Tv6Ko5rML2s8PN5xMuG5gThMzRMoQWOEcFztvFUAGFJv2oODs
-         C6VZJD1GCQxX1qSWTX1zIIYL87OQRmqyEXZt0yvxZw5s30aqhWKF7RWW6KPipIne0a
-         TyetYsnc7yK3GxhMG0Yj2KJhOXgpgLxkKR91wddc=
+        b=v8ubHlXGOAd0dtNZ5UNJzov0ohDU06uZtFWW4by+SQmSTpUEz0XF68z9YXEMOQZ3i
+         ulKwm3LvIsXJaxBOMgJ0i5LNuNU06yWhBViVAn/x8SNNXO7smcDp1Woz7AAoKDxdyK
+         TuNP9ZjloesB+lMSAZL4jb6uABUjlRXuAO33uZrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Uday Shankar <ushankar@purestorage.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/48] mISDN: fix possible memory leak in mISDN_register_device()
-Date:   Tue,  8 Nov 2022 14:39:01 +0100
-Message-Id: <20221108133330.079793428@linuxfoundation.org>
+Subject: [PATCH 5.4 34/74] scsi: core: Restrict legal sdev_state transitions via sysfs
+Date:   Tue,  8 Nov 2022 14:39:02 +0100
+Message-Id: <20221108133335.116689456@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Uday Shankar <ushankar@purestorage.com>
 
-[ Upstream commit e7d1d4d9ac0dfa40be4c2c8abd0731659869b297 ]
+[ Upstream commit 2331ce6126be8864b39490e705286b66e2344aac ]
 
-Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
-bus_id string array"), the name of device is allocated dynamically,
-add put_device() to give up the reference, so that the name can be
-freed in kobject_cleanup() when the refcount is 0.
+Userspace can currently write to sysfs to transition sdev_state to RUNNING
+or OFFLINE from any source state. This causes issues because proper
+transitioning out of some states involves steps besides just changing
+sdev_state, so allowing userspace to change sdev_state regardless of the
+source state can result in inconsistencies; e.g. with ISCSI we can end up
+with sdev_state == SDEV_RUNNING while the device queue is quiesced. Any
+task attempting I/O on the device will then hang, and in more recent
+kernels, iscsid will hang as well.
 
-Set device class before put_device() to avoid null release() function
-WARN message in device_release().
+More detail about this bug is provided in my first attempt:
 
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+https://groups.google.com/g/open-iscsi/c/PNKca4HgPDs/m/CXaDkntOAQAJ
+
+Link: https://lore.kernel.org/r/20220924000241.2967323-1-ushankar@purestorage.com
+Signed-off-by: Uday Shankar <ushankar@purestorage.com>
+Suggested-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/mISDN/core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_sysfs.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
-index f5a06a6fb297..5cd53b2c47c7 100644
---- a/drivers/isdn/mISDN/core.c
-+++ b/drivers/isdn/mISDN/core.c
-@@ -242,11 +242,12 @@ mISDN_register_device(struct mISDNdevice *dev,
- 	if (debug & DEBUG_CORE)
- 		printk(KERN_DEBUG "mISDN_register %s %d\n",
- 		       dev_name(&dev->dev), dev->id);
-+	dev->dev.class = &mISDN_class;
-+
- 	err = create_stack(dev);
- 	if (err)
- 		goto error1;
+diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+index 6faf1d6451b0..530b14685fd7 100644
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -795,6 +795,14 @@ store_state_field(struct device *dev, struct device_attribute *attr,
+ 	}
  
--	dev->dev.class = &mISDN_class;
- 	dev->dev.platform_data = dev;
- 	dev->dev.parent = parent;
- 	dev_set_drvdata(&dev->dev, dev);
-@@ -258,8 +259,8 @@ mISDN_register_device(struct mISDNdevice *dev,
- 
- error3:
- 	delete_stack(dev);
--	return err;
- error1:
-+	put_device(&dev->dev);
- 	return err;
- 
- }
+ 	mutex_lock(&sdev->state_mutex);
++	switch (sdev->sdev_state) {
++	case SDEV_RUNNING:
++	case SDEV_OFFLINE:
++		break;
++	default:
++		mutex_unlock(&sdev->state_mutex);
++		return -EINVAL;
++	}
+ 	if (sdev->sdev_state == SDEV_RUNNING && state == SDEV_RUNNING) {
+ 		ret = 0;
+ 	} else {
 -- 
 2.35.1
 
