@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 817EA62156B
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3A8B6213DA
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:54:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235244AbiKHOMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:12:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49610 "EHLO
+        id S234730AbiKHNyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:54:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235330AbiKHOLk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:11:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6D3EC8A20
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:11:18 -0800 (PST)
+        with ESMTP id S234677AbiKHNyi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:54:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB384CCF
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:54:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66875615B5
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:11:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A37CC433D6;
-        Tue,  8 Nov 2022 14:11:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BB9CB81AF2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:54:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C958BC433D6;
+        Tue,  8 Nov 2022 13:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916677;
-        bh=AtKkr/6iN2ssQ29OHf7ZNgz8aPA6+2aCQq584HXIcqw=;
+        s=korg; t=1667915675;
+        bh=Vje9gAoWu//vjHCQV2WQYJ3jC/VDrOWpj/Foi4eVcco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hXzeV7Mv0mtdi1ndIeOvug+pIzMmqqGbWISyJ8TpYzQK3OUxa4XGT8xPh/Hxqrrl6
-         1+Jbx6GbpXyFb7DbM/XfgNzYrj8JIdZfhczwBSFnekNC0/NDDEofbbsgW2F69pneVJ
-         tEGMv+0Qbrm3a8VIrpBHoSxtehdcWsa+9w026uog=
+        b=yQ6tpCL6FAesOHEeBq5hg91icmNGyPIKNrP2mM4ucxBxMf6fG7F9c0PMIjskTxcW/
+         XSb4bCbQGdCbP/4/6DK69HguKY+yWXPpKsPwRsBLS6riVJyUPLJ0oN3tz/w5dkcfJ1
+         SpQo6JuOZ5VKysQ6LJ4bKX2GEnYuL45CfWn12t1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Jun <jun.li@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Paul Elder <paul.elder@ideasonboard.com>,
+        Dafna Hirschfeld <dafna@fastmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 099/197] arm64: dts: imx8mm: correct usb power domains
+Subject: [PATCH 5.10 059/118] media: rkisp1: Zero v4l2_subdev_format fields in when validating links
 Date:   Tue,  8 Nov 2022 14:38:57 +0100
-Message-Id: <20221108133359.367109438@linuxfoundation.org>
+Message-Id: <20221108133343.276949855@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 4585c79ff477f9517b7f384a4fce351417e8fa36 ]
+[ Upstream commit c53e3a049f35978a150526671587fd46b1ae7ca1 ]
 
-pgc_otg1/2 is actual the power domain of usb PHY, usb controller
-is in hsio power domain, and pgc_otg1/2 is required to be powered
-up to detect usb remote wakeup, so move the pgc_otg1/2 power domain
-to the usb phy node.
+The local sd_fmt variable in rkisp1_capture_link_validate() has
+uninitialized fields, which causes random failures when calling the
+subdev .get_fmt() operation. Fix it by initializing the variable when
+declaring it, which zeros all other fields.
 
-Fixes: 01df28d80859 ("arm64: dts: imx8mm: put USB controllers into power-domains")
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
+Reviewed-by: Dafna Hirschfeld <dafna@fastmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm.dtsi | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/staging/media/rkisp1/rkisp1-capture.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm.dtsi b/arch/arm64/boot/dts/freescale/imx8mm.dtsi
-index 41204b871f4f..dabd94dc30c4 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm.dtsi
-@@ -276,6 +276,7 @@ usbphynop1: usbphynop1 {
- 		assigned-clocks = <&clk IMX8MM_CLK_USB_PHY_REF>;
- 		assigned-clock-parents = <&clk IMX8MM_SYS_PLL1_100M>;
- 		clock-names = "main_clk";
-+		power-domains = <&pgc_otg1>;
- 	};
+diff --git a/drivers/staging/media/rkisp1/rkisp1-capture.c b/drivers/staging/media/rkisp1/rkisp1-capture.c
+index 0c934ca5adaa..8936f5a81680 100644
+--- a/drivers/staging/media/rkisp1/rkisp1-capture.c
++++ b/drivers/staging/media/rkisp1/rkisp1-capture.c
+@@ -1258,11 +1258,12 @@ static int rkisp1_capture_link_validate(struct media_link *link)
+ 	struct rkisp1_capture *cap = video_get_drvdata(vdev);
+ 	const struct rkisp1_capture_fmt_cfg *fmt =
+ 		rkisp1_find_fmt_cfg(cap, cap->pix.fmt.pixelformat);
+-	struct v4l2_subdev_format sd_fmt;
++	struct v4l2_subdev_format sd_fmt = {
++		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
++		.pad = link->source->index,
++	};
+ 	int ret;
  
- 	usbphynop2: usbphynop2 {
-@@ -285,6 +286,7 @@ usbphynop2: usbphynop2 {
- 		assigned-clocks = <&clk IMX8MM_CLK_USB_PHY_REF>;
- 		assigned-clock-parents = <&clk IMX8MM_SYS_PLL1_100M>;
- 		clock-names = "main_clk";
-+		power-domains = <&pgc_otg2>;
- 	};
- 
- 	soc: soc@0 {
-@@ -1184,7 +1186,7 @@ usbotg1: usb@32e40000 {
- 				assigned-clock-parents = <&clk IMX8MM_SYS_PLL2_500M>;
- 				phys = <&usbphynop1>;
- 				fsl,usbmisc = <&usbmisc1 0>;
--				power-domains = <&pgc_otg1>;
-+				power-domains = <&pgc_hsiomix>;
- 				status = "disabled";
- 			};
- 
-@@ -1204,7 +1206,7 @@ usbotg2: usb@32e50000 {
- 				assigned-clock-parents = <&clk IMX8MM_SYS_PLL2_500M>;
- 				phys = <&usbphynop2>;
- 				fsl,usbmisc = <&usbmisc2 0>;
--				power-domains = <&pgc_otg2>;
-+				power-domains = <&pgc_hsiomix>;
- 				status = "disabled";
- 			};
- 
+-	sd_fmt.which = V4L2_SUBDEV_FORMAT_ACTIVE;
+-	sd_fmt.pad = link->source->index;
+ 	ret = v4l2_subdev_call(sd, pad, get_fmt, NULL, &sd_fmt);
+ 	if (ret)
+ 		return ret;
 -- 
 2.35.1
 
