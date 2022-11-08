@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0B9D621409
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:56:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EEC3621594
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234814AbiKHN4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:56:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58684 "EHLO
+        id S235229AbiKHONR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:13:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234820AbiKHN4k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:56:40 -0500
+        with ESMTP id S235218AbiKHONP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:13:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79A466C87
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:56:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66E53101F1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:13:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73D82B81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:56:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82AAAC433D7;
-        Tue,  8 Nov 2022 13:56:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 207B5B81AF7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:13:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53FEAC433D6;
+        Tue,  8 Nov 2022 14:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915797;
-        bh=ruYVwcD0pygA3xGuMQL2vNu76g0uIown+H+aSRRP5ko=;
+        s=korg; t=1667916792;
+        bh=xchOmP2xv+3mv2Qx/+vqDP5ZWPUF9miybSB7npJONn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZ6J2lJQ+MeCvBvBMewW0PxfA688rHGlUc/gxI2+YKV9SbCv6fOogOWUkNvHeypGP
-         uAU9CRgvE/4ab4urHIzTyMVsBEt7FMUy62ururfgmdCNUbnEj2tSBUt4NjqBtx2RA5
-         rccWeCjktzUVUUdoxN3AtrclP2IzohM1FPQ/dgBY=
+        b=gf7E+7+L35bDgMoD3+jcHRM3BwNpVSXuAMJ4CTpZfVhzqieKUkcMCxegaDdFcr4tL
+         GTpgmwACEWKa3JiNHtNIXoRuzR38zw0Oo1MGxh0XaBynxyy+EQPUkVGiXp0tfIvquo
+         TBbCosSsL+EHmJFB7cebCyTy+OgawUrzgytWeY30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Yejian <zhengyejian1@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 5.10 094/118] tracing/histogram: Update document for KEYS_MAX size
-Date:   Tue,  8 Nov 2022 14:39:32 +0100
-Message-Id: <20221108133344.774516455@linuxfoundation.org>
+        patches@lists.linux.dev, Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 6.0 135/197] cxl/region: Fix region HPA ordering validation
+Date:   Tue,  8 Nov 2022 14:39:33 +0100
+Message-Id: <20221108133401.078138700@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit a635beeacc6d56d2b71c39e6c0103f85b53d108e upstream.
+commit a90accb358ae33ea982a35595573f7a045993f8b upstream.
 
-After commit 4f36c2d85ced ("tracing: Increase tracing map KEYS_MAX size"),
-'keys' supports up to three fields.
+Some regions may not have any address space allocated. Skip them when
+validating HPA order otherwise a crash like the following may result:
 
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Cc: stable@vger.kernel.org
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Link: https://lore.kernel.org/r/20221017103806.2479139-1-zhengyejian1@huawei.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+ devm_cxl_add_region: cxl_acpi cxl_acpi.0: decoder3.4: created region9
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ [..]
+ RIP: 0010:store_targetN+0x655/0x1740 [cxl_core]
+ [..]
+ Call Trace:
+  <TASK>
+  kernfs_fop_write_iter+0x144/0x200
+  vfs_write+0x24a/0x4d0
+  ksys_write+0x69/0xf0
+  do_syscall_64+0x3a/0x90
+
+store_targetN+0x655/0x1740:
+alloc_region_ref at drivers/cxl/core/region.c:676
+(inlined by) cxl_port_attach_region at drivers/cxl/core/region.c:850
+(inlined by) cxl_region_attach at drivers/cxl/core/region.c:1290
+(inlined by) attach_target at drivers/cxl/core/region.c:1410
+(inlined by) store_targetN at drivers/cxl/core/region.c:1453
+
+Cc: <stable@vger.kernel.org>
+Fixes: 384e624bb211 ("cxl/region: Attach endpoint decoders")
+Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/166752182461.947915.497032805239915067.stgit@dwillia2-xfh.jf.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/trace/histogram.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cxl/core/region.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/Documentation/trace/histogram.rst
-+++ b/Documentation/trace/histogram.rst
-@@ -39,7 +39,7 @@ Documentation written by Tom Zanussi
-   will use the event's kernel stacktrace as the key.  The keywords
-   'keys' or 'key' can be used to specify keys, and the keywords
-   'values', 'vals', or 'val' can be used to specify values.  Compound
--  keys consisting of up to two fields can be specified by the 'keys'
-+  keys consisting of up to three fields can be specified by the 'keys'
-   keyword.  Hashing a compound key produces a unique entry in the
-   table for each unique combination of component keys, and can be
-   useful for providing more fine-grained summaries of event data.
+--- a/drivers/cxl/core/region.c
++++ b/drivers/cxl/core/region.c
+@@ -657,6 +657,9 @@ static struct cxl_region_ref *alloc_regi
+ 	xa_for_each(&port->regions, index, iter) {
+ 		struct cxl_region_params *ip = &iter->region->params;
+ 
++		if (!ip->res)
++			continue;
++
+ 		if (ip->res->start > p->res->start) {
+ 			dev_dbg(&cxlr->dev,
+ 				"%s: HPA order violation %s:%pr vs %pr\n",
 
 
