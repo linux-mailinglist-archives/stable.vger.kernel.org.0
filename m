@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16D6C6212B4
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:42:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E552621582
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234410AbiKHNmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:42:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40972 "EHLO
+        id S235200AbiKHOMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:12:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234470AbiKHNlz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:41:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97519554D9
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:41:54 -0800 (PST)
+        with ESMTP id S235330AbiKHOMk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83B2EC8A10
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:12:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E62B161568
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:41:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0133DC433D6;
-        Tue,  8 Nov 2022 13:41:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1289BB81AF7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:12:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6347CC433C1;
+        Tue,  8 Nov 2022 14:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667914913;
-        bh=H+rVnxmU+trcU01as69I63fyM9p2ifgjN9GvIGHw59A=;
+        s=korg; t=1667916736;
+        bh=TXCTFIG3qjeGApZ9fiUm9awCqSZdBL4MoROMHMOakfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L5aPiC22652UIXQBfDcCmCCmPqf3U6t0AdH+j6c+qTVE/ag7NobKFcViN4rjVnXUs
-         PspGf9Rd8UWnVw3AuOZ7KF2dA+5QOacYhmNLe/a2E0Z6YdgdYVO4jAzOWHZYk3Lf3B
-         ni9clB7ayqM6iSFCts/10bbBQkE8ylYfH10G23pY=
+        b=cP42zyd0nI0TZwJ29WJpqo5LTwv/GANAYoBSy0a2YKuZKLtVk64dne2aMuzafjhKc
+         5Opr9ESurQQAPwDki2h/kBdwV5wvH6dyLntbwD/T/2QaUjfyJZ32D7uAGf2GQDVnQQ
+         4LaUprycv/H+nFtQuDTC7Izp+wzy4AScr6OkFKhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.9 26/30] KVM: x86: Mask off reserved bits in CPUID.80000008H
+        patches@lists.linux.dev,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 116/197] firmware: arm_scmi: Suppress the drivers bind attributes
 Date:   Tue,  8 Nov 2022 14:39:14 +0100
-Message-Id: <20221108133327.719386306@linuxfoundation.org>
+Message-Id: <20221108133400.241770200@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
-References: <20221108133326.715586431@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-commit 7030d8530e533844e2f4b0e7476498afcd324634 upstream.
+[ Upstream commit fd96fbc8fad35d6b1872c90df8a2f5d721f14d91 ]
 
-KVM_GET_SUPPORTED_CPUID should only enumerate features that KVM
-actually supports. The following ranges of CPUID.80000008H are reserved
-and should be masked off:
-    ECX[31:18]
-    ECX[11:8]
+Suppress the capability to unbind the core SCMI driver since all the
+SCMI stack protocol drivers depend on it.
 
-In addition, the PerfTscSize field at ECX[17:16] should also be zero
-because KVM does not set the PERFTSC bit at CPUID.80000001H.ECX[27].
-
-Fixes: 24c82e576b78 ("KVM: Sanitize cpuid")
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20220929225203.2234702-3-jmattson@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: aa4f886f3893 ("firmware: arm_scmi: add basic driver infrastructure for SCMI")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Link: https://lore.kernel.org/r/20221028140833.280091-2-cristian.marussi@arm.com
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/cpuid.c |    1 +
+ drivers/firmware/arm_scmi/driver.c | 1 +
  1 file changed, 1 insertion(+)
 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -647,6 +647,7 @@ static inline int __do_cpuid_ent(struct
- 			g_phys_as = phys_as;
- 
- 		entry->eax = g_phys_as | (virt_as << 8);
-+		entry->ecx &= ~(GENMASK(31, 16) | GENMASK(11, 8));
- 		entry->edx = 0;
- 		/*
- 		 * IBRS, IBPB and VIRT_SSBD aren't necessarily present in
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index 609ebedee9cb..1b9aa34b8e47 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -2571,6 +2571,7 @@ MODULE_DEVICE_TABLE(of, scmi_of_match);
+ static struct platform_driver scmi_driver = {
+ 	.driver = {
+ 		   .name = "arm-scmi",
++		   .suppress_bind_attrs = true,
+ 		   .of_match_table = scmi_of_match,
+ 		   .dev_groups = versions_groups,
+ 		   },
+-- 
+2.35.1
+
 
 
