@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 214B0621501
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:07:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BAC8621503
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:07:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235103AbiKHOH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:07:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42522 "EHLO
+        id S235114AbiKHOH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:07:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235092AbiKHOHQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:07:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAC4D70572
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:07:13 -0800 (PST)
+        with ESMTP id S235119AbiKHOHT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:07:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 588A470573
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:07:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97760B81ADB
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:07:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D771BC433D6;
-        Tue,  8 Nov 2022 14:07:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8F82615C4
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:07:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03D19C433C1;
+        Tue,  8 Nov 2022 14:07:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916431;
-        bh=G0DsZgAzlVolF9g6XPs3W1vrzU1wL1qn9570OJrENaw=;
+        s=korg; t=1667916437;
+        bh=hffPfRvaUjHfIv/dctvj4OLTluPCq59Up+EfCN5xKwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rWERXp42JRVEyEcFqzQ/kvhE8qpSYRaaOxYOflIB3W5xlD8mSZXAg+qrBlXbbkrnR
-         px9YUMli85nFN5QtmhkniXm4sDFk3i17P8zyFJXqD+ESsudeKJ+kNRMdZ1Zc42GwDD
-         2we7MbIBp01DjpGNwhP22EeLY/b0errxlQNqQWxY=
+        b=BjDwHxiFJXnH4679vVdd2M5/indche1UKHMfEyqyEh5Alb3M7K9NksBdgI6zhFTOW
+         EpD7bLN0MgH6zSeKpjsxDmViIPNAFfKTcvYX6Umhqt7Ihw3sLMtlP0T36ylbVK4AkT
+         2Co8jfrEuBrhqW30UM31D+76sE0uGLdIIgOfw+Ws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <yujie.liu@intel.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Willy Tarreau <w@1wt.eu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 019/197] tools/nolibc: Fix missing strlen() definition and infinite loop with gcc-12
-Date:   Tue,  8 Nov 2022 14:37:37 +0100
-Message-Id: <20221108133355.646439477@linuxfoundation.org>
+        patches@lists.linux.dev, Heiko Thiery <heiko.thiery@gmail.com>,
+        Michael Walle <michael@walle.cc>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 020/197] net: dsa: fall back to default tagger if we cant load the one from DT
+Date:   Tue,  8 Nov 2022 14:37:38 +0100
+Message-Id: <20221108133355.693050713@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
 References: <20221108133354.787209461@linuxfoundation.org>
@@ -54,92 +56,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit bfc3b0f05653a28c8d41067a2aa3875d1f982e3e ]
+[ Upstream commit a2c65a9d0568b6737c02b54f00b80716a53fac61 ]
 
-When built at -Os, gcc-12 recognizes an strlen() pattern in nolibc_strlen()
-and replaces it with a jump to strlen(), which is not defined as a symbol
-and breaks compilation. Worse, when the function is called strlen(), the
-function is simply replaced with a jump to itself, hence becomes an
-infinite loop.
+DSA tagging protocol drivers can be changed at runtime through sysfs and
+at probe time through the device tree (support for the latter was added
+later).
 
-One way to avoid this is to always set -ffreestanding, but the calling
-code doesn't know this and there's no way (either via attributes or
-pragmas) to globally enable it from include files, effectively leaving
-a painful situation for the caller.
+When changing through sysfs, it is assumed that the module for the new
+tagging protocol was already loaded into the kernel (in fact this is
+only a concern for Ocelot/Felix switches, where we have tag_ocelot.ko
+and tag_ocelot_8021q.ko; for every other switch, the default and
+alternative protocols are compiled within the same .ko, so there is
+nothing for the user to load).
 
-Alexey suggested to place an empty asm() statement inside the loop to
-stop gcc from recognizing a well-known pattern, which happens to work
-pretty fine. At least it allows us to make sure our local definition
-is not replaced with a self jump.
+The kernel cannot currently call request_module(), because it has no way
+of constructing the modalias name of the tagging protocol driver
+("dsa_tag-%d", where the number is one of DSA_TAG_PROTO_*_VALUE).
+The device tree only contains the string name of the tagging protocol
+("ocelot-8021q"), and the only mapping between the string and the
+DSA_TAG_PROTO_OCELOT_8021Q_VALUE is present in tag_ocelot_8021q.ko.
+So this is a chicken-and-egg situation and dsa_core.ko has nothing based
+on which it can automatically request the insertion of the module.
 
-The function only needs to be renamed back to strlen() so that the symbol
-exists, which implies that nolibc_strlen() which is used on variable
-strings has to be declared as a macro that points back to it before the
-strlen() macro is redifined.
+As a consequence, if CONFIG_NET_DSA_TAG_OCELOT_8021Q is built as module,
+the switch will forever defer probing.
 
-It was verified to produce valid code with gcc 3.4 to 12.1 at different
-optimization levels, and both with constant and variable strings.
+The long-term solution is to make DSA call request_module() somehow,
+but that probably needs some refactoring.
 
-In case this problem surfaces again in the future, an alternate approach
-consisting in adding an optimize("no-tree-loop-distribute-patterns")
-function attribute for gcc>=12 worked as well but is less pretty.
+What we can do to keep operating with existing device tree blobs is to
+cancel the attempt to change the tagging protocol with the one specified
+there, and to remain operating with the default one. Depending on the
+situation, the default protocol might still allow some functionality
+(in the case of ocelot, it does), and it's better to have that than to
+fail to probe.
 
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Link: https://lore.kernel.org/r/202210081618.754a77db-yujie.liu@intel.com
-Fixes: 66b6f755ad45 ("rcutorture: Import a copy of nolibc")
-Fixes: 96980b833a21 ("tools/nolibc/string: do not use __builtin_strlen() at -O0")
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: deff710703d8 ("net: dsa: Allow default tag protocol to be overridden from DT")
+Link: https://lore.kernel.org/lkml/20221027113248.420216-1-michael@walle.cc/
+Reported-by: Heiko Thiery <heiko.thiery@gmail.com>
+Reported-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Tested-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20221027145439.3086017-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/include/nolibc/string.h | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ net/dsa/dsa2.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/tools/include/nolibc/string.h b/tools/include/nolibc/string.h
-index bef35bee9c44..718a405ffbc3 100644
---- a/tools/include/nolibc/string.h
-+++ b/tools/include/nolibc/string.h
-@@ -125,14 +125,18 @@ char *strcpy(char *dst, const char *src)
- }
- 
- /* this function is only used with arguments that are not constants or when
-- * it's not known because optimizations are disabled.
-+ * it's not known because optimizations are disabled. Note that gcc 12
-+ * recognizes an strlen() pattern and replaces it with a jump to strlen(),
-+ * thus itself, hence the asm() statement below that's meant to disable this
-+ * confusing practice.
-  */
- static __attribute__((unused))
--size_t nolibc_strlen(const char *str)
-+size_t strlen(const char *str)
+diff --git a/net/dsa/dsa2.c b/net/dsa/dsa2.c
+index cac48a741f27..e537655e442b 100644
+--- a/net/dsa/dsa2.c
++++ b/net/dsa/dsa2.c
+@@ -1407,9 +1407,9 @@ static enum dsa_tag_protocol dsa_get_tag_protocol(struct dsa_port *dp,
+ static int dsa_port_parse_cpu(struct dsa_port *dp, struct net_device *master,
+ 			      const char *user_protocol)
  {
- 	size_t len;
++	const struct dsa_device_ops *tag_ops = NULL;
+ 	struct dsa_switch *ds = dp->ds;
+ 	struct dsa_switch_tree *dst = ds->dst;
+-	const struct dsa_device_ops *tag_ops;
+ 	enum dsa_tag_protocol default_proto;
  
--	for (len = 0; str[len]; len++);
-+	for (len = 0; str[len]; len++)
-+		asm("");
- 	return len;
- }
+ 	/* Find out which protocol the switch would prefer. */
+@@ -1432,10 +1432,17 @@ static int dsa_port_parse_cpu(struct dsa_port *dp, struct net_device *master,
+ 		}
  
-@@ -140,13 +144,12 @@ size_t nolibc_strlen(const char *str)
-  * the two branches, then will rely on an external definition of strlen().
-  */
- #if defined(__OPTIMIZE__)
-+#define nolibc_strlen(x) strlen(x)
- #define strlen(str) ({                          \
- 	__builtin_constant_p((str)) ?           \
- 		__builtin_strlen((str)) :       \
- 		nolibc_strlen((str));           \
- })
--#else
--#define strlen(str) nolibc_strlen((str))
- #endif
+ 		tag_ops = dsa_find_tagger_by_name(user_protocol);
+-	} else {
+-		tag_ops = dsa_tag_driver_get(default_proto);
++		if (IS_ERR(tag_ops)) {
++			dev_warn(ds->dev,
++				 "Failed to find a tagging driver for protocol %s, using default\n",
++				 user_protocol);
++			tag_ops = NULL;
++		}
+ 	}
  
- static __attribute__((unused))
++	if (!tag_ops)
++		tag_ops = dsa_tag_driver_get(default_proto);
++
+ 	if (IS_ERR(tag_ops)) {
+ 		if (PTR_ERR(tag_ops) == -ENOPROTOOPT)
+ 			return -EPROBE_DEFER;
 -- 
 2.35.1
 
