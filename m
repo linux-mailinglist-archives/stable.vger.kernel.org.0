@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60DAE6214E7
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:06:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A88106215CE
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:15:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235057AbiKHOGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:06:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41714 "EHLO
+        id S235334AbiKHOPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:15:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235075AbiKHOGQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:06:16 -0500
+        with ESMTP id S235336AbiKHOPe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:15:34 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89A6769DFB
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:06:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2668B59847
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:15:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 358E7B81B00
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:06:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80D8AC433B5;
-        Tue,  8 Nov 2022 14:06:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6135B81B05
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:15:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39605C433C1;
+        Tue,  8 Nov 2022 14:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916372;
-        bh=I35xNGiCwyHYqbID6tWQwArL0frw3chKk0FW4N1offI=;
+        s=korg; t=1667916931;
+        bh=fJOCNKvRcfEZBKf66GhhFB41losisquyfGEodIJOzoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUUWz87JbKhKqGdmBQZ8nhIBm2PA9bR3lahOei+Imd5vHPP83laDwp6U8n2anvl8f
-         EOl3GohBRDfmoBdW6s4T6P1KWsTLr4dH5ctwGdEyubw/Hve+BJBSqScejjNTBof6Je
-         sIjChyuvtJLCR2QWYbsWhHWblFrJCTEpcK9U+AHQ=
+        b=Qu8rPUYtMrxqGO+PO2VKodl+JxRUrDfeWTq49rDmY8TY77GsJvIDV3u77GqHrXvtI
+         0xaeVRnQbOLqt8wwDijhE//cRV7e1L89pe6BgNBa5Nsz6nXnst7obW5qdmgTAVNV1H
+         K0L5nlopPzY4NQQAe2Z/NGgP63nsDJrBf1yHa6NE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sahil Malhotra <sahil.malhotra@nxp.com>,
-        Sumit Garg <sumit.garg@linaro.org>
-Subject: [PATCH 5.15 137/144] tee: Fix tee_shm_register() for kernel TEE drivers
-Date:   Tue,  8 Nov 2022 14:40:14 +0100
-Message-Id: <20221108133351.106448265@linuxfoundation.org>
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 6.0 177/197] KVM: VMX: Ignore guest CPUID for host userspace writes to DEBUGCTL
+Date:   Tue,  8 Nov 2022 14:40:15 +0100
+Message-Id: <20221108133402.970524920@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,61 +52,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumit Garg <sumit.garg@linaro.org>
+From: Sean Christopherson <seanjc@google.com>
 
-Commit 056d3fed3d1f ("tee: add tee_shm_register_{user,kernel}_buf()")
-refactored tee_shm_register() into corresponding user and kernel space
-functions named tee_shm_register_{user,kernel}_buf(). The upstream fix
-commit 573ae4f13f63 ("tee: add overflow check in register_shm_helper()")
-only applied to tee_shm_register_user_buf().
+commit b333b8ebb85d62469f32b52fa03fd7d1522afc03 upstream.
 
-But the stable kernel 4.19, 5.4, 5.10 and 5.15 don't have the above
-mentioned tee_shm_register() refactoring commit. Hence a direct backport
-wasn't possible and the fix has to be rather applied to
-tee_ioctl_shm_register().
+Ignore guest CPUID for host userspace writes to the DEBUGCTL MSR, KVM's
+ABI is that setting CPUID vs. state can be done in any order, i.e. KVM
+allows userspace to stuff MSRs prior to setting the guest's CPUID that
+makes the new MSR "legal".
 
-Somehow the fix was correctly backported to 4.19 and 5.4 stable kernels
-but the backports for 5.10 and 5.15 stable kernels were broken as fix
-was applied to common tee_shm_register() function which broke its kernel
-space users such as trusted keys driver.
+Keep the vmx_get_perf_capabilities() check for guest writes, even though
+it's technically unnecessary since the vCPU's PERF_CAPABILITIES is
+consulted when refreshing LBR support.  A future patch will clean up
+vmx_get_perf_capabilities() to avoid the RDMSR on every call, at which
+point the paranoia will incur no meaningful overhead.
 
-Fortunately the backport for 5.10 stable kernel was incidently fixed by:
-commit 606fe84a4185 ("tee: fix memory leak in tee_shm_register()"). So
-fix the backport for 5.15 stable kernel as well.
+Note, prior to vmx_get_perf_capabilities() checking that the host fully
+supports LBRs via x86_perf_get_lbr(), KVM effectively relied on
+intel_pmu_lbr_is_enabled() to guard against host userspace enabling LBRs
+on platforms without full support.
 
-Fixes: 578c349570d2 ("tee: add overflow check in register_shm_helper()")
-Cc: stable@vger.kernel.org # 5.15
-Reported-by: Sahil Malhotra <sahil.malhotra@nxp.com>
-Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+Fixes: c646236344e9 ("KVM: vmx/pmu: Add PMU_CAP_LBR_FMT check when guest LBR is enabled")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20221006000314.73240-5-seanjc@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/tee_core.c |    3 +++
- drivers/tee/tee_shm.c  |    3 ---
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kvm/vmx/vmx.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/tee/tee_core.c
-+++ b/drivers/tee/tee_core.c
-@@ -334,6 +334,9 @@ tee_ioctl_shm_register(struct tee_contex
- 	if (data.flags)
- 		return -EINVAL;
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -2016,16 +2016,16 @@ static u64 nested_vmx_truncate_sysenter_
+ 	return (unsigned long)data;
+ }
  
-+	if (!access_ok((void __user *)(unsigned long)data.addr, data.length))
-+		return -EFAULT;
+-static u64 vcpu_supported_debugctl(struct kvm_vcpu *vcpu)
++static u64 vmx_get_supported_debugctl(struct kvm_vcpu *vcpu, bool host_initiated)
+ {
+ 	u64 debugctl = 0;
+ 
+ 	if (boot_cpu_has(X86_FEATURE_BUS_LOCK_DETECT) &&
+-	    guest_cpuid_has(vcpu, X86_FEATURE_BUS_LOCK_DETECT))
++	    (host_initiated || guest_cpuid_has(vcpu, X86_FEATURE_BUS_LOCK_DETECT)))
+ 		debugctl |= DEBUGCTLMSR_BUS_LOCK_DETECT;
+ 
+ 	if ((vmx_get_perf_capabilities() & PMU_CAP_LBR_FMT) &&
+-	    intel_pmu_lbr_is_enabled(vcpu))
++	    (host_initiated || intel_pmu_lbr_is_enabled(vcpu)))
+ 		debugctl |= DEBUGCTLMSR_LBR | DEBUGCTLMSR_FREEZE_LBRS_ON_PMI;
+ 
+ 	return debugctl;
+@@ -2100,7 +2100,9 @@ static int vmx_set_msr(struct kvm_vcpu *
+ 		vmcs_writel(GUEST_SYSENTER_ESP, data);
+ 		break;
+ 	case MSR_IA32_DEBUGCTLMSR: {
+-		u64 invalid = data & ~vcpu_supported_debugctl(vcpu);
++		u64 invalid;
 +
- 	shm = tee_shm_register(ctx, data.addr, data.length,
- 			       TEE_SHM_DMA_BUF | TEE_SHM_USER_MAPPED);
- 	if (IS_ERR(shm))
---- a/drivers/tee/tee_shm.c
-+++ b/drivers/tee/tee_shm.c
-@@ -223,9 +223,6 @@ struct tee_shm *tee_shm_register(struct
- 		goto err;
- 	}
- 
--	if (!access_ok((void __user *)addr, length))
--		return ERR_PTR(-EFAULT);
--
- 	mutex_lock(&teedev->mutex);
- 	shm->id = idr_alloc(&teedev->idr, shm, 1, 0, GFP_KERNEL);
- 	mutex_unlock(&teedev->mutex);
++		invalid = data & ~vmx_get_supported_debugctl(vcpu, msr_info->host_initiated);
+ 		if (invalid & (DEBUGCTLMSR_BTF|DEBUGCTLMSR_LBR)) {
+ 			if (report_ignored_msrs)
+ 				vcpu_unimpl(vcpu, "%s: BTF|LBR in IA32_DEBUGCTLMSR 0x%llx, nop\n",
 
 
