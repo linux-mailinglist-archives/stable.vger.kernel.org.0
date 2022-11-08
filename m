@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 308BA621505
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:07:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 121D7621506
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:07:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235101AbiKHOHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:07:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42536 "EHLO
+        id S234938AbiKHOHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:07:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235147AbiKHOHZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:07:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5247D748FF
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:07:24 -0800 (PST)
+        with ESMTP id S235149AbiKHOHb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:07:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DA5070579
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:07:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E6B79611B7
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:07:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE84AC433C1;
-        Tue,  8 Nov 2022 14:07:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6A84B81AFA
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:07:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1006BC433D6;
+        Tue,  8 Nov 2022 14:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916443;
-        bh=qEThPl82gZzpcJCNnMaXWytKZcvpHFYvyCgxS7xecFo=;
+        s=korg; t=1667916446;
+        bh=TCwDy9Ew9q7UnZ1cGoqJZ/SgzNoQTdvKVGx3HwW+OLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eNMeD2iXQcuV2milNlhBJ6nCB5OE++y1krL1R0DeNrn+hnqqSN2TrJ3D3QwpPe2ex
-         3Bp5A3kPD1bzeqqw7Irn7L+TDKHoSNQ5QjT7Z+DDU63+PLnFdS2oWO9TKW8zNK0dka
-         919/6FXzBliL+gTAlcVwuirP8v/NK6A+fvTZGOS8=
+        b=0EklxRwjp1lYZmD0LJus1FoFxmiiYxA1HhnSUnVl5/h7AAcvFkcTMZZPYA6YqRfa7
+         SPuvA+aSKj0IzOAEnIX+rf4goFbavaWDuSJ7Y3DxezozlzZhdSk2YPJS9Z+hQqdsfS
+         Nzhp+m3Yb+IgYqd7/sdMueZbQaSoAoCMUxN/BDBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 003/197] drm/i915/gvt: Add missing vfio_unregister_group_dev() call
-Date:   Tue,  8 Nov 2022 14:37:21 +0100
-Message-Id: <20221108133354.938359604@linuxfoundation.org>
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 004/197] RDMA/cma: Use output interface for net_dev check
+Date:   Tue,  8 Nov 2022 14:37:22 +0100
+Message-Id: <20221108133354.987318091@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
 References: <20221108133354.787209461@linuxfoundation.org>
@@ -55,40 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Håkon Bugge <haakon.bugge@oracle.com>
 
-[ Upstream commit f423fa1bc9fe1978e6b9f54927411b62cb43eb04 ]
+[ Upstream commit eb83f502adb036cd56c27e13b9ca3b2aabfa790b ]
 
-When converting to directly create the vfio_device the mdev driver has to
-put a vfio_register_emulated_iommu_dev() in the probe() and a pairing
-vfio_unregister_group_dev() in the remove.
+Commit 27cfde795a96 ("RDMA/cma: Fix arguments order in net device
+validation") swapped the src and dst addresses in the call to
+validate_net_dev().
 
-This was missed for gvt, add it.
+As a consequence, the test in validate_ipv4_net_dev() to see if the
+net_dev is the right one, is incorrect for port 1 <-> 2 communication when
+the ports are on the same sub-net. This is fixed by denoting the
+flowi4_oif as the device instead of the incoming one.
 
-Cc: stable@vger.kernel.org
-Fixes: 978cf586ac35 ("drm/i915/gvt: convert to use vfio_register_emulated_iommu_dev")
-Reported-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/0-v1-013609965fe8+9d-vfio_gvt_unregister_jgg@nvidia.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+The bug has not been observed using IPv6 addresses.
+
+Fixes: 27cfde795a96 ("RDMA/cma: Fix arguments order in net device validation")
+Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
+Link: https://lore.kernel.org/r/20221012141542.16925-1-haakon.bugge@oracle.com
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gvt/kvmgt.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/core/cma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-index e3cd58946477..dacd57732dbe 100644
---- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-+++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-@@ -1595,6 +1595,7 @@ static void intel_vgpu_remove(struct mdev_device *mdev)
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index be317f2665a9..ff8821f79fec 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -1556,7 +1556,7 @@ static bool validate_ipv4_net_dev(struct net_device *net_dev,
+ 		return false;
  
- 	if (WARN_ON_ONCE(vgpu->attached))
- 		return;
-+	vfio_unregister_group_dev(&vgpu->vfio_device);
- 	intel_gvt_destroy_vgpu(vgpu);
- }
+ 	memset(&fl4, 0, sizeof(fl4));
+-	fl4.flowi4_iif = net_dev->ifindex;
++	fl4.flowi4_oif = net_dev->ifindex;
+ 	fl4.daddr = daddr;
+ 	fl4.saddr = saddr;
  
 -- 
 2.35.1
