@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24469621495
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 191226215AE
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:14:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234934AbiKHOCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:02:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37336 "EHLO
+        id S235308AbiKHOOK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:14:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234894AbiKHOCu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:02:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 893D368689
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:02:49 -0800 (PST)
+        with ESMTP id S235315AbiKHOOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:14:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 462AEC767
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:14:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3BE3DB816DD
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:02:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8280EC433C1;
-        Tue,  8 Nov 2022 14:02:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D79C46157D
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:14:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB2D5C433C1;
+        Tue,  8 Nov 2022 14:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916166;
-        bh=udMOj4RmnI/70++N5+1bOmwL6qZMN1Lgadg5rZz7nUo=;
+        s=korg; t=1667916847;
+        bh=Ddhz+ngOVwmUhE1diduM5r6B8mm3Sh2vfAmqrtB91EI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ll3WK59kU/7n5oEwdCDBYG1nHlcH7aWAQwwrI6NRn3ForH1KEul5OPmz+jxVRlO7K
-         mZnmALA1jOH5cc3mccilMLpNJGoa3zDGlIkqX/5M5nQUstNmZ4k0Pgg7aLhR5rst7r
-         KVsl8hJqgq5H+RprT95BTjawJFnaINnPPUddQHfs=
+        b=Us4NzS4P1/G7AwNOyuT04DutoWDQTI14VZ9sUSGWAvOfEZRla1xv8T6sdbVwKCLVA
+         3Nf4P2PTRJN8r1d52HfzPIOdCz5QY/jMzrQCpdSvgHlH6vC6ib1f/au5yT7Nd7AxDy
+         IUEepcS6sJ4Un54r1Ev/uffWh3f2NS8YXiFmzDN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthew Garrett <mjg59@google.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Bartosz Szczepanek <bsz@semihalf.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 083/144] efi/tpm: Pass correct address to memblock_reserve
-Date:   Tue,  8 Nov 2022 14:39:20 +0100
-Message-Id: <20221108133348.796811842@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Tam=C3=A1s=20Koczka?= <poprdi@google.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Tedd Ho-Jeong An <tedd.an@intel.com>
+Subject: [PATCH 6.0 123/197] Bluetooth: L2CAP: Fix attempting to access uninitialized memory
+Date:   Tue,  8 Nov 2022 14:39:21 +0100
+Message-Id: <20221108133400.577239931@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,46 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry Snitselaar <jsnitsel@redhat.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit f4cd18c5b2000df0c382f6530eeca9141ea41faf ]
+commit b1a2cd50c0357f243b7435a732b4e62ba3157a2e upstream.
 
-memblock_reserve() expects a physical address, but the address being
-passed for the TPM final events log is what was returned from
-early_memremap(). This results in something like the following:
+On l2cap_parse_conf_req the variable efs is only initialized if
+remote_efs has been set.
 
-[    0.000000] memblock_reserve: [0xffffffffff2c0000-0xffffffffff2c00e4] efi_tpm_eventlog_init+0x324/0x370
-
-Pass the address from efi like what is done for the TPM events log.
-
-Fixes: c46f3405692d ("tpm: Reserve the TPM final events table")
-Cc: Matthew Garrett <mjg59@google.com>
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: Bartosz Szczepanek <bsz@semihalf.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CVE: CVE-2022-42895
+CC: stable@vger.kernel.org
+Reported-by: Tamás Koczka <poprdi@google.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/tpm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/efi/tpm.c b/drivers/firmware/efi/tpm.c
-index 8f665678e9e3..e8d69bd548f3 100644
---- a/drivers/firmware/efi/tpm.c
-+++ b/drivers/firmware/efi/tpm.c
-@@ -97,7 +97,7 @@ int __init efi_tpm_eventlog_init(void)
- 		goto out_calc;
- 	}
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -3764,7 +3764,8 @@ done:
+ 			l2cap_add_conf_opt(&ptr, L2CAP_CONF_RFC,
+ 					   sizeof(rfc), (unsigned long) &rfc, endptr - ptr);
  
--	memblock_reserve((unsigned long)final_tbl,
-+	memblock_reserve(efi.tpm_final_log,
- 			 tbl_size + sizeof(*final_tbl));
- 	efi_tpm_final_log_size = tbl_size;
- 
--- 
-2.35.1
-
+-			if (test_bit(FLAG_EFS_ENABLE, &chan->flags)) {
++			if (remote_efs &&
++			    test_bit(FLAG_EFS_ENABLE, &chan->flags)) {
+ 				chan->remote_id = efs.id;
+ 				chan->remote_stype = efs.stype;
+ 				chan->remote_msdu = le16_to_cpu(efs.msdu);
 
 
