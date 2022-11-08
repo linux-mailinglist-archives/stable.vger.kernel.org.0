@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0A9D6214D3
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:05:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 151546215C4
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:14:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235059AbiKHOFa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:05:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40348 "EHLO
+        id S235315AbiKHOO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:14:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235052AbiKHOF1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:05:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F6BA69DCE
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:05:27 -0800 (PST)
+        with ESMTP id S235320AbiKHOO5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:14:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5307458038
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:14:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC1BBB81ADD
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:05:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1B05C433D6;
-        Tue,  8 Nov 2022 14:05:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD7FB6157D
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:14:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE910C433D6;
+        Tue,  8 Nov 2022 14:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916324;
-        bh=OIBxIDoZ41ZyfKZ6TNNevZ1WjvyfZQuan+qyoQgmWrI=;
+        s=korg; t=1667916895;
+        bh=b/fsG1n0wZreea5AKl2xMznJbF1NIKKqZFMDJPJj+90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CW2iC+UqaDv2+STUSk2sWOTM6xpukylA/yLbXaRso9MQf+WI4Bqtd9yYt+OOKOpom
-         I33u5Oa7553coVuWv+LYkg9ApB9OGpRRbDKR3kLknAmL8rxg3HNyG7N5adoEgL32JD
-         Bh9PBgD1QhVIZmlOmWZ5fByC+BUqeCvRWzAIH6c0=
+        b=tzXL0stWgw9PHyJPM4jdWwzVmly0WnPqqu5aZb2GQ9UIBMtSkZOviJzFqjausnnuC
+         AGEBrq5ZoV5BaIiEtL6v/1WFzMyP4KRWBy34EyHtviGKPembVxCE8l+LYw7AKLXAW9
+         yX0fFQkkJk6xd+KpwIpT4mc+9XMm5/XekvYJMkO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 129/144] KVM: x86: Mask off reserved bits in CPUID.80000001H
+        patches@lists.linux.dev, ruogui.ygr@alibaba-inc.com,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 6.0 168/197] x86/tdx: Panic on bad configs that #VE on "private" memory access
 Date:   Tue,  8 Nov 2022 14:40:06 +0100
-Message-Id: <20221108133350.721128425@linuxfoundation.org>
+Message-Id: <20221108133402.574642221@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,32 +53,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 
-commit 0469e56a14bf8cfb80507e51b7aeec0332cdbc13 upstream.
+commit 373e715e31bf4e0f129befe87613a278fac228d3 upstream.
 
-KVM_GET_SUPPORTED_CPUID should only enumerate features that KVM
-actually supports. CPUID.80000001:EBX[27:16] are reserved bits and
-should be masked off.
+All normal kernel memory is "TDX private memory".  This includes
+everything from kernel stacks to kernel text.  Handling
+exceptions on arbitrary accesses to kernel memory is essentially
+impossible because they can happen in horribly nasty places like
+kernel entry/exit.  But, TDX hardware can theoretically _deliver_
+a virtualization exception (#VE) on any access to private memory.
 
-Fixes: 0771671749b5 ("KVM: Enhance guest cpuid management")
-Signed-off-by: Jim Mattson <jmattson@google.com>
+But, it's not as bad as it sounds.  TDX can be configured to never
+deliver these exceptions on private memory with a "TD attribute"
+called ATTR_SEPT_VE_DISABLE.  The guest has no way to *set* this
+attribute, but it can check it.
+
+Ensure ATTR_SEPT_VE_DISABLE is set in early boot.  panic() if it
+is unset.  There is no sane way for Linux to run with this
+attribute clear so a panic() is appropriate.
+
+There's small window during boot before the check where kernel
+has an early #VE handler. But the handler is only for port I/O
+and will also panic() as soon as it sees any other #VE, such as
+a one generated by a private memory access.
+
+[ dhansen: Rewrite changelog and rebase on new tdx_parse_tdinfo().
+	   Add Kirill's tested-by because I made changes since
+	   he wrote this. ]
+
+Fixes: 9a22bf6debbf ("x86/traps: Add #VE support for TDX guest")
+Reported-by: ruogui.ygr@alibaba-inc.com
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Tested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/all/20221028141220.29217-3-kirill.shutemov%40linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/coco/tdx/tdx.c |   21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -902,6 +902,7 @@ static inline int __do_cpuid_func(struct
- 		entry->eax = min(entry->eax, 0x8000001f);
- 		break;
- 	case 0x80000001:
-+		entry->ebx &= ~GENMASK(27, 16);
- 		cpuid_entry_override(entry, CPUID_8000_0001_EDX);
- 		cpuid_entry_override(entry, CPUID_8000_0001_ECX);
- 		break;
+--- a/arch/x86/coco/tdx/tdx.c
++++ b/arch/x86/coco/tdx/tdx.c
+@@ -34,6 +34,8 @@
+ #define VE_GET_PORT_NUM(e)	((e) >> 16)
+ #define VE_IS_IO_STRING(e)	((e) & BIT(4))
+ 
++#define ATTR_SEPT_VE_DISABLE	BIT(28)
++
+ /*
+  * Wrapper for standard use of __tdx_hypercall with no output aside from
+  * return code.
+@@ -102,6 +104,7 @@ static void tdx_parse_tdinfo(u64 *cc_mas
+ {
+ 	struct tdx_module_output out;
+ 	unsigned int gpa_width;
++	u64 td_attr;
+ 
+ 	/*
+ 	 * TDINFO TDX module call is used to get the TD execution environment
+@@ -109,19 +112,27 @@ static void tdx_parse_tdinfo(u64 *cc_mas
+ 	 * information, etc. More details about the ABI can be found in TDX
+ 	 * Guest-Host-Communication Interface (GHCI), section 2.4.2 TDCALL
+ 	 * [TDG.VP.INFO].
+-	 *
+-	 * The GPA width that comes out of this call is critical. TDX guests
+-	 * can not meaningfully run without it.
+ 	 */
+ 	tdx_module_call(TDX_GET_INFO, 0, 0, 0, 0, &out);
+ 
+-	gpa_width = out.rcx & GENMASK(5, 0);
+-
+ 	/*
+ 	 * The highest bit of a guest physical address is the "sharing" bit.
+ 	 * Set it for shared pages and clear it for private pages.
++	 *
++	 * The GPA width that comes out of this call is critical. TDX guests
++	 * can not meaningfully run without it.
+ 	 */
++	gpa_width = out.rcx & GENMASK(5, 0);
+ 	*cc_mask = BIT_ULL(gpa_width - 1);
++
++	/*
++	 * The kernel can not handle #VE's when accessing normal kernel
++	 * memory.  Ensure that no #VE will be delivered for accesses to
++	 * TD-private memory.  Only VMM-shared memory (MMIO) will #VE.
++	 */
++	td_attr = out.rdx;
++	if (!(td_attr & ATTR_SEPT_VE_DISABLE))
++		panic("TD misconfiguration: SEPT_VE_DISABLE attibute must be set.\n");
+ }
+ 
+ /*
 
 
