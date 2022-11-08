@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F1EC6215AB
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:14:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E15D6214DF
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:06:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235234AbiKHOOB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:14:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52484 "EHLO
+        id S235085AbiKHOGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:06:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235308AbiKHOOA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:14:00 -0500
+        with ESMTP id S235110AbiKHOFz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:05:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0640513F2F
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:13:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6120370543
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:05:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98230615C2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:13:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF603C433D6;
-        Tue,  8 Nov 2022 14:13:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9AE6615AD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:05:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5226FC43470;
+        Tue,  8 Nov 2022 14:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916838;
-        bh=qtaGJxF2K3Cq49oixSenDY/twO9IcMg0zZlCyLPrsP4=;
+        s=korg; t=1667916353;
+        bh=Fbe1ZDyX7ko00ZZoe9ItYmKYJKXuQsXotGJtvNtSY6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HacgXbstye2SDlgdT++jaq0GVcOK1/jwj5nHIVBxmC1E4X9r6z7pcA1/GC4/U5npq
-         NpL/oIqnLqUxfMDUs+xfJM7caqtgNPnqD17gc60ao7nAKTP7kn2Nx9VbPOaqYydgIg
-         b8bq91Sz3O1/jeteRZD49u2hhm48kGslqI2aOZyI=
+        b=t3QvH/CGsHnfB4HgF3O8QoWibE3niR7nUbz9TQWImRkzKymnDLrwaOFaTnYvhkDiZ
+         J9wR1pSrHqBIAW95F8WW+ZEvcPeZBcFeqo+/Kw2ITWFlN5+ajRU2jvq64h3f+Vjgfu
+         Dz0yvLDqBJBZq42eholpzN/CJdjK2uKK9viF1cxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frank Sorenson <fsorenso@redhat.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 6.0 148/197] fuse: fix readdir cache race
+        patches@lists.linux.dev, Steven Noonan <steven.noonan@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Roland Ruckerbauer <roland.rucky@gmail.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 109/144] ring-buffer: Check for NULL cpu_buffer in ring_buffer_wake_waiters()
 Date:   Tue,  8 Nov 2022 14:39:46 +0100
-Message-Id: <20221108133401.691947429@linuxfoundation.org>
+Message-Id: <20221108133349.913542205@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,60 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 9fa248c65bdbf5af0a2f74dd38575acfc8dfd2bf upstream.
+commit 7433632c9ff68a991bd0bc38cabf354e9d2de410 upstream.
 
-There's a race in fuse's readdir cache that can result in an uninitilized
-page being read.  The page lock is supposed to prevent this from happening
-but in the following case it doesn't:
+On some machines the number of listed CPUs may be bigger than the actual
+CPUs that exist. The tracing subsystem allocates a per_cpu directory with
+access to the per CPU ring buffer via a cpuX file. But to save space, the
+ring buffer will only allocate buffers for online CPUs, even though the
+CPU array will be as big as the nr_cpu_ids.
 
-Two fuse_add_dirent_to_cache() start out and get the same parameters
-(size=0,offset=0).  One of them wins the race to create and lock the page,
-after which it fills in data, sets rdc.size and unlocks the page.
+With the addition of waking waiters on the ring buffer when closing the
+file, the ring_buffer_wake_waiters() now needs to make sure that the
+buffer is allocated (with the irq_work allocated with it) before trying to
+wake waiters, as it will cause a NULL pointer dereference.
 
-In the meantime the page gets evicted from the cache before the other
-instance gets to run.  That one also creates the page, but finds the
-size to be mismatched, bails out and leaves the uninitialized page in the
-cache.
+While debugging this, I added a NULL check for the buffer itself (which is
+OK to do), and also NULL pointer checks against buffer->buffers (which is
+not fine, and will WARN) as well as making sure the CPU number passed in
+is within the nr_cpu_ids (which is also not fine if it isn't).
 
-Fix by marking a filled page uptodate and ignoring non-uptodate pages.
+Link: https://lore.kernel.org/all/87h6zklb6n.wl-tiwai@suse.de/
+Link: https://lore.kernel.org/all/CAM6Wdxc0KRJMXVAA0Y=u6Jh2V=uWB-_Fn6M4xRuNppfXzL1mUg@mail.gmail.com/
+Link: https://lkml.kernel.org/linux-trace-kernel/20221101191009.1e7378c8@rorschach.local.home
 
-Reported-by: Frank Sorenson <fsorenso@redhat.com>
-Fixes: 5d7bc7e8680c ("fuse: allow using readdir cache")
-Cc: <stable@vger.kernel.org> # v4.20
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Cc: stable@vger.kernel.org
+Cc: Steven Noonan <steven.noonan@gmail.com>
+Bugzilla: https://bugzilla.opensuse.org/show_bug.cgi?id=1204705
+Reported-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Roland Ruckerbauer <roland.rucky@gmail.com>
+Fixes: f3ddb74ad079 ("tracing: Wake up ring buffer waiters on closing of the file")
+Reviewed-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/readdir.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ kernel/trace/ring_buffer.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/fs/fuse/readdir.c
-+++ b/fs/fuse/readdir.c
-@@ -77,8 +77,10 @@ static void fuse_add_dirent_to_cache(str
- 		goto unlock;
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -901,6 +901,9 @@ void ring_buffer_wake_waiters(struct tra
+ 	struct ring_buffer_per_cpu *cpu_buffer;
+ 	struct rb_irq_work *rbwork;
  
- 	addr = kmap_local_page(page);
--	if (!offset)
-+	if (!offset) {
- 		clear_page(addr);
-+		SetPageUptodate(page);
-+	}
- 	memcpy(addr + offset, dirent, reclen);
- 	kunmap_local(addr);
- 	fi->rdc.size = (index << PAGE_SHIFT) + offset + reclen;
-@@ -516,6 +518,12 @@ retry_locked:
++	if (!buffer)
++		return;
++
+ 	if (cpu == RING_BUFFER_ALL_CPUS) {
  
- 	page = find_get_page_flags(file->f_mapping, index,
- 				   FGP_ACCESSED | FGP_LOCK);
-+	/* Page gone missing, then re-added to cache, but not initialized? */
-+	if (page && !PageUptodate(page)) {
-+		unlock_page(page);
-+		put_page(page);
-+		page = NULL;
-+	}
- 	spin_lock(&fi->rdc.lock);
- 	if (!page) {
- 		/*
+ 		/* Wake up individual ones too. One level recursion */
+@@ -909,7 +912,15 @@ void ring_buffer_wake_waiters(struct tra
+ 
+ 		rbwork = &buffer->irq_work;
+ 	} else {
++		if (WARN_ON_ONCE(!buffer->buffers))
++			return;
++		if (WARN_ON_ONCE(cpu >= nr_cpu_ids))
++			return;
++
+ 		cpu_buffer = buffer->buffers[cpu];
++		/* The CPU buffer may not have been initialized yet */
++		if (!cpu_buffer)
++			return;
+ 		rbwork = &cpu_buffer->irq_work;
+ 	}
+ 
 
 
