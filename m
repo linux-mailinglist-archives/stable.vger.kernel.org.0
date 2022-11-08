@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0026F6213A9
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC6E3621527
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:08:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234760AbiKHNwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:52:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51170 "EHLO
+        id S235163AbiKHOI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:08:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234704AbiKHNw0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24D1F65E70
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:20 -0800 (PST)
+        with ESMTP id S235111AbiKHOIr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:08:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3185C6391
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:08:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5021D615A2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ECB8C433C1;
-        Tue,  8 Nov 2022 13:52:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0DA8B81AE4
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:08:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40D30C433C1;
+        Tue,  8 Nov 2022 14:08:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915539;
-        bh=CqGaXFlVl0vjU4TpAlaxXLb1f+jGKs3faf/uTr7rs2M=;
+        s=korg; t=1667916523;
+        bh=Ul3IsQXrLuX6zOqN8dbJWLr1CBOOWCvxxydffxBYEOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OxfZNfRREr/sR2mIx1tCwahZw78XNtCTmbOrNurp/C+UUlnE06DN0YtdALjfFWVnC
-         1XM+EWAZ8Vi714FjhTg6by7uuGIIIdLnAtet25pbNL1G/BVGi1KgGjdBkgM34Slc33
-         woxK6lQFt+KShs6fvS51/u5/0e1GN4hX6XdwHh8Y=
+        b=HbIT5hvEySrUbb92hfzHNFYkDjHizMOsShqChMW3drqNe7coyg9hHN9V89tWjJJYS
+         PViOPX9HwxQUWlAg1D4JljWCyyrS66ynEVGMtClG7mUje2Y6N8H9qhGWMoOwhG5jw6
+         pQ3rqhmskRBx8KBTWbOF8ym3EZnPYZB1x6TvXCY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Borislav Petkov <bp@alien8.de>,
-        Yazen Ghannam <yazen.ghannam@amd.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 007/118] x86/topology: Set cpu_die_id only if DIE_TYPE found
-Date:   Tue,  8 Nov 2022 14:38:05 +0100
-Message-Id: <20221108133341.032643577@linuxfoundation.org>
+        patches@lists.linux.dev, Daniel Xu <dxu@dxuuu.xyz>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 048/197] netfilter: ipset: enforce documented limit to prevent allocating huge memory
+Date:   Tue,  8 Nov 2022 14:38:06 +0100
+Message-Id: <20221108133357.002841526@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yazen Ghannam <yazen.ghannam@amd.com>
+From: Jozsef Kadlecsik <kadlec@netfilter.org>
 
-[ Upstream commit cb09a379724d299c603a7a79f444f52a9a75b8d2 ]
+[ Upstream commit 510841da1fcc16f702440ab58ef0b4d82a9056b7 ]
 
-CPUID Leaf 0x1F defines a DIE_TYPE level (nb: ECX[8:15] level type == 0x5),
-but CPUID Leaf 0xB does not. However, detect_extended_topology() will
-set struct cpuinfo_x86.cpu_die_id regardless of whether a valid Die ID
-was found.
+Daniel Xu reported that the hash:net,iface type of the ipset subsystem does
+not limit adding the same network with different interfaces to a set, which
+can lead to huge memory usage or allocation failure.
 
-Only set cpu_die_id if a DIE_TYPE level is found. CPU topology code may
-use another value for cpu_die_id, e.g. the AMD NodeId on AMD-based
-systems. Code ordering should be maintained so that the CPUID Leaf 0x1F
-Die ID value will take precedence on systems that may use another value.
+The quick reproducer is
 
-Suggested-by: Borislav Petkov <bp@alien8.de>
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20201109210659.754018-5-Yazen.Ghannam@amd.com
-Stable-dep-of: 2b12a7a126d6 ("x86/topology: Fix multiple packages shown on a single-package system")
+$ ipset create ACL.IN.ALL_PERMIT hash:net,iface hashsize 1048576 timeout 0
+$ for i in $(seq 0 100); do /sbin/ipset add ACL.IN.ALL_PERMIT 0.0.0.0/0,kaf_$i timeout 0 -exist; done
+
+The backtrace when vmalloc fails:
+
+        [Tue Oct 25 00:13:08 2022] ipset: vmalloc error: size 1073741848, exceeds total pages
+        <...>
+        [Tue Oct 25 00:13:08 2022] Call Trace:
+        [Tue Oct 25 00:13:08 2022]  <TASK>
+        [Tue Oct 25 00:13:08 2022]  dump_stack_lvl+0x48/0x60
+        [Tue Oct 25 00:13:08 2022]  warn_alloc+0x155/0x180
+        [Tue Oct 25 00:13:08 2022]  __vmalloc_node_range+0x72a/0x760
+        [Tue Oct 25 00:13:08 2022]  ? hash_netiface4_add+0x7c0/0xb20
+        [Tue Oct 25 00:13:08 2022]  ? __kmalloc_large_node+0x4a/0x90
+        [Tue Oct 25 00:13:08 2022]  kvmalloc_node+0xa6/0xd0
+        [Tue Oct 25 00:13:08 2022]  ? hash_netiface4_resize+0x99/0x710
+        <...>
+
+The fix is to enforce the limit documented in the ipset(8) manpage:
+
+>  The internal restriction of the hash:net,iface set type is that the same
+>  network prefix cannot be stored with more than 64 different interfaces
+>  in a single set.
+
+Fixes: ccf0a4b7fc68 ("netfilter: ipset: Add bucketsize parameter to all hash types")
+Reported-by: Daniel Xu <dxu@dxuuu.xyz>
+Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/topology.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/netfilter/ipset/ip_set_hash_gen.h | 30 ++++++---------------------
+ 1 file changed, 6 insertions(+), 24 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/topology.c b/arch/x86/kernel/cpu/topology.c
-index 91288da29599..8678864ce712 100644
---- a/arch/x86/kernel/cpu/topology.c
-+++ b/arch/x86/kernel/cpu/topology.c
-@@ -96,6 +96,7 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
- 	unsigned int ht_mask_width, core_plus_mask_width, die_plus_mask_width;
- 	unsigned int core_select_mask, core_level_siblings;
- 	unsigned int die_select_mask, die_level_siblings;
-+	bool die_level_present = false;
- 	int leaf;
+diff --git a/net/netfilter/ipset/ip_set_hash_gen.h b/net/netfilter/ipset/ip_set_hash_gen.h
+index 6e391308431d..3adc291d9ce1 100644
+--- a/net/netfilter/ipset/ip_set_hash_gen.h
++++ b/net/netfilter/ipset/ip_set_hash_gen.h
+@@ -42,31 +42,8 @@
+ #define AHASH_MAX_SIZE			(6 * AHASH_INIT_SIZE)
+ /* Max muber of elements in the array block when tuned */
+ #define AHASH_MAX_TUNED			64
+-
+ #define AHASH_MAX(h)			((h)->bucketsize)
  
- 	leaf = detect_extended_topology_leaf(c);
-@@ -126,6 +127,7 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
- 			die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
- 		}
- 		if (LEAFB_SUBTYPE(ecx) == DIE_TYPE) {
-+			die_level_present = true;
- 			die_level_siblings = LEVEL_MAX_SIBLINGS(ebx);
- 			die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
- 		}
-@@ -139,8 +141,12 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
- 
- 	c->cpu_core_id = apic->phys_pkg_id(c->initial_apicid,
- 				ht_mask_width) & core_select_mask;
--	c->cpu_die_id = apic->phys_pkg_id(c->initial_apicid,
--				core_plus_mask_width) & die_select_mask;
-+
-+	if (die_level_present) {
-+		c->cpu_die_id = apic->phys_pkg_id(c->initial_apicid,
-+					core_plus_mask_width) & die_select_mask;
-+	}
-+
- 	c->phys_proc_id = apic->phys_pkg_id(c->initial_apicid,
- 				die_plus_mask_width);
- 	/*
+-/* Max number of elements can be tuned */
+-#ifdef IP_SET_HASH_WITH_MULTI
+-static u8
+-tune_bucketsize(u8 curr, u32 multi)
+-{
+-	u32 n;
+-
+-	if (multi < curr)
+-		return curr;
+-
+-	n = curr + AHASH_INIT_SIZE;
+-	/* Currently, at listing one hash bucket must fit into a message.
+-	 * Therefore we have a hard limit here.
+-	 */
+-	return n > curr && n <= AHASH_MAX_TUNED ? n : curr;
+-}
+-#define TUNE_BUCKETSIZE(h, multi)	\
+-	((h)->bucketsize = tune_bucketsize((h)->bucketsize, multi))
+-#else
+-#define TUNE_BUCKETSIZE(h, multi)
+-#endif
+-
+ /* A hash bucket */
+ struct hbucket {
+ 	struct rcu_head rcu;	/* for call_rcu */
+@@ -936,7 +913,12 @@ mtype_add(struct ip_set *set, void *value, const struct ip_set_ext *ext,
+ 		goto set_full;
+ 	/* Create a new slot */
+ 	if (n->pos >= n->size) {
+-		TUNE_BUCKETSIZE(h, multi);
++#ifdef IP_SET_HASH_WITH_MULTI
++		if (h->bucketsize >= AHASH_MAX_TUNED)
++			goto set_full;
++		else if (h->bucketsize < multi)
++			h->bucketsize += AHASH_INIT_SIZE;
++#endif
+ 		if (n->size >= AHASH_MAX(h)) {
+ 			/* Trigger rehashing */
+ 			mtype_data_next(&h->next, d);
 -- 
 2.35.1
 
