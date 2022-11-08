@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67C8B62134C
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:49:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D35962147B
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:01:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234549AbiKHNs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:48:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48950 "EHLO
+        id S234616AbiKHOBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:01:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234555AbiKHNs6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB076314
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:56 -0800 (PST)
+        with ESMTP id S234930AbiKHOBl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:01:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B4C682B1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:01:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68A8FB81AFA
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6DD1C433D7;
-        Tue,  8 Nov 2022 13:48:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70B1461596
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C478C433C1;
+        Tue,  8 Nov 2022 14:01:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915334;
-        bh=pqxhOX89QC5Zrs00R7wOL/EwEMXmbVN0sPN00O3CMRA=;
+        s=korg; t=1667916099;
+        bh=P/dKi00nqYsKddUPWFkuhSbz9HUs8JGCLjgIgv6rD5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DjdqXebEYE3pU9ndvxClW2KlRYyOuc7zPRYX1PxsfB95jSBXzzPrFHvlMHZ1Z3KWw
-         5nH/93otKK3xfs9G2h/fNibjKZA8vnDkl1BpiGTZspBDLbinG6kRNNeHd3BVtpfOeE
-         5iQU7aG16IcgZLl4Y80JQkU/JUME1MnflRatiD+g=
+        b=HvaJmhSnM9vlDqqLJ64Gi92eQajobQ6/F9/zuDsx9IeS/fn+RnBkUmG4yal8UvSi6
+         FNa6hfUHkWyrYyrH9Ur7AFQvC+dJFBVoGqKlUJdiaOwxGlUjU6EOR5it0GzB2b1rTg
+         JiGn+U93QUUSG7qSZLGDpRBAxi0lPa+PyTdHPElc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Helge Deller <deller@gmx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 31/74] media: cros-ec-cec: limit msg.len to CEC_MAX_MSG_SIZE
+Subject: [PATCH 5.15 062/144] fbdev: stifb: Fall back to cfb_fillrect() on 32-bit HCRX cards
 Date:   Tue,  8 Nov 2022 14:38:59 +0100
-Message-Id: <20221108133335.006477907@linuxfoundation.org>
+Message-Id: <20221108133347.887840063@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 2dc73b48665411a08c4e5f0f823dea8510761603 ]
+[ Upstream commit 776d875fd4cbb3884860ea7f63c3958f02b0c80e ]
 
-I expect that the hardware will have limited this to 16, but just in
-case it hasn't, check for this corner case.
+When the text console is scrolling text upwards it calls the fillrect()
+function to empty the new line. The current implementation doesn't seem
+to work correctly on HCRX cards in 32-bit mode and leave garbage in that
+line instead. Fix it by falling back to standard cfb_fillrect() in that
+case.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/cros-ec-cec/cros-ec-cec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/video/fbdev/stifb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/cros-ec-cec/cros-ec-cec.c b/drivers/media/platform/cros-ec-cec/cros-ec-cec.c
-index 31390ce2dbf2..ae274a7aa3a9 100644
---- a/drivers/media/platform/cros-ec-cec/cros-ec-cec.c
-+++ b/drivers/media/platform/cros-ec-cec/cros-ec-cec.c
-@@ -45,6 +45,8 @@ static void handle_cec_message(struct cros_ec_cec *cros_ec_cec)
- 	uint8_t *cec_message = cros_ec->event_data.data.cec_message;
- 	unsigned int len = cros_ec->event_size;
+diff --git a/drivers/video/fbdev/stifb.c b/drivers/video/fbdev/stifb.c
+index 7753e586e65a..3feb6e40d56d 100644
+--- a/drivers/video/fbdev/stifb.c
++++ b/drivers/video/fbdev/stifb.c
+@@ -1055,7 +1055,8 @@ stifb_fillrect(struct fb_info *info, const struct fb_fillrect *rect)
+ {
+ 	struct stifb_info *fb = container_of(info, struct stifb_info, info);
  
-+	if (len > CEC_MAX_MSG_SIZE)
-+		len = CEC_MAX_MSG_SIZE;
- 	cros_ec_cec->rx_msg.len = len;
- 	memcpy(cros_ec_cec->rx_msg.msg, cec_message, len);
+-	if (rect->rop != ROP_COPY)
++	if (rect->rop != ROP_COPY ||
++	    (fb->id == S9000_ID_HCRX && fb->info.var.bits_per_pixel == 32))
+ 		return cfb_fillrect(info, rect);
  
+ 	SETUP_HW(fb);
 -- 
 2.35.1
 
