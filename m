@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CEA8621441
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:59:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D7E16213CF
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:54:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234886AbiKHN7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:59:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33400 "EHLO
+        id S234664AbiKHNyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:54:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234894AbiKHN7Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:59:16 -0500
+        with ESMTP id S234679AbiKHNyF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:54:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0EB366CA7
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:59:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 951E960EAA
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:54:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4079B6152D
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:59:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 557F3C433D7;
-        Tue,  8 Nov 2022 13:59:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32D6D615A8
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:54:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D0B5C433C1;
+        Tue,  8 Nov 2022 13:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915951;
-        bh=JFTOYUjqE1kjXK91RxjJrORXfxXFhujghxJDS8yJGQg=;
+        s=korg; t=1667915642;
+        bh=qaXgfzMDdHwCLGIPRYZlnImHtFNpb0jWCFaaUX+JkmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W+FuC7dQqL0bFMu7iSw0QNTMZXL1DgLPLoX+b8DYTDEltfKRyIpUchLg1Noj8M8aI
-         a+xoT+EAZLQ3rMTWhBJ6cK9+zGknPlKg9QUKR0s3s+AletjeTS960fZIn4Dmm1u2Yv
-         a4lTlk0jZk+G+TJy7LgmRE5tUd8eLDwKE0K18Sb4=
+        b=mSMUik+llFQbWafkZkH0kepScbLeXmMuCT1Onn99SmPxBVEAY1cQITFDnhhGdcRjH
+         AGeYWFoNXiBtrPK7XrBqi7FKh7u17Tubedb0yLO4/jRPro9H4bcyN3aMTG1/3+JBPh
+         zMLzpGSJ7o4CJx5tMK2GW17ewIYxnxozO9m7lyqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 020/144] NFSv4.1: We must always send RECLAIM_COMPLETE after a reboot
+Subject: [PATCH 5.10 019/118] net: dsa: Fix possible memory leaks in dsa_loop_init()
 Date:   Tue,  8 Nov 2022 14:38:17 +0100
-Message-Id: <20221108133346.153283597@linuxfoundation.org>
+Message-Id: <20221108133341.500373745@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +53,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit e59679f2b7e522ecad99974e5636291ffd47c184 ]
+[ Upstream commit 633efc8b3dc96f56f5a57f2a49764853a2fa3f50 ]
 
-Currently, we are only guaranteed to send RECLAIM_COMPLETE if we have
-open state to recover. Fix the client to always send RECLAIM_COMPLETE
-after setting up the lease.
+kmemleak reported memory leaks in dsa_loop_init():
 
-Fixes: fce5c838e133 ("nfs41: RECLAIM_COMPLETE functionality")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+kmemleak: 12 new suspected memory leaks
+
+unreferenced object 0xffff8880138ce000 (size 2048):
+  comm "modprobe", pid 390, jiffies 4295040478 (age 238.976s)
+  backtrace:
+    [<000000006a94f1d5>] kmalloc_trace+0x26/0x60
+    [<00000000a9c44622>] phy_device_create+0x5d/0x970
+    [<00000000d0ee2afc>] get_phy_device+0xf3/0x2b0
+    [<00000000dca0c71f>] __fixed_phy_register.part.0+0x92/0x4e0
+    [<000000008a834798>] fixed_phy_register+0x84/0xb0
+    [<0000000055223fcb>] dsa_loop_init+0xa9/0x116 [dsa_loop]
+    ...
+
+There are two reasons for memleak in dsa_loop_init().
+
+First, fixed_phy_register() create and register phy_device:
+
+fixed_phy_register()
+  get_phy_device()
+    phy_device_create() # freed by phy_device_free()
+  phy_device_register() # freed by phy_device_remove()
+
+But fixed_phy_unregister() only calls phy_device_remove().
+So the memory allocated in phy_device_create() is leaked.
+
+Second, when mdio_driver_register() fail in dsa_loop_init(),
+it just returns and there is no cleanup for phydevs.
+
+Fix the problems by catching the error of mdio_driver_register()
+in dsa_loop_init(), then calling both fixed_phy_unregister() and
+phy_device_free() to release phydevs.
+Also add a function for phydevs cleanup to avoid duplacate.
+
+Fixes: 98cd1552ea27 ("net: dsa: Mock-up driver")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/dsa/dsa_loop.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 2795aa1c3cf4..ecac56be6cb7 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -1778,6 +1778,7 @@ static void nfs4_state_mark_reclaim_helper(struct nfs_client *clp,
+diff --git a/drivers/net/dsa/dsa_loop.c b/drivers/net/dsa/dsa_loop.c
+index e38906ae8f23..fbeb99ab9e4d 100644
+--- a/drivers/net/dsa/dsa_loop.c
++++ b/drivers/net/dsa/dsa_loop.c
+@@ -376,6 +376,17 @@ static struct mdio_driver dsa_loop_drv = {
  
- static void nfs4_state_start_reclaim_reboot(struct nfs_client *clp)
+ #define NUM_FIXED_PHYS	(DSA_LOOP_NUM_PORTS - 2)
+ 
++static void dsa_loop_phydevs_unregister(void)
++{
++	unsigned int i;
++
++	for (i = 0; i < NUM_FIXED_PHYS; i++)
++		if (!IS_ERR(phydevs[i])) {
++			fixed_phy_unregister(phydevs[i]);
++			phy_device_free(phydevs[i]);
++		}
++}
++
+ static int __init dsa_loop_init(void)
  {
-+	set_bit(NFS4CLNT_RECLAIM_REBOOT, &clp->cl_state);
- 	/* Mark all delegations for reclaim */
- 	nfs_delegation_mark_reclaim(clp);
- 	nfs4_state_mark_reclaim_helper(clp, nfs4_state_mark_reclaim_reboot);
+ 	struct fixed_phy_status status = {
+@@ -383,23 +394,23 @@ static int __init dsa_loop_init(void)
+ 		.speed = SPEED_100,
+ 		.duplex = DUPLEX_FULL,
+ 	};
+-	unsigned int i;
++	unsigned int i, ret;
+ 
+ 	for (i = 0; i < NUM_FIXED_PHYS; i++)
+ 		phydevs[i] = fixed_phy_register(PHY_POLL, &status, NULL);
+ 
+-	return mdio_driver_register(&dsa_loop_drv);
++	ret = mdio_driver_register(&dsa_loop_drv);
++	if (ret)
++		dsa_loop_phydevs_unregister();
++
++	return ret;
+ }
+ module_init(dsa_loop_init);
+ 
+ static void __exit dsa_loop_exit(void)
+ {
+-	unsigned int i;
+-
+ 	mdio_driver_unregister(&dsa_loop_drv);
+-	for (i = 0; i < NUM_FIXED_PHYS; i++)
+-		if (!IS_ERR(phydevs[i]))
+-			fixed_phy_unregister(phydevs[i]);
++	dsa_loop_phydevs_unregister();
+ }
+ module_exit(dsa_loop_exit);
+ 
 -- 
 2.35.1
 
