@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB4D56212A1
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:41:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED9546212EA
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233762AbiKHNle (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:41:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39738 "EHLO
+        id S234482AbiKHNoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:44:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234173AbiKHNlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:41:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 263ED58019
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:41:14 -0800 (PST)
+        with ESMTP id S234456AbiKHNoR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 066D5554D5
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:44:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B774A6158B
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:41:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0994C433C1;
-        Tue,  8 Nov 2022 13:41:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9275DB81AE4
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:44:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C629CC433C1;
+        Tue,  8 Nov 2022 13:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667914873;
-        bh=6Mri1nk+C5BLVdu96bqs9g2182PWHvZZJUoW05/UXoc=;
+        s=korg; t=1667915054;
+        bh=fx0kL3xa0BTpZRotnRPqise+mds+prXjZ4yC5Se2gEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H7iqMoPeOOlY8pFmwVVxLF8SVj6CuauoApFPMqcdhKoNtW9q0uf0V0mP2/h6gvx5g
-         CbXpuVMAsIVtaohioo64igMZM26cUAoMuLln0S5Y1gSh/5j1MW+1Umej6QMRHNOKFP
-         uom+MNzgXJb1S0CKHYeXXU5pO06+QQo4K5j8PPtg=
+        b=jEXHnLEP8nJ82YFQVNQ1toTsOaJfqgit+a1fRo47fCHLEpXnugFxPlouAa4fNjY+E
+         /GAk38DKs/5gBp75ljs/kIxIxQ5RR974rO6djOVUmNU+9aDJn2AIJ30mCm06ut/dzO
+         qx70FM0Az0pD05mxJ0SffDfeb+UxA1m7oTetYETE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 06/30] net: fec: fix improper use of NETDEV_TX_BUSY
+Subject: [PATCH 4.14 09/40] net: sched: Fix use after free in red_enqueue()
 Date:   Tue,  8 Nov 2022 14:38:54 +0100
-Message-Id: <20221108133326.942814511@linuxfoundation.org>
+Message-Id: <20221108133328.727298739@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
-References: <20221108133326.715586431@linuxfoundation.org>
+In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
+References: <20221108133328.351887714@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 06a4df5863f73af193a4ff7abf7cb04058584f06 ]
+[ Upstream commit 8bdc2acd420c6f3dd1f1c78750ec989f02a1e2b9 ]
 
-The ndo_start_xmit() method must not free skb when returning
-NETDEV_TX_BUSY, since caller is going to requeue freed skb.
+We can't use "skb" again after passing it to qdisc_enqueue().  This is
+basically identical to commit 2f09707d0c97 ("sch_sfb: Also store skb
+len before calling child enqueue").
 
-Fix it by returning NETDEV_TX_OK in case of dma_map_single() fails.
-
-Fixes: 79f339125ea3 ("net: fec: Add software TSO support")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Fixes: d7f4f332f082 ("sch_red: update backlog as well")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/sched/sch_red.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index c06ac5f66a17..98a665538dbe 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -577,7 +577,7 @@ fec_enet_txq_put_data_tso(struct fec_enet_priv_tx_q *txq, struct sk_buff *skb,
- 		dev_kfree_skb_any(skb);
- 		if (net_ratelimit())
- 			netdev_err(ndev, "Tx DMA memory map failed\n");
--		return NETDEV_TX_BUSY;
-+		return NETDEV_TX_OK;
+diff --git a/net/sched/sch_red.c b/net/sched/sch_red.c
+index 9cf6cd8ea6c6..40114eb7eebf 100644
+--- a/net/sched/sch_red.c
++++ b/net/sched/sch_red.c
+@@ -61,6 +61,7 @@ static int red_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ {
+ 	struct red_sched_data *q = qdisc_priv(sch);
+ 	struct Qdisc *child = q->qdisc;
++	unsigned int len;
+ 	int ret;
+ 
+ 	q->vars.qavg = red_calc_qavg(&q->parms,
+@@ -96,9 +97,10 @@ static int red_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 		break;
  	}
  
- 	bdp->cbd_datlen = cpu_to_fec16(size);
-@@ -639,7 +639,7 @@ fec_enet_txq_put_hdr_tso(struct fec_enet_priv_tx_q *txq,
- 			dev_kfree_skb_any(skb);
- 			if (net_ratelimit())
- 				netdev_err(ndev, "Tx DMA memory map failed\n");
--			return NETDEV_TX_BUSY;
-+			return NETDEV_TX_OK;
- 		}
- 	}
- 
++	len = qdisc_pkt_len(skb);
+ 	ret = qdisc_enqueue(skb, child, to_free);
+ 	if (likely(ret == NET_XMIT_SUCCESS)) {
+-		qdisc_qstats_backlog_inc(sch, skb);
++		sch->qstats.backlog += len;
+ 		sch->q.qlen++;
+ 	} else if (net_xmit_drop_count(ret)) {
+ 		q->stats.pdrop++;
 -- 
 2.35.1
 
