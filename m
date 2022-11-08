@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FC24621459
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:00:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFA03621333
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:47:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234947AbiKHOA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:00:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34412 "EHLO
+        id S234590AbiKHNrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:47:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234949AbiKHOAN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:00:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C21368695
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:00:10 -0800 (PST)
+        with ESMTP id S234588AbiKHNrw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:47:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91B0F59876
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:47:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6269B816DD
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:00:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E935FC433C1;
-        Tue,  8 Nov 2022 14:00:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FF146158F
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:47:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26D73C433C1;
+        Tue,  8 Nov 2022 13:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916007;
-        bh=bCEjieW2zRsQJ3kq9XWZjH05TJWQsFr9feo/Nl+xIFs=;
+        s=korg; t=1667915270;
+        bh=BIl2thzEOM4vKystqjbFoJPuCoKOWORxrh+Ho8ujBFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NSwX4YyD5pQ4ruSI0NQDGKBoekKAMLmdQbzgAA17nborcS1Y3duwWFy5nUaE7zGvC
-         xf6cBmijwK/tVFGGcGBRFp/Z2LNjwqLJhvGPpxkiqN+c9Nb7VxCt6YFPCLXxdvNBZr
-         9BMPOiEq8AKXVElzpWSETK5hGVdPqVJNdaEaOn1Q=
+        b=ZMXPKsPDZh4+bqtOUsyww7k1dE1VLsh0CatNp9lLpxiJ4f+JTmXAn8OZ3AtOMcrD0
+         dHdTGz84S7iemxKgyKX7tEbkHcOpWWJba6ZXIh1AynGqcO9C1PIjojtjOrHUYc0fFL
+         rPBKsX95oF6LmoKe6Z8k88GNmtaG12IUX8XRlGUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 035/144] net: tun: fix bugs for oversize packet when napi frags enabled
+Subject: [PATCH 5.4 04/74] NFSv4.1: We must always send RECLAIM_COMPLETE after a reboot
 Date:   Tue,  8 Nov 2022 14:38:32 +0100
-Message-Id: <20221108133346.761705122@linuxfoundation.org>
+Message-Id: <20221108133333.847971389@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,94 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 363a5328f4b0517e59572118ccfb7c626d81dca9 ]
+[ Upstream commit e59679f2b7e522ecad99974e5636291ffd47c184 ]
 
-Recently, we got two syzkaller problems because of oversize packet
-when napi frags enabled.
+Currently, we are only guaranteed to send RECLAIM_COMPLETE if we have
+open state to recover. Fix the client to always send RECLAIM_COMPLETE
+after setting up the lease.
 
-One of the problems is because the first seg size of the iov_iter
-from user space is very big, it is 2147479538 which is bigger than
-the threshold value for bail out early in __alloc_pages(). And
-skb->pfmemalloc is true, __kmalloc_reserve() would use pfmemalloc
-reserves without __GFP_NOWARN flag. Thus we got a warning as following:
-
-========================================================
-WARNING: CPU: 1 PID: 17965 at mm/page_alloc.c:5295 __alloc_pages+0x1308/0x16c4 mm/page_alloc.c:5295
-...
-Call trace:
- __alloc_pages+0x1308/0x16c4 mm/page_alloc.c:5295
- __alloc_pages_node include/linux/gfp.h:550 [inline]
- alloc_pages_node include/linux/gfp.h:564 [inline]
- kmalloc_large_node+0x94/0x350 mm/slub.c:4038
- __kmalloc_node_track_caller+0x620/0x8e4 mm/slub.c:4545
- __kmalloc_reserve.constprop.0+0x1e4/0x2b0 net/core/skbuff.c:151
- pskb_expand_head+0x130/0x8b0 net/core/skbuff.c:1654
- __skb_grow include/linux/skbuff.h:2779 [inline]
- tun_napi_alloc_frags+0x144/0x610 drivers/net/tun.c:1477
- tun_get_user+0x31c/0x2010 drivers/net/tun.c:1835
- tun_chr_write_iter+0x98/0x100 drivers/net/tun.c:2036
-
-The other problem is because odd IPv6 packets without NEXTHDR_NONE
-extension header and have big packet length, it is 2127925 which is
-bigger than ETH_MAX_MTU(65535). After ipv6_gso_pull_exthdrs() in
-ipv6_gro_receive(), network_header offset and transport_header offset
-are all bigger than U16_MAX. That would trigger skb->network_header
-and skb->transport_header overflow error, because they are all '__u16'
-type. Eventually, it would affect the value for __skb_push(skb, value),
-and make it be a big value. After __skb_push() in ipv6_gro_receive(),
-skb->data would less than skb->head, an out of bounds memory bug occurred.
-That would trigger the problem as following:
-
-==================================================================
-BUG: KASAN: use-after-free in eth_type_trans+0x100/0x260
-...
-Call trace:
- dump_backtrace+0xd8/0x130
- show_stack+0x1c/0x50
- dump_stack_lvl+0x64/0x7c
- print_address_description.constprop.0+0xbc/0x2e8
- print_report+0x100/0x1e4
- kasan_report+0x80/0x120
- __asan_load8+0x78/0xa0
- eth_type_trans+0x100/0x260
- napi_gro_frags+0x164/0x550
- tun_get_user+0xda4/0x1270
- tun_chr_write_iter+0x74/0x130
- do_iter_readv_writev+0x130/0x1ec
- do_iter_write+0xbc/0x1e0
- vfs_writev+0x13c/0x26c
-
-To fix the problems, restrict the packet size less than
-(ETH_MAX_MTU - NET_SKB_PAD - NET_IP_ALIGN) which has considered reserved
-skb space in napi_alloc_skb() because transport_header is an offset from
-skb->head. Add len check in tun_napi_alloc_frags() simply.
-
-Fixes: 90e33d459407 ("tun: enable napi_gro_frags() for TUN/TAP driver")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20221029094101.1653855-1-william.xuanziyang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: fce5c838e133 ("nfs41: RECLAIM_COMPLETE functionality")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/tun.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4state.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index f92d6a12831f..9909f430d723 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1445,7 +1445,8 @@ static struct sk_buff *tun_napi_alloc_frags(struct tun_file *tfile,
- 	int err;
- 	int i;
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index 700cb36c93f3..c60b3a1f6d2b 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -1743,6 +1743,7 @@ static void nfs4_state_mark_reclaim_helper(struct nfs_client *clp,
  
--	if (it->nr_segs > MAX_SKB_FRAGS + 1)
-+	if (it->nr_segs > MAX_SKB_FRAGS + 1 ||
-+	    len > (ETH_MAX_MTU - NET_SKB_PAD - NET_IP_ALIGN))
- 		return ERR_PTR(-EMSGSIZE);
- 
- 	local_bh_disable();
+ static void nfs4_state_start_reclaim_reboot(struct nfs_client *clp)
+ {
++	set_bit(NFS4CLNT_RECLAIM_REBOOT, &clp->cl_state);
+ 	/* Mark all delegations for reclaim */
+ 	nfs_delegation_mark_reclaim(clp);
+ 	nfs4_state_mark_reclaim_helper(clp, nfs4_state_mark_reclaim_reboot);
 -- 
 2.35.1
 
