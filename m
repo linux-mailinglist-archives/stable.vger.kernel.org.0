@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C3D7621439
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:58:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E966F6213A3
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234859AbiKHN6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:58:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33062 "EHLO
+        id S234674AbiKHNwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:52:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234821AbiKHN6t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:58:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ABFC65E42
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:58:48 -0800 (PST)
+        with ESMTP id S234731AbiKHNwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:17 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D639B65E53
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2CC9B81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:58:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0276FC433C1;
-        Tue,  8 Nov 2022 13:58:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3B274CE1B94
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB8A8C4314D;
+        Tue,  8 Nov 2022 13:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915925;
-        bh=2XjGshoWrTJuBzN+PUbWGKdrgMGcQm2scPE/qJE8gLM=;
+        s=korg; t=1667915528;
+        bh=ih1GE+NmEpGemzdtjmcrmgylxR5xmLeRPzcbfGQX+Ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tMgVr4JbjCzYg5FyAKldo2nhaXedfGL+xjJMNxKnSRJGkyYTzuRIiavSw5YjCwYNN
-         HowjnqbVGuBBKOltwus7Zjy6tDw2DAXGfLlZPfc3WYRgKqMnfFF2Oz995O12EzFwEF
-         BYZ5sW5emaBC6udaQr5zPsPKzrbC4Xqo5x3BOaj0=
+        b=0/DhjFuCHAFbMXvODrok9vs63gE4fvSBa3fF3mKFTaOUgCad+wQbPrjVztBIHPDTg
+         EFB2Jpv1ljQ9ObySziSRmq2Q5R7PG1Z4biv5f68zZM3P58+BvKZM3Cw58o/2WQNb9X
+         akutpm9fLuEeVyZqCPhisIcqQ4t8rF/iM4gD0/5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 005/144] KVM: x86: Trace re-injected exceptions
+Subject: [PATCH 5.10 004/118] KVM: nVMX: Dont propagate vmcs12s PERF_GLOBAL_CTRL settings to vmcs02
 Date:   Tue,  8 Nov 2022 14:38:02 +0100
-Message-Id: <20221108133345.577514942@linuxfoundation.org>
+Message-Id: <20221108133340.902563651@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,107 +56,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit a61d7c5432ac5a953bbcec17af031661c2bd201d ]
+[ Upstream commit def9d705c05eab3fdedeb10ad67907513b12038e ]
 
-Trace exceptions that are re-injected, not just those that KVM is
-injecting for the first time.  Debugging re-injection bugs is painful
-enough as is, not having visibility into what KVM is doing only makes
-things worse.
+Don't propagate vmcs12's VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL to vmcs02.
+KVM doesn't disallow L1 from using VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL
+even when KVM itself doesn't use the control, e.g. due to the various
+CPU errata that where the MSR can be corrupted on VM-Exit.
 
-Delay propagating pending=>injected in the non-reinjection path so that
-the tracing can properly identify reinjected exceptions.
+Preserve KVM's (vmcs01) setting to hopefully avoid having to toggle the
+bit in vmcs02 at a later point.  E.g. if KVM is loading PERF_GLOBAL_CTRL
+when running L1, then odds are good KVM will also load the MSR when
+running L2.
 
+Fixes: 8bf00a529967 ("KVM: VMX: add support for switching of PERF_GLOBAL_CTRL")
+Cc: stable@vger.kernel.org
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
-Message-Id: <25470690a38b4d2b32b6204875dd35676c65c9f2.1651440202.git.maciej.szmigiero@oracle.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Link: https://lore.kernel.org/r/20220830133737.1539624-18-vkuznets@redhat.com
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Stable-dep-of: 5623f751bd9c ("KVM: x86: Treat #DBs from the emulator as fault-like (code and DR7.GD=1)")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/trace.h | 12 ++++++++----
- arch/x86/kvm/x86.c   | 16 +++++++++-------
- 2 files changed, 17 insertions(+), 11 deletions(-)
+ arch/x86/kvm/vmx/nested.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/trace.h b/arch/x86/kvm/trace.h
-index 03ebe368333e..c41506ed8c7d 100644
---- a/arch/x86/kvm/trace.h
-+++ b/arch/x86/kvm/trace.h
-@@ -355,25 +355,29 @@ TRACE_EVENT(kvm_inj_virq,
-  * Tracepoint for kvm interrupt injection:
-  */
- TRACE_EVENT(kvm_inj_exception,
--	TP_PROTO(unsigned exception, bool has_error, unsigned error_code),
--	TP_ARGS(exception, has_error, error_code),
-+	TP_PROTO(unsigned exception, bool has_error, unsigned error_code,
-+		 bool reinjected),
-+	TP_ARGS(exception, has_error, error_code, reinjected),
- 
- 	TP_STRUCT__entry(
- 		__field(	u8,	exception	)
- 		__field(	u8,	has_error	)
- 		__field(	u32,	error_code	)
-+		__field(	bool,	reinjected	)
- 	),
- 
- 	TP_fast_assign(
- 		__entry->exception	= exception;
- 		__entry->has_error	= has_error;
- 		__entry->error_code	= error_code;
-+		__entry->reinjected	= reinjected;
- 	),
- 
--	TP_printk("%s (0x%x)",
-+	TP_printk("%s (0x%x)%s",
- 		  __print_symbolic(__entry->exception, kvm_trace_sym_exc),
- 		  /* FIXME: don't print error_code if not present */
--		  __entry->has_error ? __entry->error_code : 0)
-+		  __entry->has_error ? __entry->error_code : 0,
-+		  __entry->reinjected ? " [reinjected]" : "")
- );
- 
- /*
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 8648799d48f8..c171ca2bb85a 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9010,6 +9010,11 @@ int kvm_check_nested_events(struct kvm_vcpu *vcpu)
- 
- static void kvm_inject_exception(struct kvm_vcpu *vcpu)
- {
-+	trace_kvm_inj_exception(vcpu->arch.exception.nr,
-+				vcpu->arch.exception.has_error_code,
-+				vcpu->arch.exception.error_code,
-+				vcpu->arch.exception.injected);
-+
- 	if (vcpu->arch.exception.error_code && !is_protmode(vcpu))
- 		vcpu->arch.exception.error_code = false;
- 	static_call(kvm_x86_queue_exception)(vcpu);
-@@ -9067,13 +9072,6 @@ static int inject_pending_event(struct kvm_vcpu *vcpu, bool *req_immediate_exit)
- 
- 	/* try to inject new event if pending */
- 	if (vcpu->arch.exception.pending) {
--		trace_kvm_inj_exception(vcpu->arch.exception.nr,
--					vcpu->arch.exception.has_error_code,
--					vcpu->arch.exception.error_code);
--
--		vcpu->arch.exception.pending = false;
--		vcpu->arch.exception.injected = true;
--
- 		if (exception_type(vcpu->arch.exception.nr) == EXCPT_FAULT)
- 			__kvm_set_rflags(vcpu, kvm_get_rflags(vcpu) |
- 					     X86_EFLAGS_RF);
-@@ -9087,6 +9085,10 @@ static int inject_pending_event(struct kvm_vcpu *vcpu, bool *req_immediate_exit)
- 		}
- 
- 		kvm_inject_exception(vcpu);
-+
-+		vcpu->arch.exception.pending = false;
-+		vcpu->arch.exception.injected = true;
-+
- 		can_inject = false;
- 	}
- 
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 2395387945a8..498fed0dda98 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -2345,9 +2345,14 @@ static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct loaded_vmcs *vmcs0
+ 	 * are emulated by vmx_set_efer() in prepare_vmcs02(), but speculate
+ 	 * on the related bits (if supported by the CPU) in the hope that
+ 	 * we can avoid VMWrites during vmx_set_efer().
++	 *
++	 * Similarly, take vmcs01's PERF_GLOBAL_CTRL in the hope that if KVM is
++	 * loading PERF_GLOBAL_CTRL via the VMCS for L1, then KVM will want to
++	 * do the same for L2.
+ 	 */
+ 	exec_control = __vm_entry_controls_get(vmcs01);
+-	exec_control |= vmcs12->vm_entry_controls;
++	exec_control |= (vmcs12->vm_entry_controls &
++			 ~VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL);
+ 	exec_control &= ~(VM_ENTRY_IA32E_MODE | VM_ENTRY_LOAD_IA32_EFER);
+ 	if (cpu_has_load_ia32_efer()) {
+ 		if (guest_efer & EFER_LMA)
 -- 
 2.35.1
 
