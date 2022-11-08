@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D42D26213D2
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:54:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F03C62155F
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:11:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234714AbiKHNyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:54:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51196 "EHLO
+        id S235238AbiKHOLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:11:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234630AbiKHNyN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:54:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC90A10DB
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:54:11 -0800 (PST)
+        with ESMTP id S235229AbiKHOLA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:11:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0121186FF
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:10:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95E6FB81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:54:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7271C433C1;
-        Tue,  8 Nov 2022 13:54:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56152615B5
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:10:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A098C433D6;
+        Tue,  8 Nov 2022 14:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915649;
-        bh=2tc5AU13tcn22TcprDkJX5PCUt9xCGz4hXo5uIKWqbo=;
+        s=korg; t=1667916652;
+        bh=ooKetPYXufktogpnuRIl6gEI4LZSsfmaadPG0pyuYds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6I5vpg7M5v7FJKPQe6Bu+OG865hWRSIcvS56YkERhAxxUK8Tw6oi69oYVEMdNUcw
-         2VMu9Yn4bZDJA7nAQhmrQ3bI55O2eERoSIiG+wbv3KNEj0CeGvLKA0S0EAkYi7AXca
-         kcmx9eNuvJdBX7IyG6nSzJh57UzmZu2rB6xama5Y=
+        b=ew3+R+sW29XMVha3kJ/4+Gb3RgLtrNIBPiqhnRnKMKWSsethTQyc2C7lSQE+yHAFV
+         ODgLYAmQElPZ0UjFMThJGKMy3UDWsMLDtvctmYC0KB10W17YB67wa7h2iTER+FOgj3
+         3irYaPATCkUPcC2D1ouDqBkibVpoxbX3tTFG3vz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 021/118] RDMA/qedr: clean up work queue on failure in qedr_alloc_resources()
+Subject: [PATCH 6.0 061/197] ipv6: fix WARNING in ip6_route_net_exit_late()
 Date:   Tue,  8 Nov 2022 14:38:19 +0100
-Message-Id: <20221108133341.585200864@linuxfoundation.org>
+Message-Id: <20221108133357.611576004@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 7a47e077e503feb73d56e491ce89aa73b67a3972 ]
+[ Upstream commit 768b3c745fe5789f2430bdab02f35a9ad1148d97 ]
 
-Add a check for if create_singlethread_workqueue() fails and also destroy
-the work queue on failure paths.
+During the initialization of ip6_route_net_init_late(), if file
+ipv6_route or rt6_stats fails to be created, the initialization is
+successful by default. Therefore, the ipv6_route or rt6_stats file
+doesn't be found during the remove in ip6_route_net_exit_late(). It
+will cause WRNING.
 
-Fixes: e411e0587e0d ("RDMA/qedr: Add iWARP connection management functions")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/Y1gBkDucQhhWj5YM@kili
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+The following is the stack information:
+name 'rt6_stats'
+WARNING: CPU: 0 PID: 9 at fs/proc/generic.c:712 remove_proc_entry+0x389/0x460
+Modules linked in:
+Workqueue: netns cleanup_net
+RIP: 0010:remove_proc_entry+0x389/0x460
+PKRU: 55555554
+Call Trace:
+<TASK>
+ops_exit_list+0xb0/0x170
+cleanup_net+0x4ea/0xb00
+process_one_work+0x9bf/0x1710
+worker_thread+0x665/0x1080
+kthread+0x2e4/0x3a0
+ret_from_fork+0x1f/0x30
+</TASK>
+
+Fixes: cdb1876192db ("[NETNS][IPV6] route6 - create route6 proc files for the namespace")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20221102020610.351330-1-shaozhengchao@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qedr/main.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/ipv6/route.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/qedr/main.c b/drivers/infiniband/hw/qedr/main.c
-index 967641662b24..d0bb61b7e419 100644
---- a/drivers/infiniband/hw/qedr/main.c
-+++ b/drivers/infiniband/hw/qedr/main.c
-@@ -374,6 +374,10 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
- 	if (IS_IWARP(dev)) {
- 		xa_init(&dev->qps);
- 		dev->iwarp_wq = create_singlethread_workqueue("qedr_iwarpq");
-+		if (!dev->iwarp_wq) {
-+			rc = -ENOMEM;
-+			goto err1;
-+		}
- 	}
- 
- 	/* Allocate Status blocks for CNQ */
-@@ -381,7 +385,7 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
- 				GFP_KERNEL);
- 	if (!dev->sb_array) {
- 		rc = -ENOMEM;
--		goto err1;
-+		goto err_destroy_wq;
- 	}
- 
- 	dev->cnq_array = kcalloc(dev->num_cnq,
-@@ -432,6 +436,9 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
- 	kfree(dev->cnq_array);
- err2:
- 	kfree(dev->sb_array);
-+err_destroy_wq:
-+	if (IS_IWARP(dev))
-+		destroy_workqueue(dev->iwarp_wq);
- err1:
- 	kfree(dev->sgid_tbl);
- 	return rc;
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index 69252eb462b2..2f355f0ec32a 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -6555,10 +6555,16 @@ static void __net_exit ip6_route_net_exit(struct net *net)
+ static int __net_init ip6_route_net_init_late(struct net *net)
+ {
+ #ifdef CONFIG_PROC_FS
+-	proc_create_net("ipv6_route", 0, net->proc_net, &ipv6_route_seq_ops,
+-			sizeof(struct ipv6_route_iter));
+-	proc_create_net_single("rt6_stats", 0444, net->proc_net,
+-			rt6_stats_seq_show, NULL);
++	if (!proc_create_net("ipv6_route", 0, net->proc_net,
++			     &ipv6_route_seq_ops,
++			     sizeof(struct ipv6_route_iter)))
++		return -ENOMEM;
++
++	if (!proc_create_net_single("rt6_stats", 0444, net->proc_net,
++				    rt6_stats_seq_show, NULL)) {
++		remove_proc_entry("ipv6_route", net->proc_net);
++		return -ENOMEM;
++	}
+ #endif
+ 	return 0;
+ }
 -- 
 2.35.1
 
