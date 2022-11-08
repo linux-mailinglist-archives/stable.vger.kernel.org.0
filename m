@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1F1F6213CC
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:54:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6BBB62135F
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:49:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234767AbiKHNyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:54:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55886 "EHLO
+        id S234606AbiKHNtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:49:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234773AbiKHNxx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:53:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26427CCF
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:53:53 -0800 (PST)
+        with ESMTP id S234608AbiKHNtp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:49:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6AF8F3A
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:49:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7024615AD
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:53:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEFFDC433C1;
-        Tue,  8 Nov 2022 13:53:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 672DBB81AE2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:49:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76490C433D6;
+        Tue,  8 Nov 2022 13:49:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915632;
-        bh=6QN0WhAVLQZhs030znFUvEFzCQVTrftTwvL4guFJX9g=;
+        s=korg; t=1667915382;
+        bh=SW+E9SeCuDcSBKxnp/B6vOPmoqesUPY5GcJ/WFeD7xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NzFv4GoD4CyWOqKy50hvI5JxJ35Os5dAmG+67rhv/IHcqnN8TO9lfHLz6KX3941tW
-         Zu+YB/qQo0PHBEF1pj8BMeFDF1k49Hw1GhmVE5jtjsfdnynvJCBVumdk/cWk2BIJG9
-         RJqCTf/WiKboPaUIIRbg62M1fSo0uVSgsrQD2DRs=
+        b=VPzXH5hrWgx6IXyEzku48XivmgHFoSR39T4AlbTlyydgMDCQAVcHM1ANTJgELFI20
+         I2aSNMTi52XqnuUCOtlBog6VWcwWDVwlfYiZzkOTB9aIz6D980aaZAZh7XIwjFRey4
+         +ILRg+iUzkcZAW1h4V1n5+bhwF6pGHZbtKRIsY1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "Denis V. Lunev" <den@openvz.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        syzbot+8f747f62763bc6c32916@syzkaller.appspotmail.com,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/118] net, neigh: Fix null-ptr-deref in neigh_table_clear()
+Subject: [PATCH 5.4 15/74] netfilter: nf_tables: release flow rule object from commit path
 Date:   Tue,  8 Nov 2022 14:38:43 +0100
-Message-Id: <20221108133342.642398111@linuxfoundation.org>
+Message-Id: <20221108133334.316239931@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit f8017317cb0b279b8ab98b0f3901a2e0ac880dad ]
+[ Upstream commit 26b5934ff4194e13196bedcba373cd4915071d0e ]
 
-When IPv6 module gets initialized but hits an error in the middle,
-kenel panic with:
+No need to postpone this to the commit release path, since no packets
+are walking over this object, this is accessed from control plane only.
+This helped uncovered UAF triggered by races with the netlink notifier.
 
-KASAN: null-ptr-deref in range [0x0000000000000598-0x000000000000059f]
-CPU: 1 PID: 361 Comm: insmod
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-RIP: 0010:__neigh_ifdown.isra.0+0x24b/0x370
-RSP: 0018:ffff888012677908 EFLAGS: 00000202
-...
-Call Trace:
- <TASK>
- neigh_table_clear+0x94/0x2d0
- ndisc_cleanup+0x27/0x40 [ipv6]
- inet6_init+0x21c/0x2cb [ipv6]
- do_one_initcall+0xd3/0x4d0
- do_init_module+0x1ae/0x670
-...
-Kernel panic - not syncing: Fatal exception
-
-When ipv6 initialization fails, it will try to cleanup and calls:
-
-neigh_table_clear()
-  neigh_ifdown(tbl, NULL)
-    pneigh_queue_purge(&tbl->proxy_queue, dev_net(dev == NULL))
-    # dev_net(NULL) triggers null-ptr-deref.
-
-Fix it by passing NULL to pneigh_queue_purge() in neigh_ifdown() if dev
-is NULL, to make kernel not panic immediately.
-
-Fixes: 66ba215cb513 ("neigh: fix possible DoS due to net iface start/stop loop")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Denis V. Lunev <den@openvz.org>
-Link: https://lore.kernel.org/r/20221101121552.21890-1-chenzhongjin@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 9dd732e0bdf5 ("netfilter: nf_tables: memleak flow rule from commit path")
+Reported-by: syzbot+8f747f62763bc6c32916@syzkaller.appspotmail.com
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_tables_api.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 434c5aab83ea..f6f580e9d282 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -373,7 +373,7 @@ static int __neigh_ifdown(struct neigh_table *tbl, struct net_device *dev,
- 	write_lock_bh(&tbl->lock);
- 	neigh_flush_dev(tbl, dev, skip_perm);
- 	pneigh_ifdown_and_unlock(tbl, dev);
--	pneigh_queue_purge(&tbl->proxy_queue, dev_net(dev));
-+	pneigh_queue_purge(&tbl->proxy_queue, dev ? dev_net(dev) : NULL);
- 	if (skb_queue_empty_lockless(&tbl->proxy_queue))
- 		del_timer_sync(&tbl->proxy_timer);
- 	return 0;
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index f9cecd30f1ba..140c24f1b6c6 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -6576,9 +6576,6 @@ static void nft_commit_release(struct nft_trans *trans)
+ 		nf_tables_chain_destroy(&trans->ctx);
+ 		break;
+ 	case NFT_MSG_DELRULE:
+-		if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
+-			nft_flow_rule_destroy(nft_trans_flow_rule(trans));
+-
+ 		nf_tables_rule_destroy(&trans->ctx, nft_trans_rule(trans));
+ 		break;
+ 	case NFT_MSG_DELSET:
+@@ -6913,6 +6910,9 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
+ 			nft_rule_expr_deactivate(&trans->ctx,
+ 						 nft_trans_rule(trans),
+ 						 NFT_TRANS_COMMIT);
++
++			if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
++				nft_flow_rule_destroy(nft_trans_flow_rule(trans));
+ 			break;
+ 		case NFT_MSG_NEWSET:
+ 			nft_clear(net, nft_trans_set(trans));
 -- 
 2.35.1
 
