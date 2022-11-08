@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACA66621456
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:00:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8073B621546
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:10:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234915AbiKHOAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:00:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34230 "EHLO
+        id S235214AbiKHOKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:10:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234914AbiKHOAD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:00:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ED96682AC
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:00:00 -0800 (PST)
+        with ESMTP id S235234AbiKHOKA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:10:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 286067722F
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:09:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0ED4B816DD
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:59:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CB3BC433D7;
-        Tue,  8 Nov 2022 13:59:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AD4C6157D
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:09:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82C50C433D6;
+        Tue,  8 Nov 2022 14:09:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915997;
-        bh=5Tw2R7gqTMtBXFQ4iQzeMv1QN52v9OXm/NLnM5cI2jg=;
+        s=korg; t=1667916595;
+        bh=gya0bJPhRIzVdB0g3VDNw7gd6/xMQzaHVCvDAQ7OOLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BCAoeL5aS2xlv8uwhQVYjsHynrBHtfY+dml1mH9JnxIyViLAslV988mKlAuEe7ieC
-         YzkW4dzrtqoLTOW0xyvyqq5gtdwZiywnMOLY0TQ4PPk0x1n4/rVm0EzjTeNxeQLHhn
-         sNYGEYTb3WoLu00bGQlgPxAAiPJVKlXfD2owHe98=
+        b=0L765o1GkaZ3kDm0WSQiY+MbpYog79NLrkZ4TLNeIJ/axnubqeq8vC4khJsXf1JpQ
+         c/bWWb1T/cq9gDu7Wu6BKFo9l7rWDnOSueBSO2Xzi3RS/24UBT56NODASbxKZS8ugG
+         N9Y3FBXAuRSkl0zBPwyWcIfQVJ5wt9tYa4Eh7NgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Rory Liu <hellojacky0226@hotmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 032/144] net: fec: fix improper use of NETDEV_TX_BUSY
-Date:   Tue,  8 Nov 2022 14:38:29 +0100
-Message-Id: <20221108133346.638628863@linuxfoundation.org>
+Subject: [PATCH 6.0 072/197] media: platform: cros-ec: Add Kuldax to the match table
+Date:   Tue,  8 Nov 2022 14:38:30 +0100
+Message-Id: <20221108133358.135832941@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Rory Liu <hellojacky0226@hotmail.com>
 
-[ Upstream commit 06a4df5863f73af193a4ff7abf7cb04058584f06 ]
+[ Upstream commit 594b6bdde2e7833a56413de5092b6e4188d33ff7 ]
 
-The ndo_start_xmit() method must not free skb when returning
-NETDEV_TX_BUSY, since caller is going to requeue freed skb.
+The Google Kuldax device uses the same approach as the Google Brask
+which enables the HDMI CEC via the cros-ec-cec driver.
 
-Fix it by returning NETDEV_TX_OK in case of dma_map_single() fails.
-
-Fixes: 79f339125ea3 ("net: fec: Add software TSO support")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Rory Liu <hellojacky0226@hotmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/cec/platform/cros-ec/cros-ec-cec.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 313ae8112067..a829ba128b9d 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -656,7 +656,7 @@ fec_enet_txq_put_data_tso(struct fec_enet_priv_tx_q *txq, struct sk_buff *skb,
- 		dev_kfree_skb_any(skb);
- 		if (net_ratelimit())
- 			netdev_err(ndev, "Tx DMA memory map failed\n");
--		return NETDEV_TX_BUSY;
-+		return NETDEV_TX_OK;
- 	}
+diff --git a/drivers/media/cec/platform/cros-ec/cros-ec-cec.c b/drivers/media/cec/platform/cros-ec/cros-ec-cec.c
+index e5ebaa58be45..6ebedc71d67d 100644
+--- a/drivers/media/cec/platform/cros-ec/cros-ec-cec.c
++++ b/drivers/media/cec/platform/cros-ec/cros-ec-cec.c
+@@ -223,6 +223,8 @@ static const struct cec_dmi_match cec_dmi_match_table[] = {
+ 	{ "Google", "Moli", "0000:00:02.0", "Port B" },
+ 	/* Google Kinox */
+ 	{ "Google", "Kinox", "0000:00:02.0", "Port B" },
++	/* Google Kuldax */
++	{ "Google", "Kuldax", "0000:00:02.0", "Port B" },
+ };
  
- 	bdp->cbd_datlen = cpu_to_fec16(size);
-@@ -718,7 +718,7 @@ fec_enet_txq_put_hdr_tso(struct fec_enet_priv_tx_q *txq,
- 			dev_kfree_skb_any(skb);
- 			if (net_ratelimit())
- 				netdev_err(ndev, "Tx DMA memory map failed\n");
--			return NETDEV_TX_BUSY;
-+			return NETDEV_TX_OK;
- 		}
- 	}
- 
+ static struct device *cros_ec_cec_find_hdmi_dev(struct device *dev,
 -- 
 2.35.1
 
