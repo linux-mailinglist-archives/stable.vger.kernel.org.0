@@ -2,55 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B46836212EC
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F348621563
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:11:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234471AbiKHNoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:44:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44518 "EHLO
+        id S235240AbiKHOLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:11:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234456AbiKHNoY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FEDB50F15;
-        Tue,  8 Nov 2022 05:44:21 -0800 (PST)
+        with ESMTP id S235288AbiKHOLY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:11:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17895862EF
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:11:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B9A6B81AEE;
-        Tue,  8 Nov 2022 13:44:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22EECC433C1;
-        Tue,  8 Nov 2022 13:44:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B76F6157D
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:11:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A011BC433C1;
+        Tue,  8 Nov 2022 14:11:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915058;
-        bh=S5MiQjjR8MdolSHwhCC0TTGQpz/U0sTajPQB4Gb/mfA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=wdhNunc9iEWMpoaAHIk89995ndUJbAJ0agrJm7OZhOLFkdEQ0VFoYe1zTTulmz20Y
-         3YB3pgOvmYhLQm0dv6dh99xO0D+MvQrc0hs9GtDHBy25e3pzNiY7ZvOe3KW3GF4Gc+
-         FGzCKOD3CFr4Pfx1+RL6JPATMzAWyUPjaGCbfuCc=
+        s=korg; t=1667916666;
+        bh=3odNfFTxhlSI2oqPWmgqSTu/8N7j/fMmlaKxX+8l4aY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=erDzYN4XDu6tpluYMKs3wbwKkevGM4KuzZIFbHrW/1x1VCEnNKQsCDag20C3z/lMP
+         JVOqEORVUXvJOszyuz3RSCElBneH0maHnFaVNiCZlXJi28jMHx8B2sHlqXNbQE2Zzg
+         wM9pVxIDgMed+yWBNnxQ0iRbapcqQaDJGLtcBw/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: [PATCH 4.14 00/40] 4.14.299-rc1 review
+        patches@lists.linux.dev, Yifan Zha <Yifan.Zha@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 087/197] drm/amdgpu: Program GC registers through RLCG interface in gfx_v11/gmc_v11
 Date:   Tue,  8 Nov 2022 14:38:45 +0100
-Message-Id: <20221108133328.351887714@linuxfoundation.org>
+Message-Id: <20221108133358.796309912@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-MIME-Version: 1.0
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.299-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.299-rc1
-X-KernelTest-Deadline: 2022-11-10T13:33+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -62,205 +54,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.299 release.
-There are 40 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Yifan Zha <Yifan.Zha@amd.com>
 
-Responses should be made by Thu, 10 Nov 2022 13:33:17 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 97a3d6090f5c2a165dc88bda05c1dcf9f08bf886 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.299-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+[Why]
+L1 blocks most of GC registers accessing by MMIO.
 
-thanks,
+[How]
+Use RLCG interface to program GC registers under SRIOV VF in full access time.
 
-greg k-h
+Signed-off-by: Yifan Zha <Yifan.Zha@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ .../gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c |  2 +-
+ drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c         |  2 +-
+ drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c         | 18 +++++++++++-------
+ 3 files changed, 13 insertions(+), 9 deletions(-)
 
--------------
-Pseudo-Shortlog of commits:
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c
+index 0b0a72ca5695..7e80caa05060 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v11.c
+@@ -111,7 +111,7 @@ static int init_interrupts_v11(struct amdgpu_device *adev, uint32_t pipe_id)
+ 
+ 	lock_srbm(adev, mec, pipe, 0, 0);
+ 
+-	WREG32(SOC15_REG_OFFSET(GC, 0, regCPC_INT_CNTL),
++	WREG32_SOC15(GC, 0, regCPC_INT_CNTL,
+ 		CP_INT_CNTL_RING0__TIME_STAMP_INT_ENABLE_MASK |
+ 		CP_INT_CNTL_RING0__OPCODE_ERROR_INT_ENABLE_MASK);
+ 
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
+index daf8ba8235cd..03775e0a8100 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
+@@ -1729,7 +1729,7 @@ static void gfx_v11_0_init_compute_vmid(struct amdgpu_device *adev)
+ 		WREG32_SOC15(GC, 0, regSH_MEM_BASES, sh_mem_bases);
+ 
+ 		/* Enable trap for each kfd vmid. */
+-		data = RREG32(SOC15_REG_OFFSET(GC, 0, regSPI_GDBG_PER_VMID_CNTL));
++		data = RREG32_SOC15(GC, 0, regSPI_GDBG_PER_VMID_CNTL);
+ 		data = REG_SET_FIELD(data, SPI_GDBG_PER_VMID_CNTL, TRAP_EN, 1);
+ 	}
+ 	soc21_grbm_select(adev, 0, 0, 0, 0);
+diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c
+index 1471bfb9ae38..2475fdbe8010 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v11_0.c
+@@ -185,6 +185,10 @@ static void gmc_v11_0_flush_vm_hub(struct amdgpu_device *adev, uint32_t vmid,
+ 	/* Use register 17 for GART */
+ 	const unsigned eng = 17;
+ 	unsigned int i;
++	unsigned char hub_ip = 0;
++
++	hub_ip = (vmhub == AMDGPU_GFXHUB_0) ?
++		   GC_HWIP : MMHUB_HWIP;
+ 
+ 	spin_lock(&adev->gmc.invalidate_lock);
+ 	/*
+@@ -198,8 +202,8 @@ static void gmc_v11_0_flush_vm_hub(struct amdgpu_device *adev, uint32_t vmid,
+ 	if (use_semaphore) {
+ 		for (i = 0; i < adev->usec_timeout; i++) {
+ 			/* a read return value of 1 means semaphore acuqire */
+-			tmp = RREG32_NO_KIQ(hub->vm_inv_eng0_sem +
+-					    hub->eng_distance * eng);
++			tmp = RREG32_RLC_NO_KIQ(hub->vm_inv_eng0_sem +
++					    hub->eng_distance * eng, hub_ip);
+ 			if (tmp & 0x1)
+ 				break;
+ 			udelay(1);
+@@ -209,12 +213,12 @@ static void gmc_v11_0_flush_vm_hub(struct amdgpu_device *adev, uint32_t vmid,
+ 			DRM_ERROR("Timeout waiting for sem acquire in VM flush!\n");
+ 	}
+ 
+-	WREG32_NO_KIQ(hub->vm_inv_eng0_req + hub->eng_distance * eng, inv_req);
++	WREG32_RLC_NO_KIQ(hub->vm_inv_eng0_req + hub->eng_distance * eng, inv_req, hub_ip);
+ 
+ 	/* Wait for ACK with a delay.*/
+ 	for (i = 0; i < adev->usec_timeout; i++) {
+-		tmp = RREG32_NO_KIQ(hub->vm_inv_eng0_ack +
+-				    hub->eng_distance * eng);
++		tmp = RREG32_RLC_NO_KIQ(hub->vm_inv_eng0_ack +
++				    hub->eng_distance * eng, hub_ip);
+ 		tmp &= 1 << vmid;
+ 		if (tmp)
+ 			break;
+@@ -228,8 +232,8 @@ static void gmc_v11_0_flush_vm_hub(struct amdgpu_device *adev, uint32_t vmid,
+ 		 * add semaphore release after invalidation,
+ 		 * write with 0 means semaphore release
+ 		 */
+-		WREG32_NO_KIQ(hub->vm_inv_eng0_sem +
+-			      hub->eng_distance * eng, 0);
++		WREG32_RLC_NO_KIQ(hub->vm_inv_eng0_sem +
++			      hub->eng_distance * eng, 0, hub_ip);
+ 
+ 	/* Issue additional private vm invalidation to MMHUB */
+ 	if ((vmhub != AMDGPU_GFXHUB_0) &&
+-- 
+2.35.1
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.299-rc1
-
-Dokyung Song <dokyung.song@gmail.com>
-    wifi: brcmfmac: Fix potential buffer overflow in brcmf_fweh_event_worker()
-
-Masahiro Yamada <yamada.masahiro@socionext.com>
-    linux/bits.h: make BIT(), GENMASK(), and friends available in assembly
-
-Masahiro Yamada <yamada.masahiro@socionext.com>
-    linux/const.h: move UL() macro to include/linux/const.h
-
-Masahiro Yamada <yamada.masahiro@socionext.com>
-    linux/const.h: prefix include guard of uapi/linux/const.h with _UAPI
-
-Maxim Levitsky <mlevitsk@redhat.com>
-    KVM: x86: emulator: update the emulation mode after CR0 write
-
-Maxim Levitsky <mlevitsk@redhat.com>
-    KVM: x86: emulator: introduce emulator_recalc_and_set_mode
-
-Maxim Levitsky <mlevitsk@redhat.com>
-    KVM: x86: emulator: em_sysexit should update ctxt->mode
-
-Jim Mattson <jmattson@google.com>
-    KVM: x86: Mask off reserved bits in CPUID.80000008H
-
-Ye Bin <yebin10@huawei.com>
-    ext4: fix warning in 'ext4_da_release_space'
-
-Helge Deller <deller@gmx.de>
-    parisc: Export iosapic_serial_irq() symbol for serial port driver
-
-Helge Deller <deller@gmx.de>
-    parisc: Make 8250_gsc driver dependend on CONFIG_PARISC
-
-Ard Biesheuvel <ardb@kernel.org>
-    efi: random: reduce seed size to 32 bytes
-
-John Veness <john-linux@pelago.org.uk>
-    ALSA: usb-audio: Add quirks for MacroSilicon MS2100/MS2106 devices
-
-Gaosheng Cui <cuigaosheng1@huawei.com>
-    capabilities: fix potential memleak on error path from vfs_getxattr_alloc()
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp/udp: Make early_demux back namespacified.
-
-David Sterba <dsterba@suse.com>
-    btrfs: fix type of parameter generation in btrfs_get_dentry
-
-Yu Kuai <yukuai3@huawei.com>
-    block, bfq: protect 'bfqd->queued' by 'bfqd->lock'
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: L2CAP: Fix attempting to access uninitialized memory
-
-Martin Tůma <martin.tuma@digiteqautomotive.com>
-    i2c: xiic: Add platform module alias
-
-Hans Verkuil <hverkuil-cisco@xs4all.nl>
-    media: dvb-frontends/drxk: initialize err to 0
-
-Hans Verkuil <hverkuil-cisco@xs4all.nl>
-    media: s5p_cec: limit msg.len to CEC_MAX_MSG_SIZE
-
-Chen Zhongjin <chenzhongjin@huawei.com>
-    net, neigh: Fix null-ptr-deref in neigh_table_clear()
-
-Gaosheng Cui <cuigaosheng1@huawei.com>
-    net: mdio: fix undefined behavior in bit shift for __mdiobus_register
-
-Zhengchao Shao <shaozhengchao@huawei.com>
-    Bluetooth: L2CAP: fix use-after-free in l2cap_conn_del()
-
-Maxim Mikityanskiy <maxtram95@gmail.com>
-    Bluetooth: L2CAP: Fix use-after-free caused by l2cap_reassemble_sdu
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix ulist leaks in error paths of qgroup self tests
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix inode list leak during backref walking at resolve_indirect_refs()
-
-Yang Yingliang <yangyingliang@huawei.com>
-    isdn: mISDN: netjet: fix wrong check of device registration
-
-Yang Yingliang <yangyingliang@huawei.com>
-    mISDN: fix possible memory leak in mISDN_register_device()
-
-Zhang Qilong <zhangqilong3@huawei.com>
-    rose: Fix NULL pointer dereference in rose_send_frame()
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    ipvs: use explicitly signed chars
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    net: sched: Fix use after free in red_enqueue()
-
-Sergey Shtylyov <s.shtylyov@omp.ru>
-    ata: pata_legacy: fix pdc20230_set_piomode()
-
-Zhang Changzhong <zhangchangzhong@huawei.com>
-    net: fec: fix improper use of NETDEV_TX_BUSY
-
-Shang XiaoJing <shangxiaojing@huawei.com>
-    nfc: nfcmrvl: Fix potential memory leak in nfcmrvl_i2c_nci_send()
-
-Shang XiaoJing <shangxiaojing@huawei.com>
-    nfc: s3fwrn5: Fix potential memory leak in s3fwrn5_nci_send()
-
-Chen Zhongjin <chenzhongjin@huawei.com>
-    net: dsa: Fix possible memory leaks in dsa_loop_init()
-
-Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-    nfs4: Fix kmemleak when allocate slot failed
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFSv4.1: We must always send RECLAIM_COMPLETE after a reboot
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFSv4.1: Handle RECLAIM_COMPLETE trunking errors
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/arm/include/asm/memory.h                      |   6 --
- arch/arm64/include/asm/memory.h                    |   6 --
- arch/unicore32/include/asm/memory.h                |   6 --
- arch/x86/kvm/cpuid.c                               |   1 +
- arch/x86/kvm/emulate.c                             | 102 +++++++++++++++------
- block/bfq-iosched.c                                |   4 +-
- drivers/ata/pata_legacy.c                          |   5 +-
- drivers/firmware/efi/efi.c                         |   2 +-
- drivers/i2c/busses/i2c-xiic.c                      |   1 +
- drivers/isdn/hardware/mISDN/netjet.c               |   2 +-
- drivers/isdn/mISDN/core.c                          |   5 +-
- drivers/media/dvb-frontends/drxk_hard.c            |   2 +-
- drivers/media/platform/s5p-cec/s5p_cec.c           |   2 +
- drivers/net/dsa/dsa_loop.c                         |  25 +++--
- drivers/net/ethernet/freescale/fec_main.c          |   4 +-
- drivers/net/phy/mdio_bus.c                         |   2 +-
- .../wireless/broadcom/brcm80211/brcmfmac/fweh.c    |   4 +
- drivers/nfc/nfcmrvl/i2c.c                          |   7 +-
- drivers/nfc/s3fwrn5/core.c                         |   8 +-
- drivers/parisc/iosapic.c                           |   1 +
- drivers/tty/serial/8250/Kconfig                    |   2 +-
- fs/btrfs/backref.c                                 |  36 ++++----
- fs/btrfs/export.c                                  |   2 +-
- fs/btrfs/export.h                                  |   2 +-
- fs/btrfs/tests/qgroup-tests.c                      |  20 +++-
- fs/ext4/migrate.c                                  |   3 +-
- fs/nfs/nfs4client.c                                |   1 +
- fs/nfs/nfs4state.c                                 |   2 +
- include/linux/bits.h                               |  17 ++--
- include/linux/const.h                              |   9 ++
- include/linux/efi.h                                |   2 +-
- include/net/protocol.h                             |   4 -
- include/net/tcp.h                                  |   2 +
- include/net/udp.h                                  |   1 +
- include/uapi/linux/const.h                         |   9 +-
- net/bluetooth/l2cap_core.c                         |  52 +++++++++--
- net/core/neighbour.c                               |   2 +-
- net/ipv4/af_inet.c                                 |  14 +--
- net/ipv4/ip_input.c                                |  32 ++++---
- net/ipv4/sysctl_net_ipv4.c                         |  59 +-----------
- net/ipv6/ip6_input.c                               |  23 +++--
- net/ipv6/tcp_ipv6.c                                |   9 +-
- net/ipv6/udp.c                                     |   9 +-
- net/netfilter/ipvs/ip_vs_conn.c                    |   4 +-
- net/rose/rose_link.c                               |   3 +
- net/sched/sch_red.c                                |   4 +-
- security/commoncap.c                               |   6 +-
- sound/usb/quirks-table.h                           |  58 ++++++++++++
- sound/usb/quirks.c                                 |   1 +
- 50 files changed, 358 insertions(+), 229 deletions(-)
 
 
