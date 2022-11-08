@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F002562145B
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:00:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7402A621336
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234913AbiKHOA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:00:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34230 "EHLO
+        id S234476AbiKHNsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:48:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234923AbiKHOAP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:00:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6423623B6
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:00:14 -0800 (PST)
+        with ESMTP id S234593AbiKHNr6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:47:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1BB959876
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:47:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 739A3615B3
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:00:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AA13C433D6;
-        Tue,  8 Nov 2022 14:00:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 804586158F
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:47:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98537C433C1;
+        Tue,  8 Nov 2022 13:47:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916013;
-        bh=khwbRxXbb7pT3tKUtownAvzFLULUPVoqFKZPBYqRJDo=;
+        s=korg; t=1667915276;
+        bh=bJoihr3C7IrxlfE0vBiU8a9VsVFvgPp8C4N1PA3tR9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R5bgRRyKF7sW5UjB6EIM42OeQKIaPPW3u7+dN1VY2BeJdMZe9lfJWr7jNB+F85CCI
-         mFh7/OPW9CgjknAK8j7Jfw/fCFoTPywZZ/k1xdGTiXc4PUVySstDYc/s20vt9ZT5dh
-         eHvZf4UibFNrhexE+mgHxA0n03zuy/p40vV4WYi4=
+        b=ztv2gahIGDloDQbkWgbIYWq+DFXSocf3kI2Qe+KX0zzcukokNOshtH+SQFsjpQ9yv
+         oV+w2ZPchuxoNjqaQgthbg0+JH1caFb0DmJBQqmKK5f4v5CYP2wcRrx/5RoYfhjOPA
+         X7q/4gQU3n+hYtIoNmiaXv011h1S+Zpc2NI7r2ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+8f747f62763bc6c32916@syzkaller.appspotmail.com,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 037/144] netfilter: nf_tables: release flow rule object from commit path
+Subject: [PATCH 5.4 06/74] net: dsa: Fix possible memory leaks in dsa_loop_init()
 Date:   Tue,  8 Nov 2022 14:38:34 +0100
-Message-Id: <20221108133346.848205949@linuxfoundation.org>
+Message-Id: <20221108133333.928044205@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +53,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 26b5934ff4194e13196bedcba373cd4915071d0e ]
+[ Upstream commit 633efc8b3dc96f56f5a57f2a49764853a2fa3f50 ]
 
-No need to postpone this to the commit release path, since no packets
-are walking over this object, this is accessed from control plane only.
-This helped uncovered UAF triggered by races with the netlink notifier.
+kmemleak reported memory leaks in dsa_loop_init():
 
-Fixes: 9dd732e0bdf5 ("netfilter: nf_tables: memleak flow rule from commit path")
-Reported-by: syzbot+8f747f62763bc6c32916@syzkaller.appspotmail.com
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+kmemleak: 12 new suspected memory leaks
+
+unreferenced object 0xffff8880138ce000 (size 2048):
+  comm "modprobe", pid 390, jiffies 4295040478 (age 238.976s)
+  backtrace:
+    [<000000006a94f1d5>] kmalloc_trace+0x26/0x60
+    [<00000000a9c44622>] phy_device_create+0x5d/0x970
+    [<00000000d0ee2afc>] get_phy_device+0xf3/0x2b0
+    [<00000000dca0c71f>] __fixed_phy_register.part.0+0x92/0x4e0
+    [<000000008a834798>] fixed_phy_register+0x84/0xb0
+    [<0000000055223fcb>] dsa_loop_init+0xa9/0x116 [dsa_loop]
+    ...
+
+There are two reasons for memleak in dsa_loop_init().
+
+First, fixed_phy_register() create and register phy_device:
+
+fixed_phy_register()
+  get_phy_device()
+    phy_device_create() # freed by phy_device_free()
+  phy_device_register() # freed by phy_device_remove()
+
+But fixed_phy_unregister() only calls phy_device_remove().
+So the memory allocated in phy_device_create() is leaked.
+
+Second, when mdio_driver_register() fail in dsa_loop_init(),
+it just returns and there is no cleanup for phydevs.
+
+Fix the problems by catching the error of mdio_driver_register()
+in dsa_loop_init(), then calling both fixed_phy_unregister() and
+phy_device_free() to release phydevs.
+Also add a function for phydevs cleanup to avoid duplacate.
+
+Fixes: 98cd1552ea27 ("net: dsa: Mock-up driver")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/dsa/dsa_loop.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 8cd11a7e5a3e..899f01c6c26c 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -8308,9 +8308,6 @@ static void nft_commit_release(struct nft_trans *trans)
- 		nf_tables_chain_destroy(&trans->ctx);
- 		break;
- 	case NFT_MSG_DELRULE:
--		if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
--			nft_flow_rule_destroy(nft_trans_flow_rule(trans));
--
- 		nf_tables_rule_destroy(&trans->ctx, nft_trans_rule(trans));
- 		break;
- 	case NFT_MSG_DELSET:
-@@ -8767,6 +8764,9 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
- 			nft_rule_expr_deactivate(&trans->ctx,
- 						 nft_trans_rule(trans),
- 						 NFT_TRANS_COMMIT);
+diff --git a/drivers/net/dsa/dsa_loop.c b/drivers/net/dsa/dsa_loop.c
+index 0df6c2b9484a..e99e38c6738e 100644
+--- a/drivers/net/dsa/dsa_loop.c
++++ b/drivers/net/dsa/dsa_loop.c
+@@ -329,6 +329,17 @@ static struct mdio_driver dsa_loop_drv = {
+ 
+ #define NUM_FIXED_PHYS	(DSA_LOOP_NUM_PORTS - 2)
+ 
++static void dsa_loop_phydevs_unregister(void)
++{
++	unsigned int i;
 +
-+			if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
-+				nft_flow_rule_destroy(nft_trans_flow_rule(trans));
- 			break;
- 		case NFT_MSG_NEWSET:
- 			nft_clear(net, nft_trans_set(trans));
++	for (i = 0; i < NUM_FIXED_PHYS; i++)
++		if (!IS_ERR(phydevs[i])) {
++			fixed_phy_unregister(phydevs[i]);
++			phy_device_free(phydevs[i]);
++		}
++}
++
+ static int __init dsa_loop_init(void)
+ {
+ 	struct fixed_phy_status status = {
+@@ -336,23 +347,23 @@ static int __init dsa_loop_init(void)
+ 		.speed = SPEED_100,
+ 		.duplex = DUPLEX_FULL,
+ 	};
+-	unsigned int i;
++	unsigned int i, ret;
+ 
+ 	for (i = 0; i < NUM_FIXED_PHYS; i++)
+ 		phydevs[i] = fixed_phy_register(PHY_POLL, &status, NULL);
+ 
+-	return mdio_driver_register(&dsa_loop_drv);
++	ret = mdio_driver_register(&dsa_loop_drv);
++	if (ret)
++		dsa_loop_phydevs_unregister();
++
++	return ret;
+ }
+ module_init(dsa_loop_init);
+ 
+ static void __exit dsa_loop_exit(void)
+ {
+-	unsigned int i;
+-
+ 	mdio_driver_unregister(&dsa_loop_drv);
+-	for (i = 0; i < NUM_FIXED_PHYS; i++)
+-		if (!IS_ERR(phydevs[i]))
+-			fixed_phy_unregister(phydevs[i]);
++	dsa_loop_phydevs_unregister();
+ }
+ module_exit(dsa_loop_exit);
+ 
 -- 
 2.35.1
 
