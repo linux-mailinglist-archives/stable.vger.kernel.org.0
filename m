@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D58A6215ED
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:16:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 587486215EE
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:16:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235372AbiKHOQt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:16:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55158 "EHLO
+        id S235366AbiKHOQw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:16:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235366AbiKHOQs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:16:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB3B769DFF
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:16:47 -0800 (PST)
+        with ESMTP id S235365AbiKHOQv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:16:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62AE2686B1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:16:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4724A60025
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:16:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 530A5C433C1;
-        Tue,  8 Nov 2022 14:16:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02565615C0
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:16:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D667C433D6;
+        Tue,  8 Nov 2022 14:16:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667917006;
-        bh=VWDr+OrVOnvZbcEUUfFEyKZvIdniehIUvNa3RRprMOw=;
+        s=korg; t=1667917009;
+        bh=xagrSF2YagiIJpK5MGirqtwaIYU9PFe+RhfGGz5UWYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oV0ga5DEoELLAcFOCJZjle6SelXZ2CYgRS75JB1sD1h0ciL336S2Kp35efHVZfdHz
-         eXvhpGYW4I+8UmWNHFMND0+XXd2IfMeLw39QuZ4CQrZy+OO/aL2n4RPuNI5nwYIG9p
-         FnXBTDS7tV8ZFR9v5udbB53UhNXU7SXX7Shoa9Fo=
+        b=VAIbsZoc6j9vfCnliH4RabKCDPoedJw0krK285CldPHL/BW+celI+j0AYK72naWzD
+         SJEr8eaM6tqTgEUnAZNv2/rxprba1Ta+0tkPLWHK99qoBrSlG8WX124JANMLRioIdD
+         zR6tIyTNXhvAs5FDIKCQXlCStoHptRMFyIi/Y/kw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Jintao Yin <nicememory@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Eric Biggers <ebiggers@kernel.org>
-Subject: [PATCH 6.0 188/197] ext4,f2fs: fix readahead of verity data
-Date:   Tue,  8 Nov 2022 14:40:26 +0100
-Message-Id: <20221108133403.445462269@linuxfoundation.org>
+        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.0 189/197] cifs: fix regression in very old smb1 mounts
+Date:   Tue,  8 Nov 2022 14:40:27 +0100
+Message-Id: <20221108133403.481038475@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
 References: <20221108133354.787209461@linuxfoundation.org>
@@ -55,62 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit 4fa0e3ff217f775cb58d2d6d51820ec519243fb9 upstream.
+commit 2f6f19c7aaad5005dc75298a413eb0243c5d312d upstream.
 
-The recent change of page_cache_ra_unbounded() arguments was buggy in the
-two callers, causing us to readahead the wrong pages.  Move the definition
-of ractl down to after the index is set correctly.  This affected
-performance on configurations that use fs-verity.
+BZ: 215375
 
-Link: https://lkml.kernel.org/r/20221012193419.1453558-1-willy@infradead.org
-Fixes: 73bb49da50cd ("mm/readahead: make page_cache_ra_unbounded take a readahead_control")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reported-by: Jintao Yin <nicememory@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Eric Biggers <ebiggers@kernel.org>
+Fixes: 76a3c92ec9e0 ("cifs: remove support for NTLM and weaker authentication algorithms")
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/verity.c |    3 ++-
- fs/f2fs/verity.c |    3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ fs/cifs/connect.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/fs/ext4/verity.c
-+++ b/fs/ext4/verity.c
-@@ -365,13 +365,14 @@ static struct page *ext4_read_merkle_tre
- 					       pgoff_t index,
- 					       unsigned long num_ra_pages)
- {
--	DEFINE_READAHEAD(ractl, NULL, NULL, inode->i_mapping, index);
- 	struct page *page;
- 
- 	index += ext4_verity_metadata_pos(inode) >> PAGE_SHIFT;
- 
- 	page = find_get_page_flags(inode->i_mapping, index, FGP_ACCESSED);
- 	if (!page || !PageUptodate(page)) {
-+		DEFINE_READAHEAD(ractl, NULL, NULL, inode->i_mapping, index);
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3921,12 +3921,11 @@ CIFSTCon(const unsigned int xid, struct
+ 	pSMB->AndXCommand = 0xFF;
+ 	pSMB->Flags = cpu_to_le16(TCON_EXTENDED_SECINFO);
+ 	bcc_ptr = &pSMB->Password[0];
+-	if (tcon->pipe || (ses->server->sec_mode & SECMODE_USER)) {
+-		pSMB->PasswordLength = cpu_to_le16(1);	/* minimum */
+-		*bcc_ptr = 0; /* password is null byte */
+-		bcc_ptr++;              /* skip password */
+-		/* already aligned so no need to do it below */
+-	}
 +
- 		if (page)
- 			put_page(page);
- 		else if (num_ra_pages > 1)
---- a/fs/f2fs/verity.c
-+++ b/fs/f2fs/verity.c
-@@ -262,13 +262,14 @@ static struct page *f2fs_read_merkle_tre
- 					       pgoff_t index,
- 					       unsigned long num_ra_pages)
- {
--	DEFINE_READAHEAD(ractl, NULL, NULL, inode->i_mapping, index);
- 	struct page *page;
++	pSMB->PasswordLength = cpu_to_le16(1);	/* minimum */
++	*bcc_ptr = 0; /* password is null byte */
++	bcc_ptr++;              /* skip password */
++	/* already aligned so no need to do it below */
  
- 	index += f2fs_verity_metadata_pos(inode) >> PAGE_SHIFT;
- 
- 	page = find_get_page_flags(inode->i_mapping, index, FGP_ACCESSED);
- 	if (!page || !PageUptodate(page)) {
-+		DEFINE_READAHEAD(ractl, NULL, NULL, inode->i_mapping, index);
-+
- 		if (page)
- 			put_page(page);
- 		else if (num_ra_pages > 1)
+ 	if (ses->server->sign)
+ 		smb_buffer->Flags2 |= SMBFLG2_SECURITY_SIGNATURE;
 
 
