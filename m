@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EFEC621489
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22F366213E8
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:55:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234955AbiKHOCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:02:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36616 "EHLO
+        id S234776AbiKHNzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:55:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235015AbiKHOCJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:02:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0204623B6
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:02:08 -0800 (PST)
+        with ESMTP id S234772AbiKHNzO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:55:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 430EF191
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:55:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BFD5B81AFA
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:02:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD59BC433C1;
-        Tue,  8 Nov 2022 14:02:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0E98B816DD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:55:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19348C433C1;
+        Tue,  8 Nov 2022 13:55:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916126;
-        bh=HruG7jQ4za4m7TozHiv4ec4kangJmfDPWzplEJO2B50=;
+        s=korg; t=1667915710;
+        bh=udMOj4RmnI/70++N5+1bOmwL6qZMN1Lgadg5rZz7nUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x68/fsc91uogWpuMRFM9cdvKgxFGVgI2KSXDHz29aq6rAfmZ27rXwuer9H9AE2tJq
-         44BLpfspv+jz3Jt0wgGi3xCZGAtdRaL9zR9TLsK8VMDmu613Rb4Rz5B903CVzqtahQ
-         0GvBNifUWLHf0RFqvRsvADcjHol0ZAflDoIWmMpA=
+        b=s+ZIsbGXmdVgSfhXp7OSCMEIQDT8N80dJllDT+hspyga3ye6Ak7wIha7jWbnEI+s0
+         DLi7fIwKDeWo5rhPXbYqtvR6o7ebwaGLZzMbJs+x4gW7xOrcBo6fS/TOAy6pCPit/H
+         O77cLHdP/kFVYEzQEL0tfBOXXVyWe4BhRTJO0pvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Paul Elder <paul.elder@ideasonboard.com>,
-        Dafna Hirschfeld <dafna@fastmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Matthew Garrett <mjg59@google.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Bartosz Szczepanek <bsz@semihalf.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 070/144] media: rkisp1: Initialize color space on resizer sink and source pads
+Subject: [PATCH 5.10 069/118] efi/tpm: Pass correct address to memblock_reserve
 Date:   Tue,  8 Nov 2022 14:39:07 +0100
-Message-Id: <20221108133348.239287313@linuxfoundation.org>
+Message-Id: <20221108133343.746077793@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Jerry Snitselaar <jsnitsel@redhat.com>
 
-[ Upstream commit 83b9296e399367862845d3b19984444fc756bd61 ]
+[ Upstream commit f4cd18c5b2000df0c382f6530eeca9141ea41faf ]
 
-Initialize the four color space fields on the sink and source video pads
-of the resizer in the .init_cfg() operation. The resizer can't perform
-any color space conversion, so set the sink and source color spaces to
-the same defaults, which match the ISP source video pad default.
+memblock_reserve() expects a physical address, but the address being
+passed for the TPM final events log is what was returned from
+early_memremap(). This results in something like the following:
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
-Reviewed-by: Dafna Hirschfeld <dafna@fastmail.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+[    0.000000] memblock_reserve: [0xffffffffff2c0000-0xffffffffff2c00e4] efi_tpm_eventlog_init+0x324/0x370
+
+Pass the address from efi like what is done for the TPM events log.
+
+Fixes: c46f3405692d ("tpm: Reserve the TPM final events table")
+Cc: Matthew Garrett <mjg59@google.com>
+Cc: Jarkko Sakkinen <jarkko@kernel.org>
+Cc: Bartosz Szczepanek <bsz@semihalf.com>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/firmware/efi/tpm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c
-index 2070f4b06705..a166ede40967 100644
---- a/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c
-+++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-resizer.c
-@@ -510,6 +510,10 @@ static int rkisp1_rsz_init_config(struct v4l2_subdev *sd,
- 	sink_fmt->height = RKISP1_DEFAULT_HEIGHT;
- 	sink_fmt->field = V4L2_FIELD_NONE;
- 	sink_fmt->code = RKISP1_DEF_FMT;
-+	sink_fmt->colorspace = V4L2_COLORSPACE_SRGB;
-+	sink_fmt->xfer_func = V4L2_XFER_FUNC_SRGB;
-+	sink_fmt->ycbcr_enc = V4L2_YCBCR_ENC_601;
-+	sink_fmt->quantization = V4L2_QUANTIZATION_LIM_RANGE;
+diff --git a/drivers/firmware/efi/tpm.c b/drivers/firmware/efi/tpm.c
+index 8f665678e9e3..e8d69bd548f3 100644
+--- a/drivers/firmware/efi/tpm.c
++++ b/drivers/firmware/efi/tpm.c
+@@ -97,7 +97,7 @@ int __init efi_tpm_eventlog_init(void)
+ 		goto out_calc;
+ 	}
  
- 	sink_crop = v4l2_subdev_get_try_crop(sd, sd_state,
- 					     RKISP1_RSZ_PAD_SINK);
+-	memblock_reserve((unsigned long)final_tbl,
++	memblock_reserve(efi.tpm_final_log,
+ 			 tbl_size + sizeof(*final_tbl));
+ 	efi_tpm_final_log_size = tbl_size;
+ 
 -- 
 2.35.1
 
