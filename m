@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3AA062144A
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEAB462139D
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234884AbiKHN7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:59:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33746 "EHLO
+        id S234680AbiKHNwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:52:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234880AbiKHN7m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:59:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32E50528A4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:59:42 -0800 (PST)
+        with ESMTP id S234679AbiKHNwB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74672623B9
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:51:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E73B7B816DD
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:59:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30DBEC433C1;
-        Tue,  8 Nov 2022 13:59:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 11B26615A3
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:51:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ADC1C433D6;
+        Tue,  8 Nov 2022 13:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915979;
-        bh=0z0w+ocXjP6J97oYW7wDq51o9+MIFMuPNfxY2/dh04U=;
+        s=korg; t=1667915508;
+        bh=uiWs2bF+iWkeHCZI5RcV6u6/tnPSlN/5l3UQQo6oEvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yP1VfNQxLjlfiyjUR/kbWHUDlKw7PH4qIN3GmNjnoeEvpX/ZKmOpbB23uUYIn1e9K
-         9/Gztic/kCOErZG8+UuS5Oj2HDRnjeMIhYnSYDGZJ6ApvS0kIrB85SMJ6Jln4j+E4k
-         IkdYPMW/O0y6VJXGYlVx7zWoOklMkm62KqzMSlZg=
+        b=oOF5FZRye3t0em8KwK/VaFU5GrInqSDy3dmJixGaccpZicu3UdvkeF8KpfytzjGmR
+         ZshBT1UZPLW4Trj2fDLLKYPGMmV5n1fdrwiKyEJJ5ihnTRn9I96gUy+SvlI5qIYmfk
+         Mb/xT81PAv2LsZVYKzyoczFV72Rt0D/rYeHqoK4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Aaron Lewis <aaronlewis@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 010/144] KVM: x86: Protect the unused bits in MSR exiting flags
-Date:   Tue,  8 Nov 2022 14:38:07 +0100
-Message-Id: <20221108133345.768115061@linuxfoundation.org>
+Subject: [PATCH 5.10 010/118] KVM: x86: Protect the unused bits in MSR exiting flags
+Date:   Tue,  8 Nov 2022 14:38:08 +0100
+Message-Id: <20221108133341.158411544@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,10 +72,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 8 insertions(+)
 
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index cd22557e2645..59c9eb55e6d1 100644
+index e07607eed35c..ed8efd402d05 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -5770,6 +5770,11 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
+@@ -5360,6 +5360,11 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
  		r = 0;
  		break;
  	case KVM_CAP_X86_USER_SPACE_MSR:
@@ -87,7 +87,7 @@ index cd22557e2645..59c9eb55e6d1 100644
  		kvm->arch.user_space_msr_mask = cap->args[0];
  		r = 0;
  		break;
-@@ -5903,6 +5908,9 @@ static int kvm_vm_ioctl_set_msr_filter(struct kvm *kvm, void __user *argp)
+@@ -5454,6 +5459,9 @@ static int kvm_vm_ioctl_set_msr_filter(struct kvm *kvm, void __user *argp)
  	if (copy_from_user(&filter, user_msr_filter, sizeof(filter)))
  		return -EFAULT;
  
