@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CF4F62138C
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:51:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28FDD6215A0
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234701AbiKHNvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:51:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50978 "EHLO
+        id S235291AbiKHONq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:13:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234671AbiKHNvW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:51:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDDB1623A1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:51:15 -0800 (PST)
+        with ESMTP id S235272AbiKHONl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:13:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3245F57B43
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:13:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50D0E615A4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:51:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF67C433C1;
-        Tue,  8 Nov 2022 13:51:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5ED46159E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:13:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8360C433C1;
+        Tue,  8 Nov 2022 14:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915474;
-        bh=EdZmGqsJfMvjBP2tim4Fxc5rwAKSJ8eZsaDSDdHAXv0=;
+        s=korg; t=1667916819;
+        bh=E1LmpNVliSGZIkNGktuij19/8LIdGPIeZZGSAg8TBVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GdPYH35FXQ4gFZnUrZt7c4y0ZprEnOMhlF7g3ORalbOKB6tIAciEI46UsCnniVGGd
-         WK9wpDUUi9QqcPoycnei79VypElUNfPhrvn829JYMOTmptY/aYPfFgugzzuoqcPknt
-         i/ri3AtCIqkCrCsza7unbdeSt26+iknulhRdSZeg=
+        b=OlF3CnErZvKTXbcF02gmgpiSpqB1LT7so6jb37eTGnKjq6/L1xBKHRd/CheE4AOdT
+         jEZCOTIsYdf+UF2TnKeN0M5jXPCbYqM1vbZ1fnvZOGSvaEXgDfgv62m4XzwOT8MCyi
+         C93QB1SBBTXOzI/FzCBov5SECWKho53LnIYKWnQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
-        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
-        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
-        Arend van Spriel <aspriel@gmail.com>,
-        Dokyung Song <dokyung.song@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.4 73/74] wifi: brcmfmac: Fix potential buffer overflow in brcmf_fweh_event_worker()
+        patches@lists.linux.dev, Steven Noonan <steven.noonan@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Roland Ruckerbauer <roland.rucky@gmail.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 6.0 143/197] ring-buffer: Check for NULL cpu_buffer in ring_buffer_wake_waiters()
 Date:   Tue,  8 Nov 2022 14:39:41 +0100
-Message-Id: <20221108133336.749475196@linuxfoundation.org>
+Message-Id: <20221108133401.443870354@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,123 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dokyung Song <dokyung.song@gmail.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 6788ba8aed4e28e90f72d68a9d794e34eac17295 upstream.
+commit 7433632c9ff68a991bd0bc38cabf354e9d2de410 upstream.
 
-This patch fixes an intra-object buffer overflow in brcmfmac that occurs
-when the device provides a 'bsscfgidx' equal to or greater than the
-buffer size. The patch adds a check that leads to a safe failure if that
-is the case.
+On some machines the number of listed CPUs may be bigger than the actual
+CPUs that exist. The tracing subsystem allocates a per_cpu directory with
+access to the per CPU ring buffer via a cpuX file. But to save space, the
+ring buffer will only allocate buffers for online CPUs, even though the
+CPU array will be as big as the nr_cpu_ids.
 
-This fixes CVE-2022-3628.
+With the addition of waking waiters on the ring buffer when closing the
+file, the ring_buffer_wake_waiters() now needs to make sure that the
+buffer is allocated (with the irq_work allocated with it) before trying to
+wake waiters, as it will cause a NULL pointer dereference.
 
-UBSAN: array-index-out-of-bounds in drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
-index 52 is out of range for type 'brcmf_if *[16]'
-CPU: 0 PID: 1898 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-Workqueue: events brcmf_fweh_event_worker
-Call Trace:
- dump_stack_lvl+0x57/0x7d
- ubsan_epilogue+0x5/0x40
- __ubsan_handle_out_of_bounds+0x69/0x80
- ? memcpy+0x39/0x60
- brcmf_fweh_event_worker+0xae1/0xc00
- ? brcmf_fweh_call_event_handler.isra.0+0x100/0x100
- ? rcu_read_lock_sched_held+0xa1/0xd0
- ? rcu_read_lock_bh_held+0xb0/0xb0
- ? lockdep_hardirqs_on_prepare+0x273/0x3e0
- process_one_work+0x873/0x13e0
- ? lock_release+0x640/0x640
- ? pwq_dec_nr_in_flight+0x320/0x320
- ? rwlock_bug.part.0+0x90/0x90
- worker_thread+0x8b/0xd10
- ? __kthread_parkme+0xd9/0x1d0
- ? process_one_work+0x13e0/0x13e0
- kthread+0x379/0x450
- ? _raw_spin_unlock_irq+0x24/0x30
- ? set_kthread_struct+0x100/0x100
- ret_from_fork+0x1f/0x30
-================================================================================
-general protection fault, probably for non-canonical address 0xe5601c0020023fff: 0000 [#1] SMP KASAN
-KASAN: maybe wild-memory-access in range [0x2b0100010011fff8-0x2b0100010011ffff]
-CPU: 0 PID: 1898 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-Workqueue: events brcmf_fweh_event_worker
-RIP: 0010:brcmf_fweh_call_event_handler.isra.0+0x42/0x100
-Code: 89 f5 53 48 89 fb 48 83 ec 08 e8 79 0b 38 fe 48 85 ed 74 7e e8 6f 0b 38 fe 48 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 8b 00 00 00 4c 8b 7d 00 44 89 e0 48 ba 00 00 00
-RSP: 0018:ffffc9000259fbd8 EFLAGS: 00010207
-RAX: dffffc0000000000 RBX: ffff888115d8cd50 RCX: 0000000000000000
-RDX: 0560200020023fff RSI: ffffffff8304bc91 RDI: ffff888115d8cd50
-RBP: 2b0100010011ffff R08: ffff888112340050 R09: ffffed1023549809
-R10: ffff88811aa4c047 R11: ffffed1023549808 R12: 0000000000000045
-R13: ffffc9000259fca0 R14: ffff888112340050 R15: ffff888112340000
-FS:  0000000000000000(0000) GS:ffff88811aa00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000004053ccc0 CR3: 0000000112740000 CR4: 0000000000750ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- brcmf_fweh_event_worker+0x117/0xc00
- ? brcmf_fweh_call_event_handler.isra.0+0x100/0x100
- ? rcu_read_lock_sched_held+0xa1/0xd0
- ? rcu_read_lock_bh_held+0xb0/0xb0
- ? lockdep_hardirqs_on_prepare+0x273/0x3e0
- process_one_work+0x873/0x13e0
- ? lock_release+0x640/0x640
- ? pwq_dec_nr_in_flight+0x320/0x320
- ? rwlock_bug.part.0+0x90/0x90
- worker_thread+0x8b/0xd10
- ? __kthread_parkme+0xd9/0x1d0
- ? process_one_work+0x13e0/0x13e0
- kthread+0x379/0x450
- ? _raw_spin_unlock_irq+0x24/0x30
- ? set_kthread_struct+0x100/0x100
- ret_from_fork+0x1f/0x30
-Modules linked in: 88XXau(O) 88x2bu(O)
----[ end trace 41d302138f3ff55a ]---
-RIP: 0010:brcmf_fweh_call_event_handler.isra.0+0x42/0x100
-Code: 89 f5 53 48 89 fb 48 83 ec 08 e8 79 0b 38 fe 48 85 ed 74 7e e8 6f 0b 38 fe 48 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 8b 00 00 00 4c 8b 7d 00 44 89 e0 48 ba 00 00 00
-RSP: 0018:ffffc9000259fbd8 EFLAGS: 00010207
-RAX: dffffc0000000000 RBX: ffff888115d8cd50 RCX: 0000000000000000
-RDX: 0560200020023fff RSI: ffffffff8304bc91 RDI: ffff888115d8cd50
-RBP: 2b0100010011ffff R08: ffff888112340050 R09: ffffed1023549809
-R10: ffff88811aa4c047 R11: ffffed1023549808 R12: 0000000000000045
-R13: ffffc9000259fca0 R14: ffff888112340050 R15: ffff888112340000
-FS:  0000000000000000(0000) GS:ffff88811aa00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000004053ccc0 CR3: 0000000112740000 CR4: 0000000000750ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Kernel panic - not syncing: Fatal exception
+While debugging this, I added a NULL check for the buffer itself (which is
+OK to do), and also NULL pointer checks against buffer->buffers (which is
+not fine, and will WARN) as well as making sure the CPU number passed in
+is within the nr_cpu_ids (which is also not fine if it isn't).
 
-Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
-Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
-Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Reviewed-by: Arend van Spriel <aspriel@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dokyung Song <dokyung.song@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221021061359.GA550858@laguna
+Link: https://lore.kernel.org/all/87h6zklb6n.wl-tiwai@suse.de/
+Link: https://lore.kernel.org/all/CAM6Wdxc0KRJMXVAA0Y=u6Jh2V=uWB-_Fn6M4xRuNppfXzL1mUg@mail.gmail.com/
+Link: https://lkml.kernel.org/linux-trace-kernel/20221101191009.1e7378c8@rorschach.local.home
+
+Cc: stable@vger.kernel.org
+Cc: Steven Noonan <steven.noonan@gmail.com>
+Bugzilla: https://bugzilla.opensuse.org/show_bug.cgi?id=1204705
+Reported-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Roland Ruckerbauer <roland.rucky@gmail.com>
+Fixes: f3ddb74ad079 ("tracing: Wake up ring buffer waiters on closing of the file")
+Reviewed-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/trace/ring_buffer.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
-@@ -228,6 +228,10 @@ static void brcmf_fweh_event_worker(stru
- 			  brcmf_fweh_event_name(event->code), event->code,
- 			  event->emsg.ifidx, event->emsg.bsscfgidx,
- 			  event->emsg.addr);
-+		if (event->emsg.bsscfgidx >= BRCMF_MAX_IFS) {
-+			bphy_err(drvr, "invalid bsscfg index: %u\n", event->emsg.bsscfgidx);
-+			goto event_free;
-+		}
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -937,6 +937,9 @@ void ring_buffer_wake_waiters(struct tra
+ 	struct ring_buffer_per_cpu *cpu_buffer;
+ 	struct rb_irq_work *rbwork;
  
- 		/* convert event message */
- 		emsg_be = &event->emsg;
++	if (!buffer)
++		return;
++
+ 	if (cpu == RING_BUFFER_ALL_CPUS) {
+ 
+ 		/* Wake up individual ones too. One level recursion */
+@@ -945,7 +948,15 @@ void ring_buffer_wake_waiters(struct tra
+ 
+ 		rbwork = &buffer->irq_work;
+ 	} else {
++		if (WARN_ON_ONCE(!buffer->buffers))
++			return;
++		if (WARN_ON_ONCE(cpu >= nr_cpu_ids))
++			return;
++
+ 		cpu_buffer = buffer->buffers[cpu];
++		/* The CPU buffer may not have been initialized yet */
++		if (!cpu_buffer)
++			return;
+ 		rbwork = &cpu_buffer->irq_work;
+ 	}
+ 
 
 
