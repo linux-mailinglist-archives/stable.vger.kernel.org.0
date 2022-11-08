@@ -2,162 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E304622083
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 00:57:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDA10622087
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 00:58:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229511AbiKHX47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 18:56:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50788 "EHLO
+        id S230062AbiKHX6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 18:58:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229887AbiKHX46 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 18:56:58 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A2AD21812
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 15:56:57 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id b11so15222753pjp.2
-        for <stable@vger.kernel.org>; Tue, 08 Nov 2022 15:56:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=MMyMukdrKIfLqmxNdoD72eiARwbPTrVUE5AOyuj7NP0=;
-        b=z+oNeq9yJ06FN9IA25NhRdp7BXnWmytr6XL3vvwo5pdP5XOvBgwaIyXyuf0xEOQdtq
-         zNEmNPnh72MMPluanYCzMzjuakAvVqmDBXgEISaX/fxCXHstqAAgb1f5AZxXLNTJaLmV
-         ud+ign42PpC3CIeGl0Qp3z//8Eie3CQFi6APw199WsGsK/orqnHYeBQ0st12IXmWs1Ci
-         Z1RZhf1GP6yLNI8QyfQYjfXOt0hcHEO+FzLddv4WNctWfNr5AIm+GHE5W5c0z3/Pin1r
-         3OkHRr/sGWA6vkuYykiTNPjNeEhdahvXfawVIXhKOPG7dhW4QUGiS39qb7N/5nB7Za+q
-         /lZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=MMyMukdrKIfLqmxNdoD72eiARwbPTrVUE5AOyuj7NP0=;
-        b=zIMHDJcXxfGrAvqotxRSXvw6VsbgRTDNe6B6Dk80IVJl7FXkmTAAHzjtgrZanOZu6P
-         Ow8PMynmEJ0kVQ5GsF3zQZ+A/pYaxpbp4GstU3Y7qsQF8FPZF/B3fScsm/tNngq5a0YU
-         rJH0J887Jz/xob7k00YA570yyyjvCg2bFFN+lggu6x5phDvGOtNGoWd0RxD3RK6f+7kF
-         TMHzVhP8rQdex5TIZt3ISaeXErWMezNcgE7OYdV30TeMK3uLKCZfof9wM3aexCUWyIXw
-         C1MtMxO6LEq6Uyrv+XLCAZdD2wRFJQpZN4CLTmg8yX9i8/+eWkZi6M2cdYQqGLDU7BLt
-         fz2w==
-X-Gm-Message-State: ACrzQf1MoaTv+teSm3zr7WCanZ23ZSYc1jtzS+kPNffvZKTw7c5fN60n
-        d1AZ38Qnl/HWdwIGXBcSWpGFwhwD7xiHnzSp
-X-Google-Smtp-Source: AMsMyM44Sh7yQLZ0g7E8p49JNW/QNm/pes7mFep0y148ot4Soxa8YsVyivLd6JJUbV/VVNwdQKuz0Q==
-X-Received: by 2002:a17:90b:1d09:b0:213:773a:b4b2 with SMTP id on9-20020a17090b1d0900b00213773ab4b2mr69065207pjb.40.1667951816694;
-        Tue, 08 Nov 2022 15:56:56 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g17-20020a635651000000b0046f7e1ca434sm6361031pgm.0.2022.11.08.15.56.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Nov 2022 15:56:56 -0800 (PST)
-Message-ID: <636aecc8.630a0220.67f00.a6f3@mx.google.com>
-Date:   Tue, 08 Nov 2022 15:56:56 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.77-144-g06c96c8d6c7c
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 139 runs,
- 2 regressions (v5.15.77-144-g06c96c8d6c7c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S230032AbiKHX6N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 18:58:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC9685EFBF;
+        Tue,  8 Nov 2022 15:58:11 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91328B81CC7;
+        Tue,  8 Nov 2022 23:58:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39963C433D7;
+        Tue,  8 Nov 2022 23:58:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1667951889;
+        bh=E2c2qEBkxnNBZoXaWHL2wa63+cMdHINKCDH1Rv1fK4Q=;
+        h=Date:To:From:Subject:From;
+        b=dLeKeXqUWjJPWW7z8OMHkXVmeFV/vLlg0+yPpRkrequGZM5BKmf9/9r3CnF4VmbSI
+         P3N4mgP4gEkk2AlPMtARqyL9fz/Wo+2+S9pe/n5JIo+DhxQzM396yVex9XgQsrY8mK
+         LUXIxL91KMIx60Fm/rxkYt6QRZwzbN9BB31QELjc=
+Date:   Tue, 08 Nov 2022 15:58:08 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        songmuchun@bytedance.com, shy828301@gmail.com,
+        naoya.horiguchi@nec.com, mike.kravetz@oracle.com,
+        linmiaohe@huawei.com, axelrasmussen@google.com,
+        jthoughton@google.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [merged mm-hotfixes-stable] hugetlbfs-dont-delete-error-page-from-pagecache.patch removed from -mm tree
+Message-Id: <20221108235809.39963C433D7@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 139 runs, 2 regressions (v5.15.77-144-g06c96=
-c8d6c7c)
 
-Regressions Summary
--------------------
+The quilt patch titled
+     Subject: hugetlbfs: don't delete error page from pagecache
+has been removed from the -mm tree.  Its filename was
+     hugetlbfs-dont-delete-error-page-from-pagecache.patch
 
-platform    | arch | lab     | compiler | defconfig           | regressions
-------------+------+---------+----------+---------------------+------------
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1          =
+This patch was dropped because it was merged into the mm-hotfixes-stable branch
+of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | multi_v7_defconfig  | 1          =
+------------------------------------------------------
+From: James Houghton <jthoughton@google.com>
+Subject: hugetlbfs: don't delete error page from pagecache
+Date: Tue, 18 Oct 2022 20:01:25 +0000
+
+This change is very similar to the change that was made for shmem [1], and
+it solves the same problem but for HugeTLBFS instead.
+
+Currently, when poison is found in a HugeTLB page, the page is removed
+from the page cache.  That means that attempting to map or read that
+hugepage in the future will result in a new hugepage being allocated
+instead of notifying the user that the page was poisoned.  As [1] states,
+this is effectively memory corruption.
+
+The fix is to leave the page in the page cache.  If the user attempts to
+use a poisoned HugeTLB page with a syscall, the syscall will fail with
+EIO, the same error code that shmem uses.  For attempts to map the page,
+the thread will get a BUS_MCEERR_AR SIGBUS.
+
+[1]: commit a76054266661 ("mm: shmem: don't truncate page if memory failure happens")
+
+Link: https://lkml.kernel.org/r/20221018200125.848471-1-jthoughton@google.com
+Signed-off-by: James Houghton <jthoughton@google.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Tested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: James Houghton <jthoughton@google.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/hugetlbfs/inode.c |   13 ++++++-------
+ mm/hugetlb.c         |    4 ++++
+ mm/memory-failure.c  |    5 ++++-
+ 3 files changed, 14 insertions(+), 8 deletions(-)
+
+--- a/fs/hugetlbfs/inode.c~hugetlbfs-dont-delete-error-page-from-pagecache
++++ a/fs/hugetlbfs/inode.c
+@@ -328,6 +328,12 @@ static ssize_t hugetlbfs_read_iter(struc
+ 		} else {
+ 			unlock_page(page);
+ 
++			if (PageHWPoison(page)) {
++				put_page(page);
++				retval = -EIO;
++				break;
++			}
++
+ 			/*
+ 			 * We have the page, copy it to user space buffer.
+ 			 */
+@@ -1111,13 +1117,6 @@ static int hugetlbfs_migrate_folio(struc
+ static int hugetlbfs_error_remove_page(struct address_space *mapping,
+ 				struct page *page)
+ {
+-	struct inode *inode = mapping->host;
+-	pgoff_t index = page->index;
+-
+-	hugetlb_delete_from_page_cache(page);
+-	if (unlikely(hugetlb_unreserve_pages(inode, index, index + 1, 1)))
+-		hugetlb_fix_reserve_counts(inode);
+-
+ 	return 0;
+ }
+ 
+--- a/mm/hugetlb.c~hugetlbfs-dont-delete-error-page-from-pagecache
++++ a/mm/hugetlb.c
+@@ -6111,6 +6111,10 @@ int hugetlb_mcopy_atomic_pte(struct mm_s
+ 
+ 	ptl = huge_pte_lock(h, dst_mm, dst_pte);
+ 
++	ret = -EIO;
++	if (PageHWPoison(page))
++		goto out_release_unlock;
++
+ 	/*
+ 	 * We allow to overwrite a pte marker: consider when both MISSING|WP
+ 	 * registered, we firstly wr-protect a none pte which has no page cache
+--- a/mm/memory-failure.c~hugetlbfs-dont-delete-error-page-from-pagecache
++++ a/mm/memory-failure.c
+@@ -1080,6 +1080,7 @@ static int me_huge_page(struct page_stat
+ 	int res;
+ 	struct page *hpage = compound_head(p);
+ 	struct address_space *mapping;
++	bool extra_pins = false;
+ 
+ 	if (!PageHuge(hpage))
+ 		return MF_DELAYED;
+@@ -1087,6 +1088,8 @@ static int me_huge_page(struct page_stat
+ 	mapping = page_mapping(hpage);
+ 	if (mapping) {
+ 		res = truncate_error_page(hpage, page_to_pfn(p), mapping);
++		/* The page is kept in page cache. */
++		extra_pins = true;
+ 		unlock_page(hpage);
+ 	} else {
+ 		unlock_page(hpage);
+@@ -1104,7 +1107,7 @@ static int me_huge_page(struct page_stat
+ 		}
+ 	}
+ 
+-	if (has_extra_refcount(ps, p, false))
++	if (has_extra_refcount(ps, p, extra_pins))
+ 		res = MF_FAILED;
+ 
+ 	return res;
+_
+
+Patches currently in -mm which might be from jthoughton@google.com are
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.77-144-g06c96c8d6c7c/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.77-144-g06c96c8d6c7c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      06c96c8d6c7c7930b5d2c93606f2e46df9703860 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform    | arch | lab     | compiler | defconfig           | regressions
-------------+------+---------+----------+---------------------+------------
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/636abf5ef1527d6f8de7db65
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.77-=
-144-g06c96c8d6c7c/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
-vk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.77-=
-144-g06c96c8d6c7c/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
-vk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221024.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/636abf5ef1527d6f8de7d=
-b66
-        failing since 44 days (last pass: v5.15.70-117-g5ae36aa8ead6e, firs=
-t fail: v5.15.70-133-gbad831d5b9cf) =
-
- =
-
-
-
-platform    | arch | lab     | compiler | defconfig           | regressions
-------------+------+---------+----------+---------------------+------------
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | multi_v7_defconfig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/636ac13e5d1f9449cfe7db6c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.77-=
-144-g06c96c8d6c7c/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
-k.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.77-=
-144-g06c96c8d6c7c/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
-k.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221024.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/636ac13e5d1f9449cfe7d=
-b6d
-        failing since 44 days (last pass: v5.15.69-44-g09c929d3da79, first =
-fail: v5.15.70-123-gaf951c1b9b36) =
-
- =20
