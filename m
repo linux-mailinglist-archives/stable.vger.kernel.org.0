@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72FDB621573
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F541621364
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:49:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235280AbiKHOMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:12:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49630 "EHLO
+        id S234615AbiKHNt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:49:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235281AbiKHOMK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C966379
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:11:41 -0800 (PST)
+        with ESMTP id S234610AbiKHNtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:49:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5E7BC764
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:49:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CFBC6157D
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:11:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B42C433D6;
-        Tue,  8 Nov 2022 14:11:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 604BFB81AE8
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:49:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5F09C433D6;
+        Tue,  8 Nov 2022 13:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916700;
-        bh=3jXtpSIwEXAW4EAq4OZoPSPi8/gX8DtutC4ENnfdEM4=;
+        s=korg; t=1667915392;
+        bh=dbhYEAJgVWuBPgDdMxla7ufAI9puyLdXwGEbC3Roo2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m33dkys7o0Jw6ySkSefFwgoWWh2+CoiE2lTlElRI4QBPHoZo3USA6LCysahh23fl+
-         mMsn9/VMDN/id260G4iVapHtU8xW6+7oayA/WTVAnDTkMFhB9qf2Q7ZoxOy1S88xe1
-         M5w9opXPfylsCI1RONkoGNQ37TUPNkLrEJIWW50g=
+        b=oqaB98dPx0HhMSB34QwnVN74zooWag8x2i86Z6tJusO+4QCzAuW+lsFk0pYrfpIZ0
+         7K5+TTRdfWFaWnbBWMtnmTQ6hNnViD+ZWRt8mxg/SyAhnbWBk3itDJ7PU3uOug+W9k
+         P/KZ81UjnM9znZVcT+L/gWDl2WnA5nbPF9BF33dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YuBiao Wang <YuBiao.Wang@amd.com>,
-        Jack Xiao <Jack.Xiao@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 088/197] drm/amdgpu: dequeue mes scheduler during fini
+Subject: [PATCH 5.4 18/74] ipvs: fix WARNING in ip_vs_app_net_cleanup()
 Date:   Tue,  8 Nov 2022 14:38:46 +0100
-Message-Id: <20221108133358.844088061@linuxfoundation.org>
+Message-Id: <20221108133334.458184872@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,96 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YuBiao Wang <YuBiao.Wang@amd.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 2abe92c7adc9c0397ba51bf74909b85bc0fff84b ]
+[ Upstream commit 5663ed63adb9619c98ab7479aa4606fa9b7a548c ]
 
-[Why]
-If mes is not dequeued during fini, mes will be in an uncleaned state
-during reload, then mes couldn't receive some commands which leads to
-reload failure.
+During the initialization of ip_vs_app_net_init(), if file ip_vs_app
+fails to be created, the initialization is successful by default.
+Therefore, the ip_vs_app file doesn't be found during the remove in
+ip_vs_app_net_cleanup(). It will cause WRNING.
 
-[How]
-Perform MES dequeue via MMIO after all the unmap jobs are done by mes
-and before kiq fini.
+The following is the stack information:
+name 'ip_vs_app'
+WARNING: CPU: 1 PID: 9 at fs/proc/generic.c:712 remove_proc_entry+0x389/0x460
+Modules linked in:
+Workqueue: netns cleanup_net
+RIP: 0010:remove_proc_entry+0x389/0x460
+Call Trace:
+<TASK>
+ops_exit_list+0x125/0x170
+cleanup_net+0x4ea/0xb00
+process_one_work+0x9bf/0x1710
+worker_thread+0x665/0x1080
+kthread+0x2e4/0x3a0
+ret_from_fork+0x1f/0x30
+</TASK>
 
-v2: Move the dequeue operation inside kiq_hw_fini.
-
-Signed-off-by: YuBiao Wang <YuBiao.Wang@amd.com>
-Reviewed-by: Jack Xiao <Jack.Xiao@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 457c4cbc5a3d ("[NET]: Make /proc/net per network namespace")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/mes_v11_0.c | 42 ++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 3 deletions(-)
+ net/netfilter/ipvs/ip_vs_app.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
-index f92744b8d79d..2dd827472d6e 100644
---- a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
-@@ -1145,6 +1145,42 @@ static int mes_v11_0_sw_fini(void *handle)
+diff --git a/net/netfilter/ipvs/ip_vs_app.c b/net/netfilter/ipvs/ip_vs_app.c
+index f9b16f2b2219..fdacbc3c15be 100644
+--- a/net/netfilter/ipvs/ip_vs_app.c
++++ b/net/netfilter/ipvs/ip_vs_app.c
+@@ -599,13 +599,19 @@ static const struct seq_operations ip_vs_app_seq_ops = {
+ int __net_init ip_vs_app_net_init(struct netns_ipvs *ipvs)
+ {
+ 	INIT_LIST_HEAD(&ipvs->app_list);
+-	proc_create_net("ip_vs_app", 0, ipvs->net->proc_net, &ip_vs_app_seq_ops,
+-			sizeof(struct seq_net_private));
++#ifdef CONFIG_PROC_FS
++	if (!proc_create_net("ip_vs_app", 0, ipvs->net->proc_net,
++			     &ip_vs_app_seq_ops,
++			     sizeof(struct seq_net_private)))
++		return -ENOMEM;
++#endif
  	return 0;
  }
  
-+static void mes_v11_0_kiq_dequeue_sched(struct amdgpu_device *adev)
-+{
-+	uint32_t data;
-+	int i;
-+
-+	mutex_lock(&adev->srbm_mutex);
-+	soc21_grbm_select(adev, 3, AMDGPU_MES_SCHED_PIPE, 0, 0);
-+
-+	/* disable the queue if it's active */
-+	if (RREG32_SOC15(GC, 0, regCP_HQD_ACTIVE) & 1) {
-+		WREG32_SOC15(GC, 0, regCP_HQD_DEQUEUE_REQUEST, 1);
-+		for (i = 0; i < adev->usec_timeout; i++) {
-+			if (!(RREG32_SOC15(GC, 0, regCP_HQD_ACTIVE) & 1))
-+				break;
-+			udelay(1);
-+		}
-+	}
-+	data = RREG32_SOC15(GC, 0, regCP_HQD_PQ_DOORBELL_CONTROL);
-+	data = REG_SET_FIELD(data, CP_HQD_PQ_DOORBELL_CONTROL,
-+				DOORBELL_EN, 0);
-+	data = REG_SET_FIELD(data, CP_HQD_PQ_DOORBELL_CONTROL,
-+				DOORBELL_HIT, 1);
-+	WREG32_SOC15(GC, 0, regCP_HQD_PQ_DOORBELL_CONTROL, data);
-+
-+	WREG32_SOC15(GC, 0, regCP_HQD_PQ_DOORBELL_CONTROL, 0);
-+
-+	WREG32_SOC15(GC, 0, regCP_HQD_PQ_WPTR_LO, 0);
-+	WREG32_SOC15(GC, 0, regCP_HQD_PQ_WPTR_HI, 0);
-+	WREG32_SOC15(GC, 0, regCP_HQD_PQ_RPTR, 0);
-+
-+	soc21_grbm_select(adev, 0, 0, 0, 0);
-+	mutex_unlock(&adev->srbm_mutex);
-+
-+	adev->mes.ring.sched.ready = false;
-+}
-+
- static void mes_v11_0_kiq_setting(struct amdgpu_ring *ring)
+ void __net_exit ip_vs_app_net_cleanup(struct netns_ipvs *ipvs)
  {
- 	uint32_t tmp;
-@@ -1196,6 +1232,9 @@ static int mes_v11_0_kiq_hw_init(struct amdgpu_device *adev)
- 
- static int mes_v11_0_kiq_hw_fini(struct amdgpu_device *adev)
- {
-+	if (adev->mes.ring.sched.ready)
-+		mes_v11_0_kiq_dequeue_sched(adev);
-+
- 	mes_v11_0_enable(adev, false);
- 	return 0;
+ 	unregister_ip_vs_app(ipvs, NULL /* all */);
++#ifdef CONFIG_PROC_FS
+ 	remove_proc_entry("ip_vs_app", ipvs->net->proc_net);
++#endif
  }
-@@ -1251,9 +1290,6 @@ static int mes_v11_0_hw_init(void *handle)
- 
- static int mes_v11_0_hw_fini(void *handle)
- {
--	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
--
--	adev->mes.ring.sched.ready = false;
- 	return 0;
- }
- 
 -- 
 2.35.1
 
