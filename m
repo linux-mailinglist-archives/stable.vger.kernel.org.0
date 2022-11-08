@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB4B36213F9
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:55:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FD006212E5
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234798AbiKHNz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:55:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57872 "EHLO
+        id S234473AbiKHNoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:44:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234793AbiKHNzz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:55:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BCFCF4F
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:55:55 -0800 (PST)
+        with ESMTP id S234306AbiKHNoA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499002670
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:43:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCBFAB81AE4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:55:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D108C433D7;
-        Tue,  8 Nov 2022 13:55:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D999661582
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:43:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F01F2C433D6;
+        Tue,  8 Nov 2022 13:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915752;
-        bh=A9pFFBpqFO8/DP0AYj6SNFwLgssM1yD0yUVJDKzSacU=;
+        s=korg; t=1667915038;
+        bh=51oU+maH7dPc57WcCLID7n977QWsZrrMC+gaJvNYxIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sIkCpIsBqYaumhdpt9wGoFv2yPw/4RfPF5dQEqoriLamZRgHEhUSWbEM3w4qiahkz
-         Ur3YY9R2O3H6yLe6NY3jSiVJpm2iEBLh9sKX0fRENCyTGOucIHQU4Rl1wGUSfLNYwE
-         1wefc1tRHBPepDFsY8V2K6uP/gEy8ksWBYCu6bNI=
+        b=WkSOhbkR69v/aM1tKdZXqwWo4MRvcfLtP5YVcTdYz/bSEOtvxoCH/VxcLi93J/ehr
+         A8b9rRbnwW/ilv8wCVo6In0mzKClOtjLnX0ZoMLlgN8XZLG40N2otZfzQuvh+VcgaZ
+         Xt7b7Fo+k7jQ3CjKExEgsc1odbChb5qEjZdzpdtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Patrick Thompson <ptf@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 051/118] mmc: sdhci-pci-core: Disable ES for ASUS BIOS on Jasper Lake
+Subject: [PATCH 4.14 04/40] net: dsa: Fix possible memory leaks in dsa_loop_init()
 Date:   Tue,  8 Nov 2022 14:38:49 +0100
-Message-Id: <20221108133342.918316913@linuxfoundation.org>
+Message-Id: <20221108133328.516510964@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
+References: <20221108133328.351887714@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +53,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Thompson <ptf@google.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 9dc0033e4658d6f9d9952c3c0c6be3ec25bc2985 ]
+[ Upstream commit 633efc8b3dc96f56f5a57f2a49764853a2fa3f50 ]
 
-Enhanced Strobe (ES) does not work correctly on the ASUS 1100 series of
-devices. Jasper Lake eMMCs (pci_id 8086:4dc4) are supposed to support
-ES. There are also two system families under the series, thus this is
-being scoped to the ASUS BIOS.
+kmemleak reported memory leaks in dsa_loop_init():
 
-The failing ES prevents the installer from writing to disk. Falling back
-to HS400 without ES fixes the issue.
+kmemleak: 12 new suspected memory leaks
 
-Signed-off-by: Patrick Thompson <ptf@google.com>
-Fixes: 315e3bd7ac19 ("mmc: sdhci-pci: Add support for Intel JSL")
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221013210017.3751025-1-ptf@google.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+unreferenced object 0xffff8880138ce000 (size 2048):
+  comm "modprobe", pid 390, jiffies 4295040478 (age 238.976s)
+  backtrace:
+    [<000000006a94f1d5>] kmalloc_trace+0x26/0x60
+    [<00000000a9c44622>] phy_device_create+0x5d/0x970
+    [<00000000d0ee2afc>] get_phy_device+0xf3/0x2b0
+    [<00000000dca0c71f>] __fixed_phy_register.part.0+0x92/0x4e0
+    [<000000008a834798>] fixed_phy_register+0x84/0xb0
+    [<0000000055223fcb>] dsa_loop_init+0xa9/0x116 [dsa_loop]
+    ...
+
+There are two reasons for memleak in dsa_loop_init().
+
+First, fixed_phy_register() create and register phy_device:
+
+fixed_phy_register()
+  get_phy_device()
+    phy_device_create() # freed by phy_device_free()
+  phy_device_register() # freed by phy_device_remove()
+
+But fixed_phy_unregister() only calls phy_device_remove().
+So the memory allocated in phy_device_create() is leaked.
+
+Second, when mdio_driver_register() fail in dsa_loop_init(),
+it just returns and there is no cleanup for phydevs.
+
+Fix the problems by catching the error of mdio_driver_register()
+in dsa_loop_init(), then calling both fixed_phy_unregister() and
+phy_device_free() to release phydevs.
+Also add a function for phydevs cleanup to avoid duplacate.
+
+Fixes: 98cd1552ea27 ("net: dsa: Mock-up driver")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-pci-core.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/net/dsa/dsa_loop.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-pci-core.c b/drivers/mmc/host/sdhci-pci-core.c
-index 422ea3a1817a..7eb9a62ee074 100644
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -967,6 +967,12 @@ static bool glk_broken_cqhci(struct sdhci_pci_slot *slot)
- 		dmi_match(DMI_SYS_VENDOR, "IRBIS"));
- }
+diff --git a/drivers/net/dsa/dsa_loop.c b/drivers/net/dsa/dsa_loop.c
+index a5a83d86bb0f..dbd21f95a700 100644
+--- a/drivers/net/dsa/dsa_loop.c
++++ b/drivers/net/dsa/dsa_loop.c
+@@ -330,6 +330,17 @@ static struct mdio_driver dsa_loop_drv = {
  
-+static bool jsl_broken_hs400es(struct sdhci_pci_slot *slot)
+ #define NUM_FIXED_PHYS	(DSA_LOOP_NUM_PORTS - 2)
+ 
++static void dsa_loop_phydevs_unregister(void)
 +{
-+	return slot->chip->pdev->device == PCI_DEVICE_ID_INTEL_JSL_EMMC &&
-+			dmi_match(DMI_BIOS_VENDOR, "ASUSTeK COMPUTER INC.");
++	unsigned int i;
++
++	for (i = 0; i < NUM_FIXED_PHYS; i++)
++		if (!IS_ERR(phydevs[i])) {
++			fixed_phy_unregister(phydevs[i]);
++			phy_device_free(phydevs[i]);
++		}
 +}
 +
- static int glk_emmc_probe_slot(struct sdhci_pci_slot *slot)
+ static int __init dsa_loop_init(void)
  {
- 	int ret = byt_emmc_probe_slot(slot);
-@@ -975,9 +981,11 @@ static int glk_emmc_probe_slot(struct sdhci_pci_slot *slot)
- 		slot->host->mmc->caps2 |= MMC_CAP2_CQE;
+ 	struct fixed_phy_status status = {
+@@ -337,23 +348,23 @@ static int __init dsa_loop_init(void)
+ 		.speed = SPEED_100,
+ 		.duplex = DUPLEX_FULL,
+ 	};
+-	unsigned int i;
++	unsigned int i, ret;
  
- 	if (slot->chip->pdev->device != PCI_DEVICE_ID_INTEL_GLK_EMMC) {
--		slot->host->mmc->caps2 |= MMC_CAP2_HS400_ES;
--		slot->host->mmc_host_ops.hs400_enhanced_strobe =
--						intel_hs400_enhanced_strobe;
-+		if (!jsl_broken_hs400es(slot)) {
-+			slot->host->mmc->caps2 |= MMC_CAP2_HS400_ES;
-+			slot->host->mmc_host_ops.hs400_enhanced_strobe =
-+							intel_hs400_enhanced_strobe;
-+		}
- 		slot->host->mmc->caps2 |= MMC_CAP2_CQE_DCMD;
- 	}
+ 	for (i = 0; i < NUM_FIXED_PHYS; i++)
+ 		phydevs[i] = fixed_phy_register(PHY_POLL, &status, -1, NULL);
+ 
+-	return mdio_driver_register(&dsa_loop_drv);
++	ret = mdio_driver_register(&dsa_loop_drv);
++	if (ret)
++		dsa_loop_phydevs_unregister();
++
++	return ret;
+ }
+ module_init(dsa_loop_init);
+ 
+ static void __exit dsa_loop_exit(void)
+ {
+-	unsigned int i;
+-
+ 	mdio_driver_unregister(&dsa_loop_drv);
+-	for (i = 0; i < NUM_FIXED_PHYS; i++)
+-		if (!IS_ERR(phydevs[i]))
+-			fixed_phy_unregister(phydevs[i]);
++	dsa_loop_phydevs_unregister();
+ }
+ module_exit(dsa_loop_exit);
  
 -- 
 2.35.1
