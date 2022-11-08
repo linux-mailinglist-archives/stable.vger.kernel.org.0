@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C0EC62145E
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:00:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48DFC621338
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234924AbiKHOAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:00:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34692 "EHLO
+        id S234591AbiKHNsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:48:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234943AbiKHOA1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:00:27 -0500
+        with ESMTP id S234593AbiKHNsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8940682AE
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:00:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB365F869
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55E7A6157B
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:00:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47839C433C1;
-        Tue,  8 Nov 2022 14:00:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A11F3615A6
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF142C433C1;
+        Tue,  8 Nov 2022 13:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916024;
-        bh=DpcOIUpQMiRlNTymoOZsZ7XeQPS8HVD3nvswF3gnMvs=;
+        s=korg; t=1667915284;
+        bh=UmkHinw1ahJEu+HyN53vqXW05E4ANqt6KA3m0kXxsxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=geO0LX91F/vKQQiKhi08+WFXf+VmyDDvWbzNjh9mXU86IJEBnQBVS92VAkOINkTGV
-         XdRtJEeA9Z0w4J7NjCAIcunFsI9vyF8+je40o6t/jP3pI/aNtvGrbF+YwjsYugQcYZ
-         VVOroX85K02ixcMTsZ24FdI7ZxHvU3fCEQP+hXxY=
+        b=vk6WnpzjBKhyODkpBbPWwtcDW3UOogEwRnZcHZ7GmTrDYAax2ENj5E9cQmh5WzODo
+         AcNzYHuVyOeA2klIH6kJhXgGXwsF24YjuTGZ/OAmD9LGfxo3DTCPgDnMoPpinWVpnM
+         9xa7f99rJnZrdGwt2BnBdddL23rUwHSAk7wOhZCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Julian Anastasov <ja@ssi.bg>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 039/144] ipvs: fix WARNING in __ip_vs_cleanup_batch()
+Subject: [PATCH 5.4 08/74] RDMA/qedr: clean up work queue on failure in qedr_alloc_resources()
 Date:   Tue,  8 Nov 2022 14:38:36 +0100
-Message-Id: <20221108133346.931827143@linuxfoundation.org>
+Message-Id: <20221108133333.995614825@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,88 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 3d00c6a0da8ddcf75213e004765e4a42acc71d5d ]
+[ Upstream commit 7a47e077e503feb73d56e491ce89aa73b67a3972 ]
 
-During the initialization of ip_vs_conn_net_init(), if file ip_vs_conn
-or ip_vs_conn_sync fails to be created, the initialization is successful
-by default. Therefore, the ip_vs_conn or ip_vs_conn_sync file doesn't
-be found during the remove.
+Add a check for if create_singlethread_workqueue() fails and also destroy
+the work queue on failure paths.
 
-The following is the stack information:
-name 'ip_vs_conn_sync'
-WARNING: CPU: 3 PID: 9 at fs/proc/generic.c:712
-remove_proc_entry+0x389/0x460
-Modules linked in:
-Workqueue: netns cleanup_net
-RIP: 0010:remove_proc_entry+0x389/0x460
-Call Trace:
-<TASK>
-__ip_vs_cleanup_batch+0x7d/0x120
-ops_exit_list+0x125/0x170
-cleanup_net+0x4ea/0xb00
-process_one_work+0x9bf/0x1710
-worker_thread+0x665/0x1080
-kthread+0x2e4/0x3a0
-ret_from_fork+0x1f/0x30
-</TASK>
-
-Fixes: 61b1ab4583e2 ("IPVS: netns, add basic init per netns.")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Acked-by: Julian Anastasov <ja@ssi.bg>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: e411e0587e0d ("RDMA/qedr: Add iWARP connection management functions")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/Y1gBkDucQhhWj5YM@kili
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipvs/ip_vs_conn.c | 26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/qedr/main.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
-index db13288fddfa..cb6d68220c26 100644
---- a/net/netfilter/ipvs/ip_vs_conn.c
-+++ b/net/netfilter/ipvs/ip_vs_conn.c
-@@ -1447,20 +1447,36 @@ int __net_init ip_vs_conn_net_init(struct netns_ipvs *ipvs)
- {
- 	atomic_set(&ipvs->conn_count, 0);
+diff --git a/drivers/infiniband/hw/qedr/main.c b/drivers/infiniband/hw/qedr/main.c
+index 93040c994e2e..50b75bd4633c 100644
+--- a/drivers/infiniband/hw/qedr/main.c
++++ b/drivers/infiniband/hw/qedr/main.c
+@@ -362,6 +362,10 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
+ 	if (IS_IWARP(dev)) {
+ 		xa_init(&dev->qps);
+ 		dev->iwarp_wq = create_singlethread_workqueue("qedr_iwarpq");
++		if (!dev->iwarp_wq) {
++			rc = -ENOMEM;
++			goto err1;
++		}
+ 	}
  
--	proc_create_net("ip_vs_conn", 0, ipvs->net->proc_net,
--			&ip_vs_conn_seq_ops, sizeof(struct ip_vs_iter_state));
--	proc_create_net("ip_vs_conn_sync", 0, ipvs->net->proc_net,
--			&ip_vs_conn_sync_seq_ops,
--			sizeof(struct ip_vs_iter_state));
-+#ifdef CONFIG_PROC_FS
-+	if (!proc_create_net("ip_vs_conn", 0, ipvs->net->proc_net,
-+			     &ip_vs_conn_seq_ops,
-+			     sizeof(struct ip_vs_iter_state)))
-+		goto err_conn;
-+
-+	if (!proc_create_net("ip_vs_conn_sync", 0, ipvs->net->proc_net,
-+			     &ip_vs_conn_sync_seq_ops,
-+			     sizeof(struct ip_vs_iter_state)))
-+		goto err_conn_sync;
-+#endif
-+
- 	return 0;
-+
-+#ifdef CONFIG_PROC_FS
-+err_conn_sync:
-+	remove_proc_entry("ip_vs_conn", ipvs->net->proc_net);
-+err_conn:
-+	return -ENOMEM;
-+#endif
- }
+ 	/* Allocate Status blocks for CNQ */
+@@ -369,7 +373,7 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
+ 				GFP_KERNEL);
+ 	if (!dev->sb_array) {
+ 		rc = -ENOMEM;
+-		goto err1;
++		goto err_destroy_wq;
+ 	}
  
- void __net_exit ip_vs_conn_net_cleanup(struct netns_ipvs *ipvs)
- {
- 	/* flush all the connection entries first */
- 	ip_vs_conn_flush(ipvs);
-+#ifdef CONFIG_PROC_FS
- 	remove_proc_entry("ip_vs_conn", ipvs->net->proc_net);
- 	remove_proc_entry("ip_vs_conn_sync", ipvs->net->proc_net);
-+#endif
- }
- 
- int __init ip_vs_conn_init(void)
+ 	dev->cnq_array = kcalloc(dev->num_cnq,
+@@ -423,6 +427,9 @@ static int qedr_alloc_resources(struct qedr_dev *dev)
+ 	kfree(dev->cnq_array);
+ err2:
+ 	kfree(dev->sb_array);
++err_destroy_wq:
++	if (IS_IWARP(dev))
++		destroy_workqueue(dev->iwarp_wq);
+ err1:
+ 	kfree(dev->sgid_tbl);
+ 	return rc;
 -- 
 2.35.1
 
