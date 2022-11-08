@@ -2,135 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0AAF62103A
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 13:20:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C1D621041
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 13:20:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233722AbiKHMUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 07:20:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39254 "EHLO
+        id S234164AbiKHMUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 07:20:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234142AbiKHMT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 07:19:59 -0500
-Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CDFD13EBE
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 04:19:58 -0800 (PST)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id BB3373200949;
-        Tue,  8 Nov 2022 07:19:54 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Tue, 08 Nov 2022 07:19:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-transfer-encoding:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm1; t=1667909994; x=
-        1667996394; bh=INoMKea8/YjuVb0DOGy4KpaM4P6h8yxH9m9PnsFW8P4=; b=d
-        WKg1vxP46Zv3gWDTDOZ0RESSBuxBVD4ZfAjJX1XMxbOsY1jRl3w3TFxvC46Ftwmh
-        dmj1k6y82kfuqpUg/hcFeYXHZOuZAWKqFLAaKyeUOTq3aWZ6e5B5pcBfqeiyiPtv
-        rmnEqCdofmZqXUzK37ZTgYtn3/sY/doXS6HjjT6O9cc+g/FZOKAupSyHy28s72Ft
-        68gL7I7qdBX6as47HMWedUcPjJwfxlqVpp86ITT+VC/r/UfOcMR92YccmaFotqpP
-        CyNpkI0qRZvGBAOEEfcpOgdnAF+uTzMOHuPlocDwKTRuOqK4QKjL3iwZfCGEalrX
-        82D5tT7dOOXkOHGLCgrkQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:date:date:feedback-id:feedback-id:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1667909994; x=
-        1667996394; bh=INoMKea8/YjuVb0DOGy4KpaM4P6h8yxH9m9PnsFW8P4=; b=A
-        OkYF/OxwnkJbNcUCCh14yqAZtsbnLpEEGaUGZ9pfXRz5wTbG/tYIhdsjIqyUQ+Oq
-        8kGg9Hoxno8IkSElrrV3ciaQpjx+zMgAuSWD+Ocxj4oKSU4iZuq81/znv4n/jbuR
-        fi76E3G7ongzhyVGizutHtrT/d58ho4D8Pv1lhUctzQziFvHjmRrTuF/fAfrpiut
-        Rycyb1QNzygFIsB0gTKFenIhN/nxQ+epadXvINuIGUdwDjQ9oMHUL10iuDRyQZfP
-        do2CpdWea/hMN0Jhq4Svlqu2mWfDN6hiHU4g3mKvVuEVGfkCBFgkqbQCtKSABGrC
-        aMlvE47r0XVUFfhprfucA==
-X-ME-Sender: <xms:aUlqY9gtoAm16uBFEwulJ7l3UNn4zhPJmsnRYi--4Sc_hFi27C6ssg>
-    <xme:aUlqYyCxed3Y73sZ6ui0g0se0KFSLwEqlIqJRYtvr6PKdng_oJEA6Hnrv2XC69nAm
-    VYmt02z-TwuXw>
-X-ME-Received: <xmr:aUlqY9GC06LUvFD2LC3TuBt2chNGWqRt20h-0-_wzEakB13nHca_-pHFUBYEpZRCY4KLctcAAwHg4gn0OR7-JxCp-RWlApRj>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrfedtgdegtdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvvefukfhfgggtugfgjgesthekredttddtjeenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepgfekff
-    eifeeiveekleetjedvtedvtdeludfgvdfhteejjeeiudeltdefffefvdeinecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:aUlqYyTlJXf2gjJXqfqlVr2HnzDXxzhwAgx_iZPNAizzFOxxlpMQyA>
-    <xmx:aUlqY6ysdHgvk908ViHRZawh49igNPunGYv3y0114yJOQElBYRowpQ>
-    <xmx:aUlqY46pRvRNoSMzLuG5jvx9b4jEUegH6FW-flOx9_FoOcC3xrejWQ>
-    <xmx:aklqY7o4qbCooT8PwHYTq7SzTEqSnUkzyFd-HNjju7EQlkZ5MxLp9w>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 8 Nov 2022 07:19:52 -0500 (EST)
-Date:   Tue, 8 Nov 2022 13:19:49 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Tim Harvey <tharvey@gateworks.com>
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Tomasz =?utf-8?Q?Mo=C5=84?= <tomasz.mon@camlingroup.com>,
-        Richard Weinberger <richard@nod.at>,
-        linux-mtd <linux-mtd@lists.infradead.org>,
-        Sasha Levin <sashal@kernel.org>, Han Xu <han.xu@nxp.com>,
-        kernel <kernel@pengutronix.de>, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH stable 5.4] mtd: rawnand: gpmi: Set WAIT_FOR_READY
- timeout based on program/erase times
-Message-ID: <Y2pJZQvoKrwm3mjj@kroah.com>
-References: <20221107173351.209558-1-tharvey@gateworks.com>
+        with ESMTP id S234163AbiKHMUQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 07:20:16 -0500
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1837C29C84;
+        Tue,  8 Nov 2022 04:20:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1667910012; x=1699446012;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=kwbVN41tr92ZOfdbCaPY/Bzq8aetPvpbAPbc0F2INvo=;
+  b=f9dSnV9YmZNy7/bwQhn2sPRCFDfzf6kZQuXy3lST9apAy8PezSQzqFL6
+   mSYFJNWd0X+IdGWDsgTls1ny42WciPPo9KuJja9YF9N5ZAxufKzP9n1Ww
+   dyh866Q0Epm52aaAf48lEJzvutK/7OU0uzycZ5sqvMB6gboXhbcPIjNPm
+   xXW06V4D25QmfbgnpS4/M4eYZ7sd0FXeXMwDFRzoze8mbf3U/9/IAcd8A
+   1p/uqG1Hxx4VlQoAoBojpDAZUVAuxt9ffn0phMMWKjJwUfTOMUhyWmxEK
+   xFe4v4N8Fj9t4Uwky4KhQdaQ+OGRgbSbkQy0jAITc4DibIkEmFXAUh/ws
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10524"; a="311834671"
+X-IronPort-AV: E=Sophos;i="5.96,147,1665471600"; 
+   d="scan'208";a="311834671"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2022 04:20:11 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10524"; a="741932192"
+X-IronPort-AV: E=Sophos;i="5.96,147,1665471600"; 
+   d="scan'208";a="741932192"
+Received: from ppkrause-mobl.ger.corp.intel.com (HELO ijarvine-MOBL2.ger.corp.intel.com) ([10.249.44.73])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2022 04:20:08 -0800
+From:   =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+To:     linux-serial@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        linux-kernel@vger.kernel.org
+Cc:     Gilles BULOZ <gilles.buloz@kontron.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        stable@vger.kernel.org,
+        Srikanth Thokala <srikanth.thokala@intel.com>,
+        Aman Kumar <aman.kumar@intel.com>
+Subject: [PATCH v2 1/4] serial: 8250: Fall back to non-DMA Rx if IIR_RDI occurs
+Date:   Tue,  8 Nov 2022 14:19:49 +0200
+Message-Id: <20221108121952.5497-2-ilpo.jarvinen@linux.intel.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20221108121952.5497-1-ilpo.jarvinen@linux.intel.com>
+References: <20221108121952.5497-1-ilpo.jarvinen@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20221107173351.209558-1-tharvey@gateworks.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 07, 2022 at 09:33:51AM -0800, Tim Harvey wrote:
-> From: Sascha Hauer <s.hauer@pengutronix.de>
-> 
-> commit 0fddf9ad06fd9f439f137139861556671673e31c upstream.
-> 
-> 06781a5026350 Fixes the calculation of the DEVICE_BUSY_TIMEOUT register
-> value from busy_timeout_cycles. busy_timeout_cycles is calculated wrong
-> though: It is calculated based on the maximum page read time, but the
-> timeout is also used for page write and block erase operations which
-> require orders of magnitude bigger timeouts.
-> 
-> Fix this by calculating busy_timeout_cycles from the maximum of
-> tBERS_max and tPROG_max.
-> 
-> This is for now the easiest and most obvious way to fix the driver.
-> There's room for improvements though: The NAND_OP_WAITRDY_INSTR tells us
-> the desired timeout for the current operation, so we could program the
-> timeout dynamically for each operation instead of setting a fixed
-> timeout. Also we could wire up the interrupt handler to actually detect
-> and forward timeouts occurred when waiting for the chip being ready.
-> 
-> As a sidenote I verified that the change in 06781a5026350 is really
-> correct. I wired up the interrupt handler in my tree and measured the
-> time between starting the operation and the timeout interrupt handler
-> coming in. The time increases 41us with each step in the timeout
-> register which corresponds to 4096 clock cycles with the 99MHz clock
-> that I have.
-> 
-> Fixes: 06781a5026350 ("mtd: rawnand: gpmi: Fix setting busy timeout setting")
-> Fixes: b1206122069aa ("mtd: rawniand: gpmi: use core timings instead of an empirical derivation")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-> Acked-by: Han Xu <han.xu@nxp.com>
-> Tested-by: Tomasz Moń <tomasz.mon@camlingroup.com>
-> Signed-off-by: Richard Weinberger <richard@nod.at>
-> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> ---
->  drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
+DW UART sometimes triggers IIR_RDI during DMA Rx when IIR_RX_TIMEOUT
+should have been triggered instead. Since IIR_RDI has higher priority
+than IIR_RX_TIMEOUT, this causes the Rx to hang into interrupt loop.
+The problem seems to occur at least with some combinations of
+small-sized transfers (I've reproduced the problem on Elkhart Lake PSE
+UARTs).
 
-Now queued up, thanks.
+If there's already an on-going Rx DMA and IIR_RDI triggers, fall
+graciously back to non-DMA Rx. That is, behave as if IIR_RX_TIMEOUT had
+occurred.
 
-greg k-h
+8250_omap already considers IIR_RDI similar to this change so its
+nothing unheard of.
+
+Fixes: 75df022b5f89 ("serial: 8250_dma: Fix RX handling")
+Cc: <stable@vger.kernel.org>
+Co-developed-by: Srikanth Thokala <srikanth.thokala@intel.com>
+Signed-off-by: Srikanth Thokala <srikanth.thokala@intel.com>
+Co-developed-by: Aman Kumar <aman.kumar@intel.com>
+Signed-off-by: Aman Kumar <aman.kumar@intel.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+---
+ drivers/tty/serial/8250/8250_port.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index fe8662cd9402..92dd18716169 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1897,6 +1897,10 @@ EXPORT_SYMBOL_GPL(serial8250_modem_status);
+ static bool handle_rx_dma(struct uart_8250_port *up, unsigned int iir)
+ {
+ 	switch (iir & 0x3f) {
++	case UART_IIR_RDI:
++		if (!up->dma->rx_running)
++			break;
++		fallthrough;
+ 	case UART_IIR_RX_TIMEOUT:
+ 		serial8250_rx_dma_flush(up);
+ 		fallthrough;
+-- 
+2.30.2
+
