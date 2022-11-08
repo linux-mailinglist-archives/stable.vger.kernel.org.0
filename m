@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9C886213DB
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:54:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFA196212BC
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:42:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234677AbiKHNym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:54:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56570 "EHLO
+        id S233858AbiKHNmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:42:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234721AbiKHNyl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:54:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E18EA1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:54:40 -0800 (PST)
+        with ESMTP id S234259AbiKHNmO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:42:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1318A4FF8A
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:42:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4AC13B81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:54:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 853F9C433D7;
-        Tue,  8 Nov 2022 13:54:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A33006159B
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:42:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF996C433D6;
+        Tue,  8 Nov 2022 13:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915678;
-        bh=7PwGxb7r347LjxhB4O5/10fNOWAkErVJVpC0gzC3rw8=;
+        s=korg; t=1667914933;
+        bh=9euCjVVIsib0FoPakzk/tplBfq0o/h5WR/JNnIvIim4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gk7OD/sIy15eVKP7rd+XLRJtvfYH44xe5jHtQwRmsHADaSXH1fOpqubOPafcX9LV6
-         NoOhe6Wms0c/FYvYre4J1CJJvHP4AiF6QjpClmvu/iBWQzy36Rn5s3kn1vrjXaQp0G
-         e73w5E/oP4pz2kzCbEFwRLXlIhWyEoUz7++N6GHA=
+        b=wAy+7eJNAwea13LDu1+t4qNW4BalvWF8lsgzHOZ2ugSD3nAi8EmZEVQwafBlnQiIr
+         16aDrDsaVa640DrD5VqRtYD86H+tOXInOxn2RnTgOvVOo+vGWI+Auz8gMixYwOhgJ9
+         1Wtg4Qn3+4snC6WcWoLjePKpbYuSBHjKflDfgKLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/118] media: s5p_cec: limit msg.len to CEC_MAX_MSG_SIZE
+Subject: [PATCH 4.9 10/30] rose: Fix NULL pointer dereference in rose_send_frame()
 Date:   Tue,  8 Nov 2022 14:38:58 +0100
-Message-Id: <20221108133343.325441732@linuxfoundation.org>
+Message-Id: <20221108133327.073161238@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
+References: <20221108133326.715586431@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 93f65ce036863893c164ca410938e0968964b26c ]
+[ Upstream commit e97c089d7a49f67027395ddf70bf327eeac2611e ]
 
-I expect that the hardware will have limited this to 16, but just in
-case it hasn't, check for this corner case.
+The syzkaller reported an issue:
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+KASAN: null-ptr-deref in range [0x0000000000000380-0x0000000000000387]
+CPU: 0 PID: 4069 Comm: kworker/0:15 Not tainted 6.0.0-syzkaller-02734-g0326074ff465 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
+Workqueue: rcu_gp srcu_invoke_callbacks
+RIP: 0010:rose_send_frame+0x1dd/0x2f0 net/rose/rose_link.c:101
+Call Trace:
+ <IRQ>
+ rose_transmit_clear_request+0x1d5/0x290 net/rose/rose_link.c:255
+ rose_rx_call_request+0x4c0/0x1bc0 net/rose/af_rose.c:1009
+ rose_loopback_timer+0x19e/0x590 net/rose/rose_loopback.c:111
+ call_timer_fn+0x1a0/0x6b0 kernel/time/timer.c:1474
+ expire_timers kernel/time/timer.c:1519 [inline]
+ __run_timers.part.0+0x674/0xa80 kernel/time/timer.c:1790
+ __run_timers kernel/time/timer.c:1768 [inline]
+ run_timer_softirq+0xb3/0x1d0 kernel/time/timer.c:1803
+ __do_softirq+0x1d0/0x9c8 kernel/softirq.c:571
+ [...]
+ </IRQ>
+
+It triggers NULL pointer dereference when 'neigh->dev->dev_addr' is
+called in the rose_send_frame(). It's the first occurrence of the
+`neigh` is in rose_loopback_timer() as `rose_loopback_neigh', and
+the 'dev' in 'rose_loopback_neigh' is initialized sa nullptr.
+
+It had been fixed by commit 3b3fd068c56e3fbea30090859216a368398e39bf
+("rose: Fix Null pointer dereference in rose_send_frame()") ever.
+But it's introduced by commit 3c53cd65dece47dd1f9d3a809f32e59d1d87b2b8
+("rose: check NULL rose_loopback_neigh->loopback") again.
+
+We fix it by add NULL check in rose_transmit_clear_request(). When
+the 'dev' in 'neigh' is NULL, we don't reply the request and just
+clear it.
+
+syzkaller don't provide repro, and I provide a syz repro like:
+r0 = syz_init_net_socket$bt_sco(0x1f, 0x5, 0x2)
+ioctl$sock_inet_SIOCSIFFLAGS(r0, 0x8914, &(0x7f0000000180)={'rose0\x00', 0x201})
+r1 = syz_init_net_socket$rose(0xb, 0x5, 0x0)
+bind$rose(r1, &(0x7f00000000c0)=@full={0xb, @dev, @null, 0x0, [@null, @null, @netrom, @netrom, @default, @null]}, 0x40)
+connect$rose(r1, &(0x7f0000000240)=@short={0xb, @dev={0xbb, 0xbb, 0xbb, 0x1, 0x0}, @remote={0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0x1}, 0x1, @netrom={0xbb, 0xbb, 0xbb, 0xbb, 0xbb, 0x0, 0x0}}, 0x1c)
+
+Fixes: 3c53cd65dece ("rose: check NULL rose_loopback_neigh->loopback")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/platform/s5p/s5p_cec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/rose/rose_link.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/cec/platform/s5p/s5p_cec.c b/drivers/media/cec/platform/s5p/s5p_cec.c
-index 028a09a7531e..102f1af01000 100644
---- a/drivers/media/cec/platform/s5p/s5p_cec.c
-+++ b/drivers/media/cec/platform/s5p/s5p_cec.c
-@@ -115,6 +115,8 @@ static irqreturn_t s5p_cec_irq_handler(int irq, void *priv)
- 				dev_dbg(cec->dev, "Buffer overrun (worker did not process previous message)\n");
- 			cec->rx = STATE_BUSY;
- 			cec->msg.len = status >> 24;
-+			if (cec->msg.len > CEC_MAX_MSG_SIZE)
-+				cec->msg.len = CEC_MAX_MSG_SIZE;
- 			cec->msg.rx_status = CEC_RX_STATUS_OK;
- 			s5p_cec_get_rx_buf(cec, cec->msg.len,
- 					cec->msg.msg);
+diff --git a/net/rose/rose_link.c b/net/rose/rose_link.c
+index c76638cc2cd5..4e02634e4a66 100644
+--- a/net/rose/rose_link.c
++++ b/net/rose/rose_link.c
+@@ -241,6 +241,9 @@ void rose_transmit_clear_request(struct rose_neigh *neigh, unsigned int lci, uns
+ 	unsigned char *dptr;
+ 	int len;
+ 
++	if (!neigh->dev)
++		return;
++
+ 	len = AX25_BPQ_HEADER_LEN + AX25_MAX_HEADER_LEN + ROSE_MIN_LEN + 3;
+ 
+ 	if ((skb = alloc_skb(len, GFP_ATOMIC)) == NULL)
 -- 
 2.35.1
 
