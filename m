@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C1586214DD
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:06:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E0906215CB
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:15:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235079AbiKHOGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:06:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40806 "EHLO
+        id S235340AbiKHOPY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:15:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235102AbiKHOFz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:05:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5457055E
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:05:48 -0800 (PST)
+        with ESMTP id S235336AbiKHOPY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:15:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1807759847
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:15:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 811FDB816DD
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:05:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2D86C433C1;
-        Tue,  8 Nov 2022 14:05:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7BF6615C2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:15:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4E6DC433D6;
+        Tue,  8 Nov 2022 14:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916346;
-        bh=go3UbA7rvhJWmOY4cnSyTvr38d1OkzjIaoZZ4vAf6Pc=;
+        s=korg; t=1667916922;
+        bh=fVsO/CKFQlYxd9SRTzt4NN7uLePA+BJxKjUyldhDinQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2gJ7u1sy7M7Dmw+8B7EQftv62GYpxcE52FR+kEPBHYlI7JUc/fuaRDPanLUB5Ri7Q
-         G4tjPd4PoN1n1EZR0B9d7bRgnUvD2gXrF0tQWMgRcKYfzZYG+YnraeA1TLfFB87ioT
-         8okauuoDG5xm0UtvAyAj3/xsm8zvoDoi7cswFblM=
+        b=2fu5QwOigkEZ03BDalFePLY+lJBDV8VxRYCLwmoBbPjbGxkV3FgZAVA6n0xldxl0k
+         V0DD0IUBInS1g6UvA1bbXrRPvlCqhvzrY7YeWHw7SAOKMq0Cu54DI2XBufDSlU5nDr
+         Y9vfd1P6tRPja6QDUZLGD7sL6B/8VYAeSlSpvoQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
+        patches@lists.linux.dev, Jim Mattson <jmattson@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 135/144] KVM: x86: emulator: update the emulation mode after rsm
+Subject: [PATCH 6.0 174/197] KVM: x86: Mask off reserved bits in CPUID.8000001FH
 Date:   Tue,  8 Nov 2022 14:40:12 +0100
-Message-Id: <20221108133351.003451096@linuxfoundation.org>
+Message-Id: <20221108133402.832992575@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Jim Mattson <jmattson@google.com>
 
-commit 055f37f84e304e59c046d1accfd8f08462f52c4c upstream.
+commit 86c4f0d547f6460d0426ebb3ba0614f1134b8cda upstream.
 
-Update the emulation mode after RSM so that RIP will be correctly
-written back, because the RSM instruction can switch the CPU mode from
-32 bit (or less) to 64 bit.
+KVM_GET_SUPPORTED_CPUID should only enumerate features that KVM
+actually supports. CPUID.8000001FH:EBX[31:16] are reserved bits and
+should be masked off.
 
-This fixes a guest crash in case the #SMI is received while the guest
-runs a code from an address > 32 bit.
-
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20221025124741.228045-13-mlevitsk@redhat.com>
+Fixes: 8765d75329a3 ("KVM: X86: Extend CPUID range to include new leaf")
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Message-Id: <20220929225203.2234702-6-jmattson@google.com>
 Cc: stable@vger.kernel.org
+[Clear NumVMPL too. - Paolo]
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/cpuid.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -2646,7 +2646,7 @@ static int em_rsm(struct x86_emulate_ctx
- 	 * those side effects need to be explicitly handled for both success
- 	 * and shutdown.
- 	 */
--	return X86EMUL_CONTINUE;
-+	return emulator_recalc_and_set_mode(ctxt);
- 
- emulate_shutdown:
- 	ctxt->ops->triple_fault(ctxt);
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -1183,7 +1183,8 @@ static inline int __do_cpuid_func(struct
+ 			entry->eax = entry->ebx = entry->ecx = entry->edx = 0;
+ 		} else {
+ 			cpuid_entry_override(entry, CPUID_8000_001F_EAX);
+-
++			/* Clear NumVMPL since KVM does not support VMPL.  */
++			entry->ebx &= ~GENMASK(31, 12);
+ 			/*
+ 			 * Enumerate '0' for "PA bits reduction", the adjusted
+ 			 * MAXPHYADDR is enumerated directly (see 0x80000008).
 
 
