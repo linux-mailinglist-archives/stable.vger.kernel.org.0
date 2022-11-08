@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E769E621381
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:50:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 860806214A5
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:03:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234666AbiKHNuu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:50:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50978 "EHLO
+        id S234979AbiKHODj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:03:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234657AbiKHNut (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:50:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90D7863F0
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:50:48 -0800 (PST)
+        with ESMTP id S234985AbiKHODi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:03:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0DC765EB
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:03:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DB5D615A9
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:50:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38DB0C433C1;
-        Tue,  8 Nov 2022 13:50:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 803E5611B7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:03:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71D87C433C1;
+        Tue,  8 Nov 2022 14:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915447;
-        bh=OEK+OkEcLKamPljpZVWHBZ8Xsqr4/fp4PPtaEcu5XUg=;
+        s=korg; t=1667916213;
+        bh=3rMJv3j4kaYRJ3iFy5jiDVM4DjYUoGiRsq6hwPTJ13U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VJAKgZ4O0DToHQz3YpwyBy1agMXSeNP0uSF0DKxyz3jH2gdt59YkmjFrjnAfEH167
-         6tFaPGfPOstOKy3SV/ubX6XwzOHwZfRP2u6CFK2VMCCQtm9phwm6dMF4ldnIVhIGIq
-         ty7fpzhDF8m9zsfcfHz97WyVUpbKCyu67yucptNU=
+        b=n/VxzvUjOQDv4HKyAyPYyTWFlYAc5hT0hrjxrQUZuX0mr62rlXwiqu7xmeInhEhDc
+         IsfH7Ge/NHi4IZ0jbnVjZEr3RCyRvAuTThdAKtEQhF5C4dfOLJD05R37aWRCk/55Sl
+         BHrqSl0gyX5EBQsIJGCGNu5+Za8ShMtArGQS8bCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 65/74] KVM: x86: Mask off reserved bits in CPUID.80000008H
+        patches@lists.linux.dev,
+        =?UTF-8?q?Tam=C3=A1s=20Koczka?= <poprdi@google.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Tedd Ho-Jeong An <tedd.an@intel.com>
+Subject: [PATCH 5.15 096/144] Bluetooth: L2CAP: Fix accepting connection request for invalid SPSM
 Date:   Tue,  8 Nov 2022 14:39:33 +0100
-Message-Id: <20221108133336.413786426@linuxfoundation.org>
+Message-Id: <20221108133349.333769616@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 7030d8530e533844e2f4b0e7476498afcd324634 upstream.
+commit 711f8c3fb3db61897080468586b970c87c61d9e4 upstream.
 
-KVM_GET_SUPPORTED_CPUID should only enumerate features that KVM
-actually supports. The following ranges of CPUID.80000008H are reserved
-and should be masked off:
-    ECX[31:18]
-    ECX[11:8]
+The Bluetooth spec states that the valid range for SPSM is from
+0x0001-0x00ff so it is invalid to accept values outside of this range:
 
-In addition, the PerfTscSize field at ECX[17:16] should also be zero
-because KVM does not set the PERFTSC bit at CPUID.80000001H.ECX[27].
+  BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
+  page 1059:
+  Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
 
-Fixes: 24c82e576b78 ("KVM: Sanitize cpuid")
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20220929225203.2234702-3-jmattson@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+CVE: CVE-2022-42896
+CC: stable@vger.kernel.org
+Reported-by: Tamás Koczka <poprdi@google.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/bluetooth/l2cap_core.c |   25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -759,6 +759,7 @@ static inline int __do_cpuid_func(struct
- 			g_phys_as = phys_as;
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -5813,6 +5813,19 @@ static int l2cap_le_connect_req(struct l
+ 	BT_DBG("psm 0x%2.2x scid 0x%4.4x mtu %u mps %u", __le16_to_cpu(psm),
+ 	       scid, mtu, mps);
  
- 		entry->eax = g_phys_as | (virt_as << 8);
-+		entry->ecx &= ~(GENMASK(31, 16) | GENMASK(11, 8));
- 		entry->edx = 0;
- 		entry->ebx &= kvm_cpuid_8000_0008_ebx_x86_features;
- 		cpuid_mask(&entry->ebx, CPUID_8000_0008_EBX);
++	/* BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
++	 * page 1059:
++	 *
++	 * Valid range: 0x0001-0x00ff
++	 *
++	 * Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
++	 */
++	if (!psm || __le16_to_cpu(psm) > L2CAP_PSM_LE_DYN_END) {
++		result = L2CAP_CR_LE_BAD_PSM;
++		chan = NULL;
++		goto response;
++	}
++
+ 	/* Check if we have socket listening on psm */
+ 	pchan = l2cap_global_chan_by_psm(BT_LISTEN, psm, &conn->hcon->src,
+ 					 &conn->hcon->dst, LE_LINK);
+@@ -6001,6 +6014,18 @@ static inline int l2cap_ecred_conn_req(s
+ 
+ 	psm  = req->psm;
+ 
++	/* BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
++	 * page 1059:
++	 *
++	 * Valid range: 0x0001-0x00ff
++	 *
++	 * Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
++	 */
++	if (!psm || __le16_to_cpu(psm) > L2CAP_PSM_LE_DYN_END) {
++		result = L2CAP_CR_LE_BAD_PSM;
++		goto response;
++	}
++
+ 	BT_DBG("psm 0x%2.2x mtu %u mps %u", __le16_to_cpu(psm), mtu, mps);
+ 
+ 	memset(&pdu, 0, sizeof(pdu));
 
 
