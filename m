@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D02F6212F7
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10C676215B6
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234510AbiKHNox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:44:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44984 "EHLO
+        id S235332AbiKHOO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:14:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234504AbiKHNow (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D66685800D
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:44:50 -0800 (PST)
+        with ESMTP id S235333AbiKHOOW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:14:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AD7559FC2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:14:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72BFE6158F
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:44:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8484AC433C1;
-        Tue,  8 Nov 2022 13:44:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB5C1615B2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:14:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02B87C433C1;
+        Tue,  8 Nov 2022 14:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915089;
-        bh=siLfrBKMZ4vlj6odFfcf0qRx7ImnQJVyuSJ1eJ4PWag=;
+        s=korg; t=1667916860;
+        bh=jG1EYzMswtq908jgt1WDPenUVQrqH9BzQUVAZzCS2G4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abPWt8fCTt7mcAVViVxvqGELtBFMJusW6TBGcCLRxkqDbK9fH7wmhW3a7SHW+vhZz
-         iY061eCP3DQn2IxRkIjDVtB2hLEhj340rCdulPljjYWWqiEJeWT8AFR1gsdh5B4Wmv
-         9zfI6et/fhAyiITe5YcBtMRbnxJkL5NzBr6ke2N0=
+        b=hCmB/UGtK52iLaVuF0cs4oeeQL4pxmeafk+W0GQQ4UYooH4kRNggBvZQyxDBMnDpg
+         WeEEZTQaB/2RsT1lYhPMqA69XKkiT5JOUAHdISxfOFTaR6llSpr2A2CTzdrxRZN+7+
+         z7dEG1EuxUP0CdpiJ+N1PdFD7BUriBzd2etzSoFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
-        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
-        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
-        Arend van Spriel <aspriel@gmail.com>,
-        Dokyung Song <dokyung.song@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 4.14 40/40] wifi: brcmfmac: Fix potential buffer overflow in brcmf_fweh_event_worker()
+        patches@lists.linux.dev,
+        =?UTF-8?q?=D0=9C=D0=B0=D1=80=D0=BA=20=D0=9A=D0=BE=D1=80=D0=B5=D0=BD=D0=B1=D0=B5=D1=80=D0=B3?= 
+        <socketpair@gmail.com>, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.0 127/197] btrfs: fix lost file sync on direct IO write with nowait and dsync iocb
 Date:   Tue,  8 Nov 2022 14:39:25 +0100
-Message-Id: <20221108133329.809386873@linuxfoundation.org>
+Message-Id: <20221108133400.745299867@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
-References: <20221108133328.351887714@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,123 +54,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dokyung Song <dokyung.song@gmail.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 6788ba8aed4e28e90f72d68a9d794e34eac17295 upstream.
+commit 8184620ae21213d51eaf2e0bd4186baacb928172 upstream.
 
-This patch fixes an intra-object buffer overflow in brcmfmac that occurs
-when the device provides a 'bsscfgidx' equal to or greater than the
-buffer size. The patch adds a check that leads to a safe failure if that
-is the case.
+When doing a direct IO write using a iocb with nowait and dsync set, we
+end up not syncing the file once the write completes.
 
-This fixes CVE-2022-3628.
+This is because we tell iomap to not call generic_write_sync(), which
+would result in calling btrfs_sync_file(), in order to avoid a deadlock
+since iomap can call it while we are holding the inode's lock and
+btrfs_sync_file() needs to acquire the inode's lock. The deadlock happens
+only if the write happens synchronously, when iomap_dio_rw() calls
+iomap_dio_complete() before it returns. Instead we do the sync ourselves
+at btrfs_do_write_iter().
 
-UBSAN: array-index-out-of-bounds in drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
-index 52 is out of range for type 'brcmf_if *[16]'
-CPU: 0 PID: 1898 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-Workqueue: events brcmf_fweh_event_worker
-Call Trace:
- dump_stack_lvl+0x57/0x7d
- ubsan_epilogue+0x5/0x40
- __ubsan_handle_out_of_bounds+0x69/0x80
- ? memcpy+0x39/0x60
- brcmf_fweh_event_worker+0xae1/0xc00
- ? brcmf_fweh_call_event_handler.isra.0+0x100/0x100
- ? rcu_read_lock_sched_held+0xa1/0xd0
- ? rcu_read_lock_bh_held+0xb0/0xb0
- ? lockdep_hardirqs_on_prepare+0x273/0x3e0
- process_one_work+0x873/0x13e0
- ? lock_release+0x640/0x640
- ? pwq_dec_nr_in_flight+0x320/0x320
- ? rwlock_bug.part.0+0x90/0x90
- worker_thread+0x8b/0xd10
- ? __kthread_parkme+0xd9/0x1d0
- ? process_one_work+0x13e0/0x13e0
- kthread+0x379/0x450
- ? _raw_spin_unlock_irq+0x24/0x30
- ? set_kthread_struct+0x100/0x100
- ret_from_fork+0x1f/0x30
-================================================================================
-general protection fault, probably for non-canonical address 0xe5601c0020023fff: 0000 [#1] SMP KASAN
-KASAN: maybe wild-memory-access in range [0x2b0100010011fff8-0x2b0100010011ffff]
-CPU: 0 PID: 1898 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-Workqueue: events brcmf_fweh_event_worker
-RIP: 0010:brcmf_fweh_call_event_handler.isra.0+0x42/0x100
-Code: 89 f5 53 48 89 fb 48 83 ec 08 e8 79 0b 38 fe 48 85 ed 74 7e e8 6f 0b 38 fe 48 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 8b 00 00 00 4c 8b 7d 00 44 89 e0 48 ba 00 00 00
-RSP: 0018:ffffc9000259fbd8 EFLAGS: 00010207
-RAX: dffffc0000000000 RBX: ffff888115d8cd50 RCX: 0000000000000000
-RDX: 0560200020023fff RSI: ffffffff8304bc91 RDI: ffff888115d8cd50
-RBP: 2b0100010011ffff R08: ffff888112340050 R09: ffffed1023549809
-R10: ffff88811aa4c047 R11: ffffed1023549808 R12: 0000000000000045
-R13: ffffc9000259fca0 R14: ffff888112340050 R15: ffff888112340000
-FS:  0000000000000000(0000) GS:ffff88811aa00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000004053ccc0 CR3: 0000000112740000 CR4: 0000000000750ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- brcmf_fweh_event_worker+0x117/0xc00
- ? brcmf_fweh_call_event_handler.isra.0+0x100/0x100
- ? rcu_read_lock_sched_held+0xa1/0xd0
- ? rcu_read_lock_bh_held+0xb0/0xb0
- ? lockdep_hardirqs_on_prepare+0x273/0x3e0
- process_one_work+0x873/0x13e0
- ? lock_release+0x640/0x640
- ? pwq_dec_nr_in_flight+0x320/0x320
- ? rwlock_bug.part.0+0x90/0x90
- worker_thread+0x8b/0xd10
- ? __kthread_parkme+0xd9/0x1d0
- ? process_one_work+0x13e0/0x13e0
- kthread+0x379/0x450
- ? _raw_spin_unlock_irq+0x24/0x30
- ? set_kthread_struct+0x100/0x100
- ret_from_fork+0x1f/0x30
-Modules linked in: 88XXau(O) 88x2bu(O)
----[ end trace 41d302138f3ff55a ]---
-RIP: 0010:brcmf_fweh_call_event_handler.isra.0+0x42/0x100
-Code: 89 f5 53 48 89 fb 48 83 ec 08 e8 79 0b 38 fe 48 85 ed 74 7e e8 6f 0b 38 fe 48 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 8b 00 00 00 4c 8b 7d 00 44 89 e0 48 ba 00 00 00
-RSP: 0018:ffffc9000259fbd8 EFLAGS: 00010207
-RAX: dffffc0000000000 RBX: ffff888115d8cd50 RCX: 0000000000000000
-RDX: 0560200020023fff RSI: ffffffff8304bc91 RDI: ffff888115d8cd50
-RBP: 2b0100010011ffff R08: ffff888112340050 R09: ffffed1023549809
-R10: ffff88811aa4c047 R11: ffffed1023549808 R12: 0000000000000045
-R13: ffffc9000259fca0 R14: ffff888112340050 R15: ffff888112340000
-FS:  0000000000000000(0000) GS:ffff88811aa00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000004053ccc0 CR3: 0000000112740000 CR4: 0000000000750ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Kernel panic - not syncing: Fatal exception
+For a nowait write however we can end up not doing the sync ourselves at
+at btrfs_do_write_iter() because the write could have been queued, and
+therefore we get -EIOCBQUEUED returned from iomap in such case. That makes
+us skip the sync call at btrfs_do_write_iter(), as we don't do it for
+any error returned from btrfs_direct_write(). We can't simply do the call
+even if -EIOCBQUEUED is returned, since that would block the task waiting
+for IO, both for the data since there are bios still in progress as well
+as potentially blocking when joining a log transaction and when syncing
+the log (writing log trees, super blocks, etc).
 
-Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
-Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
-Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Reviewed-by: Arend van Spriel <aspriel@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dokyung Song <dokyung.song@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221021061359.GA550858@laguna
+So let iomap do the sync call itself and in order to avoid deadlocks for
+the case of synchronous writes (without nowait), use __iomap_dio_rw() and
+have ourselves call iomap_dio_complete() after unlocking the inode.
+
+A test case will later be sent for fstests, after this is fixed in Linus'
+tree.
+
+Fixes: 51bd9563b678 ("btrfs: fix deadlock due to page faults during direct IO reads and writes")
+Reported-by: Марк Коренберг <socketpair@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/CAEmTpZGRKbzc16fWPvxbr6AfFsQoLmz-Lcg-7OgJOZDboJ+SGQ@mail.gmail.com/
+CC: stable@vger.kernel.org # 6.0+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/btrfs/ctree.h |    5 ++++-
+ fs/btrfs/file.c  |   22 ++++++++++++++++------
+ fs/btrfs/inode.c |   14 +++++++++++---
+ 3 files changed, 31 insertions(+), 10 deletions(-)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
-@@ -237,6 +237,10 @@ static void brcmf_fweh_event_worker(stru
- 			  brcmf_fweh_event_name(event->code), event->code,
- 			  event->emsg.ifidx, event->emsg.bsscfgidx,
- 			  event->emsg.addr);
-+		if (event->emsg.bsscfgidx >= BRCMF_MAX_IFS) {
-+			brcmf_err("invalid bsscfg index: %u\n", event->emsg.bsscfgidx);
-+			goto event_free;
-+		}
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -3407,7 +3407,10 @@ ssize_t btrfs_encoded_read(struct kiocb
+ ssize_t btrfs_do_encoded_write(struct kiocb *iocb, struct iov_iter *from,
+ 			     const struct btrfs_ioctl_encoded_io_args *encoded);
  
- 		/* convert event message */
- 		emsg_be = &event->emsg;
+-ssize_t btrfs_dio_rw(struct kiocb *iocb, struct iov_iter *iter, size_t done_before);
++ssize_t btrfs_dio_read(struct kiocb *iocb, struct iov_iter *iter,
++		       size_t done_before);
++struct iomap_dio *btrfs_dio_write(struct kiocb *iocb, struct iov_iter *iter,
++				  size_t done_before);
+ 
+ extern const struct dentry_operations btrfs_dentry_operations;
+ 
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1889,6 +1889,7 @@ static ssize_t btrfs_direct_write(struct
+ 	loff_t endbyte;
+ 	ssize_t err;
+ 	unsigned int ilock_flags = 0;
++	struct iomap_dio *dio;
+ 
+ 	if (iocb->ki_flags & IOCB_NOWAIT)
+ 		ilock_flags |= BTRFS_ILOCK_TRY;
+@@ -1949,11 +1950,22 @@ relock:
+ 	 * So here we disable page faults in the iov_iter and then retry if we
+ 	 * got -EFAULT, faulting in the pages before the retry.
+ 	 */
+-again:
+ 	from->nofault = true;
+-	err = btrfs_dio_rw(iocb, from, written);
++	dio = btrfs_dio_write(iocb, from, written);
+ 	from->nofault = false;
+ 
++	/*
++	 * iomap_dio_complete() will call btrfs_sync_file() if we have a dsync
++	 * iocb, and that needs to lock the inode. So unlock it before calling
++	 * iomap_dio_complete() to avoid a deadlock.
++	 */
++	btrfs_inode_unlock(inode, ilock_flags);
++
++	if (IS_ERR_OR_NULL(dio))
++		err = PTR_ERR_OR_ZERO(dio);
++	else
++		err = iomap_dio_complete(dio);
++
+ 	/* No increment (+=) because iomap returns a cumulative value. */
+ 	if (err > 0)
+ 		written = err;
+@@ -1979,12 +1991,10 @@ again:
+ 		} else {
+ 			fault_in_iov_iter_readable(from, left);
+ 			prev_left = left;
+-			goto again;
++			goto relock;
+ 		}
+ 	}
+ 
+-	btrfs_inode_unlock(inode, ilock_flags);
+-
+ 	/*
+ 	 * If 'err' is -ENOTBLK or we have not written all data, then it means
+ 	 * we must fallback to buffered IO.
+@@ -3787,7 +3797,7 @@ again:
+ 	 */
+ 	pagefault_disable();
+ 	to->nofault = true;
+-	ret = btrfs_dio_rw(iocb, to, read);
++	ret = btrfs_dio_read(iocb, to, read);
+ 	to->nofault = false;
+ 	pagefault_enable();
+ 
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -8241,13 +8241,21 @@ static const struct iomap_dio_ops btrfs_
+ 	.bio_set		= &btrfs_dio_bioset,
+ };
+ 
+-ssize_t btrfs_dio_rw(struct kiocb *iocb, struct iov_iter *iter, size_t done_before)
++ssize_t btrfs_dio_read(struct kiocb *iocb, struct iov_iter *iter, size_t done_before)
+ {
+ 	struct btrfs_dio_data data;
+ 
+ 	return iomap_dio_rw(iocb, iter, &btrfs_dio_iomap_ops, &btrfs_dio_ops,
+-			    IOMAP_DIO_PARTIAL | IOMAP_DIO_NOSYNC,
+-			    &data, done_before);
++			    IOMAP_DIO_PARTIAL, &data, done_before);
++}
++
++struct iomap_dio *btrfs_dio_write(struct kiocb *iocb, struct iov_iter *iter,
++				  size_t done_before)
++{
++	struct btrfs_dio_data data;
++
++	return __iomap_dio_rw(iocb, iter, &btrfs_dio_iomap_ops, &btrfs_dio_ops,
++			    IOMAP_DIO_PARTIAL, &data, done_before);
+ }
+ 
+ static int btrfs_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
 
 
