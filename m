@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E966F6213A3
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B705621524
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:08:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234674AbiKHNwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:52:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51484 "EHLO
+        id S235132AbiKHOIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:08:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234731AbiKHNwR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:17 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D639B65E53
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:11 -0800 (PST)
+        with ESMTP id S235213AbiKHOIh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:08:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 192EE186FF
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:08:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3B274CE1B94
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB8A8C4314D;
-        Tue,  8 Nov 2022 13:52:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6AFE615C5
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:08:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5347C433D6;
+        Tue,  8 Nov 2022 14:08:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915528;
-        bh=ih1GE+NmEpGemzdtjmcrmgylxR5xmLeRPzcbfGQX+Ac=;
+        s=korg; t=1667916515;
+        bh=e4A+H5shYFZVDZr7s1+x7BvcSSz2S11rIzwgE5CKOT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/DhjFuCHAFbMXvODrok9vs63gE4fvSBa3fF3mKFTaOUgCad+wQbPrjVztBIHPDTg
-         EFB2Jpv1ljQ9ObySziSRmq2Q5R7PG1Z4biv5f68zZM3P58+BvKZM3Cw58o/2WQNb9X
-         akutpm9fLuEeVyZqCPhisIcqQ4t8rF/iM4gD0/5c=
+        b=0Ft32q/Jy9ocSKdWvCugHJbtF64Ku0qdiu7a0cVR9xwKaoiP20wg6CwrSwaFZqLpz
+         aPynczXDdZBj1ImWgAD/Mw+XMtrpFhpxUQYD9mtLWcluU1P6N9+iKLrrxgJTX5uE4U
+         y3Kqk34t+g13jlrqpC8YG9TJu6EqlFRCo46Y4IjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 004/118] KVM: nVMX: Dont propagate vmcs12s PERF_GLOBAL_CTRL settings to vmcs02
-Date:   Tue,  8 Nov 2022 14:38:02 +0100
-Message-Id: <20221108133340.902563651@linuxfoundation.org>
+Subject: [PATCH 6.0 045/197] btrfs: fix inode list leak during backref walking at resolve_indirect_refs()
+Date:   Tue,  8 Nov 2022 14:38:03 +0100
+Message-Id: <20221108133356.862848030@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit def9d705c05eab3fdedeb10ad67907513b12038e ]
+[ Upstream commit 5614dc3a47e3310fbc77ea3b67eaadd1c6417bf1 ]
 
-Don't propagate vmcs12's VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL to vmcs02.
-KVM doesn't disallow L1 from using VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL
-even when KVM itself doesn't use the control, e.g. due to the various
-CPU errata that where the MSR can be corrupted on VM-Exit.
+During backref walking, at resolve_indirect_refs(), if we get an error
+we jump to the 'out' label and call ulist_free() on the 'parents' ulist,
+which frees all the elements in the ulist - however that does not free
+any inode lists that may be attached to elements, through the 'aux' field
+of a ulist node, so we end up leaking lists if we have any attached to
+the unodes.
 
-Preserve KVM's (vmcs01) setting to hopefully avoid having to toggle the
-bit in vmcs02 at a later point.  E.g. if KVM is loading PERF_GLOBAL_CTRL
-when running L1, then odds are good KVM will also load the MSR when
-running L2.
+Fix this by calling free_leaf_list() instead of ulist_free() when we exit
+from resolve_indirect_refs(). The static function free_leaf_list() is
+moved up for this to be possible and it's slightly simplified by removing
+unnecessary code.
 
-Fixes: 8bf00a529967 ("KVM: VMX: add support for switching of PERF_GLOBAL_CTRL")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Link: https://lore.kernel.org/r/20220830133737.1539624-18-vkuznets@redhat.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 3301958b7c1d ("Btrfs: add inodes before dropping the extent lock in find_all_leafs")
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/btrfs/backref.c | 36 +++++++++++++++++-------------------
+ 1 file changed, 17 insertions(+), 19 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 2395387945a8..498fed0dda98 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2345,9 +2345,14 @@ static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct loaded_vmcs *vmcs0
- 	 * are emulated by vmx_set_efer() in prepare_vmcs02(), but speculate
- 	 * on the related bits (if supported by the CPU) in the hope that
- 	 * we can avoid VMWrites during vmx_set_efer().
-+	 *
-+	 * Similarly, take vmcs01's PERF_GLOBAL_CTRL in the hope that if KVM is
-+	 * loading PERF_GLOBAL_CTRL via the VMCS for L1, then KVM will want to
-+	 * do the same for L2.
- 	 */
- 	exec_control = __vm_entry_controls_get(vmcs01);
--	exec_control |= vmcs12->vm_entry_controls;
-+	exec_control |= (vmcs12->vm_entry_controls &
-+			 ~VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL);
- 	exec_control &= ~(VM_ENTRY_IA32E_MODE | VM_ENTRY_LOAD_IA32_EFER);
- 	if (cpu_has_load_ia32_efer()) {
- 		if (guest_efer & EFER_LMA)
+diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
+index ccc818b40977..90702a74f90c 100644
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -648,6 +648,18 @@ unode_aux_to_inode_list(struct ulist_node *node)
+ 	return (struct extent_inode_elem *)(uintptr_t)node->aux;
+ }
+ 
++static void free_leaf_list(struct ulist *ulist)
++{
++	struct ulist_node *node;
++	struct ulist_iterator uiter;
++
++	ULIST_ITER_INIT(&uiter);
++	while ((node = ulist_next(ulist, &uiter)))
++		free_inode_elem_list(unode_aux_to_inode_list(node));
++
++	ulist_free(ulist);
++}
++
+ /*
+  * We maintain three separate rbtrees: one for direct refs, one for
+  * indirect refs which have a key, and one for indirect refs which do not
+@@ -762,7 +774,11 @@ static int resolve_indirect_refs(struct btrfs_fs_info *fs_info,
+ 		cond_resched();
+ 	}
+ out:
+-	ulist_free(parents);
++	/*
++	 * We may have inode lists attached to refs in the parents ulist, so we
++	 * must free them before freeing the ulist and its refs.
++	 */
++	free_leaf_list(parents);
+ 	return ret;
+ }
+ 
+@@ -1409,24 +1425,6 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
+ 	return ret;
+ }
+ 
+-static void free_leaf_list(struct ulist *blocks)
+-{
+-	struct ulist_node *node = NULL;
+-	struct extent_inode_elem *eie;
+-	struct ulist_iterator uiter;
+-
+-	ULIST_ITER_INIT(&uiter);
+-	while ((node = ulist_next(blocks, &uiter))) {
+-		if (!node->aux)
+-			continue;
+-		eie = unode_aux_to_inode_list(node);
+-		free_inode_elem_list(eie);
+-		node->aux = 0;
+-	}
+-
+-	ulist_free(blocks);
+-}
+-
+ /*
+  * Finds all leafs with a reference to the specified combination of bytenr and
+  * offset. key_list_head will point to a list of corresponding keys (caller must
 -- 
 2.35.1
 
