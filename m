@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19B4162208A
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 00:58:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E6DC622089
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 00:58:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229556AbiKHX6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 18:58:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51230 "EHLO
+        id S229949AbiKHX6c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 18:58:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229931AbiKHX6R (ORCPT
+        with ESMTP id S229926AbiKHX6R (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 18:58:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB33E606A8;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57806606A1;
         Tue,  8 Nov 2022 15:58:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 582BAB81CC7;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D3CC5617E4;
         Tue,  8 Nov 2022 23:58:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2A84C433D6;
-        Tue,  8 Nov 2022 23:58:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32AE2C43470;
+        Tue,  8 Nov 2022 23:58:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1667951894;
-        bh=czQQlpEAmU1oJjo1aMzSyfYQLp3bApbAUQfIig7Nizg=;
+        s=korg; t=1667951895;
+        bh=Rhokdn+5ejET0d+ZjL2KZQYSQALDc+3DCu8V18KSs4o=;
         h=Date:To:From:Subject:From;
-        b=AUiftZDUZmxCknDq+4kZKnf3Lj9jeVuXpB6wYVElOtmzzm1ZfjOQoapbPcCrTc2eU
-         ApIYSR/+vuSu1f5yEv9+MmGQcQrZemHU3A4Ff1B5XRcKGCRKKtPTmkyK38Zd2m7Ifg
-         5tpP0XHupioCBAJuQzpC2G9jZ3DFM/IBVCr5b8gU=
-Date:   Tue, 08 Nov 2022 15:58:13 -0800
-To:     mm-commits@vger.kernel.org, thomas.lendacky@amd.com,
-        stable@vger.kernel.org, dan.j.williams@intel.com,
-        pankaj.gupta@amd.com, akpm@linux-foundation.org
+        b=Mn4wYFf7HorFsjSqOc5dUY/gPrfed3vvpfOShe6NmrXfsJnqzZoytKjwgr/sKTWtf
+         ReHLRuFC7YjIc3mD3msmc9AeAn9ZVvf41KNA0M6vHDY1QOkMRsx/6MAlvXKJhWFtuf
+         3aZpNbIAyaEc9f/4MWQb9R8DaoMth1Y/4z06tJV8=
+Date:   Tue, 08 Nov 2022 15:58:14 -0800
+To:     mm-commits@vger.kernel.org, willy@infradead.org,
+        stable@vger.kernel.org, hughd@google.com, axelrasmussen@google.com,
+        aarcange@redhat.com, peterx@redhat.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-memremapc-map-fs_dax-device-memory-as-decrypted.patch removed from -mm tree
-Message-Id: <20221108235813.F2A84C433D6@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] mm-shmem-use-page_mapping-to-detect-page-cache-for-uffd-continue.patch removed from -mm tree
+Message-Id: <20221108235815.32AE2C43470@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -46,50 +46,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm/memremap.c: map FS_DAX device memory as decrypted
+     Subject: mm/shmem: use page_mapping() to detect page cache for uffd continue
 has been removed from the -mm tree.  Its filename was
-     mm-memremapc-map-fs_dax-device-memory-as-decrypted.patch
+     mm-shmem-use-page_mapping-to-detect-page-cache-for-uffd-continue.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Pankaj Gupta <pankaj.gupta@amd.com>
-Subject: mm/memremap.c: map FS_DAX device memory as decrypted
-Date: Wed, 2 Nov 2022 11:07:28 -0500
+From: Peter Xu <peterx@redhat.com>
+Subject: mm/shmem: use page_mapping() to detect page cache for uffd continue
+Date: Wed, 2 Nov 2022 14:41:52 -0400
 
-virtio_pmem use devm_memremap_pages() to map the device memory.  By
-default this memory is mapped as encrypted with SEV.  Guest reboot changes
-the current encryption key and guest no longer properly decrypts the FSDAX
-device meta data.
+mfill_atomic_install_pte() checks page->mapping to detect whether one page
+is used in the page cache.  However as pointed out by Matthew, the page
+can logically be a tail page rather than always the head in the case of
+uffd minor mode with UFFDIO_CONTINUE.  It means we could wrongly install
+one pte with shmem thp tail page assuming it's an anonymous page.
 
-Mark the corresponding device memory region for FSDAX devices (mapped with
-memremap_pages) as decrypted to retain the persistent memory property.
+It's not that clear even for anonymous page, since normally anonymous
+pages also have page->mapping being setup with the anon vma.  It's safe
+here only because the only such caller to mfill_atomic_install_pte() is
+always passing in a newly allocated page (mcopy_atomic_pte()), whose
+page->mapping is not yet setup.  However that's not extremely obvious
+either.
 
-Link: https://lkml.kernel.org/r/20221102160728.3184016-1-pankaj.gupta@amd.com
-Fixes: b7b3c01b19159 ("mm/memremap_pages: support multiple ranges per invocation")
-Signed-off-by: Pankaj Gupta <pankaj.gupta@amd.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
+For either of above, use page_mapping() instead.
+
+Link: https://lkml.kernel.org/r/Y2K+y7wnhC4vbnP2@x1n
+Fixes: 153132571f02 ("userfaultfd/shmem: support UFFDIO_CONTINUE for shmem")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reported-by: Matthew Wilcox <willy@infradead.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memremap.c |    1 +
- 1 file changed, 1 insertion(+)
+ mm/userfaultfd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/memremap.c~mm-memremapc-map-fs_dax-device-memory-as-decrypted
-+++ a/mm/memremap.c
-@@ -335,6 +335,7 @@ void *memremap_pages(struct dev_pagemap
- 			WARN(1, "File system DAX not supported\n");
- 			return ERR_PTR(-EINVAL);
- 		}
-+		params.pgprot = pgprot_decrypted(params.pgprot);
- 		break;
- 	case MEMORY_DEVICE_GENERIC:
- 		break;
+--- a/mm/userfaultfd.c~mm-shmem-use-page_mapping-to-detect-page-cache-for-uffd-continue
++++ a/mm/userfaultfd.c
+@@ -64,7 +64,7 @@ int mfill_atomic_install_pte(struct mm_s
+ 	pte_t _dst_pte, *dst_pte;
+ 	bool writable = dst_vma->vm_flags & VM_WRITE;
+ 	bool vm_shared = dst_vma->vm_flags & VM_SHARED;
+-	bool page_in_cache = page->mapping;
++	bool page_in_cache = page_mapping(page);
+ 	spinlock_t *ptl;
+ 	struct inode *inode;
+ 	pgoff_t offset, max_off;
 _
 
-Patches currently in -mm which might be from pankaj.gupta@amd.com are
+Patches currently in -mm which might be from peterx@redhat.com are
 
+selftests-vm-use-memfd-for-uffd-hugetlb-tests.patch
+selftests-vm-use-memfd-for-hugetlb-madvise-test.patch
+selftests-vm-use-memfd-for-hugepage-mremap-test.patch
+selftests-vm-drop-mnt-point-for-hugetlb-in-run_vmtestssh.patch
+mm-hugetlb-unify-clearing-of-restorereserve-for-private-pages.patch
+revert-mm-uffd-fix-warning-without-pte_marker_uffd_wp-compiled-in.patch
+mm-always-compile-in-pte-markers.patch
+mm-use-pte-markers-for-swap-errors.patch
 
