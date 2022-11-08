@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD1E46215CD
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:15:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DAE6214E7
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:06:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235333AbiKHOPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:15:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54146 "EHLO
+        id S235057AbiKHOGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:06:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235336AbiKHOPd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:15:33 -0500
+        with ESMTP id S235075AbiKHOGQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:06:16 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC70C59847
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:15:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89A6769DFB
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:06:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E284B81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:15:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07CF5C433C1;
-        Tue,  8 Nov 2022 14:15:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 358E7B81B00
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:06:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80D8AC433B5;
+        Tue,  8 Nov 2022 14:06:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916928;
-        bh=6ZqlEWEL9637fJ6JWmQ42OVo8u5lKp4gAc2o/CLp/oE=;
+        s=korg; t=1667916372;
+        bh=I35xNGiCwyHYqbID6tWQwArL0frw3chKk0FW4N1offI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMAxTpJTXomamP9dD5auzyGDyR8exiU/AkfPaRYR1YA1O3QIvYPcAg2/W8XogVg83
-         H5EmzrRBePZn8QgEQdEZxheNfKvUN8TYmL+4Z/3NU3VAzrL2upSKgXARIwVhuY2i4F
-         eP7jrjY8JXLWs4LR1RRhQfsGE2BLxXfNjrLEQCtY=
+        b=QUUWz87JbKhKqGdmBQZ8nhIBm2PA9bR3lahOei+Imd5vHPP83laDwp6U8n2anvl8f
+         EOl3GohBRDfmoBdW6s4T6P1KWsTLr4dH5ctwGdEyubw/Hve+BJBSqScejjNTBof6Je
+         sIjChyuvtJLCR2QWYbsWhHWblFrJCTEpcK9U+AHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.0 176/197] KVM: VMX: Fold vmx_supported_debugctl() into vcpu_supported_debugctl()
+        patches@lists.linux.dev, Sahil Malhotra <sahil.malhotra@nxp.com>,
+        Sumit Garg <sumit.garg@linaro.org>
+Subject: [PATCH 5.15 137/144] tee: Fix tee_shm_register() for kernel TEE drivers
 Date:   Tue,  8 Nov 2022 14:40:14 +0100
-Message-Id: <20221108133402.920552165@linuxfoundation.org>
+Message-Id: <20221108133351.106448265@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,85 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Sumit Garg <sumit.garg@linaro.org>
 
-commit 18e897d213cb152c786abab14919196bd9dc3a9f upstream.
+Commit 056d3fed3d1f ("tee: add tee_shm_register_{user,kernel}_buf()")
+refactored tee_shm_register() into corresponding user and kernel space
+functions named tee_shm_register_{user,kernel}_buf(). The upstream fix
+commit 573ae4f13f63 ("tee: add overflow check in register_shm_helper()")
+only applied to tee_shm_register_user_buf().
 
-Fold vmx_supported_debugctl() into vcpu_supported_debugctl(), its only
-caller.  Setting bits only to clear them a few instructions later is
-rather silly, and splitting the logic makes things seem more complicated
-than they actually are.
+But the stable kernel 4.19, 5.4, 5.10 and 5.15 don't have the above
+mentioned tee_shm_register() refactoring commit. Hence a direct backport
+wasn't possible and the fix has to be rather applied to
+tee_ioctl_shm_register().
 
-Opportunistically drop DEBUGCTLMSR_LBR_MASK now that there's a single
-reference to the pair of bits.  The extra layer of indirection provides
-no meaningful value and makes it unnecessarily tedious to understand
-what KVM is doing.
+Somehow the fix was correctly backported to 4.19 and 5.4 stable kernels
+but the backports for 5.10 and 5.15 stable kernels were broken as fix
+was applied to common tee_shm_register() function which broke its kernel
+space users such as trusted keys driver.
 
-No functional change.
+Fortunately the backport for 5.10 stable kernel was incidently fixed by:
+commit 606fe84a4185 ("tee: fix memory leak in tee_shm_register()"). So
+fix the backport for 5.15 stable kernel as well.
 
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20221006000314.73240-4-seanjc@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 578c349570d2 ("tee: add overflow check in register_shm_helper()")
+Cc: stable@vger.kernel.org # 5.15
+Reported-by: Sahil Malhotra <sahil.malhotra@nxp.com>
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/capabilities.h |   15 ---------------
- arch/x86/kvm/vmx/vmx.c          |   12 +++++++-----
- 2 files changed, 7 insertions(+), 20 deletions(-)
+ drivers/tee/tee_core.c |    3 +++
+ drivers/tee/tee_shm.c  |    3 ---
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/vmx/capabilities.h
-+++ b/arch/x86/kvm/vmx/capabilities.h
-@@ -24,8 +24,6 @@ extern int __read_mostly pt_mode;
- #define PMU_CAP_FW_WRITES	(1ULL << 13)
- #define PMU_CAP_LBR_FMT		0x3f
+--- a/drivers/tee/tee_core.c
++++ b/drivers/tee/tee_core.c
+@@ -334,6 +334,9 @@ tee_ioctl_shm_register(struct tee_contex
+ 	if (data.flags)
+ 		return -EINVAL;
  
--#define DEBUGCTLMSR_LBR_MASK		(DEBUGCTLMSR_LBR | DEBUGCTLMSR_FREEZE_LBRS_ON_PMI)
++	if (!access_ok((void __user *)(unsigned long)data.addr, data.length))
++		return -EFAULT;
++
+ 	shm = tee_shm_register(ctx, data.addr, data.length,
+ 			       TEE_SHM_DMA_BUF | TEE_SHM_USER_MAPPED);
+ 	if (IS_ERR(shm))
+--- a/drivers/tee/tee_shm.c
++++ b/drivers/tee/tee_shm.c
+@@ -223,9 +223,6 @@ struct tee_shm *tee_shm_register(struct
+ 		goto err;
+ 	}
+ 
+-	if (!access_ok((void __user *)addr, length))
+-		return ERR_PTR(-EFAULT);
 -
- struct nested_vmx_msrs {
- 	/*
- 	 * We only store the "true" versions of the VMX capability MSRs. We
-@@ -425,19 +423,6 @@ static inline u64 vmx_get_perf_capabilit
- 	return perf_cap;
- }
- 
--static inline u64 vmx_supported_debugctl(void)
--{
--	u64 debugctl = 0;
--
--	if (boot_cpu_has(X86_FEATURE_BUS_LOCK_DETECT))
--		debugctl |= DEBUGCTLMSR_BUS_LOCK_DETECT;
--
--	if (vmx_get_perf_capabilities() & PMU_CAP_LBR_FMT)
--		debugctl |= DEBUGCTLMSR_LBR_MASK;
--
--	return debugctl;
--}
--
- static inline bool cpu_has_notify_vmexit(void)
- {
- 	return vmcs_config.cpu_based_2nd_exec_ctrl &
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -2018,13 +2018,15 @@ static u64 nested_vmx_truncate_sysenter_
- 
- static u64 vcpu_supported_debugctl(struct kvm_vcpu *vcpu)
- {
--	u64 debugctl = vmx_supported_debugctl();
-+	u64 debugctl = 0;
- 
--	if (!intel_pmu_lbr_is_enabled(vcpu))
--		debugctl &= ~DEBUGCTLMSR_LBR_MASK;
-+	if (boot_cpu_has(X86_FEATURE_BUS_LOCK_DETECT) &&
-+	    guest_cpuid_has(vcpu, X86_FEATURE_BUS_LOCK_DETECT))
-+		debugctl |= DEBUGCTLMSR_BUS_LOCK_DETECT;
- 
--	if (!guest_cpuid_has(vcpu, X86_FEATURE_BUS_LOCK_DETECT))
--		debugctl &= ~DEBUGCTLMSR_BUS_LOCK_DETECT;
-+	if ((vmx_get_perf_capabilities() & PMU_CAP_LBR_FMT) &&
-+	    intel_pmu_lbr_is_enabled(vcpu))
-+		debugctl |= DEBUGCTLMSR_LBR | DEBUGCTLMSR_FREEZE_LBRS_ON_PMI;
- 
- 	return debugctl;
- }
+ 	mutex_lock(&teedev->mutex);
+ 	shm->id = idr_alloc(&teedev->idr, shm, 1, 0, GFP_KERNEL);
+ 	mutex_unlock(&teedev->mutex);
 
 
