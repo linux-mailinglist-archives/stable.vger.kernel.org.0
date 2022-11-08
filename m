@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D35962147B
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:01:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD1386212BD
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:42:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234616AbiKHOBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:01:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35652 "EHLO
+        id S234447AbiKHNmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:42:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234930AbiKHOBl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:01:41 -0500
+        with ESMTP id S234259AbiKHNmR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:42:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B4C682B1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:01:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4691D49B7A
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:42:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70B1461596
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C478C433C1;
-        Tue,  8 Nov 2022 14:01:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DC506158F
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:42:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0898C433D7;
+        Tue,  8 Nov 2022 13:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916099;
-        bh=P/dKi00nqYsKddUPWFkuhSbz9HUs8JGCLjgIgv6rD5c=;
+        s=korg; t=1667914936;
+        bh=/wGlT+QhkWG2h4FTk1k4oTukuTiH9gjGcU7KB5wHmPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HvaJmhSnM9vlDqqLJ64Gi92eQajobQ6/F9/zuDsx9IeS/fn+RnBkUmG4yal8UvSi6
-         FNa6hfUHkWyrYyrH9Ur7AFQvC+dJFBVoGqKlUJdiaOwxGlUjU6EOR5it0GzB2b1rTg
-         JiGn+U93QUUSG7qSZLGDpRBAxi0lPa+PyTdHPElc=
+        b=xkru5i7j6eJ43qNYCiP4v4m9kwPfYdUmuwLUAgdz+IO5QxFHVr/GNy8vdYixcOC/f
+         tNCjwHaA23L9LuxcKnS6r+d1d++XxF1OU7JR6IQpFqzEnCz0gqnk64/J11M3zJSKoy
+         oKkYrqpNMNAf/yBggFD4EkeSEvCjLlZ9dcp0K2r8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 062/144] fbdev: stifb: Fall back to cfb_fillrect() on 32-bit HCRX cards
+Subject: [PATCH 4.9 11/30] mISDN: fix possible memory leak in mISDN_register_device()
 Date:   Tue,  8 Nov 2022 14:38:59 +0100
-Message-Id: <20221108133347.887840063@linuxfoundation.org>
+Message-Id: <20221108133327.102910741@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
+References: <20221108133326.715586431@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 776d875fd4cbb3884860ea7f63c3958f02b0c80e ]
+[ Upstream commit e7d1d4d9ac0dfa40be4c2c8abd0731659869b297 ]
 
-When the text console is scrolling text upwards it calls the fillrect()
-function to empty the new line. The current implementation doesn't seem
-to work correctly on HCRX cards in 32-bit mode and leave garbage in that
-line instead. Fix it by falling back to standard cfb_fillrect() in that
-case.
+Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+add put_device() to give up the reference, so that the name can be
+freed in kobject_cleanup() when the refcount is 0.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>
+Set device class before put_device() to avoid null release() function
+WARN message in device_release().
+
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/stifb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/isdn/mISDN/core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/stifb.c b/drivers/video/fbdev/stifb.c
-index 7753e586e65a..3feb6e40d56d 100644
---- a/drivers/video/fbdev/stifb.c
-+++ b/drivers/video/fbdev/stifb.c
-@@ -1055,7 +1055,8 @@ stifb_fillrect(struct fb_info *info, const struct fb_fillrect *rect)
- {
- 	struct stifb_info *fb = container_of(info, struct stifb_info, info);
+diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
+index f5a06a6fb297..5cd53b2c47c7 100644
+--- a/drivers/isdn/mISDN/core.c
++++ b/drivers/isdn/mISDN/core.c
+@@ -242,11 +242,12 @@ mISDN_register_device(struct mISDNdevice *dev,
+ 	if (debug & DEBUG_CORE)
+ 		printk(KERN_DEBUG "mISDN_register %s %d\n",
+ 		       dev_name(&dev->dev), dev->id);
++	dev->dev.class = &mISDN_class;
++
+ 	err = create_stack(dev);
+ 	if (err)
+ 		goto error1;
  
--	if (rect->rop != ROP_COPY)
-+	if (rect->rop != ROP_COPY ||
-+	    (fb->id == S9000_ID_HCRX && fb->info.var.bits_per_pixel == 32))
- 		return cfb_fillrect(info, rect);
+-	dev->dev.class = &mISDN_class;
+ 	dev->dev.platform_data = dev;
+ 	dev->dev.parent = parent;
+ 	dev_set_drvdata(&dev->dev, dev);
+@@ -258,8 +259,8 @@ mISDN_register_device(struct mISDNdevice *dev,
  
- 	SETUP_HW(fb);
+ error3:
+ 	delete_stack(dev);
+-	return err;
+ error1:
++	put_device(&dev->dev);
+ 	return err;
+ 
+ }
 -- 
 2.35.1
 
