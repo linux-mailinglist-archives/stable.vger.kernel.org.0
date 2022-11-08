@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3630762133E
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C5C162129C
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:41:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234545AbiKHNsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:48:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47880 "EHLO
+        id S233748AbiKHNlU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:41:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234352AbiKHNsT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:19 -0500
+        with ESMTP id S234070AbiKHNk6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:40:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1571B5F84E
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D724554C0
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:40:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A6C94615A1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7C4AC433D6;
-        Tue,  8 Nov 2022 13:48:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD99161582
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:40:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70B5FC433C1;
+        Tue,  8 Nov 2022 13:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915298;
-        bh=KWaQKktsbFlyJSg7oCSpxjfuY1MR5MTrUy/T5IqU3cc=;
+        s=korg; t=1667914857;
+        bh=KxmMjUrn/H/5RJNj26oMzMnxxZzzGs7q1hka+krfQwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eUfxNXhqqFrkW65GJ1fwAJV5KC5CIov0/zzhrCx5dDLW6gBZ0GXSGs9C1XKYEj/Eu
-         KUxchuFwXWf7yU/WEm0yOZyy3oBMzEKaUf2alrftKTTaO4g63YT7tvypd2AbigXMNV
-         X9j312XPi5wgVwsA1LDsAYCMsmt/S0mBZkALp45E=
+        b=oZbijT06u+ko0xF3KcCn9n1zXtn7ZJarZcc2f20B9NeboRceiVmfjUwSrnbgLqCOS
+         qUqUnenePjxgIkmslYYsOvZdIPe/jiTB3N1BcbsssdWo98KWpC2swphr3DsfUU4nHm
+         +OW9jZp278tOKw0FDUtAWdE+tNqr+dWmY6Wh9QaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/74] isdn: mISDN: netjet: fix wrong check of device registration
+Subject: [PATCH 4.9 01/30] NFSv4.1: Handle RECLAIM_COMPLETE trunking errors
 Date:   Tue,  8 Nov 2022 14:38:49 +0100
-Message-Id: <20221108133334.588660091@linuxfoundation.org>
+Message-Id: <20221108133326.774582256@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
+References: <20221108133326.715586431@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,35 +56,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit bf00f5426074249058a106a6edbb89e4b25a4d79 ]
+[ Upstream commit 5d917cba3201e5c25059df96c29252fd99c4f6a7 ]
 
-The class is set in mISDN_register_device(), but if device_add() returns
-error, it will lead to delete a device without added, fix this by using
-device_is_registered() to check if the device is registered.
+If RECLAIM_COMPLETE sets the NFS4CLNT_BIND_CONN_TO_SESSION flag, then we
+need to loop back in order to handle it.
 
-Fixes: a900845e5661 ("mISDN: Add support for Traverse Technologies NETJet PCI cards")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0048fdd06614 ("NFSv4.1: RECLAIM_COMPLETE must handle NFS4ERR_CONN_NOT_BOUND_TO_SESSION")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/netjet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs4state.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/isdn/hardware/mISDN/netjet.c b/drivers/isdn/hardware/mISDN/netjet.c
-index 8299defff55a..6d818d5d1377 100644
---- a/drivers/isdn/hardware/mISDN/netjet.c
-+++ b/drivers/isdn/hardware/mISDN/netjet.c
-@@ -956,7 +956,7 @@ nj_release(struct tiger_hw *card)
- 	}
- 	if (card->irq > 0)
- 		free_irq(card->irq, card);
--	if (card->isac.dch.dev.dev.class)
-+	if (device_is_registered(&card->isac.dch.dev.dev))
- 		mISDN_unregister_device(&card->isac.dch.dev);
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index 466c07bd0629..2df0a1be5974 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -2487,6 +2487,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
+ 			if (status < 0)
+ 				goto out_error;
+ 			nfs4_state_end_reclaim_reboot(clp);
++			continue;
+ 		}
  
- 	for (i = 0; i < 2; i++) {
+ 		/* Detect expired delegations... */
 -- 
 2.35.1
 
