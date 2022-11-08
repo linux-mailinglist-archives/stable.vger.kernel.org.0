@@ -2,176 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC2AB621431
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:58:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 314FE6215D8
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:16:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234607AbiKHN6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:58:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60572 "EHLO
+        id S235351AbiKHOQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:16:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234863AbiKHN6V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:58:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 571B966C8E
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:58:20 -0800 (PST)
+        with ESMTP id S235344AbiKHOQF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:16:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6B6A69DF2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:16:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15945B816DD
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:58:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59A8CC433C1;
-        Tue,  8 Nov 2022 13:58:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89B94B81AF2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:16:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9734C433B5;
+        Tue,  8 Nov 2022 14:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915897;
-        bh=KgVGdV0SRbHZVwUD1M04qh4rM/5YC2FKWdYA1IjVW+E=;
+        s=korg; t=1667916962;
+        bh=l+R1gEp12J67Pcat2v/1p11MQq42VNv4uHYJ3g1gbj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQQ3tPiSpyZMZ+A4ICWF6DBWA8uIjpibLW/R3obBKn7xmitkgW+VGScgfHIggw5cn
-         KhOnlutAEvCcXuU1lMRYrzem5hTaFBlnkHcQG7udD5QbGitUrMfkaX2wccW8XMjqYf
-         cJCnyuagF02FZsmD3O8NWVpn5fyQZAvFVQh1/lWA=
+        b=b+ZvSXkd3zuQgCX/T8r+R8lIFXeMD2pXQ9swlfiqIeOAKkSMLedAU02mC0Lpa2zd3
+         bA4aCdErJt0OnxhJfsn/7Z4TWfSZte2NBS/Uhp2HYI3en+WG29F8ORbXedpoMFCZZP
+         WcauXYV0Z+aNJZUXau6hpZUNb/Ad3x+GmqTTNWuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.10 116/118] drm/i915/sdvo: Setup DDC fully before output init
-Date:   Tue,  8 Nov 2022 14:39:54 +0100
-Message-Id: <20221108133345.728039557@linuxfoundation.org>
+        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 6.0 157/197] perf/x86/intel: Add Cooper Lake stepping to isolation_ucodes[]
+Date:   Tue,  8 Nov 2022 14:39:55 +0100
+Message-Id: <20221108133402.081125352@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit e79762512120f11c51317570519a1553c70805d8 upstream.
+commit 6f8faf471446844bb9c318e0340221049d5c19f4 upstream.
 
-Call intel_sdvo_select_ddc_bus() before initializing any
-of the outputs. And before that is functional (assuming no VBT)
-we have to set up the controlled_outputs thing. Otherwise DDC
-won't be functional during the output init but LVDS really
-needs it for the fixed mode setup.
+The intel_pebs_isolation quirk checks both model number and stepping.
+Cooper Lake has a different stepping (11) than the other Skylake Xeon.
+It cannot benefit from the optimization in commit 9b545c04abd4f
+("perf/x86/kvm: Avoid unnecessary work in guest filtering").
 
-Note that the whole multi output support still looks very
-bogus, and more work will be needed to make it correct.
-But for now this should at least fix the LVDS EDID fixed mode
-setup.
+Add the stepping of Cooper Lake into the isolation_ucodes[] table.
 
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7301
-Fixes: aa2b88074a56 ("drm/i915/sdvo: Fix multi function encoder stuff")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221026101134.20865-3-ville.syrjala@linux.intel.com
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-(cherry picked from commit 64b7b557dc8a96d9cfed6aedbf81de2df80c025d)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://lkml.kernel.org/r/20221031154550.571663-1-kan.liang@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_sdvo.c |   31 +++++++++++-------------------
- 1 file changed, 12 insertions(+), 19 deletions(-)
+ arch/x86/events/intel/core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/i915/display/intel_sdvo.c
-+++ b/drivers/gpu/drm/i915/display/intel_sdvo.c
-@@ -2760,13 +2760,10 @@ intel_sdvo_dvi_init(struct intel_sdvo *i
- 	if (!intel_sdvo_connector)
- 		return false;
- 
--	if (device == 0) {
--		intel_sdvo->controlled_output |= SDVO_OUTPUT_TMDS0;
-+	if (device == 0)
- 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_TMDS0;
--	} else if (device == 1) {
--		intel_sdvo->controlled_output |= SDVO_OUTPUT_TMDS1;
-+	else if (device == 1)
- 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_TMDS1;
--	}
- 
- 	intel_connector = &intel_sdvo_connector->base;
- 	connector = &intel_connector->base;
-@@ -2821,7 +2818,6 @@ intel_sdvo_tv_init(struct intel_sdvo *in
- 	encoder->encoder_type = DRM_MODE_ENCODER_TVDAC;
- 	connector->connector_type = DRM_MODE_CONNECTOR_SVIDEO;
- 
--	intel_sdvo->controlled_output |= type;
- 	intel_sdvo_connector->output_flag = type;
- 
- 	if (intel_sdvo_connector_init(intel_sdvo_connector, intel_sdvo) < 0) {
-@@ -2862,13 +2858,10 @@ intel_sdvo_analog_init(struct intel_sdvo
- 	encoder->encoder_type = DRM_MODE_ENCODER_DAC;
- 	connector->connector_type = DRM_MODE_CONNECTOR_VGA;
- 
--	if (device == 0) {
--		intel_sdvo->controlled_output |= SDVO_OUTPUT_RGB0;
-+	if (device == 0)
- 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_RGB0;
--	} else if (device == 1) {
--		intel_sdvo->controlled_output |= SDVO_OUTPUT_RGB1;
-+	else if (device == 1)
- 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_RGB1;
--	}
- 
- 	if (intel_sdvo_connector_init(intel_sdvo_connector, intel_sdvo) < 0) {
- 		kfree(intel_sdvo_connector);
-@@ -2898,13 +2891,10 @@ intel_sdvo_lvds_init(struct intel_sdvo *
- 	encoder->encoder_type = DRM_MODE_ENCODER_LVDS;
- 	connector->connector_type = DRM_MODE_CONNECTOR_LVDS;
- 
--	if (device == 0) {
--		intel_sdvo->controlled_output |= SDVO_OUTPUT_LVDS0;
-+	if (device == 0)
- 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_LVDS0;
--	} else if (device == 1) {
--		intel_sdvo->controlled_output |= SDVO_OUTPUT_LVDS1;
-+	else if (device == 1)
- 		intel_sdvo_connector->output_flag = SDVO_OUTPUT_LVDS1;
--	}
- 
- 	if (intel_sdvo_connector_init(intel_sdvo_connector, intel_sdvo) < 0) {
- 		kfree(intel_sdvo_connector);
-@@ -2957,8 +2947,14 @@ static u16 intel_sdvo_filter_output_flag
- static bool
- intel_sdvo_output_setup(struct intel_sdvo *intel_sdvo, u16 flags)
- {
-+	struct drm_i915_private *i915 = to_i915(intel_sdvo->base.base.dev);
-+
- 	flags = intel_sdvo_filter_output_flags(flags);
- 
-+	intel_sdvo->controlled_output = flags;
-+
-+	intel_sdvo_select_ddc_bus(i915, intel_sdvo);
-+
- 	if (flags & SDVO_OUTPUT_TMDS0)
- 		if (!intel_sdvo_dvi_init(intel_sdvo, 0))
- 			return false;
-@@ -2999,7 +2995,6 @@ intel_sdvo_output_setup(struct intel_sdv
- 	if (flags == 0) {
- 		unsigned char bytes[2];
- 
--		intel_sdvo->controlled_output = 0;
- 		memcpy(bytes, &intel_sdvo->caps.output_flags, 2);
- 		DRM_DEBUG_KMS("%s: Unknown SDVO output type (0x%02x%02x)\n",
- 			      SDVO_NAME(intel_sdvo),
-@@ -3411,8 +3406,6 @@ bool intel_sdvo_init(struct drm_i915_pri
- 	 */
- 	intel_sdvo->base.cloneable = 0;
- 
--	intel_sdvo_select_ddc_bus(dev_priv, intel_sdvo);
--
- 	/* Set the input timing to the screen. Assume always input 0. */
- 	if (!intel_sdvo_set_target_input(intel_sdvo))
- 		goto err_output;
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -4891,6 +4891,7 @@ static const struct x86_cpu_desc isolati
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 5, 0x00000000),
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 6, 0x00000000),
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 7, 0x00000000),
++	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		11, 0x00000000),
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_L,		 3, 0x0000007c),
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE,		 3, 0x0000007c),
+ 	INTEL_CPU_DESC(INTEL_FAM6_KABYLAKE,		 9, 0x0000004e),
 
 
