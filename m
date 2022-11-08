@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B69962143E
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:59:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E080B6213AD
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234877AbiKHN7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:59:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33230 "EHLO
+        id S234631AbiKHNwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:52:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234882AbiKHN7D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:59:03 -0500
+        with ESMTP id S234707AbiKHNwa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0029365E59
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:59:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD76B623A5
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A157FB81AFA
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:59:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD511C433D6;
-        Tue,  8 Nov 2022 13:58:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6BC12B81AE8
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F268C433D6;
+        Tue,  8 Nov 2022 13:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915940;
-        bh=5wXwzbux59iYsUfokYO5oxpN/m+VJCsCbJL5hsvTLAk=;
+        s=korg; t=1667915543;
+        bh=ngCwpl9h6I975NIXdb1SbHYblwLOqmZluI/qf8EjYeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hiFtGlgGLW2Uoue/dJx9YlfiNOCfKFiyipvuEYyvtwwq+CUGR70gphT30/ot9oXUT
-         c3Fr0mC5WCdMRfsA+F8tipEIV4MdDN++zRKKe6A02uWlBG8nkJzss1WcNHlzXxUA+O
-         QHK6JRQTdi8dwAJYa58btSoflpeviwEV/H14JldM=
+        b=rkFxTynuT5g4hOEkFTcmVDtM7/YobNNYtYR5cw64dEolcPe97TAeiyj9wuJELmxsE
+         Zh7OawAobAQKCWvwf1p6Ue6sMuG7ZgTUiuchl4dogPKg+XSgm4LoDy6p57hMcnvlI9
+         mVSPGjZGati9jA+9rOLoU31mx4eAZMOfG3R3+pVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Roderick Colenbrander <roderick.colenbrander@sony.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        patches@lists.linux.dev, Len Brown <len.brown@intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 009/144] HID: playstation: add initial DualSense Edge controller support
+Subject: [PATCH 5.10 008/118] x86/topology: Fix multiple packages shown on a single-package system
 Date:   Tue,  8 Nov 2022 14:38:06 +0100
-Message-Id: <20221108133345.728620537@linuxfoundation.org>
+Message-Id: <20221108133341.072607471@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roderick Colenbrander <roderick@gaikai.com>
+From: Zhang Rui <rui.zhang@intel.com>
 
-[ Upstream commit b8a968efab301743fd659b5649c5d7d3e30e63a6 ]
+[ Upstream commit 2b12a7a126d62bdbd81f4923c21bf6e9a7fbd069 ]
 
-Provide initial support for the DualSense Edge controller. The brings
-support up to the level of the original DualSense, but won't yet provide
-support for new features (e.g. reprogrammable buttons).
+CPUID.1F/B does not enumerate Package level explicitly, instead, all the
+APIC-ID bits above the enumerated levels are assumed to be package ID
+bits.
 
-Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20221010212313.78275-3-roderick.colenbrander@sony.com
+Current code gets package ID by shifting out all the APIC-ID bits that
+Linux supports, rather than shifting out all the APIC-ID bits that
+CPUID.1F enumerates. This introduces problems when CPUID.1F enumerates a
+level that Linux does not support.
+
+For example, on a single package AlderLake-N, there are 2 Ecore Modules
+with 4 atom cores in each module.  Linux does not support the Module
+level and interprets the Module ID bits as package ID and erroneously
+reports a multi module system as a multi-package system.
+
+Fix this by using APIC-ID bits above all the CPUID.1F enumerated levels
+as package ID.
+
+[ dhansen: spelling fix ]
+
+Fixes: 7745f03eb395 ("x86/topology: Add CPUID.1F multi-die/package support")
+Suggested-by: Len Brown <len.brown@intel.com>
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Len Brown <len.brown@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20221014090147.1836-4-rui.zhang@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h         | 1 +
- drivers/hid/hid-playstation.c | 5 ++++-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/topology.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index cb2b48d6915e..a5aac9cc2075 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1109,6 +1109,7 @@
- #define USB_DEVICE_ID_SONY_PS4_CONTROLLER_2	0x09cc
- #define USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE	0x0ba0
- #define USB_DEVICE_ID_SONY_PS5_CONTROLLER	0x0ce6
-+#define USB_DEVICE_ID_SONY_PS5_CONTROLLER_2	0x0df2
- #define USB_DEVICE_ID_SONY_MOTION_CONTROLLER	0x03d5
- #define USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER	0x042f
- #define USB_DEVICE_ID_SONY_BUZZ_CONTROLLER		0x0002
-diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index ab7c82c2e886..bd0e0fe2f627 100644
---- a/drivers/hid/hid-playstation.c
-+++ b/drivers/hid/hid-playstation.c
-@@ -1282,7 +1282,8 @@ static int ps_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		goto err_stop;
+diff --git a/arch/x86/kernel/cpu/topology.c b/arch/x86/kernel/cpu/topology.c
+index 8678864ce712..696309749d62 100644
+--- a/arch/x86/kernel/cpu/topology.c
++++ b/arch/x86/kernel/cpu/topology.c
+@@ -96,6 +96,7 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
+ 	unsigned int ht_mask_width, core_plus_mask_width, die_plus_mask_width;
+ 	unsigned int core_select_mask, core_level_siblings;
+ 	unsigned int die_select_mask, die_level_siblings;
++	unsigned int pkg_mask_width;
+ 	bool die_level_present = false;
+ 	int leaf;
+ 
+@@ -111,10 +112,10 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
+ 	core_level_siblings = smp_num_siblings = LEVEL_MAX_SIBLINGS(ebx);
+ 	core_plus_mask_width = ht_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+ 	die_level_siblings = LEVEL_MAX_SIBLINGS(ebx);
+-	die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
++	pkg_mask_width = die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+ 
+ 	sub_index = 1;
+-	do {
++	while (true) {
+ 		cpuid_count(leaf, sub_index, &eax, &ebx, &ecx, &edx);
+ 
+ 		/*
+@@ -132,8 +133,13 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
+ 			die_plus_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
+ 		}
+ 
++		if (LEAFB_SUBTYPE(ecx) != INVALID_TYPE)
++			pkg_mask_width = BITS_SHIFT_NEXT_LEVEL(eax);
++		else
++			break;
++
+ 		sub_index++;
+-	} while (LEAFB_SUBTYPE(ecx) != INVALID_TYPE);
++	}
+ 
+ 	core_select_mask = (~(-1 << core_plus_mask_width)) >> ht_mask_width;
+ 	die_select_mask = (~(-1 << die_plus_mask_width)) >>
+@@ -148,7 +154,7 @@ int detect_extended_topology(struct cpuinfo_x86 *c)
  	}
  
--	if (hdev->product == USB_DEVICE_ID_SONY_PS5_CONTROLLER) {
-+	if (hdev->product == USB_DEVICE_ID_SONY_PS5_CONTROLLER ||
-+		hdev->product == USB_DEVICE_ID_SONY_PS5_CONTROLLER_2) {
- 		dev = dualsense_create(hdev);
- 		if (IS_ERR(dev)) {
- 			hid_err(hdev, "Failed to create dualsense.\n");
-@@ -1320,6 +1321,8 @@ static void ps_remove(struct hid_device *hdev)
- static const struct hid_device_id ps_devices[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER_2) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER_2) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, ps_devices);
+ 	c->phys_proc_id = apic->phys_pkg_id(c->initial_apicid,
+-				die_plus_mask_width);
++				pkg_mask_width);
+ 	/*
+ 	 * Reinit the apicid, now that we have extended initial_apicid.
+ 	 */
 -- 
 2.35.1
 
