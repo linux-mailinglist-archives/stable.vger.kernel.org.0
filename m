@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 151546215C4
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:14:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50A476215C5
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:15:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235315AbiKHOO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:14:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53710 "EHLO
+        id S235326AbiKHOPC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:15:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235320AbiKHOO5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:14:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5307458038
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:14:56 -0800 (PST)
+        with ESMTP id S235320AbiKHOPB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:15:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039DF2AE28
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:15:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD7FB6157D
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:14:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE910C433D6;
-        Tue,  8 Nov 2022 14:14:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6C2FB81ADB
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:14:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 227AFC433D7;
+        Tue,  8 Nov 2022 14:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916895;
-        bh=b/fsG1n0wZreea5AKl2xMznJbF1NIKKqZFMDJPJj+90=;
+        s=korg; t=1667916898;
+        bh=jqhSfTz7PdsvFi23yTfdrJw8otapjBZJoLjpK4leJ5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tzXL0stWgw9PHyJPM4jdWwzVmly0WnPqqu5aZb2GQ9UIBMtSkZOviJzFqjausnnuC
-         AGEBrq5ZoV5BaIiEtL6v/1WFzMyP4KRWBy34EyHtviGKPembVxCE8l+LYw7AKLXAW9
-         yX0fFQkkJk6xd+KpwIpT4mc+9XMm5/XekvYJMkO0=
+        b=t1TzcAEd6gQ/nhR1bHfoJVo/FzSmlVkXDpyGxgyJ2LS2ZmZpdiUN94dT295K19yA7
+         kgSDsODipyOh74Funv7rsEygPe2/kx3NMgSd6QErp/qa9FexJjD8nu5NlCXwwalJRF
+         dwyiY1iTnoFyHOyxm6/Tp5hQnT3zHtxo4t3OcheY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ruogui.ygr@alibaba-inc.com,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>
-Subject: [PATCH 6.0 168/197] x86/tdx: Panic on bad configs that #VE on "private" memory access
-Date:   Tue,  8 Nov 2022 14:40:06 +0100
-Message-Id: <20221108133402.574642221@linuxfoundation.org>
+        patches@lists.linux.dev, Akihiro HARAI <jharai0815@gmail.com>,
+        Jiri Olsa <jolsa@kernel.org>, Borislav Petkov <bp@suse.de>,
+        Andrii Nakryiko <andrii@kernel.org>
+Subject: [PATCH 6.0 169/197] x86/syscall: Include asm/ptrace.h in syscall_wrapper header
+Date:   Tue,  8 Nov 2022 14:40:07 +0100
+Message-Id: <20221108133402.622850614@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
 References: <20221108133354.787209461@linuxfoundation.org>
@@ -53,98 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+From: Jiri Olsa <olsajiri@gmail.com>
 
-commit 373e715e31bf4e0f129befe87613a278fac228d3 upstream.
+commit 9440c42941606af4c379afa3cf8624f0dc43a629 upstream.
 
-All normal kernel memory is "TDX private memory".  This includes
-everything from kernel stacks to kernel text.  Handling
-exceptions on arbitrary accesses to kernel memory is essentially
-impossible because they can happen in horribly nasty places like
-kernel entry/exit.  But, TDX hardware can theoretically _deliver_
-a virtualization exception (#VE) on any access to private memory.
+With just the forward declaration of the 'struct pt_regs' in
+syscall_wrapper.h, the syscall stub functions:
 
-But, it's not as bad as it sounds.  TDX can be configured to never
-deliver these exceptions on private memory with a "TD attribute"
-called ATTR_SEPT_VE_DISABLE.  The guest has no way to *set* this
-attribute, but it can check it.
+  __[x64|ia32]_sys_*(struct pt_regs *regs)
 
-Ensure ATTR_SEPT_VE_DISABLE is set in early boot.  panic() if it
-is unset.  There is no sane way for Linux to run with this
-attribute clear so a panic() is appropriate.
+will have different definition of 'regs' argument in BTF data
+based on which object file they are defined in.
 
-There's small window during boot before the check where kernel
-has an early #VE handler. But the handler is only for port I/O
-and will also panic() as soon as it sees any other #VE, such as
-a one generated by a private memory access.
+If the syscall's object includes 'struct pt_regs' definition,
+the BTF argument data will point to a 'struct pt_regs' record,
+like:
 
-[ dhansen: Rewrite changelog and rebase on new tdx_parse_tdinfo().
-	   Add Kirill's tested-by because I made changes since
-	   he wrote this. ]
+  [226] STRUCT 'pt_regs' size=168 vlen=21
+         'r15' type_id=1 bits_offset=0
+         'r14' type_id=1 bits_offset=64
+         'r13' type_id=1 bits_offset=128
+  ...
 
-Fixes: 9a22bf6debbf ("x86/traps: Add #VE support for TDX guest")
-Reported-by: ruogui.ygr@alibaba-inc.com
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Tested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/20221028141220.29217-3-kirill.shutemov%40linux.intel.com
+If not, it will point to a fwd declaration record:
+
+  [15439] FWD 'pt_regs' fwd_kind=struct
+
+and make bpf tracing program hooking on those functions unable
+to access fields from 'struct pt_regs'.
+
+Include asm/ptrace.h directly in syscall_wrapper.h to make sure all
+syscalls see 'struct pt_regs' definition. This then results in BTF for
+'__*_sys_*(struct pt_regs *regs)' functions to point to the actual
+struct, not just the forward declaration.
+
+  [ bp: No Fixes tag as this is not really a bug fix but "adjustment" so
+    that BTF is happy. ]
+
+Reported-by: Akihiro HARAI <jharai0815@gmail.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Cc: <stable@vger.kernel.org> # this is needed only for BTF so kernels >= 5.15
+Link: https://lore.kernel.org/r/20221018122708.823792-1-jolsa@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/coco/tdx/tdx.c |   21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/syscall_wrapper.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/coco/tdx/tdx.c
-+++ b/arch/x86/coco/tdx/tdx.c
-@@ -34,6 +34,8 @@
- #define VE_GET_PORT_NUM(e)	((e) >> 16)
- #define VE_IS_IO_STRING(e)	((e) & BIT(4))
+--- a/arch/x86/include/asm/syscall_wrapper.h
++++ b/arch/x86/include/asm/syscall_wrapper.h
+@@ -6,7 +6,7 @@
+ #ifndef _ASM_X86_SYSCALL_WRAPPER_H
+ #define _ASM_X86_SYSCALL_WRAPPER_H
  
-+#define ATTR_SEPT_VE_DISABLE	BIT(28)
-+
- /*
-  * Wrapper for standard use of __tdx_hypercall with no output aside from
-  * return code.
-@@ -102,6 +104,7 @@ static void tdx_parse_tdinfo(u64 *cc_mas
- {
- 	struct tdx_module_output out;
- 	unsigned int gpa_width;
-+	u64 td_attr;
+-struct pt_regs;
++#include <asm/ptrace.h>
  
- 	/*
- 	 * TDINFO TDX module call is used to get the TD execution environment
-@@ -109,19 +112,27 @@ static void tdx_parse_tdinfo(u64 *cc_mas
- 	 * information, etc. More details about the ABI can be found in TDX
- 	 * Guest-Host-Communication Interface (GHCI), section 2.4.2 TDCALL
- 	 * [TDG.VP.INFO].
--	 *
--	 * The GPA width that comes out of this call is critical. TDX guests
--	 * can not meaningfully run without it.
- 	 */
- 	tdx_module_call(TDX_GET_INFO, 0, 0, 0, 0, &out);
- 
--	gpa_width = out.rcx & GENMASK(5, 0);
--
- 	/*
- 	 * The highest bit of a guest physical address is the "sharing" bit.
- 	 * Set it for shared pages and clear it for private pages.
-+	 *
-+	 * The GPA width that comes out of this call is critical. TDX guests
-+	 * can not meaningfully run without it.
- 	 */
-+	gpa_width = out.rcx & GENMASK(5, 0);
- 	*cc_mask = BIT_ULL(gpa_width - 1);
-+
-+	/*
-+	 * The kernel can not handle #VE's when accessing normal kernel
-+	 * memory.  Ensure that no #VE will be delivered for accesses to
-+	 * TD-private memory.  Only VMM-shared memory (MMIO) will #VE.
-+	 */
-+	td_attr = out.rdx;
-+	if (!(td_attr & ATTR_SEPT_VE_DISABLE))
-+		panic("TD misconfiguration: SEPT_VE_DISABLE attibute must be set.\n");
- }
- 
- /*
+ extern long __x64_sys_ni_syscall(const struct pt_regs *regs);
+ extern long __ia32_sys_ni_syscall(const struct pt_regs *regs);
 
 
