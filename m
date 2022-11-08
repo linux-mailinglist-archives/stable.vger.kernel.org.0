@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 414786210C8
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 13:32:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D03E6210CB
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 13:32:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233847AbiKHMcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 07:32:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50014 "EHLO
+        id S233264AbiKHMcs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 07:32:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233838AbiKHMcj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 07:32:39 -0500
+        with ESMTP id S233779AbiKHMcr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 07:32:47 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57B4D29CB4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 04:32:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A767120A8
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 04:32:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D856861540
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 12:32:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4AF0C433C1;
-        Tue,  8 Nov 2022 12:32:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB89F61514
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 12:32:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8D24C433D6;
+        Tue,  8 Nov 2022 12:32:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667910756;
-        bh=UA42GuoqT7Q8DU2uZYBIyKSBE6bX2odpV7tGRYp7gn8=;
+        s=korg; t=1667910765;
+        bh=bfX/p/oGtbbGUMrENjDm8n2sCQ4DhwCmNd0tFq54jRQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=uv7yFux0v/1eGViCAZJfHz3FQyLulpmOX/JTLPvapRVucAG0AVR8iTjCAxr79UWYP
-         xX5p7qXebg57kuwHmOWo6G1lYePWJeWocJQ1GtslCGwbvL4zHdbvMbmfxy3Az7KQ9l
-         C3jtutcSnRZLcDw+/XNaCO01urRXOATGd/tJf+qU=
-Subject: FAILED: patch "[PATCH] drm/i915/tgl+: Add locking around DKL PHY register accesses" failed to apply to 6.0-stable tree
+        b=HmAh49+uOkimYU8k4APesA7YCc9WCA5kzIiw57aEtpZVDOAhAopWw9n+2l0PuuhTd
+         EuYyoHn6xvjcaZIkT8HHRLYts17v3uEE8y4aZT3/Zxuv6/SBtvAIYSPjvtjweInF6x
+         xVj6aftUAsU+WWdIAQSwO9sDgXCgFEUQ2hb2kUM4=
+Subject: FAILED: patch "[PATCH] drm/i915/tgl+: Add locking around DKL PHY register accesses" failed to apply to 5.15-stable tree
 To:     imre.deak@intel.com, jani.nikula@intel.com, stable@vger.kernel.org,
         tvrtko.ursulin@intel.com, ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Nov 2022 13:32:33 +0100
-Message-ID: <166791075313922@kroah.com>
+Date:   Tue, 08 Nov 2022 13:32:34 +0100
+Message-ID: <166791075463159@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -74,6 +74,7 @@ b3d81dafdc48 ("drm/i915: move and group fbdev under display.fbdev")
 ae611d171ec0 ("drm/i915: move dpll_funcs to display.funcs")
 986531bd0e72 ("drm/i915: move cdclk_funcs to display.funcs")
 3b10f8517648 ("drm/i915: add display sub-struct to drm_i915_private")
+c247cd03898c ("drm/i915: fix null pointer dereference")
 
 thanks,
 
