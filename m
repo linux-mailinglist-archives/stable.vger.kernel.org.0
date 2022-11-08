@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBBAA6215DD
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:16:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE8B6214E1
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:06:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235355AbiKHOQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:16:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54670 "EHLO
+        id S235068AbiKHOGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:06:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235356AbiKHOQO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:16:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9C359847
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:16:14 -0800 (PST)
+        with ESMTP id S235064AbiKHOGB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:06:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2989B7054C
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:06:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC6E2B81B04
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:16:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F8CFC433D6;
-        Tue,  8 Nov 2022 14:16:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5751615B4
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:06:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73D6BC433D6;
+        Tue,  8 Nov 2022 14:05:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916971;
-        bh=J+lXettr8JKf+v4ZiEaNDEMz1c+HOy3EPyr5uTWUKrw=;
+        s=korg; t=1667916360;
+        bh=ruYVwcD0pygA3xGuMQL2vNu76g0uIown+H+aSRRP5ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWRsuYUxN/PSCfD7UNgYYgC/E4UZRr/Fa7YLolwn5VPTCQWJcrOvKP8yNX8fSImlo
-         QPWMYUj3JyDr4YB6jE2oRc59zAJ7xTUlIRNRoxQ7yysZ8s+P+nPDSgnuGvGax9hqRA
-         TPrcxoO45gDPoWd+HKBUDJj7BnAFPBfYA4rEDhjg=
+        b=p7f7guIeasNMm1cv1+VmJX/h9/leurpS1v+9kX3D5v5XpT9xTb344ChGQehMY6Uo2
+         VWok2oo0uJm3t+80bnu5LdPnK0gri02DWyO0uSEEbMooFPZGHvXbZ/hO8II5Jmt6Xd
+         m+hzRN/4a97n3odW8Uj0wSOfP2zCHrJH9K2gnEq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Subject: [PATCH 6.0 150/197] efi: random: reduce seed size to 32 bytes
+        patches@lists.linux.dev, Zheng Yejian <zhengyejian1@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 5.15 111/144] tracing/histogram: Update document for KEYS_MAX size
 Date:   Tue,  8 Nov 2022 14:39:48 +0100
-Message-Id: <20221108133401.789280122@linuxfoundation.org>
+Message-Id: <20221108133350.003231404@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Zheng Yejian <zhengyejian1@huawei.com>
 
-commit 161a438d730dade2ba2b1bf8785f0759aba4ca5f upstream.
+commit a635beeacc6d56d2b71c39e6c0103f85b53d108e upstream.
 
-We no longer need at least 64 bytes of random seed to permit the early
-crng init to complete. The RNG is now based on Blake2s, so reduce the
-EFI seed size to the Blake2s hash size, which is sufficient for our
-purposes.
+After commit 4f36c2d85ced ("tracing: Increase tracing map KEYS_MAX size"),
+'keys' supports up to three fields.
 
-While at it, drop the READ_ONCE(), which was supposed to prevent size
-from being evaluated after seed was unmapped. However, this cannot
-actually happen, so READ_ONCE() is unnecessary here.
-
-Cc: <stable@vger.kernel.org> # v4.14+
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Cc: stable@vger.kernel.org
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Link: https://lore.kernel.org/r/20221017103806.2479139-1-zhengyejian1@huawei.com
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/efi.c |    2 +-
- include/linux/efi.h        |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ Documentation/trace/histogram.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -608,7 +608,7 @@ int __init efi_config_parse_tables(const
- 
- 		seed = early_memremap(efi_rng_seed, sizeof(*seed));
- 		if (seed != NULL) {
--			size = READ_ONCE(seed->size);
-+			size = min(seed->size, EFI_RANDOM_SEED_SIZE);
- 			early_memunmap(seed, sizeof(*seed));
- 		} else {
- 			pr_err("Could not map UEFI random seed!\n");
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -1192,7 +1192,7 @@ efi_status_t efi_random_get_seed(void);
- 	arch_efi_call_virt_teardown();					\
- })
- 
--#define EFI_RANDOM_SEED_SIZE		64U
-+#define EFI_RANDOM_SEED_SIZE		32U // BLAKE2S_HASH_SIZE
- 
- struct linux_efi_random_seed {
- 	u32	size;
+--- a/Documentation/trace/histogram.rst
++++ b/Documentation/trace/histogram.rst
+@@ -39,7 +39,7 @@ Documentation written by Tom Zanussi
+   will use the event's kernel stacktrace as the key.  The keywords
+   'keys' or 'key' can be used to specify keys, and the keywords
+   'values', 'vals', or 'val' can be used to specify values.  Compound
+-  keys consisting of up to two fields can be specified by the 'keys'
++  keys consisting of up to three fields can be specified by the 'keys'
+   keyword.  Hashing a compound key produces a unique entry in the
+   table for each unique combination of component keys, and can be
+   useful for providing more fine-grained summaries of event data.
 
 
