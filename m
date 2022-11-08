@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 336CF621347
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AC876212CA
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:42:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234553AbiKHNst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:48:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48556 "EHLO
+        id S234149AbiKHNmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:42:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234586AbiKHNso (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2043B60E9A
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:43 -0800 (PST)
+        with ESMTP id S234072AbiKHNmq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:42:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F47554C0
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:42:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C450AB81AF7
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 042D0C433D7;
-        Tue,  8 Nov 2022 13:48:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84FB56158B
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:42:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78EADC433C1;
+        Tue,  8 Nov 2022 13:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915320;
-        bh=QeulpgIhMoDzDaG+n9QbTXxY0K8mVzIjaIF8xR3s8qA=;
+        s=korg; t=1667914965;
+        bh=ID86amvyle9INrjycPxKwkUTbTb7rd/DwXJWU0Ujt3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GuoXsENHAuXzzLI7/fnbn0+MA6aGolsoCbT/d+n2/YnOjWiq4ePjygn1SCc/462uu
-         cTZWsvq8UQEijpYV4GzVGD450tHORlQJgKQNQuHdzRWbTibzv1XfqpPEOQ4gyuWnC1
-         tv7fTFRTNt/wYnGoAyeY7JzqWsyyof0DJgHxYR9I=
+        b=bOTZT68pNSUUpia0Md+GQUn4gKbFLYC4kxKP2Q/nZWnUaGMPFn3S9bK92xhPmsjqx
+         8EbypTWKjQO6ODW6GH6SKIMtXY55cjZ68wE4eA6+EXP1LM620fdLasNVBUu7R76NiY
+         0wc+5wzJPuBM7PW5029mTWC5TXh4cYupc/5Film8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "Denis V. Lunev" <den@openvz.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/74] net, neigh: Fix null-ptr-deref in neigh_table_clear()
+Subject: [PATCH 4.14 11/40] rose: Fix NULL pointer dereference in rose_send_frame()
 Date:   Tue,  8 Nov 2022 14:38:56 +0100
-Message-Id: <20221108133334.877369186@linuxfoundation.org>
+Message-Id: <20221108133328.831012894@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
+References: <20221108133328.351887714@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit f8017317cb0b279b8ab98b0f3901a2e0ac880dad ]
+[ Upstream commit e97c089d7a49f67027395ddf70bf327eeac2611e ]
 
-When IPv6 module gets initialized but hits an error in the middle,
-kenel panic with:
+The syzkaller reported an issue:
 
-KASAN: null-ptr-deref in range [0x0000000000000598-0x000000000000059f]
-CPU: 1 PID: 361 Comm: insmod
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-RIP: 0010:__neigh_ifdown.isra.0+0x24b/0x370
-RSP: 0018:ffff888012677908 EFLAGS: 00000202
-...
+KASAN: null-ptr-deref in range [0x0000000000000380-0x0000000000000387]
+CPU: 0 PID: 4069 Comm: kworker/0:15 Not tainted 6.0.0-syzkaller-02734-g0326074ff465 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
+Workqueue: rcu_gp srcu_invoke_callbacks
+RIP: 0010:rose_send_frame+0x1dd/0x2f0 net/rose/rose_link.c:101
 Call Trace:
- <TASK>
- neigh_table_clear+0x94/0x2d0
- ndisc_cleanup+0x27/0x40 [ipv6]
- inet6_init+0x21c/0x2cb [ipv6]
- do_one_initcall+0xd3/0x4d0
- do_init_module+0x1ae/0x670
-...
-Kernel panic - not syncing: Fatal exception
+ <IRQ>
+ rose_transmit_clear_request+0x1d5/0x290 net/rose/rose_link.c:255
+ rose_rx_call_request+0x4c0/0x1bc0 net/rose/af_rose.c:1009
+ rose_loopback_timer+0x19e/0x590 net/rose/rose_loopback.c:111
+ call_timer_fn+0x1a0/0x6b0 kernel/time/timer.c:1474
+ expire_timers kernel/time/timer.c:1519 [inline]
+ __run_timers.part.0+0x674/0xa80 kernel/time/timer.c:1790
+ __run_timers kernel/time/timer.c:1768 [inline]
+ run_timer_softirq+0xb3/0x1d0 kernel/time/timer.c:1803
+ __do_softirq+0x1d0/0x9c8 kernel/softirq.c:571
+ [...]
+ </IRQ>
 
-When ipv6 initialization fails, it will try to cleanup and calls:
+It triggers NULL pointer dereference when 'neigh->dev->dev_addr' is
+called in the rose_send_frame(). It's the first occurrence of the
+`neigh` is in rose_loopback_timer() as `rose_loopback_neigh', and
+the 'dev' in 'rose_loopback_neigh' is initialized sa nullptr.
 
-neigh_table_clear()
-  neigh_ifdown(tbl, NULL)
-    pneigh_queue_purge(&tbl->proxy_queue, dev_net(dev == NULL))
-    # dev_net(NULL) triggers null-ptr-deref.
+It had been fixed by commit 3b3fd068c56e3fbea30090859216a368398e39bf
+("rose: Fix Null pointer dereference in rose_send_frame()") ever.
+But it's introduced by commit 3c53cd65dece47dd1f9d3a809f32e59d1d87b2b8
+("rose: check NULL rose_loopback_neigh->loopback") again.
 
-Fix it by passing NULL to pneigh_queue_purge() in neigh_ifdown() if dev
-is NULL, to make kernel not panic immediately.
+We fix it by add NULL check in rose_transmit_clear_request(). When
+the 'dev' in 'neigh' is NULL, we don't reply the request and just
+clear it.
 
-Fixes: 66ba215cb513 ("neigh: fix possible DoS due to net iface start/stop loop")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Denis V. Lunev <den@openvz.org>
-Link: https://lore.kernel.org/r/20221101121552.21890-1-chenzhongjin@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+syzkaller don't provide repro, and I provide a syz repro like:
+r0 = syz_init_net_socket$bt_sco(0x1f, 0x5, 0x2)
+ioctl$sock_inet_SIOCSIFFLAGS(r0, 0x8914, &(0x7f0000000180)={'rose0\x00', 0x201})
+r1 = syz_init_net_socket$rose(0xb, 0x5, 0x0)
+bind$rose(r1, &(0x7f00000000c0)=@full={0xb, @dev, @null, 0x0, [@null, @null, @netrom, @netrom, @default, @null]}, 0x40)
+connect$rose(r1, &(0x7f0000000240)=@short={0xb, @dev={0xbb, 0xbb, 0xbb, 0x1, 0x0}, @remote={0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0x1}, 0x1, @netrom={0xbb, 0xbb, 0xbb, 0xbb, 0xbb, 0x0, 0x0}}, 0x1c)
+
+Fixes: 3c53cd65dece ("rose: check NULL rose_loopback_neigh->loopback")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rose/rose_link.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index aa81aead0a65..67820219e3b6 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -373,7 +373,7 @@ static int __neigh_ifdown(struct neigh_table *tbl, struct net_device *dev,
- 	write_lock_bh(&tbl->lock);
- 	neigh_flush_dev(tbl, dev, skip_perm);
- 	pneigh_ifdown_and_unlock(tbl, dev);
--	pneigh_queue_purge(&tbl->proxy_queue, dev_net(dev));
-+	pneigh_queue_purge(&tbl->proxy_queue, dev ? dev_net(dev) : NULL);
- 	if (skb_queue_empty_lockless(&tbl->proxy_queue))
- 		del_timer_sync(&tbl->proxy_timer);
- 	return 0;
+diff --git a/net/rose/rose_link.c b/net/rose/rose_link.c
+index cda4c6678ef1..d41618d9c764 100644
+--- a/net/rose/rose_link.c
++++ b/net/rose/rose_link.c
+@@ -239,6 +239,9 @@ void rose_transmit_clear_request(struct rose_neigh *neigh, unsigned int lci, uns
+ 	unsigned char *dptr;
+ 	int len;
+ 
++	if (!neigh->dev)
++		return;
++
+ 	len = AX25_BPQ_HEADER_LEN + AX25_MAX_HEADER_LEN + ROSE_MIN_LEN + 3;
+ 
+ 	if ((skb = alloc_skb(len, GFP_ATOMIC)) == NULL)
 -- 
 2.35.1
 
