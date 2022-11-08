@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8C926212AD
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:41:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A41C6212D9
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:43:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234402AbiKHNlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:41:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40530 "EHLO
+        id S233540AbiKHNnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:43:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234448AbiKHNlc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:41:32 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5FD7554ED
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:41:31 -0800 (PST)
+        with ESMTP id S234306AbiKHNnW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:43:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 799D42B9
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:43:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3C5C2CE1B8B
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:41:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13895C433C1;
-        Tue,  8 Nov 2022 13:41:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 17A9B6158F
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:43:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27D79C433D6;
+        Tue,  8 Nov 2022 13:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667914888;
-        bh=pgEpeLqWWA/iYrLgMSS01/VSurWQ4R6k9M+CT2jmfRY=;
+        s=korg; t=1667915000;
+        bh=VDR8+sCKuVZtANGpgNt4BqNFssE3hHQ+UaTxBdty46U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OOSOC7CaC20982rTAW4uDgEEXOCHHFXms9zN9G/7G7RT0F3r5VGVU6A5RTalWNUnN
-         gZGWwBS//8Gi4mtus5gC0SgEeY+Mcx6IMFNOo0eYnK/M/Y4z0NISxpl+E91tjnznCf
-         rJaII1K8WiJGRlC9NMdayVSyYKPm1YzYpeTKrMd0=
+        b=CbFQ4MuYjAU/IEsq9EdgmTbCnCObTP0ISd1tkaXPziJ1m/8r863+JznVsg9aIjDFQ
+         Dt4/PiaCFkIfOqPRW0I4WvIj7fEdyG3xoo+q22+TRSXrbUAav3dcd9NzMrZtyaIXlV
+         0cnYhxjoItdSUL0+9Zesq1Tc3uCt3BF3K6P9mnJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 18/30] media: dvb-frontends/drxk: initialize err to 0
+Subject: [PATCH 4.14 21/40] media: dvb-frontends/drxk: initialize err to 0
 Date:   Tue,  8 Nov 2022 14:39:06 +0100
-Message-Id: <20221108133327.397258656@linuxfoundation.org>
+Message-Id: <20221108133329.202586802@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
-References: <20221108133326.715586431@linuxfoundation.org>
+In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
+References: <20221108133328.351887714@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -75,10 +76,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/media/dvb-frontends/drxk_hard.c b/drivers/media/dvb-frontends/drxk_hard.c
-index c595adc61c6f..f6cf1b0b992c 100644
+index 48a8aad47a74..98146e74bbdf 100644
 --- a/drivers/media/dvb-frontends/drxk_hard.c
 +++ b/drivers/media/dvb-frontends/drxk_hard.c
-@@ -6697,7 +6697,7 @@ static int drxk_read_snr(struct dvb_frontend *fe, u16 *snr)
+@@ -6700,7 +6700,7 @@ static int drxk_read_snr(struct dvb_frontend *fe, u16 *snr)
  static int drxk_read_ucblocks(struct dvb_frontend *fe, u32 *ucblocks)
  {
  	struct drxk_state *state = fe->demodulator_priv;
