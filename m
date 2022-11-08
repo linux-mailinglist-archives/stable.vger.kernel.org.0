@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 833006214F7
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:07:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A17BB6214FA
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:07:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235076AbiKHOHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:07:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42392 "EHLO
+        id S235096AbiKHOHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:07:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235011AbiKHOHD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:07:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19AA0686B8
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:07:03 -0800 (PST)
+        with ESMTP id S235100AbiKHOHI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:07:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAEA270576
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:07:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA334615AF
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:07:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0332C433D6;
-        Tue,  8 Nov 2022 14:07:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 884B6B81AF2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:07:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7BB1C433D6;
+        Tue,  8 Nov 2022 14:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916422;
-        bh=lZNGElepxxP2RGczUi6cc5QjO7PuSs5B/SdPKZpE9zc=;
+        s=korg; t=1667916425;
+        bh=DYUpVz3QI9Rzb9RiQoFlyXbOZI56kaDR4XIujXwuW4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FwRPqUZMGGk+qcJu2ycvM0QF0yKP3ZIBNG7CojHipzHUSe8qzid1SLinazmch1pJC
-         Or5ci2TGg7g4K8aLDPs4gCEGgxbHgxtVijhwimjCkmHiEw2LmEZ1fnuJ0OlEfQxztx
-         3mbhAf8uQH1OzKMJAutpOdBdkdcRhZi27m9mqIrw=
+        b=i43EVAPykE/ufijc7c0QUNdYSqZnfl/jAtvP1Kle3BPdFAecFFf9dqEDqNt/EU+g4
+         UB5OER3V9awuLzsMFPWiJMB2NO74DQN1yRMSCY6/SPTX3b3YcVv6YMTbM4mxlZuqRd
+         o/yizr0PjUlsLJ4JM1ebnMZCny1yp/NEaMCK13nQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Leon Romanovsky <leon@kernel.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 016/197] net: dsa: Fix possible memory leaks in dsa_loop_init()
-Date:   Tue,  8 Nov 2022 14:37:34 +0100
-Message-Id: <20221108133355.505333892@linuxfoundation.org>
+Subject: [PATCH 6.0 017/197] RDMA/core: Fix null-ptr-deref in ib_core_cleanup()
+Date:   Tue,  8 Nov 2022 14:37:35 +0100
+Message-Id: <20221108133355.552862633@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
 References: <20221108133354.787209461@linuxfoundation.org>
@@ -55,104 +56,85 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 633efc8b3dc96f56f5a57f2a49764853a2fa3f50 ]
+[ Upstream commit 07c0d131cc0fe1f3981a42958fc52d573d303d89 ]
 
-kmemleak reported memory leaks in dsa_loop_init():
+KASAN reported a null-ptr-deref error:
 
-kmemleak: 12 new suspected memory leaks
+  KASAN: null-ptr-deref in range [0x0000000000000118-0x000000000000011f]
+  CPU: 1 PID: 379
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+  RIP: 0010:destroy_workqueue+0x2f/0x740
+  RSP: 0018:ffff888016137df8 EFLAGS: 00000202
+  ...
+  Call Trace:
+   ib_core_cleanup+0xa/0xa1 [ib_core]
+   __do_sys_delete_module.constprop.0+0x34f/0x5b0
+   do_syscall_64+0x3a/0x90
+   entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  RIP: 0033:0x7fa1a0d221b7
+  ...
 
-unreferenced object 0xffff8880138ce000 (size 2048):
-  comm "modprobe", pid 390, jiffies 4295040478 (age 238.976s)
-  backtrace:
-    [<000000006a94f1d5>] kmalloc_trace+0x26/0x60
-    [<00000000a9c44622>] phy_device_create+0x5d/0x970
-    [<00000000d0ee2afc>] get_phy_device+0xf3/0x2b0
-    [<00000000dca0c71f>] __fixed_phy_register.part.0+0x92/0x4e0
-    [<000000008a834798>] fixed_phy_register+0x84/0xb0
-    [<0000000055223fcb>] dsa_loop_init+0xa9/0x116 [dsa_loop]
-    ...
+It is because the fail of roce_gid_mgmt_init() is ignored:
 
-There are two reasons for memleak in dsa_loop_init().
+ ib_core_init()
+   roce_gid_mgmt_init()
+     gid_cache_wq = alloc_ordered_workqueue # fail
+ ...
+ ib_core_cleanup()
+   roce_gid_mgmt_cleanup()
+     destroy_workqueue(gid_cache_wq)
+     # destroy an unallocated wq
 
-First, fixed_phy_register() create and register phy_device:
+Fix this by catching the fail of roce_gid_mgmt_init() in ib_core_init().
 
-fixed_phy_register()
-  get_phy_device()
-    phy_device_create() # freed by phy_device_free()
-  phy_device_register() # freed by phy_device_remove()
-
-But fixed_phy_unregister() only calls phy_device_remove().
-So the memory allocated in phy_device_create() is leaked.
-
-Second, when mdio_driver_register() fail in dsa_loop_init(),
-it just returns and there is no cleanup for phydevs.
-
-Fix the problems by catching the error of mdio_driver_register()
-in dsa_loop_init(), then calling both fixed_phy_unregister() and
-phy_device_free() to release phydevs.
-Also add a function for phydevs cleanup to avoid duplacate.
-
-Fixes: 98cd1552ea27 ("net: dsa: Mock-up driver")
+Fixes: 03db3a2d81e6 ("IB/core: Add RoCE GID table management")
 Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20221025024146.109137-1-chenzhongjin@huawei.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/dsa_loop.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/infiniband/core/device.c | 10 +++++++++-
+ drivers/infiniband/core/nldev.c  |  2 +-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/dsa_loop.c b/drivers/net/dsa/dsa_loop.c
-index 263e41191c29..0d20ebafbd03 100644
---- a/drivers/net/dsa/dsa_loop.c
-+++ b/drivers/net/dsa/dsa_loop.c
-@@ -378,6 +378,17 @@ static struct mdio_driver dsa_loop_drv = {
+diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
+index d275db195f1a..4053a09b8d33 100644
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -2815,10 +2815,18 @@ static int __init ib_core_init(void)
  
- #define NUM_FIXED_PHYS	(DSA_LOOP_NUM_PORTS - 2)
+ 	nldev_init();
+ 	rdma_nl_register(RDMA_NL_LS, ibnl_ls_cb_table);
+-	roce_gid_mgmt_init();
++	ret = roce_gid_mgmt_init();
++	if (ret) {
++		pr_warn("Couldn't init RoCE GID management\n");
++		goto err_parent;
++	}
  
-+static void dsa_loop_phydevs_unregister(void)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < NUM_FIXED_PHYS; i++)
-+		if (!IS_ERR(phydevs[i])) {
-+			fixed_phy_unregister(phydevs[i]);
-+			phy_device_free(phydevs[i]);
-+		}
-+}
-+
- static int __init dsa_loop_init(void)
- {
- 	struct fixed_phy_status status = {
-@@ -385,23 +396,23 @@ static int __init dsa_loop_init(void)
- 		.speed = SPEED_100,
- 		.duplex = DUPLEX_FULL,
- 	};
--	unsigned int i;
-+	unsigned int i, ret;
+ 	return 0;
  
- 	for (i = 0; i < NUM_FIXED_PHYS; i++)
- 		phydevs[i] = fixed_phy_register(PHY_POLL, &status, NULL);
- 
--	return mdio_driver_register(&dsa_loop_drv);
-+	ret = mdio_driver_register(&dsa_loop_drv);
-+	if (ret)
-+		dsa_loop_phydevs_unregister();
-+
-+	return ret;
++err_parent:
++	rdma_nl_unregister(RDMA_NL_LS);
++	nldev_exit();
++	unregister_pernet_device(&rdma_dev_net_ops);
+ err_compat:
+ 	unregister_blocking_lsm_notifier(&ibdev_lsm_nb);
+ err_sa:
+diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
+index b92358f606d0..12dc97067ed2 100644
+--- a/drivers/infiniband/core/nldev.c
++++ b/drivers/infiniband/core/nldev.c
+@@ -2537,7 +2537,7 @@ void __init nldev_init(void)
+ 	rdma_nl_register(RDMA_NL_NLDEV, nldev_cb_table);
  }
- module_init(dsa_loop_init);
  
- static void __exit dsa_loop_exit(void)
+-void __exit nldev_exit(void)
++void nldev_exit(void)
  {
--	unsigned int i;
--
- 	mdio_driver_unregister(&dsa_loop_drv);
--	for (i = 0; i < NUM_FIXED_PHYS; i++)
--		if (!IS_ERR(phydevs[i]))
--			fixed_phy_unregister(phydevs[i]);
-+	dsa_loop_phydevs_unregister();
+ 	rdma_nl_unregister(RDMA_NL_NLDEV);
  }
- module_exit(dsa_loop_exit);
- 
 -- 
 2.35.1
 
