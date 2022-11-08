@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E0906215CB
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:15:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C0CC6214EE
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:06:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235340AbiKHOPY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:15:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54074 "EHLO
+        id S235032AbiKHOGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:06:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235336AbiKHOPY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:15:24 -0500
+        with ESMTP id S235073AbiKHOGk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:06:40 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1807759847
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:15:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C5FE69DCE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:06:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7BF6615C2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:15:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4E6DC433D6;
-        Tue,  8 Nov 2022 14:15:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29AA2615AD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:06:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25E22C433D6;
+        Tue,  8 Nov 2022 14:06:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916922;
-        bh=fVsO/CKFQlYxd9SRTzt4NN7uLePA+BJxKjUyldhDinQ=;
+        s=korg; t=1667916398;
+        bh=UtNwYZVztJQYzYspLWpv/pS30ePdZqYEO9C8nYQbavg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2fu5QwOigkEZ03BDalFePLY+lJBDV8VxRYCLwmoBbPjbGxkV3FgZAVA6n0xldxl0k
-         V0DD0IUBInS1g6UvA1bbXrRPvlCqhvzrY7YeWHw7SAOKMq0Cu54DI2XBufDSlU5nDr
-         Y9vfd1P6tRPja6QDUZLGD7sL6B/8VYAeSlSpvoQU=
+        b=HeRR62KF7kI0ZodFLft2MWzP4EBrha7oK9xAIF3L10mkByRzXyyx+dPQ2CITXW5gE
+         NYIgnNNUWKWZtMflK1ac+9Ars9eCEifDX3xUZT5Flmq5BFT+RzAijP+LsB4bZlOvgG
+         gY/nZp0/hVPgND2uhRysVOsAY3cbX/td3natj4UY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jim Mattson <jmattson@google.com>,
+        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.0 174/197] KVM: x86: Mask off reserved bits in CPUID.8000001FH
-Date:   Tue,  8 Nov 2022 14:40:12 +0100
-Message-Id: <20221108133402.832992575@linuxfoundation.org>
+Subject: [PATCH 5.15 136/144] KVM: x86: emulator: update the emulation mode after CR0 write
+Date:   Tue,  8 Nov 2022 14:40:13 +0100
+Message-Id: <20221108133351.055569501@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit 86c4f0d547f6460d0426ebb3ba0614f1134b8cda upstream.
+commit ad8f9e69942c7db90758d9d774157e53bce94840 upstream.
 
-KVM_GET_SUPPORTED_CPUID should only enumerate features that KVM
-actually supports. CPUID.8000001FH:EBX[31:16] are reserved bits and
-should be masked off.
+Update the emulation mode when handling writes to CR0, because
+toggling CR0.PE switches between Real and Protected Mode, and toggling
+CR0.PG when EFER.LME=1 switches between Long and Protected Mode.
 
-Fixes: 8765d75329a3 ("KVM: X86: Extend CPUID range to include new leaf")
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20220929225203.2234702-6-jmattson@google.com>
+This is likely a benign bug because there is no writeback of state,
+other than the RIP increment, and when toggling CR0.PE, the CPU has
+to execute code from a very low memory address.
+
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20221025124741.228045-14-mlevitsk@redhat.com>
 Cc: stable@vger.kernel.org
-[Clear NumVMPL too. - Paolo]
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kvm/emulate.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -1183,7 +1183,8 @@ static inline int __do_cpuid_func(struct
- 			entry->eax = entry->ebx = entry->ecx = entry->edx = 0;
- 		} else {
- 			cpuid_entry_override(entry, CPUID_8000_001F_EAX);
--
-+			/* Clear NumVMPL since KVM does not support VMPL.  */
-+			entry->ebx &= ~GENMASK(31, 12);
- 			/*
- 			 * Enumerate '0' for "PA bits reduction", the adjusted
- 			 * MAXPHYADDR is enumerated directly (see 0x80000008).
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -3629,11 +3629,25 @@ static int em_movbe(struct x86_emulate_c
+ 
+ static int em_cr_write(struct x86_emulate_ctxt *ctxt)
+ {
+-	if (ctxt->ops->set_cr(ctxt, ctxt->modrm_reg, ctxt->src.val))
++	int cr_num = ctxt->modrm_reg;
++	int r;
++
++	if (ctxt->ops->set_cr(ctxt, cr_num, ctxt->src.val))
+ 		return emulate_gp(ctxt, 0);
+ 
+ 	/* Disable writeback. */
+ 	ctxt->dst.type = OP_NONE;
++
++	if (cr_num == 0) {
++		/*
++		 * CR0 write might have updated CR0.PE and/or CR0.PG
++		 * which can affect the cpu's execution mode.
++		 */
++		r = emulator_recalc_and_set_mode(ctxt);
++		if (r != X86EMUL_CONTINUE)
++			return r;
++	}
++
+ 	return X86EMUL_CONTINUE;
+ }
+ 
 
 
