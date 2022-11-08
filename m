@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F9DF621595
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77B486214A7
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:03:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235254AbiKHONU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:13:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51332 "EHLO
+        id S234988AbiKHODq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:03:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235218AbiKHONT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:13:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F5F76379
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:13:18 -0800 (PST)
+        with ESMTP id S234984AbiKHODo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:03:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3500CDB
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:03:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F5ACB81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:13:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77877C433C1;
-        Tue,  8 Nov 2022 14:13:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D7AF611B7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:03:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38C06C433D6;
+        Tue,  8 Nov 2022 14:03:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916795;
-        bh=ajt/UXJ/B/hljgYDlT3L6o9lj1w9KFonQI5EqpLwva4=;
+        s=korg; t=1667916220;
+        bh=gcpiw8uLsippCEL8GFoLkGIHhmwOy9aA3E1dWmGzZC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIOrxLuA0uKHdsdGVNNU66CkD/UwHLRREm0VUgCvpegRccEzUq3M0Tkhcnq+hSZyV
-         iyXZb1N9KCzEmIirnGe4jHPFEX7pZa02zdEVvwHOV5KwEmiVVvN0k81TKo+C2jQ6hr
-         4OcTthYOdr4U9Wr7clrlfpQ87sQSZjEIVupdA1LM=
+        b=GY56OGVhgpwJpY97Efn0MlkYkI92Vxnh67mqWTUiIOuw8ROofYH9fdou7eKtaFGGF
+         2QvJCsDE/ZGXm8SjjA/5PWVmXgsbaeWk0ZRfcePuElZkRmfLg4e5WFgVl9+Sigxxvd
+         PKJyFq4QRyu8stsHdQUYbeJwuMZJAUllnjq1/x5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dave Jiang <dave.jiang@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 6.0 136/197] cxl/region: Fix cxl_region leak, cleanup targets at region delete
-Date:   Tue,  8 Nov 2022 14:39:34 +0100
-Message-Id: <20221108133401.125839891@linuxfoundation.org>
+        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
+        Jan Kara <jack@suse.cz>, Chaitanya Kulkarni <kch@nvidia.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Khazhy Kumykov <khazhy@chromium.org>
+Subject: [PATCH 5.15 098/144] block, bfq: protect bfqd->queued by bfqd->lock
+Date:   Tue,  8 Nov 2022 14:39:35 +0100
+Message-Id: <20221108133349.430785127@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 0d9e734018d70cecf79e2e4c6082167160a0f13f upstream.
+commit 181490d5321806e537dc5386db5ea640b826bf78 upstream.
 
-When a region is deleted any targets that have been previously assigned
-to that region hold references to it. Trigger those references to
-drop by detaching all targets at unregister_region() time.
+If bfq_schedule_dispatch() is called from bfq_idle_slice_timer_body(),
+then 'bfqd->queued' is read without holding 'bfqd->lock'. This is
+wrong since it can be wrote concurrently.
 
-Otherwise that region object will leak as userspace has lost the ability
-to detach targets once region sysfs is torn down.
+Fix the problem by holding 'bfqd->lock' in such case.
 
-Cc: <stable@vger.kernel.org>
-Fixes: b9686e8c8e39 ("cxl/region: Enable the assignment of endpoint decoders to regions")
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Link: https://lore.kernel.org/r/166752183055.947915.17681995648556534844.stgit@dwillia2-xfh.jf.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Link: https://lore.kernel.org/r/20220513023507.2625717-2-yukuai3@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Khazhy Kumykov <khazhy@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cxl/core/region.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ block/bfq-iosched.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/cxl/core/region.c
-+++ b/drivers/cxl/core/region.c
-@@ -1556,8 +1556,19 @@ static struct cxl_region *to_cxl_region(
- static void unregister_region(void *dev)
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -461,6 +461,8 @@ static struct bfq_io_cq *bfq_bic_lookup(
+  */
+ void bfq_schedule_dispatch(struct bfq_data *bfqd)
  {
- 	struct cxl_region *cxlr = to_cxl_region(dev);
-+	struct cxl_region_params *p = &cxlr->params;
-+	int i;
++	lockdep_assert_held(&bfqd->lock);
++
+ 	if (bfqd->queued != 0) {
+ 		bfq_log(bfqd, "schedule dispatch");
+ 		blk_mq_run_hw_queues(bfqd->queue, true);
+@@ -6745,8 +6747,8 @@ bfq_idle_slice_timer_body(struct bfq_dat
+ 	bfq_bfqq_expire(bfqd, bfqq, true, reason);
  
- 	device_del(dev);
-+
-+	/*
-+	 * Now that region sysfs is shutdown, the parameter block is now
-+	 * read-only, so no need to hold the region rwsem to access the
-+	 * region parameters.
-+	 */
-+	for (i = 0; i < p->interleave_ways; i++)
-+		detach_target(cxlr, i);
-+
- 	cxl_region_iomem_release(cxlr);
- 	put_device(dev);
+ schedule_dispatch:
+-	spin_unlock_irqrestore(&bfqd->lock, flags);
+ 	bfq_schedule_dispatch(bfqd);
++	spin_unlock_irqrestore(&bfqd->lock, flags);
  }
+ 
+ /*
 
 
