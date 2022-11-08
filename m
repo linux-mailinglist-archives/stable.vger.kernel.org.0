@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAFFA621487
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26AD262157A
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234952AbiKHOCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:02:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36536 "EHLO
+        id S235331AbiKHOMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:12:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234999AbiKHOCE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:02:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6A6362399
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:02:03 -0800 (PST)
+        with ESMTP id S235113AbiKHOM0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8C6477214
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:11:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D40F61595
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:02:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42DD4C433C1;
-        Tue,  8 Nov 2022 14:02:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75C856157D
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:11:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FD7CC433D6;
+        Tue,  8 Nov 2022 14:11:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916122;
-        bh=Vmo3ZHg1pN7KwuHV1CJhSuXf8BQVVmcDqJbW4/gHbJg=;
+        s=korg; t=1667916712;
+        bh=ym2Khj71xrzmcmSBJNzLdZlzTcxcV2YaVd9XtzyjjWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qsc6FvXcJ9ct+JWAsJHwml/i3Dea/a7/Qcwr59IH+O79dNd4wAjfAsPrSPG7vkGXi
-         Tw9cswTaHhvqqCJXH7U+GA17Ocglf49XIwn33iykqi+LwXbaGjOjwWs4XnPhNUaWxw
-         Z/4sya3VACzKFAOAvKJIL1Ug33dGUEUraMHqgC+w=
+        b=vc0mHsCK1h2a5/KBt8OD3DDuG7Faik7CQlbFcmmINoKSZzaP6X5J6J4MtsCSTHAQx
+         dW1gO6He+JL69EOOwwiuGD4erJd2F0c08wVmShabf0jZyyp/D7DBTy6P6lReR+gTz4
+         holDUDCtlJewn9q0GX6xh+VJr+hUFyVsA+bGyiSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Dafna Hirschfeld <dafna@fastmail.com>,
-        Paul Elder <paul.elder@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Aurelien Jarno <aurelien@aurel32.net>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 069/144] media: rkisp1: Dont pass the quantization to rkisp1_csm_config()
-Date:   Tue,  8 Nov 2022 14:39:06 +0100
-Message-Id: <20221108133348.189690530@linuxfoundation.org>
+Subject: [PATCH 6.0 109/197] drm/rockchip: dw_hdmi: filter regulator -EPROBE_DEFER error messages
+Date:   Tue,  8 Nov 2022 14:39:07 +0100
+Message-Id: <20221108133359.807764039@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Aurelien Jarno <aurelien@aurel32.net>
 
-[ Upstream commit 711d91497e203b058cf0a08c0f7d41c04efbde76 ]
+[ Upstream commit bfab00b94bd8569cdb84a6511d6615e6a8104e9c ]
 
-The rkisp1_csm_config() function takes a pointer to the rkisp1_params
-structure which contains the quantization value. There's no need to pass
-it separately to the function. Drop it from the function parameters.
+When the avdd-0v9 or avdd-1v8 supply are not yet available, EPROBE_DEFER
+is returned by rockchip_hdmi_parse_dt(). This causes the following error
+message to be printed multiple times:
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Dafna Hirschfeld <dafna@fastmail.com>
-Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+    dwhdmi-rockchip fe0a0000.hdmi: [drm:dw_hdmi_rockchip_bind [rockchipdrm]] *ERROR* Unable to parse OF data
+
+Fix that by not printing the message when rockchip_hdmi_parse_dt()
+returns -EPROBE_DEFER.
+
+Fixes: ca80c4eb4b01 ("drm/rockchip: dw_hdmi: add regulator support")
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220926203752.5430-1-aurelien@aurel32.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rockchip/rkisp1/rkisp1-params.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
-index 8fa5b0abf1f9..8461e88c1288 100644
---- a/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
-+++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
-@@ -751,7 +751,7 @@ static void rkisp1_ie_enable(struct rkisp1_params *params, bool en)
+diff --git a/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c b/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
+index c14f88893868..2f4b8f64cbad 100644
+--- a/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
++++ b/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
+@@ -565,7 +565,8 @@ static int dw_hdmi_rockchip_bind(struct device *dev, struct device *master,
+ 
+ 	ret = rockchip_hdmi_parse_dt(hdmi);
+ 	if (ret) {
+-		DRM_DEV_ERROR(hdmi->dev, "Unable to parse OF data\n");
++		if (ret != -EPROBE_DEFER)
++			DRM_DEV_ERROR(hdmi->dev, "Unable to parse OF data\n");
+ 		return ret;
  	}
- }
- 
--static void rkisp1_csm_config(struct rkisp1_params *params, bool full_range)
-+static void rkisp1_csm_config(struct rkisp1_params *params)
- {
- 	static const u16 full_range_coeff[] = {
- 		0x0026, 0x004b, 0x000f,
-@@ -765,7 +765,7 @@ static void rkisp1_csm_config(struct rkisp1_params *params, bool full_range)
- 	};
- 	unsigned int i;
- 
--	if (full_range) {
-+	if (params->quantization == V4L2_QUANTIZATION_FULL_RANGE) {
- 		for (i = 0; i < ARRAY_SIZE(full_range_coeff); i++)
- 			rkisp1_write(params->rkisp1, full_range_coeff[i],
- 				     RKISP1_CIF_ISP_CC_COEFF_0 + i * 4);
-@@ -1235,11 +1235,7 @@ static void rkisp1_params_config_parameter(struct rkisp1_params *params)
- 	rkisp1_param_set_bits(params, RKISP1_CIF_ISP_HIST_PROP,
- 			      rkisp1_hst_params_default_config.mode);
- 
--	/* set the  range */
--	if (params->quantization == V4L2_QUANTIZATION_FULL_RANGE)
--		rkisp1_csm_config(params, true);
--	else
--		rkisp1_csm_config(params, false);
-+	rkisp1_csm_config(params);
- 
- 	spin_lock_irq(&params->config_lock);
  
 -- 
 2.35.1
