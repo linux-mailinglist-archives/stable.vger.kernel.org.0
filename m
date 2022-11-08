@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4F036214E0
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:06:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0FB9621424
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:57:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235052AbiKHOGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:06:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40280 "EHLO
+        id S234861AbiKHN5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:57:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234930AbiKHOF6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:05:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8533A70548
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:05:57 -0800 (PST)
+        with ESMTP id S234876AbiKHN5j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:57:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2146C66CAC
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:57:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21C9F6152D
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:05:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D91BC433D6;
-        Tue,  8 Nov 2022 14:05:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D007AB81AFB
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:57:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29068C433D7;
+        Tue,  8 Nov 2022 13:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916356;
-        bh=rv4OH1ZlDyLYsx392EQr/NEouE8InVf9CyhZ7tlJGnE=;
+        s=korg; t=1667915856;
+        bh=3+0aGExMT/7PGratyAJjQ+fHG9z81IWGE6yiqzGrGyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yqQ1XIxlDXQUnhv9dXZMGFDbbgW4JPaNYbNFA5L4GJuo7CQKdA39eNwNnqO88j1W8
-         JkhEVcCPqIpqinmahpLE/ZSw5oZKwBnpG8Wkdzb+gFnMxSge4zL54IONML0/F7udQV
-         QZ5b++ZFCeVpnIN6tLapOrNLhR9VbT9P3vyu9sfo=
+        b=zYnqnbiD+wub9jlWVTc9BCUNQpWQHyvWqtCz6YLLemN7WGq4/M4bVzQlgmQBgL9Sp
+         pea8LB8EDdPFpsQp+wpQmfzakN5My+4QUtRO0hQyLHQYv8Jr4UuXphF7b9UR2cio2N
+         iDDSNeX2GVCEy23kycgFOCXfOrGdmLKd2PFowk+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Willy Tarreau <w@1wt.eu>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.15 110/144] tools/nolibc/string: Fix memcmp() implementation
-Date:   Tue,  8 Nov 2022 14:39:47 +0100
-Message-Id: <20221108133349.963572091@linuxfoundation.org>
+        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 110/118] KVM: x86: emulator: em_sysexit should update ctxt->mode
+Date:   Tue,  8 Nov 2022 14:39:48 +0100
+Message-Id: <20221108133345.480021984@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit b3f4f51ea68a495f8a5956064c33dce711a2df91 upstream.
+commit 5015bb89b58225f97df6ac44383e7e8c8662c8c9 upstream.
 
-The C standard says that memcmp() must treat the buffers as consisting
-of "unsigned chars". If char happens to be unsigned, the casts are ok,
-but then obviously the c1 variable can never contain a negative
-value. And when char is signed, the casts are wrong, and there's still
-a problem with using an 8-bit quantity to hold the difference, because
-that can range from -255 to +255.
+SYSEXIT is one of the instructions that can change the
+processor mode, thus ctxt->mode should be updated after it.
 
-For example, assuming char is signed, comparing two 1-byte buffers,
-one containing 0x00 and another 0x80, the current implementation would
-return -128 for both memcmp(a, b, 1) and memcmp(b, a, 1), whereas one
-of those should of course return something positive.
+Note that this is likely a benign bug, because the only problematic
+mode change is from 32 bit to 64 bit which can lead to truncation of RIP,
+and it is not possible to do with sysexit,
+since sysexit running in 32 bit mode will be limited to 32 bit version.
 
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Fixes: 66b6f755ad45 ("rcutorture: Import a copy of nolibc")
-Cc: stable@vger.kernel.org # v5.0+
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20221025124741.228045-11-mlevitsk@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/include/nolibc/nolibc.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/emulate.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/include/nolibc/nolibc.h
-+++ b/tools/include/nolibc/nolibc.h
-@@ -2408,9 +2408,9 @@ static __attribute__((unused))
- int memcmp(const void *s1, const void *s2, size_t n)
- {
- 	size_t ofs = 0;
--	char c1 = 0;
-+	int c1 = 0;
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -2957,6 +2957,7 @@ static int em_sysexit(struct x86_emulate
+ 	ops->set_segment(ctxt, ss_sel, &ss, 0, VCPU_SREG_SS);
  
--	while (ofs < n && !(c1 = ((char *)s1)[ofs] - ((char *)s2)[ofs])) {
-+	while (ofs < n && !(c1 = ((unsigned char *)s1)[ofs] - ((unsigned char *)s2)[ofs])) {
- 		ofs++;
- 	}
- 	return c1;
+ 	ctxt->_eip = rdx;
++	ctxt->mode = usermode;
+ 	*reg_write(ctxt, VCPU_REGS_RSP) = rcx;
+ 
+ 	return X86EMUL_CONTINUE;
 
 
