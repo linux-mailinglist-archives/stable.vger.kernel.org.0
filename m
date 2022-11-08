@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DC2B621507
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:07:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0CCE62150A
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:07:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235118AbiKHOHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:07:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42828 "EHLO
+        id S235127AbiKHOHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:07:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235128AbiKHOHb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:07:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C43E670569
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:07:30 -0800 (PST)
+        with ESMTP id S235148AbiKHOHg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:07:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81624748E0
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:07:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6353F615C0
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:07:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 539DAC433C1;
-        Tue,  8 Nov 2022 14:07:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C555B81ADD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:07:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CE2DC433C1;
+        Tue,  8 Nov 2022 14:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916449;
-        bh=s4REJAzSAerx/CUhMEfmDB6XbONZmjzHVPD+ZdV3EOo=;
+        s=korg; t=1667916452;
+        bh=GvXpgxDew+D/k5jp9EzhuY03knigH7cIfj5kSoEi7EQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuYPM7mrouyUaKXZwFKeOk+ni9RZQVB/E3xoTQX3NK9COEZvIaHod/lt4O1u8ghGU
-         lOWCzuHHKAFP2rgbFKvCpiUOz0ujm30AMT7QzrdeTYR6GLSurg6C50GflQEihR4xAC
-         ve7ipwH41DIAuV4eBL86/VF9nLH5gqbrFK20+fpk=
+        b=TdAoxKg2/0EIHLPuX50L4qsvp47spzIfVnsfxEthEq7nSGMEC0u14bDP0pI6UJmEA
+         lQJFGg5dk+yTPnQxTY2otOh6QXf3nAIx35+rZBKZ5KWPKpuEXpsMUnJA7NQKcswIVX
+         MKfrTSQ161RTBlYPf16z60CzU6rIju5bkOpE38tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dean Luick <dean.luick@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        patches@lists.linux.dev, Yangyang Li <liyangyang20@huawei.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Haoyue Xu <xuhaoyue1@hisilicon.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 005/197] IB/hfi1: Correctly move list in sc_disable()
-Date:   Tue,  8 Nov 2022 14:37:23 +0100
-Message-Id: <20221108133355.027518109@linuxfoundation.org>
+Subject: [PATCH 6.0 006/197] RDMA/hns: Disable local invalidate operation
+Date:   Tue,  8 Nov 2022 14:37:24 +0100
+Message-Id: <20221108133355.067638727@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
 References: <20221108133354.787209461@linuxfoundation.org>
@@ -55,57 +55,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dean Luick <dean.luick@cornelisnetworks.com>
+From: Yangyang Li <liyangyang20@huawei.com>
 
-[ Upstream commit 1afac08b39d85437187bb2a92d89a741b1078f55 ]
+[ Upstream commit 9e272ed69ad6f6952fafd0599d6993575512408e ]
 
-Commit 13bac861952a ("IB/hfi1: Fix abba locking issue with sc_disable()")
-incorrectly tries to move a list from one list head to another.  The
-result is a kernel crash.
+When function reset and local invalidate are mixed, HNS RoCEE may hang.
+Before introducing the cause of the problem, two hardware internal
+concepts need to be introduced:
 
-The crash is triggered when a link goes down and there are waiters for a
-send to complete.  The following signature is seen:
+    1. Execution queue: The queue of hardware execution instructions,
+    function reset and local invalidate are queued for execution in this
+    queue.
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000030
-  [...]
-  Call Trace:
-   sc_disable+0x1ba/0x240 [hfi1]
-   pio_freeze+0x3d/0x60 [hfi1]
-   handle_freeze+0x27/0x1b0 [hfi1]
-   process_one_work+0x1b0/0x380
-   ? process_one_work+0x380/0x380
-   worker_thread+0x30/0x360
-   ? process_one_work+0x380/0x380
-   kthread+0xd7/0x100
-   ? kthread_complete_and_exit+0x20/0x20
-   ret_from_fork+0x1f/0x30
+    2.Local queue: A queue that stores local operation instructions. The
+    instructions in the local queue will be sent to the execution queue
+    for execution. The instructions in the local queue will not be removed
+    until the execution is completed.
 
-The fix is to use the correct call to move the list.
+The reason for the problem is as follows:
 
-Fixes: 13bac861952a ("IB/hfi1: Fix abba locking issue with sc_disable()")
-Signed-off-by: Dean Luick <dean.luick@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Link: https://lore.kernel.org/r/166610327042.674422.6146908799669288976.stgit@awfm-02.cornelisnetworks.com
+    1. There is a function reset instruction in the execution queue, which
+    is currently being executed. A necessary condition for the successful
+    execution of function reset is: the hardware pipeline needs to empty
+    the instructions that were not completed before;
+
+    2. A local invalidate instruction at the head of the local queue is
+    sent to the execution queue. Now there are two instructions in the
+    execution queue, the first is the function reset instruction, and the
+    second is the local invalidate instruction, which will be executed in
+    se quence;
+
+    3. The user has issued many local invalidate operations, causing the
+    local queue to be filled up.
+
+    4. The user still has a new local operation command and is queuing to
+    enter the local queue. But the local queue is full and cannot receive
+    new instructions, this instruction is temporarily stored at the
+    hardware pipeline.
+
+    5. The function reset has been waiting for the instruction before the
+    hardware pipeline stage is drained. The hardware pipeline stage also
+    caches a local invalidate instruction, so the function reset cannot be
+    completed, and the instructions after it cannot be executed.
+
+These factors together cause the execution logic deadlock of the hardware,
+and the consequence is that RoCEE will not have any response.  Considering
+that the local operation command may potentially cause RoCEE to hang, this
+feature is no longer supported.
+
+Fixes: e93df0108579 ("RDMA/hns: Support local invalidate for hip08 in kernel space")
+Signed-off-by: Yangyang Li <liyangyang20@huawei.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
+Link: https://lore.kernel.org/r/20221024083814.1089722-2-xuhaoyue1@hisilicon.com
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/pio.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 11 -----------
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.h |  2 --
+ 2 files changed, 13 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/pio.c b/drivers/infiniband/hw/hfi1/pio.c
-index 3d42bd2b36bd..51ae58c02b15 100644
---- a/drivers/infiniband/hw/hfi1/pio.c
-+++ b/drivers/infiniband/hw/hfi1/pio.c
-@@ -913,8 +913,7 @@ void sc_disable(struct send_context *sc)
- 	spin_unlock(&sc->release_lock);
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index c780646bd60a..8507d788cc94 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -118,7 +118,6 @@ static const u32 hns_roce_op_code[] = {
+ 	HR_OPC_MAP(ATOMIC_CMP_AND_SWP,		ATOM_CMP_AND_SWAP),
+ 	HR_OPC_MAP(ATOMIC_FETCH_AND_ADD,	ATOM_FETCH_AND_ADD),
+ 	HR_OPC_MAP(SEND_WITH_INV,		SEND_WITH_INV),
+-	HR_OPC_MAP(LOCAL_INV,			LOCAL_INV),
+ 	HR_OPC_MAP(MASKED_ATOMIC_CMP_AND_SWP,	ATOM_MSK_CMP_AND_SWAP),
+ 	HR_OPC_MAP(MASKED_ATOMIC_FETCH_AND_ADD,	ATOM_MSK_FETCH_AND_ADD),
+ 	HR_OPC_MAP(REG_MR,			FAST_REG_PMR),
+@@ -560,9 +559,6 @@ static int set_rc_opcode(struct hns_roce_dev *hr_dev,
+ 		else
+ 			ret = -EOPNOTSUPP;
+ 		break;
+-	case IB_WR_LOCAL_INV:
+-		hr_reg_enable(rc_sq_wqe, RC_SEND_WQE_SO);
+-		fallthrough;
+ 	case IB_WR_SEND_WITH_INV:
+ 		rc_sq_wqe->inv_key = cpu_to_le32(wr->ex.invalidate_rkey);
+ 		break;
+@@ -3226,7 +3222,6 @@ static int hns_roce_v2_write_mtpt(struct hns_roce_dev *hr_dev,
  
- 	write_seqlock(&sc->waitlock);
--	if (!list_empty(&sc->piowait))
--		list_move(&sc->piowait, &wake_list);
-+	list_splice_init(&sc->piowait, &wake_list);
- 	write_sequnlock(&sc->waitlock);
- 	while (!list_empty(&wake_list)) {
- 		struct iowait *wait;
+ 	hr_reg_write(mpt_entry, MPT_ST, V2_MPT_ST_VALID);
+ 	hr_reg_write(mpt_entry, MPT_PD, mr->pd);
+-	hr_reg_enable(mpt_entry, MPT_L_INV_EN);
+ 
+ 	hr_reg_write_bool(mpt_entry, MPT_BIND_EN,
+ 			  mr->access & IB_ACCESS_MW_BIND);
+@@ -3317,7 +3312,6 @@ static int hns_roce_v2_frmr_write_mtpt(struct hns_roce_dev *hr_dev,
+ 
+ 	hr_reg_enable(mpt_entry, MPT_RA_EN);
+ 	hr_reg_enable(mpt_entry, MPT_R_INV_EN);
+-	hr_reg_enable(mpt_entry, MPT_L_INV_EN);
+ 
+ 	hr_reg_enable(mpt_entry, MPT_FRE);
+ 	hr_reg_clear(mpt_entry, MPT_MR_MW);
+@@ -3349,7 +3343,6 @@ static int hns_roce_v2_mw_write_mtpt(void *mb_buf, struct hns_roce_mw *mw)
+ 	hr_reg_write(mpt_entry, MPT_PD, mw->pdn);
+ 
+ 	hr_reg_enable(mpt_entry, MPT_R_INV_EN);
+-	hr_reg_enable(mpt_entry, MPT_L_INV_EN);
+ 	hr_reg_enable(mpt_entry, MPT_LW_EN);
+ 
+ 	hr_reg_enable(mpt_entry, MPT_MR_MW);
+@@ -3798,7 +3791,6 @@ static const u32 wc_send_op_map[] = {
+ 	HR_WC_OP_MAP(RDMA_READ,			RDMA_READ),
+ 	HR_WC_OP_MAP(RDMA_WRITE,		RDMA_WRITE),
+ 	HR_WC_OP_MAP(RDMA_WRITE_WITH_IMM,	RDMA_WRITE),
+-	HR_WC_OP_MAP(LOCAL_INV,			LOCAL_INV),
+ 	HR_WC_OP_MAP(ATOM_CMP_AND_SWAP,		COMP_SWAP),
+ 	HR_WC_OP_MAP(ATOM_FETCH_AND_ADD,	FETCH_ADD),
+ 	HR_WC_OP_MAP(ATOM_MSK_CMP_AND_SWAP,	MASKED_COMP_SWAP),
+@@ -3848,9 +3840,6 @@ static void fill_send_wc(struct ib_wc *wc, struct hns_roce_v2_cqe *cqe)
+ 	case HNS_ROCE_V2_WQE_OP_RDMA_WRITE_WITH_IMM:
+ 		wc->wc_flags |= IB_WC_WITH_IMM;
+ 		break;
+-	case HNS_ROCE_V2_WQE_OP_LOCAL_INV:
+-		wc->wc_flags |= IB_WC_WITH_INVALIDATE;
+-		break;
+ 	case HNS_ROCE_V2_WQE_OP_ATOM_CMP_AND_SWAP:
+ 	case HNS_ROCE_V2_WQE_OP_ATOM_FETCH_AND_ADD:
+ 	case HNS_ROCE_V2_WQE_OP_ATOM_MSK_CMP_AND_SWAP:
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
+index 64797109bab6..4544a8775ce5 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
+@@ -182,7 +182,6 @@ enum {
+ 	HNS_ROCE_V2_WQE_OP_ATOM_MSK_CMP_AND_SWAP	= 0x8,
+ 	HNS_ROCE_V2_WQE_OP_ATOM_MSK_FETCH_AND_ADD	= 0x9,
+ 	HNS_ROCE_V2_WQE_OP_FAST_REG_PMR			= 0xa,
+-	HNS_ROCE_V2_WQE_OP_LOCAL_INV			= 0xb,
+ 	HNS_ROCE_V2_WQE_OP_BIND_MW			= 0xc,
+ 	HNS_ROCE_V2_WQE_OP_MASK				= 0x1f,
+ };
+@@ -916,7 +915,6 @@ struct hns_roce_v2_rc_send_wqe {
+ #define RC_SEND_WQE_OWNER RC_SEND_WQE_FIELD_LOC(7, 7)
+ #define RC_SEND_WQE_CQE RC_SEND_WQE_FIELD_LOC(8, 8)
+ #define RC_SEND_WQE_FENCE RC_SEND_WQE_FIELD_LOC(9, 9)
+-#define RC_SEND_WQE_SO RC_SEND_WQE_FIELD_LOC(10, 10)
+ #define RC_SEND_WQE_SE RC_SEND_WQE_FIELD_LOC(11, 11)
+ #define RC_SEND_WQE_INLINE RC_SEND_WQE_FIELD_LOC(12, 12)
+ #define RC_SEND_WQE_WQE_INDEX RC_SEND_WQE_FIELD_LOC(30, 15)
 -- 
 2.35.1
 
