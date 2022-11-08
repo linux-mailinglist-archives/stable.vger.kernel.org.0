@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C0CC6214EE
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:06:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76E1A6215CC
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235032AbiKHOGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:06:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41954 "EHLO
+        id S235341AbiKHOPa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:15:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235073AbiKHOGk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:06:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C5FE69DCE
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:06:39 -0800 (PST)
+        with ESMTP id S235336AbiKHOPa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:15:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB66960EA6
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:15:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29AA2615AD
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:06:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25E22C433D6;
-        Tue,  8 Nov 2022 14:06:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 983EDB81B04
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:15:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70544C433C1;
+        Tue,  8 Nov 2022 14:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916398;
-        bh=UtNwYZVztJQYzYspLWpv/pS30ePdZqYEO9C8nYQbavg=;
+        s=korg; t=1667916925;
+        bh=HyHJpsLbe9/L+0dvqI3uUP1RJWEykS0auhl6jYEBSw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HeRR62KF7kI0ZodFLft2MWzP4EBrha7oK9xAIF3L10mkByRzXyyx+dPQ2CITXW5gE
-         NYIgnNNUWKWZtMflK1ac+9Ars9eCEifDX3xUZT5Flmq5BFT+RzAijP+LsB4bZlOvgG
-         gY/nZp0/hVPgND2uhRysVOsAY3cbX/td3natj4UY=
+        b=hsYf+ih2AevpuNlWzanEe0frU64VBYd3BDCiO/IYEB6R4BkLU7mY/gTsdD6/EOKJh
+         wgxayBuKMj+NasaKCWE5BeJOQWNMWDR4tpkUJe9Dq8wxcGrpB1CNurEbm+DYhihXv4
+         749dvlHKOSU/CowCkrpKeL+KReQ1kbqgOQRhgggg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
+        patches@lists.linux.dev, Like Xu <like.xu.linux@gmail.com>,
+        Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 136/144] KVM: x86: emulator: update the emulation mode after CR0 write
+Subject: [PATCH 6.0 175/197] KVM: VMX: Advertise PMU LBRs if and only if perf supports LBRs
 Date:   Tue,  8 Nov 2022 14:40:13 +0100
-Message-Id: <20221108133351.055569501@linuxfoundation.org>
+Message-Id: <20221108133402.880211286@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,55 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit ad8f9e69942c7db90758d9d774157e53bce94840 upstream.
+commit 145dfad998eac74abc59219d936e905766ba2d98 upstream.
 
-Update the emulation mode when handling writes to CR0, because
-toggling CR0.PE switches between Real and Protected Mode, and toggling
-CR0.PG when EFER.LME=1 switches between Long and Protected Mode.
+Advertise LBR support to userspace via MSR_IA32_PERF_CAPABILITIES if and
+only if perf fully supports LBRs.  Perf may disable LBRs (by zeroing the
+number of LBRs) even on platforms the allegedly support LBRs, e.g. if
+probing any LBR MSRs during setup fails.
 
-This is likely a benign bug because there is no writeback of state,
-other than the RIP increment, and when toggling CR0.PE, the CPU has
-to execute code from a very low memory address.
-
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20221025124741.228045-14-mlevitsk@redhat.com>
+Fixes: be635e34c284 ("KVM: vmx/pmu: Expose LBR_FMT in the MSR_IA32_PERF_CAPABILITIES")
+Reported-by: Like Xu <like.xu.linux@gmail.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20221006000314.73240-3-seanjc@google.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ arch/x86/kvm/vmx/capabilities.h |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -3629,11 +3629,25 @@ static int em_movbe(struct x86_emulate_c
- 
- static int em_cr_write(struct x86_emulate_ctxt *ctxt)
+--- a/arch/x86/kvm/vmx/capabilities.h
++++ b/arch/x86/kvm/vmx/capabilities.h
+@@ -404,6 +404,7 @@ static inline bool vmx_pebs_supported(vo
+ static inline u64 vmx_get_perf_capabilities(void)
  {
--	if (ctxt->ops->set_cr(ctxt, ctxt->modrm_reg, ctxt->src.val))
-+	int cr_num = ctxt->modrm_reg;
-+	int r;
-+
-+	if (ctxt->ops->set_cr(ctxt, cr_num, ctxt->src.val))
- 		return emulate_gp(ctxt, 0);
+ 	u64 perf_cap = PMU_CAP_FW_WRITES;
++	struct x86_pmu_lbr lbr;
+ 	u64 host_perf_cap = 0;
  
- 	/* Disable writeback. */
- 	ctxt->dst.type = OP_NONE;
-+
-+	if (cr_num == 0) {
-+		/*
-+		 * CR0 write might have updated CR0.PE and/or CR0.PG
-+		 * which can affect the cpu's execution mode.
-+		 */
-+		r = emulator_recalc_and_set_mode(ctxt);
-+		if (r != X86EMUL_CONTINUE)
-+			return r;
-+	}
-+
- 	return X86EMUL_CONTINUE;
- }
+ 	if (!enable_pmu)
+@@ -412,7 +413,8 @@ static inline u64 vmx_get_perf_capabilit
+ 	if (boot_cpu_has(X86_FEATURE_PDCM))
+ 		rdmsrl(MSR_IA32_PERF_CAPABILITIES, host_perf_cap);
  
+-	perf_cap |= host_perf_cap & PMU_CAP_LBR_FMT;
++	if (x86_perf_get_lbr(&lbr) >= 0 && lbr.nr)
++		perf_cap |= host_perf_cap & PMU_CAP_LBR_FMT;
+ 
+ 	if (vmx_pebs_supported()) {
+ 		perf_cap |= host_perf_cap & PERF_CAP_PEBS_MASK;
 
 
