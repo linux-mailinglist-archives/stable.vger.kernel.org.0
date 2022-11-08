@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D779B62137A
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:50:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 318F86213EE
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:55:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234594AbiKHNuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:50:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50538 "EHLO
+        id S234735AbiKHNzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:55:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234660AbiKHNui (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:50:38 -0500
+        with ESMTP id S234772AbiKHNzb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:55:31 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20B560EB3
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:50:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 749792BF6;
+        Tue,  8 Nov 2022 05:55:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A720EB81AE2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:50:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3156C433C1;
-        Tue,  8 Nov 2022 13:50:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3121EB81AF7;
+        Tue,  8 Nov 2022 13:55:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44420C433C1;
+        Tue,  8 Nov 2022 13:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915435;
-        bh=EjfbihtfSYXK0eNceLs/y+iJcHR7WCJj9Lw3YHsgI3o=;
+        s=korg; t=1667915727;
+        bh=mfi0wsHe8iBtwirFDQ2mdHyHj3RoxXdX1ibAjTGwr+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vXgodLvOAf35/I89R3Kj/A1JRKcaJEwrixkvYXlGadZY07NlNBcUkiwaA4hySuZq8
-         /dNz4k/D5SALGJcpZ7ZIkSmpXIGPeyS9l6gT38IIkFGiV3PqqSB7hmRLinYIHaQZ4k
-         ZNC96k7ItL8WordNI6wRcvZpNoaoXUWjcpO5hE7k=
+        b=bQhOGu+SEXlNG2vy41zfufCAu/EWS4ehS7+NcEMMU855G87Lyh+xfXx5Z87/BTHqG
+         9MwN158IOMzbgN4RIMaP9KOAflPDox55KBgu40gszjTYAdTqqni5HS9INexpC5552S
+         cbvDZBOLY5aLMdaT5xmkI8zqO0Xspz21sK4+/tRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Khazhy Kumykov <khazhy@chromium.org>
-Subject: [PATCH 5.4 44/74] block, bfq: protect bfqd->queued by bfqd->lock
+        patches@lists.linux.dev, Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        devicetree@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 074/118] arm64: dts: juno: Add thermal critical trip points
 Date:   Tue,  8 Nov 2022 14:39:12 +0100
-Message-Id: <20221108133335.526896190@linuxfoundation.org>
+Message-Id: <20221108133343.957974083@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-commit 181490d5321806e537dc5386db5ea640b826bf78 upstream.
+[ Upstream commit c4a7b9b587ca1bb4678d48d8be7132492b23a81c ]
 
-If bfq_schedule_dispatch() is called from bfq_idle_slice_timer_body(),
-then 'bfqd->queued' is read without holding 'bfqd->lock'. This is
-wrong since it can be wrote concurrently.
+When thermnal zones are defined, trip points definitions are mandatory.
+Define a couple of critical trip points for monitoring of existing
+PMIC and SOC thermal zones.
 
-Fix the problem by holding 'bfqd->lock' in such case.
+This was lost between txt to yaml conversion and was re-enforced recently
+via the commit 8c596324232d ("dt-bindings: thermal: Fix missing required property")
 
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20220513023507.2625717-2-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Khazhy Kumykov <khazhy@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Fixes: f7b636a8d83c ("arm64: dts: juno: add thermal zones for scpi sensors")
+Link: https://lore.kernel.org/r/20221028140833.280091-8-cristian.marussi@arm.com
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/arm/juno-base.dtsi | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -420,6 +420,8 @@ static struct bfq_io_cq *bfq_bic_lookup(
-  */
- void bfq_schedule_dispatch(struct bfq_data *bfqd)
- {
-+	lockdep_assert_held(&bfqd->lock);
-+
- 	if (bfqd->queued != 0) {
- 		bfq_log(bfqd, "schedule dispatch");
- 		blk_mq_run_hw_queues(bfqd->queue, true);
-@@ -6257,8 +6259,8 @@ bfq_idle_slice_timer_body(struct bfq_dat
- 	bfq_bfqq_expire(bfqd, bfqq, true, reason);
+diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
+index 2c0161125ece..cb45a2f0537a 100644
+--- a/arch/arm64/boot/dts/arm/juno-base.dtsi
++++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
+@@ -595,12 +595,26 @@ pmic {
+ 			polling-delay = <1000>;
+ 			polling-delay-passive = <100>;
+ 			thermal-sensors = <&scpi_sensors0 0>;
++			trips {
++				pmic_crit0: trip0 {
++					temperature = <90000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
+ 		};
  
- schedule_dispatch:
--	spin_unlock_irqrestore(&bfqd->lock, flags);
- 	bfq_schedule_dispatch(bfqd);
-+	spin_unlock_irqrestore(&bfqd->lock, flags);
- }
+ 		soc {
+ 			polling-delay = <1000>;
+ 			polling-delay-passive = <100>;
+ 			thermal-sensors = <&scpi_sensors0 3>;
++			trips {
++				soc_crit0: trip0 {
++					temperature = <80000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
+ 		};
  
- /*
+ 		big_cluster_thermal_zone: big-cluster {
+-- 
+2.35.1
+
 
 
