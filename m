@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1067462146B
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:01:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB4B36213F9
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:55:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234920AbiKHOBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:01:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35402 "EHLO
+        id S234798AbiKHNz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:55:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234936AbiKHOBH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:01:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E906168685
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:01:04 -0800 (PST)
+        with ESMTP id S234793AbiKHNzz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:55:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BCFCF4F
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:55:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D303B816DD
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F4D4C433D7;
-        Tue,  8 Nov 2022 14:01:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCBFAB81AE4
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:55:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D108C433D7;
+        Tue,  8 Nov 2022 13:55:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916062;
-        bh=PfeGDu9NINqvHece0/HXYZXzZYfTBR2wp/V7/wX6cNU=;
+        s=korg; t=1667915752;
+        bh=A9pFFBpqFO8/DP0AYj6SNFwLgssM1yD0yUVJDKzSacU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xAjj2oAYQUxXuEWyzoYBPoOpWvO4DPzaiFQJSi6tI3IAgMJHG0kD6S+8qdPUtcaeO
-         f7qQlyRurnlqxfKYYIX3FbbYrUyTmJFDomKmiA9Hp84gI5ruzAqADfyC5MdQa7ZYzO
-         ucBVDW3xL6zLm3qe+z+HRg1ny4VZ3+Diucfdn0TI=
+        b=sIkCpIsBqYaumhdpt9wGoFv2yPw/4RfPF5dQEqoriLamZRgHEhUSWbEM3w4qiahkz
+         Ur3YY9R2O3H6yLe6NY3jSiVJpm2iEBLh9sKX0fRENCyTGOucIHQU4Rl1wGUSfLNYwE
+         1wefc1tRHBPepDFsY8V2K6uP/gEy8ksWBYCu6bNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Patrick Thompson <ptf@google.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 052/144] net: mdio: fix undefined behavior in bit shift for __mdiobus_register
+Subject: [PATCH 5.10 051/118] mmc: sdhci-pci-core: Disable ES for ASUS BIOS on Jasper Lake
 Date:   Tue,  8 Nov 2022 14:38:49 +0100
-Message-Id: <20221108133347.475265440@linuxfoundation.org>
+Message-Id: <20221108133342.918316913@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Patrick Thompson <ptf@google.com>
 
-[ Upstream commit 40e4eb324c59e11fcb927aa46742d28aba6ecb8a ]
+[ Upstream commit 9dc0033e4658d6f9d9952c3c0c6be3ec25bc2985 ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+Enhanced Strobe (ES) does not work correctly on the ASUS 1100 series of
+devices. Jasper Lake eMMCs (pci_id 8086:4dc4) are supposed to support
+ES. There are also two system families under the series, thus this is
+being scoped to the ASUS BIOS.
 
-UBSAN: shift-out-of-bounds in drivers/net/phy/mdio_bus.c:586:27
-left shift of 1 by 31 places cannot be represented in type 'int'
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7d/0xa5
- dump_stack+0x15/0x1b
- ubsan_epilogue+0xe/0x4e
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
- __mdiobus_register+0x49d/0x4e0
- fixed_mdio_bus_init+0xd8/0x12d
- do_one_initcall+0x76/0x430
- kernel_init_freeable+0x3b3/0x422
- kernel_init+0x24/0x1e0
- ret_from_fork+0x1f/0x30
- </TASK>
+The failing ES prevents the installer from writing to disk. Falling back
+to HS400 without ES fixes the issue.
 
-Fixes: 4fd5f812c23c ("phylib: allow incremental scanning of an mii bus")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20221031132645.168421-1-cuigaosheng1@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Patrick Thompson <ptf@google.com>
+Fixes: 315e3bd7ac19 ("mmc: sdhci-pci: Add support for Intel JSL")
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221013210017.3751025-1-ptf@google.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-pci-core.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
-index 2c0216fe58de..dd7739b5f791 100644
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -577,7 +577,7 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
+diff --git a/drivers/mmc/host/sdhci-pci-core.c b/drivers/mmc/host/sdhci-pci-core.c
+index 422ea3a1817a..7eb9a62ee074 100644
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -967,6 +967,12 @@ static bool glk_broken_cqhci(struct sdhci_pci_slot *slot)
+ 		dmi_match(DMI_SYS_VENDOR, "IRBIS"));
+ }
+ 
++static bool jsl_broken_hs400es(struct sdhci_pci_slot *slot)
++{
++	return slot->chip->pdev->device == PCI_DEVICE_ID_INTEL_JSL_EMMC &&
++			dmi_match(DMI_BIOS_VENDOR, "ASUSTeK COMPUTER INC.");
++}
++
+ static int glk_emmc_probe_slot(struct sdhci_pci_slot *slot)
+ {
+ 	int ret = byt_emmc_probe_slot(slot);
+@@ -975,9 +981,11 @@ static int glk_emmc_probe_slot(struct sdhci_pci_slot *slot)
+ 		slot->host->mmc->caps2 |= MMC_CAP2_CQE;
+ 
+ 	if (slot->chip->pdev->device != PCI_DEVICE_ID_INTEL_GLK_EMMC) {
+-		slot->host->mmc->caps2 |= MMC_CAP2_HS400_ES;
+-		slot->host->mmc_host_ops.hs400_enhanced_strobe =
+-						intel_hs400_enhanced_strobe;
++		if (!jsl_broken_hs400es(slot)) {
++			slot->host->mmc->caps2 |= MMC_CAP2_HS400_ES;
++			slot->host->mmc_host_ops.hs400_enhanced_strobe =
++							intel_hs400_enhanced_strobe;
++		}
+ 		slot->host->mmc->caps2 |= MMC_CAP2_CQE_DCMD;
  	}
  
- 	for (i = 0; i < PHY_MAX_ADDR; i++) {
--		if ((bus->phy_mask & (1 << i)) == 0) {
-+		if ((bus->phy_mask & BIT(i)) == 0) {
- 			struct phy_device *phydev;
- 
- 			phydev = mdiobus_scan(bus, i);
 -- 
 2.35.1
 
