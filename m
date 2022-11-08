@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3407162153D
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:09:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5DD16213B5
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:53:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235087AbiKHOJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:09:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45874 "EHLO
+        id S234605AbiKHNxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:53:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235180AbiKHOJg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:09:36 -0500
+        with ESMTP id S234774AbiKHNwq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:46 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C52CDAA
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:09:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08E4765E4F
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB220B81AE4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:09:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43E1AC433C1;
-        Tue,  8 Nov 2022 14:09:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE9E3B81AE8
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C82E5C433D6;
+        Tue,  8 Nov 2022 13:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916571;
-        bh=Qs2YG4eZPcMB3J3UO5+oTFanUUSas1ZnrNeZRV6oHOs=;
+        s=korg; t=1667915563;
+        bh=/K001D9QeV+ad9xjguYDAmDQXZEfv/wW9uMwdhMg2NA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+AKZqQsakqvWQRJxuSYB5znLskSkir0kJl+OQRiSQ77u2Q0et1FqLNaz2800uMri
-         synbhY1lThWh/KV80Zbc5GMdoVEFj9cyN+oirwFOZeCooCKUmNkLpK6HUYVF3NdNDb
-         9c0OSkSVEDnsEtaDr0wh9JX+iAS3lUoWWjmq2e6c=
+        b=a5KYhSZvU8v0uUdBm8txRSs4VHGlid9nh0c+qPD4cpriyeU0ii1oyUKfhCI8baTrD
+         diaoGVvqtBx5sdgPKm0HtIaCeBoq9ohAv16xtaue/Q+97QlWwq8n3Um+xZ0dPp/RHW
+         tXPOY+taExcLv+8nEBTCQGsHAzPT49Emet1Ekit8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Dafna Hirschfeld <dafna@fastmail.com>,
-        Paul Elder <paul.elder@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 065/197] media: rkisp1: Dont pass the quantization to rkisp1_csm_config()
-Date:   Tue,  8 Nov 2022 14:38:23 +0100
-Message-Id: <20221108133357.795346372@linuxfoundation.org>
+Subject: [PATCH 5.10 026/118] nfc: s3fwrn5: Fix potential memory leak in s3fwrn5_nci_send()
+Date:   Tue,  8 Nov 2022 14:38:24 +0100
+Message-Id: <20221108133341.795605593@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 711d91497e203b058cf0a08c0f7d41c04efbde76 ]
+[ Upstream commit 3a146b7e3099dc7cf3114f627d9b79291e2d2203 ]
 
-The rkisp1_csm_config() function takes a pointer to the rkisp1_params
-structure which contains the quantization value. There's no need to pass
-it separately to the function. Drop it from the function parameters.
+s3fwrn5_nci_send() will call s3fwrn5_i2c_write() or s3fwrn82_uart_write(),
+and free the skb if write() failed. However, even if the write() run
+succeeds, the skb will not be freed in write(). As the result, the skb
+will memleak. s3fwrn5_nci_send() should also free the skb when write()
+succeeds.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Dafna Hirschfeld <dafna@fastmail.com>
-Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: c04c674fadeb ("nfc: s3fwrn5: Add driver for Samsung S3FWRN5 NFC Chip")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rockchip/rkisp1/rkisp1-params.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/nfc/s3fwrn5/core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c b/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
-index 9da7dc1bc690..32485f7c79d5 100644
---- a/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
-+++ b/drivers/media/platform/rockchip/rkisp1/rkisp1-params.c
-@@ -1066,7 +1066,7 @@ static void rkisp1_ie_enable(struct rkisp1_params *params, bool en)
+diff --git a/drivers/nfc/s3fwrn5/core.c b/drivers/nfc/s3fwrn5/core.c
+index ba6c486d6465..9b43cd3a45af 100644
+--- a/drivers/nfc/s3fwrn5/core.c
++++ b/drivers/nfc/s3fwrn5/core.c
+@@ -97,11 +97,15 @@ static int s3fwrn5_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
  	}
+ 
+ 	ret = s3fwrn5_write(info, skb);
+-	if (ret < 0)
++	if (ret < 0) {
+ 		kfree_skb(skb);
++		mutex_unlock(&info->mutex);
++		return ret;
++	}
+ 
++	consume_skb(skb);
+ 	mutex_unlock(&info->mutex);
+-	return ret;
++	return 0;
  }
  
--static void rkisp1_csm_config(struct rkisp1_params *params, bool full_range)
-+static void rkisp1_csm_config(struct rkisp1_params *params)
- {
- 	static const u16 full_range_coeff[] = {
- 		0x0026, 0x004b, 0x000f,
-@@ -1080,7 +1080,7 @@ static void rkisp1_csm_config(struct rkisp1_params *params, bool full_range)
- 	};
- 	unsigned int i;
- 
--	if (full_range) {
-+	if (params->quantization == V4L2_QUANTIZATION_FULL_RANGE) {
- 		for (i = 0; i < ARRAY_SIZE(full_range_coeff); i++)
- 			rkisp1_write(params->rkisp1,
- 				     RKISP1_CIF_ISP_CC_COEFF_0 + i * 4,
-@@ -1552,11 +1552,7 @@ static void rkisp1_params_config_parameter(struct rkisp1_params *params)
- 	rkisp1_param_set_bits(params, RKISP1_CIF_ISP_HIST_PROP_V10,
- 			      rkisp1_hst_params_default_config.mode);
- 
--	/* set the  range */
--	if (params->quantization == V4L2_QUANTIZATION_FULL_RANGE)
--		rkisp1_csm_config(params, true);
--	else
--		rkisp1_csm_config(params, false);
-+	rkisp1_csm_config(params);
- 
- 	spin_lock_irq(&params->config_lock);
- 
+ static int s3fwrn5_nci_post_setup(struct nci_dev *ndev)
 -- 
 2.35.1
 
