@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A8AE6213E4
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:55:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97FE3621307
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:45:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234763AbiKHNzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:55:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57010 "EHLO
+        id S234516AbiKHNph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:45:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234761AbiKHNzH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:55:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 096BE2BF6
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:55:07 -0800 (PST)
+        with ESMTP id S234520AbiKHNph (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:45:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55AA758035
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:45:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B7090B81AF2
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:55:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0800EC433C1;
-        Tue,  8 Nov 2022 13:55:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC3E561528
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:45:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E10E7C433D6;
+        Tue,  8 Nov 2022 13:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915704;
-        bh=THKkjz9RDO0SfqEFohUF/qGAssTs23jXyspYaMMdz3Y=;
+        s=korg; t=1667915135;
+        bh=hFqSNfwAdfGiDFRcYwq1WmR3syqz9n0Ir6P2Vrq6bmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aaseT0n0W8uDht13SXjf9+Yut1RUQHqWYefwydj40McaXtv0ounWOq44aZ1JpuUOj
-         6yJ5C8G26rsBxTVj7kJubtH0zBuffGWh+gi/LMWMTX/EqYq+IOYMvnSZaTUqQMzlvY
-         gQMpwn7bARCYqGHLNlgxSlLpb+p3/1XVX4CW/om8=
+        b=xk7Xy0mFpsrSQBrlHPWcW0DZ5vAoYdXLYCZgE+d4k7Ug03XmNXKphp4cKSqaz5sjI
+         077u/oiGeXy6QMkMsBKoyus+SIfsE7M1sAqrALDIa2LDGOedi8OvUv/TS8biiOGBno
+         wm8BpAu3hgLBnNeCazlwEhJYId3onb5KDAsMrKFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Danijel Slivka <danijel.slivka@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Maxim Mikityanskiy <maxtram95@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 067/118] drm/amdgpu: set vm_update_mode=0 as default for Sienna Cichlid in SRIOV case
+Subject: [PATCH 4.19 20/48] Bluetooth: L2CAP: Fix use-after-free caused by l2cap_reassemble_sdu
 Date:   Tue,  8 Nov 2022 14:39:05 +0100
-Message-Id: <20221108133343.655839869@linuxfoundation.org>
+Message-Id: <20221108133330.230748864@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
+References: <20221108133329.533809494@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +53,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danijel Slivka <danijel.slivka@amd.com>
+From: Maxim Mikityanskiy <maxtram95@gmail.com>
 
-[ Upstream commit 65f8682b9aaae20c2cdee993e6fe52374ad513c9 ]
+[ Upstream commit 3aff8aaca4e36dc8b17eaa011684881a80238966 ]
 
-For asic with VF MMIO access protection avoid using CPU for VM table updates.
-CPU pagetable updates have issues with HDP flush as VF MMIO access protection
-blocks write to mmBIF_BX_DEV0_EPF0_VF0_HDP_MEM_COHERENCY_FLUSH_CNTL register
-during sriov runtime.
+Fix the race condition between the following two flows that run in
+parallel:
 
-v3: introduce virtualization capability flag AMDGPU_VF_MMIO_ACCESS_PROTECT
-which indicates that VF MMIO write access is not allowed in sriov runtime
+1. l2cap_reassemble_sdu -> chan->ops->recv (l2cap_sock_recv_cb) ->
+   __sock_queue_rcv_skb.
 
-Signed-off-by: Danijel Slivka <danijel.slivka@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+2. bt_sock_recvmsg -> skb_recv_datagram, skb_free_datagram.
+
+An SKB can be queued by the first flow and immediately dequeued and
+freed by the second flow, therefore the callers of l2cap_reassemble_sdu
+can't use the SKB after that function returns. However, some places
+continue accessing struct l2cap_ctrl that resides in the SKB's CB for a
+short time after l2cap_reassemble_sdu returns, leading to a
+use-after-free condition (the stack trace is below, line numbers for
+kernel 5.19.8).
+
+Fix it by keeping a local copy of struct l2cap_ctrl.
+
+BUG: KASAN: use-after-free in l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
+Read of size 1 at addr ffff88812025f2f0 by task kworker/u17:3/43169
+
+Workqueue: hci0 hci_rx_work [bluetooth]
+Call Trace:
+ <TASK>
+ dump_stack_lvl (lib/dump_stack.c:107 (discriminator 4))
+ print_report.cold (mm/kasan/report.c:314 mm/kasan/report.c:429)
+ ? l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
+ kasan_report (mm/kasan/report.c:162 mm/kasan/report.c:493)
+ ? l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
+ l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
+ l2cap_rx (net/bluetooth/l2cap_core.c:7236 net/bluetooth/l2cap_core.c:7271) bluetooth
+ ret_from_fork (arch/x86/entry/entry_64.S:306)
+ </TASK>
+
+Allocated by task 43169:
+ kasan_save_stack (mm/kasan/common.c:39)
+ __kasan_slab_alloc (mm/kasan/common.c:45 mm/kasan/common.c:436 mm/kasan/common.c:469)
+ kmem_cache_alloc_node (mm/slab.h:750 mm/slub.c:3243 mm/slub.c:3293)
+ __alloc_skb (net/core/skbuff.c:414)
+ l2cap_recv_frag (./include/net/bluetooth/bluetooth.h:425 net/bluetooth/l2cap_core.c:8329) bluetooth
+ l2cap_recv_acldata (net/bluetooth/l2cap_core.c:8442) bluetooth
+ hci_rx_work (net/bluetooth/hci_core.c:3642 net/bluetooth/hci_core.c:3832) bluetooth
+ process_one_work (kernel/workqueue.c:2289)
+ worker_thread (./include/linux/list.h:292 kernel/workqueue.c:2437)
+ kthread (kernel/kthread.c:376)
+ ret_from_fork (arch/x86/entry/entry_64.S:306)
+
+Freed by task 27920:
+ kasan_save_stack (mm/kasan/common.c:39)
+ kasan_set_track (mm/kasan/common.c:45)
+ kasan_set_free_info (mm/kasan/generic.c:372)
+ ____kasan_slab_free (mm/kasan/common.c:368 mm/kasan/common.c:328)
+ slab_free_freelist_hook (mm/slub.c:1780)
+ kmem_cache_free (mm/slub.c:3536 mm/slub.c:3553)
+ skb_free_datagram (./include/net/sock.h:1578 ./include/net/sock.h:1639 net/core/datagram.c:323)
+ bt_sock_recvmsg (net/bluetooth/af_bluetooth.c:295) bluetooth
+ l2cap_sock_recvmsg (net/bluetooth/l2cap_sock.c:1212) bluetooth
+ sock_read_iter (net/socket.c:1087)
+ new_sync_read (./include/linux/fs.h:2052 fs/read_write.c:401)
+ vfs_read (fs/read_write.c:482)
+ ksys_read (fs/read_write.c:620)
+ do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
+ entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
+
+Link: https://lore.kernel.org/linux-bluetooth/CAKErNvoqga1WcmoR3-0875esY6TVWFQDandbVZncSiuGPBQXLA@mail.gmail.com/T/#u
+Fixes: d2a7ac5d5d3a ("Bluetooth: Add the ERTM receive state machine")
+Fixes: 4b51dae96731 ("Bluetooth: Add streaming mode receive and incoming packet classifier")
+Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c | 6 ++++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h | 4 ++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c   | 6 +++++-
- 3 files changed, 15 insertions(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c | 48 ++++++++++++++++++++++++++++++++------
+ 1 file changed, 41 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-index 16bfb36c27e4..d6f295103595 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
-@@ -670,6 +670,12 @@ void amdgpu_detect_virtualization(struct amdgpu_device *adev)
- 			adev->virt.caps |= AMDGPU_PASSTHROUGH_MODE;
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 5c965f7b1709..2f0ab54d8a93 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -6255,6 +6255,7 @@ static int l2cap_rx_state_recv(struct l2cap_chan *chan,
+ 			       struct l2cap_ctrl *control,
+ 			       struct sk_buff *skb, u8 event)
+ {
++	struct l2cap_ctrl local_control;
+ 	int err = 0;
+ 	bool skb_in_use = false;
+ 
+@@ -6279,15 +6280,32 @@ static int l2cap_rx_state_recv(struct l2cap_chan *chan,
+ 			chan->buffer_seq = chan->expected_tx_seq;
+ 			skb_in_use = true;
+ 
++			/* l2cap_reassemble_sdu may free skb, hence invalidate
++			 * control, so make a copy in advance to use it after
++			 * l2cap_reassemble_sdu returns and to avoid the race
++			 * condition, for example:
++			 *
++			 * The current thread calls:
++			 *   l2cap_reassemble_sdu
++			 *     chan->ops->recv == l2cap_sock_recv_cb
++			 *       __sock_queue_rcv_skb
++			 * Another thread calls:
++			 *   bt_sock_recvmsg
++			 *     skb_recv_datagram
++			 *     skb_free_datagram
++			 * Then the current thread tries to access control, but
++			 * it was freed by skb_free_datagram.
++			 */
++			local_control = *control;
+ 			err = l2cap_reassemble_sdu(chan, skb, control);
+ 			if (err)
+ 				break;
+ 
+-			if (control->final) {
++			if (local_control.final) {
+ 				if (!test_and_clear_bit(CONN_REJ_ACT,
+ 							&chan->conn_state)) {
+-					control->final = 0;
+-					l2cap_retransmit_all(chan, control);
++					local_control.final = 0;
++					l2cap_retransmit_all(chan, &local_control);
+ 					l2cap_ertm_send(chan);
+ 				}
+ 			}
+@@ -6667,11 +6685,27 @@ static int l2cap_rx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
+ static int l2cap_stream_rx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
+ 			   struct sk_buff *skb)
+ {
++	/* l2cap_reassemble_sdu may free skb, hence invalidate control, so store
++	 * the txseq field in advance to use it after l2cap_reassemble_sdu
++	 * returns and to avoid the race condition, for example:
++	 *
++	 * The current thread calls:
++	 *   l2cap_reassemble_sdu
++	 *     chan->ops->recv == l2cap_sock_recv_cb
++	 *       __sock_queue_rcv_skb
++	 * Another thread calls:
++	 *   bt_sock_recvmsg
++	 *     skb_recv_datagram
++	 *     skb_free_datagram
++	 * Then the current thread tries to access control, but it was freed by
++	 * skb_free_datagram.
++	 */
++	u16 txseq = control->txseq;
++
+ 	BT_DBG("chan %p, control %p, skb %p, state %d", chan, control, skb,
+ 	       chan->rx_state);
+ 
+-	if (l2cap_classify_txseq(chan, control->txseq) ==
+-	    L2CAP_TXSEQ_EXPECTED) {
++	if (l2cap_classify_txseq(chan, txseq) == L2CAP_TXSEQ_EXPECTED) {
+ 		l2cap_pass_to_tx(chan, control);
+ 
+ 		BT_DBG("buffer_seq %d->%d", chan->buffer_seq,
+@@ -6694,8 +6728,8 @@ static int l2cap_stream_rx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
+ 		}
  	}
  
-+	if (amdgpu_sriov_vf(adev) && adev->asic_type == CHIP_SIENNA_CICHLID)
-+		/* VF MMIO access (except mailbox range) from CPU
-+		 * will be blocked during sriov runtime
-+		 */
-+		adev->virt.caps |= AMDGPU_VF_MMIO_ACCESS_PROTECT;
-+
- 	/* we have the ability to check now */
- 	if (amdgpu_sriov_vf(adev)) {
- 		switch (adev->asic_type) {
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h
-index 77b9d37bfa1b..aea49bad914f 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.h
-@@ -31,6 +31,7 @@
- #define AMDGPU_SRIOV_CAPS_IS_VF        (1 << 2) /* this GPU is a virtual function */
- #define AMDGPU_PASSTHROUGH_MODE        (1 << 3) /* thw whole GPU is pass through for VM */
- #define AMDGPU_SRIOV_CAPS_RUNTIME      (1 << 4) /* is out of full access mode */
-+#define AMDGPU_VF_MMIO_ACCESS_PROTECT  (1 << 5) /* MMIO write access is not allowed in sriov runtime */
+-	chan->last_acked_seq = control->txseq;
+-	chan->expected_tx_seq = __next_seq(chan, control->txseq);
++	chan->last_acked_seq = txseq;
++	chan->expected_tx_seq = __next_seq(chan, txseq);
  
- /* all asic after AI use this offset */
- #define mmRCC_IOV_FUNC_IDENTIFIER 0xDE5
-@@ -241,6 +242,9 @@ struct amdgpu_virt {
- #define amdgpu_passthrough(adev) \
- ((adev)->virt.caps & AMDGPU_PASSTHROUGH_MODE)
- 
-+#define amdgpu_sriov_vf_mmio_access_protection(adev) \
-+((adev)->virt.caps & AMDGPU_VF_MMIO_ACCESS_PROTECT)
-+
- static inline bool is_virtual_machine(void)
- {
- #ifdef CONFIG_X86
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-index 635601d8b131..45b1f00c5968 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -3200,7 +3200,11 @@ void amdgpu_vm_manager_init(struct amdgpu_device *adev)
- 	 */
- #ifdef CONFIG_X86_64
- 	if (amdgpu_vm_update_mode == -1) {
--		if (amdgpu_gmc_vram_full_visible(&adev->gmc))
-+		/* For asic with VF MMIO access protection
-+		 * avoid using CPU for VM table updates
-+		 */
-+		if (amdgpu_gmc_vram_full_visible(&adev->gmc) &&
-+		    !amdgpu_sriov_vf_mmio_access_protection(adev))
- 			adev->vm_manager.vm_update_mode =
- 				AMDGPU_VM_USE_CPU_FOR_COMPUTE;
- 		else
+ 	return 0;
+ }
 -- 
 2.35.1
 
