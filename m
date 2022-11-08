@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E8B062134D
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:49:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93A8E62156E
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234547AbiKHNtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:49:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48984 "EHLO
+        id S235283AbiKHOMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:12:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234564AbiKHNs7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1008F7664
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:58 -0800 (PST)
+        with ESMTP id S235361AbiKHOL5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:11:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB8BE5655E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:11:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D698E6130A
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6064C433C1;
-        Tue,  8 Nov 2022 13:48:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11241B81AF2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:11:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AB84C433D6;
+        Tue,  8 Nov 2022 14:11:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915337;
-        bh=6ImvMZXhEhgyWhlAeBArjonfP1CNJg7qSdSHO26xB90=;
+        s=korg; t=1667916686;
+        bh=MPQiUJuGh3Mkt+2KtvbwhRfouXtdios22qeyaqeMAHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwQFEgajhoGvCJCRgXQXooSDpgUO0NgguR/kO/GgiZjIe1YY+1K2+cEhb0PIIJL8i
-         v/tLKS2uFdraXJrg2X9D4NY6juajVV6LkO6ZJDgKF7jKx/74NHm3rYjHGUDWr3r+T+
-         U42b7tfhRw5XodRMZzbYptI4PXhjYn7nu8ITdj0E=
+        b=Qi7Xskgy0TtKmw3rZTpcdDc1p/d7gf0SdNxMQriu8N6BQvrdQovusN9f5UXok7RlZ
+         Bc51bCdEaC5Q26DjUREMlkT2zNxQkTkIfNyp9Jvyne1Oc8Cl9FqlUW84oA2sK/bvHe
+         HCDnOuaYh+5Ik861S/BBKEzCU6MEjxnbveNk3S9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Tim Harvey <tharvey@gateworks.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 32/74] media: dvb-frontends/drxk: initialize err to 0
+Subject: [PATCH 6.0 102/197] ARM: dts: imx6qdl-gw59{10,13}: fix user pushbutton GPIO offset
 Date:   Tue,  8 Nov 2022 14:39:00 +0100
-Message-Id: <20221108133335.041652995@linuxfoundation.org>
+Message-Id: <20221108133359.497060548@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Tim Harvey <tharvey@gateworks.com>
 
-[ Upstream commit 20694e96ca089ce6693c2348f8f628ee621e4e74 ]
+[ Upstream commit bb5ad73941dc3f4e3c2241348f385da6501d50ea ]
 
-Fix a compiler warning:
+The GW5910 and GW5913 have a user pushbutton that is tied to the
+Gateworks System Controller GPIO offset 2. Fix the invalid offset of 0.
 
-drivers/media/dvb-frontends/drxk_hard.c: In function 'drxk_read_ucblocks':
-drivers/media/dvb-frontends/drxk_hard.c:6673:21: warning: 'err' may be used uninitialized [-Wmaybe-uninitialized]
- 6673 |         *ucblocks = (u32) err;
-      |                     ^~~~~~~~~
-drivers/media/dvb-frontends/drxk_hard.c:6663:13: note: 'err' was declared here
- 6663 |         u16 err;
-      |             ^~~
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 64bf0a0af18d ("ARM: dts: imx6qdl-gw: add Gateworks System Controller support")
+Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/drxk_hard.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6qdl-gw5910.dtsi | 2 +-
+ arch/arm/boot/dts/imx6qdl-gw5913.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/drxk_hard.c b/drivers/media/dvb-frontends/drxk_hard.c
-index 0a4875b391d9..2dccc9d0be12 100644
---- a/drivers/media/dvb-frontends/drxk_hard.c
-+++ b/drivers/media/dvb-frontends/drxk_hard.c
-@@ -6684,7 +6684,7 @@ static int drxk_read_snr(struct dvb_frontend *fe, u16 *snr)
- static int drxk_read_ucblocks(struct dvb_frontend *fe, u32 *ucblocks)
- {
- 	struct drxk_state *state = fe->demodulator_priv;
--	u16 err;
-+	u16 err = 0;
+diff --git a/arch/arm/boot/dts/imx6qdl-gw5910.dtsi b/arch/arm/boot/dts/imx6qdl-gw5910.dtsi
+index 68e5ab2e27e2..6bb4855d13ce 100644
+--- a/arch/arm/boot/dts/imx6qdl-gw5910.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-gw5910.dtsi
+@@ -29,7 +29,7 @@ gpio-keys {
  
- 	dprintk(1, "\n");
+ 		user-pb {
+ 			label = "user_pb";
+-			gpios = <&gsc_gpio 0 GPIO_ACTIVE_LOW>;
++			gpios = <&gsc_gpio 2 GPIO_ACTIVE_LOW>;
+ 			linux,code = <BTN_0>;
+ 		};
+ 
+diff --git a/arch/arm/boot/dts/imx6qdl-gw5913.dtsi b/arch/arm/boot/dts/imx6qdl-gw5913.dtsi
+index 8e23cec7149e..696427b487f0 100644
+--- a/arch/arm/boot/dts/imx6qdl-gw5913.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-gw5913.dtsi
+@@ -26,7 +26,7 @@ gpio-keys {
+ 
+ 		user-pb {
+ 			label = "user_pb";
+-			gpios = <&gsc_gpio 0 GPIO_ACTIVE_LOW>;
++			gpios = <&gsc_gpio 2 GPIO_ACTIVE_LOW>;
+ 			linux,code = <BTN_0>;
+ 		};
  
 -- 
 2.35.1
