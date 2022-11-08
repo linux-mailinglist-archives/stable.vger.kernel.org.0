@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BCCE621366
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:50:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82AD46212B1
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:42:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234610AbiKHNuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:50:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49828 "EHLO
+        id S234089AbiKHNmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:42:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234617AbiKHNuC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:50:02 -0500
+        with ESMTP id S234076AbiKHNlr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:41:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F9F9C764
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:50:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11FD94FFBD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:41:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07F56B81AF7
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:50:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31458C433D6;
-        Tue,  8 Nov 2022 13:49:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BFF15B81AEF
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:41:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE6B6C433D7;
+        Tue,  8 Nov 2022 13:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915398;
-        bh=j5INBt2UDK1zrfS210nJ1PZISJMoZ2AN+J/DzZ3hmFs=;
+        s=korg; t=1667914904;
+        bh=ZV+YMt1PCM+/fvZUYHnijzd+9gqNpb1LsrZvBtoIxow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/shSCZTgH3JHs4OG7HjB0aKmjWPSK4Sgja5ckk4v0OzycT8gK2bRqjONS7PJsNrY
-         olj1npslzWPJhebFsn37kdXQZ7HIMPkfLjTx1Eh+D1yIJxrhq5jaG+8IEab9a752sI
-         F5DjTL33z3WQdk7IIbTkAN+T4vGltDFq1PdNBkt0=
+        b=yT8cZ2e9ePHDRoxxL5jn4EEKbaRNULyIzB4xTn3U7PnN9d6leec8eiGdy6CqvonCy
+         Vc8vVoBWC5Lg6CGWFKWhq74eVhbBsciMxi/ikxPrw6coKJPV+xm/DyHtjwHlzvMMq+
+         gmgU5Wd03RJNJajX2Oz+tR4OHjXOu66ICyljoGHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Tam=C3=A1s=20Koczka?= <poprdi@google.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Tedd Ho-Jeong An <tedd.an@intel.com>
-Subject: [PATCH 5.4 43/74] Bluetooth: L2CAP: Fix attempting to access uninitialized memory
+        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.9 23/30] parisc: Make 8250_gsc driver dependend on CONFIG_PARISC
 Date:   Tue,  8 Nov 2022 14:39:11 +0100
-Message-Id: <20221108133335.487059888@linuxfoundation.org>
+Message-Id: <20221108133327.590654293@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
+References: <20221108133326.715586431@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Helge Deller <deller@gmx.de>
 
-commit b1a2cd50c0357f243b7435a732b4e62ba3157a2e upstream.
+commit e8a18e3f00f3ee8d07c17ab1ea3ad4df4a3b6fe0 upstream.
 
-On l2cap_parse_conf_req the variable efs is only initialized if
-remote_efs has been set.
+Although the name of the driver 8250_gsc.c suggests that it handles
+only serial ports on the GSC bus, it does handle serial ports listed
+in the parisc machine inventory as well, e.g. the serial ports in a
+C8000 PCI-only workstation.
 
-CVE: CVE-2022-42895
-CC: stable@vger.kernel.org
-Reported-by: Tamás Koczka <poprdi@google.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Change the dependency to CONFIG_PARISC, so that the driver gets included
+in the kernel even if CONFIG_GSC isn't set.
+
+Reported-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -3560,7 +3560,8 @@ done:
- 			l2cap_add_conf_opt(&ptr, L2CAP_CONF_RFC,
- 					   sizeof(rfc), (unsigned long) &rfc, endptr - ptr);
+--- a/drivers/tty/serial/8250/Kconfig
++++ b/drivers/tty/serial/8250/Kconfig
+@@ -105,7 +105,7 @@ config SERIAL_8250_CONSOLE
  
--			if (test_bit(FLAG_EFS_ENABLE, &chan->flags)) {
-+			if (remote_efs &&
-+			    test_bit(FLAG_EFS_ENABLE, &chan->flags)) {
- 				chan->remote_id = efs.id;
- 				chan->remote_stype = efs.stype;
- 				chan->remote_msdu = le16_to_cpu(efs.msdu);
+ config SERIAL_8250_GSC
+ 	tristate
+-	depends on SERIAL_8250 && GSC
++	depends on SERIAL_8250 && PARISC
+ 	default SERIAL_8250
+ 
+ config SERIAL_8250_DMA
 
 
