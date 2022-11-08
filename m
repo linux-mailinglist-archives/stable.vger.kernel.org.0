@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D81F62148E
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F8126213CD
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:54:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234940AbiKHOCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:02:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36766 "EHLO
+        id S234709AbiKHNyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:54:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234967AbiKHOCZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:02:25 -0500
+        with ESMTP id S234730AbiKHNx5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:53:57 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 587476868C
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:02:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FDD0F4F
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:53:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA17A615AF
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:02:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AA40C433D6;
-        Tue,  8 Nov 2022 14:02:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EB1F615A4
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:53:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E92DC433C1;
+        Tue,  8 Nov 2022 13:53:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916142;
-        bh=Ul3IsQXrLuX6zOqN8dbJWLr1CBOOWCvxxydffxBYEOk=;
+        s=korg; t=1667915635;
+        bh=7jc2wxCL+yZzWo0SH7Kq6tdOLHTsDTk5lqgYwoKDpyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ADy4FbLGVZWWhz5ZHX6SaDV4l1Hy5Y4WoI7TgYVtTtb6fZHUXINnC4djQenb3hzsj
-         WrEsTGblfir7MZHtxr9RIzwPn1RR2HYLwazUWzwQB4p8EBXHbZJ2vsW43nk+xSwGmo
-         w5VrMjq9Cild2rQYOWufah1guCgyzbxCxt4QPgWw=
+        b=RLn2o44HR9609JnAaqd7QQq1PpFrazMgJatyKygxU+pW9zrkdSDWq+kXfPjnevXuh
+         RUCd9xvxTXoY0kOModKPOCQLD4/oNFyCLHgT9q2UVrLDpo7YNvIaUyLXFEgFieor5i
+         JS73kHBwstqG3tS4QcilVEApxf/1Chuor/gpqCJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Xu <dxu@dxuuu.xyz>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 047/144] netfilter: ipset: enforce documented limit to prevent allocating huge memory
+Subject: [PATCH 5.10 046/118] ipv6: fix WARNING in ip6_route_net_exit_late()
 Date:   Tue,  8 Nov 2022 14:38:44 +0100
-Message-Id: <20221108133347.258856412@linuxfoundation.org>
+Message-Id: <20221108133342.686466599@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jozsef Kadlecsik <kadlec@netfilter.org>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 510841da1fcc16f702440ab58ef0b4d82a9056b7 ]
+[ Upstream commit 768b3c745fe5789f2430bdab02f35a9ad1148d97 ]
 
-Daniel Xu reported that the hash:net,iface type of the ipset subsystem does
-not limit adding the same network with different interfaces to a set, which
-can lead to huge memory usage or allocation failure.
+During the initialization of ip6_route_net_init_late(), if file
+ipv6_route or rt6_stats fails to be created, the initialization is
+successful by default. Therefore, the ipv6_route or rt6_stats file
+doesn't be found during the remove in ip6_route_net_exit_late(). It
+will cause WRNING.
 
-The quick reproducer is
+The following is the stack information:
+name 'rt6_stats'
+WARNING: CPU: 0 PID: 9 at fs/proc/generic.c:712 remove_proc_entry+0x389/0x460
+Modules linked in:
+Workqueue: netns cleanup_net
+RIP: 0010:remove_proc_entry+0x389/0x460
+PKRU: 55555554
+Call Trace:
+<TASK>
+ops_exit_list+0xb0/0x170
+cleanup_net+0x4ea/0xb00
+process_one_work+0x9bf/0x1710
+worker_thread+0x665/0x1080
+kthread+0x2e4/0x3a0
+ret_from_fork+0x1f/0x30
+</TASK>
 
-$ ipset create ACL.IN.ALL_PERMIT hash:net,iface hashsize 1048576 timeout 0
-$ for i in $(seq 0 100); do /sbin/ipset add ACL.IN.ALL_PERMIT 0.0.0.0/0,kaf_$i timeout 0 -exist; done
-
-The backtrace when vmalloc fails:
-
-        [Tue Oct 25 00:13:08 2022] ipset: vmalloc error: size 1073741848, exceeds total pages
-        <...>
-        [Tue Oct 25 00:13:08 2022] Call Trace:
-        [Tue Oct 25 00:13:08 2022]  <TASK>
-        [Tue Oct 25 00:13:08 2022]  dump_stack_lvl+0x48/0x60
-        [Tue Oct 25 00:13:08 2022]  warn_alloc+0x155/0x180
-        [Tue Oct 25 00:13:08 2022]  __vmalloc_node_range+0x72a/0x760
-        [Tue Oct 25 00:13:08 2022]  ? hash_netiface4_add+0x7c0/0xb20
-        [Tue Oct 25 00:13:08 2022]  ? __kmalloc_large_node+0x4a/0x90
-        [Tue Oct 25 00:13:08 2022]  kvmalloc_node+0xa6/0xd0
-        [Tue Oct 25 00:13:08 2022]  ? hash_netiface4_resize+0x99/0x710
-        <...>
-
-The fix is to enforce the limit documented in the ipset(8) manpage:
-
->  The internal restriction of the hash:net,iface set type is that the same
->  network prefix cannot be stored with more than 64 different interfaces
->  in a single set.
-
-Fixes: ccf0a4b7fc68 ("netfilter: ipset: Add bucketsize parameter to all hash types")
-Reported-by: Daniel Xu <dxu@dxuuu.xyz>
-Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: cdb1876192db ("[NETNS][IPV6] route6 - create route6 proc files for the namespace")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20221102020610.351330-1-shaozhengchao@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipset/ip_set_hash_gen.h | 30 ++++++---------------------
- 1 file changed, 6 insertions(+), 24 deletions(-)
+ net/ipv6/route.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/ipset/ip_set_hash_gen.h b/net/netfilter/ipset/ip_set_hash_gen.h
-index 6e391308431d..3adc291d9ce1 100644
---- a/net/netfilter/ipset/ip_set_hash_gen.h
-+++ b/net/netfilter/ipset/ip_set_hash_gen.h
-@@ -42,31 +42,8 @@
- #define AHASH_MAX_SIZE			(6 * AHASH_INIT_SIZE)
- /* Max muber of elements in the array block when tuned */
- #define AHASH_MAX_TUNED			64
--
- #define AHASH_MAX(h)			((h)->bucketsize)
- 
--/* Max number of elements can be tuned */
--#ifdef IP_SET_HASH_WITH_MULTI
--static u8
--tune_bucketsize(u8 curr, u32 multi)
--{
--	u32 n;
--
--	if (multi < curr)
--		return curr;
--
--	n = curr + AHASH_INIT_SIZE;
--	/* Currently, at listing one hash bucket must fit into a message.
--	 * Therefore we have a hard limit here.
--	 */
--	return n > curr && n <= AHASH_MAX_TUNED ? n : curr;
--}
--#define TUNE_BUCKETSIZE(h, multi)	\
--	((h)->bucketsize = tune_bucketsize((h)->bucketsize, multi))
--#else
--#define TUNE_BUCKETSIZE(h, multi)
--#endif
--
- /* A hash bucket */
- struct hbucket {
- 	struct rcu_head rcu;	/* for call_rcu */
-@@ -936,7 +913,12 @@ mtype_add(struct ip_set *set, void *value, const struct ip_set_ext *ext,
- 		goto set_full;
- 	/* Create a new slot */
- 	if (n->pos >= n->size) {
--		TUNE_BUCKETSIZE(h, multi);
-+#ifdef IP_SET_HASH_WITH_MULTI
-+		if (h->bucketsize >= AHASH_MAX_TUNED)
-+			goto set_full;
-+		else if (h->bucketsize < multi)
-+			h->bucketsize += AHASH_INIT_SIZE;
-+#endif
- 		if (n->size >= AHASH_MAX(h)) {
- 			/* Trigger rehashing */
- 			mtype_data_next(&h->next, d);
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index cdf215442d37..803d1aa83140 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -6405,10 +6405,16 @@ static void __net_exit ip6_route_net_exit(struct net *net)
+ static int __net_init ip6_route_net_init_late(struct net *net)
+ {
+ #ifdef CONFIG_PROC_FS
+-	proc_create_net("ipv6_route", 0, net->proc_net, &ipv6_route_seq_ops,
+-			sizeof(struct ipv6_route_iter));
+-	proc_create_net_single("rt6_stats", 0444, net->proc_net,
+-			rt6_stats_seq_show, NULL);
++	if (!proc_create_net("ipv6_route", 0, net->proc_net,
++			     &ipv6_route_seq_ops,
++			     sizeof(struct ipv6_route_iter)))
++		return -ENOMEM;
++
++	if (!proc_create_net_single("rt6_stats", 0444, net->proc_net,
++				    rt6_stats_seq_show, NULL)) {
++		remove_proc_entry("ipv6_route", net->proc_net);
++		return -ENOMEM;
++	}
+ #endif
+ 	return 0;
+ }
 -- 
 2.35.1
 
