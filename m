@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C3A2621539
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:09:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C491621511
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:07:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235164AbiKHOJa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:09:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45854 "EHLO
+        id S235139AbiKHOH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:07:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235178AbiKHOJZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:09:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FF276379
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:09:22 -0800 (PST)
+        with ESMTP id S235137AbiKHOHx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:07:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CF4B748D1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:07:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E53A6B81ADB
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:09:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24F76C43470;
-        Tue,  8 Nov 2022 14:09:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD3AB615AF
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:07:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADC73C433D6;
+        Tue,  8 Nov 2022 14:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916559;
-        bh=mYqIV/Q1St1ohQ0YDADszvsDGT9qM2XqaENkBXqxfTg=;
+        s=korg; t=1667916472;
+        bh=Ep/y4/cstCgemSwJV0Uds14xdtYuEZhoWjh9FLshEdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qtnFJS/iWeAI08juDeuv9dxLPKUq19DZw5GVip72p9E/YcJrk0vuvplerW4LN8X3H
-         1EBSkIzFqx27qHkaPnF5ZO5Rve9obmnNKTPGOszd4dLaPaxBb8wvpM4y4dyKCvWDHG
-         5SDAiO6LqPxgpbWPSebw2mK8XtYXL6ZUm00ABPws=
+        b=G85Ax/8JjmuiqpCxj3d8Tj9FHy9GW8PP8NKFnVtXh2BpZHpuKURwLyc6L7+8DZKVY
+         ogj+Yqj8jR0fr4+D3SMxSpD2/JgeU1ExB61hunKjV7XTZPBX3O0dkuk+Afs1P5o8/I
+         PKwou9lTnsztQ+Q8dkKZBa+1Wj50vuOqnWeQOFUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+8f747f62763bc6c32916@syzkaller.appspotmail.com,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Martin Habets <habetsm.xilinx@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 031/197] netfilter: nf_tables: release flow rule object from commit path
-Date:   Tue,  8 Nov 2022 14:37:49 +0100
-Message-Id: <20221108133356.227741252@linuxfoundation.org>
+Subject: [PATCH 6.0 032/197] sfc: Fix an error handling path in efx_pci_probe()
+Date:   Tue,  8 Nov 2022 14:37:50 +0100
+Message-Id: <20221108133356.269035212@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
 References: <20221108133354.787209461@linuxfoundation.org>
@@ -54,46 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 26b5934ff4194e13196bedcba373cd4915071d0e ]
+[ Upstream commit 6c412da54c80a54b1a8b7f89677f6e82f0fabec4 ]
 
-No need to postpone this to the commit release path, since no packets
-are walking over this object, this is accessed from control plane only.
-This helped uncovered UAF triggered by races with the netlink notifier.
+If an error occurs after the first kzalloc() the corresponding memory
+allocation is never freed.
 
-Fixes: 9dd732e0bdf5 ("netfilter: nf_tables: memleak flow rule from commit path")
-Reported-by: syzbot+8f747f62763bc6c32916@syzkaller.appspotmail.com
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Add the missing kfree() in the error handling path, as already done in the
+remove() function.
+
+Fixes: 7e773594dada ("sfc: Separate efx_nic memory from net_device memory")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
+Link: https://lore.kernel.org/r/dc114193121c52c8fa3779e49bdd99d4b41344a9.1667077009.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/sfc/efx.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index cc598504bc10..879f4a1a27d5 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -8465,9 +8465,6 @@ static void nft_commit_release(struct nft_trans *trans)
- 		nf_tables_chain_destroy(&trans->ctx);
- 		break;
- 	case NFT_MSG_DELRULE:
--		if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
--			nft_flow_rule_destroy(nft_trans_flow_rule(trans));
--
- 		nf_tables_rule_destroy(&trans->ctx, nft_trans_rule(trans));
- 		break;
- 	case NFT_MSG_DELSET:
-@@ -8973,6 +8970,9 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
- 			nft_rule_expr_deactivate(&trans->ctx,
- 						 nft_trans_rule(trans),
- 						 NFT_TRANS_COMMIT);
-+
-+			if (trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD)
-+				nft_flow_rule_destroy(nft_trans_flow_rule(trans));
- 			break;
- 		case NFT_MSG_NEWSET:
- 			nft_clear(net, nft_trans_set(trans));
+diff --git a/drivers/net/ethernet/sfc/efx.c b/drivers/net/ethernet/sfc/efx.c
+index 153d68e29b8b..68a68477ab7b 100644
+--- a/drivers/net/ethernet/sfc/efx.c
++++ b/drivers/net/ethernet/sfc/efx.c
+@@ -1059,8 +1059,10 @@ static int efx_pci_probe(struct pci_dev *pci_dev,
+ 
+ 	/* Allocate and initialise a struct net_device */
+ 	net_dev = alloc_etherdev_mq(sizeof(probe_data), EFX_MAX_CORE_TX_QUEUES);
+-	if (!net_dev)
+-		return -ENOMEM;
++	if (!net_dev) {
++		rc = -ENOMEM;
++		goto fail0;
++	}
+ 	probe_ptr = netdev_priv(net_dev);
+ 	*probe_ptr = probe_data;
+ 	efx->net_dev = net_dev;
+@@ -1132,6 +1134,8 @@ static int efx_pci_probe(struct pci_dev *pci_dev,
+ 	WARN_ON(rc > 0);
+ 	netif_dbg(efx, drv, efx->net_dev, "initialisation failed. rc=%d\n", rc);
+ 	free_netdev(net_dev);
++ fail0:
++	kfree(probe_data);
+ 	return rc;
+ }
+ 
 -- 
 2.35.1
 
