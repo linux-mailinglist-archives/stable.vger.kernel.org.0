@@ -2,55 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B370E621312
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:46:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A92EF62148F
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234480AbiKHNqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:46:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46138 "EHLO
+        id S234976AbiKHOCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:02:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234521AbiKHNqQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:16 -0500
+        with ESMTP id S234988AbiKHOCa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:02:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F1C85986E;
-        Tue,  8 Nov 2022 05:46:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ECEA66C96
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:02:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1EAD1B81AE4;
-        Tue,  8 Nov 2022 13:46:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECDDCC433C1;
-        Tue,  8 Nov 2022 13:46:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD26DB81B00
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:02:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D8DAC433D7;
+        Tue,  8 Nov 2022 14:02:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915172;
-        bh=jQYyaauG87le8VBa7dJVBXtF8EAKfOyuN8bod8fI+Z8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=zZzUM1vORHCPjUenNra/TK2h/n9iM37hZAu9CQQQDvhrwCG/fvSumtnWBktFtrtFT
-         Hco82tvEwutkRfjqzYIRrmdZzIX8gTUK0QGfiAV4KEhVwAjiTCo/E+qzejZGz6TpTe
-         35c9BHmWdMpvSeLaQze/5+KshsHTXz4Xu1sp61b4=
+        s=korg; t=1667916145;
+        bh=z6FJZEcvxudLjXB0HyO+AtL2mEupXzbvNzEGYCqgV+8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=gpxR/eHIbj4tknIq1KMXKUHDmOfpj0SNunLvZrtANs2nPnd/26ft02kLasLoRdRJ7
+         f3sjeuUDrQnhVamqiwEfH8MpL5wV7RqwK2da1tRZipUHJs0Dzkvw/kFVfXbUufzrXp
+         RGyZiGbqdagYrlzEyYSuxy//fuezNJZQ0lnunucI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: [PATCH 4.19 00/48] 4.19.265-rc1 review
+        patches@lists.linux.dev, Maxim Mikityanskiy <maxtram95@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 048/144] Bluetooth: L2CAP: Fix use-after-free caused by l2cap_reassemble_sdu
 Date:   Tue,  8 Nov 2022 14:38:45 +0100
-Message-Id: <20221108133329.533809494@linuxfoundation.org>
+Message-Id: <20221108133347.310858565@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-MIME-Version: 1.0
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.265-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.265-rc1
-X-KernelTest-Deadline: 2022-11-10T13:33+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -62,236 +53,175 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.265 release.
-There are 48 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Maxim Mikityanskiy <maxtram95@gmail.com>
 
-Responses should be made by Thu, 10 Nov 2022 13:33:17 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 3aff8aaca4e36dc8b17eaa011684881a80238966 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.265-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+Fix the race condition between the following two flows that run in
+parallel:
 
-thanks,
+1. l2cap_reassemble_sdu -> chan->ops->recv (l2cap_sock_recv_cb) ->
+   __sock_queue_rcv_skb.
 
-greg k-h
+2. bt_sock_recvmsg -> skb_recv_datagram, skb_free_datagram.
 
--------------
-Pseudo-Shortlog of commits:
+An SKB can be queued by the first flow and immediately dequeued and
+freed by the second flow, therefore the callers of l2cap_reassemble_sdu
+can't use the SKB after that function returns. However, some places
+continue accessing struct l2cap_ctrl that resides in the SKB's CB for a
+short time after l2cap_reassemble_sdu returns, leading to a
+use-after-free condition (the stack trace is below, line numbers for
+kernel 5.19.8).
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.265-rc1
+Fix it by keeping a local copy of struct l2cap_ctrl.
 
-Dokyung Song <dokyung.song@gmail.com>
-    wifi: brcmfmac: Fix potential buffer overflow in brcmf_fweh_event_worker()
+BUG: KASAN: use-after-free in l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
+Read of size 1 at addr ffff88812025f2f0 by task kworker/u17:3/43169
 
-Masahiro Yamada <yamada.masahiro@socionext.com>
-    linux/bits.h: make BIT(), GENMASK(), and friends available in assembly
+Workqueue: hci0 hci_rx_work [bluetooth]
+Call Trace:
+ <TASK>
+ dump_stack_lvl (lib/dump_stack.c:107 (discriminator 4))
+ print_report.cold (mm/kasan/report.c:314 mm/kasan/report.c:429)
+ ? l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
+ kasan_report (mm/kasan/report.c:162 mm/kasan/report.c:493)
+ ? l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
+ l2cap_rx_state_recv (net/bluetooth/l2cap_core.c:6906) bluetooth
+ l2cap_rx (net/bluetooth/l2cap_core.c:7236 net/bluetooth/l2cap_core.c:7271) bluetooth
+ ret_from_fork (arch/x86/entry/entry_64.S:306)
+ </TASK>
 
-Maxim Levitsky <mlevitsk@redhat.com>
-    KVM: x86: emulator: update the emulation mode after CR0 write
+Allocated by task 43169:
+ kasan_save_stack (mm/kasan/common.c:39)
+ __kasan_slab_alloc (mm/kasan/common.c:45 mm/kasan/common.c:436 mm/kasan/common.c:469)
+ kmem_cache_alloc_node (mm/slab.h:750 mm/slub.c:3243 mm/slub.c:3293)
+ __alloc_skb (net/core/skbuff.c:414)
+ l2cap_recv_frag (./include/net/bluetooth/bluetooth.h:425 net/bluetooth/l2cap_core.c:8329) bluetooth
+ l2cap_recv_acldata (net/bluetooth/l2cap_core.c:8442) bluetooth
+ hci_rx_work (net/bluetooth/hci_core.c:3642 net/bluetooth/hci_core.c:3832) bluetooth
+ process_one_work (kernel/workqueue.c:2289)
+ worker_thread (./include/linux/list.h:292 kernel/workqueue.c:2437)
+ kthread (kernel/kthread.c:376)
+ ret_from_fork (arch/x86/entry/entry_64.S:306)
 
-Maxim Levitsky <mlevitsk@redhat.com>
-    KVM: x86: emulator: introduce emulator_recalc_and_set_mode
+Freed by task 27920:
+ kasan_save_stack (mm/kasan/common.c:39)
+ kasan_set_track (mm/kasan/common.c:45)
+ kasan_set_free_info (mm/kasan/generic.c:372)
+ ____kasan_slab_free (mm/kasan/common.c:368 mm/kasan/common.c:328)
+ slab_free_freelist_hook (mm/slub.c:1780)
+ kmem_cache_free (mm/slub.c:3536 mm/slub.c:3553)
+ skb_free_datagram (./include/net/sock.h:1578 ./include/net/sock.h:1639 net/core/datagram.c:323)
+ bt_sock_recvmsg (net/bluetooth/af_bluetooth.c:295) bluetooth
+ l2cap_sock_recvmsg (net/bluetooth/l2cap_sock.c:1212) bluetooth
+ sock_read_iter (net/socket.c:1087)
+ new_sync_read (./include/linux/fs.h:2052 fs/read_write.c:401)
+ vfs_read (fs/read_write.c:482)
+ ksys_read (fs/read_write.c:620)
+ do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
+ entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
 
-Maxim Levitsky <mlevitsk@redhat.com>
-    KVM: x86: emulator: em_sysexit should update ctxt->mode
+Link: https://lore.kernel.org/linux-bluetooth/CAKErNvoqga1WcmoR3-0875esY6TVWFQDandbVZncSiuGPBQXLA@mail.gmail.com/T/#u
+Fixes: d2a7ac5d5d3a ("Bluetooth: Add the ERTM receive state machine")
+Fixes: 4b51dae96731 ("Bluetooth: Add streaming mode receive and incoming packet classifier")
+Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/bluetooth/l2cap_core.c | 48 ++++++++++++++++++++++++++++++++------
+ 1 file changed, 41 insertions(+), 7 deletions(-)
 
-Jim Mattson <jmattson@google.com>
-    KVM: x86: Mask off reserved bits in CPUID.80000008H
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 8f1a95b9d320..d12d66f31b47 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -6885,6 +6885,7 @@ static int l2cap_rx_state_recv(struct l2cap_chan *chan,
+ 			       struct l2cap_ctrl *control,
+ 			       struct sk_buff *skb, u8 event)
+ {
++	struct l2cap_ctrl local_control;
+ 	int err = 0;
+ 	bool skb_in_use = false;
+ 
+@@ -6909,15 +6910,32 @@ static int l2cap_rx_state_recv(struct l2cap_chan *chan,
+ 			chan->buffer_seq = chan->expected_tx_seq;
+ 			skb_in_use = true;
+ 
++			/* l2cap_reassemble_sdu may free skb, hence invalidate
++			 * control, so make a copy in advance to use it after
++			 * l2cap_reassemble_sdu returns and to avoid the race
++			 * condition, for example:
++			 *
++			 * The current thread calls:
++			 *   l2cap_reassemble_sdu
++			 *     chan->ops->recv == l2cap_sock_recv_cb
++			 *       __sock_queue_rcv_skb
++			 * Another thread calls:
++			 *   bt_sock_recvmsg
++			 *     skb_recv_datagram
++			 *     skb_free_datagram
++			 * Then the current thread tries to access control, but
++			 * it was freed by skb_free_datagram.
++			 */
++			local_control = *control;
+ 			err = l2cap_reassemble_sdu(chan, skb, control);
+ 			if (err)
+ 				break;
+ 
+-			if (control->final) {
++			if (local_control.final) {
+ 				if (!test_and_clear_bit(CONN_REJ_ACT,
+ 							&chan->conn_state)) {
+-					control->final = 0;
+-					l2cap_retransmit_all(chan, control);
++					local_control.final = 0;
++					l2cap_retransmit_all(chan, &local_control);
+ 					l2cap_ertm_send(chan);
+ 				}
+ 			}
+@@ -7297,11 +7315,27 @@ static int l2cap_rx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
+ static int l2cap_stream_rx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
+ 			   struct sk_buff *skb)
+ {
++	/* l2cap_reassemble_sdu may free skb, hence invalidate control, so store
++	 * the txseq field in advance to use it after l2cap_reassemble_sdu
++	 * returns and to avoid the race condition, for example:
++	 *
++	 * The current thread calls:
++	 *   l2cap_reassemble_sdu
++	 *     chan->ops->recv == l2cap_sock_recv_cb
++	 *       __sock_queue_rcv_skb
++	 * Another thread calls:
++	 *   bt_sock_recvmsg
++	 *     skb_recv_datagram
++	 *     skb_free_datagram
++	 * Then the current thread tries to access control, but it was freed by
++	 * skb_free_datagram.
++	 */
++	u16 txseq = control->txseq;
++
+ 	BT_DBG("chan %p, control %p, skb %p, state %d", chan, control, skb,
+ 	       chan->rx_state);
+ 
+-	if (l2cap_classify_txseq(chan, control->txseq) ==
+-	    L2CAP_TXSEQ_EXPECTED) {
++	if (l2cap_classify_txseq(chan, txseq) == L2CAP_TXSEQ_EXPECTED) {
+ 		l2cap_pass_to_tx(chan, control);
+ 
+ 		BT_DBG("buffer_seq %u->%u", chan->buffer_seq,
+@@ -7324,8 +7358,8 @@ static int l2cap_stream_rx(struct l2cap_chan *chan, struct l2cap_ctrl *control,
+ 		}
+ 	}
+ 
+-	chan->last_acked_seq = control->txseq;
+-	chan->expected_tx_seq = __next_seq(chan, control->txseq);
++	chan->last_acked_seq = txseq;
++	chan->expected_tx_seq = __next_seq(chan, txseq);
+ 
+ 	return 0;
+ }
+-- 
+2.35.1
 
-Ye Bin <yebin10@huawei.com>
-    ext4: fix warning in 'ext4_da_release_space'
-
-Helge Deller <deller@gmx.de>
-    parisc: Avoid printing the hardware path twice
-
-Helge Deller <deller@gmx.de>
-    parisc: Export iosapic_serial_irq() symbol for serial port driver
-
-Helge Deller <deller@gmx.de>
-    parisc: Make 8250_gsc driver dependend on CONFIG_PARISC
-
-Ard Biesheuvel <ardb@kernel.org>
-    efi: random: reduce seed size to 32 bytes
-
-John Veness <john-linux@pelago.org.uk>
-    ALSA: usb-audio: Add quirks for MacroSilicon MS2100/MS2106 devices
-
-Gaosheng Cui <cuigaosheng1@huawei.com>
-    capabilities: fix potential memleak on error path from vfs_getxattr_alloc()
-
-Zheng Yejian <zhengyejian1@huawei.com>
-    tracing/histogram: Update document for KEYS_MAX size
-
-Li Qiang <liq3ea@163.com>
-    kprobe: reverse kp->flags when arm_kprobe failed
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    tcp/udp: Make early_demux back namespacified.
-
-David Sterba <dsterba@suse.com>
-    btrfs: fix type of parameter generation in btrfs_get_dentry
-
-Yu Kuai <yukuai3@huawei.com>
-    block, bfq: protect 'bfqd->queued' by 'bfqd->lock'
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: L2CAP: Fix attempting to access uninitialized memory
-
-Martin Tůma <martin.tuma@digiteqautomotive.com>
-    i2c: xiic: Add platform module alias
-
-Samuel Bailey <samuel.bailey1@gmail.com>
-    HID: saitek: add madcatz variant of MMO7 mouse device ID
-
-Hans Verkuil <hverkuil-cisco@xs4all.nl>
-    media: dvb-frontends/drxk: initialize err to 0
-
-Hans Verkuil <hverkuil-cisco@xs4all.nl>
-    media: cros-ec-cec: limit msg.len to CEC_MAX_MSG_SIZE
-
-Hans Verkuil <hverkuil-cisco@xs4all.nl>
-    media: s5p_cec: limit msg.len to CEC_MAX_MSG_SIZE
-
-Zhengchao Shao <shaozhengchao@huawei.com>
-    ipv6: fix WARNING in ip6_route_net_exit_late()
-
-Chen Zhongjin <chenzhongjin@huawei.com>
-    net, neigh: Fix null-ptr-deref in neigh_table_clear()
-
-Gaosheng Cui <cuigaosheng1@huawei.com>
-    net: mdio: fix undefined behavior in bit shift for __mdiobus_register
-
-Zhengchao Shao <shaozhengchao@huawei.com>
-    Bluetooth: L2CAP: fix use-after-free in l2cap_conn_del()
-
-Maxim Mikityanskiy <maxtram95@gmail.com>
-    Bluetooth: L2CAP: Fix use-after-free caused by l2cap_reassemble_sdu
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix ulist leaks in error paths of qgroup self tests
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix inode list leak during backref walking at resolve_indirect_refs()
-
-Yang Yingliang <yangyingliang@huawei.com>
-    isdn: mISDN: netjet: fix wrong check of device registration
-
-Yang Yingliang <yangyingliang@huawei.com>
-    mISDN: fix possible memory leak in mISDN_register_device()
-
-Zhang Qilong <zhangqilong3@huawei.com>
-    rose: Fix NULL pointer dereference in rose_send_frame()
-
-Zhengchao Shao <shaozhengchao@huawei.com>
-    ipvs: fix WARNING in ip_vs_app_net_cleanup()
-
-Zhengchao Shao <shaozhengchao@huawei.com>
-    ipvs: fix WARNING in __ip_vs_cleanup_batch()
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    ipvs: use explicitly signed chars
-
-Ziyang Xuan <william.xuanziyang@huawei.com>
-    net: tun: fix bugs for oversize packet when napi frags enabled
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    net: sched: Fix use after free in red_enqueue()
-
-Sergey Shtylyov <s.shtylyov@omp.ru>
-    ata: pata_legacy: fix pdc20230_set_piomode()
-
-Zhang Changzhong <zhangchangzhong@huawei.com>
-    net: fec: fix improper use of NETDEV_TX_BUSY
-
-Shang XiaoJing <shangxiaojing@huawei.com>
-    nfc: nfcmrvl: Fix potential memory leak in nfcmrvl_i2c_nci_send()
-
-Shang XiaoJing <shangxiaojing@huawei.com>
-    nfc: s3fwrn5: Fix potential memory leak in s3fwrn5_nci_send()
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    RDMA/qedr: clean up work queue on failure in qedr_alloc_resources()
-
-Chen Zhongjin <chenzhongjin@huawei.com>
-    net: dsa: Fix possible memory leaks in dsa_loop_init()
-
-Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-    nfs4: Fix kmemleak when allocate slot failed
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFSv4.1: We must always send RECLAIM_COMPLETE after a reboot
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFSv4.1: Handle RECLAIM_COMPLETE trunking errors
-
-
--------------
-
-Diffstat:
-
- Documentation/trace/histogram.rst                  |   2 +-
- Makefile                                           |   4 +-
- arch/parisc/include/asm/hardware.h                 |  12 +--
- arch/parisc/kernel/drivers.c                       |  14 ++-
- arch/x86/kvm/cpuid.c                               |   1 +
- arch/x86/kvm/emulate.c                             | 102 +++++++++++++++------
- block/bfq-iosched.c                                |   4 +-
- drivers/ata/pata_legacy.c                          |   5 +-
- drivers/firmware/efi/efi.c                         |   2 +-
- drivers/hid/hid-ids.h                              |   1 +
- drivers/hid/hid-quirks.c                           |   1 +
- drivers/hid/hid-saitek.c                           |   2 +
- drivers/i2c/busses/i2c-xiic.c                      |   1 +
- drivers/infiniband/hw/qedr/main.c                  |   9 +-
- drivers/isdn/hardware/mISDN/netjet.c               |   2 +-
- drivers/isdn/mISDN/core.c                          |   5 +-
- drivers/media/dvb-frontends/drxk_hard.c            |   2 +-
- drivers/media/platform/cros-ec-cec/cros-ec-cec.c   |   2 +
- drivers/media/platform/s5p-cec/s5p_cec.c           |   2 +
- drivers/net/dsa/dsa_loop.c                         |  25 +++--
- drivers/net/ethernet/freescale/fec_main.c          |   4 +-
- drivers/net/phy/mdio_bus.c                         |   2 +-
- drivers/net/tun.c                                  |   3 +-
- .../wireless/broadcom/brcm80211/brcmfmac/fweh.c    |   4 +
- drivers/nfc/nfcmrvl/i2c.c                          |   7 +-
- drivers/nfc/s3fwrn5/core.c                         |   8 +-
- drivers/parisc/iosapic.c                           |   1 +
- drivers/tty/serial/8250/Kconfig                    |   2 +-
- fs/btrfs/backref.c                                 |  36 ++++----
- fs/btrfs/export.c                                  |   2 +-
- fs/btrfs/export.h                                  |   2 +-
- fs/btrfs/tests/qgroup-tests.c                      |  20 +++-
- fs/ext4/migrate.c                                  |   3 +-
- fs/nfs/nfs4client.c                                |   1 +
- fs/nfs/nfs4state.c                                 |   2 +
- include/linux/bits.h                               |  17 ++--
- include/linux/efi.h                                |   2 +-
- include/net/protocol.h                             |   4 -
- include/net/tcp.h                                  |   2 +
- include/net/udp.h                                  |   1 +
- kernel/kprobes.c                                   |   5 +-
- net/bluetooth/l2cap_core.c                         |  52 +++++++++--
- net/core/neighbour.c                               |   2 +-
- net/ipv4/af_inet.c                                 |  14 +--
- net/ipv4/ip_input.c                                |  32 ++++---
- net/ipv4/sysctl_net_ipv4.c                         |  59 +-----------
- net/ipv6/ip6_input.c                               |  23 +++--
- net/ipv6/route.c                                   |  14 ++-
- net/ipv6/tcp_ipv6.c                                |   9 +-
- net/ipv6/udp.c                                     |   9 +-
- net/netfilter/ipvs/ip_vs_app.c                     |  10 +-
- net/netfilter/ipvs/ip_vs_conn.c                    |  30 ++++--
- net/rose/rose_link.c                               |   3 +
- net/sched/sch_red.c                                |   4 +-
- security/commoncap.c                               |   6 +-
- sound/usb/quirks-table.h                           |  58 ++++++++++++
- sound/usb/quirks.c                                 |   1 +
- 57 files changed, 415 insertions(+), 237 deletions(-)
 
 
