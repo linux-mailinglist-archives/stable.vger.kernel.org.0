@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5229F621554
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:10:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A1BF6213C7
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:54:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235226AbiKHOKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:10:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46728 "EHLO
+        id S234755AbiKHNyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:54:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235228AbiKHOK1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:10:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62C4E77203
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:10:26 -0800 (PST)
+        with ESMTP id S234793AbiKHNxn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:53:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D2565E64
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:53:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3651615B5
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:10:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B6EAC433C1;
-        Tue,  8 Nov 2022 14:10:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08AE9B816DD
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:53:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F49EC433C1;
+        Tue,  8 Nov 2022 13:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916625;
-        bh=zR2VOIOlFiLeKD8mLniZemC5q0Y54iEGRXSvder+ekc=;
+        s=korg; t=1667915616;
+        bh=ExkhoT/Kjaw5D+ppOEtG+tX13acY0kzR2DWq8z6AE1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKuJFsduGBxBksF85Rn49VD4Yi0abaCh+zijbKcICoZ3w0XYut73kQGmqXGe7kNeO
-         mobclyucN7pZKFi9jnCV5UD9ah+vg74D/oEKlg03Dsr58hK1/iOvEdgWVA78gbPQrA
-         nscu6HYQRamrdJLsPbI1E3DEQdDNBvIihvUhFT1Y=
+        b=qIIAmaJWUhkZGuQR4rbX2rn77fS0barMoPn6yiDFfvFbxap84/gJva8i1o38XJiHe
+         oAoeGF+/WKPlVxDi2yWu1LjMde2Sdg3nDsPRd122dhktj6B0DWo48rVLwqeAGVqTdq
+         MlDT6cXtlsfCeXcII/uSE8NfphJ6vsDkFiMhJzK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 081/197] io_uring: dont iopoll from io_ring_ctx_wait_and_kill()
+        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 041/118] btrfs: fix ulist leaks in error paths of qgroup self tests
 Date:   Tue,  8 Nov 2022 14:38:39 +0100
-Message-Id: <20221108133358.520512089@linuxfoundation.org>
+Message-Id: <20221108133342.453359494@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,49 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 02bac94bd8efd75f615ac7515dd2def75b43e5b9 ]
+[ Upstream commit d37de92b38932d40e4a251e876cc388f9aee5f42 ]
 
-We should not be completing requests from a task context that has already
-undergone io_uring cancellations, i.e. __io_uring_cancel(), as there are
-some assumptions, e.g. around cached task refs draining. Remove
-iopolling from io_ring_ctx_wait_and_kill() as it can be called later
-after PF_EXITING is set with the last task_work run.
+In the test_no_shared_qgroup() and test_multiple_refs() qgroup self tests,
+if we fail to add the tree ref, remove the extent item or remove the
+extent ref, we are returning from the test function without freeing the
+"old_roots" ulist that was allocated by the previous calls to
+btrfs_find_all_roots(). Fix that by calling ulist_free() before returning.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/7c03cc91455c4a1af49c6b9cbda4e57ea467aa11.1665891182.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 442244c96332 ("btrfs: qgroup: Switch self test to extent-oriented qgroup mechanism.")
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/io_uring.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ fs/btrfs/tests/qgroup-tests.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index c5dd483a7de2..d29f397f095e 100644
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -2653,15 +2653,12 @@ static __cold void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- 		io_poll_remove_all(ctx, NULL, true);
- 	mutex_unlock(&ctx->uring_lock);
+diff --git a/fs/btrfs/tests/qgroup-tests.c b/fs/btrfs/tests/qgroup-tests.c
+index ce1ca8e73c2d..c4b31dccc184 100644
+--- a/fs/btrfs/tests/qgroup-tests.c
++++ b/fs/btrfs/tests/qgroup-tests.c
+@@ -237,8 +237,10 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
  
--	/* failed during ring init, it couldn't have issued any requests */
--	if (ctx->rings) {
-+	/*
-+	 * If we failed setting up the ctx, we might not have any rings
-+	 * and therefore did not submit any requests
-+	 */
-+	if (ctx->rings)
- 		io_kill_timeouts(ctx, NULL, true);
--		/* if we failed setting up the ctx, we might not have any rings */
--		io_iopoll_try_reap_events(ctx);
--		/* drop cached put refs after potentially doing completions */
--		if (current->io_uring)
--			io_uring_drop_tctx_refs(current);
--	}
+ 	ret = insert_normal_tree_ref(root, nodesize, nodesize, 0,
+ 				BTRFS_FS_TREE_OBJECTID);
+-	if (ret)
++	if (ret) {
++		ulist_free(old_roots);
+ 		return ret;
++	}
  
- 	INIT_WORK(&ctx->exit_work, io_ring_exit_work);
- 	/*
+ 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
+ 			false);
+@@ -273,8 +275,10 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
+ 	}
+ 
+ 	ret = remove_extent_item(root, nodesize, nodesize);
+-	if (ret)
++	if (ret) {
++		ulist_free(old_roots);
+ 		return -EINVAL;
++	}
+ 
+ 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
+ 			false);
+@@ -338,8 +342,10 @@ static int test_multiple_refs(struct btrfs_root *root,
+ 
+ 	ret = insert_normal_tree_ref(root, nodesize, nodesize, 0,
+ 				BTRFS_FS_TREE_OBJECTID);
+-	if (ret)
++	if (ret) {
++		ulist_free(old_roots);
+ 		return ret;
++	}
+ 
+ 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
+ 			false);
+@@ -373,8 +379,10 @@ static int test_multiple_refs(struct btrfs_root *root,
+ 
+ 	ret = add_tree_ref(root, nodesize, nodesize, 0,
+ 			BTRFS_FIRST_FREE_OBJECTID);
+-	if (ret)
++	if (ret) {
++		ulist_free(old_roots);
+ 		return ret;
++	}
+ 
+ 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
+ 			false);
+@@ -414,8 +422,10 @@ static int test_multiple_refs(struct btrfs_root *root,
+ 
+ 	ret = remove_extent_ref(root, nodesize, nodesize, 0,
+ 				BTRFS_FIRST_FREE_OBJECTID);
+-	if (ret)
++	if (ret) {
++		ulist_free(old_roots);
+ 		return ret;
++	}
+ 
+ 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &new_roots,
+ 			false);
 -- 
 2.35.1
 
