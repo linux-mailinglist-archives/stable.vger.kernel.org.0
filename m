@@ -2,70 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4789621A27
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 18:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A76B9621A60
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 18:24:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233539AbiKHRK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 12:10:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47370 "EHLO
+        id S234435AbiKHRYL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 12:24:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234085AbiKHRKZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 12:10:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1897911A37
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 09:10:25 -0800 (PST)
+        with ESMTP id S234413AbiKHRYI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 12:24:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91F82BA7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 09:24:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B40BB616D8
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 17:10:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E32BEC433D6;
-        Tue,  8 Nov 2022 17:10:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DCF5B81BAC
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 17:24:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 539EBC433D6;
+        Tue,  8 Nov 2022 17:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667927424;
-        bh=LqBKK4mfRMflUJdqQ5LB48O45KoAjxVn/v5+pMB87do=;
+        s=korg; t=1667928244;
+        bh=Y6Ryl9oZa2ISdQBf49JkwE28vnGmSUeJ0iARZBq+FK4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jmhrOxeoYHnKWnOvydkSZ5vjcPxLDgCwwmRILYPNkpXh3FC7KOxckhrY+ghrxW7yM
-         thrKJC5KLgSedAyi1h6fZpCy99pmqDzMZhMXSHT36KVE1Zikch1v8lGxDCx/UOFA9U
-         /RWBC0nULjwIbrYiS6sZeb1oukMtx5mHLgpJsiqQ=
-Date:   Tue, 8 Nov 2022 18:10:20 +0100
+        b=Vq9Uvv9J4tUCm0hNqvMZIIwRsNSWyPCHwY3yc3w5LepROTghTUzEEu4XP1svCgUt3
+         qRaWxtUhJ+J9Pe0qlSwNsgldrFWISU6kwJeDdyFGXujWHFqP58TOoe/fs11e5m3Q86
+         CwEkQIHrtRX/xQ66hPp0kxJOo9Nuos/7VQo2ATvQ=
+Date:   Tue, 8 Nov 2022 18:24:00 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Luiz Capitulino <luizcap@amazon.com>
-Cc:     stable@vger.kernel.org, lcapitulino@gmail.com,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Borislav Petkov <bp@alien8.de>, Borislav Petkov <bp@suse.de>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Jeff Layton <jlayton@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>, Roman Gushchin <guro@fb.com>,
-        Serge Hallyn <serge@hallyn.com>, Tejun Heo <tj@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Yutian Yang <nglaive@gmail.com>,
-        Zefan Li <lizefan.x@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 5.10, 5.4] memcg: enable accounting of ipc resources
-Message-ID: <Y2qNfMiIM/+4h6c4@kroah.com>
-References: <20221104184131.17797-1-luizcap@amazon.com>
- <Y2jMXfbLTHwDBInx@kroah.com>
- <Y2pPhBL2g8fmqdql@kroah.com>
- <20221108165116.GA9011@dev-dsk-luizcap-1d-af6a6fef.us-east-1.amazon.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     Kevin Tian <kevin.tian@intel.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>, stable@vger.kernel.org,
+        patches@lists.linux.dev, Jason Gunthorpe <jgg@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 6.0 003/197] drm/i915/gvt: Add missing
+ vfio_unregister_group_dev() call
+Message-ID: <Y2qQsNt6VAJBL9rU@kroah.com>
+References: <20221108133354.787209461@linuxfoundation.org>
+ <20221108133354.938359604@linuxfoundation.org>
+ <20221108091651.716e3124.alex.williamson@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221108165116.GA9011@dev-dsk-luizcap-1d-af6a6fef.us-east-1.amazon.com>
+In-Reply-To: <20221108091651.716e3124.alex.williamson@redhat.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -75,32 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 08, 2022 at 04:51:16PM +0000, Luiz Capitulino wrote:
-> On Tue, Nov 08, 2022 at 01:45:56PM +0100, Greg Kroah-Hartman wrote:
+On Tue, Nov 08, 2022 at 09:16:51AM -0700, Alex Williamson wrote:
+> On Tue,  8 Nov 2022 14:37:21 +0100
+> Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
 > 
+> > From: Jason Gunthorpe <jgg@nvidia.com>
 > > 
+> > [ Upstream commit f423fa1bc9fe1978e6b9f54927411b62cb43eb04 ]
 > > 
-> > On Mon, Nov 07, 2022 at 10:14:05AM +0100, Greg Kroah-Hartman wrote:
-> > > On Fri, Nov 04, 2022 at 06:41:31PM +0000, Luiz Capitulino wrote:
-> > > > From: Vasily Averin <vvs@virtuozzo.com>
-> > > >
-> > > > Commit 18319498fdd4cdf8c1c2c48cd432863b1f915d6f upstream.
-> > > >
-> > > > [ This backport fixes CVE-2021-3759 for 5.10 and 5.4. Please, note that
-> > > >   it caused conflicts in all files being changed because upstream
-> > > >   changed ipc object allocation to and from kvmalloc() & friends (eg.
-> > > >   commits bc8136a543aa and fc37a3b8b4388e). However, I decided to keep
-> > > >   this backport about the memcg accounting fix only. ]
-> > >
-> > > Looks good, now queued up, thanks.
+> > When converting to directly create the vfio_device the mdev driver has to
+> > put a vfio_register_emulated_iommu_dev() in the probe() and a pairing
+> > vfio_unregister_group_dev() in the remove.
 > > 
-> > Ah, but you missed a fix-up patch for this one {sigh}
+> > This was missed for gvt, add it.
 > > 
-> > I've now queued up 18319498fdd4 ("memcg: enable accounting of ipc
-> > resources") as well.  Please be more careful in the future when
-> > backporting changes that you also include the fixes for those changes.
+> > Cc: stable@vger.kernel.org
+> > Fixes: 978cf586ac35 ("drm/i915/gvt: convert to use vfio_register_emulated_iommu_dev")
+> > Reported-by: Alex Williamson <alex.williamson@redhat.com>
+> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> > Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> > Reviewed-by: Christoph Hellwig <hch@lst.de>
+> > Link: https://lore.kernel.org/r/0-v1-013609965fe8+9d-vfio_gvt_unregister_jgg@nvidia.com
+> > Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >  drivers/gpu/drm/i915/gvt/kvmgt.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> > index e3cd58946477..dacd57732dbe 100644
+> > --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
+> > +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> > @@ -1595,6 +1595,7 @@ static void intel_vgpu_remove(struct mdev_device *mdev)
+> >  
+> >  	if (WARN_ON_ONCE(vgpu->attached))
+> >  		return;
+> > +	vfio_unregister_group_dev(&vgpu->vfio_device);
+> >  	intel_gvt_destroy_vgpu(vgpu);
+> >  }
+> >  
 > 
-> Good catch, the fixup is actually 6a4746ba06191e23d30230738e94334b26590a8a
+> Nak, the v6.0 backport for this also needs to call
+> vfio_uninit_group_dev().  kvmgt had missed both calls, but at the time
+> of f423fa1bc9fe this latter missing call had already been replaced by
+> vfio_put_device() in a5ddd2a99a7a, where cb9ff3f3b84c had implemented a
+> device release function with this call.  The correct backport should be:
+> 
+> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> index e3cd58946477..2404d856f764 100644
+> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
+> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> @@ -1595,6 +1595,8 @@ static void intel_vgpu_remove(struct mdev_device *mdev)
+>  
+>  	if (WARN_ON_ONCE(vgpu->attached))
+>  		return;
+> +	vfio_unregister_group_dev(&vgpu->vfio_device);
+> +	vfio_uninit_group_dev(&vgpu->vfio_device);
+>  	intel_gvt_destroy_vgpu(vgpu);
+>  }
+>  
+> Kevin, Yi, please confirm.  Thanks,
 
-Oops, yes, wrong git id in my clipboard buffer.
+Can you submit a real backport for this?  I'll go drop this one for now.
 
+thanks,
+
+greg k-h
