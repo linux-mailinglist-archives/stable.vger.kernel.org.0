@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6000E621365
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:49:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3641C62145F
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:00:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234619AbiKHNt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:49:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49704 "EHLO
+        id S234897AbiKHOAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:00:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234610AbiKHNt4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:49:56 -0500
+        with ESMTP id S234880AbiKHOA3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:00:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44FEDC764
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:49:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12B2966C96
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:00:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8E5B615A3
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:49:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD4E9C433D6;
-        Tue,  8 Nov 2022 13:49:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4975615A2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:00:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B85A9C433D7;
+        Tue,  8 Nov 2022 14:00:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915395;
-        bh=/K001D9QeV+ad9xjguYDAmDQXZEfv/wW9uMwdhMg2NA=;
+        s=korg; t=1667916028;
+        bh=dbhYEAJgVWuBPgDdMxla7ufAI9puyLdXwGEbC3Roo2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2u9PRfCJUCfwEoBdGBVFLAuzNXXPZjX5Sc0W+VviFq4bnb6SZXzSuN67gLy0Tpe9f
-         hY3QuGMj/4iK1BTs5dHMybaIvpDt1Qr8DVugrCDefy4Z/iU8ImKxxU11yBghK3qHw7
-         sNzuPXenC2wt2QBQkf3rMP1HsqXc8hYhooV+hKts=
+        b=zu5pxDn4cjD3e7JeqYyIG1RC4gHGXi7kd5PxzJd4YC8hUdXZKF3JwWuhBDfRctVQ9
+         XZYBP0XUJkw+XxKS2ZhY4D7GyJCr/xovXvxaYSV8P+Inhf52DrMJU5SHR+8uOCrZDH
+         djNn1vCBgQOvKnFNOv/8oL2GkSVVueUh43C0Q2ns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/74] nfc: s3fwrn5: Fix potential memory leak in s3fwrn5_nci_send()
+Subject: [PATCH 5.15 040/144] ipvs: fix WARNING in ip_vs_app_net_cleanup()
 Date:   Tue,  8 Nov 2022 14:38:37 +0100
-Message-Id: <20221108133334.036523540@linuxfoundation.org>
+Message-Id: <20221108133346.980755405@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 3a146b7e3099dc7cf3114f627d9b79291e2d2203 ]
+[ Upstream commit 5663ed63adb9619c98ab7479aa4606fa9b7a548c ]
 
-s3fwrn5_nci_send() will call s3fwrn5_i2c_write() or s3fwrn82_uart_write(),
-and free the skb if write() failed. However, even if the write() run
-succeeds, the skb will not be freed in write(). As the result, the skb
-will memleak. s3fwrn5_nci_send() should also free the skb when write()
-succeeds.
+During the initialization of ip_vs_app_net_init(), if file ip_vs_app
+fails to be created, the initialization is successful by default.
+Therefore, the ip_vs_app file doesn't be found during the remove in
+ip_vs_app_net_cleanup(). It will cause WRNING.
 
-Fixes: c04c674fadeb ("nfc: s3fwrn5: Add driver for Samsung S3FWRN5 NFC Chip")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The following is the stack information:
+name 'ip_vs_app'
+WARNING: CPU: 1 PID: 9 at fs/proc/generic.c:712 remove_proc_entry+0x389/0x460
+Modules linked in:
+Workqueue: netns cleanup_net
+RIP: 0010:remove_proc_entry+0x389/0x460
+Call Trace:
+<TASK>
+ops_exit_list+0x125/0x170
+cleanup_net+0x4ea/0xb00
+process_one_work+0x9bf/0x1710
+worker_thread+0x665/0x1080
+kthread+0x2e4/0x3a0
+ret_from_fork+0x1f/0x30
+</TASK>
+
+Fixes: 457c4cbc5a3d ("[NET]: Make /proc/net per network namespace")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/s3fwrn5/core.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/netfilter/ipvs/ip_vs_app.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nfc/s3fwrn5/core.c b/drivers/nfc/s3fwrn5/core.c
-index ba6c486d6465..9b43cd3a45af 100644
---- a/drivers/nfc/s3fwrn5/core.c
-+++ b/drivers/nfc/s3fwrn5/core.c
-@@ -97,11 +97,15 @@ static int s3fwrn5_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
- 	}
- 
- 	ret = s3fwrn5_write(info, skb);
--	if (ret < 0)
-+	if (ret < 0) {
- 		kfree_skb(skb);
-+		mutex_unlock(&info->mutex);
-+		return ret;
-+	}
- 
-+	consume_skb(skb);
- 	mutex_unlock(&info->mutex);
--	return ret;
-+	return 0;
+diff --git a/net/netfilter/ipvs/ip_vs_app.c b/net/netfilter/ipvs/ip_vs_app.c
+index f9b16f2b2219..fdacbc3c15be 100644
+--- a/net/netfilter/ipvs/ip_vs_app.c
++++ b/net/netfilter/ipvs/ip_vs_app.c
+@@ -599,13 +599,19 @@ static const struct seq_operations ip_vs_app_seq_ops = {
+ int __net_init ip_vs_app_net_init(struct netns_ipvs *ipvs)
+ {
+ 	INIT_LIST_HEAD(&ipvs->app_list);
+-	proc_create_net("ip_vs_app", 0, ipvs->net->proc_net, &ip_vs_app_seq_ops,
+-			sizeof(struct seq_net_private));
++#ifdef CONFIG_PROC_FS
++	if (!proc_create_net("ip_vs_app", 0, ipvs->net->proc_net,
++			     &ip_vs_app_seq_ops,
++			     sizeof(struct seq_net_private)))
++		return -ENOMEM;
++#endif
+ 	return 0;
  }
  
- static int s3fwrn5_nci_post_setup(struct nci_dev *ndev)
+ void __net_exit ip_vs_app_net_cleanup(struct netns_ipvs *ipvs)
+ {
+ 	unregister_ip_vs_app(ipvs, NULL /* all */);
++#ifdef CONFIG_PROC_FS
+ 	remove_proc_entry("ip_vs_app", ipvs->net->proc_net);
++#endif
+ }
 -- 
 2.35.1
 
