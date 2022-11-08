@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D606214F1
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:06:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12F3B6214F2
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:06:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235069AbiKHOGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:06:50 -0500
+        id S235009AbiKHOG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:06:56 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235076AbiKHOGt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:06:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF24F7054A
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:06:48 -0800 (PST)
+        with ESMTP id S235077AbiKHOGw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:06:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBA370569
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:06:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B2CB6152D
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:06:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78A44C433D6;
-        Tue,  8 Nov 2022 14:06:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A5D4615AF
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:06:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FFD4C433C1;
+        Tue,  8 Nov 2022 14:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916407;
-        bh=lT8aBcHHy1SJ8TCiyEg38XLiruCUZBSpFaPnz5ppt0M=;
+        s=korg; t=1667916410;
+        bh=cAPvpcwPPb8VUpzrSp0cist1qylJMsQvZEGA2r4jZGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0SfIvBbXFA7KKf0n/1aTeglDpI7hCgVkSWdS6X+DRamNmnOKgdohcgLJD6UZB6Ozc
-         WWv/nUkicf6uDFtWgmRpZ3PFpqgDlhxVCZpA03/IplpqOM4SmifurvAYwRpZvgQfOQ
-         NWNR45KOTTrXtF52R9Kfaq/o/h0K1m1lCzxHBzMw=
+        b=eBxhTJune1Nm0ek2Fag3kona9hWzFTsQAyXuwWDncLvIOjrXsMxmco8JtqeJFZuPT
+         7LpqBCXA1zjF0JvI6Rh7I/6OCQ/2IF/M78Sk9I3x+NOCZEuatmnizg3Py0SDzpQnNI
+         h32GDteDEFo8kfQy8FyS/CGj+WocYFCk1FxCk5Iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 011/197] NFSv4.1: Handle RECLAIM_COMPLETE trunking errors
-Date:   Tue,  8 Nov 2022 14:37:29 +0100
-Message-Id: <20221108133355.296980593@linuxfoundation.org>
+Subject: [PATCH 6.0 012/197] NFSv4.1: We must always send RECLAIM_COMPLETE after a reboot
+Date:   Tue,  8 Nov 2022 14:37:30 +0100
+Message-Id: <20221108133355.335808132@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
 References: <20221108133354.787209461@linuxfoundation.org>
@@ -56,12 +56,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 5d917cba3201e5c25059df96c29252fd99c4f6a7 ]
+[ Upstream commit e59679f2b7e522ecad99974e5636291ffd47c184 ]
 
-If RECLAIM_COMPLETE sets the NFS4CLNT_BIND_CONN_TO_SESSION flag, then we
-need to loop back in order to handle it.
+Currently, we are only guaranteed to send RECLAIM_COMPLETE if we have
+open state to recover. Fix the client to always send RECLAIM_COMPLETE
+after setting up the lease.
 
-Fixes: 0048fdd06614 ("NFSv4.1: RECLAIM_COMPLETE must handle NFS4ERR_CONN_NOT_BOUND_TO_SESSION")
+Fixes: fce5c838e133 ("nfs41: RECLAIM_COMPLETE functionality")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
@@ -70,17 +71,17 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 9bab3e9c702a..0b6bd6336c98 100644
+index 0b6bd6336c98..a629d7db9420 100644
 --- a/fs/nfs/nfs4state.c
 +++ b/fs/nfs/nfs4state.c
-@@ -2671,6 +2671,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
- 			if (status < 0)
- 				goto out_error;
- 			nfs4_state_end_reclaim_reboot(clp);
-+			continue;
- 		}
+@@ -1787,6 +1787,7 @@ static void nfs4_state_mark_reclaim_helper(struct nfs_client *clp,
  
- 		/* Detect expired delegations... */
+ static void nfs4_state_start_reclaim_reboot(struct nfs_client *clp)
+ {
++	set_bit(NFS4CLNT_RECLAIM_REBOOT, &clp->cl_state);
+ 	/* Mark all delegations for reclaim */
+ 	nfs_delegation_mark_reclaim(clp);
+ 	nfs4_state_mark_reclaim_helper(clp, nfs4_state_mark_reclaim_reboot);
 -- 
 2.35.1
 
