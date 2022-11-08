@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13160621317
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:46:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E7006212F3
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234537AbiKHNqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:46:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46314 "EHLO
+        id S234500AbiKHNok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:44:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234535AbiKHNqa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F2715986B
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:29 -0800 (PST)
+        with ESMTP id S234504AbiKHNoj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D28653ED2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:44:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42CB5B81AE4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81FE6C433C1;
-        Tue,  8 Nov 2022 13:46:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 194A161528
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:44:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E6B7C433D7;
+        Tue,  8 Nov 2022 13:44:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915187;
-        bh=yiIzXuZM9GjgS4fZj8vRVtLtXLlHE/SbAOL9ivkoV98=;
+        s=korg; t=1667915077;
+        bh=pmWZuBWB69ZD3RliXMulOZtvRofWVE36ayG8b2zNp14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAXFhWfGSUcth5rFAWFxHFeIgF9tJ9nN9Jm6i1pvQeMQN8IJkRFhjVmQtYBImQ/aY
-         uRvu1Y7RmfIE/h7MBw/T0/5+VZri6LIxOTmPjBHK1e6PYmhICTs8ad3r8gyA+a5FZl
-         gMfe4p81UojFb9bi1bi7EW7TUur5H7CvnNDb6Tj0=
+        b=EywPWuuvawnpSmSweHEA+sTuVFkaAEhfPGW7pnb3isXIUDn44iJUhf8fNlrxE+0QC
+         yz37VVsDoNeXOqyLxcj+WXMle8HjsAA9abqLIBD7vx3IJlO/7Pw6Xit9+R6oXBACmv
+         N5AoSQNHOHG1eXsyyE0woKa/qUEbZCUTWyyXVUBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Serge Hallyn <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 4.19 36/48] capabilities: fix potential memleak on error path from vfs_getxattr_alloc()
+        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 36/40] KVM: x86: emulator: update the emulation mode after CR0 write
 Date:   Tue,  8 Nov 2022 14:39:21 +0100
-Message-Id: <20221108133330.808108524@linuxfoundation.org>
+Message-Id: <20221108133329.688828212@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
+References: <20221108133328.351887714@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit 8cf0a1bc12870d148ae830a4ba88cfdf0e879cee upstream.
+commit ad8f9e69942c7db90758d9d774157e53bce94840 upstream.
 
-In cap_inode_getsecurity(), we will use vfs_getxattr_alloc() to
-complete the memory allocation of tmpbuf, if we have completed
-the memory allocation of tmpbuf, but failed to call handler->get(...),
-there will be a memleak in below logic:
+Update the emulation mode when handling writes to CR0, because
+toggling CR0.PE switches between Real and Protected Mode, and toggling
+CR0.PG when EFER.LME=1 switches between Long and Protected Mode.
 
-  |-- ret = (int)vfs_getxattr_alloc(mnt_userns, ...)
-    |           /* ^^^ alloc for tmpbuf */
-    |-- value = krealloc(*xattr_value, error + 1, flags)
-    |           /* ^^^ alloc memory */
-    |-- error = handler->get(handler, ...)
-    |           /* error! */
-    |-- *xattr_value = value
-    |           /* xattr_value is &tmpbuf (memory leak!) */
+This is likely a benign bug because there is no writeback of state,
+other than the RIP increment, and when toggling CR0.PE, the CPU has
+to execute code from a very low memory address.
 
-So we will try to free(tmpbuf) after vfs_getxattr_alloc() fails to fix it.
-
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20221025124741.228045-14-mlevitsk@redhat.com>
 Cc: stable@vger.kernel.org
-Fixes: 8db6c34f1dbc ("Introduce v3 namespaced file capabilities")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Acked-by: Serge Hallyn <serge@hallyn.com>
-[PM: subject line and backtrace tweaks]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/commoncap.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kvm/emulate.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -397,8 +397,10 @@ int cap_inode_getsecurity(struct inode *
- 				 &tmpbuf, size, GFP_NOFS);
- 	dput(dentry);
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -3651,11 +3651,25 @@ static int em_movbe(struct x86_emulate_c
  
--	if (ret < 0 || !tmpbuf)
--		return ret;
-+	if (ret < 0 || !tmpbuf) {
-+		size = ret;
-+		goto out_free;
+ static int em_cr_write(struct x86_emulate_ctxt *ctxt)
+ {
+-	if (ctxt->ops->set_cr(ctxt, ctxt->modrm_reg, ctxt->src.val))
++	int cr_num = ctxt->modrm_reg;
++	int r;
++
++	if (ctxt->ops->set_cr(ctxt, cr_num, ctxt->src.val))
+ 		return emulate_gp(ctxt, 0);
+ 
+ 	/* Disable writeback. */
+ 	ctxt->dst.type = OP_NONE;
++
++	if (cr_num == 0) {
++		/*
++		 * CR0 write might have updated CR0.PE and/or CR0.PG
++		 * which can affect the cpu's execution mode.
++		 */
++		r = emulator_recalc_and_set_mode(ctxt);
++		if (r != X86EMUL_CONTINUE)
++			return r;
 +	}
++
+ 	return X86EMUL_CONTINUE;
+ }
  
- 	fs_ns = inode->i_sb->s_user_ns;
- 	cap = (struct vfs_cap_data *) tmpbuf;
 
 
