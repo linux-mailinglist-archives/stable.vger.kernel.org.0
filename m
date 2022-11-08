@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 327CC6214B7
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:04:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32FCD6212EE
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:44:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235003AbiKHOEU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:04:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39220 "EHLO
+        id S234456AbiKHNo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:44:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235009AbiKHOES (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:04:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A3421B1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:04:18 -0800 (PST)
+        with ESMTP id S234497AbiKHNo2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:44:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37327554F6
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:44:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E09C96158F
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:04:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E40A0C433D6;
-        Tue,  8 Nov 2022 14:04:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF290B81AEE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:44:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CDA8C433D6;
+        Tue,  8 Nov 2022 13:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916257;
-        bh=hEWkQIbJBnSlDe0v0JO3O+rOlGUaUxPkEEZmNlVFRNc=;
+        s=korg; t=1667915065;
+        bh=0124ggx+7KNbom17Wq/mYCILGcXtHb9U9tcHWjfp9bI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZiF992etRcK4EF+b3gghSJf4V/FAR5A1zXL7JqWEBst8Q0ElVZHEI2s0kcQdPoq3l
-         dn1snW0Lzx7pw+Z3emleooc/IdXj3QuNASk1Mt1zSb/U5CirLkKNV4Sg9XZ/aJrjsA
-         3l7VTWrl5vbBdX0KjBQFnGqTkICzLgtMlr24CPqQ=
+        b=nB4X6EFNcNLf4kySb4Thu5PmOlD2gOTIX+gQDyYTgXCrdqq/RtB+NY6hFduZg5GvF
+         jvuZq/gG1MnNTA2ql9d9M9D69X2/TsZiuPXyufbdMHAz+LbLvN+T5HsttiM9KxFVfE
+         Ds7cnyhutp4GGl6TZmgYd93s2hf2kXhYcSDBi0QE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Samuel Bailey <samuel.bailey1@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 080/144] HID: saitek: add madcatz variant of MMO7 mouse device ID
-Date:   Tue,  8 Nov 2022 14:39:17 +0100
-Message-Id: <20221108133348.674155333@linuxfoundation.org>
+        patches@lists.linux.dev, Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 33/40] KVM: x86: Mask off reserved bits in CPUID.80000008H
+Date:   Tue,  8 Nov 2022 14:39:18 +0100
+Message-Id: <20221108133329.592369108@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
+References: <20221108133328.351887714@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,61 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Bailey <samuel.bailey1@gmail.com>
+From: Jim Mattson <jmattson@google.com>
 
-[ Upstream commit 79425b297f56bd481c6e97700a9a4e44c7bcfa35 ]
+commit 7030d8530e533844e2f4b0e7476498afcd324634 upstream.
 
-The MadCatz variant of the MMO7 mouse has the ID 0738:1713 and the same
-quirks as the Saitek variant.
+KVM_GET_SUPPORTED_CPUID should only enumerate features that KVM
+actually supports. The following ranges of CPUID.80000008H are reserved
+and should be masked off:
+    ECX[31:18]
+    ECX[11:8]
 
-Signed-off-by: Samuel Bailey <samuel.bailey1@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In addition, the PerfTscSize field at ECX[17:16] should also be zero
+because KVM does not set the PERFTSC bit at CPUID.80000001H.ECX[27].
+
+Fixes: 24c82e576b78 ("KVM: Sanitize cpuid")
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Message-Id: <20220929225203.2234702-3-jmattson@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- drivers/hid/hid-saitek.c | 2 ++
- 3 files changed, 4 insertions(+)
+ arch/x86/kvm/cpuid.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index a5aac9cc2075..c8a313c84a57 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -845,6 +845,7 @@
- #define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
- #define USB_DEVICE_ID_MADCATZ_RAT5	0x1705
- #define USB_DEVICE_ID_MADCATZ_RAT9	0x1709
-+#define USB_DEVICE_ID_MADCATZ_MMO7  0x1713
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -663,6 +663,7 @@ static inline int __do_cpuid_ent(struct
+ 			g_phys_as = phys_as;
  
- #define USB_VENDOR_ID_MCC		0x09db
- #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 544d1197aca4..8d36cb7551cf 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -608,6 +608,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT5) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_MMO7) },
- #endif
- #if IS_ENABLED(CONFIG_HID_SAMSUNG)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
-diff --git a/drivers/hid/hid-saitek.c b/drivers/hid/hid-saitek.c
-index c7bf14c01960..b84e975977c4 100644
---- a/drivers/hid/hid-saitek.c
-+++ b/drivers/hid/hid-saitek.c
-@@ -187,6 +187,8 @@ static const struct hid_device_id saitek_devices[] = {
- 		.driver_data = SAITEK_RELEASE_MODE_RAT7 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7),
- 		.driver_data = SAITEK_RELEASE_MODE_MMO7 },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_MMO7),
-+		.driver_data = SAITEK_RELEASE_MODE_MMO7 },
- 	{ }
- };
- 
--- 
-2.35.1
-
+ 		entry->eax = g_phys_as | (virt_as << 8);
++		entry->ecx &= ~(GENMASK(31, 16) | GENMASK(11, 8));
+ 		entry->edx = 0;
+ 		/*
+ 		 * IBRS, IBPB and VIRT_SSBD aren't necessarily present in
 
 
