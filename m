@@ -2,164 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC9D0621CF0
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 20:20:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E968621CFD
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 20:27:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229675AbiKHTUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 14:20:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51818 "EHLO
+        id S229503AbiKHT1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 14:27:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229621AbiKHTUn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 14:20:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49ABF6C71F;
-        Tue,  8 Nov 2022 11:20:42 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D82BC6173F;
-        Tue,  8 Nov 2022 19:20:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38587C433D6;
-        Tue,  8 Nov 2022 19:20:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667935241;
-        bh=JsQ7IAXX736if0do7+rF4cpmY09knimF5FgdWdfJoyw=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=kJydPl/IMLM7XNIratGgzwUAdQghfjqRl2+WduMSRWC5jy/DtRlBTEvKIrx5KvmEq
-         LZAkuMX4kptEzbGzus6JZC9LBfi7phAE8oFPJVGHMGlXa1+FWtw1bRbbJyksl54IEQ
-         nVdBaNR7F7QnyKkwgGLcWhvxGNNu6NnVTXF+rLCuRokwr87SdVPzEtuIWQhu90EfTC
-         WBtYOyAIOWcoU/l3i7rCM0gJpxqVoQtCBBmtKDyXqmRKEW2NfQrg1+AIrNELOOODS3
-         vtNe180h7++z62MqK5xL6dm7o4yJKS20YKCFD+j3l09JJKXPPyvqSG/csqJqi85+nw
-         21eQxdWkfTMyg==
-Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
-        id D596A5C1E87; Tue,  8 Nov 2022 11:20:39 -0800 (PST)
-Date:   Tue, 8 Nov 2022 11:20:39 -0800
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     Maria Yu <quic_aiquny@quicinc.com>, Arnd Bergmann <arnd@arndb.de>,
-        linux-gpio@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] pinctrl: core: Make p->state in order in
- pinctrl_commit_state
-Message-ID: <20221108192039.GH3907045@paulmck-ThinkPad-P17-Gen-1>
-Reply-To: paulmck@kernel.org
-References: <20221027065110.9395-1-quic_aiquny@quicinc.com>
- <CACRpkdbCwvGr4JA+=khynduWSZSbSN8D9dtsY0h_9LxkqJuQ_Q@mail.gmail.com>
+        with ESMTP id S229686AbiKHT1v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 14:27:51 -0500
+Received: from mail-qv1-xf2f.google.com (mail-qv1-xf2f.google.com [IPv6:2607:f8b0:4864:20::f2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF7962228E;
+        Tue,  8 Nov 2022 11:27:50 -0800 (PST)
+Received: by mail-qv1-xf2f.google.com with SMTP id h10so10894284qvq.7;
+        Tue, 08 Nov 2022 11:27:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:from:user-agent:mime-version:date:message-id:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=EF69t9SF3x61lH/czl++mmCOkbNRPl0mdOxYpEl0ZJY=;
+        b=i/R/UyK00fjhw0Gd1bgCB8+Wxb7ibJvCxm18utgoIFJt6d6GVhSv68rLdnzfFEHSnE
+         Nb7AHIHbmmlfl4WZr5eBaERoXudsUFgt+qOnT3k53Lr4F2gijlVOQmxNskxw9NBLiafX
+         DBajWxgwsPFzHwZlKOQUaHgcM2RO/J2RP/qFu5I0Y5yF6NDrlyeAwfid7Ft8Nup2Ca3d
+         YTa2fsoNFbbLhvlzNaWJX+EFUBsD/GuDXGF+ZU1U+C0Wp5GQJF7xySKPCHj/LFbs4JiW
+         6CrH4XhjdcxzDgnYhMKJo1v2o4dI7YpjeuLnoZHohABlyTa5wkmlWyo6qWetoGycZM4a
+         xptA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:from:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=EF69t9SF3x61lH/czl++mmCOkbNRPl0mdOxYpEl0ZJY=;
+        b=jenCZ0BRS/8jVXy20qlJidBovky7btYPz03c6ZVWLXs/gc+RXicMCCMGPxO9GCVs2B
+         5Kqvayx8Iqb1dL/dz3PAUonGvp76D0FGX5NGBS3BFOtJBD09K81ZwDn0ZKm7+cUTXK47
+         vwHqT5fzUoD1K2ww/h6+LM6+L2IEza3h4Dx9QvRW6RTkEkny65/+o6CnJN1nCsAj2YYY
+         MXtuhV/yf8vLDkNpSSQ3bEzZCqSKFFFjkp8CPuzSw7/5fMQe3X931dhjDw0N/FdPkQuX
+         DRRhGYkpq02q+eo+J/YGhIiXycxQ2MfbTuFhzadEZHdZnQQpm22jpagal58SoXYij87Q
+         d5GA==
+X-Gm-Message-State: ACrzQf1G+mNVNY2NWOSjdjqpQ25POQTFRNy5fqqnvNbW8Z0crmuOzdgV
+        qP++/QzbvSKtJmfzPCPrFHs=
+X-Google-Smtp-Source: AMsMyM6BBm6ib7X3NTmbMzqQ4gCyTQwLwGpv9L8fijeutqCGsSZZ6bF7OzYf7J1Ecm+IRsyH/fafZw==
+X-Received: by 2002:a05:6214:76d:b0:4bb:e59a:17dc with SMTP id f13-20020a056214076d00b004bbe59a17dcmr47088968qvz.125.1667935669746;
+        Tue, 08 Nov 2022 11:27:49 -0800 (PST)
+Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
+        by smtp.gmail.com with ESMTPSA id u22-20020a05620a431600b006cfc01b4461sm9647505qko.118.2022.11.08.11.27.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 08 Nov 2022 11:27:49 -0800 (PST)
+Message-ID: <682a9f6a-d8d0-8f73-b262-2d38c55bc4be@gmail.com>
+Date:   Tue, 8 Nov 2022 11:27:46 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACRpkdbCwvGr4JA+=khynduWSZSbSN8D9dtsY0h_9LxkqJuQ_Q@mail.gmail.com>
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Subject: Re: [PATCH 5.10 000/118] 5.10.154-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
+References: <20221108133340.718216105@linuxfoundation.org>
+Content-Language: en-US
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 08, 2022 at 01:47:15PM +0100, Linus Walleij wrote:
-> Hi Maria,
+
+
+On 11/8/2022 5:37 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.154 release.
+> There are 118 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> thanks for your patch!
+> Responses should be made by Thu, 10 Nov 2022 13:33:17 +0000.
+> Anything received after that time might be too late.
 > 
-> On Thu, Oct 27, 2022 at 8:51 AM Maria Yu <quic_aiquny@quicinc.com> wrote:
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.154-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
 > 
-> > We've got a dump that current cpu is in pinctrl_commit_state, the
-> > old_state != p->state while the stack is still in the process of
-> > pinmux_disable_setting. So it means even if the current p->state is
-> > changed in new state, the settings are not yet up-to-date enabled
-> > complete yet.
-> >
-> > Currently p->state in different value to synchronize the
-> > pinctrl_commit_state behaviors. The p->state will have transaction like
-> > old_state -> NULL -> new_state. When in old_state, it will try to
-> > disable all the all state settings. And when after new state settings
-> > enabled, p->state will changed to the new state after that. So use
-> > smp_mb to synchronize the p->state variable and the settings in order.
-> > ---
-> >  drivers/pinctrl/core.c | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> > diff --git a/drivers/pinctrl/core.c b/drivers/pinctrl/core.c
-> > index 9e57f4c62e60..cd917a5b1a0a 100644
-> > --- a/drivers/pinctrl/core.c
-> > +++ b/drivers/pinctrl/core.c
-> > @@ -1256,6 +1256,7 @@ static int pinctrl_commit_state(struct pinctrl *p, struct pinctrl_state *state)
-> >                 }
-> >         }
-> >
-> > +       smp_mb();
-> >         p->state = NULL;
-> >
-> >         /* Apply all the settings for the new state - pinmux first */
-> > @@ -1305,6 +1306,7 @@ static int pinctrl_commit_state(struct pinctrl *p, struct pinctrl_state *state)
-> >                         pinctrl_link_add(setting->pctldev, p->dev);
-> >         }
-> >
-> > +       smp_mb();
-> >         p->state = state;
-> >
-> >         return 0;
+> thanks,
 > 
-> Ow!
-> 
-> It's not often that I loop in Paul McKenney on patches, but this is in the core
-> of the subsystem used across all architectures so if this is a generic problem
-> of concurrency, I really want some professional concurrency person to
-> look at it before I apply it.
+> greg k-h
 
-Hello, Linus and Maria!
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-Insertion of unadorned and uncommented memory barriers does rouse more
-than a bit of suspicion, to be sure.  ;-)
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
 
-Could you please outline what ordering this smp_mb() is intended to
-provide?  Yes, my guess is that the p->state change is to be seen as
-happening after the prior memory accesses, but:
-
-1.	What is the other side of the interaction doing?  My guess is
-	that something is reading p->state and the referencing the same
-	memory referenced prior to the pair of smp_mb() calls above.
-	For example, are the other relevant memory references referenced
-	by the pointer "p"?
-
-	For example, what happens if two of the above updates happen in
-	quick succession during the execution of a single instance of
-	the other side of the interaction?
-
-2.	Why smp_mb() rather than using smp_store_release() to update
-	p->state?
-
-3.	More generally, why unmarked accesses to p->state?  Are the
-	other relevant accesses also unmarked?
-
-	Please see these LWN articles for more on the potential dangers
-	of unmarked accesses to shared variables:
-
-	Who's afraid of a big bad optimizing compiler?
-		https://lwn.net/Articles/793253/
-
-	Calibrating your fear of big bad optimizing compilers
-		https://lwn.net/Articles/799218/
-
-4.	There are some tools that can help with this sort of ordering
-	code, for example:
-
-	Concurrency bugs should fear the big bad data-race detector (part 1)
-		https://lwn.net/Articles/816850/
-	Concurrency bugs should fear the big bad data-race detector (part 2)
-		https://lwn.net/Articles/816854/
-
-	For this tool (KCSAN) to find a problem, your testing must come
-	close to making it happen.
-
-	A design-level full-state-space tool may be found in
-	tools/memotry-model.  This tool, as you might expect, is
-	restricted to very short code fragments, but does fully handle
-	concurrency.  It might take some work to squeeze what you have
-	into the confines of this tool.
-
-Again, to evaluate this change, I need to understand what it is trying
-to accomplish.
-
-							Thanx, Paul
