@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F36D6215BB
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:14:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC91C6214C6
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:05:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235245AbiKHOOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:14:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52710 "EHLO
+        id S235026AbiKHOFA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:05:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235342AbiKHOOb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:14:31 -0500
+        with ESMTP id S235020AbiKHOFA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:05:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0397A2AE28
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:14:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE6B686B3
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:04:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9668E60025
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:14:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 596A1C433C1;
-        Tue,  8 Nov 2022 14:14:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C9F2611B7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:04:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80ACFC433D6;
+        Tue,  8 Nov 2022 14:04:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916870;
-        bh=+A9R9iXaj0tnMppuYoK6/HVugyLmetw5AC7z/3p0AMs=;
+        s=korg; t=1667916298;
+        bh=tAKWqDKsTA3xWZFdvAdpr5GjxGl/E3+Gq1dQoTETmFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qzfOoRq+uBVbXYZ5CCSHDzT8t+TscIK7YfNWCVwSTu9dVbCIzr+vHYlv7rYZr0pnC
-         s4V3trGkRbuVFmJhaARbQNS/tg0LKTFhvnIi3VOnBt08HEzNt4NB73H48zQAs3RXV5
-         EXTpHf9vkS/75JYcCP0ZnobJhfiRVWM6kC7oNL/M=
+        b=E4cxK0xjuYczifVQcIY2ZYnqxyUYC60oLsOq9Cg7oCUcAM7K8Hwvy1n7+2HLNJZMP
+         yhstQloyF4/tndoTxoZ0RXFo9HSe4o8BwvdTtGrvYP3Jp+zcRHgPnuLaSpT/AEJVir
+         6qlEZA7xRhnrsN2oc+fiwvYprsfvT8C6NHPyI6yg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        Stefan Metzmacher <metze@samba.org>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.0 160/197] net: also flag accepted sockets supporting msghdr originated zerocopy
-Date:   Tue,  8 Nov 2022 14:39:58 +0100
-Message-Id: <20221108133402.210696893@linuxfoundation.org>
+        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.15 122/144] parisc: Avoid printing the hardware path twice
+Date:   Tue,  8 Nov 2022 14:39:59 +0100
+Message-Id: <20221108133350.446611709@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +51,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Metzmacher <metze@samba.org>
+From: Helge Deller <deller@gmx.de>
 
-commit 71b7786ea478f3c4611deff4d2b9676b0c17c56b upstream.
+commit 2b6ae0962b421103feb41a80406732944b0665b3 upstream.
 
-Without this only the client initiated tcp sockets have SOCK_SUPPORT_ZC.
-The listening socket on the server also has it, but the accepted
-connections didn't, which meant IORING_OP_SEND[MSG]_ZC will always
-fails with -EOPNOTSUPP.
+Avoid that the hardware path is shown twice in the kernel log, and clean
+up the output of the version numbers to show up in the same order as
+they are listed in the hardware database in the hardware.c file.
+Additionally, optimize the memory footprint of the hardware database
+and mark some code as init code.
 
-Fixes: e993ffe3da4b ("net: flag sockets supporting msghdr originated zerocopy")
-Cc: <stable@vger.kernel.org> # 6.0
-CC: Jens Axboe <axboe@kernel.dk>
-Link: https://lore.kernel.org/io-uring/20221024141503.22b4e251@kernel.org/T/#m38aa19b0b825758fb97860a38ad13122051f9dda
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: cab56b51ec0e ("parisc: Fix device names in /proc/iomem")
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org> # v4.9+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/af_inet.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/parisc/include/asm/hardware.h |   12 ++++++------
+ arch/parisc/kernel/drivers.c       |   14 ++++++--------
+ 2 files changed, 12 insertions(+), 14 deletions(-)
 
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -748,6 +748,8 @@ int inet_accept(struct socket *sock, str
- 		  (TCPF_ESTABLISHED | TCPF_SYN_RECV |
- 		  TCPF_CLOSE_WAIT | TCPF_CLOSE)));
+--- a/arch/parisc/include/asm/hardware.h
++++ b/arch/parisc/include/asm/hardware.h
+@@ -10,12 +10,12 @@
+ #define SVERSION_ANY_ID		PA_SVERSION_ANY_ID
  
-+	if (test_bit(SOCK_SUPPORT_ZC, &sock->flags))
-+		set_bit(SOCK_SUPPORT_ZC, &newsock->flags);
- 	sock_graft(sk2, newsock);
+ struct hp_hardware {
+-	unsigned short	hw_type:5;	/* HPHW_xxx */
+-	unsigned short	hversion;
+-	unsigned long	sversion:28;
+-	unsigned short	opt;
+-	const char	name[80];	/* The hardware description */
+-};
++	unsigned int	hw_type:8;	/* HPHW_xxx */
++	unsigned int	hversion:12;
++	unsigned int	sversion:12;
++	unsigned char	opt;
++	unsigned char	name[59];	/* The hardware description */
++} __packed;
  
- 	newsock->state = SS_CONNECTED;
+ struct parisc_device;
+ 
+--- a/arch/parisc/kernel/drivers.c
++++ b/arch/parisc/kernel/drivers.c
+@@ -882,15 +882,13 @@ void __init walk_central_bus(void)
+ 			&root);
+ }
+ 
+-static void print_parisc_device(struct parisc_device *dev)
++static __init void print_parisc_device(struct parisc_device *dev)
+ {
+-	char hw_path[64];
+-	static int count;
++	static int count __initdata;
+ 
+-	print_pa_hwpath(dev, hw_path);
+-	pr_info("%d. %s at %pap [%s] { %d, 0x%x, 0x%.3x, 0x%.5x }",
+-		++count, dev->name, &(dev->hpa.start), hw_path, dev->id.hw_type,
+-		dev->id.hversion_rev, dev->id.hversion, dev->id.sversion);
++	pr_info("%d. %s at %pap { type:%d, hv:%#x, sv:%#x, rev:%#x }",
++		++count, dev->name, &(dev->hpa.start), dev->id.hw_type,
++		dev->id.hversion, dev->id.sversion, dev->id.hversion_rev);
+ 
+ 	if (dev->num_addrs) {
+ 		int k;
+@@ -1079,7 +1077,7 @@ static __init int qemu_print_iodc_data(s
+ 
+ 
+ 
+-static int print_one_device(struct device * dev, void * data)
++static __init int print_one_device(struct device * dev, void * data)
+ {
+ 	struct parisc_device * pdev = to_parisc_device(dev);
+ 
 
 
