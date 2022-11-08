@@ -2,262 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD1B0620DBB
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 11:50:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5704D620DCC
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 11:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233654AbiKHKu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 05:50:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39386 "EHLO
+        id S233694AbiKHKxM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 05:53:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233719AbiKHKum (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 05:50:42 -0500
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3E6F43863;
-        Tue,  8 Nov 2022 02:50:37 -0800 (PST)
-Received: by mail-ej1-x630.google.com with SMTP id kt23so37464380ejc.7;
-        Tue, 08 Nov 2022 02:50:37 -0800 (PST)
+        with ESMTP id S232911AbiKHKxM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 05:53:12 -0500
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F15845EC3
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 02:53:11 -0800 (PST)
+Received: by mail-pg1-x52b.google.com with SMTP id 130so684648pgc.5
+        for <stable@vger.kernel.org>; Tue, 08 Nov 2022 02:53:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=UrLKP3UiO1uMTLoB7GA8QoDhrr0O6Yze6wD2/gHgWJM=;
-        b=mCB3vyrCeq1gZDIEyDN9sfaW2DyFwB0PA8CxQ9Yi9ipvZD45cze/fnccuO40/FJThr
-         fU80WDh3ula4rOHqYKKVrtkDpYWJuV4u9rjGnFuKR6aP4zYfl1SUiOJ++7Nkt5CL2Rgc
-         LKCojqUIAbVPlgZBgw6LGVF2TEE4NRFDDf7N+ZRoboY9CS/2R2CZdKsS6Wo+JMqiRkdR
-         qoqfePe/PSzQ0cfU+hMDLpWck9gjf7W/SFT26vIYFiY+d/bdWL+OFn+kU2u7nuSYDIak
-         xB88S5rGe3XCOfEjyWdYVNafLK2ehXKwRTYoDPJJyWraoZ/NRT0thtXZDd5ON1CygBvF
-         DDAw==
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=cgfqpz+qWE1QdvFfSX/U7yr3LOPeMHUv9Uef5mfoW4E=;
+        b=VFCiPtKP88x+XK6sVYmvdE8tLCkGVo5m1vNi8sJNjLu4UW7r0xJy5aCJcqvbTpyR2S
+         b0o8nr2AMfFM7ZNPpa6gqw3x+kHsOcVi3T4ojOaJ5o+xtKFRnZ0eD8lrTPeAFHf+79f6
+         sR3nJWQHzjtKn4QgfT7UdKVN2dWuV1B8GwghVhODUBwLkkWDX+/gNWN3lGpUbMDJ1MV9
+         pLnl5Y6VERvW783H0TWb3g/qEQjFPpHrHrdWWLt3ExWs85H6XJqvh+ygYipg2TqIqO3f
+         hcyO1lk1wjwxw0fq7uev0/hkgK+7OO0G5Gldc9rzJRA9eAOLztsLmmom7+Pj81IeSC3K
+         W1Lg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=UrLKP3UiO1uMTLoB7GA8QoDhrr0O6Yze6wD2/gHgWJM=;
-        b=CIFbARwpBsQOjm2c42X+ItPET2fc+9tAxFTijUMaa+VKPBGssCZsl3/qFMMhNE9RnB
-         jA9DPpNbYfyMEUsYL8/23qiVu/ucmsHk/O4IsXaK/ElYvkEM34yaSZB/8mgeXgLdZ2Wp
-         /2u7ptdl+nTtF0fksubPox2xhKk8LLer+HDvpKheE8Ra1Lb6XLxXRbf2skDPW5bJwYvH
-         yNS1nfODSv+5jTwXgyPTFkieD/VUknh0M6hDey//4j/SNOSgXMs8268wllqJP7gdNFh+
-         VYLWou1Q8NbYvSpGJCgRzHBHKuYAyhyPnUcNX6vHwCtIE1SNdxGkQvsOKdHn4903PDVP
-         XIzQ==
-X-Gm-Message-State: ACrzQf2horqc2detHReVQ21g2AhNwvaYtACXdI342SRcf0yM7MvVtX+G
-        t6NvqcugDuJ9PARWjo4MHtYYZ/fz2T6LRfFffck=
-X-Google-Smtp-Source: AMsMyM7GgOMtLKwEwIHZq3zYZFWouJr5ynVovUvXC8rDf6q9UR8HXBowK2vdLrBkFOwxgSN1xmUPZfcsvaR43HLLK/0=
-X-Received: by 2002:a17:906:4fc3:b0:72e:eab4:d9d7 with SMTP id
- i3-20020a1709064fc300b0072eeab4d9d7mr51090798ejw.599.1667904636290; Tue, 08
- Nov 2022 02:50:36 -0800 (PST)
+        bh=cgfqpz+qWE1QdvFfSX/U7yr3LOPeMHUv9Uef5mfoW4E=;
+        b=0ou6vOnZI0LK+4b/si3zvF4ilTTjAc+xJwIbQGG/IlXRcwZzeTvN3YPW+zrWRc7HFh
+         G3nNfDiLMDr99Mi5sakhAlrOzOs7edYixVooz61RHjWfcVzB6J537VSFfS9bTIxvQZeu
+         Bm/EscuZbono2QD97L/8tuBFOnGmDAcjyDOjWJHoRZEFb1BufB6Cs7XBvfO4da4t7W3Q
+         pZDY0y5iBWSwqe4Fvmy5VMESTPWBENvGo2i3yyDFuaFqCd08h7+YRERH7R2GqC0il7ma
+         cfFR2IarRlWTPyNRUwp5cUWLerAMwcW28YyGGqyF46S6mRZJEN59XejGY1cj7eSOmpU3
+         fclg==
+X-Gm-Message-State: ACrzQf0PFS/d/OA4gPYxnq0I7ZOLktOR9K+isNi3YTcuaS8uIVmL6FTb
+        AGas4i4lsXbT5P+kjFHcFc3tK5vOzq2b0g==
+X-Google-Smtp-Source: AMsMyM7m2FDYu2EEcnBqvDk0q5GIcufVfYsNOqhRkPWM7PeL75R0aM7vM+rVTTb5SbeLGYvMKwL1pQ==
+X-Received: by 2002:a63:66c3:0:b0:470:8fd:7bae with SMTP id a186-20020a6366c3000000b0047008fd7baemr29241905pgc.277.1667904790527;
+        Tue, 08 Nov 2022 02:53:10 -0800 (PST)
+Received: from sumit-X1.. ([223.178.212.236])
+        by smtp.gmail.com with ESMTPSA id l5-20020a170903120500b0018863dbf3b0sm2129564plh.45.2022.11.08.02.53.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Nov 2022 02:53:09 -0800 (PST)
+From:   Sumit Garg <sumit.garg@linaro.org>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, jens.wiklander@linaro.org,
+        jerome.forissier@linaro.org, Sumit Garg <sumit.garg@linaro.org>,
+        Sahil Malhotra <sahil.malhotra@nxp.com>
+Subject: [PATCH] tee: Fix tee_shm_register() for kernel TEE drivers
+Date:   Tue,  8 Nov 2022 16:23:01 +0530
+Message-Id: <20221108105301.1925751-1-sumit.garg@linaro.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20221108054954.307554-1-xiubli@redhat.com>
-In-Reply-To: <20221108054954.307554-1-xiubli@redhat.com>
-From:   Ilya Dryomov <idryomov@gmail.com>
-Date:   Tue, 8 Nov 2022 11:50:24 +0100
-Message-ID: <CAOi1vP8C20dU+jNqLw92N20mOyAecZWeK4QOX4WD=e-GZBb32Q@mail.gmail.com>
-Subject: Re: [PATCH v2] ceph: fix NULL pointer dereference for req->r_session
-To:     xiubli@redhat.com
-Cc:     ceph-devel@vger.kernel.org, lhenriques@suse.de, jlayton@kernel.org,
-        mchangir@redhat.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 8, 2022 at 6:50 AM <xiubli@redhat.com> wrote:
->
-> From: Xiubo Li <xiubli@redhat.com>
->
-> The request's r_session maybe changed when it was forwarded or
-> resent.
->
-> Cc: stable@vger.kernel.org
-> URL: https://bugzilla.redhat.com/show_bug.cgi?id=2137955
-> Signed-off-by: Xiubo Li <xiubli@redhat.com>
-> ---
->  fs/ceph/caps.c | 88 +++++++++++++++++++-------------------------------
->  1 file changed, 33 insertions(+), 55 deletions(-)
->
-> diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-> index 894adfb4a092..172f18f7459d 100644
-> --- a/fs/ceph/caps.c
-> +++ b/fs/ceph/caps.c
-> @@ -2297,8 +2297,9 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
->         struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
->         struct ceph_inode_info *ci = ceph_inode(inode);
->         struct ceph_mds_request *req1 = NULL, *req2 = NULL;
-> +       struct ceph_mds_session *s, **sessions = NULL;
+Commit 056d3fed3d1f ("tee: add tee_shm_register_{user,kernel}_buf()")
+refactored tee_shm_register() into corresponding user and kernel space
+functions named tee_shm_register_{user,kernel}_buf(). The upstream fix
+commit 573ae4f13f63 ("tee: add overflow check in register_shm_helper()")
+only applied to tee_shm_register_user_buf().
 
-Hi Xiubo,
+But the stable kernel 4.19, 5.4, 5.10 and 5.15 don't have the above
+mentioned tee_shm_register() refactoring commit. Hence a direct backport
+wasn't possible and the fix has to be rather applied to
+tee_ioctl_shm_register().
 
-Nit: mixing pointers and double pointers coupled with differing
-initialization is generally frowned upon.  Keep it on two lines as
-before:
+Somehow the fix was correctly backported to 4.19 and 5.4 stable kernels
+but the backports for 5.10 and 5.15 stable kernels were broken as fix
+was applied to common tee_shm_register() function which broke its kernel
+space users such as trusted keys driver.
 
-    struct ceph_mds_session **sessions = NULL;
-    struct ceph_mds_session *s;
+Fortunately the backport for 5.10 stable kernel was incidently fixed by:
+commit 606fe84a4185 ("tee: fix memory leak in tee_shm_register()"). So
+fix the backport for 5.15 stable kernel as well.
 
->         unsigned int max_sessions;
-> -       int ret, err = 0;
-> +       int i, ret, err = 0;
->
->         spin_lock(&ci->i_unsafe_lock);
->         if (S_ISDIR(inode->i_mode) && !list_empty(&ci->i_unsafe_dirops)) {
-> @@ -2315,31 +2316,22 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
->         }
->         spin_unlock(&ci->i_unsafe_lock);
->
-> -       /*
-> -        * The mdsc->max_sessions is unlikely to be changed
-> -        * mostly, here we will retry it by reallocating the
-> -        * sessions array memory to get rid of the mdsc->mutex
-> -        * lock.
-> -        */
-> -retry:
-> -       max_sessions = mdsc->max_sessions;
-> -
->         /*
->          * Trigger to flush the journal logs in all the relevant MDSes
->          * manually, or in the worst case we must wait at most 5 seconds
->          * to wait the journal logs to be flushed by the MDSes periodically.
->          */
-> +       mutex_lock(&mdsc->mutex);
-> +       max_sessions = mdsc->max_sessions;
-> +       sessions = kcalloc(max_sessions, sizeof(s), GFP_KERNEL);
-> +       if (!sessions) {
-> +               mutex_unlock(&mdsc->mutex);
-> +               err = -ENOMEM;
-> +               goto out;
-> +       }
-> +
->         if ((req1 || req2) && likely(max_sessions)) {
+Fixes: 578c349570d2 ("tee: add overflow check in register_shm_helper()")
+Cc: stable@vger.kernel.org # 5.15
+Reported-by: Sahil Malhotra <sahil.malhotra@nxp.com>
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+---
+ drivers/tee/tee_core.c | 3 +++
+ drivers/tee/tee_shm.c  | 3 ---
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-Just curious, when can max_sessions be zero here?
+diff --git a/drivers/tee/tee_core.c b/drivers/tee/tee_core.c
+index 3fc426dad2df..a44e5b53e7a9 100644
+--- a/drivers/tee/tee_core.c
++++ b/drivers/tee/tee_core.c
+@@ -334,6 +334,9 @@ tee_ioctl_shm_register(struct tee_context *ctx,
+ 	if (data.flags)
+ 		return -EINVAL;
+ 
++	if (!access_ok((void __user *)(unsigned long)data.addr, data.length))
++		return -EFAULT;
++
+ 	shm = tee_shm_register(ctx, data.addr, data.length,
+ 			       TEE_SHM_DMA_BUF | TEE_SHM_USER_MAPPED);
+ 	if (IS_ERR(shm))
+diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
+index bd96ebb82c8e..6fb4400333fb 100644
+--- a/drivers/tee/tee_shm.c
++++ b/drivers/tee/tee_shm.c
+@@ -223,9 +223,6 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
+ 		goto err;
+ 	}
+ 
+-	if (!access_ok((void __user *)addr, length))
+-		return ERR_PTR(-EFAULT);
+-
+ 	mutex_lock(&teedev->mutex);
+ 	shm->id = idr_alloc(&teedev->idr, shm, 1, 0, GFP_KERNEL);
+ 	mutex_unlock(&teedev->mutex);
+-- 
+2.34.1
 
-> -               struct ceph_mds_session **sessions = NULL;
-> -               struct ceph_mds_session *s;
->                 struct ceph_mds_request *req;
-> -               int i;
-> -
-> -               sessions = kcalloc(max_sessions, sizeof(s), GFP_KERNEL);
-> -               if (!sessions) {
-> -                       err = -ENOMEM;
-> -                       goto out;
-> -               }
->
->                 spin_lock(&ci->i_unsafe_lock);
->                 if (req1) {
-> @@ -2348,16 +2340,8 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
->                                 s = req->r_session;
->                                 if (!s)
->                                         continue;
-> -                               if (unlikely(s->s_mds >= max_sessions)) {
-> -                                       spin_unlock(&ci->i_unsafe_lock);
-> -                                       for (i = 0; i < max_sessions; i++) {
-> -                                               s = sessions[i];
-> -                                               if (s)
-> -                                                       ceph_put_mds_session(s);
-> -                                       }
-> -                                       kfree(sessions);
-> -                                       goto retry;
-> -                               }
-> +                               if (unlikely(s->s_mds >= max_sessions))
-> +                                       continue;
-
-Nit: this could be combined with the previous condition:
-
-    if (!s || unlikely(s->s_mds >= max_sessions))
-            continue;
-
->                                 if (!sessions[s->s_mds]) {
->                                         s = ceph_get_mds_session(s);
->                                         sessions[s->s_mds] = s;
-> @@ -2370,16 +2354,8 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
->                                 s = req->r_session;
->                                 if (!s)
->                                         continue;
-> -                               if (unlikely(s->s_mds >= max_sessions)) {
-> -                                       spin_unlock(&ci->i_unsafe_lock);
-> -                                       for (i = 0; i < max_sessions; i++) {
-> -                                               s = sessions[i];
-> -                                               if (s)
-> -                                                       ceph_put_mds_session(s);
-> -                                       }
-> -                                       kfree(sessions);
-> -                                       goto retry;
-> -                               }
-> +                               if (unlikely(s->s_mds >= max_sessions))
-> +                                       continue;
-
-ditto
-
->                                 if (!sessions[s->s_mds]) {
->                                         s = ceph_get_mds_session(s);
->                                         sessions[s->s_mds] = s;
-> @@ -2387,25 +2363,26 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
->                         }
->                 }
->                 spin_unlock(&ci->i_unsafe_lock);
-> +       }
-> +       mutex_unlock(&mdsc->mutex);
->
-> -               /* the auth MDS */
-> -               spin_lock(&ci->i_ceph_lock);
-> -               if (ci->i_auth_cap) {
-> -                     s = ci->i_auth_cap->session;
-> -                     if (!sessions[s->s_mds])
-> -                             sessions[s->s_mds] = ceph_get_mds_session(s);
-> -               }
-> -               spin_unlock(&ci->i_ceph_lock);
-> +       /* the auth MDS */
-> +       spin_lock(&ci->i_ceph_lock);
-
-Why was this "auth MDS" block moved outside of max_sessions > 0
-branch?  Logically, it very much belongs there.  Is there a problem
-with taking ci->i_ceph_lock under mdsc->mutex?
-
-> +       if (ci->i_auth_cap) {
-> +               s = ci->i_auth_cap->session;
-> +               if (!sessions[s->s_mds] &&
-> +                   likely(s->s_mds < max_sessions))
-
-This is wrong: s->s_mds must be checked against max_sessions before
-indexing into sessions array.  Also, the entire condition should fit on
-a single line.
-
-> +                       sessions[s->s_mds] = ceph_get_mds_session(s);
-> +       }
-> +       spin_unlock(&ci->i_ceph_lock);
->
-> -               /* send flush mdlog request to MDSes */
-> -               for (i = 0; i < max_sessions; i++) {
-> -                       s = sessions[i];
-> -                       if (s) {
-> -                               send_flush_mdlog(s);
-> -                               ceph_put_mds_session(s);
-> -                       }
-> +       /* send flush mdlog request to MDSes */
-> +       for (i = 0; i < max_sessions; i++) {
-> +               s = sessions[i];
-> +               if (s) {
-> +                       send_flush_mdlog(s);
-> +                       ceph_put_mds_session(s);
->                 }
-> -               kfree(sessions);
->         }
->
->         dout("%s %p wait on tid %llu %llu\n", __func__,
-> @@ -2428,6 +2405,7 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
->                 ceph_mdsc_put_request(req1);
->         if (req2)
->                 ceph_mdsc_put_request(req2);
-> +       kfree(sessions);
-
-Nit: since sessions array is allocated after references to req1 and
-req2 are grabbed, I would free it before these references are put.
-
-Thanks,
-
-                Ilya
