@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BAE0621346
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:48:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB0F86213FF
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:56:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234489AbiKHNsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:48:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48588 "EHLO
+        id S234799AbiKHN4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:56:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234610AbiKHNsl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:48:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5730F49B63
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:48:36 -0800 (PST)
+        with ESMTP id S234811AbiKHN4Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:56:16 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF25966C84
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:56:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFB60B81AF7
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:48:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C396C433C1;
-        Tue,  8 Nov 2022 13:48:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0784ACE1B97
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:56:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9268C433D7;
+        Tue,  8 Nov 2022 13:56:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915313;
-        bh=pRScpJqkKkpcXp5Hor5x4geCVN0+ZZ7+ARc7zzV6beM=;
+        s=korg; t=1667915771;
+        bh=/5AUnm4j9Bz6kB+mbn8cdHpuGY0jD9MptMLCWLct6Es=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1f/OBKjoxatbacM60U8nkULmIDSrCWflQ99SSdJupthd6Urxj0MRalbATS1HrO1e/
-         8e+L/atuPG33V0qr/NzKSALB3co+e7/+iznpnfErTHLD1Fwb5C/9FCDs0NABmewdoB
-         UvbtLICUvFtFKsyObI6UCLRAUT33JbGYYa6Jr3Hw=
+        b=sQoQheVHbhYo5mkM5d6GjlA06arZCsqgPupOEqg2y/Z3C6azcEUNjpX9mb2hoYmyj
+         Pt55GEANyEt9TeGBYMB0RoPPtaUrMo7tog2LZQzh838UEwmztK+rmcJ0j/Q06oTcni
+         Zi67t8cIDvLeyLsqy7GOXJgZQiXJ8L8EeS9JHztg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 26/74] Bluetooth: L2CAP: fix use-after-free in l2cap_conn_del()
+Subject: [PATCH 5.10 056/118] xhci-pci: Set runtime PM as default policy on all xHC 1.2 or later devices
 Date:   Tue,  8 Nov 2022 14:38:54 +0100
-Message-Id: <20221108133334.806350891@linuxfoundation.org>
+Message-Id: <20221108133343.129389416@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
-References: <20221108133333.659601604@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,139 +55,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 0d0e2d032811280b927650ff3c15fe5020e82533 ]
+[ Upstream commit a611bf473d1f77b70f7188b5577542cb39b4701b ]
 
-When l2cap_recv_frame() is invoked to receive data, and the cid is
-L2CAP_CID_A2MP, if the channel does not exist, it will create a channel.
-However, after a channel is created, the hold operation of the channel
-is not performed. In this case, the value of channel reference counting
-is 1. As a result, after hci_error_reset() is triggered, l2cap_conn_del()
-invokes the close hook function of A2MP to release the channel. Then
- l2cap_chan_unlock(chan) will trigger UAF issue.
+For optimal power consumption of USB4 routers the XHCI PCIe endpoint
+used for tunneling must be in D3.  Historically this is accomplished
+by a long list of PCIe IDs that correspond to these endpoints because
+the xhci_hcd driver will not default to allowing runtime PM for all
+devices.
 
-The process is as follows:
-Receive data:
-l2cap_data_channel()
-    a2mp_channel_create()  --->channel ref is 2
-    l2cap_chan_put()       --->channel ref is 1
+As both AMD and Intel have released new products with new XHCI controllers
+this list continues to grow. In reviewing the XHCI specification v1.2 on
+page 607 there is already a requirement that the PCI power management
+states D3hot and D3cold must be supported.
 
-Triger event:
-    hci_error_reset()
-        hci_dev_do_close()
-        ...
-        l2cap_disconn_cfm()
-            l2cap_conn_del()
-                l2cap_chan_hold()    --->channel ref is 2
-                l2cap_chan_del()     --->channel ref is 1
-                a2mp_chan_close_cb() --->channel ref is 0, release channel
-                l2cap_chan_unlock()  --->UAF of channel
+In the quirk list, use this to indicate that runtime PM should be allowed
+on XHCI controllers. The following controllers are known to be xHC 1.2 and
+dropped explicitly:
+* AMD Yellow Carp
+* Intel Alder Lake
+* Intel Meteor Lake
+* Intel Raptor Lake
 
-The detailed Call Trace is as follows:
-BUG: KASAN: use-after-free in __mutex_unlock_slowpath+0xa6/0x5e0
-Read of size 8 at addr ffff8880160664b8 by task kworker/u11:1/7593
-Workqueue: hci0 hci_error_reset
-Call Trace:
- <TASK>
- dump_stack_lvl+0xcd/0x134
- print_report.cold+0x2ba/0x719
- kasan_report+0xb1/0x1e0
- kasan_check_range+0x140/0x190
- __mutex_unlock_slowpath+0xa6/0x5e0
- l2cap_conn_del+0x404/0x7b0
- l2cap_disconn_cfm+0x8c/0xc0
- hci_conn_hash_flush+0x11f/0x260
- hci_dev_close_sync+0x5f5/0x11f0
- hci_dev_do_close+0x2d/0x70
- hci_error_reset+0x9e/0x140
- process_one_work+0x98a/0x1620
- worker_thread+0x665/0x1080
- kthread+0x2e4/0x3a0
- ret_from_fork+0x1f/0x30
- </TASK>
+[keep PCI ID for Alder Lake PCH for recently added quirk -Mathias]
 
-Allocated by task 7593:
- kasan_save_stack+0x1e/0x40
- __kasan_kmalloc+0xa9/0xd0
- l2cap_chan_create+0x40/0x930
- amp_mgr_create+0x96/0x990
- a2mp_channel_create+0x7d/0x150
- l2cap_recv_frame+0x51b8/0x9a70
- l2cap_recv_acldata+0xaa3/0xc00
- hci_rx_work+0x702/0x1220
- process_one_work+0x98a/0x1620
- worker_thread+0x665/0x1080
- kthread+0x2e4/0x3a0
- ret_from_fork+0x1f/0x30
-
-Freed by task 7593:
- kasan_save_stack+0x1e/0x40
- kasan_set_track+0x21/0x30
- kasan_set_free_info+0x20/0x30
- ____kasan_slab_free+0x167/0x1c0
- slab_free_freelist_hook+0x89/0x1c0
- kfree+0xe2/0x580
- l2cap_chan_put+0x22a/0x2d0
- l2cap_conn_del+0x3fc/0x7b0
- l2cap_disconn_cfm+0x8c/0xc0
- hci_conn_hash_flush+0x11f/0x260
- hci_dev_close_sync+0x5f5/0x11f0
- hci_dev_do_close+0x2d/0x70
- hci_error_reset+0x9e/0x140
- process_one_work+0x98a/0x1620
- worker_thread+0x665/0x1080
- kthread+0x2e4/0x3a0
- ret_from_fork+0x1f/0x30
-
-Last potentially related work creation:
- kasan_save_stack+0x1e/0x40
- __kasan_record_aux_stack+0xbe/0xd0
- call_rcu+0x99/0x740
- netlink_release+0xe6a/0x1cf0
- __sock_release+0xcd/0x280
- sock_close+0x18/0x20
- __fput+0x27c/0xa90
- task_work_run+0xdd/0x1a0
- exit_to_user_mode_prepare+0x23c/0x250
- syscall_exit_to_user_mode+0x19/0x50
- do_syscall_64+0x42/0x80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Second to last potentially related work creation:
- kasan_save_stack+0x1e/0x40
- __kasan_record_aux_stack+0xbe/0xd0
- call_rcu+0x99/0x740
- netlink_release+0xe6a/0x1cf0
- __sock_release+0xcd/0x280
- sock_close+0x18/0x20
- __fput+0x27c/0xa90
- task_work_run+0xdd/0x1a0
- exit_to_user_mode_prepare+0x23c/0x250
- syscall_exit_to_user_mode+0x19/0x50
- do_syscall_64+0x42/0x80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: d0be8347c623 ("Bluetooth: L2CAP: Fix use-after-free caused by l2cap_chan_put")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Cc: stable@vger.kernel.org
+Suggested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/extensible-host-controler-interface-usb-xhci.pdf
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20221024142720.4122053-4-mathias.nyman@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci-pci.c | 32 ++++----------------------------
+ 1 file changed, 4 insertions(+), 28 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 5fa9a4e7d3ee..5dbe7aeca5a7 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -7001,6 +7001,7 @@ static void l2cap_data_channel(struct l2cap_conn *conn, u16 cid,
- 				return;
- 			}
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index 64d5a593682b..0ee11a937011 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -58,24 +58,12 @@
+ #define PCI_DEVICE_ID_INTEL_CML_XHCI			0xa3af
+ #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
+ #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
+-#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI		0x461e
+-#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_XHCI		0x464e
+-#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI	0x51ed
+-#define PCI_DEVICE_ID_INTEL_RAPTOR_LAKE_XHCI		0xa71e
+-#define PCI_DEVICE_ID_INTEL_METEOR_LAKE_XHCI		0x7ec0
++#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI		0x51ed
  
-+			l2cap_chan_hold(chan);
- 			l2cap_chan_lock(chan);
- 		} else {
- 			BT_DBG("unknown cid 0x%4.4x", cid);
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_2			0x43bb
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_1			0x43bc
+-#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_1		0x161a
+-#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_2		0x161b
+-#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_3		0x161d
+-#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_4		0x161e
+-#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_5		0x15d6
+-#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_6		0x15d7
+-#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_7		0x161c
+-#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_8		0x161f
+ 
+ #define PCI_DEVICE_ID_ASMEDIA_1042_XHCI			0x1042
+ #define PCI_DEVICE_ID_ASMEDIA_1042A_XHCI		0x1142
+@@ -268,12 +256,7 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_DD_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_N_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_INTEL_RAPTOR_LAKE_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_INTEL_METEOR_LAKE_XHCI))
++	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI))
+ 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
+ 
+ 	if (pdev->vendor == PCI_VENDOR_ID_ETRON &&
+@@ -342,15 +325,8 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 	     pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_4))
+ 		xhci->quirks |= XHCI_NO_SOFT_RETRY;
+ 
+-	if (pdev->vendor == PCI_VENDOR_ID_AMD &&
+-	    (pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_1 ||
+-	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_2 ||
+-	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_3 ||
+-	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_4 ||
+-	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_5 ||
+-	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_6 ||
+-	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_7 ||
+-	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_8))
++	/* xHC spec requires PCI devices to support D3hot and D3cold */
++	if (xhci->hci_version >= 0x120)
+ 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
+ 
+ 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
 -- 
 2.35.1
 
