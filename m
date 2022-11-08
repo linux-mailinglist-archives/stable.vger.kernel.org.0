@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 200BD621483
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC9D0621351
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:49:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234873AbiKHOCN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:02:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
+        id S234552AbiKHNtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:49:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234975AbiKHOB5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:01:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8B9F682AE
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:01:56 -0800 (PST)
+        with ESMTP id S234581AbiKHNtO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:49:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EE5D6243
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:49:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 853EF61595
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91BA9C433C1;
-        Tue,  8 Nov 2022 14:01:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E38C4B81AFA
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:49:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCC85C433C1;
+        Tue,  8 Nov 2022 13:49:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916115;
-        bh=bqPkD1QPbT3aDJ0oBiF3trdy5bO/vWDb5s5mUqQjazo=;
+        s=korg; t=1667915350;
+        bh=Q/K3/OmSb/+pV/16sKiDrK2TMY3OM84BEbvbM1slRfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XqNF+7kx1/lSTMv1luWBRzb6JeMJ3Z08tngDstug5WlHJQ6oIeciSvvD0hP88oCyr
-         p2zJWJOmHeFdf6KxdvdVLp9IVJwSxS3h2pkr4BpsPl3dDxq0T0jbn/wjwfpgQUcZma
-         xH37DeMB1SC9HZpVePW55FOgnP+i9lUspEu53JfY=
+        b=ADoltpjgnSbMKNzmqgTUqkI41QOq/ROngezksCC37G2B9slxUUUmFQEgc4eGCMPRV
+         Ty/3PCc7v5THca0OaBeDeLwnXbJ7LiuCnRSh7pXg6G/L8OqZFwAtLscRfnNaRc5hfO
+         gtntw0HNxvM72VkEZj11GC9ygA59nami8DuJ6BQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 067/144] s390/cio: derive cdev information only for IO-subchannels
+        patches@lists.linux.dev,
+        =?UTF-8?q?Martin=20T=C5=AFma?= <martin.tuma@digiteqautomotive.com>,
+        Michal Simek <michal.simek@amd.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 36/74] i2c: xiic: Add platform module alias
 Date:   Tue,  8 Nov 2022 14:39:04 +0100
-Message-Id: <20221108133348.123420265@linuxfoundation.org>
+Message-Id: <20221108133335.189354265@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+From: Martin Tůma <martin.tuma@digiteqautomotive.com>
 
-[ Upstream commit 0c3812c347bfb0dc213556a195e79850c55702f5 ]
+[ Upstream commit b8caf0a0e04583fb71e21495bef84509182227ea ]
 
-cdev->online for the purge function must not be checked for the
-non-IO subchannel type. Make sure that we are deriving the cdev only
-from sch-type SUBCHANNEL_TYPE_IO.
+The missing "platform" alias is required for the mgb4 v4l2 driver to load
+the i2c controller driver when probing the HW.
 
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Stable-dep-of: 1b6074112742 ("s390/cio: fix out-of-bounds access on cio_ignore free")
+Signed-off-by: Martin Tůma <martin.tuma@digiteqautomotive.com>
+Acked-by: Michal Simek <michal.simek@amd.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/css.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index c27809792609..ce9e7517430f 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -792,10 +792,13 @@ static int __unset_online(struct device *dev, void *data)
- {
- 	struct idset *set = data;
- 	struct subchannel *sch = to_subchannel(dev);
--	struct ccw_device *cdev = sch_get_cdev(sch);
-+	struct ccw_device *cdev;
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index a48bee59dcde..c92ea6990ec6 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -884,6 +884,7 @@ static struct platform_driver xiic_i2c_driver = {
  
--	if (cdev && cdev->online)
--		idset_sch_del(set, sch->schid);
-+	if (sch->st == SUBCHANNEL_TYPE_IO) {
-+		cdev = sch_get_cdev(sch);
-+		if (cdev && cdev->online)
-+			idset_sch_del(set, sch->schid);
-+	}
+ module_platform_driver(xiic_i2c_driver);
  
- 	return 0;
- }
++MODULE_ALIAS("platform:" DRIVER_NAME);
+ MODULE_AUTHOR("info@mocean-labs.com");
+ MODULE_DESCRIPTION("Xilinx I2C bus driver");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.35.1
 
