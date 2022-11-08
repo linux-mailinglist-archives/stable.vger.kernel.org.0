@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C20A621325
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:47:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01E4F62140A
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:56:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234490AbiKHNrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:47:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46892 "EHLO
+        id S234822AbiKHN4n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:56:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234562AbiKHNrN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:47:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E74A65F84C
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:47:12 -0800 (PST)
+        with ESMTP id S234817AbiKHN4m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:56:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD4EA623A7
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:56:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EAAEB81AEE
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:47:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE544C433D6;
-        Tue,  8 Nov 2022 13:47:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65D6E61595
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:56:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F056C433C1;
+        Tue,  8 Nov 2022 13:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915230;
-        bh=siLfrBKMZ4vlj6odFfcf0qRx7ImnQJVyuSJ1eJ4PWag=;
+        s=korg; t=1667915800;
+        bh=oro78or03vcCjFxH79JW5RAb2+OaVMD5XYGRHcMu6P8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZGU+aEO2soCghuWo+EtL15VfOVFhBpi7OtAqFULVMq7n+FvIzPPzTrNZIAdcTZk/
-         PKtZJLEKbq/f8G+zL2LsFYZq5HnNE8k5dwmu7lfOYKpHpm9ivDocgzcs5FR+7eqHoZ
-         I7NHlOAh2Yk9t/ZcpJGRndgaHCHkWAzKyPo85zkw=
+        b=HT4DdnH2/ztxrbKFMrrNBxAhI2ckplI2hrLoXg10BJbk5wuBpP04X0I5w3XubgCHe
+         81VW1rJe7+isdK4FcaM5AUb02nn+fMboX+qCSVWDdP57y7SuIlKe7BmMwerrsjkLoq
+         t2tlH5BeFYvk8/RzfBnVoduS0O1gejeZ81w1rvJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
-        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
-        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
-        Arend van Spriel <aspriel@gmail.com>,
-        Dokyung Song <dokyung.song@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 4.19 48/48] wifi: brcmfmac: Fix potential buffer overflow in brcmf_fweh_event_worker()
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Serge Hallyn <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.10 095/118] capabilities: fix potential memleak on error path from vfs_getxattr_alloc()
 Date:   Tue,  8 Nov 2022 14:39:33 +0100
-Message-Id: <20221108133331.321367213@linuxfoundation.org>
+Message-Id: <20221108133344.819829354@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,123 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dokyung Song <dokyung.song@gmail.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-commit 6788ba8aed4e28e90f72d68a9d794e34eac17295 upstream.
+commit 8cf0a1bc12870d148ae830a4ba88cfdf0e879cee upstream.
 
-This patch fixes an intra-object buffer overflow in brcmfmac that occurs
-when the device provides a 'bsscfgidx' equal to or greater than the
-buffer size. The patch adds a check that leads to a safe failure if that
-is the case.
+In cap_inode_getsecurity(), we will use vfs_getxattr_alloc() to
+complete the memory allocation of tmpbuf, if we have completed
+the memory allocation of tmpbuf, but failed to call handler->get(...),
+there will be a memleak in below logic:
 
-This fixes CVE-2022-3628.
+  |-- ret = (int)vfs_getxattr_alloc(mnt_userns, ...)
+    |           /* ^^^ alloc for tmpbuf */
+    |-- value = krealloc(*xattr_value, error + 1, flags)
+    |           /* ^^^ alloc memory */
+    |-- error = handler->get(handler, ...)
+    |           /* error! */
+    |-- *xattr_value = value
+    |           /* xattr_value is &tmpbuf (memory leak!) */
 
-UBSAN: array-index-out-of-bounds in drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
-index 52 is out of range for type 'brcmf_if *[16]'
-CPU: 0 PID: 1898 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-Workqueue: events brcmf_fweh_event_worker
-Call Trace:
- dump_stack_lvl+0x57/0x7d
- ubsan_epilogue+0x5/0x40
- __ubsan_handle_out_of_bounds+0x69/0x80
- ? memcpy+0x39/0x60
- brcmf_fweh_event_worker+0xae1/0xc00
- ? brcmf_fweh_call_event_handler.isra.0+0x100/0x100
- ? rcu_read_lock_sched_held+0xa1/0xd0
- ? rcu_read_lock_bh_held+0xb0/0xb0
- ? lockdep_hardirqs_on_prepare+0x273/0x3e0
- process_one_work+0x873/0x13e0
- ? lock_release+0x640/0x640
- ? pwq_dec_nr_in_flight+0x320/0x320
- ? rwlock_bug.part.0+0x90/0x90
- worker_thread+0x8b/0xd10
- ? __kthread_parkme+0xd9/0x1d0
- ? process_one_work+0x13e0/0x13e0
- kthread+0x379/0x450
- ? _raw_spin_unlock_irq+0x24/0x30
- ? set_kthread_struct+0x100/0x100
- ret_from_fork+0x1f/0x30
-================================================================================
-general protection fault, probably for non-canonical address 0xe5601c0020023fff: 0000 [#1] SMP KASAN
-KASAN: maybe wild-memory-access in range [0x2b0100010011fff8-0x2b0100010011ffff]
-CPU: 0 PID: 1898 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-Workqueue: events brcmf_fweh_event_worker
-RIP: 0010:brcmf_fweh_call_event_handler.isra.0+0x42/0x100
-Code: 89 f5 53 48 89 fb 48 83 ec 08 e8 79 0b 38 fe 48 85 ed 74 7e e8 6f 0b 38 fe 48 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 8b 00 00 00 4c 8b 7d 00 44 89 e0 48 ba 00 00 00
-RSP: 0018:ffffc9000259fbd8 EFLAGS: 00010207
-RAX: dffffc0000000000 RBX: ffff888115d8cd50 RCX: 0000000000000000
-RDX: 0560200020023fff RSI: ffffffff8304bc91 RDI: ffff888115d8cd50
-RBP: 2b0100010011ffff R08: ffff888112340050 R09: ffffed1023549809
-R10: ffff88811aa4c047 R11: ffffed1023549808 R12: 0000000000000045
-R13: ffffc9000259fca0 R14: ffff888112340050 R15: ffff888112340000
-FS:  0000000000000000(0000) GS:ffff88811aa00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000004053ccc0 CR3: 0000000112740000 CR4: 0000000000750ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- brcmf_fweh_event_worker+0x117/0xc00
- ? brcmf_fweh_call_event_handler.isra.0+0x100/0x100
- ? rcu_read_lock_sched_held+0xa1/0xd0
- ? rcu_read_lock_bh_held+0xb0/0xb0
- ? lockdep_hardirqs_on_prepare+0x273/0x3e0
- process_one_work+0x873/0x13e0
- ? lock_release+0x640/0x640
- ? pwq_dec_nr_in_flight+0x320/0x320
- ? rwlock_bug.part.0+0x90/0x90
- worker_thread+0x8b/0xd10
- ? __kthread_parkme+0xd9/0x1d0
- ? process_one_work+0x13e0/0x13e0
- kthread+0x379/0x450
- ? _raw_spin_unlock_irq+0x24/0x30
- ? set_kthread_struct+0x100/0x100
- ret_from_fork+0x1f/0x30
-Modules linked in: 88XXau(O) 88x2bu(O)
----[ end trace 41d302138f3ff55a ]---
-RIP: 0010:brcmf_fweh_call_event_handler.isra.0+0x42/0x100
-Code: 89 f5 53 48 89 fb 48 83 ec 08 e8 79 0b 38 fe 48 85 ed 74 7e e8 6f 0b 38 fe 48 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f 85 8b 00 00 00 4c 8b 7d 00 44 89 e0 48 ba 00 00 00
-RSP: 0018:ffffc9000259fbd8 EFLAGS: 00010207
-RAX: dffffc0000000000 RBX: ffff888115d8cd50 RCX: 0000000000000000
-RDX: 0560200020023fff RSI: ffffffff8304bc91 RDI: ffff888115d8cd50
-RBP: 2b0100010011ffff R08: ffff888112340050 R09: ffffed1023549809
-R10: ffff88811aa4c047 R11: ffffed1023549808 R12: 0000000000000045
-R13: ffffc9000259fca0 R14: ffff888112340050 R15: ffff888112340000
-FS:  0000000000000000(0000) GS:ffff88811aa00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000004053ccc0 CR3: 0000000112740000 CR4: 0000000000750ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Kernel panic - not syncing: Fatal exception
+So we will try to free(tmpbuf) after vfs_getxattr_alloc() fails to fix it.
 
-Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
-Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
-Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Reviewed-by: Arend van Spriel <aspriel@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dokyung Song <dokyung.song@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221021061359.GA550858@laguna
+Cc: stable@vger.kernel.org
+Fixes: 8db6c34f1dbc ("Introduce v3 namespaced file capabilities")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Acked-by: Serge Hallyn <serge@hallyn.com>
+[PM: subject line and backtrace tweaks]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ security/commoncap.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
-@@ -237,6 +237,10 @@ static void brcmf_fweh_event_worker(stru
- 			  brcmf_fweh_event_name(event->code), event->code,
- 			  event->emsg.ifidx, event->emsg.bsscfgidx,
- 			  event->emsg.addr);
-+		if (event->emsg.bsscfgidx >= BRCMF_MAX_IFS) {
-+			brcmf_err("invalid bsscfg index: %u\n", event->emsg.bsscfgidx);
-+			goto event_free;
-+		}
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -391,8 +391,10 @@ int cap_inode_getsecurity(struct inode *
+ 				 &tmpbuf, size, GFP_NOFS);
+ 	dput(dentry);
  
- 		/* convert event message */
- 		emsg_be = &event->emsg;
+-	if (ret < 0 || !tmpbuf)
+-		return ret;
++	if (ret < 0 || !tmpbuf) {
++		size = ret;
++		goto out_free;
++	}
+ 
+ 	fs_ns = inode->i_sb->s_user_ns;
+ 	cap = (struct vfs_cap_data *) tmpbuf;
 
 
