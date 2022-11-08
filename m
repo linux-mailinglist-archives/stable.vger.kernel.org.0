@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6515C6213A8
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 556BF62143B
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:59:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234753AbiKHNwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:52:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52660 "EHLO
+        id S234869AbiKHN66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:58:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234771AbiKHNwV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:52:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8297260EA6
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:52:18 -0800 (PST)
+        with ESMTP id S234871AbiKHN66 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:58:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 542FC60EB1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:58:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E995B81AA1
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:52:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F2B1C433C1;
-        Tue,  8 Nov 2022 13:52:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4C066159E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:58:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05766C433C1;
+        Tue,  8 Nov 2022 13:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915535;
-        bh=WxmRxd5Nq6ECvhL1sSqfRqhT64RhDHCmmLUu3mBwQT4=;
+        s=korg; t=1667915932;
+        bh=WL3xuACdpdD3QmaNX9D3ChNlYQZmexu52My6POZiYMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHC6rNlOQZYTfOV0+r3kLtE9jp9ea1KC6JEXbb7qEKwr7A0V/p7Jblcx/ut9JEKW1
-         jogA1/CIg8TDefST7hjXgUYwGZnyZojcuQYyESWQna0DmpQqEA4FFWGhYpv2RvvRrw
-         Ts4D304cdzUsJmUfpB64dJeS00VmNbDTeJWpbb5M=
+        b=LwpLrMDuNKurPgoWRCF0h6jLEnbbxP90JpaDeMjbdIr/iEUKpFvA+2ZJ4TS+fQZoc
+         nqSXz2ToeGPJx+ZJtOKh+a8MdFhDjlceBZX91+gBQpYChZHuW2BcgYWmosykVlr+PV
+         oVkFCjg0GGn09ODDFdyi2m6Ic2qeMDFzDBgloWXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        patches@lists.linux.dev, Shirish S <shirish.s@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 006/118] KVM: x86: Treat #DBs from the emulator as fault-like (code and DR7.GD=1)
+Subject: [PATCH 5.15 007/144] drm/amd/display: explicitly disable psr_feature_enable appropriately
 Date:   Tue,  8 Nov 2022 14:38:04 +0100
-Message-Id: <20221108133340.984196950@linuxfoundation.org>
+Message-Id: <20221108133345.638058627@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
-References: <20221108133340.718216105@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,98 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Shirish S <shirish.s@amd.com>
 
-[ Upstream commit 5623f751bd9c438ed12840e086f33c4646440d19 ]
+[ Upstream commit 6094b9136ca9038b61e9c4b5d25cd5512ce50b34 ]
 
-Add a dedicated "exception type" for #DBs, as #DBs can be fault-like or
-trap-like depending the sub-type of #DB, and effectively defer the
-decision of what to do with the #DB to the caller.
+[Why]
+If psr_feature_enable is set to true by default, it continues to be enabled
+for non capable links.
 
-For the emulator's two calls to exception_type(), treat the #DB as
-fault-like, as the emulator handles only code breakpoint and general
-detect #DBs, both of which are fault-like.
+[How]
+explicitly disable the feature on links that are not capable of the same.
 
-For event injection, which uses exception_type() to determine whether to
-set EFLAGS.RF=1 on the stack, keep the current behavior of not setting
-RF=1 for #DBs.  Intel and AMD explicitly state RF isn't set on code #DBs,
-so exempting by failing the "== EXCPT_FAULT" check is correct.  The only
-other fault-like #DB is General Detect, and despite Intel and AMD both
-strongly implying (through omission) that General Detect #DBs should set
-RF=1, hardware (multiple generations of both Intel and AMD), in fact does
-not.  Through insider knowledge, extreme foresight, sheer dumb luck, or
-some combination thereof, KVM correctly handled RF for General Detect #DBs.
-
-Fixes: 38827dbd3fb8 ("KVM: x86: Do not update EFLAGS on faulting emulation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20220830231614.3580124-9-seanjc@google.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 8c322309e48e9 ("drm/amd/display: Enable PSR")
+Signed-off-by: Shirish S <shirish.s@amd.com>
+Reviewed-by: Leo Li <sunpeng.li@amd.com>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 5.15+
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 27 +++++++++++++++++++++++++--
- 1 file changed, 25 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 17bb3d0e2d13..e07607eed35c 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -459,6 +459,7 @@ static int exception_class(int vector)
- #define EXCPT_TRAP		1
- #define EXCPT_ABORT		2
- #define EXCPT_INTERRUPT		3
-+#define EXCPT_DB		4
- 
- static int exception_type(int vector)
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
+index 7072fb2ec07f..278ff281a1bd 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
+@@ -36,10 +36,14 @@ void amdgpu_dm_set_psr_caps(struct dc_link *link)
  {
-@@ -469,8 +470,14 @@ static int exception_type(int vector)
+ 	uint8_t dpcd_data[EDP_PSR_RECEIVER_CAP_SIZE];
  
- 	mask = 1 << vector;
- 
--	/* #DB is trap, as instruction watchpoints are handled elsewhere */
--	if (mask & ((1 << DB_VECTOR) | (1 << BP_VECTOR) | (1 << OF_VECTOR)))
-+	/*
-+	 * #DBs can be trap-like or fault-like, the caller must check other CPU
-+	 * state, e.g. DR6, to determine whether a #DB is a trap or fault.
-+	 */
-+	if (mask & (1 << DB_VECTOR))
-+		return EXCPT_DB;
-+
-+	if (mask & ((1 << BP_VECTOR) | (1 << OF_VECTOR)))
- 		return EXCPT_TRAP;
- 
- 	if (mask & ((1 << DF_VECTOR) | (1 << MC_VECTOR)))
-@@ -7560,6 +7567,12 @@ int x86_emulate_instruction(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
- 		unsigned long rflags = kvm_x86_ops.get_rflags(vcpu);
- 		toggle_interruptibility(vcpu, ctxt->interruptibility);
- 		vcpu->arch.emulate_regs_need_sync_to_vcpu = false;
-+
-+		/*
-+		 * Note, EXCPT_DB is assumed to be fault-like as the emulator
-+		 * only supports code breakpoints and general detect #DB, both
-+		 * of which are fault-like.
-+		 */
- 		if (!ctxt->have_exception ||
- 		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
- 			kvm_rip_write(vcpu, ctxt->eip);
-@@ -8409,6 +8422,16 @@ static void inject_pending_event(struct kvm_vcpu *vcpu, bool *req_immediate_exit
- 
- 	/* try to inject new event if pending */
- 	if (vcpu->arch.exception.pending) {
-+		/*
-+		 * Fault-class exceptions, except #DBs, set RF=1 in the RFLAGS
-+		 * value pushed on the stack.  Trap-like exception and all #DBs
-+		 * leave RF as-is (KVM follows Intel's behavior in this regard;
-+		 * AMD states that code breakpoint #DBs excplitly clear RF=0).
-+		 *
-+		 * Note, most versions of Intel's SDM and AMD's APM incorrectly
-+		 * describe the behavior of General Detect #DBs, which are
-+		 * fault-like.  They do _not_ set RF, a la code breakpoints.
-+		 */
- 		if (exception_type(vcpu->arch.exception.nr) == EXCPT_FAULT)
- 			__kvm_set_rflags(vcpu, kvm_get_rflags(vcpu) |
- 					     X86_EFLAGS_RF);
+-	if (!(link->connector_signal & SIGNAL_TYPE_EDP))
++	if (!(link->connector_signal & SIGNAL_TYPE_EDP)) {
++		link->psr_settings.psr_feature_enabled = false;
+ 		return;
+-	if (link->type == dc_connection_none)
++	}
++	if (link->type == dc_connection_none) {
++		link->psr_settings.psr_feature_enabled = false;
+ 		return;
++	}
+ 	if (dm_helpers_dp_read_dpcd(NULL, link, DP_PSR_SUPPORT,
+ 					dpcd_data, sizeof(dpcd_data))) {
+ 		link->dpcd_caps.psr_caps.psr_version = dpcd_data[0];
 -- 
 2.35.1
 
