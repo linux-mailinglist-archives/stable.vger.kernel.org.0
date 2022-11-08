@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 174796215AD
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:14:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 272F9621316
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:46:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235289AbiKHOOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:14:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52566 "EHLO
+        id S234530AbiKHNq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:46:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235318AbiKHOOH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:14:07 -0500
+        with ESMTP id S234538AbiKHNq2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BAA813F2F
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:14:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C7575F844
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 563A3B81B07
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:14:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6BBFC433D6;
-        Tue,  8 Nov 2022 14:14:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E9DDB81AEE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9848EC433D6;
+        Tue,  8 Nov 2022 13:46:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916844;
-        bh=3rMJv3j4kaYRJ3iFy5jiDVM4DjYUoGiRsq6hwPTJ13U=;
+        s=korg; t=1667915184;
+        bh=ruYVwcD0pygA3xGuMQL2vNu76g0uIown+H+aSRRP5ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xPnUguSEd3vtnVvmk/sblfhv7CJIV8lYFxF0GiJ6VHnBCyD9Pqq9SEwnoGjzGrU6d
-         aKyscmWSv/Goc7UWTTJ3rVw+FE92SHGWLlp2/QE7UkgPwVy8uFrcQsy8Y0gJ7AouhE
-         7gZRGX5NiiAjgpAjVBot2HkR63JTDF8pGOpj3xME=
+        b=1Cacf7q2XEc0/yDTPy1s0oH4khDeFZNBa2PNRMQ2t9YlNV2sKz8W55I3fp9+PpA1Y
+         FK8qk0HIbk+nFFDclOchyUukAIUXs7zuTP1s4VJXufVT8Br5B1vWopXL+yhxtPCJI5
+         Wr8RAgj1oTojByXnj+W5qJHMqo8YQc709jxtFgWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Tam=C3=A1s=20Koczka?= <poprdi@google.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Tedd Ho-Jeong An <tedd.an@intel.com>
-Subject: [PATCH 6.0 122/197] Bluetooth: L2CAP: Fix accepting connection request for invalid SPSM
+        patches@lists.linux.dev, Zheng Yejian <zhengyejian1@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 4.19 35/48] tracing/histogram: Update document for KEYS_MAX size
 Date:   Tue,  8 Nov 2022 14:39:20 +0100
-Message-Id: <20221108133400.528625705@linuxfoundation.org>
+Message-Id: <20221108133330.777738519@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
+References: <20221108133329.533809494@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Zheng Yejian <zhengyejian1@huawei.com>
 
-commit 711f8c3fb3db61897080468586b970c87c61d9e4 upstream.
+commit a635beeacc6d56d2b71c39e6c0103f85b53d108e upstream.
 
-The Bluetooth spec states that the valid range for SPSM is from
-0x0001-0x00ff so it is invalid to accept values outside of this range:
+After commit 4f36c2d85ced ("tracing: Increase tracing map KEYS_MAX size"),
+'keys' supports up to three fields.
 
-  BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
-  page 1059:
-  Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
-
-CVE: CVE-2022-42896
-CC: stable@vger.kernel.org
-Reported-by: Tamás Koczka <poprdi@google.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Cc: stable@vger.kernel.org
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Link: https://lore.kernel.org/r/20221017103806.2479139-1-zhengyejian1@huawei.com
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c |   25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ Documentation/trace/histogram.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -5813,6 +5813,19 @@ static int l2cap_le_connect_req(struct l
- 	BT_DBG("psm 0x%2.2x scid 0x%4.4x mtu %u mps %u", __le16_to_cpu(psm),
- 	       scid, mtu, mps);
- 
-+	/* BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
-+	 * page 1059:
-+	 *
-+	 * Valid range: 0x0001-0x00ff
-+	 *
-+	 * Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
-+	 */
-+	if (!psm || __le16_to_cpu(psm) > L2CAP_PSM_LE_DYN_END) {
-+		result = L2CAP_CR_LE_BAD_PSM;
-+		chan = NULL;
-+		goto response;
-+	}
-+
- 	/* Check if we have socket listening on psm */
- 	pchan = l2cap_global_chan_by_psm(BT_LISTEN, psm, &conn->hcon->src,
- 					 &conn->hcon->dst, LE_LINK);
-@@ -6001,6 +6014,18 @@ static inline int l2cap_ecred_conn_req(s
- 
- 	psm  = req->psm;
- 
-+	/* BLUETOOTH CORE SPECIFICATION Version 5.3 | Vol 3, Part A
-+	 * page 1059:
-+	 *
-+	 * Valid range: 0x0001-0x00ff
-+	 *
-+	 * Table 4.15: L2CAP_LE_CREDIT_BASED_CONNECTION_REQ SPSM ranges
-+	 */
-+	if (!psm || __le16_to_cpu(psm) > L2CAP_PSM_LE_DYN_END) {
-+		result = L2CAP_CR_LE_BAD_PSM;
-+		goto response;
-+	}
-+
- 	BT_DBG("psm 0x%2.2x mtu %u mps %u", __le16_to_cpu(psm), mtu, mps);
- 
- 	memset(&pdu, 0, sizeof(pdu));
+--- a/Documentation/trace/histogram.rst
++++ b/Documentation/trace/histogram.rst
+@@ -39,7 +39,7 @@ Documentation written by Tom Zanussi
+   will use the event's kernel stacktrace as the key.  The keywords
+   'keys' or 'key' can be used to specify keys, and the keywords
+   'values', 'vals', or 'val' can be used to specify values.  Compound
+-  keys consisting of up to two fields can be specified by the 'keys'
++  keys consisting of up to three fields can be specified by the 'keys'
+   keyword.  Hashing a compound key produces a unique entry in the
+   table for each unique combination of component keys, and can be
+   useful for providing more fine-grained summaries of event data.
 
 
