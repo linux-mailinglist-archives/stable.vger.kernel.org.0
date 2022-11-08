@@ -2,213 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20D6E6212A2
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:41:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 830F16212E2
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:43:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234070AbiKHNlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:41:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38396 "EHLO
+        id S234483AbiKHNn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:43:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234325AbiKHNlW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:41:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E48145084;
-        Tue,  8 Nov 2022 05:41:17 -0800 (PST)
+        with ESMTP id S234473AbiKHNny (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:43:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A1CB2670
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:43:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0449461568;
-        Tue,  8 Nov 2022 13:41:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D85DFC433C1;
-        Tue,  8 Nov 2022 13:41:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE523B81AE4
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:43:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2744C433D6;
+        Tue,  8 Nov 2022 13:43:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667914876;
-        bh=PUH0P6d6mILgBvprntFdpvlT13euJKuZBQoO9KamjRU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=GJOyAyjl8BuHV9qlsADOTlp/ABU0WjIxY8ZpOXWLNX7a9jQJDH2uGSm8FXOKSiBC4
-         qGbhD0kYbVBvVsbAoB21dXRZ1TZAkTaNNCzk57upzE8+SFYu6Nq4/g2nnEWEBA9uTX
-         9KCus7XFRwej2O5mIbjmdrVK62gcOpSP1f/EC2o4=
+        s=korg; t=1667915030;
+        bh=BBzRH9g6qnBg0/MJQSRgdQ72HEB6/ghRm2uekXe0gwk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=zWtm+cqu7W5hJVPRiRZZvQjTul2FPmE3/srbXdQXMg07cXoCt2Q98ILg1BQo1JumA
+         hK6Zk2ZFcQzk+j8vYZAx0stl5N3cAkXiuvp3/hefcaawCMtpCNEzmaulX3Piixg8au
+         Hf5u7WflraY5MQVcDYOxD2LsbwyYCJd8zaGDSyQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: [PATCH 4.9 00/30] 4.9.333-rc1 review
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 03/40] nfs4: Fix kmemleak when allocate slot failed
 Date:   Tue,  8 Nov 2022 14:38:48 +0100
-Message-Id: <20221108133326.715586431@linuxfoundation.org>
+Message-Id: <20221108133328.483879377@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-MIME-Version: 1.0
+In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
+References: <20221108133328.351887714@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.333-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.333-rc1
-X-KernelTest-Deadline: 2022-11-10T13:33+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,WEIRD_QUOTING autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.333 release.
-There are 30 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-Responses should be made by Thu, 10 Nov 2022 13:33:17 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 7e8436728e22181c3f12a5dbabd35ed3a8b8c593 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.333-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
+If one of the slot allocate failed, should cleanup all the other
+allocated slots, otherwise, the allocated slots will leak:
 
-thanks,
+  unreferenced object 0xffff8881115aa100 (size 64):
+    comm ""mount.nfs"", pid 679, jiffies 4294744957 (age 115.037s)
+    hex dump (first 32 bytes):
+      00 cc 19 73 81 88 ff ff 00 a0 5a 11 81 88 ff ff  ...s......Z.....
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    backtrace:
+      [<000000007a4c434a>] nfs4_find_or_create_slot+0x8e/0x130
+      [<000000005472a39c>] nfs4_realloc_slot_table+0x23f/0x270
+      [<00000000cd8ca0eb>] nfs40_init_client+0x4a/0x90
+      [<00000000128486db>] nfs4_init_client+0xce/0x270
+      [<000000008d2cacad>] nfs4_set_client+0x1a2/0x2b0
+      [<000000000e593b52>] nfs4_create_server+0x300/0x5f0
+      [<00000000e4425dd2>] nfs4_try_get_tree+0x65/0x110
+      [<00000000d3a6176f>] vfs_get_tree+0x41/0xf0
+      [<0000000016b5ad4c>] path_mount+0x9b3/0xdd0
+      [<00000000494cae71>] __x64_sys_mount+0x190/0x1d0
+      [<000000005d56bdec>] do_syscall_64+0x35/0x80
+      [<00000000687c9ae4>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-greg k-h
+Fixes: abf79bb341bf ("NFS: Add a slot table to struct nfs_client for NFSv4.0 transport blocking")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/nfs/nfs4client.c | 1 +
+ 1 file changed, 1 insertion(+)
 
--------------
-Pseudo-Shortlog of commits:
+diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
+index c7672c89b967..da2cde96e68a 100644
+--- a/fs/nfs/nfs4client.c
++++ b/fs/nfs/nfs4client.c
+@@ -326,6 +326,7 @@ int nfs40_init_client(struct nfs_client *clp)
+ 	ret = nfs4_setup_slot_table(tbl, NFS4_MAX_SLOT_TABLE,
+ 					"NFSv4.0 transport Slot table");
+ 	if (ret) {
++		nfs4_shutdown_slot_table(tbl);
+ 		kfree(tbl);
+ 		return ret;
+ 	}
+-- 
+2.35.1
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.333-rc1
-
-Dokyung Song <dokyung.song@gmail.com>
-    wifi: brcmfmac: Fix potential buffer overflow in brcmf_fweh_event_worker()
-
-Maxim Levitsky <mlevitsk@redhat.com>
-    KVM: x86: emulator: update the emulation mode after CR0 write
-
-Maxim Levitsky <mlevitsk@redhat.com>
-    KVM: x86: emulator: introduce emulator_recalc_and_set_mode
-
-Maxim Levitsky <mlevitsk@redhat.com>
-    KVM: x86: emulator: em_sysexit should update ctxt->mode
-
-Jim Mattson <jmattson@google.com>
-    KVM: x86: Mask off reserved bits in CPUID.80000008H
-
-Ye Bin <yebin10@huawei.com>
-    ext4: fix warning in 'ext4_da_release_space'
-
-Helge Deller <deller@gmx.de>
-    parisc: Export iosapic_serial_irq() symbol for serial port driver
-
-Helge Deller <deller@gmx.de>
-    parisc: Make 8250_gsc driver dependend on CONFIG_PARISC
-
-John Veness <john-linux@pelago.org.uk>
-    ALSA: usb-audio: Add quirks for MacroSilicon MS2100/MS2106 devices
-
-David Sterba <dsterba@suse.com>
-    btrfs: fix type of parameter generation in btrfs_get_dentry
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: L2CAP: Fix attempting to access uninitialized memory
-
-Martin Tůma <martin.tuma@digiteqautomotive.com>
-    i2c: xiic: Add platform module alias
-
-Hans Verkuil <hverkuil-cisco@xs4all.nl>
-    media: dvb-frontends/drxk: initialize err to 0
-
-Hans Verkuil <hverkuil-cisco@xs4all.nl>
-    media: s5p_cec: limit msg.len to CEC_MAX_MSG_SIZE
-
-Gaosheng Cui <cuigaosheng1@huawei.com>
-    net: mdio: fix undefined behavior in bit shift for __mdiobus_register
-
-Zhengchao Shao <shaozhengchao@huawei.com>
-    Bluetooth: L2CAP: fix use-after-free in l2cap_conn_del()
-
-Maxim Mikityanskiy <maxtram95@gmail.com>
-    Bluetooth: L2CAP: Fix use-after-free caused by l2cap_reassemble_sdu
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix ulist leaks in error paths of qgroup self tests
-
-Yang Yingliang <yangyingliang@huawei.com>
-    isdn: mISDN: netjet: fix wrong check of device registration
-
-Yang Yingliang <yangyingliang@huawei.com>
-    mISDN: fix possible memory leak in mISDN_register_device()
-
-Zhang Qilong <zhangqilong3@huawei.com>
-    rose: Fix NULL pointer dereference in rose_send_frame()
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    ipvs: use explicitly signed chars
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    net: sched: Fix use after free in red_enqueue()
-
-Sergey Shtylyov <s.shtylyov@omp.ru>
-    ata: pata_legacy: fix pdc20230_set_piomode()
-
-Zhang Changzhong <zhangchangzhong@huawei.com>
-    net: fec: fix improper use of NETDEV_TX_BUSY
-
-Shang XiaoJing <shangxiaojing@huawei.com>
-    nfc: nfcmrvl: Fix potential memory leak in nfcmrvl_i2c_nci_send()
-
-Shang XiaoJing <shangxiaojing@huawei.com>
-    nfc: s3fwrn5: Fix potential memory leak in s3fwrn5_nci_send()
-
-Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-    nfs4: Fix kmemleak when allocate slot failed
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFSv4.1: We must always send RECLAIM_COMPLETE after a reboot
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFSv4.1: Handle RECLAIM_COMPLETE trunking errors
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/x86/kvm/cpuid.c                               |   1 +
- arch/x86/kvm/emulate.c                             | 102 +++++++++++++++------
- drivers/ata/pata_legacy.c                          |   5 +-
- drivers/i2c/busses/i2c-xiic.c                      |   1 +
- drivers/isdn/hardware/mISDN/netjet.c               |   2 +-
- drivers/isdn/mISDN/core.c                          |   5 +-
- drivers/media/dvb-frontends/drxk_hard.c            |   2 +-
- drivers/net/ethernet/freescale/fec_main.c          |   4 +-
- drivers/net/phy/mdio_bus.c                         |   2 +-
- .../wireless/broadcom/brcm80211/brcmfmac/fweh.c    |   4 +
- drivers/nfc/nfcmrvl/i2c.c                          |   7 +-
- drivers/nfc/s3fwrn5/core.c                         |   8 +-
- drivers/parisc/iosapic.c                           |   1 +
- drivers/staging/media/s5p-cec/s5p_cec.c            |   2 +
- drivers/tty/serial/8250/Kconfig                    |   2 +-
- fs/btrfs/export.c                                  |   2 +-
- fs/btrfs/export.h                                  |   2 +-
- fs/btrfs/tests/qgroup-tests.c                      |  20 +++-
- fs/ext4/migrate.c                                  |   3 +-
- fs/nfs/nfs4client.c                                |   1 +
- fs/nfs/nfs4state.c                                 |   2 +
- net/bluetooth/l2cap_core.c                         |  52 +++++++++--
- net/netfilter/ipvs/ip_vs_conn.c                    |   4 +-
- net/rose/rose_link.c                               |   3 +
- net/sched/sch_red.c                                |   4 +-
- sound/usb/quirks-table.h                           |  58 ++++++++++++
- sound/usb/quirks.c                                 |   1 +
- 28 files changed, 241 insertions(+), 63 deletions(-)
 
 
