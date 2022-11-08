@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B59ED6215A2
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:13:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79EBB62139B
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:52:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235268AbiKHONr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:13:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51964 "EHLO
+        id S234712AbiKHNwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:52:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235255AbiKHONp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:13:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D9585803F
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:13:45 -0800 (PST)
+        with ESMTP id S234716AbiKHNvr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:51:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACE0A60EA1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:51:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6F3CB81B08
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:13:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A4FFC433D6;
-        Tue,  8 Nov 2022 14:13:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4903A615AF
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:51:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 021A8C433D7;
+        Tue,  8 Nov 2022 13:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916822;
-        bh=ZJ3QvUtV0Du3cnEfbF0Pte58m7r0ZGnh2CnXx0/LT28=;
+        s=korg; t=1667915500;
+        bh=Dq79fqTxpTRURbIJ4XdjngXkz7bksTkEYAMlmCyKEe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffBRGXH1X3o6hPjuAnh+rnhbuujO25pSa2SFeeyfgQq7gXpZqS3jFUvhg1/JNuA4J
-         5UgxWJB0c/Z3Dl4ZdWShLVCBZFQZFgwHiaILd1csgI5I9JRptn3qVv0GKsRij3CZRl
-         e+hI3NEVYxuDvXWWmdGpX95y+EViVfHtuIn80xcY=
+        b=dHkE6ZVBBFV/vyQ8B8BouJPieNhHMYWqliC8G/9ONdk5xc1WGtQ/0Z6Kq6C4xrd1q
+         WJDm4RoBBbEo0YQ78A5MJHDNfsE+X8mhLyCLtwAANNIMxsACcKqCCbUcdKisw+7Zdu
+         i8c2CocsrkeAt/CjypDzvUWUOESN3P6SpoCiuSzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Willy Tarreau <w@1wt.eu>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 6.0 144/197] tools/nolibc/string: Fix memcmp() implementation
+        patches@lists.linux.dev, Vasily Averin <vvs@virtuozzo.com>,
+        Michal Hocko <mhocko@suse.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 74/74] ipc: remove memcg accounting for sops objects in do_semtimedop()
 Date:   Tue,  8 Nov 2022 14:39:42 +0100
-Message-Id: <20221108133401.494919733@linuxfoundation.org>
+Message-Id: <20221108133336.799447364@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit b3f4f51ea68a495f8a5956064c33dce711a2df91 upstream.
+commit 6a4746ba06191e23d30230738e94334b26590a8a upstream.
 
-The C standard says that memcmp() must treat the buffers as consisting
-of "unsigned chars". If char happens to be unsigned, the casts are ok,
-but then obviously the c1 variable can never contain a negative
-value. And when char is signed, the casts are wrong, and there's still
-a problem with using an 8-bit quantity to hold the difference, because
-that can range from -255 to +255.
+Linus proposes to revert an accounting for sops objects in
+do_semtimedop() because it's really just a temporary buffer
+for a single semtimedop() system call.
 
-For example, assuming char is signed, comparing two 1-byte buffers,
-one containing 0x00 and another 0x80, the current implementation would
-return -128 for both memcmp(a, b, 1) and memcmp(b, a, 1), whereas one
-of those should of course return something positive.
+This object can consume up to 2 pages, syscall is sleeping
+one, size and duration can be controlled by user, and this
+allocation can be repeated by many thread at the same time.
 
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Fixes: 66b6f755ad45 ("rcutorture: Import a copy of nolibc")
-Cc: stable@vger.kernel.org # v5.0+
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+However Shakeel Butt pointed that there are much more popular
+objects with the same life time and similar memory
+consumption, the accounting of which was decided to be
+rejected for performance reasons.
+
+Considering at least 2 pages for task_struct and 2 pages for
+the kernel stack, a back of the envelope calculation gives a
+footprint amplification of <1.5 so this temporal buffer can be
+safely ignored.
+
+The factor would IMO be interesting if it was >> 2 (from the
+PoV of excessive (ab)use, fine-grained accounting seems to be
+currently unfeasible due to performance impact).
+
+Link: https://lore.kernel.org/lkml/90e254df-0dfe-f080-011e-b7c53ee7fd20@virtuozzo.com/
+Fixes: 18319498fdd4 ("memcg: enable accounting of ipc resources")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Acked-by: Shakeel Butt <shakeelb@google.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/include/nolibc/string.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ ipc/sem.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/tools/include/nolibc/string.h
-+++ b/tools/include/nolibc/string.h
-@@ -19,9 +19,9 @@ static __attribute__((unused))
- int memcmp(const void *s1, const void *s2, size_t n)
- {
- 	size_t ofs = 0;
--	char c1 = 0;
-+	int c1 = 0;
- 
--	while (ofs < n && !(c1 = ((char *)s1)[ofs] - ((char *)s2)[ofs])) {
-+	while (ofs < n && !(c1 = ((unsigned char *)s1)[ofs] - ((unsigned char *)s2)[ofs])) {
- 		ofs++;
+--- a/ipc/sem.c
++++ b/ipc/sem.c
+@@ -1984,8 +1984,7 @@ static long do_semtimedop(int semid, str
+ 	if (nsops > ns->sc_semopm)
+ 		return -E2BIG;
+ 	if (nsops > SEMOPM_FAST) {
+-		sops = kvmalloc_array(nsops, sizeof(*sops),
+-				      GFP_KERNEL_ACCOUNT);
++		sops = kvmalloc_array(nsops, sizeof(*sops), GFP_KERNEL);
+ 		if (sops == NULL)
+ 			return -ENOMEM;
  	}
- 	return c1;
 
 
