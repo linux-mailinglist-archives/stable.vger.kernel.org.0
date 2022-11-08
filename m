@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B4086210CE
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 13:33:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8775B6210CF
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 13:33:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233976AbiKHMdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 07:33:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50400 "EHLO
+        id S233779AbiKHMdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 07:33:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233853AbiKHMdU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 07:33:20 -0500
+        with ESMTP id S233853AbiKHMda (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 07:33:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F50813D16
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 04:33:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BBEC12D3D
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 04:33:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29D10B81A9D
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 12:33:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BD78C433D6;
-        Tue,  8 Nov 2022 12:33:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0516B818F9
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 12:33:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D26DBC433C1;
+        Tue,  8 Nov 2022 12:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667910796;
-        bh=2bYUFivjiatceHDgyNp8AJ1EPBXu1dQYqGuGAwf/TJ4=;
+        s=korg; t=1667910806;
+        bh=cEz9pmL7gLe7XnHxPL/GF4UZFW4IMtGGrOWE+Tas8a8=;
         h=Subject:To:Cc:From:Date:From;
-        b=tdblEOo5cDY3qSRTB9mLaDwkYp/+irr0M5nn68LYZvCd6AOdMCcpSANwX3iWfOgAz
-         PJB0eOPH/C9toYsqbPe9Cfn9DZwbQL+mXy7wGE9MD80D09b8+ciZNwSZYa50D+uaj4
-         eBpUWsmTLg1rC0NjTwtyMo65xd2u6XkLB7D0l2pI=
-Subject: FAILED: patch "[PATCH] drm/i915/sdvo: Grab mode_config.mutex during LVDS init to" failed to apply to 6.0-stable tree
+        b=BRLZO2iJOfdYTAc+cLsywSdlRehvInjxahziqvBX5hDwQ/wQmh05P8O3gpfdEoGv1
+         K7omgSwYOOANViaGW4UUp4HTgNpzsiZwQNOCIoYND2ZNfZRkOw+jCMh2wIRh8qFCuT
+         U+zMFRy9ZBEfrh5zRQfTMb/SsHHdlRS5Us14wUyE=
+Subject: FAILED: patch "[PATCH] drm/i915/sdvo: Grab mode_config.mutex during LVDS init to" failed to apply to 5.15-stable tree
 To:     ville.syrjala@linux.intel.com, jani.nikula@intel.com,
         tvrtko.ursulin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 08 Nov 2022 13:33:14 +0100
-Message-ID: <1667910794126115@kroah.com>
+Message-ID: <16679107949340@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,23 @@ Possible dependencies:
 12caf46cf4fc ("drm/i915/sdvo: Grab mode_config.mutex during LVDS init to avoid WARNs")
 d372ec94a018 ("drm/i915: Simplify intel_panel_add_edid_alt_fixed_modes()")
 a5810f551d0a ("drm/i915: Allow more varied alternate fixed modes for panels")
+6e939738da20 ("drm/i915: Accept more fixed modes with VRR panels")
+3cf050762534 ("drm/i915/bios: Split VBT data into per-panel vs. global parts")
+c2fdb424d322 ("drm/i915/bios: Split VBT parsing to global vs. panel specific parts")
+c3fbcf60bc74 ("drm/i915/bios: Split parse_driver_features() into two parts")
+75bd0d5e4ead ("drm/i915/pps: Split pps_init_delays() into distinct parts")
+822e5ae701af ("drm/i915: Extract intel_edp_fixup_vbt_bpp()")
+949665a6e237 ("drm/i915: Respect VBT seamless DRRS min refresh rate")
+790b45f1bc67 ("drm/i915/bios: Parse the seamless DRRS min refresh rate")
+901a0cad2ab8 ("drm/i915/bios: Get access to the tail end of the LFP data block")
+13367132a7ad ("drm/i915/bios: Reorder panel DTD parsing")
+5ab58d6996d7 ("drm/i915/bios: Validate the panel_name table")
+58b2e3829ec6 ("drm/i915/bios: Trust the LFP data pointers")
+514003e1421e ("drm/i915/bios: Validate LFP data table pointers")
+918f3025960f ("drm/i915/bios: Use the copy of the LFP data table always")
+e163cfb4c96d ("drm/i915/bios: Make copies of VBT data blocks")
+d58a3d699797 ("drm/i915/bios: Use the cached BDB version")
+ca2a3c9204ec ("drm/i915/bios: Extract struct lvds_lfp_data_ptr_table")
 
 thanks,
 
