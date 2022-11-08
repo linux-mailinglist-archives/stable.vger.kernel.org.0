@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF26A621435
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:58:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2016462151E
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:08:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234784AbiKHN6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:58:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60948 "EHLO
+        id S235152AbiKHOIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:08:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234859AbiKHN6c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:58:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B40471115B
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:58:31 -0800 (PST)
+        with ESMTP id S235149AbiKHOIV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:08:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C90677056B
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:08:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FF9D61515
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:58:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33245C433D7;
-        Tue,  8 Nov 2022 13:58:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C22CB81ADB
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:08:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDFFDC433C1;
+        Tue,  8 Nov 2022 14:08:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915910;
-        bh=P2RwJZNzdOepzjyY1A3nXZOethpKiJKsj6HM+3tGZfk=;
+        s=korg; t=1667916497;
+        bh=DpcOIUpQMiRlNTymoOZsZ7XeQPS8HVD3nvswF3gnMvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f078sg8RVPNq69lfDBvNl4rYdKMns7vr8p5JI1ToOthX5MqqtwJmlpJ+rRrd1FyDs
-         bfqw2s8k3SejkTRbaym2usDJk2k2pXq0t/Fnf+n9OzyzHbjpRG1lh4Kv+3kjwS12Pq
-         tp3xNC82nEDShSbXv7xQjU+ymMD3NXFipgYww5rs=
+        b=u/A0oaDMlAM4n1klalMoR3a6TcFxqsLjFJmGSS6jn+cFKvoy6otmPh0ZKcQXH1NdN
+         G3ST7ovFXKxIPxoXQiz6WnYJtsH5/hzYVd/a8HOOFkGoPqpfIbBka9VMCn17RWHk+N
+         Ey6zcwQCcSv82RGXmpqecKzj9tsgmcgz5s3KBwZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 001/144] scsi: lpfc: Adjust bytes received vales during cmf timer interval
+Subject: [PATCH 6.0 040/197] ipvs: fix WARNING in __ip_vs_cleanup_batch()
 Date:   Tue,  8 Nov 2022 14:37:58 +0100
-Message-Id: <20221108133345.404940753@linuxfoundation.org>
+Message-Id: <20221108133356.629601095@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,62 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit d5ac69b332d8859d1f8bd5d4dee31f3267f6b0d2 ]
+[ Upstream commit 3d00c6a0da8ddcf75213e004765e4a42acc71d5d ]
 
-The newly added congestion mgmt framework is seeing unexpected congestion
-FPINs and signals.  In analysis, time values given to the adapter are not
-at hard time intervals. Thus the drift vs the transfer count seen is
-affecting how the framework manages things.
+During the initialization of ip_vs_conn_net_init(), if file ip_vs_conn
+or ip_vs_conn_sync fails to be created, the initialization is successful
+by default. Therefore, the ip_vs_conn or ip_vs_conn_sync file doesn't
+be found during the remove.
 
-Adjust counters to cover the drift.
+The following is the stack information:
+name 'ip_vs_conn_sync'
+WARNING: CPU: 3 PID: 9 at fs/proc/generic.c:712
+remove_proc_entry+0x389/0x460
+Modules linked in:
+Workqueue: netns cleanup_net
+RIP: 0010:remove_proc_entry+0x389/0x460
+Call Trace:
+<TASK>
+__ip_vs_cleanup_batch+0x7d/0x120
+ops_exit_list+0x125/0x170
+cleanup_net+0x4ea/0xb00
+process_one_work+0x9bf/0x1710
+worker_thread+0x665/0x1080
+kthread+0x2e4/0x3a0
+ret_from_fork+0x1f/0x30
+</TASK>
 
-Link: https://lore.kernel.org/r/20210910233159.115896-11-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Stable-dep-of: bd269188ea94 ("scsi: lpfc: Rework MIB Rx Monitor debug info logic")
+Fixes: 61b1ab4583e2 ("IPVS: netns, add basic init per netns.")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_init.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ net/netfilter/ipvs/ip_vs_conn.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index fe8b4258cdc0..38bd58fb2044 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -5870,7 +5870,7 @@ lpfc_cmf_timer(struct hrtimer *timer)
- 	uint32_t io_cnt;
- 	uint32_t head, tail;
- 	uint32_t busy, max_read;
--	uint64_t total, rcv, lat, mbpi;
-+	uint64_t total, rcv, lat, mbpi, extra;
- 	int timer_interval = LPFC_CMF_INTERVAL;
- 	uint32_t ms;
- 	struct lpfc_cgn_stat *cgs;
-@@ -5937,7 +5937,19 @@ lpfc_cmf_timer(struct hrtimer *timer)
- 	    phba->hba_flag & HBA_SETUP) {
- 		mbpi = phba->cmf_last_sync_bw;
- 		phba->cmf_last_sync_bw = 0;
--		lpfc_issue_cmf_sync_wqe(phba, LPFC_CMF_INTERVAL, total);
-+		extra = 0;
+diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
+index db13288fddfa..cb6d68220c26 100644
+--- a/net/netfilter/ipvs/ip_vs_conn.c
++++ b/net/netfilter/ipvs/ip_vs_conn.c
+@@ -1447,20 +1447,36 @@ int __net_init ip_vs_conn_net_init(struct netns_ipvs *ipvs)
+ {
+ 	atomic_set(&ipvs->conn_count, 0);
+ 
+-	proc_create_net("ip_vs_conn", 0, ipvs->net->proc_net,
+-			&ip_vs_conn_seq_ops, sizeof(struct ip_vs_iter_state));
+-	proc_create_net("ip_vs_conn_sync", 0, ipvs->net->proc_net,
+-			&ip_vs_conn_sync_seq_ops,
+-			sizeof(struct ip_vs_iter_state));
++#ifdef CONFIG_PROC_FS
++	if (!proc_create_net("ip_vs_conn", 0, ipvs->net->proc_net,
++			     &ip_vs_conn_seq_ops,
++			     sizeof(struct ip_vs_iter_state)))
++		goto err_conn;
 +
-+		/* Calculate any extra bytes needed to account for the
-+		 * timer accuracy. If we are less than LPFC_CMF_INTERVAL
-+		 * add an extra 3% slop factor, equal to LPFC_CMF_INTERVAL
-+		 * add an extra 2%. The goal is to equalize total with a
-+		 * time > LPFC_CMF_INTERVAL or <= LPFC_CMF_INTERVAL + 1
-+		 */
-+		if (ms == LPFC_CMF_INTERVAL)
-+			extra = div_u64(total, 50);
-+		else if (ms < LPFC_CMF_INTERVAL)
-+			extra = div_u64(total, 33);
-+		lpfc_issue_cmf_sync_wqe(phba, LPFC_CMF_INTERVAL, total + extra);
- 	} else {
- 		/* For Monitor mode or link down we want mbpi
- 		 * to be the full link speed
++	if (!proc_create_net("ip_vs_conn_sync", 0, ipvs->net->proc_net,
++			     &ip_vs_conn_sync_seq_ops,
++			     sizeof(struct ip_vs_iter_state)))
++		goto err_conn_sync;
++#endif
++
+ 	return 0;
++
++#ifdef CONFIG_PROC_FS
++err_conn_sync:
++	remove_proc_entry("ip_vs_conn", ipvs->net->proc_net);
++err_conn:
++	return -ENOMEM;
++#endif
+ }
+ 
+ void __net_exit ip_vs_conn_net_cleanup(struct netns_ipvs *ipvs)
+ {
+ 	/* flush all the connection entries first */
+ 	ip_vs_conn_flush(ipvs);
++#ifdef CONFIG_PROC_FS
+ 	remove_proc_entry("ip_vs_conn", ipvs->net->proc_net);
+ 	remove_proc_entry("ip_vs_conn_sync", ipvs->net->proc_net);
++#endif
+ }
+ 
+ int __init ip_vs_conn_init(void)
 -- 
 2.35.1
 
