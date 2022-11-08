@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A29621560
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:11:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 837AD6213D5
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:54:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235237AbiKHOLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:11:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48404 "EHLO
+        id S234681AbiKHNyU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:54:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235252AbiKHOLM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:11:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2F6F7721C
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:10:56 -0800 (PST)
+        with ESMTP id S234673AbiKHNyS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:54:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280B81E0
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:54:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A61A615B5
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:10:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D7D8C433D6;
-        Tue,  8 Nov 2022 14:10:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF65CB81AA1
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:54:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0540CC433D6;
+        Tue,  8 Nov 2022 13:54:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916655;
-        bh=vKsjsUd37Zi36AVnvxrSGEcd04fPDqeHOW1Qn+w+h8s=;
+        s=korg; t=1667915655;
+        bh=/yKe0y2soseT9wcMn0BfvI/GWSKheNNDixKH5A12W14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IE3Mbzaby4qdjb49oYy5fP98th8ZVjlzulpnNi4WbpHULLHO6R3p7NpLcLdySrvPh
-         ioqfZupEsojDLCFmmIpMKXAiXgkwxWYZUZ+eO7obN88TSr29iqiEzRnOPwJ+Cc76O8
-         Sz838pzcd6Nr262DOdwvZSnDWAxNTNxtMF5tZ+rk=
+        b=L1pGTGFaIoEXIerFnCec8on9Ev8M87f2BAd93uXYNYjGwmjSedsNgQSDWvCqu7+tR
+         Xbig8ofrhdmWvjA/28bHDnPt1uwRPNmh93idtLk5Bxv+/d79IaO+3RGPfVnuz8MFkS
+         r4H3g5qsHznqxq/U0IOqI+c7cABjq375ZXHSyplA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dexuan Cui <decui@microsoft.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        =?UTF-8?q?Fr=C3=A9d=C3=A9ric=20Dalleau?= 
-        <frederic.dalleau@docker.com>, Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 062/197] vsock: fix possible infinite sleep in vsock_connectible_wait_data()
-Date:   Tue,  8 Nov 2022 14:38:20 +0100
-Message-Id: <20221108133357.659437140@linuxfoundation.org>
+Subject: [PATCH 5.10 023/118] nfc: fdp: Fix potential memory leak in fdp_nci_send()
+Date:   Tue,  8 Nov 2022 14:38:21 +0100
+Message-Id: <20221108133341.666420711@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 466a85336fee6e3b35eb97b8405a28302fd25809 ]
+[ Upstream commit 8e4aae6b8ca76afb1fb64dcb24be44ba814e7f8a ]
 
-Currently vsock_connectible_has_data() may miss a wakeup operation
-between vsock_connectible_has_data() == 0 and the prepare_to_wait().
+fdp_nci_send() will call fdp_nci_i2c_write that will not free skb in
+the function. As a result, when fdp_nci_i2c_write() finished, the skb
+will memleak. fdp_nci_send() should free skb after fdp_nci_i2c_write()
+finished.
 
-Fix the race by adding the process to the wait queue before checking
-vsock_connectible_has_data().
-
-Fixes: b3f7fd54881b ("af_vsock: separate wait data loop")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reported-by: Frédéric Dalleau <frederic.dalleau@docker.com>
-Tested-by: Frédéric Dalleau <frederic.dalleau@docker.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: a06347c04c13 ("NFC: Add Intel Fields Peak NFC solution driver")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/nfc/fdp/fdp.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index b4ee163154a6..e5ab2418f9d6 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1894,8 +1894,11 @@ static int vsock_connectible_wait_data(struct sock *sk,
- 	err = 0;
- 	transport = vsk->transport;
+diff --git a/drivers/nfc/fdp/fdp.c b/drivers/nfc/fdp/fdp.c
+index 52c60d11849c..90bea6a1db69 100644
+--- a/drivers/nfc/fdp/fdp.c
++++ b/drivers/nfc/fdp/fdp.c
+@@ -252,11 +252,19 @@ static int fdp_nci_close(struct nci_dev *ndev)
+ static int fdp_nci_send(struct nci_dev *ndev, struct sk_buff *skb)
+ {
+ 	struct fdp_nci_info *info = nci_get_drvdata(ndev);
++	int ret;
  
--	while ((data = vsock_connectible_has_data(vsk)) == 0) {
-+	while (1) {
- 		prepare_to_wait(sk_sleep(sk), wait, TASK_INTERRUPTIBLE);
-+		data = vsock_connectible_has_data(vsk);
-+		if (data != 0)
-+			break;
+ 	if (atomic_dec_and_test(&info->data_pkt_counter))
+ 		info->data_pkt_counter_cb(ndev);
  
- 		if (sk->sk_err != 0 ||
- 		    (sk->sk_shutdown & RCV_SHUTDOWN) ||
+-	return info->phy_ops->write(info->phy, skb);
++	ret = info->phy_ops->write(info->phy, skb);
++	if (ret < 0) {
++		kfree_skb(skb);
++		return ret;
++	}
++
++	consume_skb(skb);
++	return 0;
+ }
+ 
+ static int fdp_nci_request_firmware(struct nci_dev *ndev)
 -- 
 2.35.1
 
