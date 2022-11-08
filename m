@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B486214A7
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:03:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAB6462140C
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:56:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234988AbiKHODq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:03:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38718 "EHLO
+        id S234816AbiKHN4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:56:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234984AbiKHODo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:03:44 -0500
+        with ESMTP id S234817AbiKHN4t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:56:49 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3500CDB
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:03:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6596623A5
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:56:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D7AF611B7
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:03:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38C06C433D6;
-        Tue,  8 Nov 2022 14:03:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 560B961515
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:56:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67E53C433C1;
+        Tue,  8 Nov 2022 13:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916220;
-        bh=gcpiw8uLsippCEL8GFoLkGIHhmwOy9aA3E1dWmGzZC8=;
+        s=korg; t=1667915807;
+        bh=a+oZS8Qk8ClCr4S2cnwlG4KUf11RjR1Gpjw63P9dD1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GY56OGVhgpwJpY97Efn0MlkYkI92Vxnh67mqWTUiIOuw8ROofYH9fdou7eKtaFGGF
-         2QvJCsDE/ZGXm8SjjA/5PWVmXgsbaeWk0ZRfcePuElZkRmfLg4e5WFgVl9+Sigxxvd
-         PKJyFq4QRyu8stsHdQUYbeJwuMZJAUllnjq1/x5E=
+        b=KKxcYVT7IodWXZah582kSQhYCzfRu8pRAcyhwa699HMagSsJ6OdIShiCAcrqfCb1X
+         jv63jpFUpQ30FVcMAM3zPjWf15rZ/HhM875ydh047tFe5N3+NMtQIbFud20O37qCiV
+         oIioF2+XlXHsxJWYIVGIudDSDXOvsCG4hhVHM+D0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Khazhy Kumykov <khazhy@chromium.org>
-Subject: [PATCH 5.15 098/144] block, bfq: protect bfqd->queued by bfqd->lock
+        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Subject: [PATCH 5.10 097/118] efi: random: reduce seed size to 32 bytes
 Date:   Tue,  8 Nov 2022 14:39:35 +0100
-Message-Id: <20221108133349.430785127@linuxfoundation.org>
+Message-Id: <20221108133344.899219323@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133340.718216105@linuxfoundation.org>
+References: <20221108133340.718216105@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 181490d5321806e537dc5386db5ea640b826bf78 upstream.
+commit 161a438d730dade2ba2b1bf8785f0759aba4ca5f upstream.
 
-If bfq_schedule_dispatch() is called from bfq_idle_slice_timer_body(),
-then 'bfqd->queued' is read without holding 'bfqd->lock'. This is
-wrong since it can be wrote concurrently.
+We no longer need at least 64 bytes of random seed to permit the early
+crng init to complete. The RNG is now based on Blake2s, so reduce the
+EFI seed size to the Blake2s hash size, which is sufficient for our
+purposes.
 
-Fix the problem by holding 'bfqd->lock' in such case.
+While at it, drop the READ_ONCE(), which was supposed to prevent size
+from being evaluated after seed was unmapped. However, this cannot
+actually happen, so READ_ONCE() is unnecessary here.
 
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20220513023507.2625717-2-yukuai3@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Khazhy Kumykov <khazhy@chromium.org>
+Cc: <stable@vger.kernel.org> # v4.14+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/firmware/efi/efi.c |    2 +-
+ include/linux/efi.h        |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -461,6 +461,8 @@ static struct bfq_io_cq *bfq_bic_lookup(
-  */
- void bfq_schedule_dispatch(struct bfq_data *bfqd)
- {
-+	lockdep_assert_held(&bfqd->lock);
-+
- 	if (bfqd->queued != 0) {
- 		bfq_log(bfqd, "schedule dispatch");
- 		blk_mq_run_hw_queues(bfqd->queue, true);
-@@ -6745,8 +6747,8 @@ bfq_idle_slice_timer_body(struct bfq_dat
- 	bfq_bfqq_expire(bfqd, bfqq, true, reason);
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -590,7 +590,7 @@ int __init efi_config_parse_tables(const
  
- schedule_dispatch:
--	spin_unlock_irqrestore(&bfqd->lock, flags);
- 	bfq_schedule_dispatch(bfqd);
-+	spin_unlock_irqrestore(&bfqd->lock, flags);
- }
+ 		seed = early_memremap(efi_rng_seed, sizeof(*seed));
+ 		if (seed != NULL) {
+-			size = READ_ONCE(seed->size);
++			size = min(seed->size, EFI_RANDOM_SEED_SIZE);
+ 			early_memunmap(seed, sizeof(*seed));
+ 		} else {
+ 			pr_err("Could not map UEFI random seed!\n");
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -1161,7 +1161,7 @@ void efi_retrieve_tpm2_eventlog(void);
+ 	arch_efi_call_virt_teardown();					\
+ })
  
- /*
+-#define EFI_RANDOM_SEED_SIZE		64U
++#define EFI_RANDOM_SEED_SIZE		32U // BLAKE2S_HASH_SIZE
+ 
+ struct linux_efi_random_seed {
+ 	u32	size;
 
 
