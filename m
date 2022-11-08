@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C065762157C
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:12:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FB1162132D
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:47:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235314AbiKHOMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 09:12:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48564 "EHLO
+        id S234583AbiKHNrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:47:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235270AbiKHOM2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:12:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89A47862D5
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:12:01 -0800 (PST)
+        with ESMTP id S234581AbiKHNri (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:47:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E3705984E
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:47:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B2C4B81AF7
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:12:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 648FCC433C1;
-        Tue,  8 Nov 2022 14:11:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEE04615A3
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:47:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A065C433C1;
+        Tue,  8 Nov 2022 13:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667916719;
-        bh=Qd207gsEBw02o9i6n/7VmN7fZlg4gfz7b1H95LXf8LA=;
+        s=korg; t=1667915257;
+        bh=gYMNhKI2MGIgCnw48vG3TEznKGfvoShxjVCSyEnEwAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ygf0NASUuRN6TyOiiyHTPUtYOWOhn67XCQSj4BzG+4AY3ED9vR4W9ZFQAQUtqSorq
-         dEAl2cEC8E5M6sYkx3C1uiVGr10RrjIfGqM7/0tFy6StB6CnsBCw7ZHV59apb2iPVo
-         WIamWuiKEI7gODJlV+F+I/+bnYXFShC5Bava92+w=
+        b=fRKLukvN9mdK6IYf/afLewJ244QXl81aLFfkrGyLS7tLXC+Zsgc6KTxy+SWzOi7ik
+         8OioICWrRa/jNT2oL6361QAOhuZpcJ3kWzjyCrwEFCvR1nzagQnn5TdTd02bToUGl0
+         QU52OUd3LU/gjY1OSapZ6+zUSfD2hJReFpLUMUuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Robert Beckett <bob.beckett@collabora.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 111/197] drm/i915: stop abusing swiotlb_max_segment
+Subject: [PATCH 4.19 24/48] ipv6: fix WARNING in ip6_route_net_exit_late()
 Date:   Tue,  8 Nov 2022 14:39:09 +0100
-Message-Id: <20221108133359.905786898@linuxfoundation.org>
+Message-Id: <20221108133330.372704408@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
-References: <20221108133354.787209461@linuxfoundation.org>
+In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
+References: <20221108133329.533809494@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,184 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Beckett <bob.beckett@collabora.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit d3f6bacfca86f6cf6bf85be1e8b54083d68d8195 ]
+[ Upstream commit 768b3c745fe5789f2430bdab02f35a9ad1148d97 ]
 
-swiotlb_max_segment used to return either the maximum size that swiotlb
-could bounce, or for Xen PV PAGE_SIZE even if swiotlb could bounce buffer
-larger mappings.  This made i915 on Xen PV work as it bypasses the
-coherency aspect of the DMA API and can't cope with bounce buffering
-and this avoided bounce buffering for the Xen/PV case.
+During the initialization of ip6_route_net_init_late(), if file
+ipv6_route or rt6_stats fails to be created, the initialization is
+successful by default. Therefore, the ipv6_route or rt6_stats file
+doesn't be found during the remove in ip6_route_net_exit_late(). It
+will cause WRNING.
 
-So instead of adding this hack back, check for Xen/PV directly in i915
-for the Xen case and otherwise use the proper DMA API helper to query
-the maximum mapping size.
+The following is the stack information:
+name 'rt6_stats'
+WARNING: CPU: 0 PID: 9 at fs/proc/generic.c:712 remove_proc_entry+0x389/0x460
+Modules linked in:
+Workqueue: netns cleanup_net
+RIP: 0010:remove_proc_entry+0x389/0x460
+PKRU: 55555554
+Call Trace:
+<TASK>
+ops_exit_list+0xb0/0x170
+cleanup_net+0x4ea/0xb00
+process_one_work+0x9bf/0x1710
+worker_thread+0x665/0x1080
+kthread+0x2e4/0x3a0
+ret_from_fork+0x1f/0x30
+</TASK>
 
-Replace swiotlb_max_segment() calls with dma_max_mapping_size().
-In i915_gem_object_get_pages_internal() no longer consider max_segment
-only if CONFIG_SWIOTLB is enabled. There can be other (iommu related)
-causes of specific max segment sizes.
-
-Fixes: a2daa27c0c61 ("swiotlb: simplify swiotlb_max_segment")
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Robert Beckett <bob.beckett@collabora.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-[hch: added the Xen hack, rewrote the changelog]
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221020110308.1582518-1-hch@lst.de
-(cherry picked from commit 78a07fe777c42800bd1adaec12abe5dcee43919e)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Fixes: cdb1876192db ("[NETNS][IPV6] route6 - create route6 proc files for the namespace")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20221102020610.351330-1-shaozhengchao@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_internal.c | 19 +++--------
- drivers/gpu/drm/i915/gem/i915_gem_shmem.c    |  2 +-
- drivers/gpu/drm/i915/gem/i915_gem_ttm.c      |  4 +--
- drivers/gpu/drm/i915/gem/i915_gem_userptr.c  |  2 +-
- drivers/gpu/drm/i915/i915_scatterlist.h      | 34 ++++++++++++--------
- 5 files changed, 29 insertions(+), 32 deletions(-)
+ net/ipv6/route.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_internal.c b/drivers/gpu/drm/i915/gem/i915_gem_internal.c
-index c698f95af15f..629acb403a2c 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_internal.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_internal.c
-@@ -6,7 +6,6 @@
- 
- #include <linux/scatterlist.h>
- #include <linux/slab.h>
--#include <linux/swiotlb.h>
- 
- #include "i915_drv.h"
- #include "i915_gem.h"
-@@ -38,22 +37,12 @@ static int i915_gem_object_get_pages_internal(struct drm_i915_gem_object *obj)
- 	struct scatterlist *sg;
- 	unsigned int sg_page_sizes;
- 	unsigned int npages;
--	int max_order;
-+	int max_order = MAX_ORDER;
-+	unsigned int max_segment;
- 	gfp_t gfp;
- 
--	max_order = MAX_ORDER;
--#ifdef CONFIG_SWIOTLB
--	if (is_swiotlb_active(obj->base.dev->dev)) {
--		unsigned int max_segment;
--
--		max_segment = swiotlb_max_segment();
--		if (max_segment) {
--			max_segment = max_t(unsigned int, max_segment,
--					    PAGE_SIZE) >> PAGE_SHIFT;
--			max_order = min(max_order, ilog2(max_segment));
--		}
--	}
--#endif
-+	max_segment = i915_sg_segment_size(i915->drm.dev) >> PAGE_SHIFT;
-+	max_order = min(max_order, get_order(max_segment));
- 
- 	gfp = GFP_KERNEL | __GFP_HIGHMEM | __GFP_RECLAIMABLE;
- 	if (IS_I965GM(i915) || IS_I965G(i915)) {
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_shmem.c b/drivers/gpu/drm/i915/gem/i915_gem_shmem.c
-index 4eed3dd90ba8..34b9c76cd8e6 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_shmem.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_shmem.c
-@@ -194,7 +194,7 @@ static int shmem_get_pages(struct drm_i915_gem_object *obj)
- 	struct intel_memory_region *mem = obj->mm.region;
- 	struct address_space *mapping = obj->base.filp->f_mapping;
- 	const unsigned long page_count = obj->base.size / PAGE_SIZE;
--	unsigned int max_segment = i915_sg_segment_size();
-+	unsigned int max_segment = i915_sg_segment_size(i915->drm.dev);
- 	struct sg_table *st;
- 	struct sgt_iter sgt_iter;
- 	struct page *page;
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_ttm.c b/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
-index 6f3ab7ade41a..e85cfc36359a 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
-@@ -189,7 +189,7 @@ static int i915_ttm_tt_shmem_populate(struct ttm_device *bdev,
- 	struct drm_i915_private *i915 = container_of(bdev, typeof(*i915), bdev);
- 	struct intel_memory_region *mr = i915->mm.regions[INTEL_MEMORY_SYSTEM];
- 	struct i915_ttm_tt *i915_tt = container_of(ttm, typeof(*i915_tt), ttm);
--	const unsigned int max_segment = i915_sg_segment_size();
-+	const unsigned int max_segment = i915_sg_segment_size(i915->drm.dev);
- 	const size_t size = (size_t)ttm->num_pages << PAGE_SHIFT;
- 	struct file *filp = i915_tt->filp;
- 	struct sgt_iter sgt_iter;
-@@ -568,7 +568,7 @@ static struct i915_refct_sgt *i915_ttm_tt_get_st(struct ttm_tt *ttm)
- 	ret = sg_alloc_table_from_pages_segment(st,
- 			ttm->pages, ttm->num_pages,
- 			0, (unsigned long)ttm->num_pages << PAGE_SHIFT,
--			i915_sg_segment_size(), GFP_KERNEL);
-+			i915_sg_segment_size(i915_tt->dev), GFP_KERNEL);
- 	if (ret) {
- 		st->sgl = NULL;
- 		return ERR_PTR(ret);
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-index 8423df021b71..e4515d6acd43 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-@@ -129,7 +129,7 @@ static void i915_gem_object_userptr_drop_ref(struct drm_i915_gem_object *obj)
- static int i915_gem_userptr_get_pages(struct drm_i915_gem_object *obj)
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index b940285a111e..7b41d5d3575f 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -5374,10 +5374,16 @@ static void __net_exit ip6_route_net_exit(struct net *net)
+ static int __net_init ip6_route_net_init_late(struct net *net)
  {
- 	const unsigned long num_pages = obj->base.size >> PAGE_SHIFT;
--	unsigned int max_segment = i915_sg_segment_size();
-+	unsigned int max_segment = i915_sg_segment_size(obj->base.dev->dev);
- 	struct sg_table *st;
- 	unsigned int sg_page_sizes;
- 	struct page **pvec;
-diff --git a/drivers/gpu/drm/i915/i915_scatterlist.h b/drivers/gpu/drm/i915/i915_scatterlist.h
-index 9ddb3e743a3e..b0a1db44f895 100644
---- a/drivers/gpu/drm/i915/i915_scatterlist.h
-+++ b/drivers/gpu/drm/i915/i915_scatterlist.h
-@@ -9,7 +9,8 @@
- 
- #include <linux/pfn.h>
- #include <linux/scatterlist.h>
--#include <linux/swiotlb.h>
-+#include <linux/dma-mapping.h>
-+#include <xen/xen.h>
- 
- #include "i915_gem.h"
- 
-@@ -127,19 +128,26 @@ static inline unsigned int i915_sg_dma_sizes(struct scatterlist *sg)
- 	return page_sizes;
- }
- 
--static inline unsigned int i915_sg_segment_size(void)
-+static inline unsigned int i915_sg_segment_size(struct device *dev)
- {
--	unsigned int size = swiotlb_max_segment();
--
--	if (size == 0)
--		size = UINT_MAX;
--
--	size = rounddown(size, PAGE_SIZE);
--	/* swiotlb_max_segment_size can return 1 byte when it means one page. */
--	if (size < PAGE_SIZE)
--		size = PAGE_SIZE;
--
--	return size;
-+	size_t max = min_t(size_t, UINT_MAX, dma_max_mapping_size(dev));
+ #ifdef CONFIG_PROC_FS
+-	proc_create_net("ipv6_route", 0, net->proc_net, &ipv6_route_seq_ops,
+-			sizeof(struct ipv6_route_iter));
+-	proc_create_net_single("rt6_stats", 0444, net->proc_net,
+-			rt6_stats_seq_show, NULL);
++	if (!proc_create_net("ipv6_route", 0, net->proc_net,
++			     &ipv6_route_seq_ops,
++			     sizeof(struct ipv6_route_iter)))
++		return -ENOMEM;
 +
-+	/*
-+	 * For Xen PV guests pages aren't contiguous in DMA (machine) address
-+	 * space.  The DMA API takes care of that both in dma_alloc_* (by
-+	 * calling into the hypervisor to make the pages contiguous) and in
-+	 * dma_map_* (by bounce buffering).  But i915 abuses ignores the
-+	 * coherency aspects of the DMA API and thus can't cope with bounce
-+	 * buffering actually happening, so add a hack here to force small
-+	 * allocations and mappings when running in PV mode on Xen.
-+	 *
-+	 * Note this will still break if bounce buffering is required for other
-+	 * reasons, like confidential computing hypervisors or PCIe root ports
-+	 * with addressing limitations.
-+	 */
-+	if (xen_pv_domain())
-+		max = PAGE_SIZE;
-+	return round_down(max, PAGE_SIZE);
++	if (!proc_create_net_single("rt6_stats", 0444, net->proc_net,
++				    rt6_stats_seq_show, NULL)) {
++		remove_proc_entry("ipv6_route", net->proc_net);
++		return -ENOMEM;
++	}
+ #endif
+ 	return 0;
  }
- 
- bool i915_sg_trim(struct sg_table *orig_st);
 -- 
 2.35.1
 
