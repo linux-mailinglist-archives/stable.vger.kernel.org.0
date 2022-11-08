@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C1F8621319
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:46:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43EF962136E
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:50:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234534AbiKHNqi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:46:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46410 "EHLO
+        id S234585AbiKHNuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 08:50:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234541AbiKHNqh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:46:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BD2359859
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:46:36 -0800 (PST)
+        with ESMTP id S234624AbiKHNuM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:50:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 697C063F0
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:50:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 480ABB81AEE
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:46:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65085C433D6;
-        Tue,  8 Nov 2022 13:46:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 073C2615A3
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:50:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 123C1C433D7;
+        Tue,  8 Nov 2022 13:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915194;
-        bh=A3mc1LLXa/cJ/FSWeM8gs+6IPUjIulq6HWBCWB0ygQI=;
+        s=korg; t=1667915411;
+        bh=ravxm6RvOKV3wTkK9yfdUMIYcy+FOZZceg3Prsg4fBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OrKhKAzivrfFMMQU/npLyRuYcQH/eDRIGopjKJ3djp2i/24qSSVlmtmt11RDg9eug
-         ZXLxfMEUXcua7EzSgDLX+p+Hk9xyLxExSYxyEQKtj5Rrui++Yf28x2H1EP4RXjnDMA
-         tqJUUvNAN3NHUpY2/6u4cTaU1E8VTxp2mvuMM+Oo=
+        b=DDf9m9GT7P4UjcRBMRnpeU0rSWDTbo2KIM3u4mQ6N7FsNtiBVEJI+B6JNhr7Jgzy7
+         K6Mx+0jqyl90iHFrts9PAJ86+C+7IJucx3tQb26ebASzP/eDqBC/gAEg8c5KiwcrW7
+         4clK1VrLZ0r4BL84aSAvfoiJtW6+CzRPKF56CTdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Subject: [PATCH 4.19 38/48] efi: random: reduce seed size to 32 bytes
+Subject: [PATCH 5.4 55/74] efi: random: reduce seed size to 32 bytes
 Date:   Tue,  8 Nov 2022 14:39:23 +0100
-Message-Id: <20221108133330.886678382@linuxfoundation.org>
+Message-Id: <20221108133336.015931064@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133329.533809494@linuxfoundation.org>
-References: <20221108133329.533809494@linuxfoundation.org>
+In-Reply-To: <20221108133333.659601604@linuxfoundation.org>
+References: <20221108133333.659601604@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -78,18 +78,18 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/firmware/efi/efi.c
 +++ b/drivers/firmware/efi/efi.c
-@@ -556,7 +556,7 @@ int __init efi_config_parse_tables(void
+@@ -546,7 +546,7 @@ int __init efi_config_parse_tables(void
  
  		seed = early_memremap(efi.rng_seed, sizeof(*seed));
  		if (seed != NULL) {
--			size = seed->size;
+-			size = READ_ONCE(seed->size);
 +			size = min(seed->size, EFI_RANDOM_SEED_SIZE);
  			early_memunmap(seed, sizeof(*seed));
  		} else {
  			pr_err("Could not map UEFI random seed!\n");
 --- a/include/linux/efi.h
 +++ b/include/linux/efi.h
-@@ -1655,7 +1655,7 @@ efi_status_t efi_exit_boot_services(efi_
+@@ -1715,7 +1715,7 @@ efi_status_t efi_exit_boot_services(efi_
  				    void *priv,
  				    efi_exit_boot_map_processing priv_func);
  
