@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52578621442
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:59:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4312562155C
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:10:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234881AbiKHN7U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:59:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33396 "EHLO
+        id S235207AbiKHOKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:10:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234885AbiKHN7R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:59:17 -0500
+        with ESMTP id S235175AbiKHOKv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:10:51 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8780E528A4
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:59:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0588E6379
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:10:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 242B5615A8
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:59:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36309C433C1;
-        Tue,  8 Nov 2022 13:59:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95A10615C2
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:10:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4C9CC433D6;
+        Tue,  8 Nov 2022 14:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667915954;
-        bh=SVP1nAfYHn4WWA0rZ7CSp3klERGXBB5zUfe8bWjtkLg=;
+        s=korg; t=1667916650;
+        bh=7ZJ3R4L+X6VQRbiVUvy3GpUBgwHzXrDrbK3snEFGfns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r97a+YCsxr1XGJt2JvNqaRowCtNO+bGovn3K8ArWuRhSvlmHDwcx+q9KMjtICidrc
-         Z5t3FBmdOXe9LE7xavgFY/v4GxRdtQ73UJ5P//QQ3m/9URuyQ+4j3iRl3hlmHn4Nf5
-         mqvwxrBB61XP7tEC4oLpUEON4OANVy2QNu4pDM+Q=
+        b=zNFRDTP1Plw7X1E+HtT3N59NILxAywr6h4zutvNpNH54sVUnBRLigm3IyOQkvIoqs
+         rEQfmUVfGa775dAquAmkurtr+URbfjhcMruFeCuZ0si+DvwuxppZ3QNe+0nCY9T9l+
+         RH/tFrRPpPlujk1D0F6zLdw1UHxxXRC/zVpkwmbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        patches@lists.linux.dev, Ido Schimmel <idosch@nvidia.com>,
+        Nikolay Aleksandrov <razor@blackwall.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 021/144] SUNRPC: Fix null-ptr-deref when xps sysfs alloc failed
+Subject: [PATCH 6.0 060/197] bridge: Fix flushing of dynamic FDB entries
 Date:   Tue,  8 Nov 2022 14:38:18 +0100
-Message-Id: <20221108133346.193558629@linuxfoundation.org>
+Message-Id: <20221108133357.562387198@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
-References: <20221108133345.346704162@linuxfoundation.org>
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+References: <20221108133354.787209461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit cbdeaee94a415800c65a8c3fa04d9664a8b8fb3a ]
+[ Upstream commit 628ac04a75ed5ff13647e725f40192da22ef2be8 ]
 
-There is a null-ptr-deref when xps sysfs alloc failed:
-  BUG: KASAN: null-ptr-deref in sysfs_do_create_link_sd+0x40/0xd0
-  Read of size 8 at addr 0000000000000030 by task gssproxy/457
+The following commands should result in all the dynamic FDB entries
+being flushed, but instead all the non-local (non-permanent) entries are
+flushed:
 
-  CPU: 5 PID: 457 Comm: gssproxy Not tainted 6.0.0-09040-g02357b27ee03 #9
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x34/0x44
-   kasan_report+0xa3/0x120
-   sysfs_do_create_link_sd+0x40/0xd0
-   rpc_sysfs_client_setup+0x161/0x1b0
-   rpc_new_client+0x3fc/0x6e0
-   rpc_create_xprt+0x71/0x220
-   rpc_create+0x1d4/0x350
-   gssp_rpc_create+0xc3/0x160
-   set_gssp_clnt+0xbc/0x140
-   write_gssp+0x116/0x1a0
-   proc_reg_write+0xd6/0x130
-   vfs_write+0x177/0x690
-   ksys_write+0xb9/0x150
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+ # bridge fdb add 00:aa:bb:cc:dd:ee dev dummy1 master static
+ # bridge fdb add 00:11:22:33:44:55 dev dummy1 master dynamic
+ # ip link set dev br0 type bridge fdb_flush
+ # bridge fdb show brport dummy1
+ 00:00:00:00:00:01 master br0 permanent
+ 33:33:00:00:00:01 self permanent
+ 01:00:5e:00:00:01 self permanent
 
-When the xprt_switch sysfs alloc failed, should not add xprt and
-switch sysfs to it, otherwise, maybe null-ptr-deref; also initialize
-the 'xps_sysfs' to NULL to avoid oops when destroy it.
+This is because br_fdb_flush() works with FDB flags and not the
+corresponding enumerator values. Fix by passing the FDB flag instead.
 
-Fixes: 2a338a543163 ("sunrpc: add a symlink from rpc-client directory to the xprt_switch")
-Fixes: d408ebe04ac5 ("sunrpc: add add sysfs directory per xprt under each xprt_switch")
-Fixes: baea99445dd4 ("sunrpc: add xprt_switch direcotry to sunrpc's sysfs")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+After the fix:
+
+ # bridge fdb add 00:aa:bb:cc:dd:ee dev dummy1 master static
+ # bridge fdb add 00:11:22:33:44:55 dev dummy1 master dynamic
+ # ip link set dev br0 type bridge fdb_flush
+ # bridge fdb show brport dummy1
+ 00:aa:bb:cc:dd:ee master br0 static
+ 00:00:00:00:00:01 master br0 permanent
+ 33:33:00:00:00:01 self permanent
+ 01:00:5e:00:00:01 self permanent
+
+Fixes: 1f78ee14eeac ("net: bridge: fdb: add support for fine-grained flushing")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+Link: https://lore.kernel.org/r/20221101185753.2120691-1-idosch@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/sysfs.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ net/bridge/br_netlink.c  | 2 +-
+ net/bridge/br_sysfs_br.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/sysfs.c b/net/sunrpc/sysfs.c
-index a7020b1f3ec7..55da1b627a7d 100644
---- a/net/sunrpc/sysfs.c
-+++ b/net/sunrpc/sysfs.c
-@@ -525,13 +525,16 @@ void rpc_sysfs_client_setup(struct rpc_clnt *clnt,
- 			    struct net *net)
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 5aeb3646e74c..d087fd4c784a 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1332,7 +1332,7 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+ 
+ 	if (data[IFLA_BR_FDB_FLUSH]) {
+ 		struct net_bridge_fdb_flush_desc desc = {
+-			.flags_mask = BR_FDB_STATIC
++			.flags_mask = BIT(BR_FDB_STATIC)
+ 		};
+ 
+ 		br_fdb_flush(br, &desc);
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 612e367fff20..ea733542244c 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -345,7 +345,7 @@ static int set_flush(struct net_bridge *br, unsigned long val,
+ 		     struct netlink_ext_ack *extack)
  {
- 	struct rpc_sysfs_client *rpc_client;
-+	struct rpc_sysfs_xprt_switch *xswitch =
-+		(struct rpc_sysfs_xprt_switch *)xprt_switch->xps_sysfs;
-+
-+	if (!xswitch)
-+		return;
+ 	struct net_bridge_fdb_flush_desc desc = {
+-		.flags_mask = BR_FDB_STATIC
++		.flags_mask = BIT(BR_FDB_STATIC)
+ 	};
  
- 	rpc_client = rpc_sysfs_client_alloc(rpc_sunrpc_client_kobj,
- 					    net, clnt->cl_clid);
- 	if (rpc_client) {
- 		char name[] = "switch";
--		struct rpc_sysfs_xprt_switch *xswitch =
--			(struct rpc_sysfs_xprt_switch *)xprt_switch->xps_sysfs;
- 		int ret;
- 
- 		clnt->cl_sysfs = rpc_client;
-@@ -565,6 +568,8 @@ void rpc_sysfs_xprt_switch_setup(struct rpc_xprt_switch *xprt_switch,
- 		rpc_xprt_switch->xprt_switch = xprt_switch;
- 		rpc_xprt_switch->xprt = xprt;
- 		kobject_uevent(&rpc_xprt_switch->kobject, KOBJ_ADD);
-+	} else {
-+		xprt_switch->xps_sysfs = NULL;
- 	}
- }
- 
-@@ -576,6 +581,9 @@ void rpc_sysfs_xprt_setup(struct rpc_xprt_switch *xprt_switch,
- 	struct rpc_sysfs_xprt_switch *switch_obj =
- 		(struct rpc_sysfs_xprt_switch *)xprt_switch->xps_sysfs;
- 
-+	if (!switch_obj)
-+		return;
-+
- 	rpc_xprt = rpc_sysfs_xprt_alloc(&switch_obj->kobject, xprt, gfp_flags);
- 	if (rpc_xprt) {
- 		xprt->xprt_sysfs = rpc_xprt;
+ 	br_fdb_flush(br, &desc);
 -- 
 2.35.1
 
