@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65EC26212C6
-	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 14:42:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 200BD621483
+	for <lists+stable@lfdr.de>; Tue,  8 Nov 2022 15:02:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234469AbiKHNmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 08:42:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41704 "EHLO
+        id S234873AbiKHOCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 09:02:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234455AbiKHNmf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 08:42:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 923B745093
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 05:42:34 -0800 (PST)
+        with ESMTP id S234975AbiKHOB5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 09:01:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8B9F682AE
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 06:01:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6FE9B81AEC
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 13:42:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F74DC433C1;
-        Tue,  8 Nov 2022 13:42:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 853EF61595
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 14:01:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91BA9C433C1;
+        Tue,  8 Nov 2022 14:01:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667914951;
-        bh=rl1AaJuRa6IwTrS/95nnBMCTIDscUpTk8sMi2Bg+qCk=;
+        s=korg; t=1667916115;
+        bh=bqPkD1QPbT3aDJ0oBiF3trdy5bO/vWDb5s5mUqQjazo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W2wBYLvlk8zyr2zqDBfooj6zAfIIQHjqqGuHXt/Hip72ENkZRe0hL3xzAUciy6B7+
-         RCKkyn+NysBrCoeoSKKzKMXYpqWcp8rd8exGGvyG27XZ18XtE7COYbj4R6UxZfOVPN
-         lSJpKtj15IcbrmTFvEk+5cVW9iZKF3eMvVD0Qx9w=
+        b=XqNF+7kx1/lSTMv1luWBRzb6JeMJ3Z08tngDstug5WlHJQ6oIeciSvvD0hP88oCyr
+         p2zJWJOmHeFdf6KxdvdVLp9IVJwSxS3h2pkr4BpsPl3dDxq0T0jbn/wjwfpgQUcZma
+         xH37DeMB1SC9HZpVePW55FOgnP+i9lUspEu53JfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 16/30] net: mdio: fix undefined behavior in bit shift for __mdiobus_register
+Subject: [PATCH 5.15 067/144] s390/cio: derive cdev information only for IO-subchannels
 Date:   Tue,  8 Nov 2022 14:39:04 +0100
-Message-Id: <20221108133327.300605017@linuxfoundation.org>
+Message-Id: <20221108133348.123420265@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
-References: <20221108133326.715586431@linuxfoundation.org>
+In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221108133345.346704162@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-[ Upstream commit 40e4eb324c59e11fcb927aa46742d28aba6ecb8a ]
+[ Upstream commit 0c3812c347bfb0dc213556a195e79850c55702f5 ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+cdev->online for the purge function must not be checked for the
+non-IO subchannel type. Make sure that we are deriving the cdev only
+from sch-type SUBCHANNEL_TYPE_IO.
 
-UBSAN: shift-out-of-bounds in drivers/net/phy/mdio_bus.c:586:27
-left shift of 1 by 31 places cannot be represented in type 'int'
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7d/0xa5
- dump_stack+0x15/0x1b
- ubsan_epilogue+0xe/0x4e
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
- __mdiobus_register+0x49d/0x4e0
- fixed_mdio_bus_init+0xd8/0x12d
- do_one_initcall+0x76/0x430
- kernel_init_freeable+0x3b3/0x422
- kernel_init+0x24/0x1e0
- ret_from_fork+0x1f/0x30
- </TASK>
-
-Fixes: 4fd5f812c23c ("phylib: allow incremental scanning of an mii bus")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20221031132645.168421-1-cuigaosheng1@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Stable-dep-of: 1b6074112742 ("s390/cio: fix out-of-bounds access on cio_ignore free")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/cio/css.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
-index 0fa6e2da4b5a..2aecc5ee9133 100644
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -335,7 +335,7 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
- 		bus->reset(bus);
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index c27809792609..ce9e7517430f 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -792,10 +792,13 @@ static int __unset_online(struct device *dev, void *data)
+ {
+ 	struct idset *set = data;
+ 	struct subchannel *sch = to_subchannel(dev);
+-	struct ccw_device *cdev = sch_get_cdev(sch);
++	struct ccw_device *cdev;
  
- 	for (i = 0; i < PHY_MAX_ADDR; i++) {
--		if ((bus->phy_mask & (1 << i)) == 0) {
-+		if ((bus->phy_mask & BIT(i)) == 0) {
- 			struct phy_device *phydev;
+-	if (cdev && cdev->online)
+-		idset_sch_del(set, sch->schid);
++	if (sch->st == SUBCHANNEL_TYPE_IO) {
++		cdev = sch_get_cdev(sch);
++		if (cdev && cdev->online)
++			idset_sch_del(set, sch->schid);
++	}
  
- 			phydev = mdiobus_scan(bus, i);
+ 	return 0;
+ }
 -- 
 2.35.1
 
