@@ -2,137 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BB4C622BB5
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 13:38:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31B44622BE9
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 13:51:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229766AbiKIMib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Nov 2022 07:38:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32920 "EHLO
+        id S229651AbiKIMvc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Nov 2022 07:51:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229635AbiKIMia (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 07:38:30 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 415485F5D;
-        Wed,  9 Nov 2022 04:38:27 -0800 (PST)
-Date:   Wed, 09 Nov 2022 12:38:24 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1667997505;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=LK9EehdZiIwa5K6hobz+g0DwtgtF0AoOZ+vJ/cDRSTQ=;
-        b=X8v+aomFyx+6qc64lsUgqcWnLs18jl2WeFenLKsSMchrZ0ZxEvrz5EIwyc1IMAF2F5FW8T
-        HISO1hwgxFBtBZrXHIBVMed5aw0Znht/g3wMWyJwB2hLuI77hhVsqy4OuawYnFqpHynSDE
-        hcPW7bh9bRoad7sPsnXFPd2AoJjZLPDMK4DNLRZJ16RbxR/Gn6CwZZLztAjll5nVpgqSDU
-        9G8ZkGuEB/OWYS4odt5stkzvMkrEM1O2LbJ3mzgyyzYN9fxBTP3g2JOBYfc2wnY7VxPlFp
-        wyD1EhhyBCH+RihPn7sdKXCXK41AXPOm+90Wz1hZCURg46G9vlAyqmJh2b2DHQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1667997505;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=LK9EehdZiIwa5K6hobz+g0DwtgtF0AoOZ+vJ/cDRSTQ=;
-        b=j8vSZZIKZIusfpm1+LokwLrBq+BhGrnFw5Vz30eY0DGuBIWuHzDlq8YVklpsW54ZJU46ge
-        7PNcUTWq56EgKUCw==
-From:   "tip-bot2 for Andrew Cooper" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/fpu] x86/fpu/xstate: Fix XSTATE_WARN_ON() to emit relevant
- diagnostics
-Cc:     Andrew Cooper <andrew.cooper3@citrix.com>,
-        Borislav Petkov <bp@suse.de>, <stable@vger.kernel.org>,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20220810221909.12768-1-andrew.cooper3@citrix.com>
-References: <20220810221909.12768-1-andrew.cooper3@citrix.com>
-MIME-Version: 1.0
-Message-ID: <166799750447.4906.6850685710564265854.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+        with ESMTP id S229447AbiKIMvb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 07:51:31 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0663826499
+        for <stable@vger.kernel.org>; Wed,  9 Nov 2022 04:51:30 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id q9so16596495pfg.5
+        for <stable@vger.kernel.org>; Wed, 09 Nov 2022 04:51:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=1oXl1uIRVr0lK880smcSiDUE510BqfcCV8VvzBWIr+c=;
+        b=VOfmkB9uDcVQBbuzooOjb98w648T/X3/wkp3oOo4vJAzEzd+3bSUaC+zAmAaXb0Ok1
+         ZAS8ZoV8aBp2YM4PxQXo45iYRL0c6ZrNGl5ZuIgjyjsi6NxINNScgIkQCOzVX6/09AoP
+         hZlQcGoZMN4Ga12Bh+z6pRsO6Up/7jZ5GzDy+o8/3WtKlsVKDkxKdMWmgFUNmgldK5yd
+         pNL1v3TCb4/9MvTPOce8xOCeyBm6y4SrcYPgeLeXZdNlAlA5qBUPuPcivu2L283tJ+dH
+         ZOSQg+rcJuOQHOYzmdl6yeeZvLnbmTXhFHdrCykHsQ6jltO0MQla6V6Adc1PbtuyI9XG
+         4hLA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1oXl1uIRVr0lK880smcSiDUE510BqfcCV8VvzBWIr+c=;
+        b=yOoOGnKiF2XAc8PS5Klq3ezDCZayyf3xHYs7bzFOzz7leBHd6Hc4vY5ymBu9fbhIbH
+         r3QMgrZDBGJ/ODk+cWhaJOhlFA84L1nPFLl6u5+9xfE1lcXNKy13+P51RQzPpTBRXHVH
+         qx5yYmMoPEtRIDir6mRvBivxMQmolndnDxnet32lHFwM1eyB0UKXvF620YIPmGHaJmfx
+         zuMdFUfGWs4L5lYnh0OB2rJzoQ078z8F6KHR4rircvLu/J3/EmPnzAulHXpF+HI2A/0y
+         VyFUVL4hmha8KYfMIo+yTyqwgW0tshhrbwuPFeKxTP3s0HHXTcHQuCKg2d1/dKyYE6t1
+         1mNw==
+X-Gm-Message-State: ACrzQf27NUx1Tt8y7HZYUGEpM6CPrW3Eq4TgzXMqN8FcwpMcZi4YN0ai
+        mruaKWx9t9GUm1rsYQIg9v65OxugMaSFog==
+X-Google-Smtp-Source: AMsMyM7PkzQetvBGbzYyg6N7nFOtdKBw8y4t/CHovDpov6Lddp8icvAEKyjGaqzGGG8LXq/yU5F+Yg==
+X-Received: by 2002:a63:4f09:0:b0:440:4706:2299 with SMTP id d9-20020a634f09000000b0044047062299mr52802461pgb.115.1667998289379;
+        Wed, 09 Nov 2022 04:51:29 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d18-20020a170902aa9200b00186a2274382sm8962416plr.76.2022.11.09.04.51.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Nov 2022 04:51:29 -0800 (PST)
+Message-ID: <636ba251.170a0220.6a80e.effe@mx.google.com>
+Date:   Wed, 09 Nov 2022 04:51:29 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.153-118-g69a0227f6bd6
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.10.y baseline: 157 runs,
+ 1 regressions (v5.10.153-118-g69a0227f6bd6)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/fpu branch of tip:
+stable-rc/linux-5.10.y baseline: 157 runs, 1 regressions (v5.10.153-118-g69=
+a0227f6bd6)
 
-Commit-ID:     48280042f2c6e3ac2cfb1d8b752ab4a7e0baea24
-Gitweb:        https://git.kernel.org/tip/48280042f2c6e3ac2cfb1d8b752ab4a7e0baea24
-Author:        Andrew Cooper <andrew.cooper3@citrix.com>
-AuthorDate:    Wed, 10 Aug 2022 23:19:09 +01:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Wed, 09 Nov 2022 13:28:31 +01:00
+Regressions Summary
+-------------------
 
-x86/fpu/xstate: Fix XSTATE_WARN_ON() to emit relevant diagnostics
+platform          | arch | lab     | compiler | defconfig          | regres=
+sions
+------------------+------+---------+----------+--------------------+-------=
+-----
+r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig | 1     =
+     =
 
-"XSAVE consistency problem" has been reported under Xen, but that's the extent
-of my divination skills.
 
-Modify XSTATE_WARN_ON() to force the caller to provide relevant diagnostic
-information, and modify each caller suitably.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.153-118-g69a0227f6bd6/plan/baseline/
 
-For check_xstate_against_struct(), this removes a double WARN() where one will
-do perfectly fine.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.153-118-g69a0227f6bd6
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      69a0227f6bd671ba8efa071c58d9f127932e25f2 =
 
-CC stable as this has been wonky debugging for 7 years and it is good to
-have there too.
 
-Signed-off-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220810221909.12768-1-andrew.cooper3@citrix.com
----
- arch/x86/kernel/fpu/xstate.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
-index 59e543b..c2dde46 100644
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -440,8 +440,8 @@ static void __init __xstate_dump_leaves(void)
- 	}
- }
- 
--#define XSTATE_WARN_ON(x) do {							\
--	if (WARN_ONCE(x, "XSAVE consistency problem, dumping leaves")) {	\
-+#define XSTATE_WARN_ON(x, fmt, ...) do {					\
-+	if (WARN_ONCE(x, "XSAVE consistency problem: " fmt, ##__VA_ARGS__)) {	\
- 		__xstate_dump_leaves();						\
- 	}									\
- } while (0)
-@@ -554,8 +554,7 @@ static bool __init check_xstate_against_struct(int nr)
- 	    (nr >= XFEATURE_MAX) ||
- 	    (nr == XFEATURE_PT_UNIMPLEMENTED_SO_FAR) ||
- 	    ((nr >= XFEATURE_RSRVD_COMP_11) && (nr <= XFEATURE_RSRVD_COMP_16))) {
--		WARN_ONCE(1, "no structure for xstate: %d\n", nr);
--		XSTATE_WARN_ON(1);
-+		XSTATE_WARN_ON(1, "No structure for xstate: %d\n", nr);
- 		return false;
- 	}
- 	return true;
-@@ -598,12 +597,13 @@ static bool __init paranoid_xstate_size_valid(unsigned int kernel_size)
- 		 * XSAVES.
- 		 */
- 		if (!xsaves && xfeature_is_supervisor(i)) {
--			XSTATE_WARN_ON(1);
-+			XSTATE_WARN_ON(1, "Got supervisor feature %d, but XSAVES not advertised\n", i);
- 			return false;
- 		}
- 	}
- 	size = xstate_calculate_size(fpu_kernel_cfg.max_features, compacted);
--	XSTATE_WARN_ON(size != kernel_size);
-+	XSTATE_WARN_ON(size != kernel_size,
-+		       "size %u != kernel_size %u\n", size, kernel_size);
- 	return size == kernel_size;
- }
- 
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab     | compiler | defconfig          | regres=
+sions
+------------------+------+---------+----------+--------------------+-------=
+-----
+r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/636b69ec75df7ddb61e7db54
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: shmobile_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+53-118-g69a0227f6bd6/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
+-iwg20d-q7.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+53-118-g69a0227f6bd6/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
+-iwg20d-q7.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/636b69ec75df7ddb61e7d=
+b55
+        failing since 9 days (last pass: v5.10.150-80-g04a0124fa82b5, first=
+ fail: v5.10.152) =
+
+ =20
