@@ -2,74 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F09A7622258
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 03:58:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 614DB622261
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 04:01:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229898AbiKIC6g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 21:58:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48696 "EHLO
+        id S229975AbiKIDBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 22:01:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229551AbiKIC6f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 21:58:35 -0500
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AAFC1175;
-        Tue,  8 Nov 2022 18:58:34 -0800 (PST)
-Received: by mail-oi1-x229.google.com with SMTP id n83so17525847oif.11;
-        Tue, 08 Nov 2022 18:58:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JV+c3N5MDzaK4Gv+svglNBxHNYLyHGNN1rocCPcj0H4=;
-        b=AvZOHmcv4zbDrrZL7ahTl61qth4Dm1U2tGx11kkpcU+NPFg3TJ0njg9u5vd6KxHaEY
-         CPeOR7ZAcYpPMtwle5czuaBFV9tPMoW+3olgrLf4HEM8xyGnP38IBDmG1JPuJ035O5X7
-         /9yca8aVxMZAcVUQhxGo4br4BLV0cujsuUzQRv8czQlhbhy30MhvHexUYTkJ6mEJOfiV
-         1GTi/7lmYQ2bwDpagzr+zl4NbXWfaY+rpvptC4ezLU++AylWL/Vnvm1kTLmdD0t9fpsZ
-         GutLk+0c4UoYmZdN5xN1O0MRtEvjnwSk0lH0PK1grWZeVuq6vwZgXmD4jSsNyISYI5Ni
-         KKwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JV+c3N5MDzaK4Gv+svglNBxHNYLyHGNN1rocCPcj0H4=;
-        b=zo/o7sYdeRF/VONv5cdaas95/iTuY9tQglJjh68wy50vLE97nzaQA+M/pZQ5pW9wvh
-         4yi4R/CxEUtH4u5yQNyLhDxS48VlIfWwZ8LkZi91nRLwMqCfPjjAahn83B1aJnaTygD8
-         BNYXbodyTQvu4Hs7Pr7Gv78rLdrNYqkpjpoVxB+wiVJRZFyFZ7U9+gCgZM9M6QrEFY3X
-         6pVmKHYdchZl4bHZCFS9GL7Lfs5HMq6jdAneaMEuprKg4/uES2DwyfF3q7WhQs/pO/uA
-         QXCu0S0lj3UEXpal4mfqauzR0dYtiGV9tU9GrByz00rRD4RH0aj0CzW0PZr0KSnJnUXa
-         MQFQ==
-X-Gm-Message-State: ACrzQf3YublLvpyhOy1WURGcs9pIxZfUp6ekaU7SgtarPIAQXpyUokPu
-        2TNXM5WQnUI4dM10y/AN68s=
-X-Google-Smtp-Source: AMsMyM6oX7ebOxq9tPaEGMlYZSltK6HMyCIAy/Xesh5OdqZodzl8xmKAb5jlN5vjelXrXgNic3ku5A==
-X-Received: by 2002:a05:6808:2120:b0:35a:57da:74b4 with SMTP id r32-20020a056808212000b0035a57da74b4mr15245083oiw.213.1667962713495;
-        Tue, 08 Nov 2022 18:58:33 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id i4-20020aca3b04000000b00353fe4fb4casm4120379oia.48.2022.11.08.18.58.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Nov 2022 18:58:33 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 8 Nov 2022 18:58:32 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net
-Subject: Re: [PATCH 4.9 00/30] 4.9.333-rc1 review
-Message-ID: <20221109025832.GG2033086@roeck-us.net>
-References: <20221108133326.715586431@linuxfoundation.org>
+        with ESMTP id S229447AbiKIDBu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 22:01:50 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 976BD183BA
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 19:00:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667962849;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=iMy2VOMTEAboRQxRApFuvkjsadfTfOePpBuBK15hGg0=;
+        b=U3Fp556CppIaFADHFKnxZlMwKTdrY/nPjOBBWeKIE65eOKxQEbvAd/iZOZumM+JYjPd0tw
+        J/iJ/Ib0N6+0ZKsFfWdJvYFm31xnSHH1hqJqTAab9dYa5KvUd3ljes3gGAWbH0+94znv1T
+        RRXA3KpitXD2Ec7l7mG5LTQDiOCq9nc=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-284-_UzcJp9kO5-PxrfWW6S9cA-1; Tue, 08 Nov 2022 22:00:46 -0500
+X-MC-Unique: _UzcJp9kO5-PxrfWW6S9cA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1A263185A79C;
+        Wed,  9 Nov 2022 03:00:46 +0000 (UTC)
+Received: from lxbceph1.gsslab.pek2.redhat.com (unknown [10.72.47.117])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3600940C2086;
+        Wed,  9 Nov 2022 03:00:42 +0000 (UTC)
+From:   xiubli@redhat.com
+To:     ceph-devel@vger.kernel.org, idryomov@gmail.com
+Cc:     lhenriques@suse.de, jlayton@kernel.org, mchangir@redhat.com,
+        Xiubo Li <xiubli@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH v4] ceph: avoid putting the realm twice when decoding snaps fails
+Date:   Wed,  9 Nov 2022 11:00:39 +0800
+Message-Id: <20221109030039.592830-1-xiubli@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221108133326.715586431@linuxfoundation.org>
-X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,21 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 08, 2022 at 02:38:48PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.333 release.
-> There are 30 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 10 Nov 2022 13:33:17 +0000.
-> Anything received after that time might be too late.
-> 
+From: Xiubo Li <xiubli@redhat.com>
 
-Build results:
-	total: 164 pass: 164 fail: 0
-Qemu test results:
-	total: 395 pass: 395 fail: 0
+When decoding the snaps fails it maybe leaving the 'first_realm'
+and 'realm' pointing to the same snaprealm memory. And then it'll
+put it twice and could cause random use-after-free, BUG_ON, etc
+issues.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/57686
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+---
 
-Guenter
+Changed in V4:
+- remove initilizing of 'realm'.
+
+ fs/ceph/snap.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
+index 9bceed2ebda3..c1c452afa84d 100644
+--- a/fs/ceph/snap.c
++++ b/fs/ceph/snap.c
+@@ -764,7 +764,7 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
+ 	struct ceph_mds_snap_realm *ri;    /* encoded */
+ 	__le64 *snaps;                     /* encoded */
+ 	__le64 *prior_parent_snaps;        /* encoded */
+-	struct ceph_snap_realm *realm = NULL;
++	struct ceph_snap_realm *realm;
+ 	struct ceph_snap_realm *first_realm = NULL;
+ 	struct ceph_snap_realm *realm_to_rebuild = NULL;
+ 	int rebuild_snapcs;
+@@ -775,6 +775,7 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
+ 
+ 	dout("%s deletion=%d\n", __func__, deletion);
+ more:
++	realm = NULL;
+ 	rebuild_snapcs = 0;
+ 	ceph_decode_need(&p, e, sizeof(*ri), bad);
+ 	ri = p;
+-- 
+2.31.1
+
