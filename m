@@ -2,92 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 044EA62364C
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 23:07:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6368862373A
+	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 00:07:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231836AbiKIWHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Nov 2022 17:07:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58782 "EHLO
+        id S231379AbiKIXHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Nov 2022 18:07:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230072AbiKIWHH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 17:07:07 -0500
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DEF5303E8;
-        Wed,  9 Nov 2022 14:07:06 -0800 (PST)
-Received: by mail-pg1-x533.google.com with SMTP id v3so17385320pgh.4;
-        Wed, 09 Nov 2022 14:07:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=iw5S3C75tN/oGViY8ItNjGlumx4biWxjIIT5f99rcI8=;
-        b=kRKJwoIzfYQ/DWIm8KSUaZ4Ro0bDtgjRpwb7yY0HH+jZHaujlpp0j43JGV1jtKLbXf
-         YWQe6oMBenkCa4M1iJtKSv0M5JtJvkWWYtp6RPjnRwmPCBHhoQo6dNmgO8xJPnSlA429
-         J2dp+3cMGwOqunwxv+fMFpFbOPTeZboGdvylHh/oMSVEC5IlhNSdrpNwA6EVkOt4hRMd
-         8kaUw7q36y0iZc4k17BeX5lASGLa4Gx7TLwra+8d6HgQnuZlL8tp9+rsf77WGLH9jXht
-         M5fTLPm5tkibU8REXZZfJxFOGHBWXvZE7jKkSRjwOE1QdLJ6y23ggQbuHWQeOch5XcGc
-         XlhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=iw5S3C75tN/oGViY8ItNjGlumx4biWxjIIT5f99rcI8=;
-        b=zMOCzszx3qtmw1aw/dLZLJZpuWeJ6GCK8KSNFsmi+zJVGZYTbPzvsmBIpT8TWxBdKG
-         IqwPyHSCJN8i7edkN2G1uQqi6JNgJaArNIgSTwtvz+E1BBRgJVFw2LB+jGTR6/32i7mJ
-         ZuB1lRA803h/AkwPwf1kcV+6JflJFWXR8rjKhmJA3bV3U8FM/X+5rXzJNaDKco7OSjME
-         Spmmq9oCn91CGP8jscBxHF6RNsuue4scbl/HxAY4yq+RyXqEi131gwTskLDK9RzCT5Se
-         rqCtNGhWBTctSBQ8mRvYJN/SXi/pLdkbL4iEiGO6pAI4tfyUNupKXlkiDnYmxMBUL1Du
-         XV7w==
-X-Gm-Message-State: ACrzQf3E/3LacmS1/D+gFBeFzFzC9PFFEB4/Z736uhhEB/lgw3icS/UQ
-        p+3dHY8I7fP+XoXUM5SessS2cp9xts4U00GGrUg=
-X-Google-Smtp-Source: AMsMyM7Q+Id4Z7/MMoExlaIfDv+7Yd88p8dRT/wqu4p3TYsopLqogJ8/a9QHDZpDUfikABiFJVuq4sT58bxn9452QOg=
-X-Received: by 2002:a63:ea4c:0:b0:46b:2772:40a4 with SMTP id
- l12-20020a63ea4c000000b0046b277240a4mr52259052pgk.342.1668031625779; Wed, 09
- Nov 2022 14:07:05 -0800 (PST)
+        with ESMTP id S229691AbiKIXHR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 18:07:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD1E9647D;
+        Wed,  9 Nov 2022 15:07:15 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 586F961D10;
+        Wed,  9 Nov 2022 23:07:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D0FFC433B5;
+        Wed,  9 Nov 2022 23:07:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1668035234;
+        bh=QVbJuuASX3h4Jz3Lm8MMNfZQd7k5AEXGegUih81XkzM=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=YJb7PdweWdzkXJcJkksW1F8gyz9CusdJzwyYMz7FHgIwSm9SupYfjWQgP1ZxtKhmF
+         yJVXjaGqat52C5i7+HlzwOGUOL5dyZ1vlqQfOsbzraviagtWZISTkW7fEgLA3jl4f3
+         XhSbLsSZh033TT+FTt03SukODY10xfemUPiFkd5bxMbHH9pVC43HlA3cpkddBqGYLZ
+         OriGhzJZnvFhfPwrZUSvEVuIeG5fo3pQgbjWmWUsX/blv1G5XVdiX0mPKQadOdrTeQ
+         vT2BguG3AkcjC3oYq2OqQWmS5LLhjrjT1fGVoZZ5RbGQ1zMExsP2yIy8ux0k9CSyp+
+         fjdvPolcqwmqg==
+Date:   Wed, 9 Nov 2022 17:07:12 -0600
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Sascha Hauer <s.hauer@pengutronix.de>
+Cc:     linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org,
+        Sergey Miroshnichenko <s.miroshnichenko@yadro.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>
+Subject: Re: [PATCH] PCI/sysfs: Fix double free in error path
+Message-ID: <20221109230712.GA580188@bhelgaas>
 MIME-Version: 1.0
-References: <20221109082223.141145957@linuxfoundation.org>
-In-Reply-To: <20221109082223.141145957@linuxfoundation.org>
-From:   Allen Pais <stable.kernel.dev@gmail.com>
-Date:   Wed, 9 Nov 2022 14:06:54 -0800
-Message-ID: <CAJq+SaCw85ENMx+QNimuckk46eU9bwf66QmuK_x6GnWMGRA5-A@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/117] 5.10.154-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221007070735.GX986@pengutronix.de>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> This is the start of the stable review cycle for the 5.10.154 release.
-> There are 117 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 11 Nov 2022 08:21:58 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.154-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
->
+[+cc Sergey, Alex, Krzysztof since you all posted similar patches in
+the past]
 
-Compiled and booted on my x86_64 and ARM64 test systems. No errors or
-regressions.
+On Fri, Oct 07, 2022 at 09:07:35AM +0200, Sascha Hauer wrote:
+> On Fri, Oct 07, 2022 at 08:56:18AM +0200, Sascha Hauer wrote:
+> > When pci_create_attr() fails then pci_remove_resource_files() is called
+> > which will iterate over the res_attr[_wc] arrays and frees every non
+> > NULL entry. To avoid a double free here we have to set the failed entry
+> > to NULL in pci_create_attr() when freeing it.
+> > 
+> 
+> You might consider applying this alternative version instead which IMO
+> looks a bit better.
 
-Tested-by: Allen Pais <apais@linux.microsoft.com>
+Thanks, I agree, I like how this one doesn't set res_attr[] until we
+know we're going to return success.
 
-Thanks.
+Applied to pci/sysfs for v6.2, thanks!
+
+> -------------------------------8<-----------------------------
+> 
+> From fe8e0e6f914c14395c751b7dc165967b12427995 Mon Sep 17 00:00:00 2001
+> From: Sascha Hauer <s.hauer@pengutronix.de>
+> Date: Fri, 7 Oct 2022 07:35:35 +0200
+> Subject: [PATCH] PCI/sysfs: Fix double free in error path
+> 
+> When pci_create_attr() fails then pci_remove_resource_files() is called
+> which will iterate over the res_attr[_wc] arrays and frees every non
+> NULL entry. To avoid a double free here set the array entry only after
+> it's clear we successfully initialized it.
+> 
+> Fixes: b562ec8f74e4 ("PCI: Don't leak memory if sysfs_create_bin_file() fails")
+> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+> Cc: <stable@vger.kernel.org>
+> ---
+>  drivers/pci/pci-sysfs.c | 13 +++++++++----
+>  1 file changed, 9 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+> index fc804e08e3cb5..6dd4050c9f2ed 100644
+> --- a/drivers/pci/pci-sysfs.c
+> +++ b/drivers/pci/pci-sysfs.c
+> @@ -1174,11 +1174,9 @@ static int pci_create_attr(struct pci_dev *pdev, int num, int write_combine)
+>  
+>  	sysfs_bin_attr_init(res_attr);
+>  	if (write_combine) {
+> -		pdev->res_attr_wc[num] = res_attr;
+>  		sprintf(res_attr_name, "resource%d_wc", num);
+>  		res_attr->mmap = pci_mmap_resource_wc;
+>  	} else {
+> -		pdev->res_attr[num] = res_attr;
+>  		sprintf(res_attr_name, "resource%d", num);
+>  		if (pci_resource_flags(pdev, num) & IORESOURCE_IO) {
+>  			res_attr->read = pci_read_resource_io;
+> @@ -1196,10 +1194,17 @@ static int pci_create_attr(struct pci_dev *pdev, int num, int write_combine)
+>  	res_attr->size = pci_resource_len(pdev, num);
+>  	res_attr->private = (void *)(unsigned long)num;
+>  	retval = sysfs_create_bin_file(&pdev->dev.kobj, res_attr);
+> -	if (retval)
+> +	if (retval) {
+>  		kfree(res_attr);
+> +		return retval;
+> +	}
+> +
+> +	if (write_combine)
+> +		pdev->res_attr_wc[num] = res_attr;
+> +	else
+> +		pdev->res_attr[num] = res_attr;
+>  
+> -	return retval;
+> +	return 0;
+>  }
+>  
+>  /**
+> -- 
+> 2.30.2
+> 
+> -- 
+> Pengutronix e.K.                           |                             |
+> Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+> 31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
