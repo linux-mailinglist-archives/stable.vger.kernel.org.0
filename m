@@ -2,154 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE849622665
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 10:12:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A828D6226A4
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 10:17:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229550AbiKIJMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Nov 2022 04:12:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44274 "EHLO
+        id S229948AbiKIJRa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Nov 2022 04:17:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230050AbiKIJLS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 04:11:18 -0500
+        with ESMTP id S229575AbiKIJRT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 04:17:19 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06E0E10B5C
-        for <stable@vger.kernel.org>; Wed,  9 Nov 2022 01:09:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48823206
+        for <stable@vger.kernel.org>; Wed,  9 Nov 2022 01:15:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667984995;
+        s=mimecast20190719; t=1667985325;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=gp1nu7gDdjQPLi62onKx+VMmcKi4JmumYYSuGwj42UE=;
-        b=LdKLA2FXVctRvtCIUpblRGgkMXDjXdhza9IWOay45pNMe6IIf/Pcj3t0YDKUxeU4DEr7tB
-        xc8+6wEmU9Zdwp3G+YdCfM8ibk7AMBe5iaEI/cHyik9k8vk9GwbSL2ZPaKneI3Bt5jR49w
-        GLFdHP2CwhByfhUvfQEIXeNeFDeRFL8=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=X02nRL309PhEzx0jCPIZSs9mBHARHTVVyhCWK/3u8/A=;
+        b=DT+GQY+lZ2xtvTped+FBJvGW5DTjxj6Tz8e+w50U8TiuTa3dOO+Gq/6CsL0kXHEFpqHjlp
+        4QM2Y+/E08nBEv/i3KEedbDWKKuw6OvZvmZyYrSBYc7/ZRjyqfyEdDQ7FSmX8EZ6BeRURo
+        8wC6HEWmBPCSt3zrmLojNZp43ruqnbM=
+Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
+ [209.85.160.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-642-h7MhByT_N4StnhppceN-oA-1; Wed, 09 Nov 2022 04:09:54 -0500
-X-MC-Unique: h7MhByT_N4StnhppceN-oA-1
-Received: by mail-wr1-f71.google.com with SMTP id d10-20020adfa34a000000b00236616a168bso4814020wrb.18
-        for <stable@vger.kernel.org>; Wed, 09 Nov 2022 01:09:53 -0800 (PST)
+ us-mta-528-2nruA384P4ikqsekojH-5g-1; Wed, 09 Nov 2022 04:15:23 -0500
+X-MC-Unique: 2nruA384P4ikqsekojH-5g-1
+Received: by mail-qt1-f199.google.com with SMTP id i13-20020ac8764d000000b003a4ec8693dcso12150242qtr.14
+        for <stable@vger.kernel.org>; Wed, 09 Nov 2022 01:15:22 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=gp1nu7gDdjQPLi62onKx+VMmcKi4JmumYYSuGwj42UE=;
-        b=75CJaRmkCqn3Rq8hLx9zW8ccuolUKblDNK3imnv8v/+pTyVJRNC8uACf2MLfiBZCGl
-         Gk6YQLXQTT1gKpadAfFHWvdE9foFTmBJfs29eTiXFCc3S27penhwCiM29n3Ug/Zb5b5y
-         THUpunu9/J1LDVsUOgAAKuMuAp8eRX7mw31pWV+7YZ1RNXIry9504IhnS8DX+UxjeChZ
-         uToeWn2iZ7wlOGlRHLjA/T3QrZgYbRLAKhB+rR3jja8np73sJHbQKqdQAebs22AyTbu+
-         12AjBAkijLsJBncKWsPj5xgY53R2t3BT2F/ORFB7XdbnspUjYBQeeqMNEvsjG1IoyTj6
-         RRjQ==
-X-Gm-Message-State: ACrzQf2TBCXjYD68pbTFLbWTOacpt0lPFnlB29TyU9ysa9RvTMYVByns
-        qCa4ElnvMXxYniSQ4q0cx3M05NpHB5adfhPfbY0xNhM0b5SLQY839aFH+UdKDspeRS2KxO5qjOn
-        fxbaz67CQXimPiIh9
-X-Received: by 2002:a05:6000:16c8:b0:236:c60d:22b9 with SMTP id h8-20020a05600016c800b00236c60d22b9mr34218726wrf.526.1667984992802;
-        Wed, 09 Nov 2022 01:09:52 -0800 (PST)
-X-Google-Smtp-Source: AMsMyM5b4W/+KStIQIEd31Opg71eedm54oI8YXOA25VraYMWJIMF7jYyeAE5P55LvkdaxbispEfo6g==
-X-Received: by 2002:a05:6000:16c8:b0:236:c60d:22b9 with SMTP id h8-20020a05600016c800b00236c60d22b9mr34218703wrf.526.1667984992514;
-        Wed, 09 Nov 2022 01:09:52 -0800 (PST)
-Received: from ?IPV6:2001:b07:6468:f312:9af8:e5f5:7516:fa89? ([2001:b07:6468:f312:9af8:e5f5:7516:fa89])
-        by smtp.googlemail.com with ESMTPSA id n19-20020a05600c3b9300b003b4c979e6bcsm1014454wms.10.2022.11.09.01.09.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Nov 2022 01:09:51 -0800 (PST)
-Message-ID: <7ba6da25-9ce4-f146-8480-c2614154fbb4@redhat.com>
-Date:   Wed, 9 Nov 2022 10:09:50 +0100
+        h=content-transfer-encoding:mime-version:user-agent:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=X02nRL309PhEzx0jCPIZSs9mBHARHTVVyhCWK/3u8/A=;
+        b=cWPPgSSektUTWW2DNj6BuxEubDJtLUQSeejF+Koh92HHr/9NIp7sywpCL+/C5l93V5
+         2WRNxh2DZHjDI855Ghtr5AJZaOFZFSdUeSGgrnvzinkbsE9B7el1wSv+/eh8asSNd89M
+         AapvGYH4PpbVq7ghzIKT3vjrTcnFEgZ5IpqMP8IGuaXReHuEjl2+GzlMmQCX2yp/fG5n
+         uzSIzYkvTS5Ds6QMS2X8HdGOItAP9N5h38r7KX/UXIndtywx1fEZ3GcGzo41i7WrvXOm
+         BQSZqYSCdcxaWkJjaFocXCrdJfwG1jBGHHSe4XLvTEoJmJBwRaGN3sl2Z5SopAghfUHm
+         WQ0w==
+X-Gm-Message-State: ACrzQf0zfEMiX+K8wmzWuOPLx+psUWquXX+jQGqY9PHIx1xBlng80DoI
+        UpKBRhPsUpHVNKDgpOWT6EZpnKC5TaPkmMuXk/tNRxyZdUXqxmigE/NUJ3Egg50Jz+MwQpFUuD5
+        XfP84qtWl47b8CLpR
+X-Received: by 2002:a05:620a:22c3:b0:6ec:53bb:d296 with SMTP id o3-20020a05620a22c300b006ec53bbd296mr42354535qki.158.1667985321974;
+        Wed, 09 Nov 2022 01:15:21 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM72DOuuaGj1I+qPxM2t/sXaQdbORDHatD+H9ZRGH21aquAj6PF1iyJoYCs45Nh/suMZZUzzMQ==
+X-Received: by 2002:a05:620a:22c3:b0:6ec:53bb:d296 with SMTP id o3-20020a05620a22c300b006ec53bbd296mr42354511qki.158.1667985321736;
+        Wed, 09 Nov 2022 01:15:21 -0800 (PST)
+Received: from [10.35.4.238] (bzq-82-81-161-50.red.bezeqint.net. [82.81.161.50])
+        by smtp.gmail.com with ESMTPSA id h12-20020a05620a284c00b006cbc6e1478csm10388193qkp.57.2022.11.09.01.15.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Nov 2022 01:15:21 -0800 (PST)
+Message-ID: <30b8e07970f2cfbba0ebee82aa3b46a047a0f43b.camel@redhat.com>
+Subject: Re: [PATCH v2 9/9] KVM: x86: remove exit_int_info warning in
+ svm_handle_exit
+From:   Maxim Levitsky <mlevitsk@redhat.com>
+To:     Liam Merwick <liam.merwick@oracle.com>, kvm@vger.kernel.org
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel@vger.kernel.org,
+        Chenyi Qiang <chenyi.qiang@intel.com>,
+        Yang Zhong <yang.zhong@intel.com>, x86@kernel.org,
+        Shuah Khan <shuah@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Colton Lewis <coltonlewis@google.com>,
+        Borislav Petkov <bp@alien8.de>, Peter Xu <peterx@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        linux-kselftest@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Wei Wang <wei.w.wang@intel.com>,
+        David Matlack <dmatlack@google.com>, stable@vger.kernel.org
+Date:   Wed, 09 Nov 2022 11:15:16 +0200
+In-Reply-To: <3d25a0b4-6957-d070-db11-69ec9e0132ba@oracle.com>
+References: <20221103141351.50662-1-mlevitsk@redhat.com>
+         <20221103141351.50662-10-mlevitsk@redhat.com>
+         <3d25a0b4-6957-d070-db11-69ec9e0132ba@oracle.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.40.4 (3.40.4-5.fc34) 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH v2 4/8] KVM: SVM: retrieve VMCB from assembly
-Content-Language: en-US
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        nathan@kernel.org, thomas.lendacky@amd.com,
-        andrew.cooper3@citrix.com, peterz@infradead.org,
-        jmattson@google.com, stable@vger.kernel.org
-References: <20221108151532.1377783-1-pbonzini@redhat.com>
- <20221108151532.1377783-5-pbonzini@redhat.com> <Y2r6FqZyT4XxUkYB@google.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <Y2r6FqZyT4XxUkYB@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/9/22 01:53, Sean Christopherson wrote:
-> On Tue, Nov 08, 2022, Paolo Bonzini wrote:
->> This is needed in order to keep the number of arguments to 3 or less,
->> after adding hsave_pa and spec_ctrl_intercepted.  32-bit builds only
->> support passing three arguments in registers, fortunately all other
->> data is reachable from the vcpu_svm struct.
+On Sun, 2022-11-06 at 15:53 +0000, Liam Merwick wrote:
+> On 03/11/2022 14:13, Maxim Levitsky wrote:
+> > It is valid to receive external interrupt and have broken IDT entry,
+> > which will lead to #GP with exit_int_into that will contain the index of
+> > the IDT entry (e.g any value).
+> > 
+> > Other exceptions can happen as well, like #NP or #SS
+> > (if stack switch fails).
+> > 
+> > Thus this warning can be user triggred and has very little value.
+> > 
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+> > ---
+> >   arch/x86/kvm/svm/svm.c | 9 ---------
+> >   1 file changed, 9 deletions(-)
+> > 
+> > diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+> > index e9cec1b692051c..36f651ce842174 100644
+> > --- a/arch/x86/kvm/svm/svm.c
+> > +++ b/arch/x86/kvm/svm/svm.c
+> > @@ -3428,15 +3428,6 @@ static int svm_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
+> >                 return 0;
+> >         }
+> >   
+> > -       if (is_external_interrupt(svm->vmcb->control.exit_int_info) &&
+> > -           exit_code != SVM_EXIT_EXCP_BASE + PF_VECTOR &&
+> > -           exit_code != SVM_EXIT_NPF && exit_code != SVM_EXIT_TASK_SWITCH &&
+> > -           exit_code != SVM_EXIT_INTR && exit_code != SVM_EXIT_NMI)
+> > -               printk(KERN_ERR "%s: unexpected exit_int_info 0x%x "
+> > -                      "exit_code 0x%x\n",
+> > -                      __func__, svm->vmcb->control.exit_int_info,
+> > -                      exit_code);
+> > -
+> >         if (exit_fastpath != EXIT_FASTPATH_NONE)
+> >                 return 1;
+> >   
 > 
-> Is it actually a problem if parameters are passed on the stack?  The assembly
-> code mostly creates a stack frame, i.e. %ebp can be used to pull values off the
-> stack.
+> This was the only caller of is_external_interrupt() - should the 
+> definition be removed also to avoid a 'defined but not used' warning?
 
-It's not, but given how little love 32-bit KVM receives, I prefer to 
-stick to the subset of the ABI that is "equivalent" to 64-bit.
+I hate to say it but I have seen a warning about an unused function,
+but I really didn't expect that to come from this patch.
+I somehow thought that its some leftover in kvm/queue.
 
-> no one cares about 32-bit and I highly doubt a few extra PUSH+POP
-> instructions will  be noticeable.
+I'll remove the unused function in a next version.
 
-Same reasoning (no one cares about 32-bits), different conclusions...
+Best regards,
+	Maxim Levitsky
 
->> What fields are actually used is (like with any other function)
->> "potentially all, you'll have to read the source code and in fact you
->> can just read asm-offsets.c instead".  What I mean is, I cannot offhand
->> see or remember what fields are touched by svm_prepare_switch_to_guest,
->> why would __svm_vcpu_run be any different?
 > 
-> It's different because if it were a normal C function, it would simply take
-> @vcpu, and maybe @spec_ctrl_intercepted to shave cycles after CLGI.
+> Regards,
+> Liam
+> 
 
-Not just for that, but especially to avoid making 
-msr_write_intercepted() noinstr.
-
-> But because
-> it's assembly and doesn't have to_svm() readily available (among other restrictions),
-> __svm_vcpu_run() ends up taking a mishmash of parameters, which for me makes it
-> rather difficult to understand what to expect.
-
-Yeah, there could be three reasons to have parameters in assembly:
-
-* you just need them (@svm)
-
-* it's too much of a pain to compute it in assembly 
-(@spec_ctrl_intercepted, @hsave_pa)
-
-* it needs to be computed outside the clgi/stgi region (not happening 
-here, only mentioned for completeness)
-
-As this patch shows, @vmcb is not much of a pain to compute in assembly: 
-it is just two instructions, and not passing it in simplifies register 
-allocation (the weird push/pop goes away) because all the arguments 
-except @svm/_ASM_ARG1 are needed only after vmexit.
-
-> Oooh, and after much staring I realized that the address of the host save area
-> is passed in because grabbing it after VM-Exit can't work.  That's subtle, and
-> passing it in isn't strictly necessary; there's no reason the assembly code can't
-> grab it and stash it on the stack.
-
-Right, in fact that's not the reason why it's passed in---it's just to 
-avoid coding page_to_pfn() in assembly, and to limit the differences 
-between the regular and SEV-ES cases.  But using a per-CPU variable is 
-fine (either in addition to the struct page, which "wastes" 8 bytes per 
-CPU, or as a replacement).
-
-> What about killing a few birds with one stone?  Move the host save area PA to
-> its own per-CPU variable, and then grab that from assembly as well.
-
-I would still place it in struct svm_cpu_data itself, I'll see how it 
-looks and possibly post v3.
-
-Paolo
 
