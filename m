@@ -2,191 +2,230 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF3D76223C1
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 07:14:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B055D62249B
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 08:28:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229595AbiKIGO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Nov 2022 01:14:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35382 "EHLO
+        id S229573AbiKIH2L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Nov 2022 02:28:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229448AbiKIGO5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 01:14:57 -0500
-Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on2089.outbound.protection.outlook.com [40.107.95.89])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CD6F315
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 22:14:56 -0800 (PST)
+        with ESMTP id S229526AbiKIH2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 02:28:10 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FAB812623
+        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 23:28:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1667978889; x=1699514889;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=Jcen3maY97pMf54SOOZ1tXqQZ7ir4UIo+n0/quGJcgE=;
+  b=EH1Aa3AmAF6iVvf+vcuEdCwL3VKadSVbxmbXgYq9wi0MdaoNqYW3GQs1
+   7woApSG3h5q6yqULQqagwcsKQ4whn/c/PohGZHgyIxmhP8lZFGyMbjobQ
+   hlGxTzbAAttY9QOel0EzJT0Rm3vqFKMkIhR0+bZzfhcaihvEASkvQtu5T
+   4qiq1DBIGziutDBQPD/3kVCmMHZpqAEgDDXoysIrDLWRjEG2Tq+FRLgXY
+   6FM2KcmKMu7v3CP6KjJSxBsVTG13SDvRVuDZ2btOkIk1Pg635diuUZTs0
+   50AaFSQfrW/i7JR/hFN/vpI66gLM9aZ7JTLbTKATRsi4yNj3bYHNSoyNC
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10525"; a="290628720"
+X-IronPort-AV: E=Sophos;i="5.96,149,1665471600"; 
+   d="scan'208";a="290628720"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2022 23:28:08 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10525"; a="779240723"
+X-IronPort-AV: E=Sophos;i="5.96,149,1665471600"; 
+   d="scan'208";a="779240723"
+Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
+  by fmsmga001.fm.intel.com with ESMTP; 08 Nov 2022 23:28:08 -0800
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Tue, 8 Nov 2022 23:28:08 -0800
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Tue, 8 Nov 2022 23:28:07 -0800
+Received: from fmsedg601.ED.cps.intel.com (10.1.192.135) by
+ fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31 via Frontend Transport; Tue, 8 Nov 2022 23:28:07 -0800
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (104.47.59.174)
+ by edgegateway.intel.com (192.55.55.70) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2375.31; Tue, 8 Nov 2022 23:28:07 -0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=nc69W+uwypr4OdJCShXpCc0+hV4EySHjq6oGyHGLCoGfHGKij0hK9VmTqv7y1Fb3yQ9Ne2wvsH5haPV0gxeUjpPG97S/V3wfYciwtGJ3rgkKD/lxUufBku+Hp0n59VtiCqoIR+kTxb3EfDsszvT5WHmgC/5c1jvZE7OAei6GciJnEG2nswDiXvX1nd4d3lkbeq/wVNIDz0Q3ZuLTM4oqXMTH+KO2xla4E7cYeICIeC42UXQ4dCoY6lden1tVek/oTvlFgUGkv9U+fIw/HsUZhnNUQwgTj4MGKRKp2ukwPtbtQQ1PT1Uy4/uW/5KyVBhSll0dTHUhTgFAx/vPFXmSQA==
+ b=aaHB79lG3MJ/0mfznYOxgMQwS/nHwvEJeDXy7WjBYxLxV7HxcmEiNkxjH5ucYRoDhEns6ZMLN+crQZgTqCSEpIRQRRiSD86SrAeS61N9yeljYnmgNoFIWmZxqTF1xrm4z0OXc3zCiClSFfcIjtbCMaVwDveq2DU+vQ0JjOkawUGor3mKe7LqszlDzG4xGaKJF8yyqhD/x3qHsvfIDoK0yQxQ5UW/DGaplJzZZdrWiyu+ViR3PNbfh87EsnPFqZZil32oU4Lkub8vnO1BlUEeUtTMj1yPybrXsYDK91rdH2RruKd7davoUaj6R0Yn42txN6Hyt9nPnNtiGkk+9+kFGA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jckE+WXD++CTF5WQ3MCkI869J8ka8gMtmqCyQmFhIzE=;
- b=jWDhFVRbLyPILeGniRHMa+Zf5QUp32h3QI9wDJ7dHtcxCIzh3tldHUs4x/yaL25SP4ZcEjrH+8s9V/fji1p3Lsaixeq8NgZDz4LdO/BhvGsWrgZN0hZcaGjDS4U8kiwGdf6jYw1DiFRgStiRBSRd+AGj6wKixvEyAFKWvR8nnh3nf4+hwwHUw3Jn0GK7KhDGy/Es4KeW9budiCrNkBBVHjwdydjyNGytXhQ7VL6Q/SAtqnxVSANrXRrkXsrqQ1IBowUdiVBaAU7zzTvQlGFEelaW4XHWhMOsUC6GjcoOcN0G8PfrxiXVPKgNrSV3JJgBGHO1wsHok3QgoTGh8PTZ7w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jckE+WXD++CTF5WQ3MCkI869J8ka8gMtmqCyQmFhIzE=;
- b=QLrS79Km87pb1bI16XEXg5DuNV21E6ofp8dz4Z9JB0plgRHi/wVd8OuErwU0CDYwk5oBl1TRupzprlxGCzJ/KhOvrCSfzdPQHAsrwczohgVzCfVGqWvkMCQcrzbt5oiRmW3mTdogIIy3/BdxusDaDMA2eeXC6vQRt8quFz7itbg=
-Received: from BN9P222CA0024.NAMP222.PROD.OUTLOOK.COM (2603:10b6:408:10c::29)
- by BL1PR12MB5096.namprd12.prod.outlook.com (2603:10b6:208:316::7) with
+ bh=7PPC25amgqUCeYEynQD9MCQIvumAJW0Pk0TpXK2yXV8=;
+ b=bJx4HjW8zs1px3+AeQKDn3tui5oPCY3ZMWihnecxcHAvhR8yrnCqwAxsw3uhtm578P/2vPko0nkf+CKG3WwloNsRRgd0l3tzlryzTSAYrGR8Bt9IGMRuFUx/gVapz2d07CMhBU2cMYZXX+4xk+Dz9ExcOHmr6HApgdD8mvfagiK8OiMlRVD9L9mjjcYz6mkhqaVwE0Jgj6h4xz0rd0NxQgDPIzf8TsI3jXGovHQk+3yuGaFlnwGPc62lR5vZQR3iPv+mkGlAQ9Smaxi8rLsSJR85vJ+xBMuQ6zvew7v5DjIR5mpOVUmZpTlkKvmsoZnpOYICbQ4O1VSoBQDpC1J5SA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
+ by SN7PR11MB7043.namprd11.prod.outlook.com (2603:10b6:806:29a::9) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5791.27; Wed, 9 Nov
- 2022 06:14:54 +0000
-Received: from BN8NAM11FT068.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:10c:cafe::43) by BN9P222CA0024.outlook.office365.com
- (2603:10b6:408:10c::29) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5791.27 via Frontend
- Transport; Wed, 9 Nov 2022 06:14:54 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB03.amd.com; pr=C
-Received: from SATLEXMB03.amd.com (165.204.84.17) by
- BN8NAM11FT068.mail.protection.outlook.com (10.13.177.69) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.5813.12 via Frontend Transport; Wed, 9 Nov 2022 06:14:53 +0000
-Received: from SATLEXMB03.amd.com (10.181.40.144) by SATLEXMB03.amd.com
- (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Wed, 9 Nov
- 2022 00:14:53 -0600
-Received: from tom-HP.amd.com (10.180.168.240) by SATLEXMB03.amd.com
- (10.181.40.144) with Microsoft SMTP Server id 15.1.2375.31 via Frontend
- Transport; Wed, 9 Nov 2022 00:14:43 -0600
-From:   Tom Chung <chiahsuan.chung@amd.com>
-To:     <amd-gfx@lists.freedesktop.org>
-CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>,
-        <Bhawanpreet.Lakha@amd.com>, <Rodrigo.Siqueira@amd.com>,
-        <Aurabindo.Pillai@amd.com>, <qingqing.zhuo@amd.com>,
-        <roman.li@amd.com>, <wayne.lin@amd.com>, <stylon.wang@amd.com>,
-        <solomon.chiu@amd.com>, <pavle.kotarac@amd.com>,
-        <agustin.gutierrez@amd.com>, Roman Li <Roman.Li@amd.com>,
-        Tom Chung <chiahsuan.chung@amd.com>, <stable@vger.kernel.org>
-Subject: [PATCH 03/29] drm/amd/display: Fix invalid DPIA AUX reply causing system hang
-Date:   Wed, 9 Nov 2022 14:12:53 +0800
-Message-ID: <20221109061319.2870943-4-chiahsuan.chung@amd.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20221109061319.2870943-1-chiahsuan.chung@amd.com>
-References: <20221109061319.2870943-1-chiahsuan.chung@amd.com>
+ 2022 07:28:06 +0000
+Received: from BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::737e:211a:bb53:4cd7]) by BN9PR11MB5276.namprd11.prod.outlook.com
+ ([fe80::737e:211a:bb53:4cd7%4]) with mapi id 15.20.5791.027; Wed, 9 Nov 2022
+ 07:28:05 +0000
+From:   "Tian, Kevin" <kevin.tian@intel.com>
+To:     Alex Williamson <alex.williamson@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Liu, Yi L" <yi.l.liu@intel.com>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "patches@lists.linux.dev" <patches@lists.linux.dev>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: RE: [PATCH 6.0 003/197] drm/i915/gvt: Add missing
+ vfio_unregister_group_dev() call
+Thread-Topic: [PATCH 6.0 003/197] drm/i915/gvt: Add missing
+ vfio_unregister_group_dev() call
+Thread-Index: AQHY83t10N8rFT6kE0KEIjQRmRfPU641NA2AgAD+SnA=
+Date:   Wed, 9 Nov 2022 07:28:05 +0000
+Message-ID: <BN9PR11MB52769C3DD45EC143EF4C1BB08C3E9@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <20221108133354.787209461@linuxfoundation.org>
+        <20221108133354.938359604@linuxfoundation.org>
+ <20221108091651.716e3124.alex.williamson@redhat.com>
+In-Reply-To: <20221108091651.716e3124.alex.williamson@redhat.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|SN7PR11MB7043:EE_
+x-ms-office365-filtering-correlation-id: 18d8c6ef-3b60-4a0e-6a49-08dac223f196
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: lXL7aepgi3eddTxlbjdo1KTMSbBDcxZP6KBUH0R4FGopcc2mZRqnKOrtX6Iq9YwkVt69krzVEl0LmVi3fElOLSDU3xBbkNo/jWWG2ri4CUDkW4+6pEgDX4yC0tcxWThrkedTKUI5iRp3b/7Yi27SxtDXnmneloNdCXk6tY3lOSIF0piHCCooZbFwA/cTnXJd1S0qTE9oCroPgOkZObaSsoH7D6Mu3K417EJB0Wii0L7eG/ZsJWfh+ZaXolGpFKAG8yn6cLOK4zGQMrw5UPS8l+o0uyn/QtXNHj1ZA5KPqlX6tnEpAQVJCOYHXEy4mmCkqx4KqCvCDA7lGnaABNeFaYmhKTR0xGq5hJoYyvLyncXxXYU9y01f9Fj2Okw6pq07+w8lm7CH5z5el3Q9DXyPqgpxosb7jxGGFd/sXQGIT1CMclU/Bf7RYUiw5BuOt/Ry8Us4N9mGm4a6LkEUB93aHD/ZbvIXaVD/TFNbaKvwuFpnrpeqNw7TnNFSrT7BZr0/W22Qiwd9hBsp4S+DeCv130Y/PhSVDG5RetjezEM59/A2RjWZgJUdMmxO9y2GpIouLAbvxQW/xvQjwEg669/8vNXS1tQeLbNEG3nOtlQyT7TcA0UVmHUeaZetxW2zA2FSR89qZYqgOgWBQwMgtloPmQ0sgcIPvXlugbPGOEEzxyk6wlX0Uj/5odS9lncRni6WaULEAcnhXG6GJB0/FvOuJ4WE7M1427KaL+JeroZ4XOwIL5bpCA+IZus1sFDn2tpSqE+y+xPdQJUDBwY65QpbtF8CdlkJuVK2VY/p8kSk2fk=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(39860400002)(346002)(366004)(396003)(136003)(376002)(451199015)(966005)(71200400001)(478600001)(6636002)(38070700005)(54906003)(110136005)(6506007)(7696005)(316002)(55016003)(4326008)(8676002)(33656002)(66446008)(64756008)(66476007)(82960400001)(66946007)(66556008)(76116006)(26005)(122000001)(38100700002)(9686003)(86362001)(52536014)(8936002)(5660300002)(186003)(83380400001)(41300700001)(2906002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?95Z8jn4MCort5vZCtUH9UmQeoZiXfOX08ImrHwOcRZMh5conxb54dS2QhBlL?=
+ =?us-ascii?Q?L80bibnGy+GEZ8DpjLDUcl4eUmUS7kILBAYWLUAzoEik4HDzTldaCWt+cQTE?=
+ =?us-ascii?Q?+kTxKF/jLqXsDxDqFtRuPjQu31whRjMOfmqvQvIxvv+fwJAwhqB3qDDYW9Cr?=
+ =?us-ascii?Q?P1nbD2Uc29QOpGExX9CCmSt9dh3yuErk1U1EquRs/VetmW3dR+NVtOWc3EYp?=
+ =?us-ascii?Q?9tkE/lvdaBw2u6leJkA7Pyz7Jfq+ZUG+QxIiVGAd4xL+S8as+Gwj2hKoV3TG?=
+ =?us-ascii?Q?tUPTw2Z+TrAhUhV50LkSHr4DTL77uJ3uDrQL7bMu7CcTUHEcJlNbkNwmvUya?=
+ =?us-ascii?Q?DUDCYnQwnKRl1+B2NF/DxK16ry/ANlfB5oRDAh9aK+j3EM4iOlFFSBVyZiCk?=
+ =?us-ascii?Q?wS0Bx60lHVrCfSyZj1AoqgZDuAt/9iSP7Xxb08qvbNqmOo0NIawKkMHOFZ6j?=
+ =?us-ascii?Q?xepu4yTkdE094pdjHNjUOYZl+vMdXoOD+GvUWiX+K2BZoBV2flZQcyfBgTuv?=
+ =?us-ascii?Q?7oegI59t6K3SKqqeTRNZRUjV26d1ZdSN9EJWhLWJmLw/FJOV7+EMLWXRCnYD?=
+ =?us-ascii?Q?PtilDFz2Idy+kKPTgj7MWWF9RkhJuhe6X8PKoPciNkCV+aL2JQar3sPITWTa?=
+ =?us-ascii?Q?6UdFBVSs+S20kvGzIayuN6ZuMlbPaq0S/fZq1m9sG4qTjdZ+wCpdJUejx2iG?=
+ =?us-ascii?Q?J0vd7xc+zJVNKZvSP8YE5dWfPYo31vUZydUjze6sRJ5nop9DCHSMyCpGFtqN?=
+ =?us-ascii?Q?zI0fXikNoJkylbkMJibI49VOMYJauHkqWFnPCgNE+/4T9unV6xU5WPwXxHwy?=
+ =?us-ascii?Q?E7pwlh59fXrlHQdhK7RKUwHYxS9Vn5prVnnkLsX0FKLYla01ItsXK9K1M2M3?=
+ =?us-ascii?Q?HS5TlOEV1uMdQpRzipmRCIN23xKr6HO1/B8CyqpBdvqYcTehtNAB6i9/bu6o?=
+ =?us-ascii?Q?ObJRLza8CCxNjqVfGKYS4fzYbZU/lWHYf3K9yJp3fBe5oJQoMEgJuxtAajb3?=
+ =?us-ascii?Q?UYwRYxab/TAY4grCUe3V2vRpEGL21rJzT0ZrzSKr8L0t6MJYQwv6AzwzmrOb?=
+ =?us-ascii?Q?c/rVdAHidWiV0Cj0NXDqO/OzrUvSqtABTRhq08l7lKUxZtPeNobc+LSnV0Gn?=
+ =?us-ascii?Q?4Q3NIdHcgq23+Xty3lAhKjHgMYogblbsWMc7J0kee0gapepF2yz8r7a4fxa+?=
+ =?us-ascii?Q?2DtmKmoV3GaZRJLNH9clD0/xR48nXY+tTPcuSqtFznJSZAA6soeZa1h7ZHuX?=
+ =?us-ascii?Q?diiNWqtjPHypr08HzwfpIqcFN9T0lyvZFXBaJsusJFSxDpxhhv6jk7bJd5cF?=
+ =?us-ascii?Q?VKDiTjv7R4N0xO8xmdW5y9gBJNVAFFPi5SdzfkF3UuUZalFMrE0NGRvvnbIn?=
+ =?us-ascii?Q?d5+n6ua4R+df0ggq/KkJnNnUeSN01SwswVa/6eGtcbcLBH3eI3ONCuIeYyvv?=
+ =?us-ascii?Q?xT43dsrhgHCzYCXyJCmWzo6tSgY/eM52nnPkGz1w4kitUGZYBu5pLrA6gJ4Y?=
+ =?us-ascii?Q?vKkDfQ6J//W0vEPNDRKCi++5EjcIzrhhpqHZkH2KbJG5iZ+NnyzFhhnztf9V?=
+ =?us-ascii?Q?vNp5p7ANtCRMOPyktz38KkMFEeX77OB3ZsU8P83r?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN8NAM11FT068:EE_|BL1PR12MB5096:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8018f1dd-4199-4c29-3a69-08dac219b7bd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: OPg6XKw27bDj3an+EoDkkzg/gB31BAdQZYxN318mDFcPIMBgGszK8/StapeUVFYWOz5hA+6I66/f4waeARky2xTDiPIflhi7StpdLY7pZ/WMxlKOHqHMIzqQLtmthXYlimOMByzcsCXwmAQbt1xgCGO0l/WPPKCakcmde4heYesECw1RAgOEU5Ql5cdzcYCYKbmx72tLphv4Y1TywwJTr0GzZXEMIQDgpmiL9mV7vErdtKASts7DwJiXKeuDcQl8sD2TLASCkN7ynyJb+CqYu6rgTlqgGPoxKLmYZ9TG7Cjp/Y4HMrpHqX8WucFaX7ev/+bGwSyXpi/HoJAXVbr5e/spElPYxZDrWGr0Jl6tPCqkvbirfuqt8+dUvMInFpNKr7bbfCrKCUiZlYiV0mgnN0KDqNj/SQqsvViwJtyZQOaFof8nd8MYjYKRXtlJXwDXYHLcQkfB3bYz8Aczy0QTUYPzW1mD/zwlfBx/ueQIqSuR659ggvFzqdjWNFQvdh2Xi9XDY5/CdZrp1lRgZi8OGwF1u57ObW2j0Q+L25X9EXsEpaSzbaRNPJexW89nFW7Tx8X4JvFDkjyac0144/C1fjgQ4vqCdmm4HQjtJNx2jZ+b54Tj8NY+vJbKY7iiH9RPNNvG1TkdsZr5Tz5E1veTeUOgzDzizBthawF7+Jkt1w4xvb9ktR658oKjgLl0nKrAmXJGf1j9gm9OlFaejSbVQDldLML/Z0Ogx29ny6Qhl0TV4+QkIdkaX9iY60g15dW5bFd5VHfnonpV/O6UjAEe0ZeIc1Fh+IbGHwwt4zUDxfFhcTHFo3O+wQ7tPR6I45Ke
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(346002)(136003)(376002)(396003)(39860400002)(451199015)(36840700001)(46966006)(40470700004)(40480700001)(86362001)(70586007)(316002)(70206006)(8936002)(54906003)(6916009)(41300700001)(5660300002)(2616005)(36860700001)(2906002)(186003)(1076003)(478600001)(336012)(4326008)(26005)(82310400005)(40460700003)(36756003)(8676002)(7696005)(426003)(47076005)(83380400001)(82740400003)(356005)(6666004)(81166007)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Nov 2022 06:14:53.7855
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 18d8c6ef-3b60-4a0e-6a49-08dac223f196
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Nov 2022 07:28:05.8843
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8018f1dd-4199-4c29-3a69-08dac219b7bd
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB03.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT068.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5096
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: KSE12BwzNEPFoo5CbigS8BCP4jPvFljokq0278yZeTuDYWesUl60qRBUnouqHqm7uLhSrVqRXWt3MCLn9McWrg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR11MB7043
+X-OriginatorOrg: intel.com
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stylon Wang <stylon.wang@amd.com>
+> From: Alex Williamson <alex.williamson@redhat.com>
+> Sent: Wednesday, November 9, 2022 12:17 AM
+>=20
+> On Tue,  8 Nov 2022 14:37:21 +0100
+> Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+>=20
+> > From: Jason Gunthorpe <jgg@nvidia.com>
+> >
+> > [ Upstream commit f423fa1bc9fe1978e6b9f54927411b62cb43eb04 ]
+> >
+> > When converting to directly create the vfio_device the mdev driver has =
+to
+> > put a vfio_register_emulated_iommu_dev() in the probe() and a pairing
+> > vfio_unregister_group_dev() in the remove.
+> >
+> > This was missed for gvt, add it.
+> >
+> > Cc: stable@vger.kernel.org
+> > Fixes: 978cf586ac35 ("drm/i915/gvt: convert to use
+> vfio_register_emulated_iommu_dev")
+> > Reported-by: Alex Williamson <alex.williamson@redhat.com>
+> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> > Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> > Reviewed-by: Christoph Hellwig <hch@lst.de>
+> > Link: https://lore.kernel.org/r/0-v1-013609965fe8+9d-
+> vfio_gvt_unregister_jgg@nvidia.com
+> > Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >  drivers/gpu/drm/i915/gvt/kvmgt.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c
+> b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> > index e3cd58946477..dacd57732dbe 100644
+> > --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
+> > +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> > @@ -1595,6 +1595,7 @@ static void intel_vgpu_remove(struct
+> mdev_device *mdev)
+> >
+> >  	if (WARN_ON_ONCE(vgpu->attached))
+> >  		return;
+> > +	vfio_unregister_group_dev(&vgpu->vfio_device);
+> >  	intel_gvt_destroy_vgpu(vgpu);
+> >  }
+> >
+>=20
+> Nak, the v6.0 backport for this also needs to call
+> vfio_uninit_group_dev().  kvmgt had missed both calls, but at the time
+> of f423fa1bc9fe this latter missing call had already been replaced by
+> vfio_put_device() in a5ddd2a99a7a, where cb9ff3f3b84c had implemented a
+> device release function with this call.  The correct backport should be:
+>=20
+> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c
+> b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> index e3cd58946477..2404d856f764 100644
+> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
+> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> @@ -1595,6 +1595,8 @@ static void intel_vgpu_remove(struct mdev_device
+> *mdev)
+>=20
+>  	if (WARN_ON_ONCE(vgpu->attached))
+>  		return;
+> +	vfio_unregister_group_dev(&vgpu->vfio_device);
+> +	vfio_uninit_group_dev(&vgpu->vfio_device);
+>  	intel_gvt_destroy_vgpu(vgpu);
+>  }
+>=20
+> Kevin, Yi, please confirm.  Thanks,
+>=20
 
-[Why]
-Some DPIA AUX replies have incorrect data length from original request.
-This could lead to overwriting of destination buffer if reply length is
-larger, which could cause invalid access to stack since many destination
-buffers are declared as local variables.
-
-[How]
-Check for invalid length from DPIA AUX replies and trigger a retry if
-reply length is not the same as original request. A DRM_WARN() dmesg log
-is also produced.
-
-Reviewed-by: Roman Li <Roman.Li@amd.com>
-Acked-by: Tom Chung <chiahsuan.chung@amd.com>
-Signed-off-by: Stylon Wang <stylon.wang@amd.com>
-Cc: stable@vger.kernel.org #6.0.x
----
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 20 +++++++++++++++++++
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h |  6 ------
- 2 files changed, 20 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 4d90c5415d5c..e15913285250 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -144,6 +144,14 @@ MODULE_FIRMWARE(FIRMWARE_NAVI12_DMCU);
- /* Number of bytes in PSP footer for firmware. */
- #define PSP_FOOTER_BYTES 0x100
- 
-+/*
-+ * DMUB Async to Sync Mechanism Status
-+ */
-+#define DMUB_ASYNC_TO_SYNC_ACCESS_FAIL 1
-+#define DMUB_ASYNC_TO_SYNC_ACCESS_TIMEOUT 2
-+#define DMUB_ASYNC_TO_SYNC_ACCESS_SUCCESS 3
-+#define DMUB_ASYNC_TO_SYNC_ACCESS_INVALID 4
-+
- /**
-  * DOC: overview
-  *
-@@ -10215,6 +10223,8 @@ static int amdgpu_dm_set_dmub_async_sync_status(bool is_cmd_aux,
- 			*operation_result = AUX_RET_ERROR_TIMEOUT;
- 		} else if (status_type == DMUB_ASYNC_TO_SYNC_ACCESS_FAIL) {
- 			*operation_result = AUX_RET_ERROR_ENGINE_ACQUIRE;
-+		} else if (status_type == DMUB_ASYNC_TO_SYNC_ACCESS_INVALID) {
-+			*operation_result = AUX_RET_ERROR_INVALID_REPLY;
- 		} else {
- 			*operation_result = AUX_RET_ERROR_UNKNOWN;
- 		}
-@@ -10262,6 +10272,16 @@ int amdgpu_dm_process_dmub_aux_transfer_sync(bool is_cmd_aux, struct dc_context
- 			payload->reply[0] = adev->dm.dmub_notify->aux_reply.command;
- 			if (!payload->write && adev->dm.dmub_notify->aux_reply.length &&
- 			    payload->reply[0] == AUX_TRANSACTION_REPLY_AUX_ACK) {
-+
-+				if (payload->length != adev->dm.dmub_notify->aux_reply.length) {
-+					DRM_WARN("invalid read from DPIA AUX %x(%d) got length %d!\n",
-+							payload->address, payload->length,
-+							adev->dm.dmub_notify->aux_reply.length);
-+					return amdgpu_dm_set_dmub_async_sync_status(is_cmd_aux, ctx,
-+							DMUB_ASYNC_TO_SYNC_ACCESS_INVALID,
-+							(uint32_t *)operation_result);
-+				}
-+
- 				memcpy(payload->data, adev->dm.dmub_notify->aux_reply.data,
- 				       adev->dm.dmub_notify->aux_reply.length);
- 			}
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-index b618b2586e7b..83436ef3b26b 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-@@ -50,12 +50,6 @@
- 
- #define AMDGPU_DMUB_NOTIFICATION_MAX 5
- 
--/*
-- * DMUB Async to Sync Mechanism Status
-- */
--#define DMUB_ASYNC_TO_SYNC_ACCESS_FAIL 1
--#define DMUB_ASYNC_TO_SYNC_ACCESS_TIMEOUT 2
--#define DMUB_ASYNC_TO_SYNC_ACCESS_SUCCESS 3
- /*
- #include "include/amdgpu_dal_power_if.h"
- #include "amdgpu_dm_irq.h"
--- 
-2.25.1
-
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
