@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 614DB622261
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 04:01:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0FA6222E4
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 04:58:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229975AbiKIDBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 22:01:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51346 "EHLO
+        id S230052AbiKID6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 22:58:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229447AbiKIDBu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 22:01:50 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 976BD183BA
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 19:00:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667962849;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=iMy2VOMTEAboRQxRApFuvkjsadfTfOePpBuBK15hGg0=;
-        b=U3Fp556CppIaFADHFKnxZlMwKTdrY/nPjOBBWeKIE65eOKxQEbvAd/iZOZumM+JYjPd0tw
-        J/iJ/Ib0N6+0ZKsFfWdJvYFm31xnSHH1hqJqTAab9dYa5KvUd3ljes3gGAWbH0+94znv1T
-        RRXA3KpitXD2Ec7l7mG5LTQDiOCq9nc=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-284-_UzcJp9kO5-PxrfWW6S9cA-1; Tue, 08 Nov 2022 22:00:46 -0500
-X-MC-Unique: _UzcJp9kO5-PxrfWW6S9cA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1A263185A79C;
-        Wed,  9 Nov 2022 03:00:46 +0000 (UTC)
-Received: from lxbceph1.gsslab.pek2.redhat.com (unknown [10.72.47.117])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3600940C2086;
-        Wed,  9 Nov 2022 03:00:42 +0000 (UTC)
-From:   xiubli@redhat.com
-To:     ceph-devel@vger.kernel.org, idryomov@gmail.com
-Cc:     lhenriques@suse.de, jlayton@kernel.org, mchangir@redhat.com,
-        Xiubo Li <xiubli@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH v4] ceph: avoid putting the realm twice when decoding snaps fails
-Date:   Wed,  9 Nov 2022 11:00:39 +0800
-Message-Id: <20221109030039.592830-1-xiubli@redhat.com>
+        with ESMTP id S229934AbiKID6C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 22:58:02 -0500
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5BB017A8A;
+        Tue,  8 Nov 2022 19:58:00 -0800 (PST)
+Received: from canpemm500009.china.huawei.com (unknown [172.30.72.55])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4N6WM603ZLzHqW3;
+        Wed,  9 Nov 2022 11:54:58 +0800 (CST)
+Received: from [10.174.178.165] (10.174.178.165) by
+ canpemm500009.china.huawei.com (7.192.105.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Wed, 9 Nov 2022 11:57:58 +0800
+Message-ID: <1f43c4a4-ee6b-f760-b7a8-c2651f077596@huawei.com>
+Date:   Wed, 9 Nov 2022 11:57:57 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+Subject: Re: [PATCH v2] mm: fix unexpected changes to
+ {failslab|fail_page_alloc}.attr
+To:     Jason Gunthorpe <jgg@nvidia.com>
+CC:     Qi Zheng <zhengqi.arch@bytedance.com>, <dvyukov@google.com>,
+        <willy@infradead.org>, <akinobu.mita@gmail.com>,
+        <akpm@linux-foundation.org>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>, <linux-fsdevel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <Y2kxrerISWIxQsFO@nvidia.com>
+ <20221108035232.87180-1-zhengqi.arch@bytedance.com>
+ <65863340-b32f-a2fe-67ae-f1079b19eee4@huawei.com>
+ <70dfbac1-4c84-9567-30be-1e2594157e62@bytedance.com>
+ <e644e4bf-f1e0-3e22-7773-62f38f9b8963@huawei.com>
+ <Y2pF4x4gsKjaHJaE@nvidia.com>
+From:   Wei Yongjun <weiyongjun1@huawei.com>
+In-Reply-To: <Y2pF4x4gsKjaHJaE@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.165]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ canpemm500009.china.huawei.com (7.192.105.203)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,45 +57,24 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
 
-When decoding the snaps fails it maybe leaving the 'first_realm'
-and 'realm' pointing to the same snaprealm memory. And then it'll
-put it twice and could cause random use-after-free, BUG_ON, etc
-issues.
 
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/57686
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
----
+On 2022/11/8 20:04, Jason Gunthorpe wrote:
+> On Tue, Nov 08, 2022 at 05:32:52PM +0800, Wei Yongjun wrote:
+>>> So you want to set/clear this no_warn attr through the procfs or sysfs
+>>> interface, so that you can easily disable/enable the slab/page fault
+>>> warning message from the user mode. Right?
+>>
+>> Yes, just like:
+>>
+>> echo 1 > /sys/kernel/debug/failslab/no_warn  #disable message
+>> echo 0 > /sys/kernel/debug/failslab/no_warn  #enable message
+> 
+> You can already do that:
+> 
+>  echo 0 > /sys/kernel/debug/failslab/verbose  #disable message
 
-Changed in V4:
-- remove initilizing of 'realm'.
+Got it, thanks.
 
- fs/ceph/snap.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
-index 9bceed2ebda3..c1c452afa84d 100644
---- a/fs/ceph/snap.c
-+++ b/fs/ceph/snap.c
-@@ -764,7 +764,7 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
- 	struct ceph_mds_snap_realm *ri;    /* encoded */
- 	__le64 *snaps;                     /* encoded */
- 	__le64 *prior_parent_snaps;        /* encoded */
--	struct ceph_snap_realm *realm = NULL;
-+	struct ceph_snap_realm *realm;
- 	struct ceph_snap_realm *first_realm = NULL;
- 	struct ceph_snap_realm *realm_to_rebuild = NULL;
- 	int rebuild_snapcs;
-@@ -775,6 +775,7 @@ int ceph_update_snap_trace(struct ceph_mds_client *mdsc,
- 
- 	dout("%s deletion=%d\n", __func__, deletion);
- more:
-+	realm = NULL;
- 	rebuild_snapcs = 0;
- 	ceph_decode_need(&p, e, sizeof(*ri), bad);
- 	ri = p;
--- 
-2.31.1
+Wei Yongjun
 
