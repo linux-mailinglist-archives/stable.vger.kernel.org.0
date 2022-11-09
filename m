@@ -2,98 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14301622F12
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 16:30:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1276E622F52
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 16:47:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232049AbiKIPaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Nov 2022 10:30:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59398 "EHLO
+        id S231383AbiKIPrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Nov 2022 10:47:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231993AbiKIPaB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 10:30:01 -0500
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5213C19C15
-        for <stable@vger.kernel.org>; Wed,  9 Nov 2022 07:30:00 -0800 (PST)
-Received: by mail-pl1-x630.google.com with SMTP id v17so17424161plo.1
-        for <stable@vger.kernel.org>; Wed, 09 Nov 2022 07:30:00 -0800 (PST)
+        with ESMTP id S231792AbiKIPq7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 10:46:59 -0500
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50BEA1CB08
+        for <stable@vger.kernel.org>; Wed,  9 Nov 2022 07:46:56 -0800 (PST)
+Received: by mail-yb1-xb2d.google.com with SMTP id n85so15843971yba.1
+        for <stable@vger.kernel.org>; Wed, 09 Nov 2022 07:46:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=TyH6PCPcqORklSzFuL2oj5Of9WpvpNpPKZi4oJRbTRE=;
-        b=NPBmJsQnxzo9i371l5izRpd0Ei00ow+pLaFscyiwl6lSIsok+xDVan4Bk6Ep//Ifig
-         X97gqtYB9BW5y6iyzQVng+GKNV9KMlzRxdy3ZU8q2+4BU1jrTNiayLFMF1VKlorXraQ1
-         5Yxam03VxU/4wo3Tb4NstPGkluvTMIM/iO8YhI9+/oMPJ92umY7qg3UKUSoIo+72QWUI
-         zQF0t+lNHkTxNmdc7uBwSHJKMI/89MOJE//px5WkIdKNmdf8oZ+sn2L0UDcDtgo15/4q
-         x9K4CrZDI6weDhZ420da8RILG0LXhCgxPHbDUyswhUG+CoM51lPcfHXURbZW6TetX0va
-         6Gzw==
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=+db+5Z9ir7Cyd5yAhiscv5NRodvbCYjVQnMRArw9osk=;
+        b=vjaTfhZqXUBAEwNj/ZgtOMYYqfk+85ZTZOEhAGlRKCZEIj4s7pLHGwM6jXl3TAXA+l
+         l6l+62k+u+fawUq+NOl10enWS6+qhIJYfsJdkBLbN1ItDfIdeoxF5UIMaSpzfC3Ja2lb
+         wb9Z5V8zeO+0fhUyF3ymzmtdSqFLUZvyHlA5MEijisce4GcjqguvQ459E0tZkDM+3P4V
+         PSP5kpQHxZVgq+K5Xg8Mf6Zub+xuDj3AdK6Uv9/LKupUCPCibMdk7xRpmXzXKzSTjkKZ
+         3ERtenjh6FmwNlgXdlBcFeArChsbJQGU4rqTokQSapalbqZ0NyzhQZvPWzPzZc4FzI3g
+         Smpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TyH6PCPcqORklSzFuL2oj5Of9WpvpNpPKZi4oJRbTRE=;
-        b=F5xh2vokpTj3fLaIZBRYrxdDymnc0fWuouA3bMOLIafzvC/BaAEV2QJisyybP+x/Yk
-         GTMehMlrE6CmPk2VgJU01qI3bwXgZXt2kl4BjK9Pef8IMkL4V8O44uYOl8siLBy0i4mP
-         DTiJkmhJ5Bih4C1hSLSU9gkpSGEP66PvV1TI7yjgp265YFMopP77KAiKoYNahBvvT+vD
-         AoiT396xG+oWbmb5dQFjC/6XQkU8RfAB9sZDrcACfprwXz9ydiRsXkIVhwSai+h8TqW7
-         IL4RidEpDYeiIIFrktG+dablkKlmi0g0y+O+xxN+nOYBKgU1sJK6H1ztUNTagsnfMHCA
-         Vamg==
-X-Gm-Message-State: ACrzQf1pzjtCbuShZdtTpc54do7YNkoNHqZslPAST4AHUmEjNXImU+yh
-        Z1ziIu1SuEfxdKCn1U5pKHLjWg==
-X-Google-Smtp-Source: AMsMyM5EN+cPdXDFJ+x16060SGfZpiGFilX9cNkDwCPun4FE4PdhpfKEtN/BfWedMDjFfjw2hC79rQ==
-X-Received: by 2002:a17:903:2645:b0:185:480a:85d2 with SMTP id je5-20020a170903264500b00185480a85d2mr61719725plb.144.1668007799728;
-        Wed, 09 Nov 2022 07:29:59 -0800 (PST)
-Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
-        by smtp.gmail.com with ESMTPSA id i4-20020a63cd04000000b0045751ef6423sm7706405pgg.87.2022.11.09.07.29.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Nov 2022 07:29:59 -0800 (PST)
-Date:   Wed, 9 Nov 2022 15:29:56 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        thomas.lendacky@amd.com, jmattson@google.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 08/11] KVM: SVM: move guest vmsave/vmload back to assembly
-Message-ID: <Y2vHdMJiFrZNSJsB@google.com>
-References: <20221109145156.84714-1-pbonzini@redhat.com>
- <20221109145156.84714-9-pbonzini@redhat.com>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+db+5Z9ir7Cyd5yAhiscv5NRodvbCYjVQnMRArw9osk=;
+        b=HxseJW9R1yoQK0IcQbCDy6HELjXNBtIsEES4bcDQ73/Bmpuv6moTPl99/ZE8ynoN93
+         pvF0YNmp5wabcvQeOb8thWb8rfuCBaHnCac+0dJoZazCvEfwL38okKb5RmXj+aUDgEMT
+         u6Z8Lh+DlhplwcqZ4hcgOUYs9D+rA2RAVasML+W1N8Dr4UEuyNOpZiYbY9tJkuUmP1g3
+         uB/ddAA/o4nVfy0Sd/tHBgSp30sjqfkUKKKSC2Z/yMIf6yvZ24KAk/qIHJ6Givn/04x0
+         qwY87FuEDjUqIEF52VWri+pkScfkStgnFh2L/Z7DtCr0w8cz/aIbrB/y+JsV/9ifiYdc
+         XDOQ==
+X-Gm-Message-State: ACrzQf3FABk4T0dpBVDtj01zdcog1PQmaO/Xn2nrRy3zSLB2mceujfXy
+        SO9bJa6BkbCln6DaDna54VG6EW8z3GGGiILBQy0okQ==
+X-Google-Smtp-Source: AMsMyM7QSOPHgH1HzsMpetlXtet8fhrPzU7Fp5FnD4HjiTTq1nkptf1jD3guHJXHhlcmMMI/F0PXzi6A7FgFAIWxGaM=
+X-Received: by 2002:a5b:142:0:b0:6c4:8a9:e4d2 with SMTP id c2-20020a5b0142000000b006c408a9e4d2mr1093482ybp.164.1668008815284;
+ Wed, 09 Nov 2022 07:46:55 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221109145156.84714-9-pbonzini@redhat.com>
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20221108133328.351887714@linuxfoundation.org>
+In-Reply-To: <20221108133328.351887714@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 9 Nov 2022 21:16:44 +0530
+Message-ID: <CA+G9fYudWjUPHjsQG-Fhc=DoxeEfg2+5ZOS4rAFktTcZ-G_hfg@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/40] 4.14.299-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 09, 2022, Paolo Bonzini wrote:
-> FILL_RETURN_BUFFER can access percpu data, therefore vmload of the
-> host save area must be executed first.  First of all, move the VMCB
-> vmsave/vmload to assembly, essentially undoing commit fb0c4a4fee5a ("KVM:
+On Tue, 8 Nov 2022 at 19:14, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.299 release.
+> There are 40 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 10 Nov 2022 13:33:17 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.299-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Nit, similar to adding parantheses to function names, I prefer capitalizing instruction
-mnemonics, i.e. VMSAVE and VMLOAD, to make it obvious that you're referring to a
-specific instruction as opposed to a theme/flow.
 
-> SVM: move VMLOAD/VMSAVE to C code", 2021-03-15).  The reason for that
-> commit was that it made it simpler to use a different VMCB for
-> VMLOAD/VMSAVE versus VMRUN; but that is not a big hassle anymore thanks
-> to the kvm-asm-offsets machinery.
-> 
-> The idea on how to number the exception tables is stolen from
-> a prototype patch by Peter Zijlstra.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: a149180fbcf3 ("x86: Add magic AMD return-thunk")
-> Link: <https://lore.kernel.org/all/f571e404-e625-bae1-10e9-449b2eb4cbd8@citrix.com/>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
+Results from Linaro's test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Reviewed-by: Sean Christopherson <seanjc@google.com>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 4.14.299-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.14.y
+* git commit: 85bb1cff28dd862a007c7d7eaada3e4f669566e2
+* git describe: v4.14.298-41-g85bb1cff28dd
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14.298-41-g85bb1cff28dd
+
+## Test Regressions (compared to v4.14.297)
+
+## Metric Regressions (compared to v4.14.297)
+
+## Test Fixes (compared to v4.14.297)
+
+## Metric Fixes (compared to v4.14.297)
+
+## Test result summary
+total: 111619, pass: 93601, fail: 1960, skip: 15138, xfail: 920
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 313 total, 308 passed, 5 failed
+* arm64: 53 total, 50 passed, 3 failed
+* i386: 29 total, 28 passed, 1 failed
+* mips: 41 total, 41 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 20 total, 19 passed, 1 failed
+* s390: 15 total, 11 passed, 4 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 51 total, 50 passed, 1 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
