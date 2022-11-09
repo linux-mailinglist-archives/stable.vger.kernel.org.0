@@ -2,158 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BBD66235B9
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 22:23:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30288623644
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 23:03:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231858AbiKIVXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Nov 2022 16:23:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40778 "EHLO
+        id S230199AbiKIWDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Nov 2022 17:03:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231851AbiKIVXg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 16:23:36 -0500
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05FE6BC1A
-        for <stable@vger.kernel.org>; Wed,  9 Nov 2022 13:23:34 -0800 (PST)
-Received: by mail-oi1-x229.google.com with SMTP id n186so20237438oih.7
-        for <stable@vger.kernel.org>; Wed, 09 Nov 2022 13:23:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=6osH2CHG24SjyK30ZoBUndUFe6RAe9+84/GlrRsbBnM=;
-        b=iQ2chr+X2kRuB01a+ZYYy/UQFv+aDzlpR+2R1eF5XkDVs+1B8ppV+Csc3qP+NOILZX
-         KTCi+X9EXlUHeYL1hIVPuMh1DMQr1RvjvJXu71kE2iziI8MNeOI56xaEknzffVHTbskr
-         rsBCLlWHIWeshq1WxeK9zwvp3NdnZDYc/iGf7mSv643pEnMuEUwREHOgrUtj8MOsy5MK
-         JA0jPGCpb8Xpmv7rLLSNyXaX7Ri5QofSzhRYovs1MOM6569AJWUdOBQhTSozlc/tzwVi
-         KBddeiJLSwZzr1KdbDDBlnDs4DDEuo8I1MoTg5HhRs7dcLsV9Srot3IuP69IJvRCP8zJ
-         /plg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=6osH2CHG24SjyK30ZoBUndUFe6RAe9+84/GlrRsbBnM=;
-        b=jArMxvx39TjAvWCD2/irJylOOl8blXSJdJfR+VqL/BRQhDE6ps1EBceoB9eqY0cvh9
-         6F5O0u/hVX0CBGOVm0DAjShURP3V5XUMoxz4tpZ4ZBoqjRa7UMley5jTpt0vUt5jXUns
-         pPGauLz47y2aMttRo4OYEyeUkpZqopH3PYIAST0Z+fk2Z9tGJXwiJrAgvBy+zQhwp/Vd
-         7s3CH/KQWJe7ULYNvDWWAKpXhzjKOdTLUnT3YGvJmSH5jRDs7R75Lrx5rtwlDHFsQKI7
-         DRQI17FLF1zygDZdDbnGbzy/b79aPeyIhjoCX2TjUJ716309r48v7NUKR2RccOAJvM68
-         WpBA==
-X-Gm-Message-State: ACrzQf255zTwNhXBj8MWAWUvZMvRt9amFBneDlV8WW8/XLBrHfhtkjSz
-        quPdXlwYfpZqitvjJ063CKXURQ70jrV/6pJfLdL36g==
-X-Google-Smtp-Source: AMsMyM7oeyA6T8YvG0AE/+9cMNUnq1sl/0vB7ZmbqimmBPi2qfR8pJSuAFElhfnxqh850sWuHg3fblWAYbw3XtrrRUE=
-X-Received: by 2002:aca:6007:0:b0:35a:1bda:d213 with SMTP id
- u7-20020aca6007000000b0035a1bdad213mr27166493oib.181.1668029013158; Wed, 09
- Nov 2022 13:23:33 -0800 (PST)
-MIME-Version: 1.0
-References: <20221107145436.276079-1-pbonzini@redhat.com> <20221107145436.276079-8-pbonzini@redhat.com>
- <CALMp9eRDehmWC1gZmSjxjwCvm4VXf_FnR-MiFkHxkTn4_DJ4aA@mail.gmail.com> <81f7dc5c-c45d-76fc-d9e8-4f3f65c29c12@redhat.com>
-In-Reply-To: <81f7dc5c-c45d-76fc-d9e8-4f3f65c29c12@redhat.com>
-From:   Jim Mattson <jmattson@google.com>
-Date:   Wed, 9 Nov 2022 13:23:22 -0800
-Message-ID: <CALMp9eSrifYwOyPzs3UiUnM7o3iRead5-m5ta4tMo+72Td1y5A@mail.gmail.com>
-Subject: Re: [PATCH 7/8] KVM: SVM: move MSR_IA32_SPEC_CTRL save/restore to assembly
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        nathan@kernel.org, thomas.lendacky@amd.com,
-        andrew.cooper3@citrix.com, peterz@infradead.org, seanjc@google.com,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229657AbiKIWDb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 17:03:31 -0500
+Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E625E19;
+        Wed,  9 Nov 2022 14:03:30 -0800 (PST)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.nyi.internal (Postfix) with ESMTP id E194F5C016D;
+        Wed,  9 Nov 2022 17:03:26 -0500 (EST)
+Received: from imap51 ([10.202.2.101])
+  by compute3.internal (MEProxy); Wed, 09 Nov 2022 17:03:26 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; t=1668031406; x=1668117806; bh=90Q4t0I3AS
+        O4wxuMFa7atJdc376IIEHg3Latfar0VBs=; b=f//EK1j6t0cPPtMtu15DwQQNHt
+        d+Jr6+H+H0vssHfq0wEf0pdZWHwlv3AjdsoSJm5VvGMRFVjZSn9SEJWEVQF/mzuo
+        8woD0fKDXfO0NFbGkXSltY3g8IAUgotG3IkrirGI7png4BgKSgn1NXi2Jt0q2dzN
+        JzgKcUHoX0sDHULIJmvp5wcO3biu6E2D7vfpojjfHfWPbmcRmROxav+gE733hkVj
+        7qOO6C/ywySU1UvdflJbhdL1ynwHW+VwgWYZFaxoiq1yPLPaEKLYTmzsNqQAqtym
+        2++7bPlf7U+waMeZQyPhnNywt/v77Xejm3fY0V0X6jbi56Q09qesTNKU97Jg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; t=1668031406; x=1668117806; bh=90Q4t0I3ASO4wxuMFa7atJdc376I
+        IEHg3Latfar0VBs=; b=gW5bJIIeE834epB1gsYZNQufn8noqrKb5utPDcQzQZpT
+        bp8gpZNMOs0HvT/z5U1QTyYGCT7Kl9iaLKIBVif4QAo+aGTLn+OFNmxXXiVG7u2+
+        +ofxIAxNR7XmDSh6dwG4WeqOZZpKpdMU/QLMO6DJz57WIhFJp572c/QaoBJjeF5O
+        3xo4zH+DurVsfBJxh0vlBK5d+vTttCwejLe+kqItMi7vwqsRAbLCgk41y66vlV3a
+        A/QX3Q3gIuz49hS8jgDdNSv9qdmh6hxeiwUSiyBt5Z35yitoRTQZvmGJSh71tMCc
+        0YY/k3r926B6H96Jbnl3Nb3O71xpA7cnNj1TXdKHCA==
+X-ME-Sender: <xms:riNsY-uLstp1juABk1gaG68k9LnBFcATQClxnYKMqjXAd6XKBy0Lvw>
+    <xme:riNsYzfRVJau5Kmul0LA2lIYOAv0Pm8TsHUfpvUsCsDdwjTzoW2bG1A-I6OLP9ldh
+    I3OIZ7Y1ZZDtv0D_HA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrfedvgdduheejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
+    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
+    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
+    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
+    hrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:riNsY5zWKL50a4m4D2wx7Kio7mm5sWOgMXT6eWzNWkqGUzgTy3Exfw>
+    <xmx:riNsY5P05gy3Fy0r5g2wWZtISogUKnAM0Ncg-wgnuzJVyyOINnc79g>
+    <xmx:riNsY-_42SthFO2d8KWjA5w9quY3hfFsBydSZ4znhi4sKopORLSXxg>
+    <xmx:riNsYzMXgTR_q1idrdEuh4L2TX9tCRofkagocUfcnm84lzohkwOPOQ>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 927D7B60086; Wed,  9 Nov 2022 17:03:26 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.7.0-alpha0-1115-g8b801eadce-fm-20221102.001-g8b801ead
+Mime-Version: 1.0
+Message-Id: <96a99291-7caa-429c-9bbd-29721a2b5637@app.fastmail.com>
+In-Reply-To: <29824864-f076-401f-bfb4-bc105bb2d38f@app.fastmail.com>
+References: <CA+G9fYt49jY+sAqHXYwpJtF0oa-jL8t8nArY6W1_zui0sKFipA@mail.gmail.com>
+ <29824864-f076-401f-bfb4-bc105bb2d38f@app.fastmail.com>
+Date:   Wed, 09 Nov 2022 23:03:04 +0100
+From:   "Arnd Bergmann" <arnd@arndb.de>
+To:     "Naresh Kamboju" <naresh.kamboju@linaro.org>,
+        linux-stable <stable@vger.kernel.org>,
+        "open list" <linux-kernel@vger.kernel.org>,
+        "Linux ARM" <linux-arm-kernel@lists.infradead.org>,
+        lkft-triage@lists.linaro.org
+Cc:     "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Sasha Levin" <sashal@kernel.org>,
+        "Linus Walleij" <linus.walleij@linaro.org>,
+        "Mark Brown" <broonie@kernel.org>,
+        "Liam Girdwood" <lgirdwood@gmail.com>
+Subject: Re: arm: TI BeagleBoard X15 : Unable to handle kernel NULL pointer dereference
+ at virtual address 00000369 - Internal error: Oops: 5 [#1] SMP ARM
+Content-Type: text/plain
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 7, 2022 at 11:08 AM Paolo Bonzini <pbonzini@redhat.com> wrote:
+On Wed, Nov 9, 2022, at 13:57, Arnd Bergmann wrote:
 >
-> On 11/7/22 19:45, Jim Mattson wrote:
-> >> +.macro RESTORE_GUEST_SPEC_CTRL
-> >> +       /* No need to do anything if SPEC_CTRL is unset or V_SPEC_CTRL is set */
-> >> +       ALTERNATIVE_2 "jmp 999f", \
-> >> +               "", X86_FEATURE_MSR_SPEC_CTRL, \
-> >> +               "jmp 999f", X86_FEATURE_V_SPEC_CTRL
-> >> +
-> >> +       /*
-> >> +        * SPEC_CTRL handling: if the guest's SPEC_CTRL value differs from the
-> >> +        * host's, write the MSR.
-> >> +        *
-> >> +        * IMPORTANT: To avoid RSB underflow attacks and any other nastiness,
-> >> +        * there must not be any returns or indirect branches between this code
-> >> +        * and vmentry.
-> >> +        */
-> >> +       movl SVM_spec_ctrl(%_ASM_DI), %eax
-> >> +       cmp PER_CPU_VAR(x86_spec_ctrl_current), %eax
-> >> +       je 999f
-> >> +       mov $MSR_IA32_SPEC_CTRL, %ecx
-> >> +       xor %edx, %edx
-> >> +       wrmsr
-> >> +999:
-> >> +
-> >> +.endm
-> >> +
-> >> +.macro RESTORE_HOST_SPEC_CTRL
-> >> +       /* No need to do anything if SPEC_CTRL is unset or V_SPEC_CTRL is set */
-> >> +       ALTERNATIVE_2 "jmp 999f", \
-> >> +               "", X86_FEATURE_MSR_SPEC_CTRL, \
-> >> +               "jmp 999f", X86_FEATURE_V_SPEC_CTRL
-> >> +
-> >> +       mov $MSR_IA32_SPEC_CTRL, %ecx
-> >> +
-> >> +       /*
-> >> +        * Load the value that the guest had written into MSR_IA32_SPEC_CTRL,
-> >> +        * if it was not intercepted during guest execution.
-> >> +        */
-> >> +       cmpb $0, (%_ASM_SP)
-> >> +       jnz 998f
-> >> +       rdmsr
-> >> +       movl %eax, SVM_spec_ctrl(%_ASM_DI)
-> >> +998:
-> >> +
-> >> +       /* Now restore the host value of the MSR if different from the guest's.  */
-> >> +       movl PER_CPU_VAR(x86_spec_ctrl_current), %eax
-> >> +       cmp SVM_spec_ctrl(%_ASM_DI), %eax
-> >> +       je 999f
-> >> +       xor %edx, %edx
-> >> +       wrmsr
-> >> +999:
-> >> +
-> >> +.endm
-> >> +
-> >> +
-> >
-> > It seems unfortunate to have the unconditional branches in the more
-> > common cases.
->
-> One way to do it could be something like
->
-> .macro RESTORE_HOST_SPEC_CTRL
->         ALTERNATIVE_2 "", \
->                 "jmp 900f", X86_FEATURE_MSR_SPEC_CTRL, \
->                 "", X86_FEATURE_V_SPEC_CTRL \
-> 901:
-> .endm
->
-> .macro RESTORE_SPEC_CTRL_BODY \
-> 800:
->         /* restore guest spec ctrl ... */
->         jmp 801b
->
-> 900:
->         /* save guest spec ctrl + restore host ... */
->         jmp 901b
-> .endm
->
-> The cmp/je pair can also jump back to 801b/901b.
->
-> What do you think?  I'll check if objtool is happy and if so include it
-> in v2.
->
-> Paolo
->
-This seems reasonable, if you trust a direct branch prior to the IBPB.
+> One thing that sticks out is the print_constraints_debug() function
+> in the regulator framework, which uses a larger-than-average stack
+> to hold a string buffer, and then calls into the low-level
+> driver to get the actual data (regulator_get_voltage_rdev,
+> _regulator_is_enabled). Splitting the device access out into a
+> different function from the string handling might reduce the
+> stack usage enough to stay just under the 8KB limit, though it's
+> probably not a complete fix. I added the regulator maintainers
+> to Cc for thoughts on this.
+
+I checked the stack usage for each of the 147 functions in the
+backtrace, and as I was guessing print_constraints_debug() is
+the largest, but it's still only 168 bytes, and everything else
+is smaller, so no point hacking this.
+
+168 	print_constraints_debug
+96 	timekeeping_advance
+64 	set_machine_constraints
+64 	of_i2c_register_device
+56 	of_platform_bus_create
+48 	schedule_timeout
+
+One more idea I had is the unwinder: since this kernel is built
+with the frame-pointer unwinder, I think the stack usage per
+function is going to be slightly larger than with the arm unwinder.
+
+Naresh, how hard is it to reproduce this bug intentionally?
+Can you try if it still happens if you change the .config to
+use these:?
+
+# CONFIG_FUNCTION_GRAPH_TRACER is not set
+# CONFIG_UNWINDER_FRAME_POINTER is not set
+CONFIG_UNWINDER_ARM=y
+
+       Arnd
