@@ -2,49 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21CC6622134
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 02:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03D2E622245
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 03:54:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229499AbiKIBKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 20:10:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52560 "EHLO
+        id S229776AbiKICyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 21:54:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229555AbiKIBKu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 20:10:50 -0500
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2651861775;
-        Tue,  8 Nov 2022 17:10:47 -0800 (PST)
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4N6RjR50WZzRp5K;
-        Wed,  9 Nov 2022 09:10:35 +0800 (CST)
-Received: from kwepemm600020.china.huawei.com (7.193.23.147) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Wed, 9 Nov 2022 09:10:44 +0800
-Received: from localhost.localdomain (10.175.112.125) by
- kwepemm600020.china.huawei.com (7.193.23.147) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Wed, 9 Nov 2022 09:10:43 +0800
-From:   Peng Zhang <zhangpeng362@huawei.com>
-To:     <jack@suse.com>, <jack@suse.cz>, <yi.zhang@huawei.com>,
-        <yujie.liu@intel.com>, <hch@lst.de>, <akpm@linux-foundation.org>,
-        <butterflyhuangxx@gmail.com>, <willy@infradead.org>
-CC:     <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        ZhangPeng <zhangpeng362@huawei.com>,
-        <syzbot+69c9fdccc6dd08961d34@syzkaller.appspotmail.com>
-Subject: [PATCH] udf: Fix a slab-out-of-bounds write bug in udf_find_entry()
-Date:   Wed, 9 Nov 2022 01:35:42 +0000
-Message-ID: <20221109013542.442790-1-zhangpeng362@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229530AbiKICyG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 21:54:06 -0500
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A3CC21274;
+        Tue,  8 Nov 2022 18:54:05 -0800 (PST)
+Received: by mail-oi1-x229.google.com with SMTP id r76so17488296oie.13;
+        Tue, 08 Nov 2022 18:54:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rBLZkJy5Pp4Vpzz0NWiO5S2UOJ9yN9uTsYNq/gfnkYI=;
+        b=ltk5/S5XHdqjLJtA8myZw111jK4YqHjyFUd66tIyRXCFvddlDxeXY2V6w31crN1exN
+         rV8/oVEY3jfko9wObsLjdRwt3WU6IghTUYnYRoQbTibSVZ75bJaUTdwRQGxhbGMKWwrz
+         BftVdHlBkj7e7iamWNLd28QVMjXwrgh5qi1VCrOmvQi98xr/KKRydOEgO0vcWFEzrGTs
+         LseOhn8Ag9O+vsmRIh5XDV6Kx8mDpjScYBPObe44OQEi9RvAaaS9Y/S/grGi4yMkF/pQ
+         1cDeOsa14AgGnc63jOn06mN4fH76S26Bg8/AXi4vuZ07x1egokjB3/wkZBtv8mUFraZe
+         Xh4Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=rBLZkJy5Pp4Vpzz0NWiO5S2UOJ9yN9uTsYNq/gfnkYI=;
+        b=x3ICY2Omg2wDYS3x7ZARhRh4vhwncuRkmJCaCj9zCNoQkDKby2ARxYbvu8Ow3SmchG
+         HqKlBviq3PJ/+76RMZ244NN0iDH/Q/Y/sam7RsrLcYff3PhGqte3X4zVfag/nURYzmdq
+         o3NeJvX9TIyeXsCdCk0HNC8uMoxBBH5N40tkhPhEUkC5/uMl8JJnWgjAvYYU6XH/dtO4
+         CHWhVjXyAh/W69TKeAO+3lZymh12Oz8bVdVIiOY6LCcKuYgAbIDErUkrp3siCflbGGy/
+         OT7+l3QS3KHO4UIXu5ecFTZwrfZK9kiOa21stddfkDRZaXvVqS0WraPxMNBUiNEpFrYR
+         3fCA==
+X-Gm-Message-State: ACrzQf2bZJ4LTpBFVgSRe9gSPukMwzazgFeinvgUlcfR6JNpLfD8PCQl
+        i6oJzCIXoV5eT9MPQVXFgN8=
+X-Google-Smtp-Source: AMsMyM65LdLfRxE0GxhydaG8ObHJgW/wS+FwVUJIoUp1X73R6GIfsgnVSVh3fUuZ+mlbIJsjW9oUJQ==
+X-Received: by 2002:aca:b154:0:b0:35a:856:4b88 with SMTP id a81-20020acab154000000b0035a08564b88mr28020880oif.219.1667962444769;
+        Tue, 08 Nov 2022 18:54:04 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id e1-20020a056830200100b00661b5e95173sm4763329otp.35.2022.11.08.18.54.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Nov 2022 18:54:03 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 8 Nov 2022 18:54:01 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net
+Subject: Re: [PATCH 6.0 000/197] 6.0.8-rc1 review
+Message-ID: <20221109025401.GA2033086@roeck-us.net>
+References: <20221108133354.787209461@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.112.125]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- kwepemm600020.china.huawei.com (7.193.23.147)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,HEXHASH_WORD,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221108133354.787209461@linuxfoundation.org>
+X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,132 +77,21 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+On Tue, Nov 08, 2022 at 02:37:18PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.8 release.
+> There are 197 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 10 Nov 2022 13:33:17 +0000.
+> Anything received after that time might be too late.
+> 
 
-Syzbot reported a slab-out-of-bounds Write bug:
+Build results:
+	total: 152 pass: 152 fail: 0
+Qemu test results:
+	total: 500 pass: 500 fail: 0
 
-loop0: detected capacity change from 0 to 2048
-==================================================================
-BUG: KASAN: slab-out-of-bounds in udf_find_entry+0x8a5/0x14f0
-fs/udf/namei.c:253
-Write of size 105 at addr ffff8880123ff896 by task syz-executor323/3610
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-CPU: 0 PID: 3610 Comm: syz-executor323 Not tainted
-6.1.0-rc2-syzkaller-00105-gb229b6ca5abb #0
-Hardware name: Google Compute Engine/Google Compute Engine, BIOS
-Google 10/11/2022
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
- print_address_description+0x74/0x340 mm/kasan/report.c:284
- print_report+0x107/0x1f0 mm/kasan/report.c:395
- kasan_report+0xcd/0x100 mm/kasan/report.c:495
- kasan_check_range+0x2a7/0x2e0 mm/kasan/generic.c:189
- memcpy+0x3c/0x60 mm/kasan/shadow.c:66
- udf_find_entry+0x8a5/0x14f0 fs/udf/namei.c:253
- udf_lookup+0xef/0x340 fs/udf/namei.c:309
- lookup_open fs/namei.c:3391 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x10e6/0x2df0 fs/namei.c:3710
- do_filp_open+0x264/0x4f0 fs/namei.c:3740
- do_sys_openat2+0x124/0x4e0 fs/open.c:1310
- do_sys_open fs/open.c:1326 [inline]
- __do_sys_creat fs/open.c:1402 [inline]
- __se_sys_creat fs/open.c:1396 [inline]
- __x64_sys_creat+0x11f/0x160 fs/open.c:1396
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7ffab0d164d9
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89
-f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
-f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffe1a7e6bb8 EFLAGS: 00000246 ORIG_RAX: 0000000000000055
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007ffab0d164d9
-RDX: 00007ffab0d164d9 RSI: 0000000000000000 RDI: 0000000020000180
-RBP: 00007ffab0cd5a10 R08: 0000000000000000 R09: 0000000000000000
-R10: 00005555573552c0 R11: 0000000000000246 R12: 00007ffab0cd5aa0
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
-
-Allocated by task 3610:
- kasan_save_stack mm/kasan/common.c:45 [inline]
- kasan_set_track+0x3d/0x60 mm/kasan/common.c:52
- ____kasan_kmalloc mm/kasan/common.c:371 [inline]
- __kasan_kmalloc+0x97/0xb0 mm/kasan/common.c:380
- kmalloc include/linux/slab.h:576 [inline]
- udf_find_entry+0x7b6/0x14f0 fs/udf/namei.c:243
- udf_lookup+0xef/0x340 fs/udf/namei.c:309
- lookup_open fs/namei.c:3391 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x10e6/0x2df0 fs/namei.c:3710
- do_filp_open+0x264/0x4f0 fs/namei.c:3740
- do_sys_openat2+0x124/0x4e0 fs/open.c:1310
- do_sys_open fs/open.c:1326 [inline]
- __do_sys_creat fs/open.c:1402 [inline]
- __se_sys_creat fs/open.c:1396 [inline]
- __x64_sys_creat+0x11f/0x160 fs/open.c:1396
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-The buggy address belongs to the object at ffff8880123ff800
- which belongs to the cache kmalloc-256 of size 256
-The buggy address is located 150 bytes inside of
- 256-byte region [ffff8880123ff800, ffff8880123ff900)
-
-The buggy address belongs to the physical page:
-page:ffffea000048ff80 refcount:1 mapcount:0 mapping:0000000000000000
-index:0x0 pfn:0x123fe
-head:ffffea000048ff80 order:1 compound_mapcount:0 compound_pincount:0
-flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000010200 ffffea00004b8500 dead000000000003 ffff888012041b40
-raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-page_owner tracks the page as allocated
-page last allocated via order 0, migratetype Unmovable, gfp_mask 0x0(),
-pid 1, tgid 1 (swapper/0), ts 1841222404, free_ts 0
- create_dummy_stack mm/page_owner.c:67 [inline]
- register_early_stack+0x77/0xd0 mm/page_owner.c:83
- init_page_owner+0x3a/0x731 mm/page_owner.c:93
- kernel_init_freeable+0x41c/0x5d5 init/main.c:1629
- kernel_init+0x19/0x2b0 init/main.c:1519
-page_owner free stack trace missing
-
-Memory state around the buggy address:
- ffff8880123ff780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff8880123ff800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff8880123ff880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06
-                                                                ^
- ffff8880123ff900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff8880123ff980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-==================================================================
-
-Fix this by changing the memory size allocated for copy_name from
-UDF_NAME_LEN(254) to UDF_NAME_LEN_CS0(255), because the total length
-(lfi) of subsequent memcpy can be up to 255.
-
-Reported-by: syzbot+69c9fdccc6dd08961d34@syzkaller.appspotmail.com
-Fixes: 066b9cded00b ("udf: Use separate buffer for copying split names")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
----
- fs/udf/namei.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/udf/namei.c b/fs/udf/namei.c
-index fb4c30e05245..ae7bc13a5298 100644
---- a/fs/udf/namei.c
-+++ b/fs/udf/namei.c
-@@ -240,7 +240,7 @@ static struct fileIdentDesc *udf_find_entry(struct inode *dir,
- 						      poffset - lfi);
- 			else {
- 				if (!copy_name) {
--					copy_name = kmalloc(UDF_NAME_LEN,
-+					copy_name = kmalloc(UDF_NAME_LEN_CS0,
- 							    GFP_NOFS);
- 					if (!copy_name) {
- 						fi = ERR_PTR(-ENOMEM);
--- 
-2.25.1
-
+Guenter
