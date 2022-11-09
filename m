@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C487E622B19
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 13:05:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A61D0622B1A
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 13:05:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229554AbiKIMFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Nov 2022 07:05:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43470 "EHLO
+        id S229447AbiKIMF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Nov 2022 07:05:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229447AbiKIMFP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 07:05:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F12D2AC72
-        for <stable@vger.kernel.org>; Wed,  9 Nov 2022 04:05:15 -0800 (PST)
+        with ESMTP id S229587AbiKIMF1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 07:05:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93E3B2A411
+        for <stable@vger.kernel.org>; Wed,  9 Nov 2022 04:05:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 005B0B81E00
-        for <stable@vger.kernel.org>; Wed,  9 Nov 2022 12:05:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F8BC433C1;
-        Wed,  9 Nov 2022 12:05:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FF3F619F2
+        for <stable@vger.kernel.org>; Wed,  9 Nov 2022 12:05:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1136DC433D6;
+        Wed,  9 Nov 2022 12:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1667995512;
-        bh=J3hyjMGYx4Ff8ChBf313j5Q1MIkz+M2384BDHvU/rJI=;
+        s=korg; t=1667995525;
+        bh=G91+MUlOxshbzn4k6urUOOVLJIWgAgOkk+59xwucJBc=;
         h=Subject:To:From:Date:From;
-        b=03uOszCWRIYd8/7GB5WDZNXPrSDQ6ndNfe6HFMtJl/terg+RmZQd35MoLc7zWueVq
-         PVVp8H3t4ZAuwBfLDSxLwHod3j29BxEmdPcTaZwmdxEpt5obROiK3jsSKQM2w3wrdJ
-         q2oGAA0CIFILOVZ0nh5/2Jq2MAaPTcyyrfogVg90=
-Subject: patch "serial: 8250: Fall back to non-DMA Rx if IIR_RDI occurs" added to tty-linus
-To:     ilpo.jarvinen@linux.intel.com, aman.kumar@intel.com,
-        andriy.shevchenko@linux.intel.com, gregkh@linuxfoundation.org,
-        srikanth.thokala@intel.com, stable@vger.kernel.org
+        b=ttkHSCaPCetvm4vjmED8R8CmdR8wvOO59d3NQXJoaV9GJ+GtU3MnoZ/oMzG+96Uz+
+         3XrwFFQemnafupWFkSeIm6FSCuv73l0J/RAgM63MiUx2WX8TYYLSAbJchtBNrEQA21
+         dzlb0OjXvugqIP+L3tmkPbhQoOOJDuoSefORMUJg=
+Subject: patch "serial: 8250_lpss: Use 16B DMA burst with Elkhart Lake" added to tty-linus
+To:     ilpo.jarvinen@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        wentong.wu@intel.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 09 Nov 2022 13:05:10 +0100
-Message-ID: <166799551093207@kroah.com>
+Date:   Wed, 09 Nov 2022 13:05:11 +0100
+Message-ID: <1667995511351@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    serial: 8250: Fall back to non-DMA Rx if IIR_RDI occurs
+    serial: 8250_lpss: Use 16B DMA burst with Elkhart Lake
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -65,57 +65,46 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From a931237cbea256aff13bb403da13a97b2d1605d9 Mon Sep 17 00:00:00 2001
+From 7090abd6ad0610a144523ce4ffcb8560909bf2a8 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Tue, 8 Nov 2022 14:19:49 +0200
-Subject: serial: 8250: Fall back to non-DMA Rx if IIR_RDI occurs
+Date: Tue, 8 Nov 2022 14:19:51 +0200
+Subject: serial: 8250_lpss: Use 16B DMA burst with Elkhart Lake
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-DW UART sometimes triggers IIR_RDI during DMA Rx when IIR_RX_TIMEOUT
-should have been triggered instead. Since IIR_RDI has higher priority
-than IIR_RX_TIMEOUT, this causes the Rx to hang into interrupt loop.
-The problem seems to occur at least with some combinations of
-small-sized transfers (I've reproduced the problem on Elkhart Lake PSE
-UARTs).
+Configure DMA to use 16B burst size with Elkhart Lake. This makes the
+bus use more efficient and works around an issue which occurs with the
+previously used 1B.
 
-If there's already an on-going Rx DMA and IIR_RDI triggers, fall
-graciously back to non-DMA Rx. That is, behave as if IIR_RX_TIMEOUT had
-occurred.
+The fix was initially developed by Srikanth Thokala and Aman Kumar.
+This together with the previous config change is the cleaned up version
+of the original fix.
 
-8250_omap already considers IIR_RDI similar to this change so its
-nothing unheard of.
-
-Fixes: 75df022b5f89 ("serial: 8250_dma: Fix RX handling")
-Cc: <stable@vger.kernel.org>
-Co-developed-by: Srikanth Thokala <srikanth.thokala@intel.com>
-Signed-off-by: Srikanth Thokala <srikanth.thokala@intel.com>
-Co-developed-by: Aman Kumar <aman.kumar@intel.com>
-Signed-off-by: Aman Kumar <aman.kumar@intel.com>
+Fixes: 0a9410b981e9 ("serial: 8250_lpss: Enable DMA on Intel Elkhart Lake")
+Cc: <stable@vger.kernel.org> # serial: 8250_lpss: Configure DMA also w/o DMA filter
+Reported-by: Wentong Wu <wentong.wu@intel.com>
 Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221108121952.5497-2-ilpo.jarvinen@linux.intel.com
+Link: https://lore.kernel.org/r/20221108121952.5497-4-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tty/serial/8250/8250_lpss.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index fe8662cd9402..92dd18716169 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1897,6 +1897,10 @@ EXPORT_SYMBOL_GPL(serial8250_modem_status);
- static bool handle_rx_dma(struct uart_8250_port *up, unsigned int iir)
- {
- 	switch (iir & 0x3f) {
-+	case UART_IIR_RDI:
-+		if (!up->dma->rx_running)
-+			break;
-+		fallthrough;
- 	case UART_IIR_RX_TIMEOUT:
- 		serial8250_rx_dma_flush(up);
- 		fallthrough;
+diff --git a/drivers/tty/serial/8250/8250_lpss.c b/drivers/tty/serial/8250/8250_lpss.c
+index 7d9cddbfef40..0e43bdfb7459 100644
+--- a/drivers/tty/serial/8250/8250_lpss.c
++++ b/drivers/tty/serial/8250/8250_lpss.c
+@@ -174,6 +174,8 @@ static int ehl_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
+ 	 */
+ 	up->dma = dma;
+ 
++	lpss->dma_maxburst = 16;
++
+ 	port->set_termios = dw8250_do_set_termios;
+ 
+ 	return 0;
 -- 
 2.38.1
 
