@@ -2,128 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30288623644
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 23:03:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 044EA62364C
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 23:07:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230199AbiKIWDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Nov 2022 17:03:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57648 "EHLO
+        id S231836AbiKIWHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Nov 2022 17:07:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229657AbiKIWDb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 17:03:31 -0500
-Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E625E19;
-        Wed,  9 Nov 2022 14:03:30 -0800 (PST)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id E194F5C016D;
-        Wed,  9 Nov 2022 17:03:26 -0500 (EST)
-Received: from imap51 ([10.202.2.101])
-  by compute3.internal (MEProxy); Wed, 09 Nov 2022 17:03:26 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm3; t=1668031406; x=1668117806; bh=90Q4t0I3AS
-        O4wxuMFa7atJdc376IIEHg3Latfar0VBs=; b=f//EK1j6t0cPPtMtu15DwQQNHt
-        d+Jr6+H+H0vssHfq0wEf0pdZWHwlv3AjdsoSJm5VvGMRFVjZSn9SEJWEVQF/mzuo
-        8woD0fKDXfO0NFbGkXSltY3g8IAUgotG3IkrirGI7png4BgKSgn1NXi2Jt0q2dzN
-        JzgKcUHoX0sDHULIJmvp5wcO3biu6E2D7vfpojjfHfWPbmcRmROxav+gE733hkVj
-        7qOO6C/ywySU1UvdflJbhdL1ynwHW+VwgWYZFaxoiq1yPLPaEKLYTmzsNqQAqtym
-        2++7bPlf7U+waMeZQyPhnNywt/v77Xejm3fY0V0X6jbi56Q09qesTNKU97Jg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; t=1668031406; x=1668117806; bh=90Q4t0I3ASO4wxuMFa7atJdc376I
-        IEHg3Latfar0VBs=; b=gW5bJIIeE834epB1gsYZNQufn8noqrKb5utPDcQzQZpT
-        bp8gpZNMOs0HvT/z5U1QTyYGCT7Kl9iaLKIBVif4QAo+aGTLn+OFNmxXXiVG7u2+
-        +ofxIAxNR7XmDSh6dwG4WeqOZZpKpdMU/QLMO6DJz57WIhFJp572c/QaoBJjeF5O
-        3xo4zH+DurVsfBJxh0vlBK5d+vTttCwejLe+kqItMi7vwqsRAbLCgk41y66vlV3a
-        A/QX3Q3gIuz49hS8jgDdNSv9qdmh6hxeiwUSiyBt5Z35yitoRTQZvmGJSh71tMCc
-        0YY/k3r926B6H96Jbnl3Nb3O71xpA7cnNj1TXdKHCA==
-X-ME-Sender: <xms:riNsY-uLstp1juABk1gaG68k9LnBFcATQClxnYKMqjXAd6XKBy0Lvw>
-    <xme:riNsYzfRVJau5Kmul0LA2lIYOAv0Pm8TsHUfpvUsCsDdwjTzoW2bG1A-I6OLP9ldh
-    I3OIZ7Y1ZZDtv0D_HA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrfedvgdduheejucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
-    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:riNsY5zWKL50a4m4D2wx7Kio7mm5sWOgMXT6eWzNWkqGUzgTy3Exfw>
-    <xmx:riNsY5P05gy3Fy0r5g2wWZtISogUKnAM0Ncg-wgnuzJVyyOINnc79g>
-    <xmx:riNsY-_42SthFO2d8KWjA5w9quY3hfFsBydSZ4znhi4sKopORLSXxg>
-    <xmx:riNsYzMXgTR_q1idrdEuh4L2TX9tCRofkagocUfcnm84lzohkwOPOQ>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 927D7B60086; Wed,  9 Nov 2022 17:03:26 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.7.0-alpha0-1115-g8b801eadce-fm-20221102.001-g8b801ead
-Mime-Version: 1.0
-Message-Id: <96a99291-7caa-429c-9bbd-29721a2b5637@app.fastmail.com>
-In-Reply-To: <29824864-f076-401f-bfb4-bc105bb2d38f@app.fastmail.com>
-References: <CA+G9fYt49jY+sAqHXYwpJtF0oa-jL8t8nArY6W1_zui0sKFipA@mail.gmail.com>
- <29824864-f076-401f-bfb4-bc105bb2d38f@app.fastmail.com>
-Date:   Wed, 09 Nov 2022 23:03:04 +0100
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Naresh Kamboju" <naresh.kamboju@linaro.org>,
-        linux-stable <stable@vger.kernel.org>,
-        "open list" <linux-kernel@vger.kernel.org>,
-        "Linux ARM" <linux-arm-kernel@lists.infradead.org>,
-        lkft-triage@lists.linaro.org
-Cc:     "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Sasha Levin" <sashal@kernel.org>,
-        "Linus Walleij" <linus.walleij@linaro.org>,
-        "Mark Brown" <broonie@kernel.org>,
-        "Liam Girdwood" <lgirdwood@gmail.com>
-Subject: Re: arm: TI BeagleBoard X15 : Unable to handle kernel NULL pointer dereference
- at virtual address 00000369 - Internal error: Oops: 5 [#1] SMP ARM
-Content-Type: text/plain
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S230072AbiKIWHH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 17:07:07 -0500
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DEF5303E8;
+        Wed,  9 Nov 2022 14:07:06 -0800 (PST)
+Received: by mail-pg1-x533.google.com with SMTP id v3so17385320pgh.4;
+        Wed, 09 Nov 2022 14:07:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=iw5S3C75tN/oGViY8ItNjGlumx4biWxjIIT5f99rcI8=;
+        b=kRKJwoIzfYQ/DWIm8KSUaZ4Ro0bDtgjRpwb7yY0HH+jZHaujlpp0j43JGV1jtKLbXf
+         YWQe6oMBenkCa4M1iJtKSv0M5JtJvkWWYtp6RPjnRwmPCBHhoQo6dNmgO8xJPnSlA429
+         J2dp+3cMGwOqunwxv+fMFpFbOPTeZboGdvylHh/oMSVEC5IlhNSdrpNwA6EVkOt4hRMd
+         8kaUw7q36y0iZc4k17BeX5lASGLa4Gx7TLwra+8d6HgQnuZlL8tp9+rsf77WGLH9jXht
+         M5fTLPm5tkibU8REXZZfJxFOGHBWXvZE7jKkSRjwOE1QdLJ6y23ggQbuHWQeOch5XcGc
+         XlhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=iw5S3C75tN/oGViY8ItNjGlumx4biWxjIIT5f99rcI8=;
+        b=zMOCzszx3qtmw1aw/dLZLJZpuWeJ6GCK8KSNFsmi+zJVGZYTbPzvsmBIpT8TWxBdKG
+         IqwPyHSCJN8i7edkN2G1uQqi6JNgJaArNIgSTwtvz+E1BBRgJVFw2LB+jGTR6/32i7mJ
+         ZuB1lRA803h/AkwPwf1kcV+6JflJFWXR8rjKhmJA3bV3U8FM/X+5rXzJNaDKco7OSjME
+         Spmmq9oCn91CGP8jscBxHF6RNsuue4scbl/HxAY4yq+RyXqEi131gwTskLDK9RzCT5Se
+         rqCtNGhWBTctSBQ8mRvYJN/SXi/pLdkbL4iEiGO6pAI4tfyUNupKXlkiDnYmxMBUL1Du
+         XV7w==
+X-Gm-Message-State: ACrzQf3E/3LacmS1/D+gFBeFzFzC9PFFEB4/Z736uhhEB/lgw3icS/UQ
+        p+3dHY8I7fP+XoXUM5SessS2cp9xts4U00GGrUg=
+X-Google-Smtp-Source: AMsMyM7Q+Id4Z7/MMoExlaIfDv+7Yd88p8dRT/wqu4p3TYsopLqogJ8/a9QHDZpDUfikABiFJVuq4sT58bxn9452QOg=
+X-Received: by 2002:a63:ea4c:0:b0:46b:2772:40a4 with SMTP id
+ l12-20020a63ea4c000000b0046b277240a4mr52259052pgk.342.1668031625779; Wed, 09
+ Nov 2022 14:07:05 -0800 (PST)
+MIME-Version: 1.0
+References: <20221109082223.141145957@linuxfoundation.org>
+In-Reply-To: <20221109082223.141145957@linuxfoundation.org>
+From:   Allen Pais <stable.kernel.dev@gmail.com>
+Date:   Wed, 9 Nov 2022 14:06:54 -0800
+Message-ID: <CAJq+SaCw85ENMx+QNimuckk46eU9bwf66QmuK_x6GnWMGRA5-A@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/117] 5.10.154-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 9, 2022, at 13:57, Arnd Bergmann wrote:
+> This is the start of the stable review cycle for the 5.10.154 release.
+> There are 117 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> One thing that sticks out is the print_constraints_debug() function
-> in the regulator framework, which uses a larger-than-average stack
-> to hold a string buffer, and then calls into the low-level
-> driver to get the actual data (regulator_get_voltage_rdev,
-> _regulator_is_enabled). Splitting the device access out into a
-> different function from the string handling might reduce the
-> stack usage enough to stay just under the 8KB limit, though it's
-> probably not a complete fix. I added the regulator maintainers
-> to Cc for thoughts on this.
+> Responses should be made by Fri, 11 Nov 2022 08:21:58 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.154-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
 
-I checked the stack usage for each of the 147 functions in the
-backtrace, and as I was guessing print_constraints_debug() is
-the largest, but it's still only 168 bytes, and everything else
-is smaller, so no point hacking this.
+Compiled and booted on my x86_64 and ARM64 test systems. No errors or
+regressions.
 
-168 	print_constraints_debug
-96 	timekeeping_advance
-64 	set_machine_constraints
-64 	of_i2c_register_device
-56 	of_platform_bus_create
-48 	schedule_timeout
+Tested-by: Allen Pais <apais@linux.microsoft.com>
 
-One more idea I had is the unwinder: since this kernel is built
-with the frame-pointer unwinder, I think the stack usage per
-function is going to be slightly larger than with the arm unwinder.
-
-Naresh, how hard is it to reproduce this bug intentionally?
-Can you try if it still happens if you change the .config to
-use these:?
-
-# CONFIG_FUNCTION_GRAPH_TRACER is not set
-# CONFIG_UNWINDER_FRAME_POINTER is not set
-CONFIG_UNWINDER_ARM=y
-
-       Arnd
+Thanks.
