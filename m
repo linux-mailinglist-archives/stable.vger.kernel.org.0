@@ -2,72 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F6B462213D
-	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 02:14:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21CC6622134
+	for <lists+stable@lfdr.de>; Wed,  9 Nov 2022 02:10:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229530AbiKIBOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Nov 2022 20:14:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54692 "EHLO
+        id S229499AbiKIBKv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Nov 2022 20:10:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229485AbiKIBOn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 20:14:43 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 910895EFA7
-        for <stable@vger.kernel.org>; Tue,  8 Nov 2022 17:14:41 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id v4-20020a17090a088400b00212cb0ed97eso476836pjc.5
-        for <stable@vger.kernel.org>; Tue, 08 Nov 2022 17:14:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=mKyqoiSkzBxH84Qr1HrrOE/dGdA0Clpog0p1k0piuQk=;
-        b=NPr9B+bL6MZyQd6+lKX/PXnLnGib/fJJFq8UcR8F8LF5J7fELeKpTzjznjUHoHxfe9
-         SpSj9AXF9c20esKhNKmLA2rEfjY/v3mVFSNpbz/4yCP7T1wQuE7gPtL99I+tM41GMrS0
-         S9a461pwEESX/mopimUh9uczdRblaJ8rYmDaPmxjpZMy8Zylp1GP+PrY/cbT0KJ5Rzzv
-         QmjYQgs6pfaZFeGPdA1aRFFdIIwxTcaRHgA6SNaKW2i1JPdiMdQ990riR6hNBbGMLvZa
-         fw95AQCa4zl84rA1FJPGcxB8TAORn40oGadFMGQKntQIv5zLeuKx0FSIzI7kdtJS4aX1
-         t+sg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mKyqoiSkzBxH84Qr1HrrOE/dGdA0Clpog0p1k0piuQk=;
-        b=uVuB/VMeaCS8V5E5Ulwd876yTwmla6YVBkXQQhY1QAgC3V5PakiHvFAJ75gxtwM1Ip
-         PKlx4UJKznC5vksKroYn0vsC9lFc/207i5WU+81m3KMEx9W/LtKXRhMazcFq+0OfL/+H
-         Ih8EfSkxRYf4WwGtVgZ2lYfneFkj2N6Ee7/ApR0tynG37EcrLcrPPmlmAVT1t0wHg3Fo
-         3RoVAb9xfWlMBC3SmCEkhmKVYNsn2JUxD//wnyXJcCZEzyZVD0/cm2QOsrnS/m3xs6dS
-         3mQ6CeABMW5yCLAb778OYS26UPSIZCBPqUxPX7wHkK3Mx8bSo03B/c2kYgnsWM5EdFPe
-         Ng0A==
-X-Gm-Message-State: ACrzQf0EFIcv7sT39LoWwOvMTtrDz59sB9FUontqRJHVX9MMYzoZNbjZ
-        s+SDuqLelWBBbnEU+1t872KorQ==
-X-Google-Smtp-Source: AMsMyM7PPEGcQ4b3ZwhEoIVL/YGFcob35l/PUqwq5A6hdFlK6EVWV/qDf51V0hgcmjj6TzTi91N9rg==
-X-Received: by 2002:a17:902:ce82:b0:187:3591:edac with SMTP id f2-20020a170902ce8200b001873591edacmr42472495plg.153.1667956480932;
-        Tue, 08 Nov 2022 17:14:40 -0800 (PST)
-Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
-        by smtp.gmail.com with ESMTPSA id v126-20020a626184000000b00565cf8c52c8sm7198556pfb.174.2022.11.08.17.14.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Nov 2022 17:14:40 -0800 (PST)
-Date:   Wed, 9 Nov 2022 01:14:37 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        nathan@kernel.org, thomas.lendacky@amd.com,
-        andrew.cooper3@citrix.com, peterz@infradead.org,
-        jmattson@google.com, stable@vger.kernel.org
-Subject: Re: [PATCH v2 7/8] KVM: SVM: move MSR_IA32_SPEC_CTRL save/restore to
- assembly
-Message-ID: <Y2r+/UYNeZ7ljYXC@google.com>
-References: <20221108151532.1377783-1-pbonzini@redhat.com>
- <20221108151532.1377783-8-pbonzini@redhat.com>
+        with ESMTP id S229555AbiKIBKu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Nov 2022 20:10:50 -0500
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2651861775;
+        Tue,  8 Nov 2022 17:10:47 -0800 (PST)
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4N6RjR50WZzRp5K;
+        Wed,  9 Nov 2022 09:10:35 +0800 (CST)
+Received: from kwepemm600020.china.huawei.com (7.193.23.147) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Wed, 9 Nov 2022 09:10:44 +0800
+Received: from localhost.localdomain (10.175.112.125) by
+ kwepemm600020.china.huawei.com (7.193.23.147) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Wed, 9 Nov 2022 09:10:43 +0800
+From:   Peng Zhang <zhangpeng362@huawei.com>
+To:     <jack@suse.com>, <jack@suse.cz>, <yi.zhang@huawei.com>,
+        <yujie.liu@intel.com>, <hch@lst.de>, <akpm@linux-foundation.org>,
+        <butterflyhuangxx@gmail.com>, <willy@infradead.org>
+CC:     <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        ZhangPeng <zhangpeng362@huawei.com>,
+        <syzbot+69c9fdccc6dd08961d34@syzkaller.appspotmail.com>
+Subject: [PATCH] udf: Fix a slab-out-of-bounds write bug in udf_find_entry()
+Date:   Wed, 9 Nov 2022 01:35:42 +0000
+Message-ID: <20221109013542.442790-1-zhangpeng362@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221108151532.1377783-8-pbonzini@redhat.com>
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.112.125]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ kwepemm600020.china.huawei.com (7.193.23.147)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,HEXHASH_WORD,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,182 +52,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 08, 2022, Paolo Bonzini wrote:
-> diff --git a/arch/x86/kvm/svm/vmenter.S b/arch/x86/kvm/svm/vmenter.S
-> index 0a4272faf80f..a02eef724379 100644
-> --- a/arch/x86/kvm/svm/vmenter.S
-> +++ b/arch/x86/kvm/svm/vmenter.S
-> @@ -32,10 +32,70 @@
->  
->  .section .noinstr.text, "ax"
->  
-> +.macro RESTORE_GUEST_SPEC_CTRL
-> +	/* No need to do anything if SPEC_CTRL is unset or V_SPEC_CTRL is set */
-> +	ALTERNATIVE_2 "", \
-> +		"jmp 800f", X86_FEATURE_MSR_SPEC_CTRL, \
-> +		"", X86_FEATURE_V_SPEC_CTRL
-> +801:
-> +.endm
-> +
-> +.macro RESTORE_HOST_SPEC_CTRL
-> +	/* No need to do anything if SPEC_CTRL is unset or V_SPEC_CTRL is set */
-> +	ALTERNATIVE_2 "", \
-> +		"jmp 900f", X86_FEATURE_MSR_SPEC_CTRL, \
-> +		"", X86_FEATURE_V_SPEC_CTRL
-> +901:
-> +.endm
-> +
-> +.macro RESTORE_SPEC_CTRL_BODY
+From: ZhangPeng <zhangpeng362@huawei.com>
 
-Can we split these into separate macros?  It's a bit more typing, but it's not
-immediately obvious that these are two independent chunks (I was expecting a JMP
-from the 800 section into the 900 section).
+Syzbot reported a slab-out-of-bounds Write bug:
 
-E.g. RESTORE_GUEST_SPEC_CTRL_BODY and RESTORE_HOST_SPEC_CTRL_BODY
+loop0: detected capacity change from 0 to 2048
+==================================================================
+BUG: KASAN: slab-out-of-bounds in udf_find_entry+0x8a5/0x14f0
+fs/udf/namei.c:253
+Write of size 105 at addr ffff8880123ff896 by task syz-executor323/3610
 
-> +800:
+CPU: 0 PID: 3610 Comm: syz-executor323 Not tainted
+6.1.0-rc2-syzkaller-00105-gb229b6ca5abb #0
+Hardware name: Google Compute Engine/Google Compute Engine, BIOS
+Google 10/11/2022
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
+ print_address_description+0x74/0x340 mm/kasan/report.c:284
+ print_report+0x107/0x1f0 mm/kasan/report.c:395
+ kasan_report+0xcd/0x100 mm/kasan/report.c:495
+ kasan_check_range+0x2a7/0x2e0 mm/kasan/generic.c:189
+ memcpy+0x3c/0x60 mm/kasan/shadow.c:66
+ udf_find_entry+0x8a5/0x14f0 fs/udf/namei.c:253
+ udf_lookup+0xef/0x340 fs/udf/namei.c:309
+ lookup_open fs/namei.c:3391 [inline]
+ open_last_lookups fs/namei.c:3481 [inline]
+ path_openat+0x10e6/0x2df0 fs/namei.c:3710
+ do_filp_open+0x264/0x4f0 fs/namei.c:3740
+ do_sys_openat2+0x124/0x4e0 fs/open.c:1310
+ do_sys_open fs/open.c:1326 [inline]
+ __do_sys_creat fs/open.c:1402 [inline]
+ __se_sys_creat fs/open.c:1396 [inline]
+ __x64_sys_creat+0x11f/0x160 fs/open.c:1396
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7ffab0d164d9
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89
+f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
+f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffe1a7e6bb8 EFLAGS: 00000246 ORIG_RAX: 0000000000000055
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007ffab0d164d9
+RDX: 00007ffab0d164d9 RSI: 0000000000000000 RDI: 0000000020000180
+RBP: 00007ffab0cd5a10 R08: 0000000000000000 R09: 0000000000000000
+R10: 00005555573552c0 R11: 0000000000000246 R12: 00007ffab0cd5aa0
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+ </TASK>
 
-Ugh, the multiple users makes it somewhat ugly, but rather than arbitrary numbers,
-what about using named labels to make it easier to understand the branches?
+Allocated by task 3610:
+ kasan_save_stack mm/kasan/common.c:45 [inline]
+ kasan_set_track+0x3d/0x60 mm/kasan/common.c:52
+ ____kasan_kmalloc mm/kasan/common.c:371 [inline]
+ __kasan_kmalloc+0x97/0xb0 mm/kasan/common.c:380
+ kmalloc include/linux/slab.h:576 [inline]
+ udf_find_entry+0x7b6/0x14f0 fs/udf/namei.c:243
+ udf_lookup+0xef/0x340 fs/udf/namei.c:309
+ lookup_open fs/namei.c:3391 [inline]
+ open_last_lookups fs/namei.c:3481 [inline]
+ path_openat+0x10e6/0x2df0 fs/namei.c:3710
+ do_filp_open+0x264/0x4f0 fs/namei.c:3740
+ do_sys_openat2+0x124/0x4e0 fs/open.c:1310
+ do_sys_open fs/open.c:1326 [inline]
+ __do_sys_creat fs/open.c:1402 [inline]
+ __se_sys_creat fs/open.c:1396 [inline]
+ __x64_sys_creat+0x11f/0x160 fs/open.c:1396
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-E.g.
+The buggy address belongs to the object at ffff8880123ff800
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 150 bytes inside of
+ 256-byte region [ffff8880123ff800, ffff8880123ff900)
 
+The buggy address belongs to the physical page:
+page:ffffea000048ff80 refcount:1 mapcount:0 mapping:0000000000000000
+index:0x0 pfn:0x123fe
+head:ffffea000048ff80 order:1 compound_mapcount:0 compound_pincount:0
+flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
+raw: 00fff00000010200 ffffea00004b8500 dead000000000003 ffff888012041b40
+raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+page_owner tracks the page as allocated
+page last allocated via order 0, migratetype Unmovable, gfp_mask 0x0(),
+pid 1, tgid 1 (swapper/0), ts 1841222404, free_ts 0
+ create_dummy_stack mm/page_owner.c:67 [inline]
+ register_early_stack+0x77/0xd0 mm/page_owner.c:83
+ init_page_owner+0x3a/0x731 mm/page_owner.c:93
+ kernel_init_freeable+0x41c/0x5d5 init/main.c:1629
+ kernel_init+0x19/0x2b0 init/main.c:1519
+page_owner free stack trace missing
+
+Memory state around the buggy address:
+ ffff8880123ff780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff8880123ff800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff8880123ff880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06
+                                                                ^
+ ffff8880123ff900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff8880123ff980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+Fix this by changing the memory size allocated for copy_name from
+UDF_NAME_LEN(254) to UDF_NAME_LEN_CS0(255), because the total length
+(lfi) of subsequent memcpy can be up to 255.
+
+Reported-by: syzbot+69c9fdccc6dd08961d34@syzkaller.appspotmail.com
+Fixes: 066b9cded00b ("udf: Use separate buffer for copying split names")
+Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
 ---
- arch/x86/kvm/svm/vmenter.S | 43 +++++++++++++++++++++-----------------
- 1 file changed, 24 insertions(+), 19 deletions(-)
+ fs/udf/namei.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/svm/vmenter.S b/arch/x86/kvm/svm/vmenter.S
-index a02eef724379..23fd7353f0d0 100644
---- a/arch/x86/kvm/svm/vmenter.S
-+++ b/arch/x86/kvm/svm/vmenter.S
-@@ -32,24 +32,24 @@
- 
- .section .noinstr.text, "ax"
- 
--.macro RESTORE_GUEST_SPEC_CTRL
-+.macro RESTORE_GUEST_SPEC_CTRL name
- 	/* No need to do anything if SPEC_CTRL is unset or V_SPEC_CTRL is set */
- 	ALTERNATIVE_2 "", \
--		"jmp 800f", X86_FEATURE_MSR_SPEC_CTRL, \
-+		"jmp .Lrestore_guest_spec_ctrl\name", X86_FEATURE_MSR_SPEC_CTRL, \
- 		"", X86_FEATURE_V_SPEC_CTRL
--801:
-+.Lpost_restore_guest_spec_ctrl\name:
- .endm
- 
--.macro RESTORE_HOST_SPEC_CTRL
-+.macro RESTORE_HOST_SPEC_CTRL name
- 	/* No need to do anything if SPEC_CTRL is unset or V_SPEC_CTRL is set */
- 	ALTERNATIVE_2 "", \
--		"jmp 900f", X86_FEATURE_MSR_SPEC_CTRL, \
-+		"jmp .Lrestore_host_spec_ctrl\name", X86_FEATURE_MSR_SPEC_CTRL, \
- 		"", X86_FEATURE_V_SPEC_CTRL
--901:
-+.Lpost_restore_host_spec_ctrl\name:
- .endm
- 
--.macro RESTORE_SPEC_CTRL_BODY
--800:
-+.macro RESTORE_GUEST_SPEC_CTRL_BODY name
-+.Lrestore_guest_spec_ctrl\name:
- 	/*
- 	 * SPEC_CTRL handling: if the guest's SPEC_CTRL value differs from the
- 	 * host's, write the MSR.  This is kept out-of-line so that the common
-@@ -61,13 +61,16 @@
- 	 */
- 	movl SVM_spec_ctrl(%_ASM_DI), %eax
- 	cmp PER_CPU_VAR(x86_spec_ctrl_current), %eax
--	je 801b
-+	je .Lpost_restore_guest_spec_ctrl\name
-+
- 	mov $MSR_IA32_SPEC_CTRL, %ecx
- 	xor %edx, %edx
- 	wrmsr
--	jmp 801b
-+	jmp .Lpost_restore_guest_spec_ctrl\name
-+.endm
- 
--900:
-+.macro RESTORE_HOST_SPEC_CTRL_BODY name
-+.Lrestore_host_spec_ctrl\name:
- 	/* Same for after vmexit.  */
- 	mov $MSR_IA32_SPEC_CTRL, %ecx
- 
-@@ -76,18 +79,18 @@
- 	 * if it was not intercepted during guest execution.
- 	 */
- 	cmpb $0, (%_ASM_SP)
--	jnz 998f
-+	jnz .Lskip_save_guest_spec_ctrl\name
- 	rdmsr
- 	movl %eax, SVM_spec_ctrl(%_ASM_DI)
--998:
- 
-+.Lskip_save_guest_spec_ctrl\name:
- 	/* Now restore the host value of the MSR if different from the guest's.  */
- 	movl PER_CPU_VAR(x86_spec_ctrl_current), %eax
- 	cmp SVM_spec_ctrl(%_ASM_DI), %eax
--	je 901b
-+	je .Lpost_restore_host_spec_ctrl\name
- 	xor %edx, %edx
- 	wrmsr
--	jmp 901b
-+	jmp .Lpost_restore_host_spec_ctrl\name
- .endm
- 
- 
-@@ -259,7 +262,8 @@ SYM_FUNC_START(__svm_vcpu_run)
- 	pop %_ASM_BP
- 	RET
- 
--	RESTORE_SPEC_CTRL_BODY
-+	RESTORE_GUEST_SPEC_CTRL_BODY
-+	RESTORE_HOST_SPEC_CTRL_BODY
- 
- 10:	cmpb $0, kvm_rebooting
- 	jne 2b
-@@ -310,7 +314,7 @@ SYM_FUNC_START(__svm_sev_es_vcpu_run)
- 	mov %_ASM_ARG1, %_ASM_DI
- .endif
- 
--	RESTORE_GUEST_SPEC_CTRL
-+	RESTORE_GUEST_SPEC_CTRL sev_es
- 
- 	/* Get svm->current_vmcb->pa into RAX. */
- 	mov SVM_current_vmcb(%_ASM_DI), %_ASM_AX
-@@ -331,7 +335,7 @@ SYM_FUNC_START(__svm_sev_es_vcpu_run)
- 	FILL_RETURN_BUFFER %_ASM_AX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
- #endif
- 
--	RESTORE_HOST_SPEC_CTRL
-+	RESTORE_HOST_SPEC_CTRL sev_es
- 
- 	/*
- 	 * Mitigate RETBleed for AMD/Hygon Zen uarch. RET should be
-@@ -359,7 +363,8 @@ SYM_FUNC_START(__svm_sev_es_vcpu_run)
- 	pop %_ASM_BP
- 	RET
- 
--	RESTORE_SPEC_CTRL_BODY
-+	RESTORE_GUEST_SPEC_CTRL_BODY sev_es
-+	RESTORE_HOST_SPEC_CTRL_BODY sev_es
- 
- 3:	cmpb $0, kvm_rebooting
- 	jne 2b
-
-base-commit: 0b242ada175d97a556866c48c80310860f634579
+diff --git a/fs/udf/namei.c b/fs/udf/namei.c
+index fb4c30e05245..ae7bc13a5298 100644
+--- a/fs/udf/namei.c
++++ b/fs/udf/namei.c
+@@ -240,7 +240,7 @@ static struct fileIdentDesc *udf_find_entry(struct inode *dir,
+ 						      poffset - lfi);
+ 			else {
+ 				if (!copy_name) {
+-					copy_name = kmalloc(UDF_NAME_LEN,
++					copy_name = kmalloc(UDF_NAME_LEN_CS0,
+ 							    GFP_NOFS);
+ 					if (!copy_name) {
+ 						fi = ERR_PTR(-ENOMEM);
 -- 
+2.25.1
 
-> @@ -61,6 +126,8 @@ SYM_FUNC_START(__svm_vcpu_run)
->  	mov %_ASM_ARG1, %_ASM_DI
->  .endif
->
-
-Can you add a comment to all of these to call out that RAX, RCX, and RDX might
-get clobbered?  It's easy to overlook that detail, and it matters on 32-bit where
-the arguments use RCX and RDX.  And because the clobber is conditional, it wouldn't
-be that hard for a bug to escape initial testing.
-
-	/* This might clobber RAX, RCX, and RDX! */
-
-> +	RESTORE_GUEST_SPEC_CTRL
