@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D26C462488D
-	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 18:46:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40EEC62488E
+	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 18:46:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229536AbiKJRqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 12:46:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59498 "EHLO
+        id S229478AbiKJRq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 12:46:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbiKJRqW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 12:46:22 -0500
+        with ESMTP id S229499AbiKJRq2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 12:46:28 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11B7B2D75A
-        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 09:46:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8312E2D744
+        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 09:46:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A205661D7F
-        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 17:46:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B46D9C433D6;
-        Thu, 10 Nov 2022 17:46:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EE3761D78
+        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 17:46:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34BC0C433C1;
+        Thu, 10 Nov 2022 17:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668102381;
-        bh=gI0TaG/b4gixt0LX4QQ2CsMqQG9aANlzXbHal7eckuo=;
+        s=korg; t=1668102386;
+        bh=YcDKHGWrkHejS2Mmm5kHLMRvnMIyTj3Rc6HMDIREzVM=;
         h=Subject:To:From:Date:From;
-        b=D8xTGmu3MimMyuhxPZzAiYp03mOKbfJlErTEQVTUVCvXWhoLoy1OCjPDEnBz3mweL
-         48OJYRUzQAhwOoblC1y4qyxx3q5qJBiT/MA72KLt0B0cDY98RLctxjR+Q9eSuTdBL7
-         8kzvA2cpqxyei+Rt4x55XbrC11KnLDfpbUNr47sc=
-Subject: patch "slimbus: stream: correct presence rate frequencies" added to char-misc-linus
-To:     krzysztof.kozlowski@linaro.org, gregkh@linuxfoundation.org,
+        b=sT1V71oVyGElWR4cjOpUmkwTSohda82zflRdmtWgRYw4X6ZsJME8JyzDcHTFIxwyc
+         wkk71smmE6aaAtjeoOixW7w4cPjETYtjbbxh84zZShj8zmrPGjqNW0q4ORebJhZXuO
+         iL7iZ/6U6oIQ4GZuBjhTkFzwewY4KxL40qoG5uCA=
+Subject: patch "docs: update mediator contact information in CoC doc" added to char-misc-linus
+To:     skhan@linuxfoundation.org, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 10 Nov 2022 18:46:10 +0100
-Message-ID: <16681023708642@kroah.com>
+Date:   Thu, 10 Nov 2022 18:46:11 +0100
+Message-ID: <166810237125179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    slimbus: stream: correct presence rate frequencies
+    docs: update mediator contact information in CoC doc
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,42 +64,34 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From b9c1939627f8185dec8ba6d741e9573a4c7a5834 Mon Sep 17 00:00:00 2001
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Date: Thu, 29 Sep 2022 18:52:02 +0200
-Subject: slimbus: stream: correct presence rate frequencies
+From 5fddf8962b429b8303c4a654291ecb6e61a7d747 Mon Sep 17 00:00:00 2001
+From: Shuah Khan <skhan@linuxfoundation.org>
+Date: Tue, 11 Oct 2022 11:14:17 -0600
+Subject: docs: update mediator contact information in CoC doc
 
-Correct few frequencies in presence rate table - multiplied by 10
-(110250 instead of 11025 Hz).
+Update mediator contact information in CoC interpretation document.
 
-Fixes: abb9c9b8b51b ("slimbus: stream: add stream support")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220929165202.410937-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20221011171417.34286-1-skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/slimbus/stream.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Documentation/process/code-of-conduct-interpretation.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/slimbus/stream.c b/drivers/slimbus/stream.c
-index 75f87b3d8b95..73a2aa362957 100644
---- a/drivers/slimbus/stream.c
-+++ b/drivers/slimbus/stream.c
-@@ -67,10 +67,10 @@ static const int slim_presence_rate_table[] = {
- 	384000,
- 	768000,
- 	0, /* Reserved */
--	110250,
--	220500,
--	441000,
--	882000,
-+	11025,
-+	22050,
-+	44100,
-+	88200,
- 	176400,
- 	352800,
- 	705600,
+diff --git a/Documentation/process/code-of-conduct-interpretation.rst b/Documentation/process/code-of-conduct-interpretation.rst
+index 922e0b547bc3..66b07f14714c 100644
+--- a/Documentation/process/code-of-conduct-interpretation.rst
++++ b/Documentation/process/code-of-conduct-interpretation.rst
+@@ -51,7 +51,7 @@ the Technical Advisory Board (TAB) or other maintainers if you're
+ uncertain how to handle situations that come up.  It will not be
+ considered a violation report unless you want it to be.  If you are
+ uncertain about approaching the TAB or any other maintainers, please
+-reach out to our conflict mediator, Joanna Lee <joanna.lee@gesmer.com>.
++reach out to our conflict mediator, Joanna Lee <jlee@linuxfoundation.org>.
+ 
+ In the end, "be kind to each other" is really what the end goal is for
+ everybody.  We know everyone is human and we all fail at times, but the
 -- 
 2.38.1
 
