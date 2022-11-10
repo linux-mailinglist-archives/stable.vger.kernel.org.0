@@ -2,105 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46760623E3E
-	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 10:04:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A48B623EFB
+	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 10:47:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229603AbiKJJET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 04:04:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40324 "EHLO
+        id S230015AbiKJJrq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 04:47:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229555AbiKJJES (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 04:04:18 -0500
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0233253ECB
-        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 01:04:17 -0800 (PST)
-Received: by mail-pl1-x641.google.com with SMTP id p21so934329plr.7
-        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 01:04:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/rL+TycpMQLfB5P4Zn9xgGfUWg8yPCNTwrE46ZNldMM=;
-        b=qCrlppL2fNnGAgEJY9mZPq+ekjvqAlBuPHBnU+cXfOKqO/3tCgBKGIPcqA2iZ2rP+v
-         rdmSdp/aLjQni0DwX4qVBROdobBdtgelDG6VCd+qdBKuKWsAD9Gew8LHo2xqzJxAexqT
-         qFgEzksfRu0KjmbHW2P4UuQmeqg/T9eS0cTJfOg0/uUxoFPfnWxE9eIfM3mdS1qigO4l
-         yZ6H4EqEZB9LL1tW6YP9EN33ZfkpLI6SdT6QTspMqP6TCMSGZ/Bf7+L1koVUCrjl2uA1
-         gJxDL1fb3KdURxt74ssyb5zGn/yGTjLaNOAtrri2vP+9sJThMB9b7LqpZwPtQ7NJQzDb
-         ULLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/rL+TycpMQLfB5P4Zn9xgGfUWg8yPCNTwrE46ZNldMM=;
-        b=K9f5NtA/2Y7DjnXs9zS7it9IpyF/C0yO8CHr8mybv87lzZJyAzixh2PcthFCtOXMuI
-         4kxMKfrgbVnZvtDBkmnMet4qaQU4TkCxpi3mnpYfxhyCEaig1Mx14Ww9rqnDf4y8szmO
-         KFUGZhsgHLhgzGJ0OH0jutL+wOUHFGdtJks6uw175I4wEE7Xw+R+fldkpqNo0gyU9vv9
-         BLyxThJW6T20AORthjSMKQzJi7UH423ynv9q7eAMRJRUSpw83+EVMvVQ1Fv0GdJphfTE
-         i+pnreU0RpV66dliMDSLR80mItA7WSW3jxvc5Gw21kQdyWhVEdvHzzuvqC+Obk7wnYyt
-         Ktdw==
-X-Gm-Message-State: ACrzQf1BNuyWz22U5u+cN4zuF+9OynrtYYVeKU4FEdgjon0Ntd8cYu3R
-        Fq/KZvL99h9V9qCjaYMJEPBEyxsuNpJw4d+hvg4=
-X-Google-Smtp-Source: AMsMyM7Q6RGMeOxMrySZSGvumQr+np+bzrGyOchropNIY9AOG1bor1dUllKHQlh2dBOH4UTgWKNm5FB4kUuZPn1ts9E=
-X-Received: by 2002:a17:902:e74f:b0:186:a962:8f92 with SMTP id
- p15-20020a170902e74f00b00186a9628f92mr64870961plf.41.1668071055869; Thu, 10
- Nov 2022 01:04:15 -0800 (PST)
+        with ESMTP id S229988AbiKJJrg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 04:47:36 -0500
+Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CEA46A777;
+        Thu, 10 Nov 2022 01:47:34 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.227])
+        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4N7Gzp66pbz9xFHJ;
+        Thu, 10 Nov 2022 17:40:54 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwCHc3CNyGxjO3hSAA--.1123S3;
+        Thu, 10 Nov 2022 10:47:11 +0100 (CET)
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [PATCH v4 1/5] reiserfs: Add missing calls to reiserfs_security_free()
+Date:   Thu, 10 Nov 2022 10:46:35 +0100
+Message-Id: <20221110094639.3086409-2-roberto.sassu@huaweicloud.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
+References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6a20:4da2:b0:a4:c01c:5df6 with HTTP; Thu, 10 Nov 2022
- 01:04:15 -0800 (PST)
-Reply-To: dravasmith27@gmail.com
-From:   Dr Ava Smith <mouyae84@gmail.com>
-Date:   Thu, 10 Nov 2022 01:04:15 -0800
-Message-ID: <CAGacB3GdR3SpYBMPb=dmiZ+u8wq+ObBGLCKCQ6DH0ysEvU3ULg@mail.gmail.com>
-Subject: GREETINGS FROM DR AVA SMITH
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=7.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        HK_RANDOM_ENVFROM,HK_RANDOM_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,SUBJ_ALL_CAPS,UNDISC_FREEM autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:641 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5006]
-        *  1.0 HK_RANDOM_ENVFROM Envelope sender username looks random
-        *  1.0 HK_RANDOM_FROM From username looks random
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [dravasmith27[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [mouyae84[at]gmail.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [mouyae84[at]gmail.com]
-        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        *  3.0 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *******
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: LxC2BwCHc3CNyGxjO3hSAA--.1123S3
+X-Coremail-Antispam: 1UD129KBjvJXoWxGw4DZFW3Kry8GFWUur4Durg_yoW5AF4xpF
+        47K3WUGr1DJF1kWrn5AanxuF1IgrW3Gay7GrsxG3yqyanxXw18tF4Iy343CrZ3trWDJFZ3
+        ta17Cw45A345J3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUBjb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUGw
+        A2048vs2IY020Ec7CjxVAFwI0_Gr0_Xr1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
+        w2x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
+        W8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r4j6F4UM28EF7xvwVC2z280aVCY1x0267AKxVW8
+        JVW8Jr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx
+        0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWU
+        JVW8JwACjcxG0xvY0x0EwIxGrwACI402YVCY1x02628vn2kIc2xKxwCF04k20xvY0x0EwI
+        xGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480
+        Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVC0I7
+        IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k2
+        6cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07jn9N3UUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAMBF1jj4VHBwAAs9
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Roberto Sassu <roberto.sassu@huawei.com>
+
+Commit 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes
+during inode creation") defined reiserfs_security_free() to free the name
+and value of a security xattr allocated by the active LSM through
+security_old_inode_init_security(). However, this function is not called
+in the reiserfs code.
+
+Thus, add a call to reiserfs_security_free() whenever
+reiserfs_security_init() is called, and initialize value to NULL, to avoid
+to call kfree() on an uninitialized pointer.
+
+Finally, remove the kfree() for the xattr name, as it is not allocated
+anymore.
+
+Fixes: 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes during inode creation")
+Cc: stable@vger.kernel.org
+Cc: Jeff Mahoney <jeffm@suse.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reported-by: Mimi Zohar <zohar@linux.ibm.com>
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+---
+ fs/reiserfs/namei.c          | 4 ++++
+ fs/reiserfs/xattr_security.c | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/fs/reiserfs/namei.c b/fs/reiserfs/namei.c
+index 3d7a35d6a18b..b916859992ec 100644
+--- a/fs/reiserfs/namei.c
++++ b/fs/reiserfs/namei.c
+@@ -696,6 +696,7 @@ static int reiserfs_create(struct user_namespace *mnt_userns, struct inode *dir,
+ 
+ out_failed:
+ 	reiserfs_write_unlock(dir->i_sb);
++	reiserfs_security_free(&security);
+ 	return retval;
+ }
+ 
+@@ -779,6 +780,7 @@ static int reiserfs_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+ 
+ out_failed:
+ 	reiserfs_write_unlock(dir->i_sb);
++	reiserfs_security_free(&security);
+ 	return retval;
+ }
+ 
+@@ -878,6 +880,7 @@ static int reiserfs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+ 	retval = journal_end(&th);
+ out_failed:
+ 	reiserfs_write_unlock(dir->i_sb);
++	reiserfs_security_free(&security);
+ 	return retval;
+ }
+ 
+@@ -1194,6 +1197,7 @@ static int reiserfs_symlink(struct user_namespace *mnt_userns,
+ 	retval = journal_end(&th);
+ out_failed:
+ 	reiserfs_write_unlock(parent_dir->i_sb);
++	reiserfs_security_free(&security);
+ 	return retval;
+ }
+ 
+diff --git a/fs/reiserfs/xattr_security.c b/fs/reiserfs/xattr_security.c
+index 8965c8e5e172..857a65b05726 100644
+--- a/fs/reiserfs/xattr_security.c
++++ b/fs/reiserfs/xattr_security.c
+@@ -50,6 +50,7 @@ int reiserfs_security_init(struct inode *dir, struct inode *inode,
+ 	int error;
+ 
+ 	sec->name = NULL;
++	sec->value = NULL;
+ 
+ 	/* Don't add selinux attributes on xattrs - they'll never get used */
+ 	if (IS_PRIVATE(dir))
+@@ -95,7 +96,6 @@ int reiserfs_security_write(struct reiserfs_transaction_handle *th,
+ 
+ void reiserfs_security_free(struct reiserfs_security_handle *sec)
+ {
+-	kfree(sec->name);
+ 	kfree(sec->value);
+ 	sec->name = NULL;
+ 	sec->value = NULL;
 -- 
-Hello Dear,
-how are you today?hope you are fine
-My name is Dr Ava Smith ,Am an English and French nationalities.
-I will give you pictures and more details about me as soon as i hear from you
-Thanks
-Ava
+2.25.1
+
