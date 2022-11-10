@@ -2,122 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6A59624D55
-	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 22:55:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EB29624D67
+	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 23:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229703AbiKJVzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 16:55:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57214 "EHLO
+        id S230043AbiKJWDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 17:03:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229595AbiKJVzo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 16:55:44 -0500
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2053.outbound.protection.outlook.com [40.107.100.53])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 639B91DDE3
-        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 13:55:42 -0800 (PST)
+        with ESMTP id S231298AbiKJWDS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 17:03:18 -0500
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C890945A2E;
+        Thu, 10 Nov 2022 14:03:17 -0800 (PST)
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2AALwESN003610;
+        Thu, 10 Nov 2022 22:01:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=corp-2022-7-12;
+ bh=09dzP1aQgPZQtVkhJXhAyB7KxeXoTPtg1aAruUKWINM=;
+ b=01fThF+HqiN0UB0aOVfCdsY+St28c9iSKT12hrMnZZsuyKOznEt8KSfe0j2kNWN7E20+
+ Wd+6IEOWLh8KWIDAs3JFzICSz1PPfA2xmjcOmvKFTg2sIuBpgEDm3Tj5so8aQ+iyxbMJ
+ HDT1U55EEXqjPcgN6sL9dRWplxD0CWRLFFWH084b7RScIrrzngZdsaQH6OruddG4zG3g
+ Q5uCrJ3Ruq7MNdAlRrE2YzGBCggkmpNTM9b28RvK49ntCl1GYAR14vchUrl47MeFsgvE
+ a9bQk2nKmZq9bpL6DyMlxkrkpBubq1MzDQrhTuE2ye+85q59syMb7Uvcpe9PUAkZa8Ay QQ== 
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3ks9ns8151-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 10 Nov 2022 22:01:02 +0000
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 2AAKZVlB004235;
+        Thu, 10 Nov 2022 21:55:56 GMT
+Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2176.outbound.protection.outlook.com [104.47.57.176])
+        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3kpctq23j9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 10 Nov 2022 21:55:56 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=R8VGuOEWmP0V0KY2ZXbSRE10+Ey9QcKl0C/dbyeYuAa2Ks4B6a7LB+8uQQrCeokiB58QGVHS0vPCd5GwxX8juL19xe30XYDKlcWhiEByJz5nZN3MWhSh0170dEapawjPVBBQP5N4sWeyl8RaeRTSBMROC+KcALJ3WVgKyhDH4009pFoyHuq814g4Lp0RMQmXP8ebAumm8Q02xWqGXfAegndax2iiqi6GnoZMt5gnztHA1WP9Xb5zSfjLSil9Y9KvshpxNoURFJ5GA+hQM4z45UeHDgO/iWz/lSzRRnx8HvP+MY54Am4pmjPAN2VKsnWN+de3Mj+9PEKk/2KQgj7Xmg==
+ b=DiIHfWmq3muZka/QI22I9rf5+A8eaxHeapz8ondwmsjYjOBgB7j2vkt45Ejc5K8AxYlzKEkP96SE7SwtR+3orVqR+Sdmugify0PHfawVT3Tuz170s9f2QsxLMt6QXieaLGQMENdxVlexSOUQWlo0TC4FxrgH1z4ghoqEZgg7J5UObfbDF4Vh8wKWW389CSWNDEy8bRA+ishBEsHteqvA1O2fE0JMmR2l69vjwY14Ejx/4kxnn0N4SQYSnsRMxRJYWL5G/x7HCyiCaux+wP4c2W9C8cbvk/yEMEnJrsY+NWB3YEPhBqMhqTCikZPGDc/mvM7OUgnM19mZ3TADcWGhVg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=g0WrLgp95Hz341IK3M2Fw3ggRprXX82+85Chfthajqc=;
- b=ocxYb1Ze8Y7HGo5LongLWa4uDVk7KqbD0xS7i5kT8hjozSVcis0YZ7niqym5F3hDcpZ50npLEBxoWmv7eXY7mttd5YOgzm991rKy9f6O472VajwtJkdWBHjuDtlziv5sJfDRLDzfiUkwTIHBs1pNFDTtoyQRB6yEFcSxIgVilGHhStIlVzMgBtpFV76fg8hGYEJuuKcosuRnCQAqh13zcIc9dQnLv7zK3yOn7Swh6Qrj78DqGABhNm3T16YCM8gPWjXl5W0ill6p+tVNPvFfl0OAojTGSdQ3NZMkuNt5xLQGzdh1ePy15kf3XXGvbbkahGRmWTlMzQDp0LyqjBOPTg==
+ bh=09dzP1aQgPZQtVkhJXhAyB7KxeXoTPtg1aAruUKWINM=;
+ b=PzY/n4qZwzrpjo04bCqZ0owFT+ZC0hZivTM3W2ld11rFAoQVj62/Rm3FfAE6JM5X8rrIRVxQXQcvcepU41gXzoCMEIPsv3y3lnJilossjHWpwZ9es5O8oCUbhfS9B+XbrbJeRZPIIK6Eiz1FsFUyAST/4Bq7nYtuRwoeko6iALDBl6tT7hFb+JHBp/xpBOPP4QnqFpr4sVFF95fJevvywDe9kZTyKr+JjjNwXBLS8hP84Izlc4X9bMRwuk+tZ/+Ju+Mjnp9hAAOanIfQGw9jOjIWcmxSNxElhHDELonSB6jmVv4MUu35H+V0TdIcDLXmm3I9+FRYjLBAl/38+bl0dA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=g0WrLgp95Hz341IK3M2Fw3ggRprXX82+85Chfthajqc=;
- b=Nsp+zA8U2USMfx9UZkIwuSLgQDTbk4w7bESovSJyYt1NrP+Tz9oGQDP2qZTgfQLLhCz1o+1JXHffVZdnt49bFAKhFLM4u18aKi6pYQxHg1zF6rI+Pw6tEng/xLnzz9zDjc19JeqAHMD+r+vM1iezZXc8BE5MWz3MOerKZ/8jahI=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from BN9PR12MB5115.namprd12.prod.outlook.com (2603:10b6:408:118::14)
- by SA0PR12MB4557.namprd12.prod.outlook.com (2603:10b6:806:9d::10) with
+ bh=09dzP1aQgPZQtVkhJXhAyB7KxeXoTPtg1aAruUKWINM=;
+ b=zSlzPahhmqkpprIcwbDWv0etlcK/oskUhQLK2H+ywQCr+ipbfXz5xQo4DyKXGhvHHRsn5LotC/eP9UwuvZVlNXtcYdhVyRO5hIeS6A3tjNT8pc9vzljsLKRsBYe7guotlTRvDk8QA1dA9ZCrvAa3INBMMmknaSI8zuJ2h6WFpv4=
+Received: from BY5PR10MB4196.namprd10.prod.outlook.com (2603:10b6:a03:20d::23)
+ by SA1PR10MB6293.namprd10.prod.outlook.com (2603:10b6:806:250::14) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5791.27; Thu, 10 Nov
- 2022 21:55:40 +0000
-Received: from BN9PR12MB5115.namprd12.prod.outlook.com
- ([fe80::5d8:f3f2:d940:5350]) by BN9PR12MB5115.namprd12.prod.outlook.com
- ([fe80::5d8:f3f2:d940:5350%3]) with mapi id 15.20.5791.027; Thu, 10 Nov 2022
- 21:55:40 +0000
-Message-ID: <aa3a76c2-e5f3-8e15-717a-a90a1d9c516f@amd.com>
-Date:   Thu, 10 Nov 2022 16:55:38 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH 2/4] drm/amdgpu: fix userptr HMM range handling
-Content-Language: en-US
-To:     =?UTF-8?Q?Christian_K=c3=b6nig?= <ckoenig.leichtzumerken@gmail.com>,
-        Philip.Yang@amd.com, amd-gfx@lists.freedesktop.org
-Cc:     =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
-        stable@vger.kernel.org
-References: <20221110130009.1835-1-christian.koenig@amd.com>
- <20221110130009.1835-2-christian.koenig@amd.com>
-From:   Felix Kuehling <felix.kuehling@amd.com>
-In-Reply-To: <20221110130009.1835-2-christian.koenig@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: YT1PR01CA0104.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b01:2c::13) To BN9PR12MB5115.namprd12.prod.outlook.com
- (2603:10b6:408:118::14)
+ 2022 21:55:53 +0000
+Received: from BY5PR10MB4196.namprd10.prod.outlook.com
+ ([fe80::8d67:8c42:d124:3721]) by BY5PR10MB4196.namprd10.prod.outlook.com
+ ([fe80::8d67:8c42:d124:3721%4]) with mapi id 15.20.5813.012; Thu, 10 Nov 2022
+ 21:55:53 +0000
+Date:   Thu, 10 Nov 2022 13:55:50 -0800
+From:   Mike Kravetz <mike.kravetz@oracle.com>
+To:     Peter Xu <peterx@redhat.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Naoya Horiguchi <naoya.horiguchi@linux.dev>,
+        David Hildenbrand <david@redhat.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Mina Almasry <almasrymina@google.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Rik van Riel <riel@surriel.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Wei Chen <harperchen1110@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v8 1/2] hugetlb: don't delete vma_lock in hugetlb
+ MADV_DONTNEED processing
+Message-ID: <Y21zZgHzUz8gJfTI@monkey>
+References: <20221108011910.350887-1-mike.kravetz@oracle.com>
+ <20221108011910.350887-2-mike.kravetz@oracle.com>
+ <Y21lkEMOALb2pP89@x1n>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y21lkEMOALb2pP89@x1n>
+X-ClientProxiedBy: MW4PR04CA0255.namprd04.prod.outlook.com
+ (2603:10b6:303:88::20) To BY5PR10MB4196.namprd10.prod.outlook.com
+ (2603:10b6:a03:20d::23)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN9PR12MB5115:EE_|SA0PR12MB4557:EE_
-X-MS-Office365-Filtering-Correlation-Id: 10120e4f-f89b-458a-5030-08dac3664e92
+X-MS-TrafficTypeDiagnostic: BY5PR10MB4196:EE_|SA1PR10MB6293:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6521af67-1fad-4286-3850-08dac36656bb
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Nf+Qp1jQ8lGnJ/FDehRS8HfqMt/FRgQaT412w4ofRuByJ5+G7w+QvewLZgShS3dCKrBHefrKvKAVeTyPXZgbbVAoXxBMFhOunp5u3pQ3QdOIupMAUSfa6T/CUnAifj61XzrgCTBWul7XW8/KwXpUYLGxM4mzlNoAC5DnoIgWOk94g907pHw1eNRCbBDRxyLP7R7ahpWTrdt9mlccPFVvP0cklmSydYABcq26V6P54VBD7riB6mLqgM2obU500X5la3dpJpywEndkCgX3+rhm59bTJ4KTSdftvNe3YHvN0D+LY1ToxvReFTvJIFsZ8AKuRjLQWI3KpOBEOSE5k8gDTh1PDFRjaq9isR5NuyrEnLxlzEuH13UTzIdq8HMUyGDnw664v6hAFmbI2o5LRM8az+F/+Pw+pNflJFZK5ob0LGMY2MKiPDS53jK8OW1nTbavkkVYAvGbgS6B2nKVstD6tg+qFmvaE2LXfYcD2GC6ZFbMnCfUNPNQe5Iz6AW1HtPljGMBuAkRVEsw/hAhfoCW9X5OrZe4UIy6NynwAvDGcUmfo/113HIiaIJED3Wke0N3kl+jDae7R/RnC1RKjiIyN+geQqyrOxTVE5GWKJdWmU6txFH8I9hI5RjVP3wkjlXgDirjs8jJ9bOLzGLZroW3nqkHu2kBeNXrgsZEs8IVvKSJ9PaGyi2PI9hdTFv+VizMsWEE4O4ITdw3DZ65UR6FGVFKgyiRYPy/fS4jTMgSi+KvW90+xGAtDPBPz8Ghv05BQfcdudBhLXSrn76UE9ZxZC+Pcl2Mv6i5JtwTXD51nj8=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR12MB5115.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(396003)(39860400002)(346002)(376002)(136003)(366004)(451199015)(31686004)(6512007)(86362001)(6506007)(26005)(31696002)(478600001)(6486002)(41300700001)(2906002)(2616005)(8936002)(186003)(36756003)(83380400001)(66574015)(66946007)(30864003)(66476007)(38100700002)(5660300002)(4001150100001)(8676002)(66556008)(316002)(4326008)(44832011)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: 5gj13tNJjlNap/6i4vUC11A1LVQAq8Z2we7L3FesMfKa7YEU7tQQNGcfPp+csngBVS/ij5fLa1dZ4IuwTxP6MwHcOIem7PCfqFCY6U7Qnym22aD4MlK0ElsdOohe29H0fZPQTmYHJeLw9061jaIIHT/QtyEvlfpO3ATiofVlBNcvwPx5AnR7p492Hluc2PYI5Lii8XJt5/BULUNmq61vKim3L2j5XGbzPlOd4Wc0oa2+g86HPKpyrLXpjhije+1zbm6z9YZjU94PxCm7MLC+iio5SAuxgD2yFryOvGt7/cWHTjv00xrcSz50MY4LcklFV+IkJHsOd5h81WFg6FjxMOIAuCHcNLCkWbtofdORu253LIDhN0glxMrEWkpVgteh989jZX2uN8LJb5N2XOU4Dj8cdyI4SR6gOt96OMLcThOWhn4a3pMPMqo4iEeD6DTQ2R+uCpTcR8Kz35e6kzsvgkKwZVR9B+WF9jTXuJW00sTJ75IulWmP8FDN5fGItuwu3obV5zLEqrnvPB1WkutGBe56qs4F3ChvOdYc7qwqY3kTiOiZ2FAmjUVmJ7UhYxMZvvMyN6m8jT+4TbtzdR3WTdTrBx9kgu6U9s+8Zhs1e4btdXJNLd4gR1aXK31TpYckOiTunQBtPSMY+sPurgHMJ03+v/NRJcjESYhqWBM7ZF1HMC9bGmnvOBT2s6GHJqLL49GoZZytgeAZiOSNdmg2sAydhtqXAhCGhmR47DnRdoQ=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR10MB4196.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(7916004)(39860400002)(366004)(396003)(376002)(136003)(346002)(451199015)(86362001)(8936002)(44832011)(5660300002)(26005)(7416002)(9686003)(6512007)(83380400001)(186003)(38100700002)(316002)(2906002)(66946007)(41300700001)(66556008)(54906003)(66476007)(33716001)(966005)(53546011)(8676002)(6506007)(4326008)(6916009)(478600001)(6486002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?TUlYaFBxbHJGUVUxOWVWSTBmQ2VrUlJNcUVMQU5Sa1hTN3JscGtWS092KzY5?=
- =?utf-8?B?N05YbzVqMUkrZURLOXpXNzRNeElURDdVbE1wYk9sSFcrKzFrVVVLck9pMDF4?=
- =?utf-8?B?QzdKM2NPRkFBMHJHaHJXcDArM21SOW10R0l5aFkzMDJpSGQrRmF2OGI1aW85?=
- =?utf-8?B?Y29vSEVVWDFvRGRINFZxek5SZk5ReWxpK2VWSHhvR2FEc1NHWWFBY0dMdEZv?=
- =?utf-8?B?d1FGVzVNVmcxSnpFWmxOUkhtQm9xMnJ3RUR6Tk5MWmt6RlFZZ2VYckFtd2Za?=
- =?utf-8?B?VGJZTXZNN2QyL091LzdzVEkrNk9nZnBWc2dPVFJnTCtWbE5XRkt4cGFXdWh0?=
- =?utf-8?B?Z0xoL2pEOUo1enF2d2JPZGZ2ajRHcmozUDVHR2FQYUdsdmllbTcyZm1GUmpu?=
- =?utf-8?B?ZTB2VDkwc3N3U21Ddllxb0d4Yjc0U1pXSmJOY0JaWlIrRjZ5NmZ1Q3lYK1FM?=
- =?utf-8?B?NlR3R3gyWWZia1RXRW5IWmdOWTBOY3hFZ1FMSzdrZVFKMUhzY3NMTXlvdHBJ?=
- =?utf-8?B?akp4YTN1bUhnWmtncldqaVFrYWowQ1kzdjBsdC9Ya1JPTkhYS2tHU2MrMzJE?=
- =?utf-8?B?ZTlIY041dlFSTXNFN2dFMEQ5MmFaYVFwL2VvOE14UlRPd0R3Mnc5Znk4Qkhw?=
- =?utf-8?B?TVd2emRaQTVLYWJPb1kxTHFxOE9mYXRUQUVvQXZHM2xSeXpCRldpNnpPNmR6?=
- =?utf-8?B?WVVKOFJnRVRoOHlSaXAxZCthMFVmSEVXUDNKWTkvdXZFMkNHaFhUb3RYWlFC?=
- =?utf-8?B?UWQrcUszOHMyUmpuc28wSGpUYXlmLzN0YjNDTk8xb3lwNy9TcE9vSllBdDZx?=
- =?utf-8?B?My9kcCtiNHVOUnlFU2FzZUxhaXVlSSt0TlNGeVdMRU9tMS9rNXphTUdoRi94?=
- =?utf-8?B?VGpMRUkzSTR3S2RWTmZmRFp4VmJEVmJKb3NjM29sS0lRaURjS1I3NTJCOEpV?=
- =?utf-8?B?Q3Y5Titrd01sbWNrWjJCT0VVYVpLZTlOUmJTa25mU2gzemp2dHBmWTk2YU9C?=
- =?utf-8?B?UzVwNk0yVHFlb2lZbVcxSENWS3BaN3dUSFpucitSbW1SU29XVGFMV1N3K25M?=
- =?utf-8?B?WHYwRzZYOGFpay9QeHFaWDh6YmFETHF3UzlVMFhNK0xIbjFRaVdnanZuQVNs?=
- =?utf-8?B?SGpGNmxKa1krUXRpUGJvYm1GdXV2akdoMWY4OWJWRTFQTEIwMzlTZUdDeEpD?=
- =?utf-8?B?ejhLeFU4QVQ2cklFUEg1M3ZxVTh6YTdudjFPWHBnTHlRaEU5SEh2Z1R0SWtJ?=
- =?utf-8?B?U0FaOFRRL1lxbHA5eldoYklOdVFLT2ZmZkFhbkt6R1N6UEhiek9tWFp5Q0pn?=
- =?utf-8?B?Wk1RZjJ6NFlhUmVvbzd4U29qL2k1Vm1NU2lGY05vUFc2cDZsbW1pMitramo2?=
- =?utf-8?B?M2o3Y0JJR2phSTdwa2hvSW9YMVVpYXJ6Yjh2ZnhUOWFINmVyWk9JSG1Bc0FM?=
- =?utf-8?B?cUtGbzR6OWZ3amM1czlGUStXYjB0UDNJU1Y1bUI1eXk4NXN6MWd4eTlpbTJW?=
- =?utf-8?B?MERLTHU2TEJrd1dmeUdKcFFCdkUybG5DWmRWOTQ3MCs1cldacXJ4OEovcllF?=
- =?utf-8?B?MmMyaFlHUzlQbUFqaldCN00reElMaUhiU0ZudGo5QnV5OTRjajlNaUp1OTZ2?=
- =?utf-8?B?TWh4OTc2aXcxMEFHMCtJeVpZWHRmSU1ZQ2wwUVRLcUFuNU9xa1QvdTE1RmNO?=
- =?utf-8?B?S21XUnVObW0yLzgxZFVVZVl4eVRSb21zcVp2anZxMWZLUUlLTkRIT01HNjBy?=
- =?utf-8?B?WnZ3aHdXYUVhYzBRMkQxTnZFLzJ6N2wzb1AzQU9iVk9LNEpWWjVPTTRoMjJF?=
- =?utf-8?B?UWFMdnJSMWorTXRyeHlISjVYUjVnTzNHM0FZbFB6SmJVL0RmdkRYWkxXTndm?=
- =?utf-8?B?ekhsdDg2S2pDZlF4MmRwMXk0c3lqM0lFdVFoR2QvWEVUY3JtMitMQTVaUExN?=
- =?utf-8?B?akcwczRiNTRKS0pmNkNjNDQvMCtvYTZCVjM0NXlZdVA1d2FDQWhyblhZL0lp?=
- =?utf-8?B?VW5vK1c1QUZqcjhkaENkejVWWUdrRXNPSTNRVU1paFQ4QkVPMnByODlOOWY4?=
- =?utf-8?B?bUdPSkpGTUV3bSs4c2lPSVB1WUNZamdiS1p0YmZteUhiZkhlYXo2dWlHQWg3?=
- =?utf-8?Q?L7lSGidTh0br5pkVhEBMkFaGz?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 10120e4f-f89b-458a-5030-08dac3664e92
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR12MB5115.namprd12.prod.outlook.com
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?qoNSKUhm4Yps3mRNCz8ex0L93CW2dO3HeeLT7WE7n/XW+66RL/2kM9vlFO9W?=
+ =?us-ascii?Q?l4uAoETwW+ET9lt6Nq1VjarhtJRZ9PpBI7Scq6TFnKbDgr8oPlvZ+ls6jGUg?=
+ =?us-ascii?Q?0eOcrtQ2E5lndIOpEsAw4c1K2p1psQvZYH4jtvjozjVGhuMc4RBgvaHVM45g?=
+ =?us-ascii?Q?CQBAkiCc4CyT+64hE5S1Ba9zY5E+sYglShls3Mv30yXkFMn0gUSAx5UKTWwO?=
+ =?us-ascii?Q?CifM/52CtrkbG3hlhWlP0DCnBRjnpAfTn2urQJjaI88ro3y7uMWBtHusPP6F?=
+ =?us-ascii?Q?K1sG0MBeg22Kf3HKDvu7RciAuboG3pTd1GkoxQiNlsbvI5xZBISuhzOmTF07?=
+ =?us-ascii?Q?k6kQX6qgG6pyqJgbTFe3iGKzzWXX6zafpWLB2DbdqUf3m088lxqRQC5itni0?=
+ =?us-ascii?Q?WWb2tPgVHZOUIdBAmpty66cPqVcao8i/YzPzZalvp8OrIlYCqfT5k+Iyj/se?=
+ =?us-ascii?Q?PnFsNUkgG6M0P/0GJP6X97ZZO2DcCfv8HeqmUrZnlYFjgHEa7yCK5UyIGsTA?=
+ =?us-ascii?Q?IJp7XJx3/4haHJG2G+SfVUQ3udNHceHZDLk+grBPYpbyODHlp9uN+hO6Ez7B?=
+ =?us-ascii?Q?LILf8cBwUm02YSziAWEN9wsdf4mj5TGmI1wkQlrryCs6/hX/Q5rFMFs9/vRb?=
+ =?us-ascii?Q?+iTGjEd2pDp+V68gaC7R2zMx0pk2SZPH+Wz572Qz7bHlEmofRSikuv2S6qlY?=
+ =?us-ascii?Q?y2dqhXFgOH+GJit5VfO/hKm7hA0AKgEeqc3lFg8AJXFO32T/di9J2XMCLr++?=
+ =?us-ascii?Q?8ICHyDePay648fva489OL2biZkopf9wa7UsMrpOJXYZ3t02jjdQy9te2PGlv?=
+ =?us-ascii?Q?mbOd8J7wcNvnyZ2H2KGK94vshKTx+ClKuM+FZTJd+uAS0DjxCdz6D2wQq0Fk?=
+ =?us-ascii?Q?B0omzHCYQcsX5kU+W5eeVDf8HG+Z74Dj5wb5e9rCgvT+tkHql1NbibA7lVPD?=
+ =?us-ascii?Q?XzB0epfA1cjzNTbvfDhlZ4zqbDfkAyHfMo+N9rPX445LaxdldiShIIJoHXHE?=
+ =?us-ascii?Q?EiPdwiqUvdJMvC8Bqq8nMCqdhDh+bSay8wwSLYXxxS+HW1szZkGM6AR8YfXJ?=
+ =?us-ascii?Q?XJNMypG639ZDnxKFJVqVRxUHemHzwdWeu3ye1iCwRcI1/lOLpXYr5kNt89ca?=
+ =?us-ascii?Q?GIhqxP+4J+CGhZgHNKvwuJlIHDbfFf+tHn4DQcbjwTyLwWDue675oLnilqas?=
+ =?us-ascii?Q?vU9PMLdyYVK8q1PK+PUUzbxOed7yNGUb6EEJSVpN0vn+/Yz5/B4xjdEcWjkm?=
+ =?us-ascii?Q?X44boqS2/T7fF2TgxfcVpKYBxKw+C5lvJeba7FgqRTIDDjP81MlTmCSIERmn?=
+ =?us-ascii?Q?+3orptMSxNXubLORWGWBnsGwu0a3+gXw7iSBUkQ4NZXXl/EtT6oj0fOEj/DX?=
+ =?us-ascii?Q?D5TN63X+wZp2xIFEqklw9VEt7GXFW0kq8J0e8+Mu1gSsfW0yhtrPEHy90dOR?=
+ =?us-ascii?Q?Mvouj6YtVwszWeLV+j7le+IALEKvxRlbQvIrAMlkixyfA9RGVs42s2KpxIlQ?=
+ =?us-ascii?Q?a+LMeSbnLpNpZEOJwDTQCfVb2HlZJZFqA/jyETqu8QmFL8h04GRoteAiGxPR?=
+ =?us-ascii?Q?kWvjcwDzod/JceCrXog8W+CEp+3CR8Jvo93OtYB0IjbmxF2s/Wec5ODFWDXL?=
+ =?us-ascii?Q?Fg=3D=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6521af67-1fad-4286-3850-08dac36656bb
+X-MS-Exchange-CrossTenant-AuthSource: BY5PR10MB4196.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Nov 2022 21:55:40.0044
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Nov 2022 21:55:53.7568
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: kyHLJVHLjhA7npmpgrZ3D5c8tNUXFvgFkD19ZtoZV4nUgvCe/n/gySS19oehCzmdL98xeSdzDA0WIfyQ3a/LOA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB4557
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+X-MS-Exchange-CrossTenant-UserPrincipalName: WMfTvQ86nJDllU/IdX2nIgo/a8/JrtCCQN9elm6oMrtTQ4TQyKIGCbypYc+Bv6rSvQK3DeTRiNE/lHXW0VY5kA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR10MB6293
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-10_14,2022-11-09_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 spamscore=0 bulkscore=0
+ adultscore=0 mlxscore=0 suspectscore=0 malwarescore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
+ definitions=main-2211100154
+X-Proofpoint-GUID: -CAs5uiWAqqLD4GNNoBpvIhDpBRLzGLL
+X-Proofpoint-ORIG-GUID: -CAs5uiWAqqLD4GNNoBpvIhDpBRLzGLL
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -125,336 +155,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 11/10/22 15:56, Peter Xu wrote:
+> Hi, Mike,
+> 
+> Sorry to be late, took me quite some time working on another bug..
+> 
+> On Mon, Nov 07, 2022 at 05:19:09PM -0800, Mike Kravetz wrote:
+> > madvise(MADV_DONTNEED) ends up calling zap_page_range() to clear page
+> > tables associated with the address range.  For hugetlb vmas,
+> > zap_page_range will call __unmap_hugepage_range_final.  However,
+> > __unmap_hugepage_range_final assumes the passed vma is about to be removed
+> > and deletes the vma_lock to prevent pmd sharing as the vma is on the way
+> > out.  In the case of madvise(MADV_DONTNEED) the vma remains, but the
+> > missing vma_lock prevents pmd sharing and could potentially lead to issues
+> > with truncation/fault races.
+> > 
+> > This issue was originally reported here [1] as a BUG triggered in
+> > page_try_dup_anon_rmap.  Prior to the introduction of the hugetlb
+> > vma_lock, __unmap_hugepage_range_final cleared the VM_MAYSHARE flag to
+> > prevent pmd sharing.  Subsequent faults on this vma were confused as
+> > VM_MAYSHARE indicates a sharable vma, but was not set so page_mapping was
+> > not set in new pages added to the page table.  This resulted in pages that
+> > appeared anonymous in a VM_SHARED vma and triggered the BUG.
+> > 
+> > Address issue by:
+> > - Add a new zap flag ZAP_FLAG_UNMAP to indicate an unmap call from
+> >   unmap_vmas().  This is used to indicate the 'final' unmapping of a vma.
+> >   When called via MADV_DONTNEED, this flag is not set and the vm_lock is
+> >   not deleted.
+> > - mmu notification is removed from __unmap_hugepage_range to avoid
+> >   duplication, and notification is added to the other calling routine
+> >   (unmap_hugepage_range).
+> > - notification range in zap_page_range_single is updated to take into
+> >   account the possibility of hugetlb pmd sharing.
+> > - zap_page_range_single renamed to __zap_page_range_single to be used
+> >   internally within mm/memory.c
+> > - zap_vma_range() interface created to zap a range within a single vma.
+> > - madvise_dontneed_single_vma is updated to call zap_vma_range instead of
+> >   zap_page_range as it only operates on a range within a single vma
+> > 
+> > [1] https://lore.kernel.org/lkml/CAO4mrfdLMXsao9RF4fUE8-Wfde8xmjsKrTNMNC9wjUb6JudD0g@mail.gmail.com/
+> > Fixes: 90e7e7f5ef3f ("mm: enable MADV_DONTNEED for hugetlb mappings")
+> > Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+> > Reported-by: Wei Chen <harperchen1110@gmail.com>
+> > Cc: <stable@vger.kernel.org>
+> > ---
+> >  include/linux/mm.h |  5 +++++
+> >  mm/hugetlb.c       | 45 +++++++++++++++++++++++++++------------------
+> >  mm/madvise.c       |  4 ++--
+> >  mm/memory.c        | 17 +++++++++++++----
+> >  4 files changed, 47 insertions(+), 24 deletions(-)
+> > 
+> > diff --git a/include/linux/mm.h b/include/linux/mm.h
+> > index 978c17df053e..d205bcd9cd2e 100644
+> > --- a/include/linux/mm.h
+> > +++ b/include/linux/mm.h
+> > @@ -1840,6 +1840,8 @@ void zap_vma_ptes(struct vm_area_struct *vma, unsigned long address,
+> >  		  unsigned long size);
+> >  void zap_page_range(struct vm_area_struct *vma, unsigned long address,
+> >  		    unsigned long size);
+> > +void zap_vma_range(struct vm_area_struct *vma, unsigned long address,
+> > +		    unsigned long size);
+> >  void unmap_vmas(struct mmu_gather *tlb, struct maple_tree *mt,
+> >  		struct vm_area_struct *start_vma, unsigned long start,
+> >  		unsigned long end);
+> > @@ -3464,4 +3466,7 @@ madvise_set_anon_name(struct mm_struct *mm, unsigned long start,
+> >   */
+> >  #define  ZAP_FLAG_DROP_MARKER        ((__force zap_flags_t) BIT(0))
+> >  
+> > +/* Set in unmap_vmas() to indicate an unmap call.  Only used by hugetlb */
+> > +#define  ZAP_FLAG_UNMAP              ((__force zap_flags_t) BIT(1))
+> 
+> It seems this is not set anywhere in the patch?
 
-Am 2022-11-10 um 08:00 schrieb Christian König:
-> The basic problem here is that it's not allowed to page fault while
-> holding the reservation lock.
->
-> So it can happen that multiple processes try to validate an userptr
-> at the same time.
->
-> Work around that by putting the HMM range object into the mutex
-> protected bo list for now.
->
-> Signed-off-by: Christian König <christian.koenig@amd.com>
-> CC: stable@vger.kernel.org
-> ---
->   .../gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c  | 12 +++--
->   drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c   |  1 +
->   drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h   |  3 ++
->   drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c        |  8 +--
->   drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c       |  6 ++-
->   drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c       | 50 +++++--------------
->   drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.h       | 14 ++++--
->   7 files changed, 43 insertions(+), 51 deletions(-)
->
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-> index c5c9bfa2772e..83659e6419a8 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-> @@ -940,6 +940,7 @@ static int init_user_pages(struct kgd_mem *mem, uint64_t user_addr,
->   	struct amdkfd_process_info *process_info = mem->process_info;
->   	struct amdgpu_bo *bo = mem->bo;
->   	struct ttm_operation_ctx ctx = { true, false };
-> +	struct hmm_range *range;
+Correct.  Should be set in unmap_vmas.
 
-I'd feel better if these local hmm_range pointers here and in 
-update_invalid_user_pages and amdgpu_gem_userptr_ioctl were initialized 
-to NULL. amdgpu_ttm_tt_get_user_pages leaves it uninitialized in case of 
-errors and amdgpu_ttm_tt_get_user_pages_done checks for !range.
+> > +
+> >  #endif /* _LINUX_MM_H */
+> > diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> > index ceb47c4e183a..7c8fbce4441e 100644
+> > --- a/mm/hugetlb.c
+> > +++ b/mm/hugetlb.c
+> > @@ -5072,7 +5072,6 @@ static void __unmap_hugepage_range(struct mmu_gather *tlb, struct vm_area_struct
+> >  	struct page *page;
+> >  	struct hstate *h = hstate_vma(vma);
+> >  	unsigned long sz = huge_page_size(h);
+> > -	struct mmu_notifier_range range;
+> >  	unsigned long last_addr_mask;
+> >  	bool force_flush = false;
+> >  
+> > @@ -5087,13 +5086,6 @@ static void __unmap_hugepage_range(struct mmu_gather *tlb, struct vm_area_struct
+> >  	tlb_change_page_size(tlb, sz);
+> >  	tlb_start_vma(tlb, vma);
+> >  
+> > -	/*
+> > -	 * If sharing possible, alert mmu notifiers of worst case.
+> > -	 */
+> > -	mmu_notifier_range_init(&range, MMU_NOTIFY_UNMAP, 0, vma, mm, start,
+> > -				end);
+> > -	adjust_range_if_pmd_sharing_possible(vma, &range.start, &range.end);
+> > -	mmu_notifier_invalidate_range_start(&range);
+> >  	last_addr_mask = hugetlb_mask_last_page(h);
+> >  	address = start;
+> >  	for (; address < end; address += sz) {
+> > @@ -5178,7 +5170,6 @@ static void __unmap_hugepage_range(struct mmu_gather *tlb, struct vm_area_struct
+> >  		if (ref_page)
+> >  			break;
+> >  	}
+> > -	mmu_notifier_invalidate_range_end(&range);
+> >  	tlb_end_vma(tlb, vma);
+> >  
+> >  	/*
+> > @@ -5203,32 +5194,50 @@ void __unmap_hugepage_range_final(struct mmu_gather *tlb,
+> >  			  unsigned long end, struct page *ref_page,
+> >  			  zap_flags_t zap_flags)
+> >  {
+> > +	bool final = zap_flags & ZAP_FLAG_UNMAP;
+> > +
+> >  	hugetlb_vma_lock_write(vma);
+> >  	i_mmap_lock_write(vma->vm_file->f_mapping);
+> >  
+> >  	__unmap_hugepage_range(tlb, vma, start, end, ref_page, zap_flags);
+> >  
+> >  	/*
+> > -	 * Unlock and free the vma lock before releasing i_mmap_rwsem.  When
+> > -	 * the vma_lock is freed, this makes the vma ineligible for pmd
+> > -	 * sharing.  And, i_mmap_rwsem is required to set up pmd sharing.
+> > -	 * This is important as page tables for this unmapped range will
+> > -	 * be asynchrously deleted.  If the page tables are shared, there
+> > -	 * will be issues when accessed by someone else.
+> > +	 * When called via zap_vma_range (MADV_DONTNEED), this is not the
+> > +	 * final unmap of the vma, and we do not want to delete the vma_lock.
+> >  	 */
+> > -	__hugetlb_vma_unlock_write_free(vma);
+> > -
+> > -	i_mmap_unlock_write(vma->vm_file->f_mapping);
+> > +	if (final) {
+> > +		/*
+> > +		 * Unlock and free the vma lock before releasing i_mmap_rwsem.
+> > +		 * When the vma_lock is freed, this makes the vma ineligible
+> > +		 * for pmd sharing.  And, i_mmap_rwsem is required to set up
+> > +		 * pmd sharing.  This is important as page tables for this
+> > +		 * unmapped range will be asynchrously deleted.  If the page
+> > +		 * tables are shared, there will be issues when accessed by
+> > +		 * someone else.
+> > +		 */
+> > +		__hugetlb_vma_unlock_write_free(vma);
+> > +		i_mmap_unlock_write(vma->vm_file->f_mapping);
+> > +	} else {
+> > +		i_mmap_unlock_write(vma->vm_file->f_mapping);
+> > +		hugetlb_vma_unlock_write(vma);
+> > +	}
+> >  }
+> >  
+> >  void unmap_hugepage_range(struct vm_area_struct *vma, unsigned long start,
+> >  			  unsigned long end, struct page *ref_page,
+> >  			  zap_flags_t zap_flags)
+> >  {
+> > +	struct mmu_notifier_range range;
+> >  	struct mmu_gather tlb;
+> >  
+> > +	mmu_notifier_range_init(&range, MMU_NOTIFY_UNMAP, 0, vma, vma->vm_mm,
+> 
+> Should this be s/UNMAP/CLEAR/?  As IIUC the unmap path was only happening
+> in __unmap_hugepage_range_final().
 
-With that fixed, the patch is
+Right, unmap_hugepage_range is employed in the truncate and hole punch
+path where we should be using the CLEAR notifier.
 
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+> > +				start, end);
+> > +	adjust_range_if_pmd_sharing_possible(vma, &range.start, &range.end);
+> >  	tlb_gather_mmu(&tlb, vma->vm_mm);
+> > +
+> >  	__unmap_hugepage_range(&tlb, vma, start, end, ref_page, zap_flags);
+> > +
+> > +	mmu_notifier_invalidate_range_end(&range);
+> >  	tlb_finish_mmu(&tlb);
+> >  }
+> >  
+> > diff --git a/mm/madvise.c b/mm/madvise.c
+> > index c7105ec6d08c..9d2625b8029a 100644
+> > --- a/mm/madvise.c
+> > +++ b/mm/madvise.c
+> > @@ -772,7 +772,7 @@ static int madvise_free_single_vma(struct vm_area_struct *vma,
+> >   * Application no longer needs these pages.  If the pages are dirty,
+> >   * it's OK to just throw them away.  The app will be more careful about
+> >   * data it wants to keep.  Be sure to free swap resources too.  The
+> > - * zap_page_range call sets things up for shrink_active_list to actually free
+> > + * zap_vma_range call sets things up for shrink_active_list to actually free
+> >   * these pages later if no one else has touched them in the meantime,
+> >   * although we could add these pages to a global reuse list for
+> >   * shrink_active_list to pick up before reclaiming other pages.
+> > @@ -790,7 +790,7 @@ static int madvise_free_single_vma(struct vm_area_struct *vma,
+> >  static long madvise_dontneed_single_vma(struct vm_area_struct *vma,
+> >  					unsigned long start, unsigned long end)
+> >  {
+> > -	zap_page_range(vma, start, end - start);
+> > +	zap_vma_range(vma, start, end - start);
+> 
+> I'd rather just call zap_page_range_single() directly with NULL passed
+> over, considering that this is for stable, but no strong opinions.
 
-
->   	int ret = 0;
->   
->   	mutex_lock(&process_info->lock);
-> @@ -969,7 +970,7 @@ static int init_user_pages(struct kgd_mem *mem, uint64_t user_addr,
->   		return 0;
->   	}
->   
-> -	ret = amdgpu_ttm_tt_get_user_pages(bo, bo->tbo.ttm->pages);
-> +	ret = amdgpu_ttm_tt_get_user_pages(bo, bo->tbo.ttm->pages, &range);
->   	if (ret) {
->   		pr_err("%s: Failed to get user pages: %d\n", __func__, ret);
->   		goto unregister_out;
-> @@ -987,7 +988,7 @@ static int init_user_pages(struct kgd_mem *mem, uint64_t user_addr,
->   	amdgpu_bo_unreserve(bo);
->   
->   release_out:
-> -	amdgpu_ttm_tt_get_user_pages_done(bo->tbo.ttm);
-> +	amdgpu_ttm_tt_get_user_pages_done(bo->tbo.ttm, range);
->   unregister_out:
->   	if (ret)
->   		amdgpu_mn_unregister(bo);
-> @@ -2319,6 +2320,8 @@ static int update_invalid_user_pages(struct amdkfd_process_info *process_info,
->   	/* Go through userptr_inval_list and update any invalid user_pages */
->   	list_for_each_entry(mem, &process_info->userptr_inval_list,
->   			    validate_list.head) {
-> +		struct hmm_range *range;
-> +
->   		invalid = atomic_read(&mem->invalid);
->   		if (!invalid)
->   			/* BO hasn't been invalidated since the last
-> @@ -2329,7 +2332,8 @@ static int update_invalid_user_pages(struct amdkfd_process_info *process_info,
->   		bo = mem->bo;
->   
->   		/* Get updated user pages */
-> -		ret = amdgpu_ttm_tt_get_user_pages(bo, bo->tbo.ttm->pages);
-> +		ret = amdgpu_ttm_tt_get_user_pages(bo, bo->tbo.ttm->pages,
-> +						   &range);
->   		if (ret) {
->   			pr_debug("Failed %d to get user pages\n", ret);
->   
-> @@ -2348,7 +2352,7 @@ static int update_invalid_user_pages(struct amdkfd_process_info *process_info,
->   			 * FIXME: Cannot ignore the return code, must hold
->   			 * notifier_lock
->   			 */
-> -			amdgpu_ttm_tt_get_user_pages_done(bo->tbo.ttm);
-> +			amdgpu_ttm_tt_get_user_pages_done(bo->tbo.ttm, range);
->   		}
->   
->   		/* Mark the BO as valid unless it was invalidated
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
-> index 2168163aad2d..252a876b0725 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
-> @@ -209,6 +209,7 @@ void amdgpu_bo_list_get_list(struct amdgpu_bo_list *list,
->   			list_add_tail(&e->tv.head, &bucket[priority]);
->   
->   		e->user_pages = NULL;
-> +		e->range = NULL;
->   	}
->   
->   	/* Connect the sorted buckets in the output list. */
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
-> index 9caea1688fc3..e4d78491bcc7 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
-> @@ -26,6 +26,8 @@
->   #include <drm/ttm/ttm_execbuf_util.h>
->   #include <drm/amdgpu_drm.h>
->   
-> +struct hmm_range;
-> +
->   struct amdgpu_device;
->   struct amdgpu_bo;
->   struct amdgpu_bo_va;
-> @@ -36,6 +38,7 @@ struct amdgpu_bo_list_entry {
->   	struct amdgpu_bo_va		*bo_va;
->   	uint32_t			priority;
->   	struct page			**user_pages;
-> +	struct hmm_range		*range;
->   	bool				user_invalidated;
->   };
->   
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
-> index d371000a5727..7f9cedd8e157 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
-> @@ -910,7 +910,7 @@ static int amdgpu_cs_parser_bos(struct amdgpu_cs_parser *p,
->   			goto out_free_user_pages;
->   		}
->   
-> -		r = amdgpu_ttm_tt_get_user_pages(bo, e->user_pages);
-> +		r = amdgpu_ttm_tt_get_user_pages(bo, e->user_pages, &e->range);
->   		if (r) {
->   			kvfree(e->user_pages);
->   			e->user_pages = NULL;
-> @@ -988,9 +988,10 @@ static int amdgpu_cs_parser_bos(struct amdgpu_cs_parser *p,
->   
->   		if (!e->user_pages)
->   			continue;
-> -		amdgpu_ttm_tt_get_user_pages_done(bo->tbo.ttm);
-> +		amdgpu_ttm_tt_get_user_pages_done(bo->tbo.ttm, e->range);
->   		kvfree(e->user_pages);
->   		e->user_pages = NULL;
-> +		e->range = NULL;
->   	}
->   	mutex_unlock(&p->bo_list->bo_list_mutex);
->   	return r;
-> @@ -1265,7 +1266,8 @@ static int amdgpu_cs_submit(struct amdgpu_cs_parser *p,
->   	amdgpu_bo_list_for_each_userptr_entry(e, p->bo_list) {
->   		struct amdgpu_bo *bo = ttm_to_amdgpu_bo(e->tv.bo);
->   
-> -		r |= !amdgpu_ttm_tt_get_user_pages_done(bo->tbo.ttm);
-> +		r |= !amdgpu_ttm_tt_get_user_pages_done(bo->tbo.ttm, e->range);
-> +		e->range = NULL;
->   	}
->   	if (r) {
->   		r = -EAGAIN;
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-> index 111484ceb47d..91571b1324f2 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-> @@ -378,6 +378,7 @@ int amdgpu_gem_userptr_ioctl(struct drm_device *dev, void *data,
->   	struct amdgpu_device *adev = drm_to_adev(dev);
->   	struct drm_amdgpu_gem_userptr *args = data;
->   	struct drm_gem_object *gobj;
-> +	struct hmm_range *range;
->   	struct amdgpu_bo *bo;
->   	uint32_t handle;
->   	int r;
-> @@ -418,7 +419,8 @@ int amdgpu_gem_userptr_ioctl(struct drm_device *dev, void *data,
->   		goto release_object;
->   
->   	if (args->flags & AMDGPU_GEM_USERPTR_VALIDATE) {
-> -		r = amdgpu_ttm_tt_get_user_pages(bo, bo->tbo.ttm->pages);
-> +		r = amdgpu_ttm_tt_get_user_pages(bo, bo->tbo.ttm->pages,
-> +						 &range);
->   		if (r)
->   			goto release_object;
->   
-> @@ -441,7 +443,7 @@ int amdgpu_gem_userptr_ioctl(struct drm_device *dev, void *data,
->   
->   user_pages_done:
->   	if (args->flags & AMDGPU_GEM_USERPTR_VALIDATE)
-> -		amdgpu_ttm_tt_get_user_pages_done(bo->tbo.ttm);
-> +		amdgpu_ttm_tt_get_user_pages_done(bo->tbo.ttm, range);
->   
->   release_object:
->   	drm_gem_object_put(gobj);
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-> index 76a8ebfc9e71..a56d28bd23be 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-> @@ -642,9 +642,6 @@ struct amdgpu_ttm_tt {
->   	struct task_struct	*usertask;
->   	uint32_t		userflags;
->   	bool			bound;
-> -#if IS_ENABLED(CONFIG_DRM_AMDGPU_USERPTR)
-> -	struct hmm_range	*range;
-> -#endif
->   };
->   
->   #define ttm_to_amdgpu_ttm_tt(ptr)	container_of(ptr, struct amdgpu_ttm_tt, ttm)
-> @@ -657,7 +654,8 @@ struct amdgpu_ttm_tt {
->    * Calling function must call amdgpu_ttm_tt_userptr_range_done() once and only
->    * once afterwards to stop HMM tracking
->    */
-> -int amdgpu_ttm_tt_get_user_pages(struct amdgpu_bo *bo, struct page **pages)
-> +int amdgpu_ttm_tt_get_user_pages(struct amdgpu_bo *bo, struct page **pages,
-> +				 struct hmm_range **range)
->   {
->   	struct ttm_tt *ttm = bo->tbo.ttm;
->   	struct amdgpu_ttm_tt *gtt = ttm_to_amdgpu_ttm_tt(ttm);
-> @@ -673,10 +671,6 @@ int amdgpu_ttm_tt_get_user_pages(struct amdgpu_bo *bo, struct page **pages)
->   		return -EFAULT;
->   	}
->   
-> -	/* Another get_user_pages is running at the same time?? */
-> -	if (WARN_ON(gtt->range))
-> -		return -EFAULT;
-> -
->   	if (!mmget_not_zero(mm)) /* Happens during process shutdown */
->   		return -ESRCH;
->   
-> @@ -694,7 +688,7 @@ int amdgpu_ttm_tt_get_user_pages(struct amdgpu_bo *bo, struct page **pages)
->   
->   	readonly = amdgpu_ttm_tt_is_readonly(ttm);
->   	r = amdgpu_hmm_range_get_pages(&bo->notifier, mm, pages, start,
-> -				       ttm->num_pages, &gtt->range, readonly,
-> +				       ttm->num_pages, range, readonly,
->   				       true, NULL);
->   out_unlock:
->   	mmap_read_unlock(mm);
-> @@ -712,30 +706,24 @@ int amdgpu_ttm_tt_get_user_pages(struct amdgpu_bo *bo, struct page **pages)
->    *
->    * Returns: true if pages are still valid
->    */
-> -bool amdgpu_ttm_tt_get_user_pages_done(struct ttm_tt *ttm)
-> +bool amdgpu_ttm_tt_get_user_pages_done(struct ttm_tt *ttm,
-> +				       struct hmm_range *range)
->   {
->   	struct amdgpu_ttm_tt *gtt = ttm_to_amdgpu_ttm_tt(ttm);
-> -	bool r = false;
->   
-> -	if (!gtt || !gtt->userptr)
-> +	if (!gtt || !gtt->userptr || !range)
->   		return false;
->   
->   	DRM_DEBUG_DRIVER("user_pages_done 0x%llx pages 0x%x\n",
->   		gtt->userptr, ttm->num_pages);
->   
-> -	WARN_ONCE(!gtt->range || !gtt->range->hmm_pfns,
-> -		"No user pages to check\n");
-> +	WARN_ONCE(!range->hmm_pfns, "No user pages to check\n");
->   
-> -	if (gtt->range) {
-> -		/*
-> -		 * FIXME: Must always hold notifier_lock for this, and must
-> -		 * not ignore the return code.
-> -		 */
-> -		r = amdgpu_hmm_range_get_pages_done(gtt->range);
-> -		gtt->range = NULL;
-> -	}
-> -
-> -	return !r;
-> +	/*
-> +	 * FIXME: Must always hold notifier_lock for this, and must
-> +	 * not ignore the return code.
-> +	 */
-> +	return !amdgpu_hmm_range_get_pages_done(range);
->   }
->   #endif
->   
-> @@ -812,20 +800,6 @@ static void amdgpu_ttm_tt_unpin_userptr(struct ttm_device *bdev,
->   	/* unmap the pages mapped to the device */
->   	dma_unmap_sgtable(adev->dev, ttm->sg, direction, 0);
->   	sg_free_table(ttm->sg);
-> -
-> -#if IS_ENABLED(CONFIG_DRM_AMDGPU_USERPTR)
-> -	if (gtt->range) {
-> -		unsigned long i;
-> -
-> -		for (i = 0; i < ttm->num_pages; i++) {
-> -			if (ttm->pages[i] !=
-> -			    hmm_pfn_to_page(gtt->range->hmm_pfns[i]))
-> -				break;
-> -		}
-> -
-> -		WARN((i == ttm->num_pages), "Missing get_user_page_done\n");
-> -	}
-> -#endif
->   }
->   
->   static void amdgpu_ttm_gart_bind(struct amdgpu_device *adev,
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.h
-> index 6a70818039dd..a37207011a69 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.h
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.h
-> @@ -39,6 +39,8 @@
->   
->   #define AMDGPU_POISON	0xd0bed0be
->   
-> +struct hmm_range;
-> +
->   struct amdgpu_gtt_mgr {
->   	struct ttm_resource_manager manager;
->   	struct drm_mm mm;
-> @@ -149,15 +151,19 @@ void amdgpu_ttm_recover_gart(struct ttm_buffer_object *tbo);
->   uint64_t amdgpu_ttm_domain_start(struct amdgpu_device *adev, uint32_t type);
->   
->   #if IS_ENABLED(CONFIG_DRM_AMDGPU_USERPTR)
-> -int amdgpu_ttm_tt_get_user_pages(struct amdgpu_bo *bo, struct page **pages);
-> -bool amdgpu_ttm_tt_get_user_pages_done(struct ttm_tt *ttm);
-> +int amdgpu_ttm_tt_get_user_pages(struct amdgpu_bo *bo, struct page **pages,
-> +				 struct hmm_range **range);
-> +bool amdgpu_ttm_tt_get_user_pages_done(struct ttm_tt *ttm,
-> +				       struct hmm_range *range);
->   #else
->   static inline int amdgpu_ttm_tt_get_user_pages(struct amdgpu_bo *bo,
-> -					       struct page **pages)
-> +					       struct page **pages,
-> +					       struct hmm_range **range)
->   {
->   	return -EPERM;
->   }
-> -static inline bool amdgpu_ttm_tt_get_user_pages_done(struct ttm_tt *ttm)
-> +static inline bool amdgpu_ttm_tt_get_user_pages_done(struct ttm_tt *ttm,
-> +						     struct hmm_range *range)
->   {
->   	return false;
->   }
+As mentioned in reply to Nadav, if we expose zap_page_range_single we
+need to expose 'struct zap_details'.  Any concerns there?  That was the
+primary reason I did not just call zap_page_range_single directly.
+-- 
+Mike Kravetz
