@@ -2,222 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D7406243A7
-	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 14:54:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5086A624569
+	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 16:18:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231286AbiKJNyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 08:54:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36794 "EHLO
+        id S231373AbiKJPSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 10:18:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229851AbiKJNx7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 08:53:59 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 801D618B05
-        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 05:53:04 -0800 (PST)
+        with ESMTP id S231394AbiKJPSF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 10:18:05 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22A181FCED
+        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 07:17:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1668088383;
+        s=mimecast20190719; t=1668093428;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=8FWT9TyrBpCw16hoPVklgzSvxya7R9n4dXybApYg9Xs=;
-        b=OOcliCoFWtueWS2LtExwdOHBn62UFJOOeuzd49aNPx+vGyOrm7UCqEWW6yHrWfPSmBlS2S
-        LTo+VXE+5K8fQ/Who1ksNf+oNZxck29fxHuC8+P98KA3MzQudEsCHZEsI9Orbcp2LFiiwW
-        OnzQ8w9zAcXLdskpuWt/+6bM6rl+jXU=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=Ff4uIKDwEIX1/MsTGENOmYM+Xv3Uc0BmHEC53Fnq3vY=;
+        b=cOuv3RLAxaFsMmREF/kybouKR8goDi+OUvGXNAJvH/nzfaK8kTTZ74xPedRNWnm5I+teuR
+        8+LAzb6wBAjyvEzhos6pyEoryWqiwPmMB5clAH249cQH3LLPtywesuquoS5YXY05SUQL6I
+        YHU17qBj15/lDEHRHzxNSnIbfkjeccQ=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-310-khzT0KmoOXSHIgkefiYvjA-1; Thu, 10 Nov 2022 08:53:02 -0500
-X-MC-Unique: khzT0KmoOXSHIgkefiYvjA-1
-Received: by mail-pj1-f71.google.com with SMTP id g6-20020a17090a300600b00212f609f6aeso1125582pjb.9
-        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 05:53:02 -0800 (PST)
+ us-mta-81-WECmhyZbNCCFyi9rU98_wg-1; Thu, 10 Nov 2022 10:17:07 -0500
+X-MC-Unique: WECmhyZbNCCFyi9rU98_wg-1
+Received: by mail-qv1-f71.google.com with SMTP id d8-20020a0cfe88000000b004bb65193fdcso1663297qvs.12
+        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 07:17:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-language:content-transfer-encoding:in-reply-to:mime-version
-         :user-agent:date:message-id:from:references:cc:to:subject
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=8FWT9TyrBpCw16hoPVklgzSvxya7R9n4dXybApYg9Xs=;
-        b=Lb0Tmqhqel58YAIuwbopvU3ViGQDfnpaAwKiqzLKNxmYNm94C2+Qlmazd2sOlr8U0l
-         WI/iccP8wtB/vLWaGpdo2A8lttAAMgXkzHHDBCC06rHt0dVbWq7aPfas6/DiQg8GNH26
-         O9PH9MWdMeDzY47ZQw5q2zdd+aWKujF940gb6u88woeqYLnLSmGDMK4cxr/W/vnY7WL9
-         56l4axyE2TC6dPFpRsqOXaxT2QJeXrzGkI6zQ1eZRCqEfZ4GfGwWkNR87IgwG/U3U/NC
-         DzSwM4NBKlzEPk6BV3BdLFa4xgjkjb0ZvpHIMHatoXGM4Io4StHG8wb7H66V+r5PGeLG
-         eBVg==
-X-Gm-Message-State: ACrzQf1jeRViGXMsJovD2Bi5aYNl1ig0hXHmCkZjJ2RXWwIA5uMc8kQI
-        OauEMPNA7CA1AJVMV0seV3zqxLBZ5YQ7pGxC9BXN49UcczNipc08LJgeZpPjjknB6T/z1Z4vwkW
-        EChjgIGS6IpQrIGiC/59ha8TL125ZrqYAJgc+0VOoKuMcrZ2KwmXxS2/iR3mYi0zIlQ==
-X-Received: by 2002:a62:6502:0:b0:56c:12c0:aaf1 with SMTP id z2-20020a626502000000b0056c12c0aaf1mr2676315pfb.50.1668088381238;
-        Thu, 10 Nov 2022 05:53:01 -0800 (PST)
-X-Google-Smtp-Source: AMsMyM4M6tvQVkMUDbtPrTjA7NFgPmODC8PpLgiBHLE8BihURFhUw3gCYZ1RYGREBmxjiuKgfPBmDA==
-X-Received: by 2002:a62:6502:0:b0:56c:12c0:aaf1 with SMTP id z2-20020a626502000000b0056c12c0aaf1mr2676171pfb.50.1668088375968;
-        Thu, 10 Nov 2022 05:52:55 -0800 (PST)
-Received: from [10.72.12.148] ([43.228.180.230])
-        by smtp.gmail.com with ESMTPSA id y18-20020a170902b49200b001769206a766sm11152484plr.307.2022.11.10.05.52.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Nov 2022 05:52:55 -0800 (PST)
-Subject: Re: [PATCH v5] ceph: fix NULL pointer dereference for req->r_session
-To:     Ilya Dryomov <idryomov@gmail.com>
-Cc:     ceph-devel@vger.kernel.org, lhenriques@suse.de, jlayton@kernel.org,
-        mchangir@redhat.com, stable@vger.kernel.org
-References: <20221110130159.33319-1-xiubli@redhat.com>
- <CAOi1vP-Evz+q7XU2EKNRaqCWOVHm8pm0WVp6No21=q55tDdGag@mail.gmail.com>
-From:   Xiubo Li <xiubli@redhat.com>
-Message-ID: <5a9b784c-8c94-c083-a8fb-8548edffebbe@redhat.com>
-Date:   Thu, 10 Nov 2022 21:52:38 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Ff4uIKDwEIX1/MsTGENOmYM+Xv3Uc0BmHEC53Fnq3vY=;
+        b=2rMKyTu4RDN5aH7ZJLesaqpZuBYukAibiYRoV77Uim1oaX01jzaYSEfeBjWy6frN0O
+         IYpr3tuw6EIa6H/dvG5z1L5Oee9poQlkhEbDgmD9X9zn05XCykAjKROl68gtbsNe5Kz/
+         L8ZSzxgYtwRW6B8NoQJz6h3l9YJVGaQ8J277aOJhuU+f61/fNr5Ax7XTN8B+vAJaaawl
+         CeqBC87XWt+dU5k25QHjGBxijHd23/QtDgJz52xfoeqhgBR5soR3IuLhEF6G9uy2XjUS
+         /lW5PgoyGIvoZ1red4xz2x0VwBsoMR+pVtJU32QcDW1Ai3mzqcTTowqMJnO1qywcCBlg
+         uWkg==
+X-Gm-Message-State: ACrzQf0UmZiMqKDmNCE42Zs0pIAh3rM9tbfoh3Qq6hZfhtLEFk0kpmKn
+        0XFjmkqD0tbI2UMaWGrBHSxcplHziCAdeUGRnl2sqDfKx6OINt/7hy9+PkI88DYOWQxGFII00sX
+        tBwJ2M4UcrK8reejB
+X-Received: by 2002:ac8:688b:0:b0:3a5:4032:84 with SMTP id m11-20020ac8688b000000b003a540320084mr38891961qtq.594.1668093426512;
+        Thu, 10 Nov 2022 07:17:06 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM6tpasQ30d/7Z7xCvuxHK3YLAF5URmUDDJQLgiiIm9IreU3H5TqEwrf6XMfeWsh8URcfVsH1A==
+X-Received: by 2002:ac8:688b:0:b0:3a5:4032:84 with SMTP id m11-20020ac8688b000000b003a540320084mr38891929qtq.594.1668093426204;
+        Thu, 10 Nov 2022 07:17:06 -0800 (PST)
+Received: from x1n.redhat.com (bras-base-aurron9127w-grc-46-70-31-27-79.dsl.bell.ca. [70.31.27.79])
+        by smtp.gmail.com with ESMTPSA id l19-20020a05620a28d300b006ec771d8f89sm13621596qkp.112.2022.11.10.07.17.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Nov 2022 07:17:05 -0800 (PST)
+From:   Peter Xu <peterx@redhat.com>
+To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Cc:     Mike Rapoport <rppt@linux.vnet.ibm.com>, peterx@redhat.com,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Ives van Hoorne <ives@codesandbox.io>, stable@vger.kernel.org
+Subject: [PATCH 1/2] mm/migrate: Fix read-only page got writable when recover pte
+Date:   Thu, 10 Nov 2022 10:17:01 -0500
+Message-Id: <20221110151702.1478763-2-peterx@redhat.com>
+X-Mailer: git-send-email 2.37.3
+In-Reply-To: <20221110151702.1478763-1-peterx@redhat.com>
+References: <20221110151702.1478763-1-peterx@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <CAOi1vP-Evz+q7XU2EKNRaqCWOVHm8pm0WVp6No21=q55tDdGag@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Ives van Hoorne from codesandbox.io reported an issue regarding possible
+data loss of uffd-wp when applied to memfds on heavily loaded systems.  The
+sympton is some read page got data mismatch from the snapshot child VMs.
 
-On 10/11/2022 21:48, Ilya Dryomov wrote:
-> On Thu, Nov 10, 2022 at 2:02 PM <xiubli@redhat.com> wrote:
->> From: Xiubo Li <xiubli@redhat.com>
->>
->> The request's r_session maybe changed when it was forwarded or
->> resent. Both the forwarding and resending cases the requests will
->> be protected by the mdsc->mutex.
->>
->> Cc: stable@vger.kernel.org
->> URL: https://bugzilla.redhat.com/show_bug.cgi?id=2137955
->> Signed-off-by: Xiubo Li <xiubli@redhat.com>
->> ---
->>
->> Changed in V5:
->> - simplify the code by removing the "unlikely(s->s_mds >= max_sessions)" check.
->>
->> Changed in V4:
->> - move mdsc->mutex acquisition and max_sessions assignment into "if (req1 || req2)" branch
->>
->>
->>
->>   fs/ceph/caps.c | 48 ++++++++++++------------------------------------
->>   1 file changed, 12 insertions(+), 36 deletions(-)
->>
->> diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
->> index 894adfb4a092..065e9311b607 100644
->> --- a/fs/ceph/caps.c
->> +++ b/fs/ceph/caps.c
->> @@ -2297,7 +2297,6 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
->>          struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
->>          struct ceph_inode_info *ci = ceph_inode(inode);
->>          struct ceph_mds_request *req1 = NULL, *req2 = NULL;
->> -       unsigned int max_sessions;
->>          int ret, err = 0;
->>
->>          spin_lock(&ci->i_unsafe_lock);
->> @@ -2315,28 +2314,24 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
->>          }
->>          spin_unlock(&ci->i_unsafe_lock);
->>
->> -       /*
->> -        * The mdsc->max_sessions is unlikely to be changed
->> -        * mostly, here we will retry it by reallocating the
->> -        * sessions array memory to get rid of the mdsc->mutex
->> -        * lock.
->> -        */
->> -retry:
->> -       max_sessions = mdsc->max_sessions;
->> -
->>          /*
->>           * Trigger to flush the journal logs in all the relevant MDSes
->>           * manually, or in the worst case we must wait at most 5 seconds
->>           * to wait the journal logs to be flushed by the MDSes periodically.
->>           */
->> -       if ((req1 || req2) && likely(max_sessions)) {
->> -               struct ceph_mds_session **sessions = NULL;
->> -               struct ceph_mds_session *s;
->> +       if (req1 || req2) {
->>                  struct ceph_mds_request *req;
->> +               struct ceph_mds_session **sessions;
->> +               struct ceph_mds_session *s;
->> +               unsigned int max_sessions;
->>                  int i;
->>
->> +               mutex_lock(&mdsc->mutex);
->> +               max_sessions = mdsc->max_sessions;
->> +
->>                  sessions = kcalloc(max_sessions, sizeof(s), GFP_KERNEL);
->>                  if (!sessions) {
->> +                       mutex_unlock(&mdsc->mutex);
->>                          err = -ENOMEM;
->>                          goto out;
->>                  }
->> @@ -2348,16 +2343,6 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
->>                                  s = req->r_session;
->>                                  if (!s)
->>                                          continue;
->> -                               if (unlikely(s->s_mds >= max_sessions)) {
->> -                                       spin_unlock(&ci->i_unsafe_lock);
->> -                                       for (i = 0; i < max_sessions; i++) {
->> -                                               s = sessions[i];
->> -                                               if (s)
->> -                                                       ceph_put_mds_session(s);
->> -                                       }
->> -                                       kfree(sessions);
->> -                                       goto retry;
->> -                               }
->>                                  if (!sessions[s->s_mds]) {
->>                                          s = ceph_get_mds_session(s);
->>                                          sessions[s->s_mds] = s;
->> @@ -2370,16 +2355,6 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
->>                                  s = req->r_session;
->>                                  if (!s)
->>                                          continue;
->> -                               if (unlikely(s->s_mds >= max_sessions)) {
->> -                                       spin_unlock(&ci->i_unsafe_lock);
->> -                                       for (i = 0; i < max_sessions; i++) {
->> -                                               s = sessions[i];
->> -                                               if (s)
->> -                                                       ceph_put_mds_session(s);
->> -                                       }
->> -                                       kfree(sessions);
->> -                                       goto retry;
->> -                               }
->>                                  if (!sessions[s->s_mds]) {
->>                                          s = ceph_get_mds_session(s);
->>                                          sessions[s->s_mds] = s;
->> @@ -2391,11 +2366,12 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
->>                  /* the auth MDS */
->>                  spin_lock(&ci->i_ceph_lock);
->>                  if (ci->i_auth_cap) {
->> -                     s = ci->i_auth_cap->session;
->> -                     if (!sessions[s->s_mds])
->> -                             sessions[s->s_mds] = ceph_get_mds_session(s);
->> +                       s = ci->i_auth_cap->session;
->> +                       if (!sessions[s->s_mds])
->> +                               sessions[s->s_mds] = ceph_get_mds_session(s);
->>                  }
->>                  spin_unlock(&ci->i_ceph_lock);
->> +               mutex_unlock(&mdsc->mutex);
->>
->>                  /* send flush mdlog request to MDSes */
->>                  for (i = 0; i < max_sessions; i++) {
->> --
->> 2.31.1
->>
-> Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Here I can also reproduce with a Rust reproducer that was provided by Ives
+that keeps taking snapshot of a 256MB VM, on a 32G system when I initiate
+80 instances I can trigger the issues in ten minutes.
 
-Thanks Ilya!
+It turns out that we got some pages write-through even if uffd-wp is
+applied to the pte.
 
-- Xiubo
+The problem is, when removing migration entries, we didn't really worry
+about write bit as long as we know it's not a write migration entry.  That
+may not be true, for some memory types (e.g. writable shmem) mk_pte can
+return a pte with write bit set, then to recover the migration entry to its
+original state we need to explicit wr-protect the pte or it'll has the
+write bit set if it's a read migration entry.
 
+For uffd it can cause write-through.  I didn't verify, but I think it'll be
+the same for mprotect()ed pages and after migration we can miss the sigbus
+instead.
 
->
-> Thanks,
->
->                  Ilya
->
+The relevant code on uffd was introduced in the anon support, which is
+commit f45ec5ff16a7 ("userfaultfd: wp: support swap and page migration",
+2020-04-07).  However anon shouldn't suffer from this problem because anon
+should already have the write bit cleared always, so that may not be a
+proper Fixes target.  To satisfy the need on the backport, I'm attaching
+the Fixes tag to the uffd-wp shmem support.  Since no one had issue with
+mprotect, so I assume that's also the kernel version we should start to
+backport for stable, and we shouldn't need to worry before that.
+
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: b1f9e876862d ("mm/uffd: enable write protection for shmem & hugetlbfs")
+Reported-by: Ives van Hoorne <ives@codesandbox.io>
+Signed-off-by: Peter Xu <peterx@redhat.com>
+---
+ mm/migrate.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/mm/migrate.c b/mm/migrate.c
+index dff333593a8a..8b6351c08c78 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -213,8 +213,14 @@ static bool remove_migration_pte(struct folio *folio,
+ 			pte = pte_mkdirty(pte);
+ 		if (is_writable_migration_entry(entry))
+ 			pte = maybe_mkwrite(pte, vma);
+-		else if (pte_swp_uffd_wp(*pvmw.pte))
++		else
++			/* NOTE: mk_pte can have write bit set */
++			pte = pte_wrprotect(pte);
++
++		if (pte_swp_uffd_wp(*pvmw.pte)) {
++			WARN_ON_ONCE(pte_write(pte));
+ 			pte = pte_mkuffd_wp(pte);
++		}
+ 
+ 		if (folio_test_anon(folio) && !is_readable_migration_entry(entry))
+ 			rmap_flags |= RMAP_EXCLUSIVE;
+-- 
+2.37.3
 
