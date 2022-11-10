@@ -2,194 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BBBA624891
-	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 18:48:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0950462499A
+	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 19:38:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229499AbiKJRsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 12:48:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60106 "EHLO
+        id S229561AbiKJSip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 13:38:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbiKJRsI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 12:48:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C8EA3137C
-        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 09:48:07 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0845CB8229B
-        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 17:48:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 613EDC433C1;
-        Thu, 10 Nov 2022 17:48:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668102484;
-        bh=5DkUp/65jOa/tchtYj9ntP9Hst4WRvLw1Btz3Fmb0eA=;
-        h=Subject:To:From:Date:From;
-        b=aWMnrhzU9grUDJ7c7jj6zCHZMdGDzl/6DN81JkJKLEo87MWHk3Qvc3X+vzNZErzRA
-         pdJW5+nmlyFd5+KKKEBt/IiYh5weDsTci/1s9lskoK26TBp4wBjkWeUDRs+SNLM90j
-         PBA1MuGJlTMJ02eyFKCpR+x7c+s3sSF2Vr2BN9mY=
-Subject: patch "firmware: coreboot: Register bus in module init" added to char-misc-linus
-To:     briannorris@chromium.org, gregkh@linuxfoundation.org,
-        linux@roeck-us.net, stable@vger.kernel.org, swboyd@chromium.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 10 Nov 2022 18:48:02 +0100
-Message-ID: <166810248221043@kroah.com>
+        with ESMTP id S229520AbiKJSio (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 13:38:44 -0500
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B04C462F0
+        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 10:38:43 -0800 (PST)
+Received: by mail-qk1-x734.google.com with SMTP id k4so1665988qkj.8
+        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 10:38:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vnxQjZW8lEQBD88xLIPudVLr0XdcrViwtVRcw9aWecA=;
+        b=hLzYddv2v9BK8p85ShrXlafvOL2NRhlx56SE2LTZfvbQiZKJcY2VOiFLOB//frVO2K
+         VcHYY3qQFz9xojmsXMk4HtNf+75EcxDGIo2YEcPwwcxOPzze6Dze+EIgBNOk7amMiPL2
+         pUL1LTyvu8jSSfhPqgoBTiCW3jELKUkB+MB4BHAhnNRr3vt3STf3uapDJrEdICOGsc++
+         NeCK/OyoCAWBIjxN0q5AiG267TjM/mok08WqGtUpJFb/oeyhY9tZBITsSgz1bfU5lqaZ
+         EkIEO8pX16GWz7uXrNRPvI0NRA5zd3nUbWodIAovrzDmQWC/MSdPpBJUsRdq+/sRISxz
+         udUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=vnxQjZW8lEQBD88xLIPudVLr0XdcrViwtVRcw9aWecA=;
+        b=DupvE0CE8V/jYI6UUu4NffSlPYDJlnwuIIo3D0+y/zX0z/n9s/QguoVJk5vyR0iVA7
+         Vifh85cuSmokvYfpKMtFHMeQlg2euBk07REFWf6CCKTPxo/+aUPy0KrsESDKQUBSCFAW
+         FBLuHk/ZCIaIPnOYUaO5+bZuIJ1BERl7E1022pgrBE0FaXfxfXMdLCaNaASfPggvz5kP
+         2EqeTIIGDEJS9NNnIyNWV2PaZEUfd81G6DfOJJwOlViiU/kXQT6x4AvGjBBPLqqCdsfi
+         pZt190jRlHnbyLueFhU4ZQ5vU86FAyawtHTl3YRWD2q80jG04MgT8edmk0OUpUneeM1o
+         FtEQ==
+X-Gm-Message-State: ACrzQf3kS79J76jRWiJcjWXeaIRAUrlupEYuNkKiJRngIenUpKT6Z/Xv
+        ESC/pb5fYNYzCIl0nIB72ghpkWgZgOfbIMsONHU=
+X-Google-Smtp-Source: AMsMyM6jlT5L7w30hED0s4EgoHAzq2SA0Bx+YUP8PKB2m4GeOHdpBtlgy963nH1yhHdvXrq1FHyUaG2GfpUfUoJ+siM=
+X-Received: by 2002:a05:620a:490a:b0:6fa:25d4:8034 with SMTP id
+ ed10-20020a05620a490a00b006fa25d48034mr1578300qkb.197.1668105522834; Thu, 10
+ Nov 2022 10:38:42 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:a05:6200:5807:b0:49f:4177:be7a with HTTP; Thu, 10 Nov 2022
+ 10:38:42 -0800 (PST)
+Reply-To: wijh555@gmail.com
+From:   "Prof. Do-Young Byun" <dmitrybogdanv07@gmail.com>
+Date:   Thu, 10 Nov 2022 10:38:42 -0800
+Message-ID: <CAPi14y+bseUgy1zKMyFUWf+dLZmJO+FcsL9_EqfiOjFkwMmDzg@mail.gmail.com>
+Subject: Greetings,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=5.1 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:734 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [wijh555[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [dmitrybogdanv07[at]gmail.com]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [dmitrybogdanv07[at]gmail.com]
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  3.0 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    firmware: coreboot: Register bus in module init
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 65946690ed8d972fdb91a74ee75ac0f0f0d68321 Mon Sep 17 00:00:00 2001
-From: Brian Norris <briannorris@chromium.org>
-Date: Wed, 19 Oct 2022 18:10:53 -0700
-Subject: firmware: coreboot: Register bus in module init
-
-The coreboot_table driver registers a coreboot bus while probing a
-"coreboot_table" device representing the coreboot table memory region.
-Probing this device (i.e., registering the bus) is a dependency for the
-module_init() functions of any driver for this bus (e.g.,
-memconsole-coreboot.c / memconsole_driver_init()).
-
-With synchronous probe, this dependency works OK, as the link order in
-the Makefile ensures coreboot_table_driver_init() (and thus,
-coreboot_table_probe()) completes before a coreboot device driver tries
-to add itself to the bus.
-
-With asynchronous probe, however, coreboot_table_probe() may race with
-memconsole_driver_init(), and so we're liable to hit one of these two:
-
-1. coreboot_driver_register() eventually hits "[...] the bus was not
-   initialized.", and the memconsole driver fails to register; or
-2. coreboot_driver_register() gets past #1, but still races with
-   bus_register() and hits some other undefined/crashing behavior (e.g.,
-   in driver_find() [1])
-
-We can resolve this by registering the bus in our initcall, and only
-deferring "device" work (scanning the coreboot memory region and
-creating sub-devices) to probe().
-
-[1] Example failure, using 'driver_async_probe=*' kernel command line:
-
-[    0.114217] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
-...
-[    0.114307] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.1.0-rc1 #63
-[    0.114316] Hardware name: Google Scarlet (DT)
-...
-[    0.114488] Call trace:
-[    0.114494]  _raw_spin_lock+0x34/0x60
-[    0.114502]  kset_find_obj+0x28/0x84
-[    0.114511]  driver_find+0x30/0x50
-[    0.114520]  driver_register+0x64/0x10c
-[    0.114528]  coreboot_driver_register+0x30/0x3c
-[    0.114540]  memconsole_driver_init+0x24/0x30
-[    0.114550]  do_one_initcall+0x154/0x2e0
-[    0.114560]  do_initcall_level+0x134/0x160
-[    0.114571]  do_initcalls+0x60/0xa0
-[    0.114579]  do_basic_setup+0x28/0x34
-[    0.114588]  kernel_init_freeable+0xf8/0x150
-[    0.114596]  kernel_init+0x2c/0x12c
-[    0.114607]  ret_from_fork+0x10/0x20
-[    0.114624] Code: 5280002b 1100054a b900092a f9800011 (885ffc01)
-[    0.114631] ---[ end trace 0000000000000000 ]---
-
-Fixes: b81e3140e412 ("firmware: coreboot: Make bus registration symmetric")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20221019180934.1.If29e167d8a4771b0bf4a39c89c6946ed764817b9@changeid
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/firmware/google/coreboot_table.c | 37 +++++++++++++++++++-----
- 1 file changed, 29 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/firmware/google/coreboot_table.c b/drivers/firmware/google/coreboot_table.c
-index c52bcaa9def6..9ca21feb9d45 100644
---- a/drivers/firmware/google/coreboot_table.c
-+++ b/drivers/firmware/google/coreboot_table.c
-@@ -149,12 +149,8 @@ static int coreboot_table_probe(struct platform_device *pdev)
- 	if (!ptr)
- 		return -ENOMEM;
- 
--	ret = bus_register(&coreboot_bus_type);
--	if (!ret) {
--		ret = coreboot_table_populate(dev, ptr);
--		if (ret)
--			bus_unregister(&coreboot_bus_type);
--	}
-+	ret = coreboot_table_populate(dev, ptr);
-+
- 	memunmap(ptr);
- 
- 	return ret;
-@@ -169,7 +165,6 @@ static int __cb_dev_unregister(struct device *dev, void *dummy)
- static int coreboot_table_remove(struct platform_device *pdev)
- {
- 	bus_for_each_dev(&coreboot_bus_type, NULL, NULL, __cb_dev_unregister);
--	bus_unregister(&coreboot_bus_type);
- 	return 0;
- }
- 
-@@ -199,6 +194,32 @@ static struct platform_driver coreboot_table_driver = {
- 		.of_match_table = of_match_ptr(coreboot_of_match),
- 	},
- };
--module_platform_driver(coreboot_table_driver);
-+
-+static int __init coreboot_table_driver_init(void)
-+{
-+	int ret;
-+
-+	ret = bus_register(&coreboot_bus_type);
-+	if (ret)
-+		return ret;
-+
-+	ret = platform_driver_register(&coreboot_table_driver);
-+	if (ret) {
-+		bus_unregister(&coreboot_bus_type);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static void __exit coreboot_table_driver_exit(void)
-+{
-+	platform_driver_unregister(&coreboot_table_driver);
-+	bus_unregister(&coreboot_bus_type);
-+}
-+
-+module_init(coreboot_table_driver_init);
-+module_exit(coreboot_table_driver_exit);
-+
- MODULE_AUTHOR("Google, Inc.");
- MODULE_LICENSE("GPL");
 -- 
-2.38.1
+Hello,
+We are privileged and delighted to reach you via email" And we are
+urgently waiting to hear from you. and again your number is not
+connecting.
 
-
+Best regards,
+Prof. Do-Young Byun
