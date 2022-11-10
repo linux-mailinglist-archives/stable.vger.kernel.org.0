@@ -2,67 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF54B62409A
-	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 12:02:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2094C6241C1
+	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 12:49:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229556AbiKJLCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 06:02:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50678 "EHLO
+        id S229560AbiKJLtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 06:49:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230381AbiKJLBy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 06:01:54 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 208E16C72A;
-        Thu, 10 Nov 2022 03:01:51 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id bk15so1670882wrb.13;
-        Thu, 10 Nov 2022 03:01:51 -0800 (PST)
+        with ESMTP id S229553AbiKJLtU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 06:49:20 -0500
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7545570542;
+        Thu, 10 Nov 2022 03:49:19 -0800 (PST)
+Received: by mail-ej1-x631.google.com with SMTP id 13so4359640ejn.3;
+        Thu, 10 Nov 2022 03:49:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=qwVlhKyjAqadEs+EcXaVXZXm59VZBVI2UWpnsWBfohc=;
-        b=ArAT78dtQ1LjisEGZG3pTBQt5HrIKKY04HEkhLvfGO/r/9e67iqQOAyWor/GxtaA4F
-         ClSQKShwC+9MQp2KfENv2A/a0skEJw2MHN8enpTq/q40eEI0SvyEFsDWmeynwdRCRlTn
-         sYmGCbiGz3Jgc6Uce+UQsTTtZUMJS2DJk+5K7Pi+PXgWRGc9m780827nEffQ/hPG2r0l
-         4Dzc2WtERcC40Nljm+esM94mU0WWn9grwUqq9xTEQUmle8xGC4V11rqtI+TacBtoptlj
-         ty5yLxhkKf7hNzDjVK9VqE3/jbPKKdK1qFpYmKDZ9DtcFUStQ6Va5HBsdioIT+DsoBOd
-         tZNw==
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Oxk2AV8+FhBOGroCEWRLPEZUBblVi7YSrra9hiMhDuc=;
+        b=BzUM/uBULqYF4lAvJofEpsuCEO1dVz0vJT12o2or5Un9WWwg6xf4NdR6jNHjXi/rqv
+         75RNhh6mkwhIG2anyIJcl/JpsVPoFypOZAK6OM/F7f53Aj+3SOwkAl0y4T8yQyR7DoE8
+         LY3nLO4VT0XZ0R562LvfeH9gjdKpkWTyva3wL1hJAUK7qqQYOZlmzqoU8+3GKbX6MOzN
+         urptqRL9xrwjfMBz6VJUbBiqm7kEwacjpVHSO3gaFWQE6ScSuars3eU4a/7LrhLH99ph
+         EQkMOibsO5qUb1l8Kw/Ju0hFP90+iIliEDPWO7NLXHfo47BDlbzR9W3tWt+LxSJdX+sD
+         ZdCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=qwVlhKyjAqadEs+EcXaVXZXm59VZBVI2UWpnsWBfohc=;
-        b=sVAsvhQLXCLR4ODC21eoBWR4E7A8qjooqVynme0SXeGuPEa5Dq8V2yZvgxnSkFYaAd
-         D6bgzq73P1FNh3z8WsX76CtXiRtXW4d12d+eNELZz2PCDE6Gz64kANemLAU0Z0inZ6br
-         8X5+8KpOi6XmS/iYfaylDg+3OiZ+Q/5KbU6QlaLj9+qfz2FGysIwzR3pQ3epydlEJwKz
-         9JHgfuUIY6jxWTG6Yr0ePafjHBYYO0OoocKXCae3u7bTMQd72qW10TaX5/ZgI63aG886
-         1wNcaJ3H5NJpYdBFegWjErGDMzHWZOvJ9DG7cux8wHp9yfDI3iyjjqh+8D4l7gnNI5oa
-         vIyg==
-X-Gm-Message-State: ACrzQf0ZhnQgBLI3FQ6VCcE7etb7zfWN73ZP6UHC6v2uN/BCc3OukNoI
-        1VwWHdGzD8gNVby093p2rsvTkyhrq90=
-X-Google-Smtp-Source: AMsMyM661UjkKr37EV1uSH5xPOCcFl3fqWzZ+QPAv7YAdSe7Bt/HNMU7Wa2/TjPm/VlvVn+PbPTGAw==
-X-Received: by 2002:a05:6000:1888:b0:236:8b32:cb47 with SMTP id a8-20020a056000188800b002368b32cb47mr39150806wri.601.1668078109562;
-        Thu, 10 Nov 2022 03:01:49 -0800 (PST)
-Received: from debian (host-78-150-37-98.as13285.net. [78.150.37.98])
-        by smtp.gmail.com with ESMTPSA id o4-20020a05600c510400b003c6d21a19a0sm5274531wms.29.2022.11.10.03.01.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Nov 2022 03:01:49 -0800 (PST)
-Date:   Thu, 10 Nov 2022 11:01:47 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net
-Subject: Re: [PATCH 5.15 000/144] 5.15.78-rc1 review
-Message-ID: <Y2zaGx2TV0bGf3gM@debian>
-References: <20221108133345.346704162@linuxfoundation.org>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Oxk2AV8+FhBOGroCEWRLPEZUBblVi7YSrra9hiMhDuc=;
+        b=Ig+41MxQPmIk3D4n2bsyUt9WOAqC15/8UMhPGdr1EFhROJ0NDQeiY6HpirZTBmphNA
+         9WmSq1dmX6bWUoiE9P1dGrjn8pZuKHTBwI9opC+VlQY+DeixKA8MPe3wGA8s20qi4Dis
+         jBHREGwmfxHO8WFOh3pwFuqAu2+elbAbc559lyBIyzZj0NVC20mp47DCeq+g+kSzM2bR
+         P08s1TmhXn1hE2AHUpmIzPeFuZgh/c/cmRjOVxSWOoJImcDwGJIVQG8cfjhkTClamK+W
+         Xl3wqSFLsGMArP5nfa5ZvKyn6q7pXP3wjg3p8dm+ewEaU0Pwl22gTjG56f6Z5X+queC+
+         CNRg==
+X-Gm-Message-State: ACrzQf1Q50VAw31RdVyYGYUI4GjQtlhSliOB3ETrTdXy1E8y9lIcNYw4
+        qGgF9+kUoqTnockeqY1hi8NMSvMy5ta9/RnT0ks=
+X-Google-Smtp-Source: AMsMyM5nMfMTxYoYbUC3Tq2BPBFebscncPbDQfPBdv4GGxfIwkVYTbyiY3ITGSzImVUszRjomL+YDTTO7L+TCkWFDQU=
+X-Received: by 2002:a17:906:ee8e:b0:730:4a24:f311 with SMTP id
+ wt14-20020a170906ee8e00b007304a24f311mr60330140ejb.420.1668080957978; Thu, 10
+ Nov 2022 03:49:17 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221108133345.346704162@linuxfoundation.org>
+References: <20221110020828.1899393-1-xiubli@redhat.com>
+In-Reply-To: <20221110020828.1899393-1-xiubli@redhat.com>
+From:   Ilya Dryomov <idryomov@gmail.com>
+Date:   Thu, 10 Nov 2022 12:49:05 +0100
+Message-ID: <CAOi1vP9CtZdJ7tx4-WHhiHxB4WPqx-i6EjXwMHCOeBcxMxAndA@mail.gmail.com>
+Subject: Re: [PATCH v4] ceph: fix NULL pointer dereference for req->r_session
+To:     xiubli@redhat.com
+Cc:     ceph-devel@vger.kernel.org, lhenriques@suse.de, jlayton@kernel.org,
+        mchangir@redhat.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
@@ -73,39 +66,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Thu, Nov 10, 2022 at 3:08 AM <xiubli@redhat.com> wrote:
+>
+> From: Xiubo Li <xiubli@redhat.com>
+>
+> The request's r_session maybe changed when it was forwarded or
+> resent.
+>
+> Cc: stable@vger.kernel.org
+> URL: https://bugzilla.redhat.com/show_bug.cgi?id=2137955
+> Signed-off-by: Xiubo Li <xiubli@redhat.com>
+> ---
+>
+> Changed in V4:
+> - move mdsc->mutex acquisition and max_sessions assignment into "if (req1 || req2)" branch
+>
+>  fs/ceph/caps.c | 54 +++++++++++++++-----------------------------------
+>  1 file changed, 16 insertions(+), 38 deletions(-)
+>
+> diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+> index 894adfb4a092..1c84be839087 100644
+> --- a/fs/ceph/caps.c
+> +++ b/fs/ceph/caps.c
+> @@ -2297,7 +2297,6 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+>         struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
+>         struct ceph_inode_info *ci = ceph_inode(inode);
+>         struct ceph_mds_request *req1 = NULL, *req2 = NULL;
+> -       unsigned int max_sessions;
+>         int ret, err = 0;
+>
+>         spin_lock(&ci->i_unsafe_lock);
+> @@ -2315,28 +2314,24 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+>         }
+>         spin_unlock(&ci->i_unsafe_lock);
+>
+> -       /*
+> -        * The mdsc->max_sessions is unlikely to be changed
+> -        * mostly, here we will retry it by reallocating the
+> -        * sessions array memory to get rid of the mdsc->mutex
+> -        * lock.
+> -        */
+> -retry:
+> -       max_sessions = mdsc->max_sessions;
+> -
+>         /*
+>          * Trigger to flush the journal logs in all the relevant MDSes
+>          * manually, or in the worst case we must wait at most 5 seconds
+>          * to wait the journal logs to be flushed by the MDSes periodically.
+>          */
+> -       if ((req1 || req2) && likely(max_sessions)) {
+> -               struct ceph_mds_session **sessions = NULL;
+> -               struct ceph_mds_session *s;
+> +       if (req1 || req2) {
+>                 struct ceph_mds_request *req;
+> +               struct ceph_mds_session **sessions;
+> +               struct ceph_mds_session *s;
+> +               unsigned int max_sessions;
+>                 int i;
+>
+> +               mutex_lock(&mdsc->mutex);
+> +               max_sessions = mdsc->max_sessions;
+> +
+>                 sessions = kcalloc(max_sessions, sizeof(s), GFP_KERNEL);
+>                 if (!sessions) {
+> +                       mutex_unlock(&mdsc->mutex);
+>                         err = -ENOMEM;
+>                         goto out;
+>                 }
+> @@ -2346,18 +2341,8 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+>                         list_for_each_entry(req, &ci->i_unsafe_dirops,
+>                                             r_unsafe_dir_item) {
+>                                 s = req->r_session;
+> -                               if (!s)
+> +                               if (!s || unlikely(s->s_mds >= max_sessions))
 
-On Tue, Nov 08, 2022 at 02:37:57PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.78 release.
-> There are 144 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 10 Nov 2022 13:33:17 +0000.
-> Anything received after that time might be too late.
+Hi Xiubo,
 
-Build test (gcc version 12.2.1 20221016):
-mips: 62 configs -> no failure
-arm: 99 configs -> no failure
-arm64: 3 configs -> no failure
-x86_64: 4 configs -> no failure
-alpha allmodconfig -> no failure
-csky allmodconfig -> no failure
-powerpc allmodconfig -> no failure
-riscv allmodconfig -> no failure
-s390 allmodconfig -> no failure
-xtensa allmodconfig -> no failure
+I would be fine with this patch as is but I'm wondering if it can be
+simplified further.  Now that mdsc->mutex is held while sessions array
+is populated, is checking s->s_mds against max_sessions actually
+needed?  Is it possible for some req->r_session on one of the unsafe
+lists to have an "out of bounds" s_mds under mdsc->mutex?
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-arm64: Booted on rpi4b (4GB model). No regression. [2]
+Thanks,
 
-[1]. https://openqa.qa.codethink.co.uk/tests/2128
-[2]. https://openqa.qa.codethink.co.uk/tests/2134
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
--- 
-Regards
-Sudip
+                Ilya
