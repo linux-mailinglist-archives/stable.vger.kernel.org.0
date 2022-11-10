@@ -2,140 +2,237 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6116A6237A3
-	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 00:45:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0240962383F
+	for <lists+stable@lfdr.de>; Thu, 10 Nov 2022 01:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229811AbiKIXph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Nov 2022 18:45:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45800 "EHLO
+        id S231611AbiKJAlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Nov 2022 19:41:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229452AbiKIXpg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 18:45:36 -0500
-Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9892654B
-        for <stable@vger.kernel.org>; Wed,  9 Nov 2022 15:45:35 -0800 (PST)
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id D051E320098F;
-        Wed,  9 Nov 2022 18:45:34 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 09 Nov 2022 18:45:35 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tyhicks.com; h=
-        cc:cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm3; t=1668037534; x=1668123934; bh=EKbvm6lXWN
-        WG0tnKNgWaxRY/vxfnNA6gcaiiYQn/rPQ=; b=aP+8Kth39y9GVNx0NL8YMv8q0R
-        OtxW9l/rQUc3xaEFBMAS+G+7gyK37ynlUTg04J8qjX4sb7sZIQj5YN/9AXwWIE0U
-        B3jwxRDEoqRuJagO9InhpJM369LNadrTzWJhdX40ZXjQYkTiBiGPJkdURF48fJW6
-        EEq4/noYY7p1+p4daEXU/JjH61ZNObvERGfXjc/ruxu8OlTsuZKyOykQ5JpmTN0f
-        JqFYdmj0uGcpuzQw6ULT1qL6JgOta/Yjch32Wx2W/SWYLvK8gRuWiekLwc1hSEhQ
-        mVmqHZkbsdp7smUrMfFelA5OKDUb7feXaClK52Ggcu/4VQ5GTOlZ6Q0q448g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; t=1668037534; x=1668123934; bh=EKbvm6lXWNWG0tnKNgWaxRY/vxfn
-        NA6gcaiiYQn/rPQ=; b=oOgHFuKxb4Ct7H56DN/S5jNPERh8Lfo41yefjl3cEaSP
-        5ZrXQaAYGhzgzuwX6sV5gLGDqpyMOqbrK0CwW/QeB+JmYSxGEqv6AtK8ziFvSsAR
-        Drialyg5BF29w86J7GBpyGb5ElKXqUb1rs8gC1fapO5KcW/0Aha735bG48sLrkdp
-        j18kVJlM/5ChWbBUJHO+m/JT5yTcq+y1DfX6A9hheg2FG1t9EAMdv5O9G2oOuwjC
-        M7CPtzm7zMpfqPpej4bglp5D7oTkBvwzNqg0X7jWnOTqPOOO0gmezEEi5ITOjKch
-        uaQhfNA73zZYV8dzTl/q3dimR57/UX61JvTTMW+3bA==
-X-ME-Sender: <xms:nTtsYxp_4WIDiEESB-ErwSI2cr4YpshddIouCkCTXTDnW51PM49MMA>
-    <xme:nTtsYzqWIrKQIARbyIHj8iagK-nfWalwQzQK1iXj2D-YQKR0qiLACmhcCqygHGjxo
-    jnFtSgsUeV4r2-SXgI>
-X-ME-Received: <xmr:nTtsY-Nqiqw9pSmV3dtsawMZZIsrdLaf3_zzuPtlDyRQ-leDvEpPERJ6fDM>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrfeefgddufecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpedfvfihlhgv
-    rhcujfhitghkshculdfoihgtrhhoshhofhhtmddfuceotghouggvsehthihhihgtkhhsrd
-    gtohhmqeenucggtffrrghtthgvrhhnpeevfedvieegtdduhfehtdfgleefueeukeehhfeu
-    fefgudekjedvtdffjedvjedtffenucffohhmrghinhepkhhrohgrhhdrtghomhenucevlh
-    hushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegtohguvgesthih
-    hhhitghkshdrtghomh
-X-ME-Proxy: <xmx:nTtsY87gHnuDM-K1uA02MlvJq_Pv_5alU5j6VCNSoteD5OgUAXWbag>
-    <xmx:nTtsYw6QSkjij4boRvm7tXZMmUNXlxSFUO_DAjubT6u193aCJNvqug>
-    <xmx:nTtsY0iG-jYcvZwIhdaY6Nam1Tz4I6ty2VyPzS9m4gbEOUx_TQWnpw>
-    <xmx:njtsY6TYN97yWc2va4V19ELa3l3daLFCXVdG6vS-KAOrEW0I2M0ZVA>
-Feedback-ID: i78e14604:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 9 Nov 2022 18:45:33 -0500 (EST)
-Date:   Wed, 9 Nov 2022 17:45:26 -0600
-From:   "Tyler Hicks (Microsoft)" <code@tyhicks.com>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc:     Suleiman Souhlal <suleiman@google.com>, sashal@kernel.org,
-        Sangwhan Moon <sxm@google.com>, stable@vger.kernel.org,
-        Kelsey Steele <kelseysteele@linux.microsoft.com>,
-        Allen Pais <stable.kernel.dev@gmail.com>
-Subject: Re: LTS 5.15 EOL Date
-Message-ID: <20221109234526.r5raofrnzddggarw@sequoia>
-References: <CABCjUKBwLuTWE7A4PkNvRZx=6jeu3QjsFZq5iWZAKnmPYWKLog@mail.gmail.com>
- <Y1EGHnKcWzKv6t99@kroah.com>
- <20221028194019.vda2ei2nsqsysvby@sequoia>
- <Y1zIJw0RNGtQ3XgQ@kroah.com>
+        with ESMTP id S231597AbiKJAlT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Nov 2022 19:41:19 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6C61A3B9
+        for <stable@vger.kernel.org>; Wed,  9 Nov 2022 16:40:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1668040824;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Jb+GWG4SzKFOnPzGT0XrHEOZTpBZHmVwqAFCx+Hy5kI=;
+        b=amt1pM6xaahF8KPVaduRFNEGhcTEeO0CtVmtIjn930Dks8WiI4E9W+6dmB9ryJagKRqbQD
+        jliMezjA3pKOvCo/irwxlL4wjb2Ax56oLr/mkesB68DALJ4J6ALxGJSgSspsGuGCPQXlpw
+        vmi6iAo73cpp4uFcTLQR73C2fMPW7TU=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-313-FMEWEkM2M5aoTfrDPmi65A-1; Wed, 09 Nov 2022 19:40:23 -0500
+X-MC-Unique: FMEWEkM2M5aoTfrDPmi65A-1
+Received: by mail-pj1-f72.google.com with SMTP id q1-20020a17090aa00100b002139a592adbso2350831pjp.1
+        for <stable@vger.kernel.org>; Wed, 09 Nov 2022 16:40:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-language:content-transfer-encoding:in-reply-to:mime-version
+         :user-agent:date:message-id:from:references:cc:to:subject
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Jb+GWG4SzKFOnPzGT0XrHEOZTpBZHmVwqAFCx+Hy5kI=;
+        b=jgO3T0VqpbOVHmR6ZTrlqoO1I69Uh7cP0161C8lWV7TZfOUi3TNea53jQ3NeabJMpT
+         RNMLzmqws6j1IpzJdNNv+eLWUEK0y8upnxUE3r5TbR24dVlgaDqpD+sZNeuJ0CM/11eR
+         tLhGO3VAp3qWk8YYlco2HycNGBrnPNkCwBWTud8rK6GGIsWog2kkzCyFHGURPdhbqawb
+         ItkeN6kGGMu5lAgI1iUXV/Cxxwih/ZC+0hSfuoOkgxp/i5XR2QptxCsItrBx91oDkD0+
+         wGnr6R/dctnCzwj3fKaT3wcZQyKSYnHZaXKDLQrTwLgc6BdW+b6KegaHq8EL46KbZWs6
+         cw2Q==
+X-Gm-Message-State: ACrzQf1YEeBj5dJpSAYaqUhUget3QaaAyCnPdGt8v+1ckMtzTWrgt3Nz
+        l81nFjrEUWgx4HxxwwDQdEQkz8KquTd/e00iTa4MN6AgisQ8fUHR3hTByL+u3doDD3152pYOe5n
+        7UMl2pe3MXzKPXuoixTMbdRDC3PKwAKQqWhsRW5JS2jXbgOLrrrXzcVKum81R7/x/mQ==
+X-Received: by 2002:a05:6a00:24cb:b0:56c:7815:bc7d with SMTP id d11-20020a056a0024cb00b0056c7815bc7dmr63590794pfv.44.1668040822669;
+        Wed, 09 Nov 2022 16:40:22 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM7ZpgS7/OFbLbJ+1mazloO3fkN7FvJ/RHkaTNd1GWeJSzUBIYvORYdPKhiE7Q2TQ49onDSPWg==
+X-Received: by 2002:a05:6a00:24cb:b0:56c:7815:bc7d with SMTP id d11-20020a056a0024cb00b0056c7815bc7dmr63590772pfv.44.1668040822254;
+        Wed, 09 Nov 2022 16:40:22 -0800 (PST)
+Received: from [10.72.12.148] ([43.228.180.230])
+        by smtp.gmail.com with ESMTPSA id h4-20020a170902680400b00186efc56ab9sm9667549plk.221.2022.11.09.16.40.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 09 Nov 2022 16:40:21 -0800 (PST)
+Subject: Re: [PATCH v3] ceph: fix NULL pointer dereference for req->r_session
+To:     Ilya Dryomov <idryomov@gmail.com>
+Cc:     ceph-devel@vger.kernel.org, lhenriques@suse.de, jlayton@kernel.org,
+        mchangir@redhat.com, stable@vger.kernel.org
+References: <20221108135554.558278-1-xiubli@redhat.com>
+ <CAOi1vP8Fkzq542St9od7G_JnQyS93=BgLLRUE86-E-Zw4MEt3g@mail.gmail.com>
+ <c905be56-ba74-9a86-1aff-3fb17a157932@redhat.com>
+ <CAOi1vP91fd=TpnPio0rtMcpepqz4u3r1HsXmp8+WC7dfy2rZ2w@mail.gmail.com>
+From:   Xiubo Li <xiubli@redhat.com>
+Message-ID: <d0afa98d-b37a-94f5-398d-de8401d96e4d@redhat.com>
+Date:   Thu, 10 Nov 2022 08:40:14 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y1zIJw0RNGtQ3XgQ@kroah.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <CAOi1vP91fd=TpnPio0rtMcpepqz4u3r1HsXmp8+WC7dfy2rZ2w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-10-29 08:28:55, gregkh@linuxfoundation.org wrote:
-> On Fri, Oct 28, 2022 at 02:40:19PM -0500, Tyler Hicks (Microsoft) wrote:
-> > On 2022-10-20 10:26:06, gregkh@linuxfoundation.org wrote:
-> > > On Thu, Oct 20, 2022 at 08:25:35AM +0900, Suleiman Souhlal wrote:
-> > > > Hello,
-> > > > 
-> > > > I saw that the projected EOL of LTS 5.15 is Oct 2023.
-> > > > How likely is it that the date will be extended? I'm guessing it's
-> > > > pretty likely, given that Android uses it.
-> > > 
-> > > Android is the only user that has talked to me about this kernel
-> > > version so far.  Please see:
-> > > 	http://kroah.com/log/blog/2021/02/03/helping-out-with-lts-kernel-releases/
-> > > for what I require in order to keep an LTS kernel going longer than 2
-> > > years.
-> > 
-> > Microsoft is also interested in a longer lifetime for v5.15 LTS. An
-> > additional year should meet our needs.
-> 
-> Wonderful, thanks for letting us know.
-> 
-> > We are aware of your "Helping Out ..." blog post and have been making
-> > improvements to be of more assistance. Kelsey and Allen (Cc'ed) have
-> > been doing -rc testing of v5.15 -rc releases and reporting the results
-> > to the list, on behalf of Microsoft. Testing of the -rc releases is
-> > mostly manual at this point, so we don't get every release tested before
-> > the release happens, but we're working on improving our processes and
-> > having builds/tests kick off automatically so that you can rely on us
-> > even more. We should have a much better system in place to help with
-> > testing and reporting by the time Oct 2023 rolls around. :)
-> 
-> Don't you all use kernelci already?  Doesn't that fit into your testing
-> environment already to make this easier?
 
-You're right that we provide kernelci resources for the broader
-community but we use something different internally.
+On 09/11/2022 22:16, Ilya Dryomov wrote:
+> On Wed, Nov 9, 2022 at 3:12 PM Xiubo Li <xiubli@redhat.com> wrote:
+>>
+>> On 09/11/2022 20:56, Ilya Dryomov wrote:
+>>> On Tue, Nov 8, 2022 at 2:56 PM <xiubli@redhat.com> wrote:
+>>>> From: Xiubo Li <xiubli@redhat.com>
+>>>>
+>>>> The request's r_session maybe changed when it was forwarded or
+>>>> resent.
+>>>>
+>>>> Cc: stable@vger.kernel.org
+>>>> URL: https://bugzilla.redhat.com/show_bug.cgi?id=2137955
+>>>> Signed-off-by: Xiubo Li <xiubli@redhat.com>
+>>>> ---
+>>>>    fs/ceph/caps.c | 60 ++++++++++++++++----------------------------------
+>>>>    1 file changed, 19 insertions(+), 41 deletions(-)
+>>>>
+>>>> diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+>>>> index 894adfb4a092..83f9e18e3169 100644
+>>>> --- a/fs/ceph/caps.c
+>>>> +++ b/fs/ceph/caps.c
+>>>> @@ -2297,8 +2297,10 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+>>>>           struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
+>>>>           struct ceph_inode_info *ci = ceph_inode(inode);
+>>>>           struct ceph_mds_request *req1 = NULL, *req2 = NULL;
+>>>> +       struct ceph_mds_session **sessions = NULL;
+>>>> +       struct ceph_mds_session *s;
+>>>>           unsigned int max_sessions;
+>>>> -       int ret, err = 0;
+>>>> +       int i, ret, err = 0;
+>>>>
+>>>>           spin_lock(&ci->i_unsafe_lock);
+>>>>           if (S_ISDIR(inode->i_mode) && !list_empty(&ci->i_unsafe_dirops)) {
+>>>> @@ -2315,28 +2317,19 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+>>>>           }
+>>>>           spin_unlock(&ci->i_unsafe_lock);
+>>>>
+>>>> -       /*
+>>>> -        * The mdsc->max_sessions is unlikely to be changed
+>>>> -        * mostly, here we will retry it by reallocating the
+>>>> -        * sessions array memory to get rid of the mdsc->mutex
+>>>> -        * lock.
+>>>> -        */
+>>>> -retry:
+>>>> -       max_sessions = mdsc->max_sessions;
+>>>> -
+>>>>           /*
+>>>>            * Trigger to flush the journal logs in all the relevant MDSes
+>>>>            * manually, or in the worst case we must wait at most 5 seconds
+>>>>            * to wait the journal logs to be flushed by the MDSes periodically.
+>>>>            */
+>>>> -       if ((req1 || req2) && likely(max_sessions)) {
+>>>> -               struct ceph_mds_session **sessions = NULL;
+>>>> -               struct ceph_mds_session *s;
+>>>> +       mutex_lock(&mdsc->mutex);
+>>>> +       max_sessions = mdsc->max_sessions;
+>>>> +       if (req1 || req2) {
+>>>>                   struct ceph_mds_request *req;
+>>>> -               int i;
+>>>>
+>>>>                   sessions = kcalloc(max_sessions, sizeof(s), GFP_KERNEL);
+>>>>                   if (!sessions) {
+>>>> +                       mutex_unlock(&mdsc->mutex);
+>>>>                           err = -ENOMEM;
+>>>>                           goto out;
+>>>>                   }
+>>>> @@ -2346,18 +2339,8 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+>>>>                           list_for_each_entry(req, &ci->i_unsafe_dirops,
+>>>>                                               r_unsafe_dir_item) {
+>>>>                                   s = req->r_session;
+>>>> -                               if (!s)
+>>>> +                               if (!s || unlikely(s->s_mds >= max_sessions))
+>>>>                                           continue;
+>>>> -                               if (unlikely(s->s_mds >= max_sessions)) {
+>>>> -                                       spin_unlock(&ci->i_unsafe_lock);
+>>>> -                                       for (i = 0; i < max_sessions; i++) {
+>>>> -                                               s = sessions[i];
+>>>> -                                               if (s)
+>>>> -                                                       ceph_put_mds_session(s);
+>>>> -                                       }
+>>>> -                                       kfree(sessions);
+>>>> -                                       goto retry;
+>>>> -                               }
+>>>>                                   if (!sessions[s->s_mds]) {
+>>>>                                           s = ceph_get_mds_session(s);
+>>>>                                           sessions[s->s_mds] = s;
+>>>> @@ -2368,18 +2351,8 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+>>>>                           list_for_each_entry(req, &ci->i_unsafe_iops,
+>>>>                                               r_unsafe_target_item) {
+>>>>                                   s = req->r_session;
+>>>> -                               if (!s)
+>>>> +                               if (!s || unlikely(s->s_mds >= max_sessions))
+>>>>                                           continue;
+>>>> -                               if (unlikely(s->s_mds >= max_sessions)) {
+>>>> -                                       spin_unlock(&ci->i_unsafe_lock);
+>>>> -                                       for (i = 0; i < max_sessions; i++) {
+>>>> -                                               s = sessions[i];
+>>>> -                                               if (s)
+>>>> -                                                       ceph_put_mds_session(s);
+>>>> -                                       }
+>>>> -                                       kfree(sessions);
+>>>> -                                       goto retry;
+>>>> -                               }
+>>>>                                   if (!sessions[s->s_mds]) {
+>>>>                                           s = ceph_get_mds_session(s);
+>>>>                                           sessions[s->s_mds] = s;
+>>>> @@ -2391,13 +2364,18 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+>>>>                   /* the auth MDS */
+>>>>                   spin_lock(&ci->i_ceph_lock);
+>>>>                   if (ci->i_auth_cap) {
+>>>> -                     s = ci->i_auth_cap->session;
+>>>> -                     if (!sessions[s->s_mds])
+>>>> -                             sessions[s->s_mds] = ceph_get_mds_session(s);
+>>>> +                       s = ci->i_auth_cap->session;
+>>>> +                       if (likely(s->s_mds < max_sessions)
+>>>> +                           && !sessions[s->s_mds]) {
+>>> Hi Xiubo,
+>>>
+>>> Nit: keep && on the previous line for style consistency.
+>> Sure. Will fix it.
+>>
+>>
+>>>> +                               sessions[s->s_mds] = ceph_get_mds_session(s);
+>>>> +                       }
+>>>>                   }
+>>>>                   spin_unlock(&ci->i_ceph_lock);
+>>>> +       }
+>>>> +       mutex_unlock(&mdsc->mutex);
+>>>>
+>>>> -               /* send flush mdlog request to MDSes */
+>>>> +       /* send flush mdlog request to MDSes */
+>>>> +       if (sessions) {
+>>> Since mdlog is flushed only in "if (req1 || req2)" case, why not keep
+>>> max_sessions loop there and avoid sessions != NULL check?
+>> This is because I must drop the mdsc->mutex before calling
+>> "send_flush_mdlog()" in the max_sessions loop.
+> If you move mdsc->mutex acquisition and max_sessions assignment
+> into "if (req1 || req2)" branch, it can be trivially dropped before
+> the loop.
 
-> 
-> And yes, I have seen the testing results, thank you for that.  If you
-> all want to be added to the initial -rc1 email announcement to help
-> trigger any build systems that way, just let me know.
+Okay, sounds good.
 
-Thanks. I had planned to watch for new pushes to the linux-stable-rc.git
-branches. If that doesn't work for some reason, we'll take you up on the
-email offer.
+Thanks!
 
-Tyler
+- Xiubo
 
-> thanks,
-> 
-> greg k-h
+
+> Thanks,
+>
+>                  Ilya
+>
+
