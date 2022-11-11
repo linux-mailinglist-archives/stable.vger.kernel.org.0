@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D85BA6250A2
-	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 03:37:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4E116250A8
+	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 03:37:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233014AbiKKChN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 21:37:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47154 "EHLO
+        id S233033AbiKKChP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 21:37:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232929AbiKKCgl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 21:36:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DC72FADB;
-        Thu, 10 Nov 2022 18:35:22 -0800 (PST)
+        with ESMTP id S230522AbiKKCgm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 21:36:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC6C0C745;
+        Thu, 10 Nov 2022 18:35:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADF5061E7E;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E31BB823CA;
+        Fri, 11 Nov 2022 02:35:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C038C433B5;
         Fri, 11 Nov 2022 02:35:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 585FEC433D7;
-        Fri, 11 Nov 2022 02:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668134121;
-        bh=YP8IrGKf0vDad827G146Zm4KImx0RbAY4W8o1gUrL/A=;
+        s=k20201202; t=1668134123;
+        bh=upNkdi5O0O2ZCLZhuIgCzfblffSeZQe7x+ufoQQ0hg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sCnWQnOkbZ2cXQ791pZahWvZllIAScvcAU1XEC09R+AothHvu2QFp8Dz0GT7leWa/
-         bXf94c4L0PB5NCfDGqoXwz+eKDMqIl+gsvfvZVpmQ4bjD1OUxP4C0W6FXrkOIGmxsS
-         3TMhQ/G5aEs1RZZdgZi8wueFEgTErKEZOOiF8QdAzpq69W+K3LUUi20xqgHvyQR5Ej
-         BG3nw33XAlWsGmbaysapSRMsWOtiiLEb/Bk9mYwLaDtfZZwFgq9Hnr4Webur1YI71m
-         yyRN8gkaFlXXBWXdtGDurjNbDTD7livxO+3Zsi6wlGMJSNCQUlp/jxi0HrIgFPnCh6
-         4cjxysJjmoSOQ==
+        b=k59DnB51BbAVCPrK0KBtPlVOcbhW5uelRiQAZBsGcLTpfvc0+In8gPwSvc3eKA54x
+         2jFPSO6GZdHkZ8iwyGy9JAsaFdO0THp+YyC/w5Aqr/+RH1AmQuLPJ5u2sffkPu1krL
+         iHynQosorhi3dW/dG1c9WRTmJjTK0K1J9sqXO9txD1R19JS+x67QLpuk2E4ISnPuVg
+         Dqc7MRyAulV7wnyYEO+GuK/keuIHoxJCh0uxLxr/jAkkoJc3AfAbb2f8sCJ3BxmSh7
+         miTh5L6tH2Xbh4+aaJA0ZYVXeS6OrZMSQanlQNoKJSTNZ357kf3wSVJXoCPBnxm1Jq
+         UxkEjBm8kHNEQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cristian Marussi <cristian.marussi@arm.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 05/11] firmware: arm_scmi: Cleanup the core driver removal callback
-Date:   Thu, 10 Nov 2022 21:35:05 -0500
-Message-Id: <20221111023511.227800-5-sashal@kernel.org>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        ldewangan@nvidia.com, thierry.reding@gmail.com,
+        jonathanh@nvidia.com, sumit.semwal@linaro.org,
+        christian.koenig@amd.com, linux-i2c@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-media@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org
+Subject: [PATCH AUTOSEL 5.15 06/11] i2c: tegra: Allocate DMA memory for DMA engine
+Date:   Thu, 10 Nov 2022 21:35:06 -0500
+Message-Id: <20221111023511.227800-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221111023511.227800-1-sashal@kernel.org>
 References: <20221111023511.227800-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,134 +60,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 3f4071cbd2063b917486d1047a4da47718215fee ]
+[ Upstream commit cdbf26251d3b35c4ccaea0c3a6de4318f727d3d2 ]
 
-Platform drivers .remove callbacks are not supposed to fail and report
-errors. Such errors are indeed ignored by the core platform drivers
-and the driver unbind process is anyway completed.
+When the I2C controllers are running in DMA mode, it is the DMA engine
+that performs the memory accesses rather than the I2C controller. Pass
+the DMA engine's struct device pointer to the DMA API to make sure the
+correct DMA operations are used.
 
-The SCMI core platform driver as it is now, instead, bails out reporting
-an error in case of an explicit unbind request.
+This fixes an issue where the DMA engine's SMMU stream ID needs to be
+misleadingly set for the I2C controllers in device tree.
 
-Fix the removal path by adding proper device links between the core SCMI
-device and the SCMI protocol devices so that a full SCMI stack unbind is
-triggered when the core driver is removed. The remove process does not
-bail out anymore on the anomalous conditions triggered by an explicit
-unbind but the user is still warned.
-
-Reported-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Link: https://lore.kernel.org/r/20221028140833.280091-1-cristian.marussi@arm.com
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Suggested-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/bus.c    | 11 +++++++++++
- drivers/firmware/arm_scmi/common.h |  1 +
- drivers/firmware/arm_scmi/driver.c | 31 ++++++++++++++++++------------
- 3 files changed, 31 insertions(+), 12 deletions(-)
+ drivers/i2c/busses/i2c-tegra.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/firmware/arm_scmi/bus.c b/drivers/firmware/arm_scmi/bus.c
-index f6fe723ab869..7c1c0951e562 100644
---- a/drivers/firmware/arm_scmi/bus.c
-+++ b/drivers/firmware/arm_scmi/bus.c
-@@ -216,9 +216,20 @@ void scmi_device_destroy(struct scmi_device *scmi_dev)
- 	device_unregister(&scmi_dev->dev);
- }
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index c883044715f3..444867cef682 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -283,6 +283,7 @@ struct tegra_i2c_dev {
+ 	struct dma_chan *tx_dma_chan;
+ 	struct dma_chan *rx_dma_chan;
+ 	unsigned int dma_buf_size;
++	struct device *dma_dev;
+ 	dma_addr_t dma_phys;
+ 	void *dma_buf;
  
-+void scmi_device_link_add(struct device *consumer, struct device *supplier)
-+{
-+	struct device_link *link;
-+
-+	link = device_link_add(consumer, supplier, DL_FLAG_AUTOREMOVE_CONSUMER);
-+
-+	WARN_ON(!link);
-+}
-+
- void scmi_set_handle(struct scmi_device *scmi_dev)
+@@ -419,7 +420,7 @@ static int tegra_i2c_dma_submit(struct tegra_i2c_dev *i2c_dev, size_t len)
+ static void tegra_i2c_release_dma(struct tegra_i2c_dev *i2c_dev)
  {
- 	scmi_dev->handle = scmi_handle_get(&scmi_dev->dev);
-+	if (scmi_dev->handle)
-+		scmi_device_link_add(&scmi_dev->dev, scmi_dev->handle->dev);
- }
+ 	if (i2c_dev->dma_buf) {
+-		dma_free_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
++		dma_free_coherent(i2c_dev->dma_dev, i2c_dev->dma_buf_size,
+ 				  i2c_dev->dma_buf, i2c_dev->dma_phys);
+ 		i2c_dev->dma_buf = NULL;
+ 	}
+@@ -466,10 +467,13 @@ static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
  
- int scmi_protocol_register(const struct scmi_protocol *proto)
-diff --git a/drivers/firmware/arm_scmi/common.h b/drivers/firmware/arm_scmi/common.h
-index dea1bfbe1052..b9f5829c0c4d 100644
---- a/drivers/firmware/arm_scmi/common.h
-+++ b/drivers/firmware/arm_scmi/common.h
-@@ -272,6 +272,7 @@ struct scmi_xfer_ops {
- struct scmi_revision_info *
- scmi_revision_area_get(const struct scmi_protocol_handle *ph);
- int scmi_handle_put(const struct scmi_handle *handle);
-+void scmi_device_link_add(struct device *consumer, struct device *supplier);
- struct scmi_handle *scmi_handle_get(struct device *dev);
- void scmi_set_handle(struct scmi_device *scmi_dev);
- void scmi_setup_protocol_implemented(const struct scmi_protocol_handle *ph,
-diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
-index e815b8f98739..20440b69b222 100644
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -1727,10 +1727,16 @@ int scmi_protocol_device_request(const struct scmi_device_id *id_table)
- 			sdev = scmi_get_protocol_device(child, info,
- 							id_table->protocol_id,
- 							id_table->name);
--			/* Set handle if not already set: device existed */
--			if (sdev && !sdev->handle)
--				sdev->handle =
--					scmi_handle_get_from_info_unlocked(info);
-+			if (sdev) {
-+				/* Set handle if not already set: device existed */
-+				if (!sdev->handle)
-+					sdev->handle =
-+						scmi_handle_get_from_info_unlocked(info);
-+				/* Relink consumer and suppliers */
-+				if (sdev->handle)
-+					scmi_device_link_add(&sdev->dev,
-+							     sdev->handle->dev);
-+			}
+ 	i2c_dev->tx_dma_chan = chan;
+ 
++	WARN_ON(i2c_dev->tx_dma_chan->device != i2c_dev->rx_dma_chan->device);
++	i2c_dev->dma_dev = chan->device->dev;
++
+ 	i2c_dev->dma_buf_size = i2c_dev->hw->quirks->max_write_len +
+ 				I2C_PACKET_HEADER_SIZE;
+ 
+-	dma_buf = dma_alloc_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
++	dma_buf = dma_alloc_coherent(i2c_dev->dma_dev, i2c_dev->dma_buf_size,
+ 				     &dma_phys, GFP_KERNEL | __GFP_NOWARN);
+ 	if (!dma_buf) {
+ 		dev_err(i2c_dev->dev, "failed to allocate DMA buffer\n");
+@@ -1255,7 +1259,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 
+ 	if (i2c_dev->dma_mode) {
+ 		if (i2c_dev->msg_read) {
+-			dma_sync_single_for_device(i2c_dev->dev,
++			dma_sync_single_for_device(i2c_dev->dma_dev,
+ 						   i2c_dev->dma_phys,
+ 						   xfer_size, DMA_FROM_DEVICE);
+ 
+@@ -1263,7 +1267,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 			if (err)
+ 				return err;
  		} else {
- 			dev_err(info->dev,
- 				"Failed. SCMI protocol %d not active.\n",
-@@ -1916,20 +1922,17 @@ void scmi_free_channel(struct scmi_chan_info *cinfo, struct idr *idr, int id)
+-			dma_sync_single_for_cpu(i2c_dev->dev,
++			dma_sync_single_for_cpu(i2c_dev->dma_dev,
+ 						i2c_dev->dma_phys,
+ 						xfer_size, DMA_TO_DEVICE);
+ 		}
+@@ -1276,7 +1280,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 			memcpy(i2c_dev->dma_buf + I2C_PACKET_HEADER_SIZE,
+ 			       msg->buf, msg->len);
  
- static int scmi_remove(struct platform_device *pdev)
- {
--	int ret = 0, id;
-+	int ret, id;
- 	struct scmi_info *info = platform_get_drvdata(pdev);
- 	struct device_node *child;
+-			dma_sync_single_for_device(i2c_dev->dev,
++			dma_sync_single_for_device(i2c_dev->dma_dev,
+ 						   i2c_dev->dma_phys,
+ 						   xfer_size, DMA_TO_DEVICE);
  
- 	mutex_lock(&scmi_list_mutex);
- 	if (info->users)
--		ret = -EBUSY;
--	else
--		list_del(&info->node);
-+		dev_warn(&pdev->dev,
-+			 "Still active SCMI users will be forcibly unbound.\n");
-+	list_del(&info->node);
- 	mutex_unlock(&scmi_list_mutex);
+@@ -1327,7 +1331,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 		}
  
--	if (ret)
--		return ret;
--
- 	scmi_notification_exit(&info->handle);
+ 		if (i2c_dev->msg_read && i2c_dev->msg_err == I2C_ERR_NONE) {
+-			dma_sync_single_for_cpu(i2c_dev->dev,
++			dma_sync_single_for_cpu(i2c_dev->dma_dev,
+ 						i2c_dev->dma_phys,
+ 						xfer_size, DMA_FROM_DEVICE);
  
- 	mutex_lock(&info->protocols_mtx);
-@@ -1941,7 +1944,11 @@ static int scmi_remove(struct platform_device *pdev)
- 	idr_destroy(&info->active_protocols);
- 
- 	/* Safe to free channels since no more users */
--	return scmi_cleanup_txrx_channels(info);
-+	ret = scmi_cleanup_txrx_channels(info);
-+	if (ret)
-+		dev_warn(&pdev->dev, "Failed to cleanup SCMI channels.\n");
-+
-+	return 0;
- }
- 
- static ssize_t protocol_version_show(struct device *dev,
 -- 
 2.35.1
 
