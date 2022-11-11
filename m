@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8ED6625031
-	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 03:33:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45392625038
+	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 03:34:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232335AbiKKCdu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 21:33:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46454 "EHLO
+        id S232559AbiKKCeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 21:34:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232287AbiKKCdt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 21:33:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA80ABC22;
-        Thu, 10 Nov 2022 18:33:48 -0800 (PST)
+        with ESMTP id S232507AbiKKCd6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 21:33:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE5DBC18;
+        Thu, 10 Nov 2022 18:33:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 666A16199B;
-        Fri, 11 Nov 2022 02:33:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D66C8C433C1;
-        Fri, 11 Nov 2022 02:33:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E288261E8C;
+        Fri, 11 Nov 2022 02:33:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2440C433C1;
+        Fri, 11 Nov 2022 02:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668134027;
-        bh=epqlPfwW5mmXbY8koToNXaDlKsypaqIZpDyMNUSVwyw=;
+        s=k20201202; t=1668134031;
+        bh=KqR3IwAImF6SSQJBFCNKIYOr1z71vch5MANtyqJIblM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G6T9B0++NUhydTE8TyrJZc841VQ6okoIxhlasRuHh68PXqpqgqPbO2MHHxJxTaLCT
-         wv/MrtJrh997EnigN0osYMzhkxX88EFdLdBAL9rkKsTRLLlh4xIuRYixZ7Wk/x8Vhm
-         BF3wQsU89zJA0ml8S3SL7MCjbYGQH099TyRiAJgXBGkZbbl2GyLtcVnE89n59MP8pb
-         KOAfXtWiZo8ZtfO2Q3n4snjD6F0Fp6N18rOJ5HXYLOLUOy/u3ZUKshT1xdOiFZurzK
-         PGDGNltzeZqj17W6tNAX2szQ8HEcvTapuxyue4RERk20Njno4GTn22GLY/mUZ3ggYz
-         N9Pc0ppq+A8Ig==
+        b=rslz6ERswiY2L9Ag1uDQKuP/svcMiBuAuDc7hc4GkeP+QmTSWTtThHHjMdTOqygf9
+         dk1+7TmopH4m5Xks4oAUCRYFoMLsZcMkGi14GUGvsfYS9zvCqkWVO5W/1lHm4ez7XF
+         pzn/1paq0ScAvkAUXqth9NK9RrOzR80wUjX2PFApkk413jLWYRev11CBJ6nnTCpjpH
+         EbAj3TddLV5Uexjuad630xf9SLCzzq1SVTMRUT/sk10RNBbDKua6f9R6u1D7Wc9WI4
+         KcE9N8hKTmXr69Gpn7J23ZMAcojTSvgsywnf7LmI8hM15qqDjGSK9Wk0st6x9Zw3AD
+         8MIgCoQK0GKWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Coddington <bcodding@redhat.com>,
-        Gonzalo Siero Humet <gsierohu@redhat.com>,
+Cc:     Chuck Lever <chuck.lever@oracle.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, jlayton@kernel.org,
         trond.myklebust@hammerspace.com, anna@kernel.org,
-        linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 04/30] NFSv4: Retry LOCK on OLD_STATEID during delegation return
-Date:   Thu, 10 Nov 2022 21:33:12 -0500
-Message-Id: <20221111023340.227279-4-sashal@kernel.org>
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, neilb@suse.de, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 05/30] SUNRPC: Fix crasher in gss_unwrap_resp_integ()
+Date:   Thu, 10 Nov 2022 21:33:13 -0500
+Message-Id: <20221111023340.227279-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221111023340.227279-1-sashal@kernel.org>
 References: <20221111023340.227279-1-sashal@kernel.org>
@@ -58,60 +59,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit f5ea16137a3fa2858620dc9084466491c128535f ]
+[ Upstream commit 8a0fa3ff3b606b55c4edc71ad133e61529b64549 ]
 
-There's a small window where a LOCK sent during a delegation return can
-race with another OPEN on client, but the open stateid has not yet been
-updated.  In this case, the client doesn't handle the OLD_STATEID error
-from the server and will lose this lock, emitting:
-"NFS: nfs4_handle_delegation_recall_error: unhandled error -10024".
+If a zero length is passed to kmalloc() it returns 0x10, which is
+not a valid address. gss_unwrap_resp_integ() subsequently crashes
+when it attempts to dereference that pointer.
 
-Fix this by sending the task through the nfs4 error handling in
-nfs4_lock_done() when we may have to reconcile our stateid with what the
-server believes it to be.  For this case, the result is a retry of the
-LOCK operation with the updated stateid.
-
-Reported-by: Gonzalo Siero Humet <gsierohu@redhat.com>
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/sunrpc/auth_gss/auth_gss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 3ed14a2a84a4..313e9145b6c9 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -7137,6 +7137,7 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
- {
- 	struct nfs4_lockdata *data = calldata;
- 	struct nfs4_lock_state *lsp = data->lsp;
-+	struct nfs_server *server = NFS_SERVER(d_inode(data->ctx->dentry));
- 
- 	if (!nfs4_sequence_done(task, &data->res.seq_res))
- 		return;
-@@ -7144,8 +7145,7 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
- 	data->rpc_status = task->tk_status;
- 	switch (task->tk_status) {
- 	case 0:
--		renew_lease(NFS_SERVER(d_inode(data->ctx->dentry)),
--				data->timestamp);
-+		renew_lease(server, data->timestamp);
- 		if (data->arg.new_lock && !data->cancelled) {
- 			data->fl.fl_flags &= ~(FL_SLEEP | FL_ACCESS);
- 			if (locks_lock_inode_wait(lsp->ls_state->inode, &data->fl) < 0)
-@@ -7166,6 +7166,8 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
- 			if (!nfs4_stateid_match(&data->arg.open_stateid,
- 						&lsp->ls_state->open_stateid))
- 				goto out_restart;
-+			else if (nfs4_async_handle_error(task, server, lsp->ls_state, NULL) == -EAGAIN)
-+				goto out_restart;
- 		} else if (!nfs4_stateid_match(&data->arg.lock_stateid,
- 						&lsp->ls_stateid))
- 				goto out_restart;
+diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
+index a31a27816cc0..7bb247c51e2f 100644
+--- a/net/sunrpc/auth_gss/auth_gss.c
++++ b/net/sunrpc/auth_gss/auth_gss.c
+@@ -1989,7 +1989,7 @@ gss_unwrap_resp_integ(struct rpc_task *task, struct rpc_cred *cred,
+ 		goto unwrap_failed;
+ 	mic.len = len;
+ 	mic.data = kmalloc(len, GFP_KERNEL);
+-	if (!mic.data)
++	if (ZERO_OR_NULL_PTR(mic.data))
+ 		goto unwrap_failed;
+ 	if (read_bytes_from_xdr_buf(rcv_buf, offset, mic.data, mic.len))
+ 		goto unwrap_failed;
 -- 
 2.35.1
 
