@@ -2,47 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58AF06250DA
-	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 03:38:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DAF36250E2
+	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 03:38:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232868AbiKKCi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 21:38:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46830 "EHLO
+        id S232893AbiKKCi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 21:38:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232992AbiKKCg6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 21:36:58 -0500
+        with ESMTP id S232967AbiKKChJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 21:37:09 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A3A686B3;
-        Thu, 10 Nov 2022 18:35:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C128D682A9;
+        Thu, 10 Nov 2022 18:36:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 603E061E8E;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CA3361E85;
+        Fri, 11 Nov 2022 02:36:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59811C43144;
         Fri, 11 Nov 2022 02:35:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D542CC433D6;
-        Fri, 11 Nov 2022 02:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668134158;
-        bh=jfynGGSVh5zaIsDDbet+xvwFBxlcF950vurb84kfsXQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Xv9JZGOZBCjbqBq3Gro1eJJGzkmxSO7GKM11/mKSYv4TAIh6e6zwHfmkMgSaxCoN1
-         A/zjv+SQ9aM8z/HpdYMM1/iRBU3SZ9pvFb+LF64EnlB1e0L/45MIfhzzVFNio/Isou
-         mOx4GDRV0/bRO9psohLcBq+ZqVBqgwQHVa8XZWInY6iGpSCQ8uRVR/6Vc7J6J5OSCO
-         kS3ZbPlULAdvZSK19op2xNyzglcWhrkLzbbAMWTG4YqtPXvkzs0wm6KHJQd1IKjvUD
-         uIks7lJlO5NizCs5gGdp3MrVVQCo0MRB7r/jdvmVEpHtOPmSKdDn7WX6eRdh9PJekg
-         bzhMKrwzD728w==
+        s=k20201202; t=1668134160;
+        bh=VKtslqoKsQzbcRMmB1dvqG0AfN7VDOZ3O3RF399DhHE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=btrz6N9h5LhO7dlQMMDHiyy8H0Ad/Ow+dob5yDahRvH4kEi2fSayWQ+je4gF7mJok
+         nAXbrOPzayQexri728Efd9Y9yzjzuonOhuBnwiletGcglja3ZWa6FF6y151p5X1+gF
+         hPgi2E269zQL/6x9FnqJFQwMh4isQw/9YljtqNSShUcreHwVNu+XMJy8PGvsUle8Oj
+         CJKySJdoBC1rWxb3I+v8/m2Gx/gJc0QKmo2fq40nEIa8SsgN60dB0S56szH/xhcWiy
+         vSeKtekJEe8XWTgTCH9Ze3ngoTANarlGpCLQ9oe8ubAACN2qpwuyQQf4/AUqPrceJs
+         jXt0YXU2MliaQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Coddington <bcodding@redhat.com>,
-        Gonzalo Siero Humet <gsierohu@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>,
-        trond.myklebust@hammerspace.com, anna@kernel.org,
-        linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 1/4] NFSv4: Retry LOCK on OLD_STATEID during delegation return
-Date:   Thu, 10 Nov 2022 21:35:53 -0500
-Message-Id: <20221111023556.228125-1-sashal@kernel.org>
+Cc:     Nathan Huckleberry <nhuck@google.com>,
+        Dan Carpenter <error27@gmail.com>, llvm@lists.linux.dev,
+        Nathan Chancellor <nathan@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>, airlied@gmail.com,
+        daniel@ffwll.ch, shawnguo@kernel.org, ndesaulniers@google.com,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 2/4] drm/imx: imx-tve: Fix return type of imx_tve_connector_mode_valid
+Date:   Thu, 10 Nov 2022 21:35:54 -0500
+Message-Id: <20221111023556.228125-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221111023556.228125-1-sashal@kernel.org>
+References: <20221111023556.228125-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,60 +61,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit f5ea16137a3fa2858620dc9084466491c128535f ]
+[ Upstream commit fc007fb815ab5395c3962c09b79a1630b0fbed9c ]
 
-There's a small window where a LOCK sent during a delegation return can
-race with another OPEN on client, but the open stateid has not yet been
-updated.  In this case, the client doesn't handle the OLD_STATEID error
-from the server and will lose this lock, emitting:
-"NFS: nfs4_handle_delegation_recall_error: unhandled error -10024".
+The mode_valid field in drm_connector_helper_funcs is expected to be of
+type:
+enum drm_mode_status (* mode_valid) (struct drm_connector *connector,
+                                     struct drm_display_mode *mode);
 
-Fix this by sending the task through the nfs4 error handling in
-nfs4_lock_done() when we may have to reconcile our stateid with what the
-server believes it to be.  For this case, the result is a retry of the
-LOCK operation with the updated stateid.
+The mismatched return type breaks forward edge kCFI since the underlying
+function definition does not match the function hook definition.
 
-Reported-by: Gonzalo Siero Humet <gsierohu@redhat.com>
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+The return type of imx_tve_connector_mode_valid should be changed from
+int to enum drm_mode_status.
+
+Reported-by: Dan Carpenter <error27@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1703
+Cc: llvm@lists.linux.dev
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220913205544.155106-1-nhuck@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/imx/imx-tve.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index f9f76594b866..9a0f48f7f2b8 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -6613,6 +6613,7 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
+diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
+index c19c1dfbfcdc..de3996fe90be 100644
+--- a/drivers/gpu/drm/imx/imx-tve.c
++++ b/drivers/gpu/drm/imx/imx-tve.c
+@@ -243,8 +243,9 @@ static int imx_tve_connector_get_modes(struct drm_connector *connector)
+ 	return ret;
+ }
+ 
+-static int imx_tve_connector_mode_valid(struct drm_connector *connector,
+-					struct drm_display_mode *mode)
++static enum drm_mode_status
++imx_tve_connector_mode_valid(struct drm_connector *connector,
++			     struct drm_display_mode *mode)
  {
- 	struct nfs4_lockdata *data = calldata;
- 	struct nfs4_lock_state *lsp = data->lsp;
-+	struct nfs_server *server = NFS_SERVER(d_inode(data->ctx->dentry));
- 
- 	dprintk("%s: begin!\n", __func__);
- 
-@@ -6622,8 +6623,7 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
- 	data->rpc_status = task->tk_status;
- 	switch (task->tk_status) {
- 	case 0:
--		renew_lease(NFS_SERVER(d_inode(data->ctx->dentry)),
--				data->timestamp);
-+		renew_lease(server, data->timestamp);
- 		if (data->arg.new_lock && !data->cancelled) {
- 			data->fl.fl_flags &= ~(FL_SLEEP | FL_ACCESS);
- 			if (locks_lock_inode_wait(lsp->ls_state->inode, &data->fl) < 0)
-@@ -6644,6 +6644,8 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
- 			if (!nfs4_stateid_match(&data->arg.open_stateid,
- 						&lsp->ls_state->open_stateid))
- 				goto out_restart;
-+			else if (nfs4_async_handle_error(task, server, lsp->ls_state, NULL) == -EAGAIN)
-+				goto out_restart;
- 		} else if (!nfs4_stateid_match(&data->arg.lock_stateid,
- 						&lsp->ls_stateid))
- 				goto out_restart;
+ 	struct imx_tve *tve = con_to_tve(connector);
+ 	unsigned long rate;
 -- 
 2.35.1
 
