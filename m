@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65287625033
-	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 03:33:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8ED6625031
+	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 03:33:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232409AbiKKCdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 21:33:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
+        id S232335AbiKKCdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 21:33:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231559AbiKKCdt (ORCPT
+        with ESMTP id S232287AbiKKCdt (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 21:33:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03C23BCB5;
-        Thu, 10 Nov 2022 18:33:49 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA80ABC22;
+        Thu, 10 Nov 2022 18:33:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFEDBB822ED;
-        Fri, 11 Nov 2022 02:33:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 902D5C433D7;
-        Fri, 11 Nov 2022 02:33:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 666A16199B;
+        Fri, 11 Nov 2022 02:33:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D66C8C433C1;
+        Fri, 11 Nov 2022 02:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668134026;
-        bh=swnkK04J2A4wlUjLMjjveUJXFWsbyTlbGQD9t2TF7OA=;
+        s=k20201202; t=1668134027;
+        bh=epqlPfwW5mmXbY8koToNXaDlKsypaqIZpDyMNUSVwyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+OIOkXLMOpcpj1QLds+wenJ79L8wscmtqVUOQcJRs5VKFy47T8Zv1bf4gekHPGDb
-         IMHwGLZ4ni/4c1tyYQxPeE/6nUTtmmSkRJZFNM5PLoY0/zNjSHZp2QBxEOQ64KAfeQ
-         pjsc4PJXtSJiYrpIfQsmuuTY0m5YUVWseepYUdnbj8gOiyR81d2dbgMEuQyOFuooyV
-         CKFJBr5sCNw1io74/UIq7E3vRbeZmup2LN6efpUT35C7G+4zMoeTS2qHh39yoAQhVV
-         isn0ggo8a/kI4zdZkYtDcvuYC49feOjqSPvck2YPgC2djpxGSt1ZjRR8DIxiu9H7eH
-         VvA5KsVrz9hmA==
+        b=G6T9B0++NUhydTE8TyrJZc841VQ6okoIxhlasRuHh68PXqpqgqPbO2MHHxJxTaLCT
+         wv/MrtJrh997EnigN0osYMzhkxX88EFdLdBAL9rkKsTRLLlh4xIuRYixZ7Wk/x8Vhm
+         BF3wQsU89zJA0ml8S3SL7MCjbYGQH099TyRiAJgXBGkZbbl2GyLtcVnE89n59MP8pb
+         KOAfXtWiZo8ZtfO2Q3n4snjD6F0Fp6N18rOJ5HXYLOLUOy/u3ZUKshT1xdOiFZurzK
+         PGDGNltzeZqj17W6tNAX2szQ8HEcvTapuxyue4RERk20Njno4GTn22GLY/mUZ3ggYz
+         N9Pc0ppq+A8Ig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, clm@fb.com,
-        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 03/30] btrfs: raid56: properly handle the error when unable to find the missing stripe
-Date:   Thu, 10 Nov 2022 21:33:11 -0500
-Message-Id: <20221111023340.227279-3-sashal@kernel.org>
+Cc:     Benjamin Coddington <bcodding@redhat.com>,
+        Gonzalo Siero Humet <gsierohu@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>,
+        trond.myklebust@hammerspace.com, anna@kernel.org,
+        linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 04/30] NFSv4: Retry LOCK on OLD_STATEID during delegation return
+Date:   Thu, 10 Nov 2022 21:33:12 -0500
+Message-Id: <20221111023340.227279-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221111023340.227279-1-sashal@kernel.org>
 References: <20221111023340.227279-1-sashal@kernel.org>
@@ -55,48 +58,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-[ Upstream commit f15fb2cd979a07fbfc666e2f04b8b30ec9233b2a ]
+[ Upstream commit f5ea16137a3fa2858620dc9084466491c128535f ]
 
-In raid56_alloc_missing_rbio(), if we can not determine where the
-missing device is inside the full stripe, we just BUG_ON().
+There's a small window where a LOCK sent during a delegation return can
+race with another OPEN on client, but the open stateid has not yet been
+updated.  In this case, the client doesn't handle the OLD_STATEID error
+from the server and will lose this lock, emitting:
+"NFS: nfs4_handle_delegation_recall_error: unhandled error -10024".
 
-This is not necessary especially the only caller inside scrub.c is
-already properly checking the return value, and will treat it as a
-memory allocation failure.
+Fix this by sending the task through the nfs4 error handling in
+nfs4_lock_done() when we may have to reconcile our stateid with what the
+server believes it to be.  For this case, the result is a retry of the
+LOCK operation with the updated stateid.
 
-Fix the error handling by:
-
-- Add an extra warning for the reason
-  Although personally speaking it may be better to be an ASSERT().
-
-- Properly free the allocated rbio
-
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Gonzalo Siero Humet <gsierohu@redhat.com>
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/raid56.c | 6 ++++--
+ fs/nfs/nfs4proc.c | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/raid56.c b/fs/btrfs/raid56.c
-index 2feb5c20641a..a21b9e085d1b 100644
---- a/fs/btrfs/raid56.c
-+++ b/fs/btrfs/raid56.c
-@@ -2767,8 +2767,10 @@ raid56_alloc_missing_rbio(struct bio *bio, struct btrfs_io_context *bioc)
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 3ed14a2a84a4..313e9145b6c9 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -7137,6 +7137,7 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
+ {
+ 	struct nfs4_lockdata *data = calldata;
+ 	struct nfs4_lock_state *lsp = data->lsp;
++	struct nfs_server *server = NFS_SERVER(d_inode(data->ctx->dentry));
  
- 	rbio->faila = find_logical_bio_stripe(rbio, bio);
- 	if (rbio->faila == -1) {
--		BUG();
--		kfree(rbio);
-+		btrfs_warn_rl(fs_info,
-+	"can not determine the failed stripe number for full stripe %llu",
-+			      bioc->raid_map[0]);
-+		__free_raid_bio(rbio);
- 		return NULL;
- 	}
- 
+ 	if (!nfs4_sequence_done(task, &data->res.seq_res))
+ 		return;
+@@ -7144,8 +7145,7 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
+ 	data->rpc_status = task->tk_status;
+ 	switch (task->tk_status) {
+ 	case 0:
+-		renew_lease(NFS_SERVER(d_inode(data->ctx->dentry)),
+-				data->timestamp);
++		renew_lease(server, data->timestamp);
+ 		if (data->arg.new_lock && !data->cancelled) {
+ 			data->fl.fl_flags &= ~(FL_SLEEP | FL_ACCESS);
+ 			if (locks_lock_inode_wait(lsp->ls_state->inode, &data->fl) < 0)
+@@ -7166,6 +7166,8 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
+ 			if (!nfs4_stateid_match(&data->arg.open_stateid,
+ 						&lsp->ls_state->open_stateid))
+ 				goto out_restart;
++			else if (nfs4_async_handle_error(task, server, lsp->ls_state, NULL) == -EAGAIN)
++				goto out_restart;
+ 		} else if (!nfs4_stateid_match(&data->arg.lock_stateid,
+ 						&lsp->ls_stateid))
+ 				goto out_restart;
 -- 
 2.35.1
 
