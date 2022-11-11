@@ -2,69 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A29A624F88
-	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 02:29:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 722AB624FAF
+	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 02:38:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229586AbiKKB3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 20:29:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48466 "EHLO
+        id S230043AbiKKBiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 20:38:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229536AbiKKB3g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 20:29:36 -0500
-Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5E3960E8E;
-        Thu, 10 Nov 2022 17:29:35 -0800 (PST)
-Received: by mail-vs1-xe2f.google.com with SMTP id t5so3972514vsh.8;
-        Thu, 10 Nov 2022 17:29:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=jHD5mLLJZONA0/xtdbh0Srevx71YFYJ07K0NkniAf9c=;
-        b=GwMk6CFn4Fnc6IN9tCgX19EH7VibmJZBqzocmwJvqRP3eNGSAUehrluMmLt2xKa+kE
-         pocfyS6amZ1+0ETBiF4A3y/+LX18Rr+5Og7WgLRaNRgblEvAlaiK8Ead7q44d5UprvOF
-         UIVTFjkuP4v81L89nWMwIZsiN7LjiqxyGOZlwVfpHF2+p3tJ/GTHNf1fweWimSoIsEax
-         tgpyS1sxr4C4FBLDj6awpZGu3vVCqwCLVmwoBU0d4e9BXHebXbAuWZKnQSFVapa059t8
-         spSjIzuOpzPcXXt0cgQNcdkVY+KL6aEvpUvqEBYA3vIItHxW4+pPek7yC/QdSxTebHpv
-         JC6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=jHD5mLLJZONA0/xtdbh0Srevx71YFYJ07K0NkniAf9c=;
-        b=AIiDOm0C36Y9A5O4UKqJBGliLjUZuKbKYs/xwNPKPwg4WT/C7UcQkkLh8SznGmZ6d+
-         zGVRa+YHZKd1NNX/MaB1hNsja5ydgUTN7CkDcwHCPaLz6GV/QKQW9r+CM0jOHVoirHQQ
-         m/vWEggWIkKPRa2Jg0v9yxWuqDX+te1Mq1enH3/L0bJD6Jf8kE7tBv2ogcK6+YH6UErr
-         47GXbiROoQa36bM5pji8fyhxDPMgg4nFZxqBwBuzVDFEOiijCjAilBOva/tSMEBlb7A0
-         h8eXe3UKCDhXObG3tjoBSc68TvDR9IfzpQTljjRhnLTPW4uLVkTcufNryHk6TeY002rb
-         KwRg==
-X-Gm-Message-State: ACrzQf3xlw8V/x7/GvyVFYE2bUJK5Nd46dNwaA6r1f4/PQlx4NWqyEgG
-        VBQjZEdnEVotNUpxvVpGkX9RxOBZsMHI3W4LJJA=
-X-Google-Smtp-Source: AMsMyM6E1bv/HvEDjvsiy9t9G6cT/CryW9Tb6ev4GSZPn9yQ7e79YA8ZO/BwoSfEvLpXpL3uOFkgTWl+z/URbEi7tJ8=
-X-Received: by 2002:a05:6102:3ca3:b0:3a7:c762:9209 with SMTP id
- c35-20020a0561023ca300b003a7c7629209mr4104254vsv.1.1668130174920; Thu, 10 Nov
- 2022 17:29:34 -0800 (PST)
+        with ESMTP id S229757AbiKKBiB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 20:38:01 -0500
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 548EA51C24;
+        Thu, 10 Nov 2022 17:38:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1668130680; x=1699666680;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=hOsb2zd+9aGqPYDtkVhR22vi8tnc3Ya1+UHhC6DCC0w=;
+  b=kdfmv7s9VKFKJ2x0rx3OmExpzET2z/CNlX7l4SsqOwmxImjHyK0bLw++
+   Uh1F85ByCvcFof17P4z5KDeB/3e9uaErIFNI2eGk/2LlAQSnKKjhxHQRA
+   w3TzL3X+uUoqs11Ztk1O7L84AdVyDvdbs1/TRCPRHWyXo7gVXgfmWPTkQ
+   1SJVoUCudZtTgnq2mxCTry+gHxfc5MdY0i/TVcjJYQSF/cKdn2+ovnn4N
+   HgnqQxtzuSF7cp9QguFBR5rWQ7g/XZ4zlGbxJYQ9v8jImzNnP05t43BRB
+   2drJqzJbJEh9ufF8EypSi4/qam2zIitCZ4eqJwFyO3cUEaggiMlemY3eJ
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10527"; a="311499143"
+X-IronPort-AV: E=Sophos;i="5.96,155,1665471600"; 
+   d="scan'208";a="311499143"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2022 17:38:00 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10527"; a="706374427"
+X-IronPort-AV: E=Sophos;i="5.96,155,1665471600"; 
+   d="scan'208";a="706374427"
+Received: from csalvo-mobl1.amr.corp.intel.com (HELO [10.212.217.97]) ([10.212.217.97])
+  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2022 17:37:58 -0800
+Message-ID: <b41b6a33-7fdc-bd54-8b15-02bf4e713ed7@intel.com>
+Date:   Thu, 10 Nov 2022 17:37:58 -0800
 MIME-Version: 1.0
-References: <1666620275-139704-1-git-send-email-pawell@cadence.com>
- <20221027072421.GA75844@nchen-desktop> <BYAPR07MB5381482129407B849BA9A616DD339@BYAPR07MB5381.namprd07.prod.outlook.com>
- <20221106090221.GA152143@nchen-desktop> <BYAPR07MB5381CD42617915D95122D56FDD3C9@BYAPR07MB5381.namprd07.prod.outlook.com>
- <CAL411-qttOGNyZH28bURje0Y3_zVF4XuzVS1zQh2DgPNN0smWw@mail.gmail.com> <BYAPR07MB53818794749C701BD908D112DD019@BYAPR07MB5381.namprd07.prod.outlook.com>
-In-Reply-To: <BYAPR07MB53818794749C701BD908D112DD019@BYAPR07MB5381.namprd07.prod.outlook.com>
-From:   Peter Chen <hzpeterchen@gmail.com>
-Date:   Fri, 11 Nov 2022 09:28:30 +0800
-Message-ID: <CAL411-o+ZjYP_R_n0Aae8b2zhQwYw373btX=4DA0hCKYzsuj+w@mail.gmail.com>
-Subject: Re: [PATCH v2] usb: cdnsp: fix issue with ZLP - added TD_SIZE = 1
-To:     Pawel Laszczak <pawell@cadence.com>
-Cc:     Peter Chen <peter.chen@kernel.org>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Subject: Re: [RESEND PATCH v6 1/2] x86/fpu: Allow PKRU to be (once again)
+ written by ptrace.
+Content-Language: en-US
+To:     Kyle Huey <me@kylehuey.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@redhat.com>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sean Christopherson <seanjc@google.com>,
+        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Robert O'Callahan <robert@ocallahan.org>,
+        David Manouchehri <david.manouchehri@riseup.net>,
+        Borislav Petkov <bp@suse.de>, stable@vger.kernel.org
+References: <20221107063807.81774-1-khuey@kylehuey.com>
+ <20221107063807.81774-2-khuey@kylehuey.com>
+ <64e62ab9-71f6-6d90-24de-402921c244e7@intel.com>
+ <CAP045ArEuTmA6DGoVEgeSRd-F+oQCqRaeyzwgdxuCnOP0jgqWA@mail.gmail.com>
+From:   Dave Hansen <dave.hansen@intel.com>
+In-Reply-To: <CAP045ArEuTmA6DGoVEgeSRd-F+oQCqRaeyzwgdxuCnOP0jgqWA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,127 +77,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 10, 2022 at 1:38 PM Pawel Laszczak <pawell@cadence.com> wrote:
->
-> >On Mon, Nov 7, 2022 at 1:39 PM Pawel Laszczak <pawell@cadence.com>
-> >wrote:
-> >>
-> >> >
-> >> >
-> >> >On 22-10-27 08:46:17, Pawel Laszczak wrote:
-> >> >>
-> >> >> >
-> >> >> >On 22-10-24 10:04:35, Pawel Laszczak wrote:
-> >> >> >> Patch modifies the TD_SIZE in TRB before ZLP TRB.
-> >> >> >> The TD_SIZE in TRB before ZLP TRB must be set to 1 to force
-> >> >> >> processing ZLP TRB by controller.
-> >> >> >>
-> >> >> >> cc: <stable@vger.kernel.org>
-> >> >> >> Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence
-> >> >> >> USBSSP DRD Driver")
-> >> >> >> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-> >> >> >>
-> >> >> >> ---
-> >> >> >> Changelog:
-> >> >> >> v2:
-> >> >> >> - returned value for last TRB must be 0
-> >> >> >>
-> >> >> >>  drivers/usb/cdns3/cdnsp-ring.c | 7 ++++++-
-> >> >> >>  1 file changed, 6 insertions(+), 1 deletion(-)
-> >> >> >>
-> >> >> >> diff --git a/drivers/usb/cdns3/cdnsp-ring.c
-> >> >> >> b/drivers/usb/cdns3/cdnsp-ring.c index
-> >> >> >> 04dfcaa08dc4..aa79bce89d8a
-> >> >> >> 100644
-> >> >> >> --- a/drivers/usb/cdns3/cdnsp-ring.c
-> >> >> >> +++ b/drivers/usb/cdns3/cdnsp-ring.c
-> >> >> >> @@ -1769,8 +1769,13 @@ static u32 cdnsp_td_remainder(struct
-> >> >> >> cdnsp_device *pdev,
-> >> >> >>
-> >> >> >>   /* One TRB with a zero-length data packet. */
-> >> >> >>   if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
-> >> >> >> -     trb_buff_len == td_total_len)
-> >> >> >> +     trb_buff_len == td_total_len) {
-> >> >> >> +         /* Before ZLP driver needs set TD_SIZE=1. */
-> >> >> >> +         if (more_trbs_coming)
-> >> >> >> +                 return 1;
-> >> >> >> +
-> >> >> >>           return 0;
-> >> >> >> + }
-> >> >> >
-> >> >> >Does that fix the issue you want at bulk transfer, which has
-> >> >> >zero-length packet at the last packet? It seems not align with
-> >> >> >your previous
-> >> >fix.
-> >> >> >Would you mind explaining more?
-> >> >>
-> >> >> Value returned by function cdnsp_td_remainder is used as TD_SIZE in
-> >> >> TRB.
-> >> >>
-> >> >> The last TRB in TD should have TD_SIZE=0, so trb for ZLP should
-> >> >> have set also TD_SIZE=0. If driver set TD_SIZE=0 on before the last
-> >> >> one TRB then the controller stops the transfer and ignore trb for ZLP
-> >packet.
-> >> >>
-> >> >> To fix this, the driver in such case must set TD_SIZE = 1 before
-> >> >> the last TRB.
-> >> >
-> >> >       if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
-> >> > -         trb_buff_len == td_total_len)
-> >> > +         trb_buff_len == td_total_len) {
-> >> > +             /* Before ZLP driver needs set TD_SIZE=1. */
-> >> > +             if (more_trbs_coming)
-> >> > +                     return 1;
-> >> > +
-> >> >               return 0;
-> >> > +     }
-> >> >
-> >> >How your above fix could return TD_SIZE as 1 for last non-ZLP TRB?
-> >> >Which conditions are satisfied?
-> >>
-> >> For last non-ZLP TRB TD_SIZE should be 0 or 1.
-> >>
-> >> We have three casess:
-> >> 1.
-> >>         TRB1 - length > 1
-> >>         TRb2 - ZLP
-> >>
-> >> In this case TRB1 should have set TD_SIZE = 1. In this case the condition
-> >>         if (more_trbs_coming)
-> >>                 return 1;
-> >>
-> >> returns TD_SIZE=1. In this case more_trb_comming for TRB1 is 1 and for
-> >> TRB2 is 0
-> >>
-> >
-> >This one is my question. How below condition is true for your case 1:
-> >
-> > if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
-> >          trb_buff_len == td_total_len)
->
-> For TRB1:
->    more_trbs_coming = true
->    transferred == 0 && trb_buff_len == 0  - false - it does not matter in this case
->    trb_buff_len == td_total_len - true
+On 11/10/22 16:03, Kyle Huey wrote:
+> On Tue, Nov 8, 2022 at 10:23 AM Dave Hansen <dave.hansen@intel.com> wrote:
+...
+>> At a high level, this patch does a *LOT*.  Generally, it's nice when
+>> bugfixes can be encapsulted in one patch, but I think there's too much
+>> going on here for one patch.
+> 
+> Ok. How about I break the first part into two pieces, one that changes the
+> signatures of copy_uabi_from_kernel_to_xstate() and
+> copy_sigframe_from_user_to_xstate(), and one that moves the relevant
+> KVM code from fpu_copy_uabi_to_guest_fpstate() to copy_uabi_to_xstate()
+> and deals with the edge case behavior of the mask?
 
-Why trb_buff_len equals to td_total_length? Considering the bulk
-transfer with request length
-larger than 64KB.
+Sounds like a good start.  My gut says there's another patch or two that
+could be broken out, but that sounds like a reasonable next step.
 
-Peter
+>>> diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
+>>> index 3b28c5b25e12..c273669e8a00 100644
+>>> --- a/arch/x86/kernel/fpu/core.c
+>>> +++ b/arch/x86/kernel/fpu/core.c
+>>> @@ -391,8 +391,6 @@ int fpu_copy_uabi_to_guest_fpstate(struct fpu_guest *gfpu, const void *buf,
+>>>  {
+>>>       struct fpstate *kstate = gfpu->fpstate;
+>>>       const union fpregs_state *ustate = buf;
+>>> -     struct pkru_state *xpkru;
+>>> -     int ret;
+>>>
+>>>       if (!cpu_feature_enabled(X86_FEATURE_XSAVE)) {
+>>>               if (ustate->xsave.header.xfeatures & ~XFEATURE_MASK_FPSSE)
+>>> @@ -406,16 +404,16 @@ int fpu_copy_uabi_to_guest_fpstate(struct fpu_guest *gfpu, const void *buf,
+>>>       if (ustate->xsave.header.xfeatures & ~xcr0)
+>>>               return -EINVAL;
+>>>
+>>> -     ret = copy_uabi_from_kernel_to_xstate(kstate, ustate);
+>>> -     if (ret)
+>>> -             return ret;
+>>> +     /*
+>>> +      * Nullify @vpkru to preserve its current value if PKRU's bit isn't set
+>>> +      * in the header.  KVM's odd ABI is to leave PKRU untouched in this
+>>> +      * case (all other components are eventually re-initialized).
+>>> +      * (Not clear that this is actually necessary for compat).
+>>> +      */
+>>> +     if (!(ustate->xsave.header.xfeatures & XFEATURE_MASK_PKRU))
+>>> +             vpkru = NULL;
+>>
+>> I'm not a big fan of hunks that are part of bugfixes where it is not
+>> clear that the hunk is necessary.
+> 
+> This is necessary to avoid changing KVM's behavior at the same time
+> that we change
+> ptrace, since KVM doesn't want the same behavior as ptrace.
 
->   so whole condition is true.
->
->   Because more_trb_comming = true so:
->              if (more_trbs_coming)
->                         return 1;
-> returns TD_SIZE = 1
->
-> For TRB2 - ZLP:
->    more_trbs_coming = false
->    transferred == 0 && trb_buff_len == 0  - false - it does not matter in this case
->    trb_buff_len == td_total_len - true
->
->   Because more_trb_comming = false so function returns TD_SIZE = 0  for last ZLP trb.
->
-> Pawel
+Your "This is necessary" doesn't really match with "Not clear that this
+is actually necessary" from the comment, right?
+
+Rather than claim whether it is necessary or not, maybe just say why
+it's there: it's there to preserve wonky KVM behavior.
+
+BTW, I'd love to know if KVM *REALLY* depends on this.  It'd be nice to
+kill if not.
+>> Would something like this be more clear?
+>>
+>>         if (hdr.xfeatures & XFEATURE_MASK_PKRU) {
+>>                 struct pkru_state *xpkru;
+>>
+>>                 xpkru = __raw_xsave_addr(xsave, XFEATURE_PKRU);
+>>                 *pkru = xpkru->pkru;
+>>         } else {
+>>                 /*
+>>                  * KVM may pass a NULL 'pkru' to indicate
+>>                  * that it does not need PKRU updated.
+>>                  */
+>>                 if (pkru)
+>>                         *pkru = 0;
+>>         }
+> 
+> Yeah, Sean Christopherson suggested this (with the else and if
+> collapsed into a single level) when I submitted this previously.
+
+I generally agree with Sean, but he's also been guilty of an atrocity or
+two over the years.  :)  While I generally like low levels of
+indentation I also think my version is much more clear in this case.
+
