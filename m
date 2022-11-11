@@ -2,93 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D558624EF0
-	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 01:31:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A427E624F0D
+	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 01:47:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231610AbiKKAbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 19:31:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54452 "EHLO
+        id S230181AbiKKAru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 19:47:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231157AbiKKAbW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 19:31:22 -0500
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34CD35F869
-        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 16:31:21 -0800 (PST)
-Received: by mail-pj1-x1030.google.com with SMTP id o7so3137835pjj.1
-        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 16:31:21 -0800 (PST)
+        with ESMTP id S229667AbiKKArt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 19:47:49 -0500
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 052F861BB3
+        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 16:47:47 -0800 (PST)
+Received: by mail-pl1-x62b.google.com with SMTP id u6so2963668plq.12
+        for <stable@vger.kernel.org>; Thu, 10 Nov 2022 16:47:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=BeArgbWRKJ56DeeZbQq60SOy0XSAuNerlwx2a6cRecA=;
-        b=NIpdKfiDFZYAimTkKhDGW+TBqzF42/7ZtyCEkSzeNjsv5N2w69HDQx3TqvyGiJsN8S
-         +/3d48s0G2LOjW/JTgezM60/h/RQdAWRjEPaThN6u5Y4aX0ReMPRIftQ6NWUQ5gAqAMf
-         lLQ5C4DUhSBpSd9BchVBd4mZc3diTTbq8+36Y=
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=mSJmtPdTzYmmc8c1PKL4Mxh1KAC3DMKkuedzr9CTlY0=;
+        b=CESIa7+sHs4SFLQXsNXAHjUmKVCrhCYS6S65dMwYF1WRsTWmM87/w8M278SePmJrsM
+         V7IU9dlO3jb0+5LCSVNr2VVG78HO5fgQMjvQu6Pl7RYiLM2lL+gVWc/XLENl7sAWPsKd
+         z8L6B0X8a7KcHplwebRiCZXWs8O0mRb14lh/V8sAEneeTymuR879b8HW75pyzNf1Xa9P
+         J26YTIVHy0Ki8HM75rUyNp3N8K0kCjXCKnH/VVG3SsxHHRlktfUrQI3teewyrG5ZzMHa
+         JCb/vN/ga//7/qSa5UiIwjPbCa/vS90CWnTFHVTGBqRTnwoYNWCy4uG4YCNBKKHit68A
+         36MA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BeArgbWRKJ56DeeZbQq60SOy0XSAuNerlwx2a6cRecA=;
-        b=jqK5qBgC50ZrHl3wC8u+mYzzEvvQWqEirtCFRhm6omdwMFMy0P+067fgWDfZ0m50zO
-         /F0ymgMlS5el8Z463sQI5oJSOBYAqGetVXErJp9OZzuzMOPFb7+44DqpRxgdDj2sO3Qj
-         YeqloWD0fYrdrr9hNvUexfdH5HIJPy537SP/8wwEMji/zAPQwAoFJB4rgyXC/jl6JV6N
-         MhmKnBRvJU91r47auqEMXRzGhFbpYaFZH/reISAklP054BuYN7tLfS3JyjeFESWqxq5T
-         cqCaqV09Scl9DTBYaJv/8rTk4cU4hP4+mWPlaObdOvN/ID2MHhzjMuazBsjVnh0WZp3O
-         k4eA==
-X-Gm-Message-State: ACrzQf0w+3aoVhgYQk4yzK+oqj9Zi388MRw9/no8IV+hzWzB0d5BwNKq
-        xVzDUY5ywX4jsTTYeJdVY0onDQ==
-X-Google-Smtp-Source: AMsMyM7PpSiwTrDvgomdUQ7mPXloqRN80xZFlIZJzRv22u0wsqZrE0mTs2EHLEjmgOAg4/kZB5K9pw==
-X-Received: by 2002:a17:90a:cb95:b0:215:f80c:18e6 with SMTP id a21-20020a17090acb9500b00215f80c18e6mr2596437pju.45.1668126680779;
-        Thu, 10 Nov 2022 16:31:20 -0800 (PST)
-Received: from google.com ([240f:75:7537:3187:8d55:c60d:579d:741c])
-        by smtp.gmail.com with ESMTPSA id k11-20020a170902d58b00b001868d4600b8sm277150plh.158.2022.11.10.16.31.17
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=mSJmtPdTzYmmc8c1PKL4Mxh1KAC3DMKkuedzr9CTlY0=;
+        b=yDE2i4w+e3A4j1tkm6G+lUl/AYrwFoNCbvYarusaECzfYE+MbyNvxUxFlw9YCqRIJ6
+         6DDyi+qn+vqM2euZNhmGBaOeO+HErhmLOTVX0DUBXD2Su1W8gAK9GOxaTHjFvSPY+WNL
+         4qp6viBUmYxIy1ke/YYkMBr5JVKxDF70/FCM4XTerflVd9doAYE408GM7bOjGghrC2mR
+         OD+vGS7W0MpppC/z/6Rcygd+hjcTtYWTOnX7wZoC0yIOM+OXDTmWU9u+gT0FQqqPdYS+
+         RMxqmccluHVB4b27Vstp9An4MJ/ehylZpeZasSGP+KUG/LI6Yc2uObNXNwFu0j5VaEBL
+         1lwA==
+X-Gm-Message-State: ACrzQf2zKKocFeNq4nN0aB1LyXVwwff+GHeh4PoVhrQ11Z3jEM9I1Q8s
+        7OjxMIQcUYFin0WP2Bubs8zZVZtfAaUrTBdzk9g=
+X-Google-Smtp-Source: AMsMyM6ziLOG0Y33OviY5fu+2MAeTmN8ik8Dqh1FeIVEAftY4F56E+Xv/Cd6S9t+XOI4Y902raXhuw==
+X-Received: by 2002:a17:90a:2bc7:b0:212:c6f4:fa5 with SMTP id n7-20020a17090a2bc700b00212c6f40fa5mr2855815pje.49.1668127667248;
+        Thu, 10 Nov 2022 16:47:47 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ne9-20020a17090b374900b00213a9e1ec44sm3642056pjb.52.2022.11.10.16.47.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Nov 2022 16:31:20 -0800 (PST)
-Date:   Fri, 11 Nov 2022 09:31:14 +0900
-From:   Sergey Senozhatsky <senozhatsky@chromium.org>
-To:     Ricardo Ribalda <ribalda@chromium.org>
-Cc:     Wolfram Sang <wsa@kernel.org>, Tomasz Figa <tfiga@chromium.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Hidenori Kobayashi <hidenorik@google.com>,
-        stable@vger.kernel.org, linux-i2c@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 1/1] i2c: Restore initial power state when we are done.
-Message-ID: <Y22X0iDsF2Y5cy95@google.com>
-References: <20221109-i2c-waive-v5-0-2839667f8f6a@chromium.org>
- <20221109-i2c-waive-v5-1-2839667f8f6a@chromium.org>
+        Thu, 10 Nov 2022 16:47:46 -0800 (PST)
+Message-ID: <636d9bb2.170a0220.df233.660d@mx.google.com>
+Date:   Thu, 10 Nov 2022 16:47:46 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221109-i2c-waive-v5-1-2839667f8f6a@chromium.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.154
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-5.10.y baseline: 141 runs, 1 regressions (v5.10.154)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On (22/11/10 17:20), Ricardo Ribalda wrote:
-> A driver that supports I2C_DRV_ACPI_WAIVE_D0_PROBE is not expected to
-> power off a device that it has not powered on previously.
-> 
-> For devices operating in "full_power" mode, the first call to
-> `i2c_acpi_waive_d0_probe` will return 0, which means that the device
-> will be turned on with `dev_pm_domain_attach`.
-> 
-> If probe fails or the device is removed the second call to
-> `i2c_acpi_waive_d0_probe` will return 1, which means that the device
-> will not be turned off. This is, it will be left in a different power
-> state. Lets fix it.
-> 
-> Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-> Cc: stable@vger.kernel.org
-> Fixes: b18c1ad685d9 ("i2c: Allow an ACPI driver to manage the device's power state during probe")
-> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+stable/linux-5.10.y baseline: 141 runs, 1 regressions (v5.10.154)
 
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Regressions Summary
+-------------------
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
+/v5.10.154/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.10.y
+  Describe: v5.10.154
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      f5b40c0eb9ea3d8233b9a2e9af6784c81204d454 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/636d6f37611445bca6e7db53
+
+  Results:     90 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.154/=
+arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-k=
+evin.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.154/=
+arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-k=
+evin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221024.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/636d6f37611445bca6e7db75
+        failing since 246 days (last pass: v5.10.102, first fail: v5.10.104)
+
+    2022-11-10T21:37:46.307504  /lava-7938207/1/../bin/lava-test-case
+    2022-11-10T21:37:46.308101     =
+
+ =20
