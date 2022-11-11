@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4439A6250AF
-	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 03:37:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7127F6250B7
+	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 03:37:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233074AbiKKCh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 21:37:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46854 "EHLO
+        id S233088AbiKKChg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 21:37:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232077AbiKKCgo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 21:36:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 660911115D;
-        Thu, 10 Nov 2022 18:35:36 -0800 (PST)
+        with ESMTP id S232740AbiKKCgu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 21:36:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F34B967F45;
+        Thu, 10 Nov 2022 18:35:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0374A61E8B;
-        Fri, 11 Nov 2022 02:35:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69B77C433D6;
-        Fri, 11 Nov 2022 02:35:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3A9CB822ED;
+        Fri, 11 Nov 2022 02:35:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D05DFC4347C;
+        Fri, 11 Nov 2022 02:35:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668134135;
-        bh=LgMUgg/+5y397hDU/smMENBCrQ6Rjl70WCDY5o3gVxM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=dgZtNetCgI4DMlREfGhPbPiekwzE7pfwuvide3/pkvGMEzHHASRNVijfqxYVIcwqO
-         e69I2MHz9eS7+7F5pW6OUz/UnXvMuwDZGiEUpFrKyBFYN0CWlIEFjrUk1I0DA4kQ1h
-         UlRHLcuKM8N8rNNUf/5wXbrLGwdMKIfh83azEStDK+WwI1lY7S7PfAsa0hjCKCJFq0
-         4GHRvxp3TabP1vE60JiHarwQXDVU2JRNCU5jy9dBv4fu6OLt7gjg4XtSIQkD+brxKP
-         gjRAbul1BRioZYo52tJRTxsuJTbKXObAKfhOzHeNdiXd4ElmIyegSDt3ODVj6Z7E/j
-         eFXGuJ9p7t/Gg==
+        s=k20201202; t=1668134137;
+        bh=vikYmUmEGLCt61NRL0OjSKJkkQODWRiRbFiNOBlKYso=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=nyGfM9ZOH3AuVa2wkBTWfPFFFZPxt93+pP5RBehQ4Vazw69aozJf8EaIBKWkz3cq1
+         5BymN5C9FoKtkH6W4r36tjNrAhZB/3t7LhrnApzYtjpqv7P0sBLV0bzWEWGH3HWKvf
+         mxI6VKNV8pXd1df313fq0DMt7xWX0/hFXrUDMQT3Bjo3OWxtSTGDYvsszYuGUmAaXm
+         hmD6BkwlGrrOXKkJK/XgMnyDimunQcd1nKnVRXe6e8wtCR/q4NsJ28tk4brOqt6S4+
+         RTD7qmSQ2G/xMv/I7yN0GMw09ER/+9YXbjeDCWRGVUYl53KejtDC5uSKuvWy0V2IPO
+         rJSlKJc4edupQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Coddington <bcodding@redhat.com>,
-        Gonzalo Siero Humet <gsierohu@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>,
-        trond.myklebust@hammerspace.com, anna@kernel.org,
-        linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 1/6] NFSv4: Retry LOCK on OLD_STATEID during delegation return
-Date:   Thu, 10 Nov 2022 21:35:27 -0500
-Message-Id: <20221111023532.227959-1-sashal@kernel.org>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        ldewangan@nvidia.com, thierry.reding@gmail.com,
+        jonathanh@nvidia.com, sumit.semwal@linaro.org,
+        christian.koenig@amd.com, linux-i2c@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-media@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org
+Subject: [PATCH AUTOSEL 5.10 2/6] i2c: tegra: Allocate DMA memory for DMA engine
+Date:   Thu, 10 Nov 2022 21:35:28 -0500
+Message-Id: <20221111023532.227959-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221111023532.227959-1-sashal@kernel.org>
+References: <20221111023532.227959-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,60 +60,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit f5ea16137a3fa2858620dc9084466491c128535f ]
+[ Upstream commit cdbf26251d3b35c4ccaea0c3a6de4318f727d3d2 ]
 
-There's a small window where a LOCK sent during a delegation return can
-race with another OPEN on client, but the open stateid has not yet been
-updated.  In this case, the client doesn't handle the OLD_STATEID error
-from the server and will lose this lock, emitting:
-"NFS: nfs4_handle_delegation_recall_error: unhandled error -10024".
+When the I2C controllers are running in DMA mode, it is the DMA engine
+that performs the memory accesses rather than the I2C controller. Pass
+the DMA engine's struct device pointer to the DMA API to make sure the
+correct DMA operations are used.
 
-Fix this by sending the task through the nfs4 error handling in
-nfs4_lock_done() when we may have to reconcile our stateid with what the
-server believes it to be.  For this case, the result is a retry of the
-LOCK operation with the updated stateid.
+This fixes an issue where the DMA engine's SMMU stream ID needs to be
+misleadingly set for the I2C controllers in device tree.
 
-Reported-by: Gonzalo Siero Humet <gsierohu@redhat.com>
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Suggested-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-tegra.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 03f09399abf4..36af3734ac87 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -7014,6 +7014,7 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 8b113ae32dc7..42f1db60ad6f 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -283,6 +283,7 @@ struct tegra_i2c_dev {
+ 	struct dma_chan *tx_dma_chan;
+ 	struct dma_chan *rx_dma_chan;
+ 	unsigned int dma_buf_size;
++	struct device *dma_dev;
+ 	dma_addr_t dma_phys;
+ 	void *dma_buf;
+ 
+@@ -419,7 +420,7 @@ static int tegra_i2c_dma_submit(struct tegra_i2c_dev *i2c_dev, size_t len)
+ static void tegra_i2c_release_dma(struct tegra_i2c_dev *i2c_dev)
  {
- 	struct nfs4_lockdata *data = calldata;
- 	struct nfs4_lock_state *lsp = data->lsp;
-+	struct nfs_server *server = NFS_SERVER(d_inode(data->ctx->dentry));
+ 	if (i2c_dev->dma_buf) {
+-		dma_free_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
++		dma_free_coherent(i2c_dev->dma_dev, i2c_dev->dma_buf_size,
+ 				  i2c_dev->dma_buf, i2c_dev->dma_phys);
+ 		i2c_dev->dma_buf = NULL;
+ 	}
+@@ -466,10 +467,13 @@ static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
  
- 	dprintk("%s: begin!\n", __func__);
+ 	i2c_dev->tx_dma_chan = chan;
  
-@@ -7023,8 +7024,7 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
- 	data->rpc_status = task->tk_status;
- 	switch (task->tk_status) {
- 	case 0:
--		renew_lease(NFS_SERVER(d_inode(data->ctx->dentry)),
--				data->timestamp);
-+		renew_lease(server, data->timestamp);
- 		if (data->arg.new_lock && !data->cancelled) {
- 			data->fl.fl_flags &= ~(FL_SLEEP | FL_ACCESS);
- 			if (locks_lock_inode_wait(lsp->ls_state->inode, &data->fl) < 0)
-@@ -7045,6 +7045,8 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
- 			if (!nfs4_stateid_match(&data->arg.open_stateid,
- 						&lsp->ls_state->open_stateid))
- 				goto out_restart;
-+			else if (nfs4_async_handle_error(task, server, lsp->ls_state, NULL) == -EAGAIN)
-+				goto out_restart;
- 		} else if (!nfs4_stateid_match(&data->arg.lock_stateid,
- 						&lsp->ls_stateid))
- 				goto out_restart;
++	WARN_ON(i2c_dev->tx_dma_chan->device != i2c_dev->rx_dma_chan->device);
++	i2c_dev->dma_dev = chan->device->dev;
++
+ 	i2c_dev->dma_buf_size = i2c_dev->hw->quirks->max_write_len +
+ 				I2C_PACKET_HEADER_SIZE;
+ 
+-	dma_buf = dma_alloc_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
++	dma_buf = dma_alloc_coherent(i2c_dev->dma_dev, i2c_dev->dma_buf_size,
+ 				     &dma_phys, GFP_KERNEL | __GFP_NOWARN);
+ 	if (!dma_buf) {
+ 		dev_err(i2c_dev->dev, "failed to allocate DMA buffer\n");
+@@ -1255,7 +1259,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 
+ 	if (i2c_dev->dma_mode) {
+ 		if (i2c_dev->msg_read) {
+-			dma_sync_single_for_device(i2c_dev->dev,
++			dma_sync_single_for_device(i2c_dev->dma_dev,
+ 						   i2c_dev->dma_phys,
+ 						   xfer_size, DMA_FROM_DEVICE);
+ 
+@@ -1263,7 +1267,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 			if (err)
+ 				return err;
+ 		} else {
+-			dma_sync_single_for_cpu(i2c_dev->dev,
++			dma_sync_single_for_cpu(i2c_dev->dma_dev,
+ 						i2c_dev->dma_phys,
+ 						xfer_size, DMA_TO_DEVICE);
+ 		}
+@@ -1276,7 +1280,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 			memcpy(i2c_dev->dma_buf + I2C_PACKET_HEADER_SIZE,
+ 			       msg->buf, msg->len);
+ 
+-			dma_sync_single_for_device(i2c_dev->dev,
++			dma_sync_single_for_device(i2c_dev->dma_dev,
+ 						   i2c_dev->dma_phys,
+ 						   xfer_size, DMA_TO_DEVICE);
+ 
+@@ -1327,7 +1331,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 		}
+ 
+ 		if (i2c_dev->msg_read && i2c_dev->msg_err == I2C_ERR_NONE) {
+-			dma_sync_single_for_cpu(i2c_dev->dev,
++			dma_sync_single_for_cpu(i2c_dev->dma_dev,
+ 						i2c_dev->dma_phys,
+ 						xfer_size, DMA_FROM_DEVICE);
+ 
 -- 
 2.35.1
 
