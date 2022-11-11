@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45392625038
-	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 03:34:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A6FE62503E
+	for <lists+stable@lfdr.de>; Fri, 11 Nov 2022 03:34:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232559AbiKKCeF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Nov 2022 21:34:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46860 "EHLO
+        id S229489AbiKKCeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Nov 2022 21:34:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232507AbiKKCd6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 21:33:58 -0500
+        with ESMTP id S232527AbiKKCeD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Nov 2022 21:34:03 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE5DBC18;
-        Thu, 10 Nov 2022 18:33:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BBA2F026;
+        Thu, 10 Nov 2022 18:33:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E288261E8C;
-        Fri, 11 Nov 2022 02:33:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2440C433C1;
-        Fri, 11 Nov 2022 02:33:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 190286199B;
+        Fri, 11 Nov 2022 02:33:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97C1FC433C1;
+        Fri, 11 Nov 2022 02:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668134031;
-        bh=KqR3IwAImF6SSQJBFCNKIYOr1z71vch5MANtyqJIblM=;
+        s=k20201202; t=1668134034;
+        bh=K+PxLfZrk+uscT0HgJ1VnwXpGgb/g2yGnLnlZ9mvyFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rslz6ERswiY2L9Ag1uDQKuP/svcMiBuAuDc7hc4GkeP+QmTSWTtThHHjMdTOqygf9
-         dk1+7TmopH4m5Xks4oAUCRYFoMLsZcMkGi14GUGvsfYS9zvCqkWVO5W/1lHm4ez7XF
-         pzn/1paq0ScAvkAUXqth9NK9RrOzR80wUjX2PFApkk413jLWYRev11CBJ6nnTCpjpH
-         EbAj3TddLV5Uexjuad630xf9SLCzzq1SVTMRUT/sk10RNBbDKua6f9R6u1D7Wc9WI4
-         KcE9N8hKTmXr69Gpn7J23ZMAcojTSvgsywnf7LmI8hM15qqDjGSK9Wk0st6x9Zw3AD
-         8MIgCoQK0GKWA==
+        b=erfu5rZxE0uYa1hX63ziESplOgQqDSWCIP9gUM9XIt1tyZFoAQTWl3FuWLvnAwETj
+         2h4H/3KOBhZrkfQ/vNM4x44LbALq6dUiURzGiBg6OUMpyLKb/Dmqq7m+FGeb7EpxXV
+         i+bb/hSjlyoL/3nBNkvj6ZNSt+776Z0uotKJQWqwSVDdQcu5rmN3iA4Ia8VnZSQyi/
+         LIMlE7bp9BfzpelBG7x2QQcDaVN2RnzIZ7s87keM/Mzr5CgqwFbIKQSB/MnLxt28l+
+         CZpkuQxSb7FrEI7j2xpVNzxtRB9QolubueyRmk+RJ8Jd/7pT1zzsyk81F6H2re4eOw
+         GeEx0iQu5llqw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, jlayton@kernel.org,
-        trond.myklebust@hammerspace.com, anna@kernel.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, neilb@suse.de, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 05/30] SUNRPC: Fix crasher in gss_unwrap_resp_integ()
-Date:   Thu, 10 Nov 2022 21:33:13 -0500
-Message-Id: <20221111023340.227279-5-sashal@kernel.org>
+Cc:     Mario Limonciello <mario.limonciello@amd.com>,
+        Julius Brockmann <mail@juliusbrockmann.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        hdegoede@redhat.com, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 06/30] ACPI: x86: Add another system to quirk list for forcing StorageD3Enable
+Date:   Thu, 10 Nov 2022 21:33:14 -0500
+Message-Id: <20221111023340.227279-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221111023340.227279-1-sashal@kernel.org>
 References: <20221111023340.227279-1-sashal@kernel.org>
@@ -59,34 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 8a0fa3ff3b606b55c4edc71ad133e61529b64549 ]
+[ Upstream commit 2124becad797245d49252d2d733aee0322233d7e ]
 
-If a zero length is passed to kmalloc() it returns 0x10, which is
-not a valid address. gss_unwrap_resp_integ() subsequently crashes
-when it attempts to dereference that pointer.
+commit 018d6711c26e4 ("ACPI: x86: Add a quirk for Dell Inspiron 14 2-in-1
+for StorageD3Enable") introduced a quirk to allow a system with ambiguous
+use of _ADR 0 to force StorageD3Enable.
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Julius Brockmann reports that Inspiron 16 5625 suffers that same symptoms.
+Add this other system to the list as well.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216440
+Reported-and-tested-by: Julius Brockmann <mail@juliusbrockmann.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/auth_gss/auth_gss.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/x86/utils.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
-index a31a27816cc0..7bb247c51e2f 100644
---- a/net/sunrpc/auth_gss/auth_gss.c
-+++ b/net/sunrpc/auth_gss/auth_gss.c
-@@ -1989,7 +1989,7 @@ gss_unwrap_resp_integ(struct rpc_task *task, struct rpc_cred *cred,
- 		goto unwrap_failed;
- 	mic.len = len;
- 	mic.data = kmalloc(len, GFP_KERNEL);
--	if (!mic.data)
-+	if (ZERO_OR_NULL_PTR(mic.data))
- 		goto unwrap_failed;
- 	if (read_bytes_from_xdr_buf(rcv_buf, offset, mic.data, mic.len))
- 		goto unwrap_failed;
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index d7cdd8406c84..950a93922ca8 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -219,6 +219,12 @@ static const struct dmi_system_id force_storage_d3_dmi[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 14 7425 2-in-1"),
+ 		}
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 16 5625"),
++		}
++	},
+ 	{}
+ };
+ 
 -- 
 2.35.1
 
