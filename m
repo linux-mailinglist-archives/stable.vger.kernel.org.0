@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC54B627EC5
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:51:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11F1A627F39
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:56:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237429AbiKNMvd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:51:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44184 "EHLO
+        id S237493AbiKNM45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:56:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237323AbiKNMva (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:51:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF2B024BCF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:51:29 -0800 (PST)
+        with ESMTP id S237585AbiKNM4k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:56:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A19827DD6
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:56:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67CB761175
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:51:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64188C433D6;
-        Mon, 14 Nov 2022 12:51:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1BEA6116E
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:56:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E37AEC433D6;
+        Mon, 14 Nov 2022 12:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430288;
-        bh=jqCPru3y732058yacaCblkiHERY4EMkNIoNU3ZxoKmc=;
+        s=korg; t=1668430595;
+        bh=WDgF4ptGDIYH7uIHHGymhth9ZmoD9/mxULMD6+aOEN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0bWhVfAVq3p82yP4xd2DL6q51xfFQ93SJOsHkBs/KY2CCATTsOgaYjvq3/v+SSiLD
-         T9vnftpoEq2SDpN1O0MbGPxSXj2t4WBtnq9Ep07rAWun942EGH6hOj6er7FbwAQdyK
-         BPZV3czVfqVize7zKrPzg5/XxnfIXPXh3/8zFWfk=
+        b=YBQeHolF/PajSb7wT+G0a+wnud8eo5TiE6hT2UHOHPLy/ovzV7XPtnbrwqjFQTbHv
+         3uYxjkLTWNjoAW+zsC0NNFSc+UH0EzW47E+LtJqbnPDCVZdi7fDRCCNrCFN6v4mIoo
+         V4xoOfOGeQmXNqxV45bsMc5U/5oNOBBWfRHXUvp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
-        Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 50/95] riscv: process: fix kernel info leakage
+Subject: [PATCH 5.15 075/131] ethernet: s2io: disable napi when start nic failed in s2io_card_up()
 Date:   Mon, 14 Nov 2022 13:45:44 +0100
-Message-Id: <20221114124444.606890069@linuxfoundation.org>
+Message-Id: <20221114124451.868320682@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 6510c78490c490a6636e48b61eeaa6fb65981f4b ]
+[ Upstream commit 0348c1ab980c1d43fb37b758d4b760990c066cb5 ]
 
-thread_struct's s[12] may contain random kernel memory content, which
-may be finally leaked to userspace. This is a security hole. Fix it
-by clearing the s[12] array in thread_struct when fork.
+When failed to start nic or add interrupt service routine in
+s2io_card_up() for opening device, napi isn't disabled. When open
+s2io device next time, it will trigger a BUG_ON()in napi_enable().
+Compile tested only.
 
-As for kthread case, it's better to clear the s[12] array as well.
-
-Fixes: 7db91e57a0ac ("RISC-V: Task implementation")
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Tested-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/20221029113450.4027-1-jszhang@kernel.org
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/CAJF2gTSdVyAaM12T%2B7kXAdRPGS4VyuO08X1c7paE-n4Fr8OtRA@mail.gmail.com/
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: 5f490c968056 ("S2io: Fixed synchronization between scheduling of napi with card reset and close")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Link: https://lore.kernel.org/r/20221109023741.131552-1-shaozhengchao@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/process.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/neterion/s2io.c | 29 +++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
 
-diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
-index dd5f985b1f40..9a8b2e60adcf 100644
---- a/arch/riscv/kernel/process.c
-+++ b/arch/riscv/kernel/process.c
-@@ -111,6 +111,8 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
- {
- 	struct pt_regs *childregs = task_pt_regs(p);
+diff --git a/drivers/net/ethernet/neterion/s2io.c b/drivers/net/ethernet/neterion/s2io.c
+index 3b6b2e61139e..f4703f53bcdc 100644
+--- a/drivers/net/ethernet/neterion/s2io.c
++++ b/drivers/net/ethernet/neterion/s2io.c
+@@ -7125,9 +7125,8 @@ static int s2io_card_up(struct s2io_nic *sp)
+ 		if (ret) {
+ 			DBG_PRINT(ERR_DBG, "%s: Out of memory in Open\n",
+ 				  dev->name);
+-			s2io_reset(sp);
+-			free_rx_buffers(sp);
+-			return -ENOMEM;
++			ret = -ENOMEM;
++			goto err_fill_buff;
+ 		}
+ 		DBG_PRINT(INFO_DBG, "Buf in ring:%d is %d:\n", i,
+ 			  ring->rx_bufs_left);
+@@ -7165,18 +7164,16 @@ static int s2io_card_up(struct s2io_nic *sp)
+ 	/* Enable Rx Traffic and interrupts on the NIC */
+ 	if (start_nic(sp)) {
+ 		DBG_PRINT(ERR_DBG, "%s: Starting NIC failed\n", dev->name);
+-		s2io_reset(sp);
+-		free_rx_buffers(sp);
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto err_out;
+ 	}
  
-+	memset(&p->thread.s, 0, sizeof(p->thread.s));
+ 	/* Add interrupt service routine */
+ 	if (s2io_add_isr(sp) != 0) {
+ 		if (sp->config.intr_type == MSI_X)
+ 			s2io_rem_isr(sp);
+-		s2io_reset(sp);
+-		free_rx_buffers(sp);
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto err_out;
+ 	}
+ 
+ 	timer_setup(&sp->alarm_timer, s2io_alarm_handle, 0);
+@@ -7196,6 +7193,20 @@ static int s2io_card_up(struct s2io_nic *sp)
+ 	}
+ 
+ 	return 0;
 +
- 	/* p->thread holds context to be restored by __switch_to() */
- 	if (unlikely(p->flags & PF_KTHREAD)) {
- 		/* Kernel thread */
++err_out:
++	if (config->napi) {
++		if (config->intr_type == MSI_X) {
++			for (i = 0; i < sp->config.rx_ring_num; i++)
++				napi_disable(&sp->mac_control.rings[i].napi);
++		} else {
++			napi_disable(&sp->napi);
++		}
++	}
++err_fill_buff:
++	s2io_reset(sp);
++	free_rx_buffers(sp);
++	return ret;
+ }
+ 
+ /**
 -- 
 2.35.1
 
