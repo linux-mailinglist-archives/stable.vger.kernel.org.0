@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17573627F5B
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9722627EB8
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:50:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237515AbiKNM6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:58:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51364 "EHLO
+        id S237278AbiKNMuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:50:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237537AbiKNM6M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:58:12 -0500
+        with ESMTP id S237207AbiKNMux (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:50:53 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7BA127DF1
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:58:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A8B717ABC
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:50:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98BDCB80EAF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:58:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C81E6C433C1;
-        Mon, 14 Nov 2022 12:58:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E05A1B80EAF
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:50:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34790C433D6;
+        Mon, 14 Nov 2022 12:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430689;
-        bh=5P1VMuy7e+hxshkjV4NP3HBvQkYx9QA+TJmyDNec644=;
+        s=korg; t=1668430250;
+        bh=3/nS9cBNPeZvjK8qdD5rfSxsGVWJQO7Isn6O6l3dF/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nnjAFfFfPhlwjEs1Wa6Qs5ud0WayXqPoqPneQN83bI3889R8+Q1FaWV8fdPdAvh7S
-         CzPidV/JNHQqbvuI+CpFyOhTib5NQ7N/tGW8Y/hUsPgtb4Pq2wAhZUXZ0fu/88DONT
-         vt0jqb1p7AnTF25Dw7DWtTz50elGxLFDRWqU0Lwg=
+        b=BswVx/bQ14GUZyOBtIx1YSi4kZa5Wr/OPWPgAymrXBtDzcWiSkhosugkkKCwtOOQT
+         QtQDuWbvJ6pHf7CTp/JU/YUnCjsgAVmPm0nkzyytfl4mJtP/IY54wEhg7O9QLgcc1U
+         281grQvXRkWyat+v6y9yIanUCYgD69hNQg/Qklmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ash Logan <ash@heyquark.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 094/131] ALSA: usb-audio: Add quirk entry for M-Audio Micro
+        patches@lists.linux.dev,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+45d6ce7b7ad7ef455d03@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 69/95] nilfs2: fix deadlock in nilfs_count_free_blocks()
 Date:   Mon, 14 Nov 2022 13:46:03 +0100
-Message-Id: <20221114124452.693484226@linuxfoundation.org>
+Message-Id: <20221114124445.416234527@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 2f01a612d4758b45f775dbb88a49cf534ba47275 upstream.
+commit 8ac932a4921a96ca52f61935dbba64ea87bbd5dc upstream.
 
-M-Audio Micro (0762:201a) defines the descriptor as vendor-specific,
-while the content seems class-compliant.  Just overriding the probe
-makes the device working.
+A semaphore deadlock can occur if nilfs_get_block() detects metadata
+corruption while locating data blocks and a superblock writeback occurs at
+the same time:
 
-Reported-by: Ash Logan <ash@heyquark.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/7ecd4417-d860-4773-c1c1-b07433342390@heyquark.com
-Link: https://lore.kernel.org/r/20221108140721.24248-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+task 1                               task 2
+------                               ------
+* A file operation *
+nilfs_truncate()
+  nilfs_get_block()
+    down_read(rwsem A) <--
+    nilfs_bmap_lookup_contig()
+      ...                            generic_shutdown_super()
+                                       nilfs_put_super()
+                                         * Prepare to write superblock *
+                                         down_write(rwsem B) <--
+                                         nilfs_cleanup_super()
+      * Detect b-tree corruption *         nilfs_set_log_cursor()
+      nilfs_bmap_convert_error()             nilfs_count_free_blocks()
+        __nilfs_error()                        down_read(rwsem A) <--
+          nilfs_set_error()
+            down_write(rwsem B) <--
+
+                           *** DEADLOCK ***
+
+Here, nilfs_get_block() readlocks rwsem A (= NILFS_MDT(dat_inode)->mi_sem)
+and then calls nilfs_bmap_lookup_contig(), but if it fails due to metadata
+corruption, __nilfs_error() is called from nilfs_bmap_convert_error()
+inside the lock section.
+
+Since __nilfs_error() calls nilfs_set_error() unless the filesystem is
+read-only and nilfs_set_error() attempts to writelock rwsem B (=
+nilfs->ns_sem) to write back superblock exclusively, hierarchical lock
+acquisition occurs in the order rwsem A -> rwsem B.
+
+Now, if another task starts updating the superblock, it may writelock
+rwsem B during the lock sequence above, and can deadlock trying to
+readlock rwsem A in nilfs_count_free_blocks().
+
+However, there is actually no need to take rwsem A in
+nilfs_count_free_blocks() because it, within the lock section, only reads
+a single integer data on a shared struct with
+nilfs_sufile_get_ncleansegs().  This has been the case after commit
+aa474a220180 ("nilfs2: add local variable to cache the number of clean
+segments"), that is, even before this bug was introduced.
+
+So, this resolves the deadlock problem by just not taking the semaphore in
+nilfs_count_free_blocks().
+
+Link: https://lkml.kernel.org/r/20221029044912.9139-1-konishi.ryusuke@gmail.com
+Fixes: e828949e5b42 ("nilfs2: call nilfs_error inside bmap routines")
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+45d6ce7b7ad7ef455d03@syzkaller.appspotmail.com
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>	[2.6.38+
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks-table.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/nilfs2/the_nilfs.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -2050,6 +2050,10 @@ YAMAHA_DEVICE(0x7010, "UB99"),
- 	}
- },
+--- a/fs/nilfs2/the_nilfs.c
++++ b/fs/nilfs2/the_nilfs.c
+@@ -690,9 +690,7 @@ int nilfs_count_free_blocks(struct the_n
  {
-+	/* M-Audio Micro */
-+	USB_DEVICE_VENDOR_SPEC(0x0763, 0x201a),
-+},
-+{
- 	USB_DEVICE_VENDOR_SPEC(0x0763, 0x2030),
- 	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
- 		/* .vendor_name = "M-Audio", */
+ 	unsigned long ncleansegs;
+ 
+-	down_read(&NILFS_MDT(nilfs->ns_dat)->mi_sem);
+ 	ncleansegs = nilfs_sufile_get_ncleansegs(nilfs->ns_sufile);
+-	up_read(&NILFS_MDT(nilfs->ns_dat)->mi_sem);
+ 	*nblocks = (sector_t)ncleansegs * nilfs->ns_blocks_per_segment;
+ 	return 0;
+ }
 
 
