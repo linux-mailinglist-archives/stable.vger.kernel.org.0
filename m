@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EFBC627F8A
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:00:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3CF0627F8F
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:00:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237559AbiKNNAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:00:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54030 "EHLO
+        id S237556AbiKNNA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:00:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237556AbiKNNAX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:00:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 713A127B1C
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:00:22 -0800 (PST)
+        with ESMTP id S237648AbiKNNA2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:00:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B55D27FD1
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:00:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DA7A61154
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:00:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195EEC433C1;
-        Mon, 14 Nov 2022 13:00:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B68D4B80EC2
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:00:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A958C433D7;
+        Mon, 14 Nov 2022 13:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430821;
-        bh=mu5+hzN8oIm+69iJWtw4Wz9/AorDfJVTGhVef2RCooQ=;
+        s=korg; t=1668430824;
+        bh=5Q/aQ4pU+9Nj0xuuL4L451qa2eKbBQjpokJ7w0By3Gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MXK6eEEtZfWAxxvkhl/Wb2WKNXTVoxzoBqUqN6uKbiNvOsIR147fYGc5MSsW0E6Lr
-         fQMnY0H160Jf9lAjVFnTyRVtLBXLjMZ1nFraiLm5zFpANKIusmYJPc32+y+yXHQpJT
-         cXqhAEEpuSl1VmIStmNv3oJkLHFeHWmNW/Yeb9Ow=
+        b=TTFiZ2QPcAii1QndI5MlPCQqwnW/HBnugDzQECtAlsDBwqotdjQmY38wr3Zh1fiMa
+         keLjgOf2LoFeuFLbgFEL20zd75AoFE8ijV5jhqaW2UeFf7w9GQqeYQlW01E+lU5X/v
+         PocKGfwC8TdU4+kk3m+DuKAUAnT1rf//7TdCkLr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 130/131] drm/amdkfd: Migrate in CPU page fault use current mm
-Date:   Mon, 14 Nov 2022 13:46:39 +0100
-Message-Id: <20221114124454.196768529@linuxfoundation.org>
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Wang Yufen <wangyufen@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 131/131] net: tun: call napi_schedule_prep() to ensure we own a napi
+Date:   Mon, 14 Nov 2022 13:46:40 +0100
+Message-Id: <20221114124454.236134689@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
 References: <20221114124448.729235104@linuxfoundation.org>
@@ -53,44 +54,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 3a876060892ba52dd67d197c78b955e62657d906 upstream.
+commit 07d120aa33cc9d9115753d159f64d20c94458781 upstream.
 
-migrate_vma_setup shows below warning because we don't hold another
-process mm mmap_lock. We should use current vmf->vma->vm_mm instead, the
-caller already hold current mmap lock inside CPU page fault handler.
+A recent patch exposed another issue in napi_get_frags()
+caught by syzbot [1]
 
- WARNING: CPU: 10 PID: 3054 at include/linux/mmap_lock.h:155 find_vma
- Call Trace:
-  walk_page_range+0x76/0x150
-  migrate_vma_setup+0x18a/0x640
-  svm_migrate_vram_to_ram+0x245/0xa10 [amdgpu]
-  svm_migrate_to_ram+0x36f/0x470 [amdgpu]
-  do_swap_page+0xcfe/0xec0
-  __handle_mm_fault+0x96b/0x15e0
-  handle_mm_fault+0x13f/0x3e0
-  do_user_addr_fault+0x1e7/0x690
+Before feeding packets to GRO, and calling napi_complete()
+we must first grab NAPI_STATE_SCHED.
 
-Fixes: e1f84eef313f ("drm/amdkfd: handle CPU fault on COW mapping")
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+[1]
+WARNING: CPU: 0 PID: 3612 at net/core/dev.c:6076 napi_complete_done+0x45b/0x880 net/core/dev.c:6076
+Modules linked in:
+CPU: 0 PID: 3612 Comm: syz-executor408 Not tainted 6.1.0-rc3-syzkaller-00175-g1118b2049d77 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+RIP: 0010:napi_complete_done+0x45b/0x880 net/core/dev.c:6076
+Code: c1 ea 03 0f b6 14 02 4c 89 f0 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 24 04 00 00 41 89 5d 1c e9 73 fc ff ff e8 b5 53 22 fa <0f> 0b e9 82 fe ff ff e8 a9 53 22 fa 48 8b 5c 24 08 31 ff 48 89 de
+RSP: 0018:ffffc90003c4f920 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 0000000000000030 RCX: 0000000000000000
+RDX: ffff8880251c0000 RSI: ffffffff875a58db RDI: 0000000000000007
+RBP: 0000000000000001 R08: 0000000000000007 R09: 0000000000000000
+R10: 0000000000000001 R11: 0000000000000001 R12: ffff888072d02628
+R13: ffff888072d02618 R14: ffff888072d02634 R15: 0000000000000000
+FS: 0000555555f13300(0000) GS:ffff8880b9a00000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055c44d3892b8 CR3: 00000000172d2000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<TASK>
+napi_complete include/linux/netdevice.h:510 [inline]
+tun_get_user+0x206d/0x3a60 drivers/net/tun.c:1980
+tun_chr_write_iter+0xdb/0x200 drivers/net/tun.c:2027
+call_write_iter include/linux/fs.h:2191 [inline]
+do_iter_readv_writev+0x20b/0x3b0 fs/read_write.c:735
+do_iter_write+0x182/0x700 fs/read_write.c:861
+vfs_writev+0x1aa/0x630 fs/read_write.c:934
+do_writev+0x133/0x2f0 fs/read_write.c:977
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f37021a3c19
+
+Fixes: 1118b2049d77 ("net: tun: Fix memory leaks of napi_get_frags")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Wang Yufen <wangyufen@huawei.com>
+Link: https://lore.kernel.org/r/20221107180011.188437-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_migrate.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/tun.c |   19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-@@ -845,7 +845,7 @@ static vm_fault_t svm_migrate_to_ram(str
- 		goto out_unlock_prange;
- 	}
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1949,18 +1949,25 @@ drop:
+ 					  skb_headlen(skb));
  
--	r = svm_migrate_vram_to_ram(prange, mm);
-+	r = svm_migrate_vram_to_ram(prange, vmf->vma->vm_mm);
- 	if (r)
- 		pr_debug("failed %d migrate svms 0x%p range 0x%p [0x%lx 0x%lx]\n",
- 			 r, prange->svms, prange, prange->start, prange->last);
+ 		if (unlikely(headlen > skb_headlen(skb))) {
++			WARN_ON_ONCE(1);
++			err = -ENOMEM;
+ 			atomic_long_inc(&tun->dev->rx_dropped);
++napi_busy:
+ 			napi_free_frags(&tfile->napi);
+ 			rcu_read_unlock();
+ 			mutex_unlock(&tfile->napi_mutex);
+-			WARN_ON(1);
+-			return -ENOMEM;
++			return err;
+ 		}
+ 
+-		local_bh_disable();
+-		napi_gro_frags(&tfile->napi);
+-		napi_complete(&tfile->napi);
+-		local_bh_enable();
++		if (likely(napi_schedule_prep(&tfile->napi))) {
++			local_bh_disable();
++			napi_gro_frags(&tfile->napi);
++			napi_complete(&tfile->napi);
++			local_bh_enable();
++		} else {
++			err = -EBUSY;
++			goto napi_busy;
++		}
+ 		mutex_unlock(&tfile->napi_mutex);
+ 	} else if (tfile->napi_enabled) {
+ 		struct sk_buff_head *queue = &tfile->sk.sk_write_queue;
 
 
