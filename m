@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E8AE627F6E
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:59:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84F06627F6F
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:59:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237610AbiKNM7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:59:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52634 "EHLO
+        id S237611AbiKNM7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:59:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237611AbiKNM7L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:59:11 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83B5011A3D
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:59:09 -0800 (PST)
+        with ESMTP id S237620AbiKNM7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:59:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 459FE25C62
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:59:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D11B9CE0FFA
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:59:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DF2FC433D6;
-        Mon, 14 Nov 2022 12:59:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18B7CB80EC0
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:59:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 741C2C43146;
+        Mon, 14 Nov 2022 12:59:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430746;
-        bh=S+OwcXwkbmvk5sG4t2CESIBuz3Rb2maCPCAuozB2anI=;
+        s=korg; t=1668430748;
+        bh=7zu4WyKyFv0zlMyhJCi48tWqw7aHNxi7hwj3sfx5TJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OFWbEseTrlMNEsQ9YVliMIllw9fQ2cv06U689huirAV4T2NlSSR1tmrSiSYheMX0Y
-         v6bahLgVd6YC9C5Y8NI6Tp3lCs5sE6eIXppxuYWD+4VvGiLjjwtwEsx99gCmvMxwuu
-         eS73jA49xoVFqOCG986QK22dBkjyRRBdA6NsGogw=
+        b=JUxixoEULhlXO6+zWLAw6M62svjJstwPt61tY43AnnfqLYUEddcGGB0Ql5XWsos2z
+         qQqyNd+ESxeu9fStIP3un4ot6bOtaET/wQ0wEYNndi/lgZ5mN5cL2QdTHb1qkpGMvo
+         qd4+EuR8aLjjMwhrnJyAAQGfaWi3s2L6c59UngX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tudor Ambarus <tudor.ambarus@microchip.com>,
         Nicolas Ferre <nicolas.ferre@microchip.com>,
         Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 117/131] dmaengine: at_hdmac: Fix premature completion of desc in issue_pending
-Date:   Mon, 14 Nov 2022 13:46:26 +0100
-Message-Id: <20221114124453.661942638@linuxfoundation.org>
+Subject: [PATCH 5.15 118/131] dmaengine: at_hdmac: Do not call the complete callback on device_terminate_all
+Date:   Mon, 14 Nov 2022 13:46:27 +0100
+Message-Id: <20221114124453.710744883@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
 References: <20221114124448.729235104@linuxfoundation.org>
@@ -56,59 +56,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-commit fcd37565efdaffeac179d0f0ce980ac79bfdf569 upstream.
+commit f645f85ae1104f8bd882f962ac0a69a1070076dd upstream.
 
-Multiple calls to atc_issue_pending() could result in a premature
-completion of a descriptor from the atchan->active list, as the method
-always completed the first active descriptor from the list. Instead,
-issue_pending() should just take the first transaction descriptor from the
-pending queue, move it to active_list and start the transfer.
+The method was wrong because it violated the dmaengine API. For aborted
+transfers the complete callback should not be called. Fix the behavior and
+do not call the complete callback on device_terminate_all.
 
-Fixes: dc78baa2b90b ("dmaengine: at_hdmac: new driver for the Atmel AHB DMA Controller")
+Fixes: 808347f6a317 ("dmaengine: at_hdmac: add DMA slave transfers")
 Reported-by: Peter Rosin <peda@axentia.se>
 Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
 Cc: stable@vger.kernel.org
 Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
 Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 Link: https://lore.kernel.org/r/20221025090306.297886-1-tudor.ambarus@microchip.com
-Link: https://lore.kernel.org/r/20221025090306.297886-5-tudor.ambarus@microchip.com
+Link: https://lore.kernel.org/r/20221025090306.297886-6-tudor.ambarus@microchip.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/at_hdmac.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/dma/at_hdmac.c |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
 --- a/drivers/dma/at_hdmac.c
 +++ b/drivers/dma/at_hdmac.c
-@@ -1519,16 +1519,26 @@ atc_tx_status(struct dma_chan *chan,
- }
+@@ -1429,11 +1429,8 @@ static int atc_terminate_all(struct dma_
+ 	struct at_dma_chan	*atchan = to_at_dma_chan(chan);
+ 	struct at_dma		*atdma = to_at_dma(chan->device);
+ 	int			chan_id = atchan->chan_common.chan_id;
+-	struct at_desc		*desc, *_desc;
+ 	unsigned long		flags;
  
- /**
-- * atc_issue_pending - try to finish work
-+ * atc_issue_pending - takes the first transaction descriptor in the pending
-+ * queue and starts the transfer.
-  * @chan: target DMA channel
-  */
- static void atc_issue_pending(struct dma_chan *chan)
- {
--	struct at_dma_chan	*atchan = to_at_dma_chan(chan);
-+	struct at_dma_chan *atchan = to_at_dma_chan(chan);
-+	struct at_desc *desc;
-+	unsigned long flags;
+-	LIST_HEAD(list);
+-
+ 	dev_vdbg(chan2dev(chan), "%s\n", __func__);
  
- 	dev_vdbg(chan2dev(chan), "issue_pending\n");
+ 	/*
+@@ -1452,15 +1449,11 @@ static int atc_terminate_all(struct dma_
+ 		cpu_relax();
  
--	atc_advance_work(atchan);
-+	spin_lock_irqsave(&atchan->lock, flags);
-+	if (atc_chan_is_enabled(atchan) || list_empty(&atchan->queue))
-+		return spin_unlock_irqrestore(&atchan->lock, flags);
-+
-+	desc = atc_first_queued(atchan);
-+	list_move_tail(&desc->desc_node, &atchan->active_list);
-+	atc_dostart(atchan, desc);
-+	spin_unlock_irqrestore(&atchan->lock, flags);
- }
+ 	/* active_list entries will end up before queued entries */
+-	list_splice_init(&atchan->queue, &list);
+-	list_splice_init(&atchan->active_list, &list);
++	list_splice_tail_init(&atchan->queue, &atchan->free_list);
++	list_splice_tail_init(&atchan->active_list, &atchan->free_list);
  
- /**
+ 	spin_unlock_irqrestore(&atchan->lock, flags);
+ 
+-	/* Flush all pending and queued descriptors */
+-	list_for_each_entry_safe(desc, _desc, &list, desc_node)
+-		atc_chain_complete(atchan, desc);
+-
+ 	clear_bit(ATC_IS_PAUSED, &atchan->status);
+ 	/* if channel dedicated to cyclic operations, free it */
+ 	clear_bit(ATC_IS_CYCLIC, &atchan->status);
 
 
