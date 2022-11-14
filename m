@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC71C628027
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:03:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BF77628029
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:03:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237734AbiKNNDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:03:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58098 "EHLO
+        id S237735AbiKNNDe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:03:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237735AbiKNNDc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:03:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DC7FCC8
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:03:31 -0800 (PST)
+        with ESMTP id S237738AbiKNNDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:03:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7F4319C0A
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:03:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 462AFB80EC5
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:03:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 954F6C43140;
-        Mon, 14 Nov 2022 13:03:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 444B56117E
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:03:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 576EFC433D7;
+        Mon, 14 Nov 2022 13:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431009;
-        bh=7MkqDnhVEf/JPDiNW/AHGMH6awNoc830WUzrNcNlWsE=;
+        s=korg; t=1668431011;
+        bh=XGEt/MrR2cz1aBYZV56E266xzlSX2a+3jzhRo3SLlvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t73vcsoMp5CEcPkh/5SgEBF7XTVTx6dhEZ8H0Wx7hRo4f1659IWR0JCrPBtR19C4u
-         gEmLNFdibUsot/b5+DeZMl3x1VJegqDh7GSCC/f36ROPPPX2gHaptB0cqjKYKu0kit
-         xbhijh3xC5J49WY7XGQ7Z0hj0/17PZNe+9nv5Fic=
+        b=eqnfSepkMR3L8ja4R12Rz2ax8N0xzsZJYJ35IQhsRWiMnMe4FMM3tGzexQM3pBlXF
+         CU/oS2xhNVMAaSIfa9N29q7owuudAqUOJOpLF5QmR+r+CHoDB8f9fp6nY6hbswHhnh
+         lXlr/5BsXvzCwc6PIPaNmoVNiQo3B9mSuansxCPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fengqian Gao <fengqian.gao@intel.com>,
-        Xiaochen Shen <xiaochen.shen@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 066/190] dmaengine: idxd: fix RO device state error after been disabled/reset
-Date:   Mon, 14 Nov 2022 13:44:50 +0100
-Message-Id: <20221114124501.608090903@linuxfoundation.org>
+Subject: [PATCH 6.0 067/190] dmaengine: apple-admac: Fix grabbing of channels in of_xlate
+Date:   Mon, 14 Nov 2022 13:44:51 +0100
+Message-Id: <20221114124501.639619084@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -55,61 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fengqian Gao <fengqian.gao@intel.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit 0b8c97a1d8c1bb6a853b8bb1778e8fef17b86fc9 ]
+[ Upstream commit 8454f880c24bca0d9d4bfb6ed4a4a5429a4d9b20 ]
 
-When IDXD is not configurable, that means its WQ, engine, and group
-configurations cannot be changed. But it can be disabled and its state
-should be set as disabled regardless it's configurable or not.
+The of_xlate callback is supposed to return the channel after already
+having 'grabbed' it for private use, so fill that in.
 
-Fix this by setting device state IDXD_DEV_DISABLED for read-only device
-as well in idxd_device_clear_state().
-
-Fixes: cf4ac3fef338 ("dmaengine: idxd: fix lockdep warning on device driver removal")
-Signed-off-by: Fengqian Gao <fengqian.gao@intel.com>
-Reviewed-by: Xiaochen Shen <xiaochen.shen@intel.com>
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Reviewed-by: Fenghua Yu <fenghua.yu@intel.com>
-Link: https://lore.kernel.org/r/20220930032835.2290-1-fengqian.gao@intel.com
+Fixes: b127315d9a78 ("dmaengine: apple-admac: Add Apple ADMAC driver")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20221019132324.8585-1-povik+lin@cutebit.org
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/device.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/dma/apple-admac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
-index cc7aabe4dc84..bd6e50f795be 100644
---- a/drivers/dma/idxd/device.c
-+++ b/drivers/dma/idxd/device.c
-@@ -724,13 +724,21 @@ static void idxd_device_wqs_clear_state(struct idxd_device *idxd)
+diff --git a/drivers/dma/apple-admac.c b/drivers/dma/apple-admac.c
+index d1f74a3aa999..6780761a1640 100644
+--- a/drivers/dma/apple-admac.c
++++ b/drivers/dma/apple-admac.c
+@@ -490,7 +490,7 @@ static struct dma_chan *admac_dma_of_xlate(struct of_phandle_args *dma_spec,
+ 		return NULL;
+ 	}
  
- void idxd_device_clear_state(struct idxd_device *idxd)
- {
--	if (!test_bit(IDXD_FLAG_CONFIGURABLE, &idxd->flags))
--		return;
-+	/* IDXD is always disabled. Other states are cleared only when IDXD is configurable. */
-+	if (test_bit(IDXD_FLAG_CONFIGURABLE, &idxd->flags)) {
-+		/*
-+		 * Clearing wq state is protected by wq lock.
-+		 * So no need to be protected by device lock.
-+		 */
-+		idxd_device_wqs_clear_state(idxd);
-+
-+		spin_lock(&idxd->dev_lock);
-+		idxd_groups_clear_state(idxd);
-+		idxd_engines_clear_state(idxd);
-+	} else {
-+		spin_lock(&idxd->dev_lock);
-+	}
- 
--	idxd_device_wqs_clear_state(idxd);
--	spin_lock(&idxd->dev_lock);
--	idxd_groups_clear_state(idxd);
--	idxd_engines_clear_state(idxd);
- 	idxd->state = IDXD_DEV_DISABLED;
- 	spin_unlock(&idxd->dev_lock);
+-	return &ad->channels[index].chan;
++	return dma_get_slave_channel(&ad->channels[index].chan);
  }
+ 
+ static int admac_drain_reports(struct admac_data *ad, int channo)
 -- 
 2.35.1
 
