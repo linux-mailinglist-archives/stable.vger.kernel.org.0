@@ -2,60 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B26A0628B66
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 22:37:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C1F0628B64
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 22:36:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236810AbiKNVh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 16:37:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33664 "EHLO
+        id S236233AbiKNVgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 16:36:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236250AbiKNVh1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 16:37:27 -0500
+        with ESMTP id S236250AbiKNVga (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 16:36:30 -0500
+X-Greylist: delayed 1803 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 14 Nov 2022 13:36:29 PST
 Received: from outbound-ip19b.ess.barracuda.com (outbound-ip19b.ess.barracuda.com [209.222.82.216])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47D8219032
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:37:26 -0800 (PST)
-Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com [209.85.167.199]) by mx-outbound42-203.us-east-2c.ess.aws.cudaops.com (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO); Mon, 14 Nov 2022 21:37:25 +0000
-Received: by mail-oi1-f199.google.com with SMTP id be25-20020a056808219900b0035ad466a313so2289987oib.17
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:37:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F47765B0
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:36:28 -0800 (PST)
+Received: from mail-vk1-f198.google.com (mail-vk1-f198.google.com [209.85.221.198]) by mx-outbound42-203.us-east-2c.ess.aws.cudaops.com (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO); Mon, 14 Nov 2022 21:36:27 +0000
+Received: by mail-vk1-f198.google.com with SMTP id r23-20020a1f2b17000000b003b89463c349so2629911vkr.0
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:36:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=sladewatkins.net; s=googled;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=dWDd/MBzZEtsCg8lCXMYeDNkXSIMpUqiJyLusf/wE8M=;
-        b=Ek62IgRUOn87cEM3WfVw1pK1ghk2aB7owmZWSRIM7Uau+O0vfJ2Nu60LMH4uYxOTLF
-         qQnEdN276IgPrfGuThCIpYAstIbJSOeXdhYL2ECHyv9WHOZdAFgLrQdR5QKYeX0BgIgu
-         4RrWUmLSd5FOeiMen5fS5N8ptn/eH9zKkYEnrbt84+ND6s/YRuNjAlC12yR4V/gbE0Ll
-         vRXThrHWj85cfKQZvY73n726NhuNZThoPy7LsHsXiZze+QdBX3a36wGZZgO6KVYjXuoZ
-         2KtS7tGO5F0C2jZsLZtzxr1Zj69LNZJuKFimHrCb1ixfktOm+969aFkdR9ETGHqfDVk8
-         4REQ==
+        bh=sHhq7GAcH+SGAD2OAT/4GIJITY8Agpvr4ItX6H4dnTw=;
+        b=RkaNIlr9V5SN6THND5V/unQ4uGo4Ewoz2wIKKh+ktKuyCJdNnVVPtPduHX2TXf/r3W
+         OxV+lLwPYO0X+XWeGLEZ6I3mH7aPIjXo9AyxulJrwHbamWpmay+eU+B7rLJIkFYiYEve
+         ZSWF624bLS8OJ48owc55yns0psiZ8lOP/YruCDfdNvvg3D8QY6oVkL1IExlvhbOlkznZ
+         70h0LGGBw0M6fJwlBKvJBOWnCQ96ztSV3OtQ8cAlSDsTG8P61hJ3Vb9xDWv1jOHzZ2UN
+         JGIYpXsf69ITyp1HII4ksPVOAJVtMCt1wwGkjVTLta2BW12VcOuX5HHW4NiFp/Q7g3/W
+         fcAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=dWDd/MBzZEtsCg8lCXMYeDNkXSIMpUqiJyLusf/wE8M=;
-        b=Va/A6D7osUMI4rdm9yaWlTCwbcMHScvtSg/timYrfbwYltJ+YvzU1AK6J7KFUJmPCX
-         GX/BQAJ1MWjfgJ+elA6zLsPnLdFMRuhCh0ld3GSMk7VSlMM0elx1IL9hA8VJ1dda+mqm
-         FewAtAq/ygXK7FXxLSjWIpFS9+UUGSY+GBTOXiZGC3f8cbV7N6bDRCuvgwOpcoE8/ncD
-         9hp+GSDOuNmNBoWU+GYOE2TfVRQXjeySukx4YxrXH5YokIIc2ncNycw1nQRRiPiC2XOl
-         tv+TSOlhoiGNM7zhYP+ofXrVb5VJBU1YmrkOAqTEYzqQUJXatU38Tf2yABEnXm4LrzwS
-         GLOQ==
-X-Gm-Message-State: ACrzQf3QoNBeIL4UZsnlesNDm7uNktIBg+I8Jqem/e0gzpRSTk7oWZte
-        YtzjIPTGIEbR1IzNz05nAnz1udm+YCN3mcMMqdulLL4j9t9Rsg6GahvRz//FVuoJF9j1voLL5VL
-        DvESWQrFBkRGcVqSimfKUBl8yaicdZ9AVSjoMulayJuJY9obUK0x/LG2XlFXHPODS
-X-Received: by 2002:a17:90a:8008:b0:211:906a:f8ef with SMTP id b8-20020a17090a800800b00211906af8efmr15292371pjn.71.1668459973240;
-        Mon, 14 Nov 2022 13:06:13 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf54TK9/wMXk1YqcBX6lX0AbuQzvLTAAcG++rlznAG6MtbzAwLLlIeMlYRitwx0z9El5SS8Av+acp9alxzg+Ams=
-X-Received: by 2002:a17:90a:8008:b0:211:906a:f8ef with SMTP id
- b8-20020a17090a800800b00211906af8efmr15292355pjn.71.1668459972936; Mon, 14
- Nov 2022 13:06:12 -0800 (PST)
+        bh=sHhq7GAcH+SGAD2OAT/4GIJITY8Agpvr4ItX6H4dnTw=;
+        b=MBbEXM79WtooxVgnJLWBqZqLCu+NlyZP1L8EGwrPh3pzjVEhOfmTH59r2NBIqZLLlu
+         gwNeLXPcHDdsUPYumAtx4g5i8QjnbXZE+xGTSjIe36wjjAjqb3OCs1wQDp+WYs0ZtJBs
+         ooTXver4n0//yKmY65OQEoQSQQwU+JbqJB9Z7SZEsojxR7GqSlxhIl/vnD7nm/HEWW1/
+         Zgy8pzxwK2M+1Xeuv5iijj9YhYYfnr3vxS00IYJ7Y+esBt+rbWKYa5egIpNogbMuAzBP
+         iTVRptYZAYz7h0JOxSB9zP2/dutkZlTgN1KFsgMBDC5IT9FxpjxcUtdv3noK2pOajnME
+         eOHg==
+X-Gm-Message-State: ANoB5pknHWbZqruzY3Nhgu21feK0iMJSLez5LLzg5FUeTYaSM0EzuHnt
+        JavNtTgQt2pkCCasb9CsZY2HRnMfmoySOb9h0UCAVczLvrV97PQU6XVhCyGEu8Gmj28WwvzfLaB
+        s9Bo/4sLS7YQnStmTJjHDdyHbPwWpb0GZ5grrWuvRnGL4WRAfW1Ky8+iDYLUK+yz3
+X-Received: by 2002:a17:902:b18e:b0:187:2790:9bc2 with SMTP id s14-20020a170902b18e00b0018727909bc2mr1045587plr.61.1668460006278;
+        Mon, 14 Nov 2022 13:06:46 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf5hR1jUSh6vO+NzVXJRDYcadYdn4lJl0ydhNhJqjQVtk/DjBGaS18IFlwxJN0Asr3csyDUI7pdHlDadYCNkliw=
+X-Received: by 2002:a17:902:b18e:b0:187:2790:9bc2 with SMTP id
+ s14-20020a170902b18e00b0018727909bc2mr1045562plr.61.1668460006054; Mon, 14
+ Nov 2022 13:06:46 -0800 (PST)
 MIME-Version: 1.0
-References: <20221114124448.729235104@linuxfoundation.org>
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
 From:   Slade Watkins <srw@sladewatkins.net>
-Date:   Mon, 14 Nov 2022 16:06:00 -0500
-Message-ID: <CA+pv=HMzyBA8UeC_NEbe85-EWfsLHL4G+fUiursk0Z7P14ukRQ@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/131] 5.15.79-rc1 review
+Date:   Mon, 14 Nov 2022 16:06:34 -0500
+Message-ID: <CA+pv=HMHfNO-v2jRMrzHKx7VWzg9khjPxp6pNh0DPDsnF_O55w@mail.gmail.com>
+Subject: Re: [PATCH 5.10 00/95] 5.10.155-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
@@ -69,12 +70,12 @@ X-SWM-IntToExt-Scanning: swmout (swm-pri11-itoemail0-scan.leviathan.sladewatkins
 X-SWM-Sent-by: swmPRISMgateway (swm-prismgateway-pri02-mail8-scan.leviathan.sladewatkins.net)
 X-SWM-Antivirus-Version: 1.1.0
 X-SWM-ite-Primary-Server: swm-pri12-item.leviathan.sladewatkins.net
-X-BESS-ID: 1668461844-110955-5613-7430-1
+X-BESS-ID: 1668461787-110955-5610-7348-1
 X-BESS-VER: 2019.1_20221114.2026
-X-BESS-Apparent-Source-IP: 209.85.167.199
+X-BESS-Apparent-Source-IP: 209.85.221.198
 X-BESS-Outbound-Spam-Score: 0.00
 X-BESS-Outbound-Spam-Report: Code version 3.2, rules version 3.2.2.244150 [from 
-        cloudscan10-163.us-east-2a.ess.aws.cudaops.com]
+        cloudscan15-185.us-east-2a.ess.aws.cudaops.com]
         Rule breakdown below
          pts rule name              description
         ---- ---------------------- --------------------------------
@@ -92,18 +93,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 14, 2022 at 7:54 AM Greg Kroah-Hartman
+On Mon, Nov 14, 2022 at 7:47 AM Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.15.79 release.
-> There are 131 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.10.155 release.
+> There are 95 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
 > Responses should be made by Wed, 16 Nov 2022 12:44:21 +0000.
 > Anything received after that time might be too late.
 
-5.15.79-rc1 compiled and booted on my x86_64 test system. No errors or
-regressions.
+
+5.10.155-rc1 compiled and booted on my x86_64 test system. No errors
+or regressions.
 
 Tested-by: Slade Watkins <srw@sladewatkins.net>
 
