@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB16D628022
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:03:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11569628025
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:03:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237732AbiKNND3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:03:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57958 "EHLO
+        id S237739AbiKNNDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:03:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237664AbiKNND2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:03:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C8E764E
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:03:26 -0800 (PST)
+        with ESMTP id S237734AbiKNNDa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:03:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E357511A1B
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:03:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC562B80EA6
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:03:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48F99C433D7;
-        Mon, 14 Nov 2022 13:03:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 904F9B80EA5
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:03:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE50EC433D7;
+        Mon, 14 Nov 2022 13:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431003;
-        bh=xXF3tu2Ms1oJ3mM4BG18dObHaLUBErIRtfPqmtVMaJ8=;
+        s=korg; t=1668431006;
+        bh=ptsU9NG3LE77pqKxrIBlbh9k9aDr3kUXC7v/3HEQnZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9NZuC/fl3kqxf5xqtkywWOpXjYv4wSAWCR2iIs5/5hinJnf4bsWUUP6xmXN9rHaR
-         DtxrRuo2wiVK3nuBjTPMVKQ+G+jz6olc11J4iKerAoBXt8cTjeQCfVF0QTEhuv2DRv
-         7UYyPZPZt4shGPNw54saJWbKJ1B+1Dm36G1xzEu0=
+        b=NAKgbNdDKoufltbVHJWd72k3ynyx7W8zKZ94Ah/lzYXDIu+R6HJ505CQl3HiQA+3r
+         DzgEbE7f26K4MuDeWIix5/lZq7/V5R6/RoWb4lzJ4/k1HGRpZjVPqufzs9nBva4K+i
+         pYSTYm69FqFXjaSNIU2xZ0ymGCRjgovIV2Ma37L4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dave Jiang <dave.jiang@intel.com>,
+        patches@lists.linux.dev, Xiaochen Shen <xiaochen.shen@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
         Fenghua Yu <fenghua.yu@intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 064/190] dmanegine: idxd: reformat opcap output to match bitmap_parse() input
-Date:   Mon, 14 Nov 2022 13:44:48 +0100
-Message-Id: <20221114124501.519227212@linuxfoundation.org>
+Subject: [PATCH 6.0 065/190] dmaengine: idxd: Fix max batch size for Intel IAA
+Date:   Mon, 14 Nov 2022 13:44:49 +0100
+Message-Id: <20221114124501.558984570@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -53,129 +54,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Xiaochen Shen <xiaochen.shen@intel.com>
 
-[ Upstream commit a8563a33a5e26064061f2fb34215c97f0e2995f4 ]
+[ Upstream commit e8dbd6445dd6b38c4c50410a86f13158486ee99a ]
 
-To make input and output consistent and prepping for the per WQ operation
-configuration support, change the output of opcap display to match the
-input that is expected by bitmap_parse() helper function. The output will
-be a bitmap with field width as the number of bits using the %*pb format
-specifier for printk() family.
+>From Intel IAA spec [1], Intel IAA does not support batch processing.
 
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Co-developed-by: Fenghua Yu <fenghua.yu@intel.com>
-Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
-Link: https://lore.kernel.org/r/20220917161222.2835172-3-fenghua.yu@intel.com
+Two batch related default values for IAA are incorrect in current code:
+(1) The max batch size of device is set during device initialization,
+    that indicates batch is supported. It should be always 0 on IAA.
+(2) The max batch size of work queue is set to WQ_DEFAULT_MAX_BATCH (32)
+    as the default value regardless of Intel DSA or IAA device during
+    work queue setup and cleanup. It should be always 0 on IAA.
+
+Fix the issues by setting the max batch size of device and max batch
+size of work queue to 0 on IAA device, that means batch is not
+supported.
+
+[1]: https://cdrdv2.intel.com/v1/dl/getContent/721858
+
+Fixes: 23084545dbb0 ("dmaengine: idxd: set max_xfer and max_batch for RO device")
+Fixes: 92452a72ebdf ("dmaengine: idxd: set defaults for wq configs")
+Fixes: bfe1d56091c1 ("dmaengine: idxd: Init and probe for Intel data accelerators")
+Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
+Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+Reviewed-by: Fenghua Yu <fenghua.yu@intel.com>
+Link: https://lore.kernel.org/r/20220930201528.18621-2-xiaochen.shen@intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Stable-dep-of: e8dbd6445dd6 ("dmaengine: idxd: Fix max batch size for Intel IAA")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/idxd.h      |  2 ++
- drivers/dma/idxd/init.c      | 20 ++++++++++++++++++++
- drivers/dma/idxd/registers.h |  2 ++
- drivers/dma/idxd/sysfs.c     |  9 ++-------
- 4 files changed, 26 insertions(+), 7 deletions(-)
+ drivers/dma/idxd/device.c |  6 +++---
+ drivers/dma/idxd/idxd.h   | 32 ++++++++++++++++++++++++++++++++
+ drivers/dma/idxd/init.c   |  4 ++--
+ drivers/dma/idxd/sysfs.c  |  2 +-
+ 4 files changed, 38 insertions(+), 6 deletions(-)
 
+diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
+index 5a8cc52c1abf..cc7aabe4dc84 100644
+--- a/drivers/dma/idxd/device.c
++++ b/drivers/dma/idxd/device.c
+@@ -388,7 +388,7 @@ static void idxd_wq_disable_cleanup(struct idxd_wq *wq)
+ 	clear_bit(WQ_FLAG_BLOCK_ON_FAULT, &wq->flags);
+ 	memset(wq->name, 0, WQ_NAME_SIZE);
+ 	wq->max_xfer_bytes = WQ_DEFAULT_MAX_XFER;
+-	wq->max_batch_size = WQ_DEFAULT_MAX_BATCH;
++	idxd_wq_set_max_batch_size(idxd->data->type, wq, WQ_DEFAULT_MAX_BATCH);
+ }
+ 
+ static void idxd_wq_device_reset_cleanup(struct idxd_wq *wq)
+@@ -863,7 +863,7 @@ static int idxd_wq_config_write(struct idxd_wq *wq)
+ 
+ 	/* bytes 12-15 */
+ 	wq->wqcfg->max_xfer_shift = ilog2(wq->max_xfer_bytes);
+-	wq->wqcfg->max_batch_shift = ilog2(wq->max_batch_size);
++	idxd_wqcfg_set_max_batch_shift(idxd->data->type, wq->wqcfg, ilog2(wq->max_batch_size));
+ 
+ 	dev_dbg(dev, "WQ %d CFGs\n", wq->id);
+ 	for (i = 0; i < WQCFG_STRIDES(idxd); i++) {
+@@ -1031,7 +1031,7 @@ static int idxd_wq_load_config(struct idxd_wq *wq)
+ 	wq->priority = wq->wqcfg->priority;
+ 
+ 	wq->max_xfer_bytes = 1ULL << wq->wqcfg->max_xfer_shift;
+-	wq->max_batch_size = 1ULL << wq->wqcfg->max_batch_shift;
++	idxd_wq_set_max_batch_size(idxd->data->type, wq, 1U << wq->wqcfg->max_batch_shift);
+ 
+ 	for (i = 0; i < WQCFG_STRIDES(idxd); i++) {
+ 		wqcfg_offset = WQCFG_OFFSET(idxd, wq->id, i);
 diff --git a/drivers/dma/idxd/idxd.h b/drivers/dma/idxd/idxd.h
-index fed0dfc1eaa8..33640a41e172 100644
+index 33640a41e172..05c3f8694478 100644
 --- a/drivers/dma/idxd/idxd.h
 +++ b/drivers/dma/idxd/idxd.h
-@@ -308,6 +308,8 @@ struct idxd_device {
- 	struct work_struct work;
- 
- 	struct idxd_pmu *idxd_pmu;
-+
-+	unsigned long *opcap_bmap;
+@@ -542,6 +542,38 @@ static inline int idxd_wq_refcount(struct idxd_wq *wq)
+ 	return wq->client_count;
  };
  
- /* IDXD software descriptor */
-diff --git a/drivers/dma/idxd/init.c b/drivers/dma/idxd/init.c
-index aa3478257ddb..913a55ccb864 100644
---- a/drivers/dma/idxd/init.c
-+++ b/drivers/dma/idxd/init.c
-@@ -369,6 +369,19 @@ static void idxd_read_table_offsets(struct idxd_device *idxd)
- 	dev_dbg(dev, "IDXD Perfmon Offset: %#x\n", idxd->perfmon_offset);
- }
- 
-+static void multi_u64_to_bmap(unsigned long *bmap, u64 *val, int count)
++/*
++ * Intel IAA does not support batch processing.
++ * The max batch size of device, max batch size of wq and
++ * max batch shift of wqcfg should be always 0 on IAA.
++ */
++static inline void idxd_set_max_batch_size(int idxd_type, struct idxd_device *idxd,
++					   u32 max_batch_size)
 +{
-+	int i, j, nr;
-+
-+	for (i = 0, nr = 0; i < count; i++) {
-+		for (j = 0; j < BITS_PER_LONG_LONG; j++) {
-+			if (val[i] & BIT(j))
-+				set_bit(nr, bmap);
-+			nr++;
-+		}
-+	}
++	if (idxd_type == IDXD_TYPE_IAX)
++		idxd->max_batch_size = 0;
++	else
++		idxd->max_batch_size = max_batch_size;
 +}
 +
- static void idxd_read_caps(struct idxd_device *idxd)
- {
- 	struct device *dev = &idxd->pdev->dev;
-@@ -427,6 +440,7 @@ static void idxd_read_caps(struct idxd_device *idxd)
- 				IDXD_OPCAP_OFFSET + i * sizeof(u64));
- 		dev_dbg(dev, "opcap[%d]: %#llx\n", i, idxd->hw.opcap.bits[i]);
- 	}
-+	multi_u64_to_bmap(idxd->opcap_bmap, &idxd->hw.opcap.bits[0], 4);
- }
- 
- static struct idxd_device *idxd_alloc(struct pci_dev *pdev, struct idxd_driver_data *data)
-@@ -448,6 +462,12 @@ static struct idxd_device *idxd_alloc(struct pci_dev *pdev, struct idxd_driver_d
- 	if (idxd->id < 0)
- 		return NULL;
- 
-+	idxd->opcap_bmap = bitmap_zalloc_node(IDXD_MAX_OPCAP_BITS, GFP_KERNEL, dev_to_node(dev));
-+	if (!idxd->opcap_bmap) {
-+		ida_free(&idxd_ida, idxd->id);
-+		return NULL;
-+	}
++static inline void idxd_wq_set_max_batch_size(int idxd_type, struct idxd_wq *wq,
++					      u32 max_batch_size)
++{
++	if (idxd_type == IDXD_TYPE_IAX)
++		wq->max_batch_size = 0;
++	else
++		wq->max_batch_size = max_batch_size;
++}
 +
- 	device_initialize(conf_dev);
- 	conf_dev->parent = dev;
- 	conf_dev->bus = &dsa_bus_type;
-diff --git a/drivers/dma/idxd/registers.h b/drivers/dma/idxd/registers.h
-index 02449aa9c454..4c96ea85f843 100644
---- a/drivers/dma/idxd/registers.h
-+++ b/drivers/dma/idxd/registers.h
-@@ -90,6 +90,8 @@ struct opcap {
- 	u64 bits[4];
- };
- 
-+#define IDXD_MAX_OPCAP_BITS		256U
++static inline void idxd_wqcfg_set_max_batch_shift(int idxd_type, union wqcfg *wqcfg,
++						  u32 max_batch_shift)
++{
++	if (idxd_type == IDXD_TYPE_IAX)
++		wqcfg->max_batch_shift = 0;
++	else
++		wqcfg->max_batch_shift = max_batch_shift;
++}
 +
- #define IDXD_OPCAP_OFFSET		0x40
+ int __must_check __idxd_driver_register(struct idxd_device_driver *idxd_drv,
+ 					struct module *module, const char *mod_name);
+ #define idxd_driver_register(driver) \
+diff --git a/drivers/dma/idxd/init.c b/drivers/dma/idxd/init.c
+index 913a55ccb864..cf94795ca1af 100644
+--- a/drivers/dma/idxd/init.c
++++ b/drivers/dma/idxd/init.c
+@@ -177,7 +177,7 @@ static int idxd_setup_wqs(struct idxd_device *idxd)
+ 		init_completion(&wq->wq_dead);
+ 		init_completion(&wq->wq_resurrect);
+ 		wq->max_xfer_bytes = WQ_DEFAULT_MAX_XFER;
+-		wq->max_batch_size = WQ_DEFAULT_MAX_BATCH;
++		idxd_wq_set_max_batch_size(idxd->data->type, wq, WQ_DEFAULT_MAX_BATCH);
+ 		wq->enqcmds_retries = IDXD_ENQCMDS_RETRIES;
+ 		wq->wqcfg = kzalloc_node(idxd->wqcfg_size, GFP_KERNEL, dev_to_node(dev));
+ 		if (!wq->wqcfg) {
+@@ -402,7 +402,7 @@ static void idxd_read_caps(struct idxd_device *idxd)
  
- #define IDXD_TABLE_OFFSET		0x60
+ 	idxd->max_xfer_bytes = 1ULL << idxd->hw.gen_cap.max_xfer_shift;
+ 	dev_dbg(dev, "max xfer size: %llu bytes\n", idxd->max_xfer_bytes);
+-	idxd->max_batch_size = 1U << idxd->hw.gen_cap.max_batch_shift;
++	idxd_set_max_batch_size(idxd->data->type, idxd, 1U << idxd->hw.gen_cap.max_batch_shift);
+ 	dev_dbg(dev, "max batch size: %u\n", idxd->max_batch_size);
+ 	if (idxd->hw.gen_cap.config_en)
+ 		set_bit(IDXD_FLAG_CONFIGURABLE, &idxd->flags);
 diff --git a/drivers/dma/idxd/sysfs.c b/drivers/dma/idxd/sysfs.c
-index 3f262a57441b..b6760b28a963 100644
+index b6760b28a963..82538622320a 100644
 --- a/drivers/dma/idxd/sysfs.c
 +++ b/drivers/dma/idxd/sysfs.c
-@@ -1177,14 +1177,8 @@ static ssize_t op_cap_show(struct device *dev,
- 			   struct device_attribute *attr, char *buf)
- {
- 	struct idxd_device *idxd = confdev_to_idxd(dev);
--	int i, rc = 0;
--
--	for (i = 0; i < 4; i++)
--		rc += sysfs_emit_at(buf, rc, "%#llx ", idxd->hw.opcap.bits[i]);
+@@ -961,7 +961,7 @@ static ssize_t wq_max_batch_size_store(struct device *dev, struct device_attribu
+ 	if (batch_size > idxd->max_batch_size)
+ 		return -EINVAL;
  
--	rc--;
--	rc += sysfs_emit_at(buf, rc, "\n");
--	return rc;
-+	return sysfs_emit(buf, "%*pb\n", IDXD_MAX_OPCAP_BITS, idxd->opcap_bmap);
+-	wq->max_batch_size = (u32)batch_size;
++	idxd_wq_set_max_batch_size(idxd->data->type, wq, (u32)batch_size);
+ 
+ 	return count;
  }
- static DEVICE_ATTR_RO(op_cap);
- 
-@@ -1408,6 +1402,7 @@ static void idxd_conf_device_release(struct device *dev)
- 	kfree(idxd->wqs);
- 	kfree(idxd->engines);
- 	ida_free(&idxd_ida, idxd->id);
-+	bitmap_free(idxd->opcap_bmap);
- 	kfree(idxd);
- }
- 
 -- 
 2.35.1
 
