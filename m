@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20FF5627F20
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:55:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7B9B627E86
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:48:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237525AbiKNMzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:55:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48018 "EHLO
+        id S237312AbiKNMsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:48:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237526AbiKNMzq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:55:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B21C27915
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:55:45 -0800 (PST)
+        with ESMTP id S237420AbiKNMsq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:48:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4137BB7F0
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:48:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16C3F61154
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:55:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D4FC433D6;
-        Mon, 14 Nov 2022 12:55:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D340B6116A
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:48:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF6BBC433C1;
+        Mon, 14 Nov 2022 12:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430544;
-        bh=+S0RPAf2LPMkvGDklv6G3cvrjnGsmZjcOIYy3Px+yK8=;
+        s=korg; t=1668430123;
+        bh=AmC6SWLQpycyWMTHoLh+kSTNdTTY02B8nw0QpKdJHXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uB75+psIw2V3exhDND/NQZO++sLOp1rVefwMjiRCgvrSzEwJdN/8rnJAXHkZZklJh
-         ZUaLC9UV+yBzQEZ0oDAKlloV3Wxyaa6QYV0KIHsGGvjEWnSC3iqFYDj191YuayZcw+
-         w65E9QepOvcZHqidk7mJAeCJk//uB4+qdxC3B8Ow=
+        b=BSnC3s0BIWZ2KCCGVOCgVc5homvBcwrpqveR1Brh4HUB0Ket5RBONM8gui3iJDIxc
+         0gNKmVy9Xsk45x+1hl03/TEXNWyOEsIdEI295lq3Lzx6m3Scz1qrLpBPiCmVK2JXqO
+         Ite8F8OGBvJzVvHt8c7/p+qVmZktc4Ch0cQhYgXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Vadym Kochan <vadym.kochan@plvision.eu>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 058/131] net: marvell: prestera: fix memory leak in prestera_rxtx_switch_init()
+        patches@lists.linux.dev, Doug Brown <doug@schmorgal.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 33/95] dmaengine: pxa_dma: use platform_get_irq_optional
 Date:   Mon, 14 Nov 2022 13:45:27 +0100
-Message-Id: <20221114124451.165823888@linuxfoundation.org>
+Message-Id: <20221114124443.940655475@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Doug Brown <doug@schmorgal.com>
 
-[ Upstream commit 519b58bbfa825f042fcf80261cc18e1e35f85ffd ]
+[ Upstream commit b3d726cb8497c6b12106fd617d46eef11763ea86 ]
 
-When prestera_sdma_switch_init() failed, the memory pointed to by
-sw->rxtx isn't released. Fix it. Only be compiled, not be tested.
+The first IRQ is required, but IRQs 1 through (nb_phy_chans - 1) are
+optional, because on some platforms (e.g. PXA168) there is a single IRQ
+shared between all channels.
 
-Fixes: 501ef3066c89 ("net: marvell: prestera: Add driver for Prestera family ASIC devices")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Vadym Kochan <vadym.kochan@plvision.eu>
-Link: https://lore.kernel.org/r/20221108025607.338450-1-shaozhengchao@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This change inhibits a flood of "IRQ index # not found" messages at
+startup. Tested on a PXA168-based device.
+
+Fixes: 7723f4c5ecdb ("driver core: platform: Add an error message to platform_get_irq*()")
+Signed-off-by: Doug Brown <doug@schmorgal.com>
+Link: https://lore.kernel.org/r/20220906000709.52705-1-doug@schmorgal.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/prestera/prestera_rxtx.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/dma/pxa_dma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/prestera/prestera_rxtx.c b/drivers/net/ethernet/marvell/prestera/prestera_rxtx.c
-index 73d2eba5262f..a47aa624f745 100644
---- a/drivers/net/ethernet/marvell/prestera/prestera_rxtx.c
-+++ b/drivers/net/ethernet/marvell/prestera/prestera_rxtx.c
-@@ -776,6 +776,7 @@ static netdev_tx_t prestera_sdma_xmit(struct prestera_sdma *sdma,
- int prestera_rxtx_switch_init(struct prestera_switch *sw)
- {
- 	struct prestera_rxtx *rxtx;
-+	int err;
+diff --git a/drivers/dma/pxa_dma.c b/drivers/dma/pxa_dma.c
+index b4ef4f19f7de..68d9d60c051d 100644
+--- a/drivers/dma/pxa_dma.c
++++ b/drivers/dma/pxa_dma.c
+@@ -1249,14 +1249,14 @@ static int pxad_init_phys(struct platform_device *op,
+ 		return -ENOMEM;
  
- 	rxtx = kzalloc(sizeof(*rxtx), GFP_KERNEL);
- 	if (!rxtx)
-@@ -783,7 +784,11 @@ int prestera_rxtx_switch_init(struct prestera_switch *sw)
+ 	for (i = 0; i < nb_phy_chans; i++)
+-		if (platform_get_irq(op, i) > 0)
++		if (platform_get_irq_optional(op, i) > 0)
+ 			nr_irq++;
  
- 	sw->rxtx = rxtx;
- 
--	return prestera_sdma_switch_init(sw);
-+	err = prestera_sdma_switch_init(sw);
-+	if (err)
-+		kfree(rxtx);
-+
-+	return err;
- }
- 
- void prestera_rxtx_switch_fini(struct prestera_switch *sw)
+ 	for (i = 0; i < nb_phy_chans; i++) {
+ 		phy = &pdev->phys[i];
+ 		phy->base = pdev->base;
+ 		phy->idx = i;
+-		irq = platform_get_irq(op, i);
++		irq = platform_get_irq_optional(op, i);
+ 		if ((nr_irq > 1) && (irq > 0))
+ 			ret = devm_request_irq(&op->dev, irq,
+ 					       pxad_chan_handler,
 -- 
 2.35.1
 
