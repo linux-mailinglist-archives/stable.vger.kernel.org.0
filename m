@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 304F1627A5E
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:25:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80850627A67
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:25:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235760AbiKNKZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 05:25:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56014 "EHLO
+        id S236113AbiKNKZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 05:25:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229816AbiKNKZF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:25:05 -0500
+        with ESMTP id S235967AbiKNKZP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:25:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71699B7EF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:25:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AFC61CB2B
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:25:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 00A9B60FAF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:25:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 050D9C433D7;
-        Mon, 14 Nov 2022 10:25:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD4BD60FB8
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:25:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1C7EC433C1;
+        Mon, 14 Nov 2022 10:25:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668421503;
-        bh=MDn3uSRH/O0KBdpeQse/faR8x5+KxFE+AJoVkHvXKQE=;
+        s=korg; t=1668421513;
+        bh=VoKRsO90WFhzBnX/QeJh3QJmKGk0qQACzOyvVHgalqc=;
         h=Subject:To:Cc:From:Date:From;
-        b=ejRD4O3qdqN4W8KuHH0YWOAFLckrwn1qUvxWfjC0CFlbGrp6x7jOkIH9Tf8r1Fqeg
-         //P+WrL6XKfgxekGw0TwNJm4RzNRKvUHSjEXPJpVa6UHsuohdvjCOYKxAef0BLhJYO
-         MP2gGZQNIm3/Fnn9ZvG+3cJovmAvMnMUDjm0iRM0=
-Subject: FAILED: patch "[PATCH] nilfs2: fix use-after-free bug of ns_writer on remount" failed to apply to 4.14-stable tree
+        b=bGFqKMmsZg/pe4pv8yvSuTm3SZEAsKv2qs4SsqTWed5ZHfh7klc5h4Mycqxqusg21
+         P1D2uitxtW6kWdEzHVRry6hNfhbdNaCTpXzb3YZ8qgWVmp9I+XhZQD1EIDRJMib724
+         /c4UY0NNPO4xG5+e7yTxkAvC2tt34HsgcOjYGBLg=
+Subject: FAILED: patch "[PATCH] nilfs2: fix use-after-free bug of ns_writer on remount" failed to apply to 4.9-stable tree
 To:     konishi.ryusuke@gmail.com, akpm@linux-foundation.org,
         stable@vger.kernel.org, syoshida@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Nov 2022 11:25:00 +0100
-Message-ID: <166842150068103@kroah.com>
+Date:   Mon, 14 Nov 2022 11:25:01 +0100
+Message-ID: <1668421501206101@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
