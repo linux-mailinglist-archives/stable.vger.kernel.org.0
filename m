@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88906627F11
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:55:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB57F627E69
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:47:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237498AbiKNMzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:55:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47492 "EHLO
+        id S237165AbiKNMrq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:47:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237510AbiKNMzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:55:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD031275E9
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:55:07 -0800 (PST)
+        with ESMTP id S237201AbiKNMr3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:47:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DA9A222BE
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:47:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3ABD9B80EBC
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:55:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7035AC43470;
-        Mon, 14 Nov 2022 12:55:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB70C6116A
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:47:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7166C433C1;
+        Mon, 14 Nov 2022 12:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430504;
-        bh=S8n8NR0RAELzsKraZRDDZDen1H7Fgh/Gvz/w5CFFM7Q=;
+        s=korg; t=1668430047;
+        bh=pmfeM6ocGYHxtWbN4X+szwL/rHcGaqMob81ciQAXdJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jig5GIca+7H7nRhVM8KeztzZO8+c+Tdxh0knVhwaB+vvGTi1uLnt46TKgQ5jifak6
-         71ofxyWs1W0zlH5O59OIYflAdtsoxrd17Yde8J0WoizRLsXBfQFjZkWZkgONgCJvBw
-         Xu9dmyLQrBa3RNQc9lPVLca8TzCiPRTHdoQC0XrA=
+        b=abVuh1Xz0JdA5rrFSUb/eQEjRfBTsTu04/fbipvHsyoEu3XacV7w8yZ+SUnPjB/OM
+         KPmE9hgTmjLeD3QY7Iy3muk9mCo/7eeQO4MVcz0bQoQK6JqOA/4ivCo/FM2blkrVAC
+         Ig3kiXv6Q1GNIAGS54NzOQVP2ad63F7lys/s38Co=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 030/131] net: tun: Fix memory leaks of napi_get_frags
+Subject: [PATCH 5.10 05/95] wifi: cfg80211: fix memory leak in query_regdb_file()
 Date:   Mon, 14 Nov 2022 13:44:59 +0100
-Message-Id: <20221114124449.959978368@linuxfoundation.org>
+Message-Id: <20221114124442.753444345@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Arend van Spriel <arend.vanspriel@broadcom.com>
 
-[ Upstream commit 1118b2049d77ca0b505775fc1a8d1909cf19a7ec ]
+[ Upstream commit 57b962e627ec0ae53d4d16d7bd1033e27e67677a ]
 
-kmemleak reports after running test_progs:
+In the function query_regdb_file() the alpha2 parameter is duplicated
+using kmemdup() and subsequently freed in regdb_fw_cb(). However,
+request_firmware_nowait() can fail without calling regdb_fw_cb() and
+thus leak memory.
 
-unreferenced object 0xffff8881b1672dc0 (size 232):
-  comm "test_progs", pid 394388, jiffies 4354712116 (age 841.975s)
-  hex dump (first 32 bytes):
-    e0 84 d7 a8 81 88 ff ff 80 2c 67 b1 81 88 ff ff  .........,g.....
-    00 40 c5 9b 81 88 ff ff 00 00 00 00 00 00 00 00  .@..............
-  backtrace:
-    [<00000000c8f01748>] napi_skb_cache_get+0xd4/0x150
-    [<0000000041c7fc09>] __napi_build_skb+0x15/0x50
-    [<00000000431c7079>] __napi_alloc_skb+0x26e/0x540
-    [<000000003ecfa30e>] napi_get_frags+0x59/0x140
-    [<0000000099b2199e>] tun_get_user+0x183d/0x3bb0 [tun]
-    [<000000008a5adef0>] tun_chr_write_iter+0xc0/0x1b1 [tun]
-    [<0000000049993ff4>] do_iter_readv_writev+0x19f/0x320
-    [<000000008f338ea2>] do_iter_write+0x135/0x630
-    [<000000008a3377a4>] vfs_writev+0x12e/0x440
-    [<00000000a6b5639a>] do_writev+0x104/0x280
-    [<00000000ccf065d8>] do_syscall_64+0x3b/0x90
-    [<00000000d776e329>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-The issue occurs in the following scenarios:
-tun_get_user()
-  napi_gro_frags()
-    napi_frags_finish()
-      case GRO_NORMAL:
-        gro_normal_one()
-          list_add_tail(&skb->list, &napi->rx_list);
-          <-- While napi->rx_count < READ_ONCE(gro_normal_batch),
-          <-- gro_normal_list() is not called, napi->rx_list is not empty
-  <-- not ask to complete the gro work, will cause memory leaks in
-  <-- following tun_napi_del()
-...
-tun_napi_del()
-  netif_napi_del()
-    __netif_napi_del()
-    <-- &napi->rx_list is not empty, which caused memory leaks
-
-To fix, add napi_complete() after napi_gro_frags().
-
-Fixes: 90e33d459407 ("tun: enable napi_gro_frags() for TUN/TAP driver")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 007f6c5e6eb4 ("cfg80211: support loading regulatory database as firmware file")
+Signed-off-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/tun.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/wireless/reg.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 9909f430d723..4e77b269ef0a 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1959,6 +1959,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index fd848609e656..a1e64d967bd3 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -1064,6 +1064,8 @@ MODULE_FIRMWARE("regulatory.db");
  
- 		local_bh_disable();
- 		napi_gro_frags(&tfile->napi);
-+		napi_complete(&tfile->napi);
- 		local_bh_enable();
- 		mutex_unlock(&tfile->napi_mutex);
- 	} else if (tfile->napi_enabled) {
+ static int query_regdb_file(const char *alpha2)
+ {
++	int err;
++
+ 	ASSERT_RTNL();
+ 
+ 	if (regdb)
+@@ -1073,9 +1075,13 @@ static int query_regdb_file(const char *alpha2)
+ 	if (!alpha2)
+ 		return -ENOMEM;
+ 
+-	return request_firmware_nowait(THIS_MODULE, true, "regulatory.db",
+-				       &reg_pdev->dev, GFP_KERNEL,
+-				       (void *)alpha2, regdb_fw_cb);
++	err = request_firmware_nowait(THIS_MODULE, true, "regulatory.db",
++				      &reg_pdev->dev, GFP_KERNEL,
++				      (void *)alpha2, regdb_fw_cb);
++	if (err)
++		kfree(alpha2);
++
++	return err;
+ }
+ 
+ int reg_reload_regdb(void)
 -- 
 2.35.1
 
