@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C450627FF4
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:02:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECFB7627FF3
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:02:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237723AbiKNNCq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237680AbiKNNCq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 14 Nov 2022 08:02:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56692 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237722AbiKNNCp (ORCPT
+        with ESMTP id S237724AbiKNNCp (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:02:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83C162980A
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:02:42 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E4729813
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:02:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43764B80EA5
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:02:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9593AC433D7;
-        Mon, 14 Nov 2022 13:02:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F64E61175
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:02:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40F09C433B5;
+        Mon, 14 Nov 2022 13:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430959;
-        bh=AAHd2nsvD91YZhghRBw4m9erM/tQW6YU7Rj0fdsgqhQ=;
+        s=korg; t=1668430962;
+        bh=yCN/iiM1viNY8rYVxmWJp3Gq4iYKURvbmIjrk1MpCVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vTO6TrcGYkOXyT/+gj9GhMMLzFhL0MxpLhPZSLlsA1VWDfLuvAhpvkpYuYpoDzUo5
-         IBiLhxxsIQJuFROSVPD9KOyTaWv89h6Shdg5LnX0l+lhG4mEQ09nkeOPk6rQ0rVp3r
-         2ntTHAXIVOAsrTICLK8xguSZ5Wwd1E3oIpFj//Ds=
+        b=uJ/m16m4MzQFA1jZRzMhXAtdb6C4REN6LxqYaecbG9BQC+FJcS5XxhPtJaCaOYhGB
+         cIEIxGglWeMo9SZ5d+79Ve+2qlAEqNh9i86QU1wyMtMRpjRZ6pu5zV9vbsM1zWZ7QN
+         0/mNY8fjg96yvFrhcYwmAhZYyDMuFXN3Xt7KCyrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        patches@lists.linux.dev, HW He <hw.he@mediatek.com>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Zhaoping Shu <zhaoping.shu@mediatek.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 049/190] hamradio: fix issue of dev reference count leakage in bpq_device_event()
-Date:   Mon, 14 Nov 2022 13:44:33 +0100
-Message-Id: <20221114124500.948637497@linuxfoundation.org>
+Subject: [PATCH 6.0 050/190] net: wwan: iosm: fix memory leak in ipc_wwan_dellink
+Date:   Mon, 14 Nov 2022 13:44:34 +0100
+Message-Id: <20221114124500.981834002@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -53,46 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: HW He <hw.he@mediatek.com>
 
-[ Upstream commit 85cbaf032d3cd9f595152625eda5d4ecb1d6d78d ]
+[ Upstream commit f25caaca424703d5a0607310f0452f978f1f78d9 ]
 
-When following tests are performed, it will cause dev reference counting
-leakage.
-a)ip link add bond2 type bond mode balance-rr
-b)ip link set bond2 up
-c)ifenslave -f bond2 rose1
-d)ip link del bond2
+IOSM driver registers network device without setting the
+needs_free_netdev flag, and does NOT call free_netdev() when
+unregisters network device, which causes a memory leak.
 
-When new bond device is created, the default type of the bond device is
-ether. And the bond device is up, bpq_device_event() receives the message
-and creates a new bpq device. In this case, the reference count value of
-dev is hold once. But after "ifenslave -f bond2 rose1" command is
-executed, the type of the bond device is changed to rose. When the bond
-device is unregistered, bpq_device_event() will not put the dev reference
-count.
+This patch sets needs_free_netdev to true when registers
+network device, which makes netdev subsystem call free_netdev()
+automatically after unregister_netdevice().
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Fixes: 2a54f2c77934 ("net: iosm: net driver")
+Signed-off-by: HW He <hw.he@mediatek.com>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Zhaoping Shu <zhaoping.shu@mediatek.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/bpqether.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wwan/iosm/iosm_ipc_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/hamradio/bpqether.c b/drivers/net/hamradio/bpqether.c
-index 30af0081e2be..83a16d10eedb 100644
---- a/drivers/net/hamradio/bpqether.c
-+++ b/drivers/net/hamradio/bpqether.c
-@@ -533,7 +533,7 @@ static int bpq_device_event(struct notifier_block *this,
- 	if (!net_eq(dev_net(dev), &init_net))
- 		return NOTIFY_DONE;
+diff --git a/drivers/net/wwan/iosm/iosm_ipc_wwan.c b/drivers/net/wwan/iosm/iosm_ipc_wwan.c
+index 4712f01a7e33..3d70b34f96e3 100644
+--- a/drivers/net/wwan/iosm/iosm_ipc_wwan.c
++++ b/drivers/net/wwan/iosm/iosm_ipc_wwan.c
+@@ -168,6 +168,7 @@ static void ipc_wwan_setup(struct net_device *iosm_dev)
+ 	iosm_dev->max_mtu = ETH_MAX_MTU;
  
--	if (!dev_is_ethdev(dev))
-+	if (!dev_is_ethdev(dev) && !bpq_get_ax25_dev(dev))
- 		return NOTIFY_DONE;
+ 	iosm_dev->flags = IFF_POINTOPOINT | IFF_NOARP;
++	iosm_dev->needs_free_netdev = true;
  
- 	switch (event) {
+ 	iosm_dev->netdev_ops = &ipc_inm_ops;
+ }
 -- 
 2.35.1
 
