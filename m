@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 429E6627E7C
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:48:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56E47627F0C
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:55:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237238AbiKNMs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:48:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40448 "EHLO
+        id S237495AbiKNMy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:54:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237292AbiKNMsZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:48:25 -0500
-Received: from mail-il1-f199.google.com (mail-il1-f199.google.com [209.85.166.199])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6329B07
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:48:23 -0800 (PST)
-Received: by mail-il1-f199.google.com with SMTP id s4-20020a056e02216400b003021b648144so9228117ilv.19
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:48:23 -0800 (PST)
+        with ESMTP id S237509AbiKNMyx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:54:53 -0500
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com [209.85.166.70])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAB3226ACD
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:50 -0800 (PST)
+Received: by mail-io1-f70.google.com with SMTP id c14-20020a5ea80e000000b006d6e9b05e58so5747175ioa.23
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
         bh=JKRy0CJM2YQG2Hu2gnfO6l4tPm0XXvuBZUpkz/Gz8Fc=;
-        b=kuXdNiZ34y4/n7AchuKmQVFLX6kYBOOPM7CI7cgJwsTgpqc7P2BYvCJtcWDghuMRul
-         f0P0cg60Yna5gITwTV8LmwJG7/oakpHIg1kR0tOhYzvaJitZBk2xk60mELP6JexefBUe
-         XMDRb5TIAJTgG0iaoirgowavkcW0y7MRtq9RjE6msYxRKsUixilHLM5YlbTNbjF5wAmr
-         ql2kulC4PrBnrKEPmoqNQmoFSDksO3YgHFLZ36e0doM3PXSME2Of9TnBio9GBLhSP2mI
-         c7XSZrQIropsrB/cmoUFy06p00C5Y55GyK9ie3LUTTAqogm+aLL+oGBcW8uVFU4LWpqw
-         VS9A==
-X-Gm-Message-State: ANoB5pnppE5XikUKsAXFQH95nCU185OZaZLSCpqqcuDtHZ88hOqjnzuG
-        SQQEcWb9sHhbuak0vHS1eJFNwXJ8HRxP16LbXkUMlUPfPCLV
-X-Google-Smtp-Source: AA0mqf6LcFTUvwuFXt3c4m4WyCwM0d+nsla3Fed4op9mQ6IAgO7vfJK9GDgQaHsuv4/FOAgb/9IGhcGUyiAreaTrpxs1tCxvaA7y
+        b=mt6aDRTHsp+3Rxxy4JMgm0zubabP2UcEVMRabFShrKpOzwF9jUNx7efD3HGyDse/Ug
+         sz0JbGHl4auxB0nXUZxzRChR3Xy6woHtEHkNpgJ9swTy/4gwzFZ3aj5UOQZtWCWUfPyl
+         ABPN+KmN8mYbiEXmQsLJHAFtiTYmTOVgGmZCEfPM+kWXitSSh+0rqJ86LQXV/SwcfsbF
+         XvoP+02rRYTYZzDtfDWlyJI3gqLlAfudLKET4OWFJrvFYdaATct95WqNTNYSy0H/h7li
+         ZyKM7SRkWpengDVJGbMn32bj87BWx0R4R4jBp5eo2BSW8qT7OGIUqMq/T8aLSKFlnVRV
+         xJnA==
+X-Gm-Message-State: ANoB5plr5WSSBMF3XDXbsUKd8RpoALDwi8x1s+6c3EdGbyV0oHKe5FuL
+        XtW/aqkCz745nGDFT0dwn5B54xbiiky76TdT4B/xKRSooP2/
+X-Google-Smtp-Source: AA0mqf6PZ731+mQA5fPR6I2G8yC9Q8PVYub1EXX5tsraEN9s+FCP0M8CkyfSy2H/3W9zor0aNS9yB2egJ+KNzWY6LYtxi4DoBRk/
 MIME-Version: 1.0
-X-Received: by 2002:a92:d2c4:0:b0:2ff:e5a3:1b9a with SMTP id
- w4-20020a92d2c4000000b002ffe5a31b9amr6214667ilg.304.1668430102998; Mon, 14
- Nov 2022 04:48:22 -0800 (PST)
-Date:   Mon, 14 Nov 2022 04:48:22 -0800
-In-Reply-To: <20221114124443.692795238@linuxfoundation.org>
+X-Received: by 2002:a05:6e02:c84:b0:2f9:4d92:5b2a with SMTP id
+ b4-20020a056e020c8400b002f94d925b2amr5775978ile.177.1668430490014; Mon, 14
+ Nov 2022 04:54:50 -0800 (PST)
+Date:   Mon, 14 Nov 2022 04:54:50 -0800
+In-Reply-To: <20221114124450.540422477@linuxfoundation.org>
 X-Google-Appengine-App-Id: s~syzkaller
 X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <0000000000009f340205ed6da786@google.com>
-Subject: Re: [PATCH 5.10 28/95] ipv6: addrlabel: fix infoleak when sending
+Message-ID: <000000000000b09c0905ed6dbe7a@google.com>
+Subject: Re: [PATCH 5.15 043/131] ipv6: addrlabel: fix infoleak when sending
  struct ifaddrlblmsg to network
 From:   syzbot 
         <syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com>
