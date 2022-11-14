@@ -2,135 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52A4B627731
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 09:14:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC6B66277D1
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 09:35:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236253AbiKNIOc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 03:14:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35506 "EHLO
+        id S236525AbiKNIfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 03:35:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236250AbiKNIOb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 03:14:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F42193E4;
-        Mon, 14 Nov 2022 00:14:30 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F41B60EFD;
-        Mon, 14 Nov 2022 08:14:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F32BC4347C;
-        Mon, 14 Nov 2022 08:14:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668413669;
-        bh=XjGn/EJaHEm5vnkndgkidi1YsQNziJqXZoMhQGdQyjE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g0Uxo/KzHjJqCae+QZtQSEuwWB45QuqJkQf5E445JZskJLIGt5zO9mydzAVphnj5Y
-         6zPa9gjxjQvfldi3vYw5zMzfkkILux59J3gab+m2tUNvA9uv+gbI5aD3412qnfhDTd
-         ChvI/cKeyyQnoXMzqplh8ohpqo8P6xDUlV33wQejCpquIGQApZgBA12FgOoDCM9La+
-         NeRI4+BTjL/vuP+EAkoy5Ignxi/bYollprN+3gB0+PQ0NXPnINDvgrR2j5oxt6RvaV
-         Lb7D+dxT2CHISbEHmBmQXUvzhHgYeu5Sr3+yBYdknCI0/9I4JH7tfO3HBO+7nd9Wj3
-         PLYUS/nibo8eg==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan+linaro@kernel.org>)
-        id 1ouUbM-0001L4-UX; Mon, 14 Nov 2022 09:13:56 +0100
-From:   Johan Hovold <johan+linaro@kernel.org>
-To:     Vinod Koul <vkoul@kernel.org>
-Cc:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        linux-arm-msm@vger.kernel.org, linux-phy@lists.infradead.org,
-        linux-kernel@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2 4/6] phy: qcom-qmp-combo: fix broken power on
-Date:   Mon, 14 Nov 2022 09:13:44 +0100
-Message-Id: <20221114081346.5116-5-johan+linaro@kernel.org>
-X-Mailer: git-send-email 2.37.4
-In-Reply-To: <20221114081346.5116-1-johan+linaro@kernel.org>
-References: <20221114081346.5116-1-johan+linaro@kernel.org>
+        with ESMTP id S235750AbiKNIfD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 03:35:03 -0500
+Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FEAE1B1D9
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 00:35:02 -0800 (PST)
+Received: by mail-vs1-xe36.google.com with SMTP id d185so10745860vsd.0
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 00:35:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ddKdS4x8c4ZSI9PbKdla4xMHlbecpUYnHnf7KqPY/v4=;
+        b=AxNHH73jPbX6TT5np2q2KFvTHERuVXKorRlANgG6wOaqapG0LhgrzRAO5iuKyPWTOF
+         u7KYcJ71/wvb8ezilBjuNbcMm5LgfGQEBkrt3CSMTVoVfQ8ZTEpWU1wyFX30z6MT7RMY
+         SUy2Py4ChKN8hy/WZF27eu9/q3KD2Eyxk+UpI23By2dv/0Ikj9t87MbtVSU/8hMJGtCj
+         EzPW7jPffBGdW7oKIHCed/wNrpLzSMaiNbZpxKg7ExDLx6L/4o+jDwJZ3SL9kC6cGRZK
+         G1VXgwboHx98i/Td4/gxhl3pkWNSiJFnHXQ/buroyco2bFeaQYpU4sHaaOmAI0wr3cvd
+         cfUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ddKdS4x8c4ZSI9PbKdla4xMHlbecpUYnHnf7KqPY/v4=;
+        b=AzR8myf00cMtA3j1v4GeqB1jdxauR7k6QJk//XjcH9+dX4TUjfxHSzkDV9tWKDUmsm
+         4v1rgXhwLr2X1+XFRNcMSBtZk4p/i63fS6fA2U3/YpAxqov+gbCQ6BRN83zyhfVM4ia6
+         ETLXflNZNKW+gI2GA/l1JWbq2BA8DYiHKdaqoqE3P+O1rTZa+6wQ77Kpvp6zSlTZIV2a
+         QVf58u0qxlOnhtXfYXHA2lQJ360EH2H/VsWCKp3DjWhakcbsgcuGZ0R0ysEMsyevOqcc
+         DH/OnZeVR2bTvO4r1kJQTPzDCYmtB/3qTk/F2pyvv1ynfqd1N9cDklVLsxT/xKjeQTqM
+         DquA==
+X-Gm-Message-State: ANoB5png5j/nOH4gofFdsGaFGUzRPI3s5LImiErybT8+DNNoUafxJVwa
+        cCccS9tMX64lCSk+ppllCG28s47dIlq2twIEwEw=
+X-Google-Smtp-Source: AA0mqf7lGK/4qtr9D1NoCm2/ECq3llETf3ChtmMKpmYR/XIA8Jc7rEY9oL+psscArmMqA4gUM0ZzrsubxL9Qj+Nbgqc=
+X-Received: by 2002:a67:ec03:0:b0:3ab:8a0a:a4ae with SMTP id
+ d3-20020a67ec03000000b003ab8a0aa4aemr5943701vso.21.1668414901735; Mon, 14 Nov
+ 2022 00:35:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:a05:612c:258e:b0:324:168c:a70e with HTTP; Mon, 14 Nov 2022
+ 00:35:01 -0800 (PST)
+Reply-To: subik7633@gmail.com
+From:   Susan Bikram <sb9174937@gmail.com>
+Date:   Mon, 14 Nov 2022 00:35:01 -0800
+Message-ID: <CACRXfQ8MHzgBMpOd925Z+2tCOfarwKwPjrukYpd-XyCc0HfSWg@mail.gmail.com>
+Subject: Please can i have your attention
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=5.0 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:e36 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [subik7633[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [sb9174937[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [sb9174937[at]gmail.com]
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  2.9 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The PHY is powered on during phy-init by setting the SW_PWRDN bit in the
-COM_POWER_DOWN_CTRL register and then setting the same bit in the in the
-PCS_POWER_DOWN_CONTROL register that belongs to the USB part of the
-PHY.
+Dear ,
 
-Currently, whether power on succeeds depends on probe order and having
-the USB part of the PHY be initialised first. In case the DP part of the
-PHY is instead initialised first, the intended power on of the USB block
-results in a corrupted DP_PHY register (e.g. DP_PHY_AUX_CFG8).
+Please can I have your attention and possibly help me for humanity's
+sake please. I am writing this message with a heavy heart filled with
+sorrows and sadness.
+Please if you can respond, i have an issue that i will be most
+grateful if you could help me deal with it please.
 
-Add a pointer to the USB part of the PHY to the driver data and use that
-to power on the PHY also if the DP part of the PHY is initialised first.
-
-Fixes: 52e013d0bffa ("phy: qcom-qmp: Add support for DP in USB3+DP combo phy")
-Cc: stable@vger.kernel.org	# 5.10
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
----
- drivers/phy/qualcomm/phy-qcom-qmp-combo.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-combo.c b/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
-index 40c25a0ead23..17707f68d482 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
-@@ -932,6 +932,7 @@ struct qcom_qmp {
- 	struct regulator_bulk_data *vregs;
- 
- 	struct qmp_phy **phys;
-+	struct qmp_phy *usb_phy;
- 
- 	struct mutex phy_mutex;
- 	int init_count;
-@@ -1911,7 +1912,7 @@ static int qmp_combo_com_init(struct qmp_phy *qphy)
- {
- 	struct qcom_qmp *qmp = qphy->qmp;
- 	const struct qmp_phy_cfg *cfg = qphy->cfg;
--	void __iomem *pcs = qphy->pcs;
-+	struct qmp_phy *usb_phy = qmp->usb_phy;
- 	void __iomem *dp_com = qmp->dp_com;
- 	int ret;
- 
-@@ -1963,7 +1964,8 @@ static int qmp_combo_com_init(struct qmp_phy *qphy)
- 	qphy_clrbits(dp_com, QPHY_V3_DP_COM_SWI_CTRL, 0x03);
- 	qphy_clrbits(dp_com, QPHY_V3_DP_COM_SW_RESET, SW_RESET);
- 
--	qphy_setbits(pcs, cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL], SW_PWRDN);
-+	qphy_setbits(usb_phy->pcs, usb_phy->cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL],
-+			SW_PWRDN);
- 
- 	mutex_unlock(&qmp->phy_mutex);
- 
-@@ -2831,6 +2833,8 @@ static int qmp_combo_probe(struct platform_device *pdev)
- 				goto err_node_put;
- 			}
- 
-+			qmp->usb_phy = qmp->phys[id];
-+
- 			/*
- 			 * Register the pipe clock provided by phy.
- 			 * See function description to see details of this pipe clock.
-@@ -2846,6 +2850,9 @@ static int qmp_combo_probe(struct platform_device *pdev)
- 		id++;
- 	}
- 
-+	if (!qmp->usb_phy)
-+		return -EINVAL;
-+
- 	phy_provider = devm_of_phy_provider_register(dev, of_phy_simple_xlate);
- 
- 	return PTR_ERR_OR_ZERO(phy_provider);
--- 
-2.37.4
-
+Susan
