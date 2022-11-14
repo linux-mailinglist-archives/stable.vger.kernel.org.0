@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B998627F98
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:00:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24D9F627F99
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:00:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237673AbiKNNAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237669AbiKNNAs (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 14 Nov 2022 08:00:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54296 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237665AbiKNNAo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:00:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 570A8286F4
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:00:44 -0800 (PST)
+        with ESMTP id S237667AbiKNNAr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:00:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E00928719
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:00:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0AF14B80EC2
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:00:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46F42C433D6;
-        Mon, 14 Nov 2022 13:00:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 17A5661185
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:00:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 156E3C433B5;
+        Mon, 14 Nov 2022 13:00:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430841;
-        bh=A2uZ4Ip+tHv+FK3kUEA0ZuXtdZktkDaepej8/P8O8L4=;
+        s=korg; t=1668430845;
+        bh=OM7nq5pL4CfYNaf1/+dnRX+qwTCW8NfBEJyj0YUKo3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kwSUzdC9+6Fzuv3IxIvcJP8ttJapm8sXLorJoAXBKFJichHjyfiT9DwY5s3Nt6M5p
-         BlSpTiIdUMm6u+XDTG2HJGh0A/MI+4ig3AlHEPElbHJLHwWU/CHlol9DJous4YVAi9
-         +TM3hww5FMJKtD4QAYHfSKHr5XnddELLWq2+c2L4=
+        b=vHGnfK7gFZaB7o/FMkRyu5Zd0JkIdkqNCiNUdzXdb7cQfQQuTinjE8rtF53gvZA38
+         NCgPxyqytRB2kIm9hzSqKvDhMYBc9vzwoE7aa+7Pp3whVBMZpIfP5bl9Z5H8gXmzn0
+         ZVRNDzriGfPRyW/P7ghmjUYz4naKaHp2Dd3ZNGdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hou Wenlong <houwenlong.hwl@antgroup.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 004/190] KVM: debugfs: Return retval of simple_attr_open() if it fails
-Date:   Mon, 14 Nov 2022 13:43:48 +0100
-Message-Id: <20221114124459.001406228@linuxfoundation.org>
+Subject: [PATCH 6.0 005/190] drm/i915: Allow more varied alternate fixed modes for panels
+Date:   Mon, 14 Nov 2022 13:43:49 +0100
+Message-Id: <20221114124459.040332082@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -53,58 +55,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Wenlong <houwenlong.hwl@antgroup.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 180418e2eb33be5c8d0b703c843e0ebc045aef80 ]
+[ Upstream commit a5810f551d0a8c83b4817b53a446bd115e7182ce ]
 
-Although simple_attr_open() fails only with -ENOMEM with current code
-base, it would be nicer to return retval of simple_attr_open() directly
-in kvm_debugfs_open().
+On some systems the panel reports alternate modes with
+different blanking periods. If the EDID reports them and VBT
+doesn't tell us otherwise then I can't really see why they
+should be rejected. So allow their use for the purposes of
+static DRRS.
 
-No functional change intended.
+For seamless DRRS we still require a much more exact match
+of course. But that logic only kicks in when selecting the
+downclock mode (or in the future when determining whether
+we can do a seamless refresh rate change due to a user
+modeset).
 
-Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
-Message-Id: <69d64d93accd1f33691b8a383ae555baee80f943.1665975828.git.houwenlong.hwl@antgroup.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6374
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220830212436.2021-1-ville.syrjala@linux.intel.com
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Stable-dep-of: 12caf46cf4fc ("drm/i915/sdvo: Grab mode_config.mutex during LVDS init to avoid WARNs")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/i915/display/intel_panel.c | 25 ++++++----------------
+ 1 file changed, 6 insertions(+), 19 deletions(-)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 4c5259828efd..b76c775f61f9 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -5404,6 +5404,7 @@ static int kvm_debugfs_open(struct inode *inode, struct file *file,
- 			   int (*get)(void *, u64 *), int (*set)(void *, u64),
- 			   const char *fmt)
- {
-+	int ret;
- 	struct kvm_stat_data *stat_data = (struct kvm_stat_data *)
- 					  inode->i_private;
- 
-@@ -5415,15 +5416,13 @@ static int kvm_debugfs_open(struct inode *inode, struct file *file,
- 	if (!kvm_get_kvm_safe(stat_data->kvm))
- 		return -ENOENT;
- 
--	if (simple_attr_open(inode, file, get,
--		    kvm_stats_debugfs_mode(stat_data->desc) & 0222
--		    ? set : NULL,
--		    fmt)) {
-+	ret = simple_attr_open(inode, file, get,
-+			       kvm_stats_debugfs_mode(stat_data->desc) & 0222
-+			       ? set : NULL, fmt);
-+	if (ret)
- 		kvm_put_kvm(stat_data->kvm);
--		return -ENOMEM;
--	}
- 
--	return 0;
-+	return ret;
+diff --git a/drivers/gpu/drm/i915/display/intel_panel.c b/drivers/gpu/drm/i915/display/intel_panel.c
+index 237a40623dd7..cb44984bb9a2 100644
+--- a/drivers/gpu/drm/i915/display/intel_panel.c
++++ b/drivers/gpu/drm/i915/display/intel_panel.c
+@@ -81,15 +81,14 @@ static bool is_alt_drrs_mode(const struct drm_display_mode *mode,
+ 		mode->clock != preferred_mode->clock;
  }
  
- static int kvm_debugfs_release(struct inode *inode, struct file *file)
+-static bool is_alt_vrr_mode(const struct drm_display_mode *mode,
+-			    const struct drm_display_mode *preferred_mode)
++static bool is_alt_fixed_mode(const struct drm_display_mode *mode,
++			      const struct drm_display_mode *preferred_mode)
+ {
+ 	return drm_mode_match(mode, preferred_mode,
+ 			      DRM_MODE_MATCH_FLAGS |
+ 			      DRM_MODE_MATCH_3D_FLAGS) &&
+ 		mode->hdisplay == preferred_mode->hdisplay &&
+-		mode->vdisplay == preferred_mode->vdisplay &&
+-		mode->clock != preferred_mode->clock;
++		mode->vdisplay == preferred_mode->vdisplay;
+ }
+ 
+ const struct drm_display_mode *
+@@ -172,19 +171,7 @@ int intel_panel_compute_config(struct intel_connector *connector,
+ 	return 0;
+ }
+ 
+-static bool is_alt_fixed_mode(const struct drm_display_mode *mode,
+-			      const struct drm_display_mode *preferred_mode,
+-			      bool has_vrr)
+-{
+-	/* is_alt_drrs_mode() is a subset of is_alt_vrr_mode() */
+-	if (has_vrr)
+-		return is_alt_vrr_mode(mode, preferred_mode);
+-	else
+-		return is_alt_drrs_mode(mode, preferred_mode);
+-}
+-
+-static void intel_panel_add_edid_alt_fixed_modes(struct intel_connector *connector,
+-						 bool has_vrr)
++static void intel_panel_add_edid_alt_fixed_modes(struct intel_connector *connector)
+ {
+ 	struct drm_i915_private *dev_priv = to_i915(connector->base.dev);
+ 	const struct drm_display_mode *preferred_mode =
+@@ -192,7 +179,7 @@ static void intel_panel_add_edid_alt_fixed_modes(struct intel_connector *connect
+ 	struct drm_display_mode *mode, *next;
+ 
+ 	list_for_each_entry_safe(mode, next, &connector->base.probed_modes, head) {
+-		if (!is_alt_fixed_mode(mode, preferred_mode, has_vrr))
++		if (!is_alt_fixed_mode(mode, preferred_mode))
+ 			continue;
+ 
+ 		drm_dbg_kms(&dev_priv->drm,
+@@ -255,7 +242,7 @@ void intel_panel_add_edid_fixed_modes(struct intel_connector *connector,
+ {
+ 	intel_panel_add_edid_preferred_mode(connector);
+ 	if (intel_panel_preferred_fixed_mode(connector) && (has_drrs || has_vrr))
+-		intel_panel_add_edid_alt_fixed_modes(connector, has_vrr);
++		intel_panel_add_edid_alt_fixed_modes(connector);
+ 	intel_panel_destroy_probed_modes(connector);
+ }
+ 
 -- 
 2.35.1
 
