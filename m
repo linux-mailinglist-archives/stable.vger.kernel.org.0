@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83E58627F4F
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:57:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BFD0627EB3
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:50:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237567AbiKNM52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:57:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50584 "EHLO
+        id S237425AbiKNMuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:50:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237575AbiKNM51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:57:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC07327CF5
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:57:26 -0800 (PST)
+        with ESMTP id S237427AbiKNMui (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:50:38 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9335813DFB
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:50:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 591AD61154
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:57:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DC76C433D6;
-        Mon, 14 Nov 2022 12:57:25 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DE9F7CE0FF1
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:50:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDE4EC433D6;
+        Mon, 14 Nov 2022 12:50:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430645;
-        bh=t7zT8+wEbJWt0aZp/zsZWDeomMN4gQ6fjDyC64xiFVA=;
+        s=korg; t=1668430233;
+        bh=tbrcuSeB+JEYStHGDbeoAtVYlopDmviEZrGQ1pXLqDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q60/d0x1puEMMT5P18/0OMSMLRIwCi1U8rEs6qUZ5H3KjApGNGFdOdYlGZDuurC9e
-         74Hpd0xAQ5Tk3Plan8hwRASfQNA1aHkgINzVjyB0tOyDxmemum6IHKIKEYBeXCDcO6
-         K6GbtcVn6ddvgyb1pxcZHWkxN4dGV8nM2nuBdliM=
+        b=qn2m1yaJcxDV1y4k0Bf8VRM5js2sRIXeSjxfWJ2LmLBEPHRXmlPQWK0zOcI3IubU+
+         YgOPuMN834SvxWIbLSG2RZ7cXvR32Y7EsEOuUMh554E3a16RlBeczpC6hosgcCBgBK
+         pMh2OArLggSqxNsB0EOgctwWj1HLJS33miiILm7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
+        patches@lists.linux.dev,
+        Edson Juliano Drosdeck <edson.drosdeck@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 089/131] ALSA: hda/hdmi - enable runtime pm for more AMD display audio
+Subject: [PATCH 5.10 64/95] ALSA: hda/realtek: Add Positivo C6300 model quirk
 Date:   Mon, 14 Nov 2022 13:45:58 +0100
-Message-Id: <20221114124452.489753000@linuxfoundation.org>
+Message-Id: <20221114124445.194966132@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,33 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Edson Juliano Drosdeck <edson.drosdeck@gmail.com>
 
-commit fdcc4c22b7ab20e90b97f8bc6225d876b72b8f16 upstream.
+commit 79e28f2ab3440e08f5fbf65648b008341c37b496 upstream.
 
-We are able to power down the GPU and audio via the GPU driver
-so flag these asics as supporting runtime pm.
+Positivo Master C6300 (1849:a233) require quirk for anabling headset-mic
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Edson Juliano Drosdeck <edson.drosdeck@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221108084746.583058-1-evan.quan@amd.com
+Link: https://lore.kernel.org/r/20221109171732.5417-1-edson.drosdeck@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_intel.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2687,6 +2687,9 @@ static const struct pci_device_id azx_id
- 	{ PCI_DEVICE(0x1002, 0xab28),
- 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
- 	  AZX_DCAPS_PM_RUNTIME },
-+	{ PCI_DEVICE(0x1002, 0xab30),
-+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
-+	  AZX_DCAPS_PM_RUNTIME },
- 	{ PCI_DEVICE(0x1002, 0xab38),
- 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
- 	  AZX_DCAPS_PM_RUNTIME },
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9161,6 +9161,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x511f, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x9e54, "LENOVO NB", ALC269_FIXUP_LENOVO_EAPD),
+ 	SND_PCI_QUIRK(0x1849, 0x1233, "ASRock NUC Box 1100", ALC233_FIXUP_NO_AUDIO_JACK),
++	SND_PCI_QUIRK(0x1849, 0xa233, "Positivo Master C6300", ALC269_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x19e5, 0x3204, "Huawei MACH-WX9", ALC256_FIXUP_HUAWEI_MACH_WX9_PINS),
+ 	SND_PCI_QUIRK(0x19e5, 0x320f, "Huawei WRT-WX9 ", ALC256_FIXUP_ASUS_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1b35, 0x1235, "CZC B20", ALC269_FIXUP_CZC_B20),
 
 
