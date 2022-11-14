@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB718627F43
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:57:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03393627F44
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:57:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236665AbiKNM5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:57:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49952 "EHLO
+        id S237565AbiKNM5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:57:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237568AbiKNM47 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:56:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F5EF27FDA
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:56:58 -0800 (PST)
+        with ESMTP id S237581AbiKNM5F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:57:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D62027FCF
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:57:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30CE461154
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:56:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36568C433D6;
-        Mon, 14 Nov 2022 12:56:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CEA74B80EAF
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:57:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D305C433D6;
+        Mon, 14 Nov 2022 12:57:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430617;
-        bh=5V+FYMN0jmws32foTN1KelPzvUJRsLD6kPcGSkfv/6c=;
+        s=korg; t=1668430620;
+        bh=8IfkqfMxJK2YoSoN1zZiN6UGcsT3EwoxMp7xeWbD2Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZd61o0S9VFXMRLeWMcROiy4pjErv/HDF7AhX7k6YLOKvvIXwXVAEQxSZu5swluGb
-         IYpHDhEAXsxZdHtQvLNhcHaEHOSS2oclc0VBeDHMHoii6PUuiuAKIbYcRr8UGbIDi0
-         VIs0sm+hMb20Ythqi+myi+PD8y/PxGdAyvsF12aM=
+        b=Vahouz2aPSQhQSig0zQ9EyGSfxtpieCdvb/Sj30jafTwH9/VpfOtypJo7O/G7oz9Z
+         1NdZOxgqEEJF/TOz3Lj4XN+PWHlYdUN1wdNxR13FDW1anJtuuHaLIrNUqfVPi0AkGe
+         Es18ogzcXI12Z6loUfQ8zEcEZhUiUCwklGNzpEG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Valentina Fernandez <valentina.fernandezalanis@microchip.com>,
-        Evgenii Shatokhin <e.shatokhin@yadro.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 081/131] riscv: fix reserved memory setup
-Date:   Mon, 14 Nov 2022 13:45:50 +0100
-Message-Id: <20221114124452.130856414@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.15 082/131] arm64: efi: Fix handling of misaligned runtime regions and drop warning
+Date:   Mon, 14 Nov 2022 13:45:51 +0100
+Message-Id: <20221114124452.177696658@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
 References: <20221114124448.729235104@linuxfoundation.org>
@@ -56,106 +53,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 50e63dd8ed92045eb70a72d7ec725488320fb68b ]
+commit 9b9eaee9828fe98b030cf43ac50065a54a2f5d52 upstream.
 
-Currently, RISC-V sets up reserved memory using the "early" copy of the
-device tree. As a result, when trying to get a reserved memory region
-using of_reserved_mem_lookup(), the pointer to reserved memory regions
-is using the early, pre-virtual-memory address which causes a kernel
-panic when trying to use the buffer's name:
+Currently, when mapping the EFI runtime regions in the EFI page tables,
+we complain about misaligned regions in a rather noisy way, using
+WARN().
 
- Unable to handle kernel paging request at virtual address 00000000401c31ac
- Oops [#1]
- Modules linked in:
- CPU: 0 PID: 0 Comm: swapper Not tainted 6.0.0-rc1-00001-g0d9d6953d834 #1
- Hardware name: Microchip PolarFire-SoC Icicle Kit (DT)
- epc : string+0x4a/0xea
-  ra : vsnprintf+0x1e4/0x336
- epc : ffffffff80335ea0 ra : ffffffff80338936 sp : ffffffff81203be0
-  gp : ffffffff812e0a98 tp : ffffffff8120de40 t0 : 0000000000000000
-  t1 : ffffffff81203e28 t2 : 7265736572203a46 s0 : ffffffff81203c20
-  s1 : ffffffff81203e28 a0 : ffffffff81203d22 a1 : 0000000000000000
-  a2 : ffffffff81203d08 a3 : 0000000081203d21 a4 : ffffffffffffffff
-  a5 : 00000000401c31ac a6 : ffff0a00ffffff04 a7 : ffffffffffffffff
-  s2 : ffffffff81203d08 s3 : ffffffff81203d00 s4 : 0000000000000008
-  s5 : ffffffff000000ff s6 : 0000000000ffffff s7 : 00000000ffffff00
-  s8 : ffffffff80d9821a s9 : ffffffff81203d22 s10: 0000000000000002
-  s11: ffffffff80d9821c t3 : ffffffff812f3617 t4 : ffffffff812f3617
-  t5 : ffffffff812f3618 t6 : ffffffff81203d08
- status: 0000000200000100 badaddr: 00000000401c31ac cause: 000000000000000d
- [<ffffffff80338936>] vsnprintf+0x1e4/0x336
- [<ffffffff80055ae2>] vprintk_store+0xf6/0x344
- [<ffffffff80055d86>] vprintk_emit+0x56/0x192
- [<ffffffff80055ed8>] vprintk_default+0x16/0x1e
- [<ffffffff800563d2>] vprintk+0x72/0x80
- [<ffffffff806813b2>] _printk+0x36/0x50
- [<ffffffff8068af48>] print_reserved_mem+0x1c/0x24
- [<ffffffff808057ec>] paging_init+0x528/0x5bc
- [<ffffffff808031ae>] setup_arch+0xd0/0x592
- [<ffffffff8080070e>] start_kernel+0x82/0x73c
+Not only does this produce a lot of irrelevant clutter in the log, it is
+factually incorrect, as misaligned runtime regions are actually allowed
+by the EFI spec as long as they don't require conflicting memory types
+within the same 64k page.
 
-early_init_fdt_scan_reserved_mem() takes no arguments as it operates on
-initial_boot_params, which is populated by early_init_dt_verify(). On
-RISC-V, early_init_dt_verify() is called twice. Once, directly, in
-setup_arch() if CONFIG_BUILTIN_DTB is not enabled and once indirectly,
-very early in the boot process, by parse_dtb() when it calls
-early_init_dt_scan_nodes().
+So let's drop the warning, and tweak the code so that we
+- take both the start and end of the region into account when checking
+  for misalignment
+- only revert to RWX mappings for non-code regions if misaligned code
+  regions are also known to exist.
 
-This first call uses dtb_early_va to set initial_boot_params, which is
-not usable later in the boot process when
-early_init_fdt_scan_reserved_mem() is called. On arm64 for example, the
-corresponding call to early_init_dt_scan_nodes() uses fixmap addresses
-and doesn't suffer the same fate.
-
-Move early_init_fdt_scan_reserved_mem() further along the boot sequence,
-after the direct call to early_init_dt_verify() in setup_arch() so that
-the names use the correct virtual memory addresses. The above supposed
-that CONFIG_BUILTIN_DTB was not set, but should work equally in the case
-where it is - unflatted_and_copy_device_tree() also updates
-initial_boot_params.
-
-Reported-by: Valentina Fernandez <valentina.fernandezalanis@microchip.com>
-Reported-by: Evgenii Shatokhin <e.shatokhin@yadro.com>
-Link: https://lore.kernel.org/linux-riscv/f8e67f82-103d-156c-deb0-d6d6e2756f5e@microchip.com/
-Fixes: 922b0375fc93 ("riscv: Fix memblock reservation for device tree blob")
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Tested-by: Evgenii Shatokhin <e.shatokhin@yadro.com>
-Link: https://lore.kernel.org/r/20221107151524.3941467-1-conor.dooley@microchip.com
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/setup.c | 1 +
- arch/riscv/mm/init.c      | 1 -
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kernel/efi.c |   52 +++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 34 insertions(+), 18 deletions(-)
 
-diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
-index 7bdbf3f608a4..ef81e9003ab8 100644
---- a/arch/riscv/kernel/setup.c
-+++ b/arch/riscv/kernel/setup.c
-@@ -291,6 +291,7 @@ void __init setup_arch(char **cmdline_p)
- 	else
- 		pr_err("No DTB found in kernel mappings\n");
- #endif
-+	early_init_fdt_scan_reserved_mem();
- 	misc_mem_init();
+--- a/arch/arm64/kernel/efi.c
++++ b/arch/arm64/kernel/efi.c
+@@ -12,6 +12,14 @@
  
- 	init_resources();
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index a37a08ceeded..830f53b141a0 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -242,7 +242,6 @@ static void __init setup_bootmem(void)
- 			memblock_reserve(dtb_early_pa, fdt_totalsize(dtb_early_va));
- 	}
+ #include <asm/efi.h>
  
--	early_init_fdt_scan_reserved_mem();
- 	dma_contiguous_reserve(dma32_phys_limit);
- 	if (IS_ENABLED(CONFIG_64BIT))
- 		hugetlb_cma_reserve(PUD_SHIFT - PAGE_SHIFT);
--- 
-2.35.1
-
++static bool region_is_misaligned(const efi_memory_desc_t *md)
++{
++	if (PAGE_SIZE == EFI_PAGE_SIZE)
++		return false;
++	return !PAGE_ALIGNED(md->phys_addr) ||
++	       !PAGE_ALIGNED(md->num_pages << EFI_PAGE_SHIFT);
++}
++
+ /*
+  * Only regions of type EFI_RUNTIME_SERVICES_CODE need to be
+  * executable, everything else can be mapped with the XN bits
+@@ -25,14 +33,22 @@ static __init pteval_t create_mapping_pr
+ 	if (type == EFI_MEMORY_MAPPED_IO)
+ 		return PROT_DEVICE_nGnRE;
+ 
+-	if (WARN_ONCE(!PAGE_ALIGNED(md->phys_addr),
+-		      "UEFI Runtime regions are not aligned to 64 KB -- buggy firmware?"))
++	if (region_is_misaligned(md)) {
++		static bool __initdata code_is_misaligned;
++
+ 		/*
+-		 * If the region is not aligned to the page size of the OS, we
+-		 * can not use strict permissions, since that would also affect
+-		 * the mapping attributes of the adjacent regions.
++		 * Regions that are not aligned to the OS page size cannot be
++		 * mapped with strict permissions, as those might interfere
++		 * with the permissions that are needed by the adjacent
++		 * region's mapping. However, if we haven't encountered any
++		 * misaligned runtime code regions so far, we can safely use
++		 * non-executable permissions for non-code regions.
+ 		 */
+-		return pgprot_val(PAGE_KERNEL_EXEC);
++		code_is_misaligned |= (type == EFI_RUNTIME_SERVICES_CODE);
++
++		return code_is_misaligned ? pgprot_val(PAGE_KERNEL_EXEC)
++					  : pgprot_val(PAGE_KERNEL);
++	}
+ 
+ 	/* R-- */
+ 	if ((attr & (EFI_MEMORY_XP | EFI_MEMORY_RO)) ==
+@@ -63,19 +79,16 @@ int __init efi_create_mapping(struct mm_
+ 	bool page_mappings_only = (md->type == EFI_RUNTIME_SERVICES_CODE ||
+ 				   md->type == EFI_RUNTIME_SERVICES_DATA);
+ 
+-	if (!PAGE_ALIGNED(md->phys_addr) ||
+-	    !PAGE_ALIGNED(md->num_pages << EFI_PAGE_SHIFT)) {
+-		/*
+-		 * If the end address of this region is not aligned to page
+-		 * size, the mapping is rounded up, and may end up sharing a
+-		 * page frame with the next UEFI memory region. If we create
+-		 * a block entry now, we may need to split it again when mapping
+-		 * the next region, and support for that is going to be removed
+-		 * from the MMU routines. So avoid block mappings altogether in
+-		 * that case.
+-		 */
++	/*
++	 * If this region is not aligned to the page size used by the OS, the
++	 * mapping will be rounded outwards, and may end up sharing a page
++	 * frame with an adjacent runtime memory region. Given that the page
++	 * table descriptor covering the shared page will be rewritten when the
++	 * adjacent region gets mapped, we must avoid block mappings here so we
++	 * don't have to worry about splitting them when that happens.
++	 */
++	if (region_is_misaligned(md))
+ 		page_mappings_only = true;
+-	}
+ 
+ 	create_pgd_mapping(mm, md->phys_addr, md->virt_addr,
+ 			   md->num_pages << EFI_PAGE_SHIFT,
+@@ -102,6 +115,9 @@ int __init efi_set_mapping_permissions(s
+ 	BUG_ON(md->type != EFI_RUNTIME_SERVICES_CODE &&
+ 	       md->type != EFI_RUNTIME_SERVICES_DATA);
+ 
++	if (region_is_misaligned(md))
++		return 0;
++
+ 	/*
+ 	 * Calling apply_to_page_range() is only safe on regions that are
+ 	 * guaranteed to be mapped down to pages. Since we are only called
 
 
