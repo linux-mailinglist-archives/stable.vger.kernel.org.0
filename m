@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24711627E87
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:48:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EB09627F24
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:55:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237315AbiKNMsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:48:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41118 "EHLO
+        id S237531AbiKNMzx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:55:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237427AbiKNMss (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:48:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97F463B2
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:48:47 -0800 (PST)
+        with ESMTP id S237534AbiKNMzx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:55:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C979F27CE4
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:55:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 357916113D
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:48:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43C5DC433D6;
-        Mon, 14 Nov 2022 12:48:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64CA661154
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:55:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ABB8C433D6;
+        Mon, 14 Nov 2022 12:55:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430126;
-        bh=sp+gBnK1+NEnweJEGrxConGz44K1rSTcau4w/OVgd+I=;
+        s=korg; t=1668430551;
+        bh=uZ9qsS0OYckpeb6kkaxh6OiW9o/2TJToXFfN4l5d9LM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XEsqb7J/73RyKO4WAuT+Ln1AsZjw4Ybjnh2uoeX7cPSwxOMVFuQnWdBXoxo5pTDzY
-         YeG4uKuC1KkGw10EG1kxjy11B6bYrUIugC5qkO57T0OrjpK7gBkeiaTWMytqFPru3j
-         c1tfBlHUnPLl7tkBrfo3ckBGIfh3Fq36AObq43eY=
+        b=zgUKG0+3A/gZxjboiza4lVob0dhbu5q3W9lvgnWkZKjcuif2e1SUIQhnAmxrPQdMz
+         dO0MY77J+xzN8r1hsEVIoT4Xczy5STovNoX8aXFuew31VGpk3qfEVU3kFrqiWzUVmK
+         b4xWpaoLfI0EawPEbVcPwBwmD3VpKrspNVbA3TSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 34/95] dmaengine: mv_xor_v2: Fix a resource leak in mv_xor_v2_remove()
-Date:   Mon, 14 Nov 2022 13:45:28 +0100
-Message-Id: <20221114124443.981312612@linuxfoundation.org>
+        M Chetan Kumar <m.chetan.kumar@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 060/131] net: wwan: iosm: fix memory leak in ipc_pcie_read_bios_cfg
+Date:   Mon, 14 Nov 2022 13:45:29 +0100
+Message-Id: <20221114124451.237943565@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: M Chetan Kumar <m.chetan.kumar@linux.intel.com>
 
-[ Upstream commit 081195d17a0c4c636da2b869bd5809d42e8cbb13 ]
+[ Upstream commit d38a648d2d6cc7bee11c6f533ff9426a00c2a74c ]
 
-A clk_prepare_enable() call in the probe is not balanced by a corresponding
-clk_disable_unprepare() in the remove function.
+ipc_pcie_read_bios_cfg() is using the acpi_evaluate_dsm() to
+obtain the wwan power state configuration from BIOS but is
+not freeing the acpi_object. The acpi_evaluate_dsm() returned
+acpi_object to be freed.
 
-Add the missing call.
+Free the acpi_object after use.
 
-Fixes: 3cd2c313f1d6 ("dmaengine: mv_xor_v2: Fix clock resource by adding a register clock")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/e9e3837a680c9bd2438e4db2b83270c6c052d005.1666640987.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 7e98d785ae61 ("net: iosm: entry point")
+Signed-off-by: M Chetan Kumar <m.chetan.kumar@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/mv_xor_v2.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wwan/iosm/iosm_ipc_pcie.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/mv_xor_v2.c b/drivers/dma/mv_xor_v2.c
-index 9b0d463f89bb..4800c596433a 100644
---- a/drivers/dma/mv_xor_v2.c
-+++ b/drivers/dma/mv_xor_v2.c
-@@ -899,6 +899,7 @@ static int mv_xor_v2_remove(struct platform_device *pdev)
- 	tasklet_kill(&xor_dev->irq_tasklet);
+diff --git a/drivers/net/wwan/iosm/iosm_ipc_pcie.c b/drivers/net/wwan/iosm/iosm_ipc_pcie.c
+index 2fe88b8be348..01df23835be0 100644
+--- a/drivers/net/wwan/iosm/iosm_ipc_pcie.c
++++ b/drivers/net/wwan/iosm/iosm_ipc_pcie.c
+@@ -232,6 +232,7 @@ static void ipc_pcie_config_init(struct iosm_pcie *ipc_pcie)
+  */
+ static enum ipc_pcie_sleep_state ipc_pcie_read_bios_cfg(struct device *dev)
+ {
++	enum ipc_pcie_sleep_state sleep_state = IPC_PCIE_D0L12;
+ 	union acpi_object *object;
+ 	acpi_handle handle_acpi;
  
- 	clk_disable_unprepare(xor_dev->clk);
-+	clk_disable_unprepare(xor_dev->reg_clk);
+@@ -242,12 +243,16 @@ static enum ipc_pcie_sleep_state ipc_pcie_read_bios_cfg(struct device *dev)
+ 	}
  
- 	return 0;
+ 	object = acpi_evaluate_dsm(handle_acpi, &wwan_acpi_guid, 0, 3, NULL);
++	if (!object)
++		goto default_ret;
++
++	if (object->integer.value == 3)
++		sleep_state = IPC_PCIE_D3L2;
+ 
+-	if (object && object->integer.value == 3)
+-		return IPC_PCIE_D3L2;
++	kfree(object);
+ 
+ default_ret:
+-	return IPC_PCIE_D0L12;
++	return sleep_state;
  }
+ 
+ static int ipc_pcie_probe(struct pci_dev *pci,
 -- 
 2.35.1
 
