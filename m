@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD35C6280C4
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:09:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37AC66280CB
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:09:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237886AbiKNNJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:09:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36412 "EHLO
+        id S237894AbiKNNJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:09:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237877AbiKNNJA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:09:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F67923BDD;
-        Mon, 14 Nov 2022 05:08:57 -0800 (PST)
+        with ESMTP id S237877AbiKNNJK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:09:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A66D625EAF
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:09:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58BB0B80EB9;
-        Mon, 14 Nov 2022 13:08:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FFB0C433C1;
-        Mon, 14 Nov 2022 13:08:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4427F61187
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:09:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53B92C433D7;
+        Mon, 14 Nov 2022 13:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431335;
-        bh=FnfRTOhpDMPdMpibKZbXNzOt6gJVf8lagElMLa9mf90=;
+        s=korg; t=1668431345;
+        bh=UG3qP6q6sMQ5FxBbakHa91ku5WLfS9zWZkVlFF9d+OI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cwpVmJb5bO3thJ3lMoRPWjpLiZSCj3CsCq7DPa9qjI0O1+1X5OZGUdTOiz5WwWAEe
-         DP9QWTUg9VjrMxDrK0ouSEz9d1n58ahCP7vH9KqkrgCZ4Cmty34W8Gltkx5LMbBMUl
-         9YRdQEdSfhTTv+Iw8sLhQKpuBeFnqwc7s2Lnv8oY=
+        b=Yu0iHJ55ErSEryy4tXDvWJDw+VwfQSMYjs8QZ9V5kHO9Df5Z6zgZocMHEatplazTx
+         neqq/MdpfzPR0zzfu/i0aakCwBjRLFi+ONmEw8J8OMVN5CRQjMhx9Ncye+eu96Tb0i
+         m+MgXuzR2Zac6ET2lD5i9miOZxIgso/9PAZh384I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Gonda <pgonda@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Harald Hoyer <harald@profian.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 6.0 170/190] KVM: SVM: Only dump VMSA to klog at KERN_DEBUG level
-Date:   Mon, 14 Nov 2022 13:46:34 +0100
-Message-Id: <20221114124506.283051703@linuxfoundation.org>
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 6.0 171/190] KVM: SVM: retrieve VMCB from assembly
+Date:   Mon, 14 Nov 2022 13:46:35 +0100
+Message-Id: <20221114124506.323777233@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -60,56 +52,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Gonda <pgonda@google.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 0bd8bd2f7a789fe1dcb21ad148199d2f62d79873 upstream.
+commit f6d58266d731fd7e63163790aad21e0dbb1d5264 upstream.
 
-Explicitly print the VMSA dump at KERN_DEBUG log level, KERN_CONT uses
-KERNEL_DEFAULT if the previous log line has a newline, i.e. if there's
-nothing to continuing, and as a result the VMSA gets dumped when it
-shouldn't.
+Continue moving accesses to struct vcpu_svm to vmenter.S.  Reducing the
+number of arguments limits the chance of mistakes due to different
+registers used for argument passing in 32- and 64-bit ABIs; pushing the
+VMCB argument and almost immediately popping it into a different
+register looks pretty weird.
 
-The KERN_CONT documentation says it defaults back to KERNL_DEFAULT if the
-previous log line has a newline. So switch from KERN_CONT to
-print_hex_dump_debug().
+32-bit ABI is not a concern for __svm_sev_es_vcpu_run() which is 64-bit
+only; however, it will soon need @svm to save/restore SPEC_CTRL so stay
+consistent with __svm_vcpu_run() and let them share the same prototype.
 
-Jarkko pointed this out in reference to the original patch. See:
-https://lore.kernel.org/all/YuPMeWX4uuR1Tz3M@kernel.org/
-print_hex_dump(KERN_DEBUG, ...) was pointed out there, but
-print_hex_dump_debug() should similar.
+No functional change intended.
 
-Fixes: 6fac42f127b8 ("KVM: SVM: Dump Virtual Machine Save Area (VMSA) to klog")
-Signed-off-by: Peter Gonda <pgonda@google.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: Harald Hoyer <harald@profian.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: x86@kernel.org
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
 Cc: stable@vger.kernel.org
-Message-Id: <20221104142220.469452-1-pgonda@google.com>
+Fixes: a149180fbcf3 ("x86: Add magic AMD return-thunk")
+Reviewed-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/sev.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/kvm-asm-offsets.c |    2 ++
+ arch/x86/kvm/svm/svm.c         |    5 ++---
+ arch/x86/kvm/svm/svm.h         |    4 ++--
+ arch/x86/kvm/svm/vmenter.S     |   20 ++++++++++----------
+ 4 files changed, 16 insertions(+), 15 deletions(-)
 
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -605,7 +605,7 @@ static int sev_es_sync_vmsa(struct vcpu_
- 	save->dr6  = svm->vcpu.arch.dr6;
+--- a/arch/x86/kvm/kvm-asm-offsets.c
++++ b/arch/x86/kvm/kvm-asm-offsets.c
+@@ -15,6 +15,8 @@ static void __used common(void)
+ 	if (IS_ENABLED(CONFIG_KVM_AMD)) {
+ 		BLANK();
+ 		OFFSET(SVM_vcpu_arch_regs, vcpu_svm, vcpu.arch.regs);
++		OFFSET(SVM_current_vmcb, vcpu_svm, current_vmcb);
++		OFFSET(KVM_VMCB_pa, kvm_vmcb_info, pa);
+ 	}
  
- 	pr_debug("Virtual Machine Save Area (VMSA):\n");
--	print_hex_dump(KERN_CONT, "", DUMP_PREFIX_NONE, 16, 1, save, sizeof(*save), false);
-+	print_hex_dump_debug("", DUMP_PREFIX_NONE, 16, 1, save, sizeof(*save), false);
+ 	if (IS_ENABLED(CONFIG_KVM_INTEL)) {
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -3915,12 +3915,11 @@ static fastpath_t svm_exit_handlers_fast
+ static noinstr void svm_vcpu_enter_exit(struct kvm_vcpu *vcpu)
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
+-	unsigned long vmcb_pa = svm->current_vmcb->pa;
  
- 	return 0;
- }
+ 	guest_state_enter_irqoff();
+ 
+ 	if (sev_es_guest(vcpu->kvm)) {
+-		__svm_sev_es_vcpu_run(vmcb_pa);
++		__svm_sev_es_vcpu_run(svm);
+ 	} else {
+ 		struct svm_cpu_data *sd = per_cpu(svm_data, vcpu->cpu);
+ 
+@@ -3931,7 +3930,7 @@ static noinstr void svm_vcpu_enter_exit(
+ 		 * vmcb02 when switching vmcbs for nested virtualization.
+ 		 */
+ 		vmload(svm->vmcb01.pa);
+-		__svm_vcpu_run(vmcb_pa, svm);
++		__svm_vcpu_run(svm);
+ 		vmsave(svm->vmcb01.pa);
+ 
+ 		vmload(__sme_page_pa(sd->save_area));
+--- a/arch/x86/kvm/svm/svm.h
++++ b/arch/x86/kvm/svm/svm.h
+@@ -683,7 +683,7 @@ void sev_es_unmap_ghcb(struct vcpu_svm *
+ 
+ /* vmenter.S */
+ 
+-void __svm_sev_es_vcpu_run(unsigned long vmcb_pa);
+-void __svm_vcpu_run(unsigned long vmcb_pa, struct vcpu_svm *svm);
++void __svm_sev_es_vcpu_run(struct vcpu_svm *svm);
++void __svm_vcpu_run(struct vcpu_svm *svm);
+ 
+ #endif
+--- a/arch/x86/kvm/svm/vmenter.S
++++ b/arch/x86/kvm/svm/vmenter.S
+@@ -32,7 +32,6 @@
+ 
+ /**
+  * __svm_vcpu_run - Run a vCPU via a transition to SVM guest mode
+- * @vmcb_pa:	unsigned long
+  * @svm:	struct vcpu_svm *
+  */
+ SYM_FUNC_START(__svm_vcpu_run)
+@@ -49,16 +48,16 @@ SYM_FUNC_START(__svm_vcpu_run)
+ 	push %_ASM_BX
+ 
+ 	/* Save @svm. */
+-	push %_ASM_ARG2
+-
+-	/* Save @vmcb. */
+ 	push %_ASM_ARG1
+ 
++.ifnc _ASM_ARG1, _ASM_DI
+ 	/* Move @svm to RDI. */
+-	mov %_ASM_ARG2, %_ASM_DI
++	mov %_ASM_ARG1, %_ASM_DI
++.endif
+ 
+-	/* "POP" @vmcb to RAX. */
+-	pop %_ASM_AX
++	/* Get svm->current_vmcb->pa into RAX. */
++	mov SVM_current_vmcb(%_ASM_DI), %_ASM_AX
++	mov KVM_VMCB_pa(%_ASM_AX), %_ASM_AX
+ 
+ 	/* Load guest registers. */
+ 	mov VCPU_RCX(%_ASM_DI), %_ASM_CX
+@@ -170,7 +169,7 @@ SYM_FUNC_END(__svm_vcpu_run)
+ 
+ /**
+  * __svm_sev_es_vcpu_run - Run a SEV-ES vCPU via a transition to SVM guest mode
+- * @vmcb_pa:	unsigned long
++ * @svm:	struct vcpu_svm *
+  */
+ SYM_FUNC_START(__svm_sev_es_vcpu_run)
+ 	push %_ASM_BP
+@@ -185,8 +184,9 @@ SYM_FUNC_START(__svm_sev_es_vcpu_run)
+ #endif
+ 	push %_ASM_BX
+ 
+-	/* Move @vmcb to RAX. */
+-	mov %_ASM_ARG1, %_ASM_AX
++	/* Get svm->current_vmcb->pa into RAX. */
++	mov SVM_current_vmcb(%_ASM_ARG1), %_ASM_AX
++	mov KVM_VMCB_pa(%_ASM_AX), %_ASM_AX
+ 
+ 	/* Enter guest mode */
+ 	sti
 
 
