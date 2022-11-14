@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02AE0627FD8
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:02:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27351627FDB
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:02:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237681AbiKNNCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:02:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55290 "EHLO
+        id S237718AbiKNNCT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:02:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237718AbiKNNCE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:02:04 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BD1E26493
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:02:04 -0800 (PST)
+        with ESMTP id S237744AbiKNNCL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:02:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 210A428E34
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:02:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 866FCCE0FFA
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:02:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F43C433B5;
-        Mon, 14 Nov 2022 13:02:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6C9BB80EB9
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:02:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F207EC43140;
+        Mon, 14 Nov 2022 13:02:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430920;
-        bh=5JTIihGnkjUcQT77PjIVpHbz/g5xEhy16HfFCbMDbRw=;
+        s=korg; t=1668430927;
+        bh=c3GSXw36R/EDWP2lscdREr+EKMj1iHztSYg5nnmxzLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nTz2amq4CDWSX5q9A4p5BFKZEwONaTyX3uEjALcFHQ7UeD5+QBbmOqM0uLCaCD0uo
-         SeBP6EGVDo6t4tsjnNa5ZTvAgzhFhoy9j/LdmtLbbjmOoPmA6tLQJzX9gL7A5IdTme
-         LduH1D5hziEyiyVQGpBvuHzKxKqgpOvbQfJtP1fs=
+        b=HlLKOqjc6KMjwCsd3bvqCqnFIg+/W32el0aOD/Ww0W5RnQXAll4/fce0ws47W569a
+         cE/6AAV/259YffVqtUTElkFQb0Tm1wxoIoISkwhSL9O2IbS8GCxrglwxldit+qTIBW
+         KXlhi7bgtS/VYDMoJIVqlEucH2iPM7Etg0CbG+hY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Leon Romanovsky <leonro@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 035/190] macsec: delete new rxsc when offload fails
-Date:   Mon, 14 Nov 2022 13:44:19 +0100
-Message-Id: <20221114124500.316555039@linuxfoundation.org>
+Subject: [PATCH 6.0 036/190] macsec: fix secy->n_rx_sc accounting
+Date:   Mon, 14 Nov 2022 13:44:20 +0100
+Message-Id: <20221114124500.357243508@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -57,55 +57,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 93a30947821c203d08865c4e17ea181c9668ce52 ]
+[ Upstream commit 73a4b31c9d11f98ae3bc5286d5382930adb0e9c7 ]
 
-Currently we get an inconsistent state:
- - netlink returns the error to userspace
- - the RXSC is installed but not offloaded
+secy->n_rx_sc is supposed to be the number of _active_ rxsc's within a
+secy. This is then used by macsec_send_sci to help decide if we should
+add the SCI to the header or not.
 
-Then the device could get confused when we try to add an RXSA, because
-the RXSC isn't supposed to exist.
+This logic is currently broken when we create a new RXSC and turn it
+off at creation, as create_rx_sc always sets ->active to true (and
+immediately uses that to increment n_rx_sc), and only later
+macsec_add_rxsc sets rx_sc->active.
 
-Fixes: 3cf3227a21d1 ("net: macsec: hardware offloading infrastructure")
+Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
 Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
 Reviewed-by: Antoine Tenart <atenart@kernel.org>
 Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/macsec.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index c6d271e5687e..3fce89a05312 100644
+index 3fce89a05312..6caab70efdb8 100644
 --- a/drivers/net/macsec.c
 +++ b/drivers/net/macsec.c
-@@ -1904,7 +1904,6 @@ static int macsec_add_rxsc(struct sk_buff *skb, struct genl_info *info)
+@@ -1427,7 +1427,8 @@ static struct macsec_rx_sc *del_rx_sc(struct macsec_secy *secy, sci_t sci)
+ 	return NULL;
+ }
+ 
+-static struct macsec_rx_sc *create_rx_sc(struct net_device *dev, sci_t sci)
++static struct macsec_rx_sc *create_rx_sc(struct net_device *dev, sci_t sci,
++					 bool active)
+ {
+ 	struct macsec_rx_sc *rx_sc;
+ 	struct macsec_dev *macsec;
+@@ -1451,7 +1452,7 @@ static struct macsec_rx_sc *create_rx_sc(struct net_device *dev, sci_t sci)
+ 	}
+ 
+ 	rx_sc->sci = sci;
+-	rx_sc->active = true;
++	rx_sc->active = active;
+ 	refcount_set(&rx_sc->refcnt, 1);
+ 
+ 	secy = &macsec_priv(dev)->secy;
+@@ -1904,6 +1905,7 @@ static int macsec_add_rxsc(struct sk_buff *skb, struct genl_info *info)
  	struct macsec_rx_sc *rx_sc;
  	struct nlattr *tb_rxsc[MACSEC_RXSC_ATTR_MAX + 1];
  	struct macsec_secy *secy;
--	bool was_active;
++	bool active = true;
  	int ret;
  
  	if (!attrs[MACSEC_ATTR_IFINDEX])
-@@ -1932,7 +1931,6 @@ static int macsec_add_rxsc(struct sk_buff *skb, struct genl_info *info)
+@@ -1925,15 +1927,15 @@ static int macsec_add_rxsc(struct sk_buff *skb, struct genl_info *info)
+ 	secy = &macsec_priv(dev)->secy;
+ 	sci = nla_get_sci(tb_rxsc[MACSEC_RXSC_ATTR_SCI]);
+ 
+-	rx_sc = create_rx_sc(dev, sci);
++	if (tb_rxsc[MACSEC_RXSC_ATTR_ACTIVE])
++		active = nla_get_u8(tb_rxsc[MACSEC_RXSC_ATTR_ACTIVE]);
++
++	rx_sc = create_rx_sc(dev, sci, active);
+ 	if (IS_ERR(rx_sc)) {
+ 		rtnl_unlock();
  		return PTR_ERR(rx_sc);
  	}
  
--	was_active = rx_sc->active;
- 	if (tb_rxsc[MACSEC_RXSC_ATTR_ACTIVE])
- 		rx_sc->active = !!nla_get_u8(tb_rxsc[MACSEC_RXSC_ATTR_ACTIVE]);
- 
-@@ -1959,7 +1957,8 @@ static int macsec_add_rxsc(struct sk_buff *skb, struct genl_info *info)
- 	return 0;
- 
- cleanup:
--	rx_sc->active = was_active;
-+	del_rx_sc(secy, sci);
-+	free_rx_sc(rx_sc);
- 	rtnl_unlock();
- 	return ret;
- }
+-	if (tb_rxsc[MACSEC_RXSC_ATTR_ACTIVE])
+-		rx_sc->active = !!nla_get_u8(tb_rxsc[MACSEC_RXSC_ATTR_ACTIVE]);
+-
+ 	if (macsec_is_offloaded(netdev_priv(dev))) {
+ 		const struct macsec_ops *ops;
+ 		struct macsec_context ctx;
 -- 
 2.35.1
 
