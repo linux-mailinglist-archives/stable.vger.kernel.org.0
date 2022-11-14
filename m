@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22CEA627B44
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:59:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EFD0627B45
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:59:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236216AbiKNK7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 05:59:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54472 "EHLO
+        id S235602AbiKNK7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 05:59:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236420AbiKNK7f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:59:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B70731EAD2
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:59:33 -0800 (PST)
+        with ESMTP id S236428AbiKNK7r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:59:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 794FC2037A
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:59:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5334360FF8
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:59:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39BBBC433D6;
-        Mon, 14 Nov 2022 10:59:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCB7460FF1
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:59:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A683FC433D6;
+        Mon, 14 Nov 2022 10:59:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668423572;
-        bh=Mwy7b8SDxY7WPvrO8y/igIOHKpChx3NC+TdvGjp3ZRU=;
+        s=korg; t=1668423582;
+        bh=i8iqXxWfUQRywy2ZEVTptxeq5L52rHqvZ/jqKPUeZns=;
         h=Subject:To:Cc:From:Date:From;
-        b=E/YhTb1gXyXb+RlqG+AS6BgupuA7Ttru0E9kjQoAeAFCmm2mWrREyOR5FnGxjvDiW
-         SHsl8YkQSHlXCxuezRdGMoolMYUYTGiCoKVEWbzz5pgCO+OTs2W/JhXs9iIqDba8Bd
-         wHS9VJIKZiK797wuttpg4z7QoZC0j6N39qQp5dwI=
-Subject: FAILED: patch "[PATCH] KVM: SVM: move MSR_IA32_SPEC_CTRL save/restore to assembly" failed to apply to 6.0-stable tree
+        b=rdHww5Uv/m64+YsFKKRhHDdtllHsHLxkgEhXtnSDWfsifNIzxyOgyE3MNnCsBTaiE
+         jXsOlUzTvgIVSGtf59vftvbiO71EFviaiHwfeVxLKuOYgtX/FRxKZUE111kokdXGz7
+         8jFsusA2Z+rxLZfX5T+OQ2EBHJZgkgUHVlyjF74c=
+Subject: FAILED: patch "[PATCH] KVM: SVM: move MSR_IA32_SPEC_CTRL save/restore to assembly" failed to apply to 5.15-stable tree
 To:     pbonzini@redhat.com, jmattson@google.com, seanjc@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Nov 2022 11:59:29 +0100
-Message-ID: <1668423569217167@kroah.com>
+Date:   Mon, 14 Nov 2022 11:59:30 +0100
+Message-ID: <166842357032180@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -63,6 +63,17 @@ f6d58266d731 ("KVM: SVM: retrieve VMCB from assembly")
 f7ef280132f9 ("KVM: SVM: adjust register allocation for __svm_vcpu_run()")
 16fdc1de169e ("KVM: SVM: replace regs argument of __svm_vcpu_run() with vcpu_svm")
 debc5a1ec0d1 ("KVM: x86: use a separate asm-offsets.c file")
+07853adc29a0 ("KVM: VMX: Prevent RSB underflow before vmenter")
+fc02735b14ff ("KVM: VMX: Prevent guest RSB poisoning attacks with eIBRS")
+bb06650634d3 ("KVM: VMX: Convert launched argument to flags")
+8bd200d23ec4 ("KVM: VMX: Flatten __vmx_vcpu_run()")
+acac5e98ef8d ("x86/speculation: Remove x86_spec_ctrl_mask")
+bbb69e8bee1b ("x86/speculation: Use cached host SPEC_CTRL value for guest entry/exit")
+7c693f54c873 ("x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS")
+c779bc1a9002 ("x86/bugs: Optimize SPEC_CTRL MSR writes")
+caa0ff24d5d0 ("x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value")
+a149180fbcf3 ("x86: Add magic AMD return-thunk")
+d9e9d2300681 ("x86,objtool: Create .return_sites")
 
 thanks,
 
