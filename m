@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA27E627F4A
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:57:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CBB3627EAF
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:50:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237582AbiKNM5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:57:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50154 "EHLO
+        id S237428AbiKNMuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:50:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237596AbiKNM5U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:57:20 -0500
+        with ESMTP id S237424AbiKNMua (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:50:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE8727DCB
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:57:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CE2B13DFB
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:50:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC9C5B80EAF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:57:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A83C433C1;
-        Mon, 14 Nov 2022 12:57:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0EDD1B80EBC
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:50:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35960C433D7;
+        Mon, 14 Nov 2022 12:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430636;
-        bh=sHuWW7xV9eD+XSXPq8NcKnQaFRItMUVOEsLUmveTVXE=;
+        s=korg; t=1668430226;
+        bh=cy3HfxDaqJcK2JCNeb1BIDcM9TWP6V+3XqckjKfY/oM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UmD9PPJvA4HarFv+qPx1AnwmruqY6eod5whBqvprH1UTRe76sjPajwPsnQd8Ktdfr
-         pnwhkQuWXsdJev2thbkfUUfFQrqG9LtPn0uteW2txJcY8WG9jJ16446OvXoo0Vd7oW
-         dQCVC7qTAG1GjMRzEu2GzeuK31enyUSMlpDCLmkU=
+        b=lvwsJIDKh7e7G2UpSBf8MF8ySBT06QH/6A3ExpB42OXiRZFJhyAfHu3tXthZmfpVO
+         XG2mYat5Fa+5o5aXCJbaby0NRNAJl6yV/aJgocBLSZuuzW/l9+reJooArHSzm7oJoQ
+         exdRUzbXy+ZklsywvxOR2esgV32aQBeSMqcNPbfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Norris <briannorris@chromium.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 087/131] mmc: sdhci-tegra: Fix SDHCI_RESET_ALL for CQHCI
+        patches@lists.linux.dev, Xian Wang <dev@xianwang.io>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 62/95] ALSA: hda/ca0132: add quirk for EVGA Z390 DARK
 Date:   Mon, 14 Nov 2022 13:45:56 +0100
-Message-Id: <20221114124452.394008212@linuxfoundation.org>
+Message-Id: <20221114124445.107074765@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Xian Wang <dev@xianwang.io>
 
-commit 836078449464e6af3b66ae6652dae79af176f21e upstream.
+commit 0c423e2ffa7edd3f8f9bcf17ce73fa9c7509b99e upstream.
 
-[[ NOTE: this is completely untested by the author, but included solely
-    because, as noted in commit df57d73276b8 ("mmc: sdhci-pci: Fix
-    SDHCI_RESET_ALL for CQHCI for Intel GLK-based controllers"), "other
-    drivers using CQHCI might benefit from a similar change, if they
-    also have CQHCI reset by SDHCI_RESET_ALL." We've now seen the same
-    bug on at least MSM, Arasan, and Intel hardware. ]]
+The Z390 DARK mainboard uses a CA0132 audio controller. The quirk is
+needed to enable surround sound and 3.5mm headphone jack handling in
+the front audio connector as well as in the rear of the board when in
+stereo mode.
 
-SDHCI_RESET_ALL resets will reset the hardware CQE state, but we aren't
-tracking that properly in software. When out of sync, we may trigger
-various timeouts.
+Page 97 of the linked manual contains instructions to setup the
+controller.
 
-It's not typical to perform resets while CQE is enabled, but this may
-occur in some suspend or error recovery scenarios.
-
-Include this fix by way of the new sdhci_and_cqhci_reset() helper.
-
-This patch depends on (and should not compile without) the patch
-entitled "mmc: cqhci: Provide helper for resetting both SDHCI and
-CQHCI".
-
-Fixes: 3c4019f97978 ("mmc: tegra: HW Command Queue Support for Tegra SDMMC")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Xian Wang <dev@xianwang.io>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221026124150.v4.5.I418c9eaaf754880fcd2698113e8c3ef821a944d7@changeid
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://www.evga.com/support/manuals/files/131-CS-E399.pdf
+Link: https://lore.kernel.org/r/20221104202913.13904-1-dev@xianwang.io
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-tegra.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_ca0132.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mmc/host/sdhci-tegra.c
-+++ b/drivers/mmc/host/sdhci-tegra.c
-@@ -24,6 +24,7 @@
- #include <linux/gpio/consumer.h>
- #include <linux/ktime.h>
- 
-+#include "sdhci-cqhci.h"
- #include "sdhci-pltfm.h"
- #include "cqhci.h"
- 
-@@ -363,7 +364,7 @@ static void tegra_sdhci_reset(struct sdh
- 	const struct sdhci_tegra_soc_data *soc_data = tegra_host->soc_data;
- 	u32 misc_ctrl, clk_ctrl, pad_ctrl;
- 
--	sdhci_reset(host, mask);
-+	sdhci_and_cqhci_reset(host, mask);
- 
- 	if (!(mask & SDHCI_RESET_ALL))
- 		return;
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -1272,6 +1272,7 @@ static const struct snd_pci_quirk ca0132
+ 	SND_PCI_QUIRK(0x1458, 0xA026, "Gigabyte G1.Sniper Z97", QUIRK_R3DI),
+ 	SND_PCI_QUIRK(0x1458, 0xA036, "Gigabyte GA-Z170X-Gaming 7", QUIRK_R3DI),
+ 	SND_PCI_QUIRK(0x3842, 0x1038, "EVGA X99 Classified", QUIRK_R3DI),
++	SND_PCI_QUIRK(0x3842, 0x1055, "EVGA Z390 DARK", QUIRK_R3DI),
+ 	SND_PCI_QUIRK(0x1102, 0x0013, "Recon3D", QUIRK_R3D),
+ 	SND_PCI_QUIRK(0x1102, 0x0018, "Recon3D", QUIRK_R3D),
+ 	SND_PCI_QUIRK(0x1102, 0x0051, "Sound Blaster AE-5", QUIRK_AE5),
 
 
