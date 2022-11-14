@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DDD2627F64
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:58:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87372627ED1
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:51:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237609AbiKNM6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:58:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52346 "EHLO
+        id S237441AbiKNMvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:51:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237605AbiKNM6o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:58:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A06824F11
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:58:42 -0800 (PST)
+        with ESMTP id S237447AbiKNMvu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:51:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E66A924F01
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:51:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE98C6117F
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:58:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD1D1C433C1;
-        Mon, 14 Nov 2022 12:58:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8466461180
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:51:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C733C433D6;
+        Mon, 14 Nov 2022 12:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430721;
-        bh=+Tj2vFJtVfp5fkgsnMbug88MZzSZsO3lecwn8EWmk6E=;
+        s=korg; t=1668430309;
+        bh=zdPsptslFmSwYjF3tA2yC8tWAdOCh8O/4yBL0+WaVIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=USm2jygl1Jwu6ymv9E5LizWUcrCmhFD+oizxAQ3kdFXrnuyph2fm/FSYC/wrjEV9q
-         NyV/19wZJ1d5OIVhN7VlAcXLZmbpXtI0tFhMFQ+IT4ysnAi0O0dFrpKPQGvV2Z801l
-         QwVeh7X8osxSHUJRr1T2GdhQebTYhv1ziWXzOEAQ=
+        b=jyPPw/b+/2H+ZXAgr7zqlSQus8QYY4kM6Abfbg7brmvKOZwOKs+5UdATjapa3JnNd
+         15hKphwtartSbbwvPfOE3nLU4AWlqfDGmlwJojgPOhSxtV9ydAW91Tz9HIQOYYIToJ
+         HGi4MUikieGbi+SqZZyK7oPYDi8CJ4lD8EHdznh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Xu <peterx@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Hugh Dickins <hughd@google.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 111/131] mm/shmem: use page_mapping() to detect page cache for uffd continue
-Date:   Mon, 14 Nov 2022 13:46:20 +0100
-Message-Id: <20221114124453.393346098@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 87/95] dmaengine: at_hdmac: Free the memset buf without holding the chan lock
+Date:   Mon, 14 Nov 2022 13:46:21 +0100
+Message-Id: <20221114124446.132320509@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-commit 93b0d9178743a68723babe8448981f658aebc58e upstream.
+commit 6ba826cbb57d675f447b59323204d1473bbd5593 upstream.
 
-mfill_atomic_install_pte() checks page->mapping to detect whether one page
-is used in the page cache.  However as pointed out by Matthew, the page
-can logically be a tail page rather than always the head in the case of
-uffd minor mode with UFFDIO_CONTINUE.  It means we could wrongly install
-one pte with shmem thp tail page assuming it's an anonymous page.
+There's no need to hold the channel lock when freeing the memset buf, as
+the operation has already completed. Free the memset buf without holding
+the channel lock.
 
-It's not that clear even for anonymous page, since normally anonymous
-pages also have page->mapping being setup with the anon vma.  It's safe
-here only because the only such caller to mfill_atomic_install_pte() is
-always passing in a newly allocated page (mcopy_atomic_pte()), whose
-page->mapping is not yet setup.  However that's not extremely obvious
-either.
-
-For either of above, use page_mapping() instead.
-
-Link: https://lkml.kernel.org/r/Y2K+y7wnhC4vbnP2@x1n
-Fixes: 153132571f02 ("userfaultfd/shmem: support UFFDIO_CONTINUE for shmem")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 4d112426c344 ("dmaengine: hdmac: Add memset capabilities")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc: stable@vger.kernel.org
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20221025090306.297886-1-tudor.ambarus@microchip.com
+Link: https://lore.kernel.org/r/20221025090306.297886-10-tudor.ambarus@microchip.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/userfaultfd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/at_hdmac.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -63,7 +63,7 @@ int mfill_atomic_install_pte(struct mm_s
- 	pte_t _dst_pte, *dst_pte;
- 	bool writable = dst_vma->vm_flags & VM_WRITE;
- 	bool vm_shared = dst_vma->vm_flags & VM_SHARED;
--	bool page_in_cache = page->mapping;
-+	bool page_in_cache = page_mapping(page);
- 	spinlock_t *ptl;
- 	struct inode *inode;
- 	pgoff_t offset, max_off;
+--- a/drivers/dma/at_hdmac.c
++++ b/drivers/dma/at_hdmac.c
+@@ -443,13 +443,6 @@ atc_chain_complete(struct at_dma_chan *a
+ 	if (!atc_chan_is_cyclic(atchan))
+ 		dma_cookie_complete(txd);
+ 
+-	/* If the transfer was a memset, free our temporary buffer */
+-	if (desc->memset_buffer) {
+-		dma_pool_free(atdma->memset_pool, desc->memset_vaddr,
+-			      desc->memset_paddr);
+-		desc->memset_buffer = false;
+-	}
+-
+ 	/* Remove transfer node from the active list. */
+ 	list_del_init(&desc->desc_node);
+ 	spin_unlock_irqrestore(&atchan->lock, flags);
+@@ -468,6 +461,13 @@ atc_chain_complete(struct at_dma_chan *a
+ 	/* add myself to free_list */
+ 	list_add(&desc->desc_node, &atchan->free_list);
+ 	spin_unlock_irqrestore(&atchan->lock, flags);
++
++	/* If the transfer was a memset, free our temporary buffer */
++	if (desc->memset_buffer) {
++		dma_pool_free(atdma->memset_pool, desc->memset_vaddr,
++			      desc->memset_paddr);
++		desc->memset_buffer = false;
++	}
+ }
+ 
+ /**
 
 
