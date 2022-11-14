@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A188627EA6
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:50:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB718627F43
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:57:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237393AbiKNMuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:50:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42542 "EHLO
+        id S236665AbiKNM5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:57:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237380AbiKNMuC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:50:02 -0500
+        with ESMTP id S237568AbiKNM47 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:56:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AA072DFA
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:50:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F5EF27FDA
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:56:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06A796115D
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:50:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AFF4C433D7;
-        Mon, 14 Nov 2022 12:49:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30CE461154
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:56:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36568C433D6;
+        Mon, 14 Nov 2022 12:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430200;
-        bh=0XbZ2eQOQIp0yEgiU2t01QB0J2GFacoTVVNNwcRIC5M=;
+        s=korg; t=1668430617;
+        bh=5V+FYMN0jmws32foTN1KelPzvUJRsLD6kPcGSkfv/6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IdtifsBzfKVBWlwoAykqMPAg4o2+10c43uX5FI1XSuEGh/+T8EPFj3ZCInSd1HSzw
-         1eWXUijD5Gegx2tW7KgOIyM6Nj5l0+h68KgkO8RgjVxxqVGP8ELrlZGuHB6kPMp1PN
-         XCXa0DGeORoGt2QnvVJyWKnpi7ooRgMiSAZ0xchI=
+        b=FZd61o0S9VFXMRLeWMcROiy4pjErv/HDF7AhX7k6YLOKvvIXwXVAEQxSZu5swluGb
+         IYpHDhEAXsxZdHtQvLNhcHaEHOSS2oclc0VBeDHMHoii6PUuiuAKIbYcRr8UGbIDi0
+         VIs0sm+hMb20Ythqi+myi+PD8y/PxGdAyvsF12aM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.10 56/95] MIPS: jump_label: Fix compat branch range check
+        patches@lists.linux.dev,
+        Valentina Fernandez <valentina.fernandezalanis@microchip.com>,
+        Evgenii Shatokhin <e.shatokhin@yadro.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 081/131] riscv: fix reserved memory setup
 Date:   Mon, 14 Nov 2022 13:45:50 +0100
-Message-Id: <20221114124444.849726992@linuxfoundation.org>
+Message-Id: <20221114124452.130856414@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +56,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaxun Yang <jiaxun.yang@flygoat.com>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-commit 64ac0befe75bdfaffc396c2b4a0ed5ae6920eeee upstream.
+[ Upstream commit 50e63dd8ed92045eb70a72d7ec725488320fb68b ]
 
-Cast upper bound of branch range to long to do signed compare,
-avoid negative offset trigger this warning.
+Currently, RISC-V sets up reserved memory using the "early" copy of the
+device tree. As a result, when trying to get a reserved memory region
+using of_reserved_mem_lookup(), the pointer to reserved memory regions
+is using the early, pre-virtual-memory address which causes a kernel
+panic when trying to use the buffer's name:
 
-Fixes: 9b6584e35f40 ("MIPS: jump_label: Use compact branches for >= r6")
-Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ Unable to handle kernel paging request at virtual address 00000000401c31ac
+ Oops [#1]
+ Modules linked in:
+ CPU: 0 PID: 0 Comm: swapper Not tainted 6.0.0-rc1-00001-g0d9d6953d834 #1
+ Hardware name: Microchip PolarFire-SoC Icicle Kit (DT)
+ epc : string+0x4a/0xea
+  ra : vsnprintf+0x1e4/0x336
+ epc : ffffffff80335ea0 ra : ffffffff80338936 sp : ffffffff81203be0
+  gp : ffffffff812e0a98 tp : ffffffff8120de40 t0 : 0000000000000000
+  t1 : ffffffff81203e28 t2 : 7265736572203a46 s0 : ffffffff81203c20
+  s1 : ffffffff81203e28 a0 : ffffffff81203d22 a1 : 0000000000000000
+  a2 : ffffffff81203d08 a3 : 0000000081203d21 a4 : ffffffffffffffff
+  a5 : 00000000401c31ac a6 : ffff0a00ffffff04 a7 : ffffffffffffffff
+  s2 : ffffffff81203d08 s3 : ffffffff81203d00 s4 : 0000000000000008
+  s5 : ffffffff000000ff s6 : 0000000000ffffff s7 : 00000000ffffff00
+  s8 : ffffffff80d9821a s9 : ffffffff81203d22 s10: 0000000000000002
+  s11: ffffffff80d9821c t3 : ffffffff812f3617 t4 : ffffffff812f3617
+  t5 : ffffffff812f3618 t6 : ffffffff81203d08
+ status: 0000000200000100 badaddr: 00000000401c31ac cause: 000000000000000d
+ [<ffffffff80338936>] vsnprintf+0x1e4/0x336
+ [<ffffffff80055ae2>] vprintk_store+0xf6/0x344
+ [<ffffffff80055d86>] vprintk_emit+0x56/0x192
+ [<ffffffff80055ed8>] vprintk_default+0x16/0x1e
+ [<ffffffff800563d2>] vprintk+0x72/0x80
+ [<ffffffff806813b2>] _printk+0x36/0x50
+ [<ffffffff8068af48>] print_reserved_mem+0x1c/0x24
+ [<ffffffff808057ec>] paging_init+0x528/0x5bc
+ [<ffffffff808031ae>] setup_arch+0xd0/0x592
+ [<ffffffff8080070e>] start_kernel+0x82/0x73c
+
+early_init_fdt_scan_reserved_mem() takes no arguments as it operates on
+initial_boot_params, which is populated by early_init_dt_verify(). On
+RISC-V, early_init_dt_verify() is called twice. Once, directly, in
+setup_arch() if CONFIG_BUILTIN_DTB is not enabled and once indirectly,
+very early in the boot process, by parse_dtb() when it calls
+early_init_dt_scan_nodes().
+
+This first call uses dtb_early_va to set initial_boot_params, which is
+not usable later in the boot process when
+early_init_fdt_scan_reserved_mem() is called. On arm64 for example, the
+corresponding call to early_init_dt_scan_nodes() uses fixmap addresses
+and doesn't suffer the same fate.
+
+Move early_init_fdt_scan_reserved_mem() further along the boot sequence,
+after the direct call to early_init_dt_verify() in setup_arch() so that
+the names use the correct virtual memory addresses. The above supposed
+that CONFIG_BUILTIN_DTB was not set, but should work equally in the case
+where it is - unflatted_and_copy_device_tree() also updates
+initial_boot_params.
+
+Reported-by: Valentina Fernandez <valentina.fernandezalanis@microchip.com>
+Reported-by: Evgenii Shatokhin <e.shatokhin@yadro.com>
+Link: https://lore.kernel.org/linux-riscv/f8e67f82-103d-156c-deb0-d6d6e2756f5e@microchip.com/
+Fixes: 922b0375fc93 ("riscv: Fix memblock reservation for device tree blob")
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Tested-by: Evgenii Shatokhin <e.shatokhin@yadro.com>
+Link: https://lore.kernel.org/r/20221107151524.3941467-1-conor.dooley@microchip.com
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/jump_label.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/kernel/setup.c | 1 +
+ arch/riscv/mm/init.c      | 1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/mips/kernel/jump_label.c
-+++ b/arch/mips/kernel/jump_label.c
-@@ -56,7 +56,7 @@ void arch_jump_label_transform(struct ju
- 			 * The branch offset must fit in the instruction's 26
- 			 * bit field.
- 			 */
--			WARN_ON((offset >= BIT(25)) ||
-+			WARN_ON((offset >= (long)BIT(25)) ||
- 				(offset < -(long)BIT(25)));
+diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+index 7bdbf3f608a4..ef81e9003ab8 100644
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
+@@ -291,6 +291,7 @@ void __init setup_arch(char **cmdline_p)
+ 	else
+ 		pr_err("No DTB found in kernel mappings\n");
+ #endif
++	early_init_fdt_scan_reserved_mem();
+ 	misc_mem_init();
  
- 			insn.j_format.opcode = bc6_op;
+ 	init_resources();
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index a37a08ceeded..830f53b141a0 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -242,7 +242,6 @@ static void __init setup_bootmem(void)
+ 			memblock_reserve(dtb_early_pa, fdt_totalsize(dtb_early_va));
+ 	}
+ 
+-	early_init_fdt_scan_reserved_mem();
+ 	dma_contiguous_reserve(dma32_phys_limit);
+ 	if (IS_ENABLED(CONFIG_64BIT))
+ 		hugetlb_cma_reserve(PUD_SHIFT - PAGE_SHIFT);
+-- 
+2.35.1
+
 
 
