@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B0DE627F2E
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:56:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EBFE627F01
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:54:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237543AbiKNM4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:56:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48660 "EHLO
+        id S237497AbiKNMy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:54:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237544AbiKNM4T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:56:19 -0500
+        with ESMTP id S237480AbiKNMy2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:54:28 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E64F27DD2
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:56:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC7E526563
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF8CB61154
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:56:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E13BBC433C1;
-        Mon, 14 Nov 2022 12:56:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C5F361154
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:54:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68F53C433C1;
+        Mon, 14 Nov 2022 12:54:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430576;
-        bh=XKFuDxKzlnZEInejACp0t4dyP7eXoiNrcFbc3edZBVc=;
+        s=korg; t=1668430466;
+        bh=dmAOsloEMYsxbvP7EyD+2j7WbduzYhoHzcKD2rjLpOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J4dg0REjOZbrqA3bx7NLARlijHdgGmLYXSxRiSl7y7qAqYEuPr4DfH/yTYbt+JTh4
-         pgfFkLUHl2y9+tBJ823PEGeAWB8MkcmTm2KhRJuR8OcDBcjRK1ndcIBm0Rk3rJ8ucf
-         8ASYmQsVTwiJB6v8qdRGyFiCmJFv5jCBsw6QGE/4=
+        b=ccebLJpul8Cn5tBAEQChY6t3vErcW0owUyWgIN2ZVtfYPilExf7tr9TI7sb0vVLmZ
+         NzblsAtsW+cJ+NRCc9aveB40B7rs55RRI5qO5J+POR7eMBQVA6yh9frUE/FfScgnbm
+         i0OY1+o4bp1uU2TfJV27eVpc4a10/Q06mZeuGjO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Geetha sowjanya <gakula@marvell.com>,
+        patches@lists.linux.dev, Ratheesh Kannoth <rkannoth@marvell.com>,
         Sunil Kovvuri Goutham <sgoutham@marvell.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 028/131] octeontx2-pf: Use hardware register for CQE count
-Date:   Mon, 14 Nov 2022 13:44:57 +0100
-Message-Id: <20221114124449.868344273@linuxfoundation.org>
+Subject: [PATCH 5.15 029/131] octeontx2-pf: NIX TX overwrites SQ_CTX_HW_S[SQ_INT]
+Date:   Mon, 14 Nov 2022 13:44:58 +0100
+Message-Id: <20221114124449.910917744@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
 References: <20221114124448.729235104@linuxfoundation.org>
@@ -54,240 +54,263 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geetha sowjanya <gakula@marvell.com>
+From: Ratheesh Kannoth <rkannoth@marvell.com>
 
-[ Upstream commit af3826db74d184bc9c2c9d3ff34548e5f317a6f3 ]
+[ Upstream commit 51afe9026d0c63263abe9840e629f118d7405b36 ]
 
-Current driver uses software CQ head pointer to poll on CQE
-header in memory to determine if CQE is valid. Software needs
-to make sure, that the reads of the CQE do not get re-ordered
-so much that it ends up with an inconsistent view of the CQE.
-To ensure that DMB barrier after read to first CQE cacheline
-and before reading of the rest of the CQE is needed.
-But having barrier for every CQE read will impact the performance,
-instead use hardware CQ head and tail pointers to find the
-valid number of CQEs.
+In scenarios where multiple errors have occurred
+for a SQ before SW starts handling error interrupt,
+SQ_CTX[OP_INT] may get overwritten leading to
+NIX_LF_SQ_OP_INT returning incorrect value.
+To workaround this read LMT, MNQ and SQ individual
+error status registers to determine the cause of error.
 
-Signed-off-by: Geetha sowjanya <gakula@marvell.com>
-Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
+Fixes: 4ff7d1488a84 ("octeontx2-pf: Error handling support")
+Signed-off-by: Ratheesh Kannoth <rkannoth@marvell.com>
+Reviewed-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: 51afe9026d0c ("octeontx2-pf: NIX TX overwrites SQ_CTX_HW_S[SQ_INT]")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../marvell/octeontx2/nic/otx2_common.c       |  3 +
- .../marvell/octeontx2/nic/otx2_common.h       |  1 +
- .../marvell/octeontx2/nic/otx2_txrx.c         | 69 +++++++++++++++++--
- .../marvell/octeontx2/nic/otx2_txrx.h         |  5 ++
- include/linux/soc/marvell/octeontx2/asm.h     | 14 ++++
- 5 files changed, 85 insertions(+), 7 deletions(-)
+ .../ethernet/marvell/octeontx2/nic/otx2_pf.c  | 135 ++++++++++++++----
+ .../marvell/octeontx2/nic/otx2_struct.h       |  57 ++++++++
+ 2 files changed, 162 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-index 7cf24dd5c878..e14624caddc6 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-@@ -1013,6 +1013,9 @@ int otx2_config_nix_queues(struct otx2_nic *pfvf)
- 			return err;
- 	}
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
+index b1894d4045b8..ab291c2c3014 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
+@@ -13,6 +13,7 @@
+ #include <linux/if_vlan.h>
+ #include <linux/iommu.h>
+ #include <net/ip.h>
++#include <linux/bitfield.h>
  
-+	pfvf->cq_op_addr = (__force u64 *)otx2_get_regaddr(pfvf,
-+							   NIX_LF_CQ_OP_STATUS);
-+
- 	/* Initialize work queue for receive buffer refill */
- 	pfvf->refill_wrk = devm_kcalloc(pfvf->dev, pfvf->qset.cq_cnt,
- 					sizeof(struct refill_work), GFP_KERNEL);
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
-index 4ecd0ef05f3b..095e5de78c0b 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
-@@ -337,6 +337,7 @@ struct otx2_nic {
- #define OTX2_FLAG_TC_MATCHALL_INGRESS_ENABLED	BIT_ULL(13)
- #define OTX2_FLAG_DMACFLTR_SUPPORT		BIT_ULL(14)
- 	u64			flags;
-+	u64			*cq_op_addr;
+ #include "otx2_reg.h"
+ #include "otx2_common.h"
+@@ -1153,6 +1154,59 @@ int otx2_set_real_num_queues(struct net_device *netdev,
+ }
+ EXPORT_SYMBOL(otx2_set_real_num_queues);
  
- 	struct otx2_qset	qset;
- 	struct otx2_hw		hw;
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.c
-index f42b1d4e0c67..3f3ec8ffc4dd 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.c
-@@ -18,6 +18,31 @@
- 
- #define CQE_ADDR(CQ, idx) ((CQ)->cqe_base + ((CQ)->cqe_size * (idx)))
- 
-+static int otx2_nix_cq_op_status(struct otx2_nic *pfvf,
-+				 struct otx2_cq_queue *cq)
-+{
-+	u64 incr = (u64)(cq->cq_idx) << 32;
-+	u64 status;
++static char *nix_sqoperr_e_str[NIX_SQOPERR_MAX] = {
++	"NIX_SQOPERR_OOR",
++	"NIX_SQOPERR_CTX_FAULT",
++	"NIX_SQOPERR_CTX_POISON",
++	"NIX_SQOPERR_DISABLED",
++	"NIX_SQOPERR_SIZE_ERR",
++	"NIX_SQOPERR_OFLOW",
++	"NIX_SQOPERR_SQB_NULL",
++	"NIX_SQOPERR_SQB_FAULT",
++	"NIX_SQOPERR_SQE_SZ_ZERO",
++};
 +
-+	status = otx2_atomic64_fetch_add(incr, pfvf->cq_op_addr);
++static char *nix_mnqerr_e_str[NIX_MNQERR_MAX] = {
++	"NIX_MNQERR_SQ_CTX_FAULT",
++	"NIX_MNQERR_SQ_CTX_POISON",
++	"NIX_MNQERR_SQB_FAULT",
++	"NIX_MNQERR_SQB_POISON",
++	"NIX_MNQERR_TOTAL_ERR",
++	"NIX_MNQERR_LSO_ERR",
++	"NIX_MNQERR_CQ_QUERY_ERR",
++	"NIX_MNQERR_MAX_SQE_SIZE_ERR",
++	"NIX_MNQERR_MAXLEN_ERR",
++	"NIX_MNQERR_SQE_SIZEM1_ZERO",
++};
 +
-+	if (unlikely(status & BIT_ULL(CQ_OP_STAT_OP_ERR) ||
-+		     status & BIT_ULL(CQ_OP_STAT_CQ_ERR))) {
-+		dev_err(pfvf->dev, "CQ stopped due to error");
-+		return -EINVAL;
-+	}
++static char *nix_snd_status_e_str[NIX_SND_STATUS_MAX] =  {
++	"NIX_SND_STATUS_GOOD",
++	"NIX_SND_STATUS_SQ_CTX_FAULT",
++	"NIX_SND_STATUS_SQ_CTX_POISON",
++	"NIX_SND_STATUS_SQB_FAULT",
++	"NIX_SND_STATUS_SQB_POISON",
++	"NIX_SND_STATUS_HDR_ERR",
++	"NIX_SND_STATUS_EXT_ERR",
++	"NIX_SND_STATUS_JUMP_FAULT",
++	"NIX_SND_STATUS_JUMP_POISON",
++	"NIX_SND_STATUS_CRC_ERR",
++	"NIX_SND_STATUS_IMM_ERR",
++	"NIX_SND_STATUS_SG_ERR",
++	"NIX_SND_STATUS_MEM_ERR",
++	"NIX_SND_STATUS_INVALID_SUBDC",
++	"NIX_SND_STATUS_SUBDC_ORDER_ERR",
++	"NIX_SND_STATUS_DATA_FAULT",
++	"NIX_SND_STATUS_DATA_POISON",
++	"NIX_SND_STATUS_NPC_DROP_ACTION",
++	"NIX_SND_STATUS_LOCK_VIOL",
++	"NIX_SND_STATUS_NPC_UCAST_CHAN_ERR",
++	"NIX_SND_STATUS_NPC_MCAST_CHAN_ERR",
++	"NIX_SND_STATUS_NPC_MCAST_ABORT",
++	"NIX_SND_STATUS_NPC_VTAG_PTR_ERR",
++	"NIX_SND_STATUS_NPC_VTAG_SIZE_ERR",
++	"NIX_SND_STATUS_SEND_STATS_ERR",
++};
 +
-+	cq->cq_tail = status & 0xFFFFF;
-+	cq->cq_head = (status >> 20) & 0xFFFFF;
-+	if (cq->cq_tail < cq->cq_head)
-+		cq->pend_cqe = (cq->cqe_cnt - cq->cq_head) +
-+				cq->cq_tail;
-+	else
-+		cq->pend_cqe = cq->cq_tail - cq->cq_head;
-+
-+	return 0;
-+}
-+
- static struct nix_cqe_hdr_s *otx2_get_next_cqe(struct otx2_cq_queue *cq)
+ static irqreturn_t otx2_q_intr_handler(int irq, void *data)
  {
- 	struct nix_cqe_hdr_s *cqe_hdr;
-@@ -318,7 +343,14 @@ static int otx2_rx_napi_handler(struct otx2_nic *pfvf,
- 	struct nix_cqe_rx_s *cqe;
- 	int processed_cqe = 0;
+ 	struct otx2_nic *pf = data;
+@@ -1186,46 +1240,67 @@ static irqreturn_t otx2_q_intr_handler(int irq, void *data)
  
--	while (likely(processed_cqe < budget)) {
-+	if (cq->pend_cqe >= budget)
-+		goto process_cqe;
+ 	/* SQ */
+ 	for (qidx = 0; qidx < pf->hw.tx_queues; qidx++) {
++		u64 sq_op_err_dbg, mnq_err_dbg, snd_err_dbg;
++		u8 sq_op_err_code, mnq_err_code, snd_err_code;
 +
-+	if (otx2_nix_cq_op_status(pfvf, cq) || !cq->pend_cqe)
-+		return 0;
++		/* Below debug registers captures first errors corresponding to
++		 * those registers. We don't have to check against SQ qid as
++		 * these are fatal errors.
++		 */
 +
-+process_cqe:
-+	while (likely(processed_cqe < budget) && cq->pend_cqe) {
- 		cqe = (struct nix_cqe_rx_s *)CQE_ADDR(cq, cq->cq_head);
- 		if (cqe->hdr.cqe_type == NIX_XQE_TYPE_INVALID ||
- 		    !cqe->sg.seg_addr) {
-@@ -334,6 +366,7 @@ static int otx2_rx_napi_handler(struct otx2_nic *pfvf,
- 		cqe->hdr.cqe_type = NIX_XQE_TYPE_INVALID;
- 		cqe->sg.seg_addr = 0x00;
- 		processed_cqe++;
-+		cq->pend_cqe--;
- 	}
+ 		ptr = otx2_get_regaddr(pf, NIX_LF_SQ_OP_INT);
+ 		val = otx2_atomic64_add((qidx << 44), ptr);
+ 		otx2_write64(pf, NIX_LF_SQ_OP_INT, (qidx << 44) |
+ 			     (val & NIX_SQINT_BITS));
  
- 	/* Free CQEs to HW */
-@@ -368,7 +401,14 @@ static int otx2_tx_napi_handler(struct otx2_nic *pfvf,
- 	struct nix_cqe_tx_s *cqe;
- 	int processed_cqe = 0;
- 
--	while (likely(processed_cqe < budget)) {
-+	if (cq->pend_cqe >= budget)
-+		goto process_cqe;
-+
-+	if (otx2_nix_cq_op_status(pfvf, cq) || !cq->pend_cqe)
-+		return 0;
-+
-+process_cqe:
-+	while (likely(processed_cqe < budget) && cq->pend_cqe) {
- 		cqe = (struct nix_cqe_tx_s *)otx2_get_next_cqe(cq);
- 		if (unlikely(!cqe)) {
- 			if (!processed_cqe)
-@@ -380,6 +420,7 @@ static int otx2_tx_napi_handler(struct otx2_nic *pfvf,
- 
- 		cqe->hdr.cqe_type = NIX_XQE_TYPE_INVALID;
- 		processed_cqe++;
-+		cq->pend_cqe--;
- 	}
- 
- 	/* Free CQEs to HW */
-@@ -936,10 +977,16 @@ void otx2_cleanup_rx_cqes(struct otx2_nic *pfvf, struct otx2_cq_queue *cq)
- 	int processed_cqe = 0;
- 	u64 iova, pa;
- 
--	while ((cqe = (struct nix_cqe_rx_s *)otx2_get_next_cqe(cq))) {
--		if (!cqe->sg.subdc)
+-		if (!(val & (NIX_SQINT_BITS | BIT_ULL(42))))
 -			continue;
-+	if (otx2_nix_cq_op_status(pfvf, cq) || !cq->pend_cqe)
-+		return;
-+
-+	while (cq->pend_cqe) {
-+		cqe = (struct nix_cqe_rx_s *)otx2_get_next_cqe(cq);
- 		processed_cqe++;
-+		cq->pend_cqe--;
-+
-+		if (!cqe)
-+			continue;
- 		if (cqe->sg.segs > 1) {
- 			otx2_free_rcv_seg(pfvf, cqe, cq->cq_idx);
- 			continue;
-@@ -965,7 +1012,16 @@ void otx2_cleanup_tx_cqes(struct otx2_nic *pfvf, struct otx2_cq_queue *cq)
- 
- 	sq = &pfvf->qset.sq[cq->cint_idx];
- 
--	while ((cqe = (struct nix_cqe_tx_s *)otx2_get_next_cqe(cq))) {
-+	if (otx2_nix_cq_op_status(pfvf, cq) || !cq->pend_cqe)
-+		return;
-+
-+	while (cq->pend_cqe) {
-+		cqe = (struct nix_cqe_tx_s *)otx2_get_next_cqe(cq);
-+		processed_cqe++;
-+		cq->pend_cqe--;
-+
-+		if (!cqe)
-+			continue;
- 		sg = &sq->sg[cqe->comp.sqe_id];
- 		skb = (struct sk_buff *)sg->skb;
- 		if (skb) {
-@@ -973,7 +1029,6 @@ void otx2_cleanup_tx_cqes(struct otx2_nic *pfvf, struct otx2_cq_queue *cq)
- 			dev_kfree_skb_any(skb);
- 			sg->skb = (u64)NULL;
+-
+ 		if (val & BIT_ULL(42)) {
+ 			netdev_err(pf->netdev, "SQ%lld: error reading NIX_LF_SQ_OP_INT, NIX_LF_ERR_INT 0x%llx\n",
+ 				   qidx, otx2_read64(pf, NIX_LF_ERR_INT));
+-		} else {
+-			if (val & BIT_ULL(NIX_SQINT_LMT_ERR)) {
+-				netdev_err(pf->netdev, "SQ%lld: LMT store error NIX_LF_SQ_OP_ERR_DBG:0x%llx",
+-					   qidx,
+-					   otx2_read64(pf,
+-						       NIX_LF_SQ_OP_ERR_DBG));
+-				otx2_write64(pf, NIX_LF_SQ_OP_ERR_DBG,
+-					     BIT_ULL(44));
+-			}
+-			if (val & BIT_ULL(NIX_SQINT_MNQ_ERR)) {
+-				netdev_err(pf->netdev, "SQ%lld: Meta-descriptor enqueue error NIX_LF_MNQ_ERR_DGB:0x%llx\n",
+-					   qidx,
+-					   otx2_read64(pf, NIX_LF_MNQ_ERR_DBG));
+-				otx2_write64(pf, NIX_LF_MNQ_ERR_DBG,
+-					     BIT_ULL(44));
+-			}
+-			if (val & BIT_ULL(NIX_SQINT_SEND_ERR)) {
+-				netdev_err(pf->netdev, "SQ%lld: Send error, NIX_LF_SEND_ERR_DBG 0x%llx",
+-					   qidx,
+-					   otx2_read64(pf,
+-						       NIX_LF_SEND_ERR_DBG));
+-				otx2_write64(pf, NIX_LF_SEND_ERR_DBG,
+-					     BIT_ULL(44));
+-			}
+-			if (val & BIT_ULL(NIX_SQINT_SQB_ALLOC_FAIL))
+-				netdev_err(pf->netdev, "SQ%lld: SQB allocation failed",
+-					   qidx);
++			goto done;
  		}
--		processed_cqe++;
+ 
++		sq_op_err_dbg = otx2_read64(pf, NIX_LF_SQ_OP_ERR_DBG);
++		if (!(sq_op_err_dbg & BIT(44)))
++			goto chk_mnq_err_dbg;
++
++		sq_op_err_code = FIELD_GET(GENMASK(7, 0), sq_op_err_dbg);
++		netdev_err(pf->netdev, "SQ%lld: NIX_LF_SQ_OP_ERR_DBG(%llx)  err=%s\n",
++			   qidx, sq_op_err_dbg, nix_sqoperr_e_str[sq_op_err_code]);
++
++		otx2_write64(pf, NIX_LF_SQ_OP_ERR_DBG, BIT_ULL(44));
++
++		if (sq_op_err_code == NIX_SQOPERR_SQB_NULL)
++			goto chk_mnq_err_dbg;
++
++		/* Err is not NIX_SQOPERR_SQB_NULL, call aq function to read SQ structure.
++		 * TODO: But we are in irq context. How to call mbox functions which does sleep
++		 */
++
++chk_mnq_err_dbg:
++		mnq_err_dbg = otx2_read64(pf, NIX_LF_MNQ_ERR_DBG);
++		if (!(mnq_err_dbg & BIT(44)))
++			goto chk_snd_err_dbg;
++
++		mnq_err_code = FIELD_GET(GENMASK(7, 0), mnq_err_dbg);
++		netdev_err(pf->netdev, "SQ%lld: NIX_LF_MNQ_ERR_DBG(%llx)  err=%s\n",
++			   qidx, mnq_err_dbg,  nix_mnqerr_e_str[mnq_err_code]);
++		otx2_write64(pf, NIX_LF_MNQ_ERR_DBG, BIT_ULL(44));
++
++chk_snd_err_dbg:
++		snd_err_dbg = otx2_read64(pf, NIX_LF_SEND_ERR_DBG);
++		if (snd_err_dbg & BIT(44)) {
++			snd_err_code = FIELD_GET(GENMASK(7, 0), snd_err_dbg);
++			netdev_err(pf->netdev, "SQ%lld: NIX_LF_SND_ERR_DBG:0x%llx err=%s\n",
++				   qidx, snd_err_dbg, nix_snd_status_e_str[snd_err_code]);
++			otx2_write64(pf, NIX_LF_SEND_ERR_DBG, BIT_ULL(44));
++		}
++
++done:
++		/* Print values and reset */
++		if (val & BIT_ULL(NIX_SQINT_SQB_ALLOC_FAIL))
++			netdev_err(pf->netdev, "SQ%lld: SQB allocation failed",
++				   qidx);
++
+ 		schedule_work(&pf->reset_task);
  	}
  
- 	/* Free CQEs to HW */
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.h b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.h
-index 3ff1ad79c001..6a97631ff226 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.h
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.h
-@@ -56,6 +56,9 @@
-  */
- #define CQ_QCOUNT_DEFAULT	1
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_struct.h b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_struct.h
+index 4bbd12ff26e6..e5f30fd778fc 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_struct.h
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_struct.h
+@@ -274,4 +274,61 @@ enum nix_sqint_e {
+ 			BIT_ULL(NIX_SQINT_SEND_ERR) | \
+ 			BIT_ULL(NIX_SQINT_SQB_ALLOC_FAIL))
  
-+#define CQ_OP_STAT_OP_ERR       63
-+#define CQ_OP_STAT_CQ_ERR       46
++enum nix_sqoperr_e {
++	NIX_SQOPERR_OOR = 0,
++	NIX_SQOPERR_CTX_FAULT = 1,
++	NIX_SQOPERR_CTX_POISON = 2,
++	NIX_SQOPERR_DISABLED = 3,
++	NIX_SQOPERR_SIZE_ERR = 4,
++	NIX_SQOPERR_OFLOW = 5,
++	NIX_SQOPERR_SQB_NULL = 6,
++	NIX_SQOPERR_SQB_FAULT = 7,
++	NIX_SQOPERR_SQE_SZ_ZERO = 8,
++	NIX_SQOPERR_MAX,
++};
 +
- struct queue_stats {
- 	u64	bytes;
- 	u64	pkts;
-@@ -122,6 +125,8 @@ struct otx2_cq_queue {
- 	u16			pool_ptrs;
- 	u32			cqe_cnt;
- 	u32			cq_head;
-+	u32			cq_tail;
-+	u32			pend_cqe;
- 	void			*cqe_base;
- 	struct qmem		*cqe;
- 	struct otx2_pool	*rbpool;
-diff --git a/include/linux/soc/marvell/octeontx2/asm.h b/include/linux/soc/marvell/octeontx2/asm.h
-index fa1d6af0164e..0f79fd7f81a1 100644
---- a/include/linux/soc/marvell/octeontx2/asm.h
-+++ b/include/linux/soc/marvell/octeontx2/asm.h
-@@ -34,9 +34,23 @@
- 			 : [rf] "+r"(val)		\
- 			 : [rs] "r"(addr));		\
- })
++enum nix_mnqerr_e {
++	NIX_MNQERR_SQ_CTX_FAULT = 0,
++	NIX_MNQERR_SQ_CTX_POISON = 1,
++	NIX_MNQERR_SQB_FAULT = 2,
++	NIX_MNQERR_SQB_POISON = 3,
++	NIX_MNQERR_TOTAL_ERR = 4,
++	NIX_MNQERR_LSO_ERR = 5,
++	NIX_MNQERR_CQ_QUERY_ERR = 6,
++	NIX_MNQERR_MAX_SQE_SIZE_ERR = 7,
++	NIX_MNQERR_MAXLEN_ERR = 8,
++	NIX_MNQERR_SQE_SIZEM1_ZERO = 9,
++	NIX_MNQERR_MAX,
++};
 +
-+static inline u64 otx2_atomic64_fetch_add(u64 incr, u64 *ptr)
-+{
-+	u64 result;
++enum nix_snd_status_e {
++	NIX_SND_STATUS_GOOD = 0x0,
++	NIX_SND_STATUS_SQ_CTX_FAULT = 0x1,
++	NIX_SND_STATUS_SQ_CTX_POISON = 0x2,
++	NIX_SND_STATUS_SQB_FAULT = 0x3,
++	NIX_SND_STATUS_SQB_POISON = 0x4,
++	NIX_SND_STATUS_HDR_ERR = 0x5,
++	NIX_SND_STATUS_EXT_ERR = 0x6,
++	NIX_SND_STATUS_JUMP_FAULT = 0x7,
++	NIX_SND_STATUS_JUMP_POISON = 0x8,
++	NIX_SND_STATUS_CRC_ERR = 0x9,
++	NIX_SND_STATUS_IMM_ERR = 0x10,
++	NIX_SND_STATUS_SG_ERR = 0x11,
++	NIX_SND_STATUS_MEM_ERR = 0x12,
++	NIX_SND_STATUS_INVALID_SUBDC = 0x13,
++	NIX_SND_STATUS_SUBDC_ORDER_ERR = 0x14,
++	NIX_SND_STATUS_DATA_FAULT = 0x15,
++	NIX_SND_STATUS_DATA_POISON = 0x16,
++	NIX_SND_STATUS_NPC_DROP_ACTION = 0x17,
++	NIX_SND_STATUS_LOCK_VIOL = 0x18,
++	NIX_SND_STATUS_NPC_UCAST_CHAN_ERR = 0x19,
++	NIX_SND_STATUS_NPC_MCAST_CHAN_ERR = 0x20,
++	NIX_SND_STATUS_NPC_MCAST_ABORT = 0x21,
++	NIX_SND_STATUS_NPC_VTAG_PTR_ERR = 0x22,
++	NIX_SND_STATUS_NPC_VTAG_SIZE_ERR = 0x23,
++	NIX_SND_STATUS_SEND_MEM_FAULT = 0x24,
++	NIX_SND_STATUS_SEND_STATS_ERR = 0x25,
++	NIX_SND_STATUS_MAX,
++};
 +
-+	asm volatile (".cpu  generic+lse\n"
-+		      "ldadda %x[i], %x[r], [%[b]]"
-+		      : [r] "=r" (result), "+m" (*ptr)
-+		      : [i] "r" (incr), [b] "r" (ptr)
-+		      : "memory");
-+	return result;
-+}
-+
- #else
- #define otx2_lmt_flush(ioaddr)          ({ 0; })
- #define cn10k_lmt_flush(val, addr)	({ addr = val; })
-+#define otx2_atomic64_fetch_add(incr, ptr)	({ incr; })
- #endif
- 
- #endif /* __SOC_OTX2_ASM_H */
+ #endif /* OTX2_STRUCT_H */
 -- 
 2.35.1
 
