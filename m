@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BA046280AC
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:08:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D586280AE
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:08:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237855AbiKNNID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:08:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34644 "EHLO
+        id S237854AbiKNNIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:08:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237868AbiKNNH6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:07:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBA0E2AC40
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:07:57 -0800 (PST)
+        with ESMTP id S237871AbiKNNIC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:08:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CE3D2B182
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:08:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D5B1B80EB9
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:07:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3FA3C433D6;
-        Mon, 14 Nov 2022 13:07:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 17EFA61184
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:08:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25B78C433D6;
+        Mon, 14 Nov 2022 13:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431275;
-        bh=uk2rUXfvKEHZmXIU1t1q/MTJBpxeGB/JKi5uA+D+Zoc=;
+        s=korg; t=1668431280;
+        bh=sP0CCYct7UFKKSKFTeGl1Slsn3wD08Yp14+RI0vInRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jz2snKCcouVWxb8jiJCnWNpJ6+Db/c3zp1ApIZvg5TkCMEMD0MG+jruFmpR+HehE3
-         gPQY/whwFlmIk7k/SXVWs5aWSAuL93V3Y+OaZQHvv/G5lzfh9ZWY1BEnNKtwmpsSTc
-         g9EYT4UKtG9FfLlbQGaNboh81wiZflREZVDESTzQ=
+        b=k6/MqIjxDbeyLjgStVoJ/UgE5LJi7lYUVvCpC2GoR+zBX7kMnB0u9F6rmlN/AEjNz
+         Rh578TowtCrIW5DExwo2aBinztizeD745C31Z0UUtZXNZmQDyelwFbZLLE4MDK5DMw
+         fkuPtZlLe9dEcHKY1QrkNaPi/KxTba0NvfIkFx0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chao Peng <chao.p.peng@linux.intel.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
+        patches@lists.linux.dev, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Like Xu <likexu@tencent.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.0 165/190] KVM: x86/mmu: Block all page faults during kvm_zap_gfn_range()
-Date:   Mon, 14 Nov 2022 13:46:29 +0100
-Message-Id: <20221114124506.052191739@linuxfoundation.org>
+Subject: [PATCH 6.0 166/190] KVM: x86/pmu: Do not speculatively query Intel GP PMCs that dont exist yet
+Date:   Mon, 14 Nov 2022 13:46:30 +0100
+Message-Id: <20221114124506.099633349@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -54,53 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Like Xu <likexu@tencent.com>
 
-commit 6d3085e4d89ad7e6c7f1c6cf929d903393565861 upstream.
+commit 8631ef59b62290c7d88e7209e35dfb47f33f4902 upstream.
 
-When zapping a GFN range, pass 0 => ALL_ONES for the to-be-invalidated
-range to effectively block all page faults while the zap is in-progress.
-The invalidation helpers take a host virtual address, whereas zapping a
-GFN obviously provides a guest physical address and with the wrong unit
-of measurement (frame vs. byte).
+The SDM lists an architectural MSR IA32_CORE_CAPABILITIES (0xCF)
+that limits the theoretical maximum value of the Intel GP PMC MSRs
+allocated at 0xC1 to 14; likewise the Intel April 2022 SDM adds
+IA32_OVERCLOCKING_STATUS at 0x195 which limits the number of event
+selection MSRs to 15 (0x186-0x194).
 
-Alternatively, KVM could walk all memslots to get the associated HVAs,
-but thanks to SMM, that would require multiple lookups.  And practically
-speaking, kvm_zap_gfn_range() usage is quite rare and not a hot path,
-e.g. MTRR and CR0.CD are almost guaranteed to be done only on vCPU0
-during boot, and APICv inhibits are similarly infrequent operations.
+Limiting the maximum number of counters to 14 or 18 based on the currently
+allocated MSRs is clearly fragile, and it seems likely that Intel will
+even place PMCs 8-15 at a completely different range of MSR indices.
+So stop at the maximum number of GP PMCs supported today on Intel
+processors.
 
-Fixes: edb298c663fc ("KVM: x86/mmu: bump mmu notifier count in kvm_zap_gfn_range")
-Reported-by: Chao Peng <chao.p.peng@linux.intel.com>
+There are some machines, like Intel P4 with non Architectural PMU, that
+may indeed have 18 counters, but those counters are in a completely
+different MSR address range and are not supported by KVM.
+
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
 Cc: stable@vger.kernel.org
-Cc: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20221111001841.2412598-1-seanjc@google.com>
+Fixes: cf05a67b68b8 ("KVM: x86: omit "impossible" pmu MSRs from MSR list")
+Suggested-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Like Xu <likexu@tencent.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Message-Id: <20220919091008.60695-1-likexu@tencent.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/mmu.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/x86.c |   14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -6044,7 +6044,7 @@ void kvm_zap_gfn_range(struct kvm *kvm,
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1431,20 +1431,10 @@ static const u32 msrs_to_save_all[] = {
+ 	MSR_ARCH_PERFMON_PERFCTR0 + 2, MSR_ARCH_PERFMON_PERFCTR0 + 3,
+ 	MSR_ARCH_PERFMON_PERFCTR0 + 4, MSR_ARCH_PERFMON_PERFCTR0 + 5,
+ 	MSR_ARCH_PERFMON_PERFCTR0 + 6, MSR_ARCH_PERFMON_PERFCTR0 + 7,
+-	MSR_ARCH_PERFMON_PERFCTR0 + 8, MSR_ARCH_PERFMON_PERFCTR0 + 9,
+-	MSR_ARCH_PERFMON_PERFCTR0 + 10, MSR_ARCH_PERFMON_PERFCTR0 + 11,
+-	MSR_ARCH_PERFMON_PERFCTR0 + 12, MSR_ARCH_PERFMON_PERFCTR0 + 13,
+-	MSR_ARCH_PERFMON_PERFCTR0 + 14, MSR_ARCH_PERFMON_PERFCTR0 + 15,
+-	MSR_ARCH_PERFMON_PERFCTR0 + 16, MSR_ARCH_PERFMON_PERFCTR0 + 17,
+ 	MSR_ARCH_PERFMON_EVENTSEL0, MSR_ARCH_PERFMON_EVENTSEL1,
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 2, MSR_ARCH_PERFMON_EVENTSEL0 + 3,
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 4, MSR_ARCH_PERFMON_EVENTSEL0 + 5,
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 6, MSR_ARCH_PERFMON_EVENTSEL0 + 7,
+-	MSR_ARCH_PERFMON_EVENTSEL0 + 8, MSR_ARCH_PERFMON_EVENTSEL0 + 9,
+-	MSR_ARCH_PERFMON_EVENTSEL0 + 10, MSR_ARCH_PERFMON_EVENTSEL0 + 11,
+-	MSR_ARCH_PERFMON_EVENTSEL0 + 12, MSR_ARCH_PERFMON_EVENTSEL0 + 13,
+-	MSR_ARCH_PERFMON_EVENTSEL0 + 14, MSR_ARCH_PERFMON_EVENTSEL0 + 15,
+-	MSR_ARCH_PERFMON_EVENTSEL0 + 16, MSR_ARCH_PERFMON_EVENTSEL0 + 17,
+ 	MSR_IA32_PEBS_ENABLE, MSR_IA32_DS_AREA, MSR_PEBS_DATA_CFG,
  
- 	write_lock(&kvm->mmu_lock);
- 
--	kvm_mmu_invalidate_begin(kvm, gfn_start, gfn_end);
-+	kvm_mmu_invalidate_begin(kvm, 0, -1ul);
- 
- 	flush = kvm_rmap_zap_gfn_range(kvm, gfn_start, gfn_end);
- 
-@@ -6058,7 +6058,7 @@ void kvm_zap_gfn_range(struct kvm *kvm,
- 		kvm_flush_remote_tlbs_with_address(kvm, gfn_start,
- 						   gfn_end - gfn_start);
- 
--	kvm_mmu_invalidate_end(kvm, gfn_start, gfn_end);
-+	kvm_mmu_invalidate_end(kvm, 0, -1ul);
- 
- 	write_unlock(&kvm->mmu_lock);
- }
+ 	MSR_K7_EVNTSEL0, MSR_K7_EVNTSEL1, MSR_K7_EVNTSEL2, MSR_K7_EVNTSEL3,
+@@ -7005,12 +6995,12 @@ static void kvm_init_msr_list(void)
+ 				intel_pt_validate_hw_cap(PT_CAP_num_address_ranges) * 2)
+ 				continue;
+ 			break;
+-		case MSR_ARCH_PERFMON_PERFCTR0 ... MSR_ARCH_PERFMON_PERFCTR0 + 17:
++		case MSR_ARCH_PERFMON_PERFCTR0 ... MSR_ARCH_PERFMON_PERFCTR0 + 7:
+ 			if (msrs_to_save_all[i] - MSR_ARCH_PERFMON_PERFCTR0 >=
+ 			    min(INTEL_PMC_MAX_GENERIC, kvm_pmu_cap.num_counters_gp))
+ 				continue;
+ 			break;
+-		case MSR_ARCH_PERFMON_EVENTSEL0 ... MSR_ARCH_PERFMON_EVENTSEL0 + 17:
++		case MSR_ARCH_PERFMON_EVENTSEL0 ... MSR_ARCH_PERFMON_EVENTSEL0 + 7:
+ 			if (msrs_to_save_all[i] - MSR_ARCH_PERFMON_EVENTSEL0 >=
+ 			    min(INTEL_PMC_MAX_GENERIC, kvm_pmu_cap.num_counters_gp))
+ 				continue;
 
 
