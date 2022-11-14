@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2360A627EC2
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:51:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F88627F32
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:56:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237360AbiKNMvW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:51:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44074 "EHLO
+        id S237552AbiKNM4g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:56:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237323AbiKNMvW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:51:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 880CA24BE4
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:51:20 -0800 (PST)
+        with ESMTP id S237559AbiKNM4d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:56:33 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC17327DD5
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:56:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2456A61175
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:51:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02F7CC433C1;
-        Mon, 14 Nov 2022 12:51:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 307CDCE0FFC
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:56:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E30F8C433B5;
+        Mon, 14 Nov 2022 12:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430279;
-        bh=CQgavLIwFqKEKn3j5JuLJmUwnhhzMiTuUuT6kwrxD1E=;
+        s=korg; t=1668430585;
+        bh=L44HxwypCk+G4/4+8WaoafJ4S3t1+cUp8+CC2RAcvuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QjyNo2sglneMzKWnav1E+CCQuBQev7kUlRf8+meSfF47lxXOx9g6RBeoB0LRSMACT
-         Nn8t2d4BcNAabl6C2AlsGQoYH/mCllIFLGkla6JtaMUFkh2AqkM2wG3G2egY4Y0B7G
-         g6vOKIwwjdBCn5phgQI+tGd94CAdE134E8mWKIIc=
+        b=r+hgwr7U1sIkGNP2U+2N0TcpEBE+eaMoyZ//tOQ9BjKztns242bmsVplUgur8+ZL0
+         sKzWPIlJWO0uFXGSxKnaVnJUJKVyPGIYUKsqZQTYp4h1Sx+ivj9KkhXyl2VsmFjAA+
+         QdSgHde0D3N6h1HPC1sp/gRjU5MPlm+3xJ9x7Lyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 47/95] net: mv643xx_eth: disable napi when init rxq or txq failed in mv643xx_eth_open()
+Subject: [PATCH 5.15 072/131] stmmac: dwmac-loongson: fix missing of_node_put() while module exiting
 Date:   Mon, 14 Nov 2022 13:45:41 +0100
-Message-Id: <20221114124444.477912460@linuxfoundation.org>
+Message-Id: <20221114124451.765897864@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f111606b63ff2282428ffbac0447c871eb957b6c ]
+[ Upstream commit 7f94d0498f9c763f37172c08059ae91804c3075a ]
 
-When failed to init rxq or txq in mv643xx_eth_open() for opening device,
-napi isn't disabled. When open mv643xx_eth device next time, it will
-trigger a BUG_ON() in napi_enable(). Compile tested only.
+The node returned by of_get_child_by_name() with refcount decremented,
+of_node_put() needs be called when finish using it. So add it in the
+error path in loongson_dwmac_probe() and in loongson_dwmac_remove().
 
-Fixes: 2257e05c1705 ("mv643xx_eth: get rid of receive-side locking")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221109025432.80900-1-shaozhengchao@huawei.com
+Fixes: 2ae34111fe4e ("stmmac: dwmac-loongson: fix invalid mdio_node")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mv643xx_eth.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../ethernet/stmicro/stmmac/dwmac-loongson.c  | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mv643xx_eth.c b/drivers/net/ethernet/marvell/mv643xx_eth.c
-index 90e6111ce534..735b76effc49 100644
---- a/drivers/net/ethernet/marvell/mv643xx_eth.c
-+++ b/drivers/net/ethernet/marvell/mv643xx_eth.c
-@@ -2471,6 +2471,7 @@ static int mv643xx_eth_open(struct net_device *dev)
- 	for (i = 0; i < mp->rxq_count; i++)
- 		rxq_deinit(mp->rxq + i);
- out:
-+	napi_disable(&mp->napi);
- 	free_irq(dev->irq, dev);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
+index bf6e9f3fe1ef..2ae59f94afe1 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
+@@ -75,20 +75,24 @@ static int loongson_dwmac_probe(struct pci_dev *pdev, const struct pci_device_id
+ 		plat->mdio_bus_data = devm_kzalloc(&pdev->dev,
+ 						   sizeof(*plat->mdio_bus_data),
+ 						   GFP_KERNEL);
+-		if (!plat->mdio_bus_data)
+-			return -ENOMEM;
++		if (!plat->mdio_bus_data) {
++			ret = -ENOMEM;
++			goto err_put_node;
++		}
+ 		plat->mdio_bus_data->needs_reset = true;
+ 	}
  
- 	return err;
+ 	plat->dma_cfg = devm_kzalloc(&pdev->dev, sizeof(*plat->dma_cfg), GFP_KERNEL);
+-	if (!plat->dma_cfg)
+-		return -ENOMEM;
++	if (!plat->dma_cfg) {
++		ret = -ENOMEM;
++		goto err_put_node;
++	}
+ 
+ 	/* Enable pci device */
+ 	ret = pci_enable_device(pdev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "%s: ERROR: failed to enable device\n", __func__);
+-		return ret;
++		goto err_put_node;
+ 	}
+ 
+ 	/* Get the base address of device */
+@@ -152,13 +156,18 @@ static int loongson_dwmac_probe(struct pci_dev *pdev, const struct pci_device_id
+ 	pci_disable_msi(pdev);
+ err_disable_device:
+ 	pci_disable_device(pdev);
++err_put_node:
++	of_node_put(plat->mdio_node);
+ 	return ret;
+ }
+ 
+ static void loongson_dwmac_remove(struct pci_dev *pdev)
+ {
++	struct net_device *ndev = dev_get_drvdata(&pdev->dev);
++	struct stmmac_priv *priv = netdev_priv(ndev);
+ 	int i;
+ 
++	of_node_put(priv->plat->mdio_node);
+ 	stmmac_dvr_remove(&pdev->dev);
+ 
+ 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
 -- 
 2.35.1
 
