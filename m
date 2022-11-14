@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36AD7628052
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:05:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CEDA628058
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:05:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237773AbiKNNFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:05:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59674 "EHLO
+        id S237787AbiKNNFM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:05:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237766AbiKNNFD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:05:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5452A273
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:05:01 -0800 (PST)
+        with ESMTP id S237784AbiKNNFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:05:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02F2829CAC
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:05:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BBAF6116E
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:05:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A359C433D6;
-        Mon, 14 Nov 2022 13:05:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3C6CB80EA5
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:05:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA31FC433D6;
+        Mon, 14 Nov 2022 13:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431100;
-        bh=s4W4fwJdRilC4O81TMR/g7E7VZx+4jvI1Er/F/4ZOC8=;
+        s=korg; t=1668431106;
+        bh=/KI6JRPR1PcBU7aNAu0cjBGSAzeWXvm+eibRa8dlhZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KTdSBOZxxeRu69d0oRnhC2xOjU1+vUcuGE+S9RujhCmYoQeNXT0ByIEDfzv2VVvH/
-         ka5dE21uCwVfIFIvhmKbQPaFBBZMP58VgFB+54O2wYvHXbgVKIBWbItQBWCNxsTl63
-         4fir4eb5Cue1OK58dD1eoVFLEyh63hQe02Xs8c1w=
+        b=l3hkfv/ErX+OJD37ugHC141Lkl2YXpePXoZyuuC5qowTwQh93K1w3GFsb9/ZCj5SD
+         GvgioBIkHbHL2DgHGmuUWWtC80tXsCaFE7emgh+keXNIAIk6KnB6KhRJ3OYUyjer+O
+         Z4frmusjgMPNqitMvCdKB3bq+D8ptUffkyOeZ7FM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 100/190] cxgb4vf: shut down the adapter when t4vf_update_port_info() failed in cxgb4vf_open()
-Date:   Mon, 14 Nov 2022 13:45:24 +0100
-Message-Id: <20221114124503.070820325@linuxfoundation.org>
+Subject: [PATCH 6.0 101/190] stmmac: dwmac-loongson: fix missing pci_disable_msi() while module exiting
+Date:   Mon, 14 Nov 2022 13:45:25 +0100
+Message-Id: <20221114124503.109293084@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -53,36 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit c6092ea1e6d7bd12acd881f6aa2b5054cd70e096 ]
+[ Upstream commit f2d45fdf9a0ed2c94c01c422a0d0add8ffd42099 ]
 
-When t4vf_update_port_info() failed in cxgb4vf_open(), resources applied
-during adapter goes up are not cleared. Fix it. Only be compiled, not be
-tested.
+pci_enable_msi() has been called in loongson_dwmac_probe(),
+so pci_disable_msi() needs be called in remove path and error
+path of probe().
 
-Fixes: 18d79f721e0a ("cxgb4vf: Update port information in cxgb4vf_open()")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221109012100.99132-1-shaozhengchao@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 30bba69d7db4 ("stmmac: pci: Add dwmac support for Loongson")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/stmicro/stmmac/dwmac-loongson.c    | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c b/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c
-index c2822e635f89..40bb473ec3c8 100644
---- a/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c
-@@ -858,7 +858,7 @@ static int cxgb4vf_open(struct net_device *dev)
- 	 */
- 	err = t4vf_update_port_info(pi);
- 	if (err < 0)
--		return err;
-+		goto err_unwind;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
+index 79fa7870563b..16915b4d9505 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
+@@ -125,6 +125,7 @@ static int loongson_dwmac_probe(struct pci_dev *pdev, const struct pci_device_id
+ 	if (res.irq < 0) {
+ 		dev_err(&pdev->dev, "IRQ macirq not found\n");
+ 		ret = -ENODEV;
++		goto err_disable_msi;
+ 	}
  
- 	/*
- 	 * Note that this interface is up and start everything up ...
+ 	res.wol_irq = of_irq_get_byname(np, "eth_wake_irq");
+@@ -137,9 +138,18 @@ static int loongson_dwmac_probe(struct pci_dev *pdev, const struct pci_device_id
+ 	if (res.lpi_irq < 0) {
+ 		dev_err(&pdev->dev, "IRQ eth_lpi not found\n");
+ 		ret = -ENODEV;
++		goto err_disable_msi;
+ 	}
+ 
+-	return stmmac_dvr_probe(&pdev->dev, plat, &res);
++	ret = stmmac_dvr_probe(&pdev->dev, plat, &res);
++	if (ret)
++		goto err_disable_msi;
++
++	return ret;
++
++err_disable_msi:
++	pci_disable_msi(pdev);
++	return ret;
+ }
+ 
+ static void loongson_dwmac_remove(struct pci_dev *pdev)
+@@ -155,6 +165,7 @@ static void loongson_dwmac_remove(struct pci_dev *pdev)
+ 		break;
+ 	}
+ 
++	pci_disable_msi(pdev);
+ 	pci_disable_device(pdev);
+ }
+ 
 -- 
 2.35.1
 
