@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7098A627F36
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:56:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AD20627EC4
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:51:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237604AbiKNM4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:56:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48950 "EHLO
+        id S237357AbiKNMvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:51:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237562AbiKNM4i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:56:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA32027DE6
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:56:33 -0800 (PST)
+        with ESMTP id S237395AbiKNMv3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:51:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6985424BDD
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:51:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20C5E61184
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:56:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19E8CC433C1;
-        Mon, 14 Nov 2022 12:56:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2325EB80EC0
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:51:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 718EEC433D7;
+        Mon, 14 Nov 2022 12:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430592;
-        bh=nBlm+v1dOqo1wbfiEy6ePI7Hn9qcD82yOUJzcIHMbHY=;
+        s=korg; t=1668430285;
+        bh=jVoUS1eU9XE+HtByPsMF/JAUXFajX2U1E1J9pcBTzDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IiiNS2CsrVQwYeuZHrKCZo+wg/YhP/F9vhe1abqrfaB43ywpG1k1z0D9vEdcjwC6l
-         FHK5LbVrRMpvySUoKNFvx/8GUen2YcU4FuEKDU1+hOY/4AAzj5ia4OHmPVl6XHgYF0
-         5UlEAUJY07l4T2p/NYs5TGTQ1I7KX7J8NxNrSSY0=
+        b=C7Ig4SRiyyJjAdnfRCsGH0vsArRNleCcrjP4RY9Nf7+O8/epSWAD6F4PAmKM+70sG
+         rh6Xvn/drsmb7tJngwuyCP/ROdqr3yYjWGpipLoRxCwCY0leGnBV63/rL8ur5AJL5t
+         kG3VsEvfdF4gkHPmWsHZRM47BDDMU3DXwPppZalA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Antoine Tenart <atenart@kernel.org>,
+        patches@lists.linux.dev, Chuang Wang <nashuiliang@gmail.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 074/131] net: atlantic: macsec: clear encryption keys from the stack
+Subject: [PATCH 5.10 49/95] net: macvlan: fix memory leaks of macvlan_common_newlink
 Date:   Mon, 14 Nov 2022 13:45:43 +0100
-Message-Id: <20221114124451.838394029@linuxfoundation.org>
+Message-Id: <20221114124444.576247722@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,96 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Chuang Wang <nashuiliang@gmail.com>
 
-[ Upstream commit 879785def0f5e71d54399de0f8a5cb399db14171 ]
+[ Upstream commit 23569b5652ee8e8e55a12f7835f59af6f3cefc30 ]
 
-Commit aaab73f8fba4 ("macsec: clear encryption keys from the stack after
-setting up offload") made sure to clean encryption keys from the stack
-after setting up offloading, but the atlantic driver made a copy and did
-not clear it. Fix this.
+kmemleak reports memory leaks in macvlan_common_newlink, as follows:
 
-[4 Fixes tags below, all part of the same series, no need to split this]
+ ip link add link eth0 name .. type macvlan mode source macaddr add
+ <MAC-ADDR>
 
-Fixes: 9ff40a751a6f ("net: atlantic: MACSec ingress offload implementation")
-Fixes: b8f8a0b7b5cb ("net: atlantic: MACSec ingress offload HW bindings")
-Fixes: 27736563ce32 ("net: atlantic: MACSec egress offload implementation")
-Fixes: 9d106c6dd81b ("net: atlantic: MACSec egress offload HW bindings")
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
+kmemleak reports:
+
+unreferenced object 0xffff8880109bb140 (size 64):
+  comm "ip", pid 284, jiffies 4294986150 (age 430.108s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 b8 aa 5a 12 80 88 ff ff  ..........Z.....
+    80 1b fa 0d 80 88 ff ff 1e ff ac af c7 c1 6b 6b  ..............kk
+  backtrace:
+    [<ffffffff813e06a7>] kmem_cache_alloc_trace+0x1c7/0x300
+    [<ffffffff81b66025>] macvlan_hash_add_source+0x45/0xc0
+    [<ffffffff81b66a67>] macvlan_changelink_sources+0xd7/0x170
+    [<ffffffff81b6775c>] macvlan_common_newlink+0x38c/0x5a0
+    [<ffffffff81b6797e>] macvlan_newlink+0xe/0x20
+    [<ffffffff81d97f8f>] __rtnl_newlink+0x7af/0xa50
+    [<ffffffff81d98278>] rtnl_newlink+0x48/0x70
+    ...
+
+In the scenario where the macvlan mode is configured as 'source',
+macvlan_changelink_sources() will be execured to reconfigure list of
+remote source mac addresses, at the same time, if register_netdevice()
+return an error, the resource generated by macvlan_changelink_sources()
+is not cleaned up.
+
+Using this patch, in the case of an error, it will execute
+macvlan_flush_sources() to ensure that the resource is cleaned up.
+
+Fixes: aa5fd0fb7748 ("driver: macvlan: Destroy new macvlan port if macvlan_common_newlink failed.")
+Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
+Link: https://lore.kernel.org/r/20221109090735.690500-1-nashuiliang@gmail.com
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/aquantia/atlantic/aq_macsec.c |  2 ++
- .../aquantia/atlantic/macsec/macsec_api.c      | 18 +++++++++++-------
- 2 files changed, 13 insertions(+), 7 deletions(-)
+ drivers/net/macvlan.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_macsec.c b/drivers/net/ethernet/aquantia/atlantic/aq_macsec.c
-index 7c6e0811f2e6..ee823a18294c 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_macsec.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_macsec.c
-@@ -585,6 +585,7 @@ static int aq_update_txsa(struct aq_nic_s *nic, const unsigned int sc_idx,
- 
- 	ret = aq_mss_set_egress_sakey_record(hw, &key_rec, sa_idx);
- 
-+	memzero_explicit(&key_rec, sizeof(key_rec));
- 	return ret;
+diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
+index c8d803d3616c..6b269a72388b 100644
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -1509,8 +1509,10 @@ int macvlan_common_newlink(struct net *src_net, struct net_device *dev,
+ 	/* the macvlan port may be freed by macvlan_uninit when fail to register.
+ 	 * so we destroy the macvlan port only when it's valid.
+ 	 */
+-	if (create && macvlan_port_get_rtnl(lowerdev))
++	if (create && macvlan_port_get_rtnl(lowerdev)) {
++		macvlan_flush_sources(port, vlan);
+ 		macvlan_port_destroy(port->dev);
++	}
+ 	return err;
  }
- 
-@@ -932,6 +933,7 @@ static int aq_update_rxsa(struct aq_nic_s *nic, const unsigned int sc_idx,
- 
- 	ret = aq_mss_set_ingress_sakey_record(hw, &sa_key_record, sa_idx);
- 
-+	memzero_explicit(&sa_key_record, sizeof(sa_key_record));
- 	return ret;
- }
- 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/macsec/macsec_api.c b/drivers/net/ethernet/aquantia/atlantic/macsec/macsec_api.c
-index 36c7cf05630a..431924959520 100644
---- a/drivers/net/ethernet/aquantia/atlantic/macsec/macsec_api.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/macsec/macsec_api.c
-@@ -757,6 +757,7 @@ set_ingress_sakey_record(struct aq_hw_s *hw,
- 			 u16 table_index)
- {
- 	u16 packed_record[18];
-+	int ret;
- 
- 	if (table_index >= NUMROWS_INGRESSSAKEYRECORD)
- 		return -EINVAL;
-@@ -789,9 +790,12 @@ set_ingress_sakey_record(struct aq_hw_s *hw,
- 
- 	packed_record[16] = rec->key_len & 0x3;
- 
--	return set_raw_ingress_record(hw, packed_record, 18, 2,
--				      ROWOFFSET_INGRESSSAKEYRECORD +
--					      table_index);
-+	ret = set_raw_ingress_record(hw, packed_record, 18, 2,
-+				     ROWOFFSET_INGRESSSAKEYRECORD +
-+				     table_index);
-+
-+	memzero_explicit(packed_record, sizeof(packed_record));
-+	return ret;
- }
- 
- int aq_mss_set_ingress_sakey_record(struct aq_hw_s *hw,
-@@ -1739,14 +1743,14 @@ static int set_egress_sakey_record(struct aq_hw_s *hw,
- 	ret = set_raw_egress_record(hw, packed_record, 8, 2,
- 				    ROWOFFSET_EGRESSSAKEYRECORD + table_index);
- 	if (unlikely(ret))
--		return ret;
-+		goto clear_key;
- 	ret = set_raw_egress_record(hw, packed_record + 8, 8, 2,
- 				    ROWOFFSET_EGRESSSAKEYRECORD + table_index -
- 					    32);
--	if (unlikely(ret))
--		return ret;
- 
--	return 0;
-+clear_key:
-+	memzero_explicit(packed_record, sizeof(packed_record));
-+	return ret;
- }
- 
- int aq_mss_set_egress_sakey_record(struct aq_hw_s *hw,
+ EXPORT_SYMBOL_GPL(macvlan_common_newlink);
 -- 
 2.35.1
 
