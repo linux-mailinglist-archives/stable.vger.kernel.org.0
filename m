@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F429627EE8
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:53:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D613627EE9
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:53:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237468AbiKNMxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:53:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45458 "EHLO
+        id S237466AbiKNMxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:53:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237466AbiKNMxG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:53:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 200AE252B5
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:53:05 -0800 (PST)
+        with ESMTP id S237461AbiKNMxJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:53:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD80F25C47
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:53:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD798B80EBC
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:53:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16107C433C1;
-        Mon, 14 Nov 2022 12:53:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8893FB80EAF
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:53:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A00C433D6;
+        Mon, 14 Nov 2022 12:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430382;
-        bh=s2Aja3Zlk1oYU412sCWCYubleI2enra5LK8grBc+kH0=;
+        s=korg; t=1668430386;
+        bh=kr0NInOYHKqg37L7JDKRzvT34L7qcZid0EVj57D1Sn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BFK6EFTkx9Ch8KRoNY/ZMNoG4I10YSlXiREr9el4BoRfmYrDK88H9zxv0LnxYZb2X
-         C4HjzDBVUoHPhfg7TwqyRQmy1J7RYIvL5yfA6kJbW6nt7QkWjeg4D+7pPxdQtI5CHs
-         V1LBmBpncEo3ajuYY07EJL6rehwYvFU1Lf+0s8DM=
+        b=aYYOVN08NmSs5kBc2nZs48lpD8SW10v92iLXh+3idioVIoBJ1JvoSigsB22xrdm4w
+         u+r1rYCStgHxPS2YKAS/KPp6IpKcJ8E/7mjRDZJdZ5vVmAcUv5+dNszkXDr2oxw7ML
+         KkRuTsSeaGDdBBTUpfKvNZ81rzoWeqI/DHDld09k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Jakub Sitnicki <jakub@cloudflare.com>,
+        Wang Yufen <wangyufen@huawei.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Bill Wendling <morbo@google.com>, Lorenz Bauer <oss@lmb.io>,
+        John Fastabend <john.fastabend@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 013/131] bpf, verifier: Fix memory leak in array reallocation for stack state
-Date:   Mon, 14 Nov 2022 13:44:42 +0100
-Message-Id: <20221114124449.295365530@linuxfoundation.org>
+Subject: [PATCH 5.15 014/131] bpf, sockmap: Fix the sk->sk_forward_alloc warning of sk_stream_kill_queues
+Date:   Mon, 14 Nov 2022 13:44:43 +0100
+Message-Id: <20221114124449.342299181@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
 References: <20221114124448.729235104@linuxfoundation.org>
@@ -55,74 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 42378a9ca55347102bbf86708776061d8fe3ece2 ]
+[ Upstream commit 8ec95b94716a1e4d126edc3fb2bc426a717e2dba ]
 
-If an error (NULL) is returned by krealloc(), callers of realloc_array()
-were setting their allocation pointers to NULL, but on error krealloc()
-does not touch the original allocation. This would result in a memory
-resource leak. Instead, free the old allocation on the error handling
-path.
+When running `test_sockmap` selftests, the following warning appears:
 
-The memory leak information is as follows as also reported by Zhengchao:
+  WARNING: CPU: 2 PID: 197 at net/core/stream.c:205 sk_stream_kill_queues+0xd3/0xf0
+  Call Trace:
+  <TASK>
+  inet_csk_destroy_sock+0x55/0x110
+  tcp_rcv_state_process+0xd28/0x1380
+  ? tcp_v4_do_rcv+0x77/0x2c0
+  tcp_v4_do_rcv+0x77/0x2c0
+  __release_sock+0x106/0x130
+  __tcp_close+0x1a7/0x4e0
+  tcp_close+0x20/0x70
+  inet_release+0x3c/0x80
+  __sock_release+0x3a/0xb0
+  sock_close+0x14/0x20
+  __fput+0xa3/0x260
+  task_work_run+0x59/0xb0
+  exit_to_user_mode_prepare+0x1b3/0x1c0
+  syscall_exit_to_user_mode+0x19/0x50
+  do_syscall_64+0x48/0x90
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-  unreferenced object 0xffff888019801800 (size 256):
-  comm "bpf_repo", pid 6490, jiffies 4294959200 (age 17.170s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000b211474b>] __kmalloc_node_track_caller+0x45/0xc0
-    [<0000000086712a0b>] krealloc+0x83/0xd0
-    [<00000000139aab02>] realloc_array+0x82/0xe2
-    [<00000000b1ca41d1>] grow_stack_state+0xfb/0x186
-    [<00000000cd6f36d2>] check_mem_access.cold+0x141/0x1341
-    [<0000000081780455>] do_check_common+0x5358/0xb350
-    [<0000000015f6b091>] bpf_check.cold+0xc3/0x29d
-    [<000000002973c690>] bpf_prog_load+0x13db/0x2240
-    [<00000000028d1644>] __sys_bpf+0x1605/0x4ce0
-    [<00000000053f29bd>] __x64_sys_bpf+0x75/0xb0
-    [<0000000056fedaf5>] do_syscall_64+0x35/0x80
-    [<000000002bd58261>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+The root case is in commit 84472b436e76 ("bpf, sockmap: Fix more uncharged
+while msg has more_data"), where I used msg->sg.size to replace the tosend,
+causing breakage:
 
-Fixes: c69431aab67a ("bpf: verifier: Improve function state reallocation")
-Reported-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reported-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+  if (msg->apply_bytes && msg->apply_bytes < tosend)
+    tosend = psock->apply_bytes;
+
+Fixes: 84472b436e76 ("bpf, sockmap: Fix more uncharged while msg has more_data")
+Reported-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Bill Wendling <morbo@google.com>
-Cc: Lorenz Bauer <oss@lmb.io>
-Link: https://lore.kernel.org/bpf/20221029025433.2533810-1-keescook@chromium.org
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/1667266296-8794-1-git-send-email-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ net/ipv4/tcp_bpf.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index c3a4158e838e..259248306056 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -770,12 +770,17 @@ static void *copy_array(void *dst, const void *src, size_t n, size_t size, gfp_t
-  */
- static void *realloc_array(void *arr, size_t old_n, size_t new_n, size_t size)
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index 2c597a4e429a..72892ebe9607 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -279,7 +279,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
  {
-+	void *new_arr;
-+
- 	if (!new_n || old_n == new_n)
- 		goto out;
+ 	bool cork = false, enospc = sk_msg_full(msg);
+ 	struct sock *sk_redir;
+-	u32 tosend, delta = 0;
++	u32 tosend, origsize, sent, delta = 0;
+ 	u32 eval = __SK_NONE;
+ 	int ret;
  
--	arr = krealloc_array(arr, new_n, size, GFP_KERNEL);
--	if (!arr)
-+	new_arr = krealloc_array(arr, new_n, size, GFP_KERNEL);
-+	if (!new_arr) {
-+		kfree(arr);
- 		return NULL;
-+	}
-+	arr = new_arr;
+@@ -334,10 +334,12 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
+ 			cork = true;
+ 			psock->cork = NULL;
+ 		}
+-		sk_msg_return(sk, msg, msg->sg.size);
++		sk_msg_return(sk, msg, tosend);
+ 		release_sock(sk);
  
- 	if (new_n > old_n)
- 		memset(arr + old_n * size, 0, (new_n - old_n) * size);
++		origsize = msg->sg.size;
+ 		ret = tcp_bpf_sendmsg_redir(sk_redir, msg, tosend, flags);
++		sent = origsize - msg->sg.size;
+ 
+ 		if (eval == __SK_REDIRECT)
+ 			sock_put(sk_redir);
+@@ -376,7 +378,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
+ 		    msg->sg.data[msg->sg.start].page_link &&
+ 		    msg->sg.data[msg->sg.start].length) {
+ 			if (eval == __SK_REDIRECT)
+-				sk_mem_charge(sk, msg->sg.size);
++				sk_mem_charge(sk, tosend - sent);
+ 			goto more_data;
+ 		}
+ 	}
 -- 
 2.35.1
 
