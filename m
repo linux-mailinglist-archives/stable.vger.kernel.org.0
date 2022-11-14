@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B68627B32
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:58:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3576627B33
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:58:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236087AbiKNK6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 05:58:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53802 "EHLO
+        id S236088AbiKNK6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 05:58:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236178AbiKNK6l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:58:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C487F5AA
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:58:39 -0800 (PST)
+        with ESMTP id S236156AbiKNK6t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:58:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2DBFC3
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:58:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCA2A60FFA
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:58:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFE55C433C1;
-        Mon, 14 Nov 2022 10:58:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16B62B80DE5
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:58:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14444C433C1;
+        Mon, 14 Nov 2022 10:58:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668423518;
-        bh=4bhyY0BJonScBNIOdjrwiy530qLOiPEtThvD504WdvQ=;
+        s=korg; t=1668423525;
+        bh=rvFLXx+PaCRNjfqxm/WXfaSbvDlSsn6aFt0NXV+vUhQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=cA4sKW1yC3wjQGdEFyvPf5p6wKiCnn7gMgeKY0wZeNn26hjTEHd6jcfl8ci4+PBNv
-         V2f64m9rYDjnTzSCIQXF8IV2a4tn+MVUvAIT5RKxX0PrOYhrDwSVXxt3o/v3rxxHCf
-         GUsmv8aLkMorzGm22aITarp4ZsSdyYPJ6NfIJUdY=
-Subject: FAILED: patch "[PATCH] KVM: x86/pmu: Do not speculatively query Intel GP PMCs that" failed to apply to 5.4-stable tree
-To:     likexu@tencent.com, jmattson@google.com, pbonzini@redhat.com,
-        vkuznets@redhat.com
+        b=JmzgBNcyGFswJPDxykUq0VPv4YfvzOzOSNKQYzVX7vwDq0rQfJhvAGP3Ho9BhLDDR
+         cKOIiL8xZuw4Kl8P5WI+QTyGSSjDjoCKOuw6DmactoaoOSEaZMsGcXLhFODBYX3fjl
+         R73aLjK/3ZMXLRlB4zFHS0nLhhQzbnXETgXaLXlw=
+Subject: FAILED: patch "[PATCH] KVM: x86: use a separate asm-offsets.c file" failed to apply to 5.15-stable tree
+To:     pbonzini@redhat.com, seanjc@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Nov 2022 11:58:24 +0100
-Message-ID: <166842350449237@kroah.com>
+Date:   Mon, 14 Nov 2022 11:58:37 +0100
+Message-ID: <166842351793119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,23 +47,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-8631ef59b622 ("KVM: x86/pmu: Do not speculatively query Intel GP PMCs that don't exist yet")
-902caeb6841a ("KVM: x86/pmu: Add PEBS_DATA_CFG MSR emulation to support adaptive PEBS")
-8183a538cd95 ("KVM: x86/pmu: Add IA32_DS_AREA MSR emulation to support guest DS")
-6ebe44366bde ("KVM: x86/pmu: Adjust precise_ip to emulate Ice Lake guest PDIR counter")
-79f3e3b58386 ("KVM: x86/pmu: Reprogram PEBS event to emulate guest PEBS counter")
-c59a1f106f5c ("KVM: x86/pmu: Add IA32_PEBS_ENABLE MSR emulation for extended PEBS")
-0d23dc34a7ce ("x86/perf/core: Add pebs_capable to store valid PEBS_COUNTER_MASK value")
-2c985527dd8d ("KVM: x86/pmu: Introduce the ctrl_mask value for fixed counter")
-39a4d779546a ("perf/x86/core: Pass "struct kvm_pmu *" to determine the guest values")
-38904911e864 ("Merge tag 'for-linus' of git://git.kernel.org/pub/scm/virt/kvm/kvm")
+debc5a1ec0d1 ("KVM: x86: use a separate asm-offsets.c file")
+bb06650634d3 ("KVM: VMX: Convert launched argument to flags")
+8bd200d23ec4 ("KVM: VMX: Flatten __vmx_vcpu_run()")
+527a534c7326 ("x86/tdx: Provide common base for SEAMCALL and TDCALL C wrappers")
+59bd54a84d15 ("x86/tdx: Detect running as a TDX guest in early boot")
+6198311093da ("x86/cc: Move arch/x86/{kernel/cc_platform.c => coco/core.c}")
+f94909ceb1ed ("x86: Prepare asm files for straight-line-speculation")
+22da5a07c75e ("x86/lib/atomic64_386_32: Rename things")
+1367afaa2ee9 ("x86/entry: Use the correct fence macro after swapgs in kernel CR3")
+c07e45553da1 ("x86/entry: Add a fence for kernel entry SWAPGS in paranoid_entry()")
+6e5772c8d9cf ("Merge tag 'x86_cc_for_v5.16_rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip")
 
 thanks,
 
@@ -72,75 +72,113 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8631ef59b62290c7d88e7209e35dfb47f33f4902 Mon Sep 17 00:00:00 2001
-From: Like Xu <likexu@tencent.com>
-Date: Mon, 19 Sep 2022 17:10:06 +0800
-Subject: [PATCH] KVM: x86/pmu: Do not speculatively query Intel GP PMCs that
- don't exist yet
+From debc5a1ec0d195ffea70d11efeffb713de9fdbc7 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Tue, 8 Nov 2022 09:44:53 +0100
+Subject: [PATCH] KVM: x86: use a separate asm-offsets.c file
 
-The SDM lists an architectural MSR IA32_CORE_CAPABILITIES (0xCF)
-that limits the theoretical maximum value of the Intel GP PMC MSRs
-allocated at 0xC1 to 14; likewise the Intel April 2022 SDM adds
-IA32_OVERCLOCKING_STATUS at 0x195 which limits the number of event
-selection MSRs to 15 (0x186-0x194).
+This already removes an ugly #include "" from asm-offsets.c, but
+especially it avoids a future error when trying to define asm-offsets
+for KVM's svm/svm.h header.
 
-Limiting the maximum number of counters to 14 or 18 based on the currently
-allocated MSRs is clearly fragile, and it seems likely that Intel will
-even place PMCs 8-15 at a completely different range of MSR indices.
-So stop at the maximum number of GP PMCs supported today on Intel
-processors.
+This would not work for kernel/asm-offsets.c, because svm/svm.h
+includes kvm_cache_regs.h which is not in the include path when
+compiling asm-offsets.c.  The problem is not there if the .c file is
+in arch/x86/kvm.
 
-There are some machines, like Intel P4 with non Architectural PMU, that
-may indeed have 18 counters, but those counters are in a completely
-different MSR address range and are not supported by KVM.
-
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Suggested-by: Sean Christopherson <seanjc@google.com>
 Cc: stable@vger.kernel.org
-Fixes: cf05a67b68b8 ("KVM: x86: omit "impossible" pmu MSRs from MSR list")
-Suggested-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Like Xu <likexu@tencent.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20220919091008.60695-1-likexu@tencent.com>
+Fixes: a149180fbcf3 ("x86: Add magic AMD return-thunk")
+Reviewed-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 5f5eb577d583..73716fab120f 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1442,20 +1442,10 @@ static const u32 msrs_to_save_all[] = {
- 	MSR_ARCH_PERFMON_PERFCTR0 + 2, MSR_ARCH_PERFMON_PERFCTR0 + 3,
- 	MSR_ARCH_PERFMON_PERFCTR0 + 4, MSR_ARCH_PERFMON_PERFCTR0 + 5,
- 	MSR_ARCH_PERFMON_PERFCTR0 + 6, MSR_ARCH_PERFMON_PERFCTR0 + 7,
--	MSR_ARCH_PERFMON_PERFCTR0 + 8, MSR_ARCH_PERFMON_PERFCTR0 + 9,
--	MSR_ARCH_PERFMON_PERFCTR0 + 10, MSR_ARCH_PERFMON_PERFCTR0 + 11,
--	MSR_ARCH_PERFMON_PERFCTR0 + 12, MSR_ARCH_PERFMON_PERFCTR0 + 13,
--	MSR_ARCH_PERFMON_PERFCTR0 + 14, MSR_ARCH_PERFMON_PERFCTR0 + 15,
--	MSR_ARCH_PERFMON_PERFCTR0 + 16, MSR_ARCH_PERFMON_PERFCTR0 + 17,
- 	MSR_ARCH_PERFMON_EVENTSEL0, MSR_ARCH_PERFMON_EVENTSEL1,
- 	MSR_ARCH_PERFMON_EVENTSEL0 + 2, MSR_ARCH_PERFMON_EVENTSEL0 + 3,
- 	MSR_ARCH_PERFMON_EVENTSEL0 + 4, MSR_ARCH_PERFMON_EVENTSEL0 + 5,
- 	MSR_ARCH_PERFMON_EVENTSEL0 + 6, MSR_ARCH_PERFMON_EVENTSEL0 + 7,
--	MSR_ARCH_PERFMON_EVENTSEL0 + 8, MSR_ARCH_PERFMON_EVENTSEL0 + 9,
--	MSR_ARCH_PERFMON_EVENTSEL0 + 10, MSR_ARCH_PERFMON_EVENTSEL0 + 11,
--	MSR_ARCH_PERFMON_EVENTSEL0 + 12, MSR_ARCH_PERFMON_EVENTSEL0 + 13,
--	MSR_ARCH_PERFMON_EVENTSEL0 + 14, MSR_ARCH_PERFMON_EVENTSEL0 + 15,
--	MSR_ARCH_PERFMON_EVENTSEL0 + 16, MSR_ARCH_PERFMON_EVENTSEL0 + 17,
- 	MSR_IA32_PEBS_ENABLE, MSR_IA32_DS_AREA, MSR_PEBS_DATA_CFG,
+diff --git a/arch/x86/kernel/asm-offsets.c b/arch/x86/kernel/asm-offsets.c
+index cb50589a7102..437308004ef2 100644
+--- a/arch/x86/kernel/asm-offsets.c
++++ b/arch/x86/kernel/asm-offsets.c
+@@ -19,7 +19,6 @@
+ #include <asm/suspend.h>
+ #include <asm/tlbflush.h>
+ #include <asm/tdx.h>
+-#include "../kvm/vmx/vmx.h"
  
- 	MSR_K7_EVNTSEL0, MSR_K7_EVNTSEL1, MSR_K7_EVNTSEL2, MSR_K7_EVNTSEL3,
-@@ -7041,12 +7031,12 @@ static void kvm_init_msr_list(void)
- 				intel_pt_validate_hw_cap(PT_CAP_num_address_ranges) * 2)
- 				continue;
- 			break;
--		case MSR_ARCH_PERFMON_PERFCTR0 ... MSR_ARCH_PERFMON_PERFCTR0 + 17:
-+		case MSR_ARCH_PERFMON_PERFCTR0 ... MSR_ARCH_PERFMON_PERFCTR0 + 7:
- 			if (msrs_to_save_all[i] - MSR_ARCH_PERFMON_PERFCTR0 >=
- 			    min(INTEL_PMC_MAX_GENERIC, kvm_pmu_cap.num_counters_gp))
- 				continue;
- 			break;
--		case MSR_ARCH_PERFMON_EVENTSEL0 ... MSR_ARCH_PERFMON_EVENTSEL0 + 17:
-+		case MSR_ARCH_PERFMON_EVENTSEL0 ... MSR_ARCH_PERFMON_EVENTSEL0 + 7:
- 			if (msrs_to_save_all[i] - MSR_ARCH_PERFMON_EVENTSEL0 >=
- 			    min(INTEL_PMC_MAX_GENERIC, kvm_pmu_cap.num_counters_gp))
- 				continue;
+ #ifdef CONFIG_XEN
+ #include <xen/interface/xen.h>
+@@ -108,9 +107,4 @@ static void __used common(void)
+ 	OFFSET(TSS_sp0, tss_struct, x86_tss.sp0);
+ 	OFFSET(TSS_sp1, tss_struct, x86_tss.sp1);
+ 	OFFSET(TSS_sp2, tss_struct, x86_tss.sp2);
+-
+-	if (IS_ENABLED(CONFIG_KVM_INTEL)) {
+-		BLANK();
+-		OFFSET(VMX_spec_ctrl, vcpu_vmx, spec_ctrl);
+-	}
+ }
+diff --git a/arch/x86/kvm/.gitignore b/arch/x86/kvm/.gitignore
+new file mode 100644
+index 000000000000..615d6ff35c00
+--- /dev/null
++++ b/arch/x86/kvm/.gitignore
+@@ -0,0 +1,2 @@
++/kvm-asm-offsets.s
++/kvm-asm-offsets.h
+diff --git a/arch/x86/kvm/Makefile b/arch/x86/kvm/Makefile
+index 30f244b64523..a02cf9baacc8 100644
+--- a/arch/x86/kvm/Makefile
++++ b/arch/x86/kvm/Makefile
+@@ -34,3 +34,12 @@ endif
+ obj-$(CONFIG_KVM)	+= kvm.o
+ obj-$(CONFIG_KVM_INTEL)	+= kvm-intel.o
+ obj-$(CONFIG_KVM_AMD)	+= kvm-amd.o
++
++AFLAGS_vmx/vmenter.o    := -iquote $(obj)
++$(obj)/vmx/vmenter.o: $(obj)/kvm-asm-offsets.h
++
++$(obj)/kvm-asm-offsets.h: $(obj)/kvm-asm-offsets.s FORCE
++	$(call filechk,offsets,__KVM_ASM_OFFSETS_H__)
++
++targets += kvm-asm-offsets.s
++clean-files += kvm-asm-offsets.h
+diff --git a/arch/x86/kvm/kvm-asm-offsets.c b/arch/x86/kvm/kvm-asm-offsets.c
+new file mode 100644
+index 000000000000..9d84f2b32d7f
+--- /dev/null
++++ b/arch/x86/kvm/kvm-asm-offsets.c
+@@ -0,0 +1,18 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Generate definitions needed by assembly language modules.
++ * This code generates raw asm output which is post-processed to extract
++ * and format the required data.
++ */
++#define COMPILE_OFFSETS
++
++#include <linux/kbuild.h>
++#include "vmx/vmx.h"
++
++static void __used common(void)
++{
++	if (IS_ENABLED(CONFIG_KVM_INTEL)) {
++		BLANK();
++		OFFSET(VMX_spec_ctrl, vcpu_vmx, spec_ctrl);
++	}
++}
+diff --git a/arch/x86/kvm/vmx/vmenter.S b/arch/x86/kvm/vmx/vmenter.S
+index 8477d8bdd69c..0b5db4de4d09 100644
+--- a/arch/x86/kvm/vmx/vmenter.S
++++ b/arch/x86/kvm/vmx/vmenter.S
+@@ -1,12 +1,12 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ #include <linux/linkage.h>
+ #include <asm/asm.h>
+-#include <asm/asm-offsets.h>
+ #include <asm/bitsperlong.h>
+ #include <asm/kvm_vcpu_regs.h>
+ #include <asm/nospec-branch.h>
+ #include <asm/percpu.h>
+ #include <asm/segment.h>
++#include "kvm-asm-offsets.h"
+ #include "run_flags.h"
+ 
+ #define WORD_SIZE (BITS_PER_LONG / 8)
 
