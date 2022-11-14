@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98699627F3D
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:57:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6607627EA1
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:49:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237562AbiKNM46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:56:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49748 "EHLO
+        id S237248AbiKNMtt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:49:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237610AbiKNM4s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:56:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38DC28733
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:56:43 -0800 (PST)
+        with ESMTP id S237380AbiKNMts (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:49:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D62702AF2
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:49:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4AB1B80EB9
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:56:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05093C433C1;
-        Mon, 14 Nov 2022 12:56:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 724A461154
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:49:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53977C433D7;
+        Mon, 14 Nov 2022 12:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430601;
-        bh=nmdH8HIr5iekzkjdho/Eps/MlI/1lSIDj3a6lAbClhk=;
+        s=korg; t=1668430186;
+        bh=YnaSHKFbIshoO9+bOSUe3RvsKn81p/tl9zRdqedM/8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYpSBwno6EE65pgCr7bx0hzH2a1rZUKour0R6VdnUsUbjbgXiT+y7RI6FgK+Hg3xi
-         OJGTZhoTNnoa7BO0A5EjVAEWdgVSzKQOiISaAPW9i87V003hIG21pSzoRgtD/scymQ
-         UPcR9sSgaUK7hF9N99Q04nB//X9zug9hoJKZK5Pk=
+        b=oYNnRf9gjR8U2EgUR2cvot9ZQTQ10FhFz5X4V3VqHp3YFPHP/zfERgZ8dZFpgkmfQ
+         JmdY3uYy+buBajnt1Pa6ShdsnbfMJO4aTQrcclc7igKShCNUsDXkuNQVBHPMdocukT
+         bJepPCGA57k3xx26l74d2QkKbNIakXm2kWuHnbik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 077/131] ethernet: tundra: free irq when alloc ring failed in tsi108_open()
+Subject: [PATCH 5.10 52/95] riscv: Enable CMA support
 Date:   Mon, 14 Nov 2022 13:45:46 +0100
-Message-Id: <20221114124451.938706976@linuxfoundation.org>
+Message-Id: <20221114124444.693709445@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-[ Upstream commit acce40037041f97baad18142bb253064491ebde3 ]
+[ Upstream commit da815582cf4594e96defa1cddb72cd00b1e7aac5 ]
 
-When alloc tx/rx ring failed in tsi108_open(), it doesn't free irq. Fix
-it.
+riscv has selected HAVE_DMA_CONTIGUOUS, but doesn't call
+dma_contiguous_reserve().  This calls dma_contiguous_reserve(), which
+enables CMA.
 
-Fixes: 5e123b844a1c ("[PATCH] Add tsi108/9 On Chip Ethernet device driver support")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221109044016.126866-1-shaozhengchao@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Stable-dep-of: 50e63dd8ed92 ("riscv: fix reserved memory setup")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/tundra/tsi108_eth.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/riscv/mm/init.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/tundra/tsi108_eth.c b/drivers/net/ethernet/tundra/tsi108_eth.c
-index cf0917b29e30..f175c098698d 100644
---- a/drivers/net/ethernet/tundra/tsi108_eth.c
-+++ b/drivers/net/ethernet/tundra/tsi108_eth.c
-@@ -1302,12 +1302,15 @@ static int tsi108_open(struct net_device *dev)
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index e8921e78a292..56314e82f051 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -13,6 +13,7 @@
+ #include <linux/of_fdt.h>
+ #include <linux/libfdt.h>
+ #include <linux/set_memory.h>
++#include <linux/dma-map-ops.h>
  
- 	data->rxring = dma_alloc_coherent(&data->pdev->dev, rxring_size,
- 					  &data->rxdma, GFP_KERNEL);
--	if (!data->rxring)
-+	if (!data->rxring) {
-+		free_irq(data->irq_num, dev);
- 		return -ENOMEM;
-+	}
+ #include <asm/fixmap.h>
+ #include <asm/tlbflush.h>
+@@ -41,13 +42,14 @@ struct pt_alloc_ops {
+ #endif
+ };
  
- 	data->txring = dma_alloc_coherent(&data->pdev->dev, txring_size,
- 					  &data->txdma, GFP_KERNEL);
- 	if (!data->txring) {
-+		free_irq(data->irq_num, dev);
- 		dma_free_coherent(&data->pdev->dev, rxring_size, data->rxring,
- 				    data->rxdma);
- 		return -ENOMEM;
++static phys_addr_t dma32_phys_limit __ro_after_init;
++
+ static void __init zone_sizes_init(void)
+ {
+ 	unsigned long max_zone_pfns[MAX_NR_ZONES] = { 0, };
+ 
+ #ifdef CONFIG_ZONE_DMA32
+-	max_zone_pfns[ZONE_DMA32] = PFN_DOWN(min(4UL * SZ_1G,
+-			(unsigned long) PFN_PHYS(max_low_pfn)));
++	max_zone_pfns[ZONE_DMA32] = PFN_DOWN(dma32_phys_limit);
+ #endif
+ 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
+ 
+@@ -193,6 +195,7 @@ void __init setup_bootmem(void)
+ 
+ 	max_pfn = PFN_DOWN(dram_end);
+ 	max_low_pfn = max_pfn;
++	dma32_phys_limit = min(4UL * SZ_1G, (unsigned long)PFN_PHYS(max_low_pfn));
+ 	set_max_mapnr(max_low_pfn);
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+@@ -206,6 +209,7 @@ void __init setup_bootmem(void)
+ 	memblock_reserve(dtb_early_pa, fdt_totalsize(dtb_early_va));
+ 
+ 	early_init_fdt_scan_reserved_mem();
++	dma_contiguous_reserve(dma32_phys_limit);
+ 	memblock_allow_resize();
+ 	memblock_dump_all();
+ }
 -- 
 2.35.1
 
