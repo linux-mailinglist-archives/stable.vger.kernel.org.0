@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B791B627EF6
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:53:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 703FC627E64
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:47:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237479AbiKNMxy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:53:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46438 "EHLO
+        id S237260AbiKNMrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:47:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237480AbiKNMxx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:53:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A11311A12
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:53:53 -0800 (PST)
+        with ESMTP id S237402AbiKNMrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:47:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54F9F6456
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:47:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB0E86115D
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:53:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A912AC433C1;
-        Mon, 14 Nov 2022 12:53:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3FB0B80EBB
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:47:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 594F7C433D6;
+        Mon, 14 Nov 2022 12:47:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430432;
-        bh=ANNuYABjHgvr/IYK6TSQ+51BjL3nCDEeqEZLLPjqaYg=;
+        s=korg; t=1668430033;
+        bh=wspomMSRnZUBG7cHQ8nPBwItbd1jFaK7Pti6INzHzr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vEb5z29WHUz6dg/SVoK6CpOrV2xxgkgqGUYxk8sSFzlzrasKwl6YUVqF6OGgY9AoA
-         63QVA36lZLlX/50PWVADkwcY+l+rJv4aEGxGwS3M4SQuytaNbRpa2IvKkXIG1GGLRp
-         qHL8m+JWuo1XsFK9bfhcgYdpS5heILF1fMqfkyn0=
+        b=NqYTA5ojGPvJ3IIxDY+b/JeifaWoKJD00YBizgkdRC7upHqjGJ4k3LDKuI0YlIlj8
+         Qc6zWBptBRfne+LE41U3d/ctXspq+lJ3qFIbS4jczZpTyqpLudOOnAWbIFEDlV7iOp
+         IahWdl4BnhRV7HzEIhFIAKskeuBOBu/ohVBoVhbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sabrina Dubroca <sd@queasysnail.net>,
-        Antoine Tenart <atenart@kernel.org>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Frank Sorenson <fsorenso@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 026/131] macsec: fix detection of RXSCs when toggling offloading
+Subject: [PATCH 5.10 01/95] fuse: fix readdir cache race
 Date:   Mon, 14 Nov 2022 13:44:55 +0100
-Message-Id: <20221114124449.792952146@linuxfoundation.org>
+Message-Id: <20221114124442.590148413@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,42 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 80df4706357a5a06bbbc70273bf2611df1ceee04 ]
+[ Upstream commit 9fa248c65bdbf5af0a2f74dd38575acfc8dfd2bf ]
 
-macsec_is_configured incorrectly uses secy->n_rx_sc to check if some
-RXSCs exist. secy->n_rx_sc only counts the number of active RXSCs, but
-there can also be inactive SCs as well, which may be stored in the
-driver (in case we're disabling offloading), or would have to be
-pushed to the device (in case we're trying to enable offloading).
+There's a race in fuse's readdir cache that can result in an uninitilized
+page being read.  The page lock is supposed to prevent this from happening
+but in the following case it doesn't:
 
-As long as RXSCs active on creation and never turned off, the issue is
-not visible.
+Two fuse_add_dirent_to_cache() start out and get the same parameters
+(size=0,offset=0).  One of them wins the race to create and lock the page,
+after which it fills in data, sets rdc.size and unlocks the page.
 
-Fixes: dcb780fb2795 ("net: macsec: add nla support for changing the offloading selection")
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Reviewed-by: Antoine Tenart <atenart@kernel.org>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In the meantime the page gets evicted from the cache before the other
+instance gets to run.  That one also creates the page, but finds the
+size to be mismatched, bails out and leaves the uninitialized page in the
+cache.
+
+Fix by marking a filled page uptodate and ignoring non-uptodate pages.
+
+Reported-by: Frank Sorenson <fsorenso@redhat.com>
+Fixes: 5d7bc7e8680c ("fuse: allow using readdir cache")
+Cc: <stable@vger.kernel.org> # v4.20
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fuse/readdir.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 328f6a172b84..af9b5eaf5b94 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -2558,7 +2558,7 @@ static bool macsec_is_configured(struct macsec_dev *macsec)
- 	struct macsec_tx_sc *tx_sc = &secy->tx_sc;
- 	int i;
+diff --git a/fs/fuse/readdir.c b/fs/fuse/readdir.c
+index bc267832310c..d5294e663df5 100644
+--- a/fs/fuse/readdir.c
++++ b/fs/fuse/readdir.c
+@@ -77,8 +77,10 @@ static void fuse_add_dirent_to_cache(struct file *file,
+ 		goto unlock;
  
--	if (secy->n_rx_sc > 0)
-+	if (secy->rx_sc)
- 		return true;
+ 	addr = kmap_atomic(page);
+-	if (!offset)
++	if (!offset) {
+ 		clear_page(addr);
++		SetPageUptodate(page);
++	}
+ 	memcpy(addr + offset, dirent, reclen);
+ 	kunmap_atomic(addr);
+ 	fi->rdc.size = (index << PAGE_SHIFT) + offset + reclen;
+@@ -516,6 +518,12 @@ static int fuse_readdir_cached(struct file *file, struct dir_context *ctx)
  
- 	for (i = 0; i < MACSEC_NUM_AN; i++)
+ 	page = find_get_page_flags(file->f_mapping, index,
+ 				   FGP_ACCESSED | FGP_LOCK);
++	/* Page gone missing, then re-added to cache, but not initialized? */
++	if (page && !PageUptodate(page)) {
++		unlock_page(page);
++		put_page(page);
++		page = NULL;
++	}
+ 	spin_lock(&fi->rdc.lock);
+ 	if (!page) {
+ 		/*
 -- 
 2.35.1
 
