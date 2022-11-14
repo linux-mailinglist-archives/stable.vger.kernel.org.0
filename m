@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D93962808A
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:06:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 362176280B6
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:08:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237837AbiKNNGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:06:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33038 "EHLO
+        id S237868AbiKNNIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:08:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237823AbiKNNGm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:06:42 -0500
+        with ESMTP id S237870AbiKNNI2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:08:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 176F92AC45
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:06:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C152C2
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:08:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7C13B80EA5
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:06:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 351F3C433D6;
-        Mon, 14 Nov 2022 13:06:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39E88B80EA6
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:08:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84670C433D6;
+        Mon, 14 Nov 2022 13:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431197;
-        bh=4zOZaICHk9I04hLwRlSuIbsbCX8KoUwUwTR2ReQj15I=;
+        s=korg; t=1668431301;
+        bh=t6HQoBP45Pxb5RIBJYmnGomTSikW0r5YCalU0pVR7H4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mK9yKjYT9eBVmNz8zcPu5UENsiNw727u/UsKNAvY1S6MixxMzT2ilBG9hMqOdynmv
-         m2x/7ulRXSZMvp4hj9w69OvP1gd8R7XXnJ0mXyO5yPztpPiI8afN0KEeOtyesSO3x5
-         HBGuHaPcGn0GBSYx0HjRZEsIXEvhrd/zg00fIsMA=
+        b=QWp2WloQ5YloofiuaKIkHtGNw3Lz4WCF2wgskQmp1JvIX7lW/wV8jsKZ8BlLihCs2
+         /2LHejv02b/51bTZg8ExG3+DKQm2ToMPEScfBVpG7I+SWgPliTI8sUts8bzCXbrWj5
+         JxrQ4lXtpL/jEN9/D0pSFh0YyNJJ+Jvwahro6hGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+f816fa82f8783f7a02bb@syzkaller.appspotmail.com,
-        Shigeru Yoshida <syoshida@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.0 135/190] nilfs2: fix use-after-free bug of ns_writer on remount
-Date:   Mon, 14 Nov 2022 13:45:59 +0100
-Message-Id: <20221114124504.702240627@linuxfoundation.org>
+        patches@lists.linux.dev, Matthew Auld <matthew.auld@intel.com>,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 6.0 136/190] drm/i915/dmabuf: fix sg_table handling in map_dma_buf
+Date:   Mon, 14 Nov 2022 13:46:00 +0100
+Message-Id: <20221114124504.733888965@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -55,118 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Matthew Auld <matthew.auld@intel.com>
 
-commit 8cccf05fe857a18ee26e20d11a8455a73ffd4efd upstream.
+commit f90daa975911961b65070ec72bd7dd8d448f9ef7 upstream.
 
-If a nilfs2 filesystem is downgraded to read-only due to metadata
-corruption on disk and is remounted read/write, or if emergency read-only
-remount is performed, detaching a log writer and synchronizing the
-filesystem can be done at the same time.
+We need to iterate over the original entries here for the sg_table,
+pulling out the struct page for each one, to be remapped. However
+currently this incorrectly iterates over the final dma mapped entries,
+which is likely just one gigantic sg entry if the iommu is enabled,
+leading to us only mapping the first struct page (and any physically
+contiguous pages following it), even if there is potentially lots more
+data to follow.
 
-In these cases, use-after-free of the log writer (hereinafter
-nilfs->ns_writer) can happen as shown in the scenario below:
-
- Task1                               Task2
- --------------------------------    ------------------------------
- nilfs_construct_segment
-   nilfs_segctor_sync
-     init_wait
-     init_waitqueue_entry
-     add_wait_queue
-     schedule
-                                     nilfs_remount (R/W remount case)
-				       nilfs_attach_log_writer
-                                         nilfs_detach_log_writer
-                                           nilfs_segctor_destroy
-                                             kfree
-     finish_wait
-       _raw_spin_lock_irqsave
-         __raw_spin_lock_irqsave
-           do_raw_spin_lock
-             debug_spin_lock_before  <-- use-after-free
-
-While Task1 is sleeping, nilfs->ns_writer is freed by Task2.  After Task1
-waked up, Task1 accesses nilfs->ns_writer which is already freed.  This
-scenario diagram is based on the Shigeru Yoshida's post [1].
-
-This patch fixes the issue by not detaching nilfs->ns_writer on remount so
-that this UAF race doesn't happen.  Along with this change, this patch
-also inserts a few necessary read-only checks with superblock instance
-where only the ns_writer pointer was used to check if the filesystem is
-read-only.
-
-Link: https://syzkaller.appspot.com/bug?id=79a4c002e960419ca173d55e863bd09e8112df8b
-Link: https://lkml.kernel.org/r/20221103141759.1836312-1-syoshida@redhat.com [1]
-Link: https://lkml.kernel.org/r/20221104142959.28296-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+f816fa82f8783f7a02bb@syzkaller.appspotmail.com
-Reported-by: Shigeru Yoshida <syoshida@redhat.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7306
+Fixes: 1286ff739773 ("i915: add dmabuf/prime buffer sharing support.")
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Cc: <stable@vger.kernel.org> # v3.5+
+Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221028155029.494736-1-matthew.auld@intel.com
+(cherry picked from commit 28d52f99bbca7227008cf580c9194c9b3516968e)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/segment.c |   15 ++++++++-------
- fs/nilfs2/super.c   |    2 --
- 2 files changed, 8 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -317,7 +317,7 @@ void nilfs_relax_pressure_in_lock(struct
- 	struct the_nilfs *nilfs = sb->s_fs_info;
- 	struct nilfs_sc_info *sci = nilfs->ns_writer;
- 
--	if (!sci || !sci->sc_flush_request)
-+	if (sb_rdonly(sb) || unlikely(!sci) || !sci->sc_flush_request)
- 		return;
- 
- 	set_bit(NILFS_SC_PRIOR_FLUSH, &sci->sc_flags);
-@@ -2243,7 +2243,7 @@ int nilfs_construct_segment(struct super
- 	struct nilfs_transaction_info *ti;
- 	int err;
- 
--	if (!sci)
-+	if (sb_rdonly(sb) || unlikely(!sci))
- 		return -EROFS;
- 
- 	/* A call inside transactions causes a deadlock. */
-@@ -2282,7 +2282,7 @@ int nilfs_construct_dsync_segment(struct
- 	struct nilfs_transaction_info ti;
- 	int err = 0;
- 
--	if (!sci)
-+	if (sb_rdonly(sb) || unlikely(!sci))
- 		return -EROFS;
- 
- 	nilfs_transaction_lock(sb, &ti, 0);
-@@ -2778,11 +2778,12 @@ int nilfs_attach_log_writer(struct super
- 
- 	if (nilfs->ns_writer) {
- 		/*
--		 * This happens if the filesystem was remounted
--		 * read/write after nilfs_error degenerated it into a
--		 * read-only mount.
-+		 * This happens if the filesystem is made read-only by
-+		 * __nilfs_error or nilfs_remount and then remounted
-+		 * read/write.  In these cases, reuse the existing
-+		 * writer.
- 		 */
--		nilfs_detach_log_writer(sb);
-+		return 0;
+--- a/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
+@@ -40,13 +40,13 @@ static struct sg_table *i915_gem_map_dma
+ 		goto err;
  	}
  
- 	nilfs->ns_writer = nilfs_segctor_new(sb, root);
---- a/fs/nilfs2/super.c
-+++ b/fs/nilfs2/super.c
-@@ -1133,8 +1133,6 @@ static int nilfs_remount(struct super_bl
- 	if ((bool)(*flags & SB_RDONLY) == sb_rdonly(sb))
- 		goto out;
- 	if (*flags & SB_RDONLY) {
--		/* Shutting down log writer */
--		nilfs_detach_log_writer(sb);
- 		sb->s_flags |= SB_RDONLY;
+-	ret = sg_alloc_table(st, obj->mm.pages->nents, GFP_KERNEL);
++	ret = sg_alloc_table(st, obj->mm.pages->orig_nents, GFP_KERNEL);
+ 	if (ret)
+ 		goto err_free;
  
- 		/*
+ 	src = obj->mm.pages->sgl;
+ 	dst = st->sgl;
+-	for (i = 0; i < obj->mm.pages->nents; i++) {
++	for (i = 0; i < obj->mm.pages->orig_nents; i++) {
+ 		sg_set_page(dst, sg_page(src), src->length, 0);
+ 		dst = sg_next(dst);
+ 		src = sg_next(src);
 
 
