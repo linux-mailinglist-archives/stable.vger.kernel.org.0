@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD84C627EF7
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:53:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5166D627E67
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:47:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237481AbiKNMx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:53:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
+        id S237370AbiKNMrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:47:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237480AbiKNMx6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:53:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7418167C6
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:53:56 -0800 (PST)
+        with ESMTP id S237410AbiKNMrZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:47:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11ADA24952
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:47:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 543B961154
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:53:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FEC8C433C1;
-        Mon, 14 Nov 2022 12:53:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC015B80EB9
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:47:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8D0AC433C1;
+        Mon, 14 Nov 2022 12:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430435;
-        bh=GhzLSSC35EB6UI8NYCP4ZuJIUXjmSvdhVUAqNnH1OkY=;
+        s=korg; t=1668430040;
+        bh=N0vmjaZyyTobPzeu/48zTm6lI2qEPzSivjwRW4ESB04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQM4dHcOaNemQ6btgerSkBwTFcLVrosV3mo0WQwRanVJD/Xj3xcciTtnT/vy2zEpG
-         PnDl4+LJ/Ega0lDA2r8/3O/aPYEDHBlyA8QqOkWGcT+CzDJPCFLNOOgdceWpwKLvBL
-         qAEhHwpEims/L5xC9LhxBpRnfLOeQAFaWPXJRweg=
+        b=q20P0TnPyroFgYM47N/ctMkxKV7xzrgIVsTmCVCsJ+xCQ8KGUF5T+vRor+Mqyo2cZ
+         n9glgOnDg8lWSuvlOlBTD2p8cpBjwob2dI808hOsjOBPBuxfft3on1tgH/p+gZYpmf
+         hgkMQVJR7Fzas+YPX7JBfhIr+UYwQ07tDvtMfF90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sabrina Dubroca <sd@queasysnail.net>,
-        Antoine Tenart <atenart@kernel.org>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 027/131] macsec: clear encryption keys from the stack after setting up offload
-Date:   Mon, 14 Nov 2022 13:44:56 +0100
-Message-Id: <20221114124449.826666025@linuxfoundation.org>
+        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 03/95] phy: stm32: fix an error code in probe
+Date:   Mon, 14 Nov 2022 13:44:57 +0100
+Message-Id: <20221114124442.674856237@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit aaab73f8fba4fd38f4d2617440d541a1c334e819 ]
+[ Upstream commit ca1c73628f5bd0c1ef6e46073cc3be2450605b06 ]
 
-macsec_add_rxsa and macsec_add_txsa copy the key to an on-stack
-offloading context to pass it to the drivers, but leaves it there when
-it's done. Clear it with memzero_explicit as soon as it's not needed
-anymore.
+If "index > usbphyc->nphys" is true then this returns success but it
+should return -EINVAL.
 
-Fixes: 3cf3227a21d1 ("net: macsec: hardware offloading infrastructure")
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Reviewed-by: Antoine Tenart <atenart@kernel.org>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 94c358da3a05 ("phy: stm32: add support for STM32 USB PHY Controller (USBPHYC)")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/Y0kq8j6S+5nDdMpr@kili
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 2 ++
+ drivers/phy/st/phy-stm32-usbphyc.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index af9b5eaf5b94..4811bd1f3d74 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -1820,6 +1820,7 @@ static int macsec_add_rxsa(struct sk_buff *skb, struct genl_info *info)
- 		       secy->key_len);
+diff --git a/drivers/phy/st/phy-stm32-usbphyc.c b/drivers/phy/st/phy-stm32-usbphyc.c
+index 2b3639cba51a..03fc567e9f18 100644
+--- a/drivers/phy/st/phy-stm32-usbphyc.c
++++ b/drivers/phy/st/phy-stm32-usbphyc.c
+@@ -393,6 +393,8 @@ static int stm32_usbphyc_probe(struct platform_device *pdev)
+ 		ret = of_property_read_u32(child, "reg", &index);
+ 		if (ret || index > usbphyc->nphys) {
+ 			dev_err(&phy->dev, "invalid reg property: %d\n", ret);
++			if (!ret)
++				ret = -EINVAL;
+ 			goto put_child;
+ 		}
  
- 		err = macsec_offload(ops->mdo_add_rxsa, &ctx);
-+		memzero_explicit(ctx.sa.key, secy->key_len);
- 		if (err)
- 			goto cleanup;
- 	}
-@@ -2062,6 +2063,7 @@ static int macsec_add_txsa(struct sk_buff *skb, struct genl_info *info)
- 		       secy->key_len);
- 
- 		err = macsec_offload(ops->mdo_add_txsa, &ctx);
-+		memzero_explicit(ctx.sa.key, secy->key_len);
- 		if (err)
- 			goto cleanup;
- 	}
 -- 
 2.35.1
 
