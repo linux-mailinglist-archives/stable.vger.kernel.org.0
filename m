@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DE7C627E72
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:48:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5C8A627F0E
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:55:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237295AbiKNMsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:48:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39014 "EHLO
+        id S237500AbiKNMzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:55:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237239AbiKNMrw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:47:52 -0500
+        with ESMTP id S237505AbiKNMy5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:54:57 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE409270E
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:47:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B031E2656E
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CFA36116A
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:47:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E4A2C4347C;
-        Mon, 14 Nov 2022 12:47:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D6F761175
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:54:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45EB9C433C1;
+        Mon, 14 Nov 2022 12:54:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430070;
-        bh=i8dNssIxTe2FEkOuppenqrbevSdt0S9J+tbw16VClQc=;
+        s=korg; t=1668430494;
+        bh=jwzlcZRhl7zGGPKMJhkJO/qA4JZjlu8zmxVw8I0T50g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DMsy1l9wMPNUTEkxB3CD15BUkZ/4yJrEbebPeXiVA8j7m1rTftJnT6vRTwV4zedSq
-         Y28fFR7ZyxyVaHlCqv+E/673SirYoEdi8hx+1c2IF4gJDc+hnFJk0xeE3NFQB5YrKa
-         wtAhZwkeXBzoit2t54iynOGZFNCQELsL7eI+ae0s=
+        b=s0OCdnRkCYbPFOvW/3+yezT3rkP1FSVZd8yYZXGPXlzUdRjkTTiPx/UO7dtWhL9e0
+         meZWbZhR5Mt1eROHaCsR8NAByP+pqDuqYbMVEJulPBfCsoCSJ54tzik4TbUeORLheY
+         7S5W6cuX1wzNFll7MdBEkIneb1IfXBK+ZY+3xc8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Anderson <sean.anderson@seco.com>,
+        patches@lists.linux.dev,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 20/95] net: fman: Unregister ethernet device on removal
+Subject: [PATCH 5.15 045/131] net: stmmac: dwmac-meson8b: fix meson8b_devm_clk_prepare_enable()
 Date:   Mon, 14 Nov 2022 13:45:14 +0100
-Message-Id: <20221114124443.353875474@linuxfoundation.org>
+Message-Id: <20221114124450.641692916@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-[ Upstream commit b7cbc6740bd6ad5d43345a2504f7e4beff0d709f ]
+[ Upstream commit ed4314f7729714d788698ade4f9905ee5378ebc0 ]
 
-When the mac device gets removed, it leaves behind the ethernet device.
-This will result in a segfault next time the ethernet device accesses
-mac_dev. Remove the ethernet device when we get removed to prevent
-this. This is not completely reversible, since some resources aren't
-cleaned up properly, but that can be addressed later.
+There are two problems with meson8b_devm_clk_prepare_enable(),
+introduced in commit a54dc4a49045 ("net: stmmac: dwmac-meson8b:
+Make the clock enabling code re-usable"):
 
-Fixes: 3933961682a3 ("fsl/fman: Add FMan MAC driver")
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Link: https://lore.kernel.org/r/20221103182831.2248833-1-sean.anderson@seco.com
+- It doesn't pass the clk argument, but instead always the
+  rgmii_tx_clk of the device.
+
+- It silently ignores the return value of devm_add_action_or_reset().
+
+The former didn't become an actual bug until another user showed up in
+the next commit 9308c47640d5 ("net: stmmac: dwmac-meson8b: add support
+for the RX delay configuration"). The latter means the callers could
+end up with the clock not actually prepared/enabled.
+
+Fixes: a54dc4a49045 ("net: stmmac: dwmac-meson8b: Make the clock enabling code re-usable")
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20221104083004.2212520-1-linux@rasmusvillemoes.dk
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fman/mac.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/fman/mac.c b/drivers/net/ethernet/freescale/fman/mac.c
-index 6eeccc11b76e..3312dc4083a0 100644
---- a/drivers/net/ethernet/freescale/fman/mac.c
-+++ b/drivers/net/ethernet/freescale/fman/mac.c
-@@ -884,12 +884,21 @@ static int mac_probe(struct platform_device *_of_dev)
- 	return err;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
+index c7a6588d9398..e8b507f88fbc 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
+@@ -272,11 +272,9 @@ static int meson8b_devm_clk_prepare_enable(struct meson8b_dwmac *dwmac,
+ 	if (ret)
+ 		return ret;
+ 
+-	devm_add_action_or_reset(dwmac->dev,
+-				 (void(*)(void *))clk_disable_unprepare,
+-				 dwmac->rgmii_tx_clk);
+-
+-	return 0;
++	return devm_add_action_or_reset(dwmac->dev,
++					(void(*)(void *))clk_disable_unprepare,
++					clk);
  }
  
-+static int mac_remove(struct platform_device *pdev)
-+{
-+	struct mac_device *mac_dev = platform_get_drvdata(pdev);
-+
-+	platform_device_unregister(mac_dev->priv->eth_dev);
-+	return 0;
-+}
-+
- static struct platform_driver mac_driver = {
- 	.driver = {
- 		.name		= KBUILD_MODNAME,
- 		.of_match_table	= mac_match,
- 	},
- 	.probe		= mac_probe,
-+	.remove		= mac_remove,
- };
- 
- builtin_platform_driver(mac_driver);
+ static int meson8b_init_rgmii_delays(struct meson8b_dwmac *dwmac)
 -- 
 2.35.1
 
