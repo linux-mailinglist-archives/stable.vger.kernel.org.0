@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B37627B57
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 12:01:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C5E627B5A
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 12:01:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236440AbiKNLBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 06:01:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56412 "EHLO
+        id S236474AbiKNLBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 06:01:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236427AbiKNLBM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 06:01:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499881E731
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 03:01:11 -0800 (PST)
+        with ESMTP id S236427AbiKNLBP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 06:01:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C6A51E731
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 03:01:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9DC460FF8
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 11:01:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E93A0C433D6;
-        Mon, 14 Nov 2022 11:01:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1C5160FF8
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 11:01:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B526BC433C1;
+        Mon, 14 Nov 2022 11:01:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668423670;
-        bh=/Mz1I7eWuQm/X5fSenZixyORY4p9dPHMc5GSfU8b1+I=;
+        s=korg; t=1668423673;
+        bh=6mbgvsVqyVt1K01nSNyAuOTTYTHNPS/HFtVK7gcEYtw=;
         h=Subject:To:Cc:From:Date:From;
-        b=yP2LR29EqoIGxIIHgayvno733n0H6e23RRFUqxTJk3sube1SI0gHXA4TmVVIkvHEN
-         mjt56MOzojajH8fjRnDrtxdJQFBtapu0Ys0SA3TztTZmwdu6ZYC2KFVGXK0zAhkwMV
-         YRaNExrQAUStLUzUuy3N1DlvU/vmkpjFDmlEEn84=
-Subject: FAILED: patch "[PATCH] KVM: SVM: restore host save area from assembly" failed to apply to 6.0-stable tree
+        b=K8T1JqoBbZE6PK5lfZ4XYFeohBfehF4QWsdB1bR6ZoBuuLYR8azoaFuD/LS3X2WyR
+         TlUaTh3UEvLm/foZNy4LJkaYkKUiagGrFIk/TjoxEYCHvzx5e4rHaotCAzPXHttuCm
+         PMvbMFhFD07iw23yJSJXDYYUnD1V5w8XL68lv9wM=
+Subject: FAILED: patch "[PATCH] KVM: SVM: restore host save area from assembly" failed to apply to 5.10-stable tree
 To:     pbonzini@redhat.com, andrew.cooper3@citrix.com, nathan@kernel.org,
         seanjc@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Nov 2022 12:00:47 +0100
-Message-ID: <166842364718310@kroah.com>
+Date:   Mon, 14 Nov 2022 12:00:48 +0100
+Message-ID: <1668423648106125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -63,6 +63,11 @@ f6d58266d731 ("KVM: SVM: retrieve VMCB from assembly")
 f7ef280132f9 ("KVM: SVM: adjust register allocation for __svm_vcpu_run()")
 16fdc1de169e ("KVM: SVM: replace regs argument of __svm_vcpu_run() with vcpu_svm")
 debc5a1ec0d1 ("KVM: x86: use a separate asm-offsets.c file")
+bb06650634d3 ("KVM: VMX: Convert launched argument to flags")
+8bd200d23ec4 ("KVM: VMX: Flatten __vmx_vcpu_run()")
+527a534c7326 ("x86/tdx: Provide common base for SEAMCALL and TDCALL C wrappers")
+59bd54a84d15 ("x86/tdx: Detect running as a TDX guest in early boot")
+1ebdbeb03efe ("Merge tag 'for-linus' of git://git.kernel.org/pub/scm/virt/kvm/kvm")
 
 thanks,
 
