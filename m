@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C825628034
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:03:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB8BB628035
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:03:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237743AbiKNNDx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:03:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58462 "EHLO
+        id S237747AbiKNNDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:03:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237742AbiKNNDx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:03:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC8A520181
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:03:51 -0800 (PST)
+        with ESMTP id S237742AbiKNNDz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:03:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89B2E27CFA
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:03:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7957661186
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:03:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83C16C433C1;
-        Mon, 14 Nov 2022 13:03:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 28D9561186
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:03:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34528C433D7;
+        Mon, 14 Nov 2022 13:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431030;
-        bh=kA2q5YNvbrCo9Tt+vzxaCI0Zr1L+aqaVS7iOlD4xI8U=;
+        s=korg; t=1668431033;
+        bh=gYTMm7VUwqh4kPxOTqmx9VLN2+89m1+IW9DrhUoao9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HuVUN3GyeISSRhmEfO8MPd89YgjwmggWWXQ2A8/Jjj3k1YiFKaMNhxVeu1sxL9dgN
-         pP+Q7gwx4SnFo7HMsr/1gwG9mHGw1jtNmaT/j8ATzMbf4bEFy7aHKzqxcVD1xIEsU2
-         nY+PdE5DmCxM7KHvvg1kFjQl29Y4RHLEGV9Y4qbI=
+        b=uJ0r0YZndE3PSxEjBtqBkdW/QGwliuxoMXfUO5rDreOD0yWRCktT92A3C74IkO5C8
+         jmMuo5THUmibhxDPZaHDY0mTEwtIi35avSg6L1nNPuWMsncNfpX5bTCm7eN/eXYH8M
+         JGb8dIxdh78k5+Ff4YKQnlD54ipQrrC8PwdTd+TU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        "Andrew G. Morgan" <morgan@kernel.org>,
-        Serge Hallyn <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 044/190] capabilities: fix undefined behavior in bit shift for CAP_TO_MASK
-Date:   Mon, 14 Nov 2022 13:44:28 +0100
-Message-Id: <20221114124500.723673594@linuxfoundation.org>
+        patches@lists.linux.dev,
+        John Thomson <git@johnthomson.fastmail.com.au>,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 045/190] phy: ralink: mt7621-pci: add sentinel to quirks table
+Date:   Mon, 14 Nov 2022 13:44:29 +0100
+Message-Id: <20221114124500.776681813@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -55,51 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: John Thomson <git@johnthomson.fastmail.com.au>
 
-[ Upstream commit 46653972e3ea64f79e7f8ae3aa41a4d3fdb70a13 ]
+[ Upstream commit 819b885cd886c193782891c4f51bbcab3de119a4 ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+With mt7621 soc_dev_attr fixed to register the soc as a device,
+kernel will experience an oops in soc_device_match_attr
 
-UBSAN: shift-out-of-bounds in security/commoncap.c:1252:2
-left shift of 1 by 31 places cannot be represented in type 'int'
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7d/0xa5
- dump_stack+0x15/0x1b
- ubsan_epilogue+0xe/0x4e
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
- cap_task_prctl+0x561/0x6f0
- security_task_prctl+0x5a/0xb0
- __x64_sys_prctl+0x61/0x8f0
- do_syscall_64+0x58/0x80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- </TASK>
+This quirk test was introduced in the staging driver in
+commit 9445ccb3714c ("staging: mt7621-pci-phy: add quirks for 'E2'
+revision using 'soc_device_attribute'"). The staging driver was removed,
+and later re-added in commit d87da32372a0 ("phy: ralink: Add PHY driver
+for MT7621 PCIe PHY") for kernel 5.11
 
-Fixes: e338d263a76a ("Add 64-bit capability support to the kernel")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Acked-by: Andrew G. Morgan <morgan@kernel.org>
-Reviewed-by: Serge Hallyn <serge@hallyn.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Link: https://lore.kernel.org/lkml/26ebbed1-0fe9-4af9-8466-65f841d0b382@app.fastmail.com
+Fixes: d87da32372a0 ("phy: ralink: Add PHY driver for MT7621 PCIe PHY")
+Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
+Acked-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Link: https://lore.kernel.org/r/20221104205242.3440388-2-git@johnthomson.fastmail.com.au
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/capability.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/phy/ralink/phy-mt7621-pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
-index 463d1ba2232a..3d61a0ae055d 100644
---- a/include/uapi/linux/capability.h
-+++ b/include/uapi/linux/capability.h
-@@ -426,7 +426,7 @@ struct vfs_ns_cap_data {
-  */
+diff --git a/drivers/phy/ralink/phy-mt7621-pci.c b/drivers/phy/ralink/phy-mt7621-pci.c
+index 5e6530f545b5..85888ab2d307 100644
+--- a/drivers/phy/ralink/phy-mt7621-pci.c
++++ b/drivers/phy/ralink/phy-mt7621-pci.c
+@@ -280,7 +280,8 @@ static struct phy *mt7621_pcie_phy_of_xlate(struct device *dev,
+ }
  
- #define CAP_TO_INDEX(x)     ((x) >> 5)        /* 1 << 5 == bits in __u32 */
--#define CAP_TO_MASK(x)      (1 << ((x) & 31)) /* mask for indexed __u32 */
-+#define CAP_TO_MASK(x)      (1U << ((x) & 31)) /* mask for indexed __u32 */
+ static const struct soc_device_attribute mt7621_pci_quirks_match[] = {
+-	{ .soc_id = "mt7621", .revision = "E2" }
++	{ .soc_id = "mt7621", .revision = "E2" },
++	{ /* sentinel */ }
+ };
  
- 
- #endif /* _UAPI_LINUX_CAPABILITY_H */
+ static const struct regmap_config mt7621_pci_phy_regmap_config = {
 -- 
 2.35.1
 
