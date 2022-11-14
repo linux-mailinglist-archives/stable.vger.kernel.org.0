@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3AAA627F5E
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:58:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A569627F5F
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:58:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237596AbiKNM6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:58:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51724 "EHLO
+        id S237598AbiKNM61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:58:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237597AbiKNM6Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:58:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8972D27DEB
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:58:22 -0800 (PST)
+        with ESMTP id S237597AbiKNM6Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:58:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D56DB06
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:58:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44225B80EB9
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:58:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68EE5C433D6;
-        Mon, 14 Nov 2022 12:58:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C35456117F
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:58:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C00F8C433C1;
+        Mon, 14 Nov 2022 12:58:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430699;
-        bh=38BDvln7PnU/y46+dOahXIYGjNVMQ2TxS1yEFEQv2QI=;
+        s=korg; t=1668430703;
+        bh=TfeKfQpa+4CYqbPLwBtEyYEbEZyiWcgf4CtGxvmaZl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D/274QsJE5UxLshz4jZAdn+5mF8W7UFrteklBvKiixHibmAulvESlwMk+wGYx/+aw
-         GUUKuZ1p9hxOJfTq7KHjQMsFAJJnyyj4WVPFzUoCOzbztDnEXBQPWMTSG+TeKsnP3I
-         /a63ogNtc9RskrQ6C2im8F1Jo06e3+8QW1iH8CuE=
+        b=wbbGPJBYBoL5EY1T1x1u1dDHA/Sr9ADSptFrQJ9rONmAFLi11/4H23SFGmhB7yuFj
+         WeTDryVlYEiqakUHyu0p6HdPddSbm8TvWYahyucZdgl7IV9vkOpW8cSKRLeKHmkaq3
+         BHN5vC5m4L/BwsEbq6B/K/ZVV2ZAEU8nkPuM99iE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anand Jain <anand.jain@oracle.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        patches@lists.linux.dev,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 105/131] btrfs: selftests: fix wrong error check in btrfs_free_dummy_root()
-Date:   Mon, 14 Nov 2022 13:46:14 +0100
-Message-Id: <20221114124453.149272150@linuxfoundation.org>
+Subject: [PATCH 5.15 106/131] btrfs: zoned: initialize devices zone info for seeding
+Date:   Mon, 14 Nov 2022 13:46:15 +0100
+Message-Id: <20221114124453.188388252@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
 References: <20221114124448.729235104@linuxfoundation.org>
@@ -53,56 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit 9b2f20344d450137d015b380ff0c2e2a6a170135 upstream.
+commit a8d1b1647bf8244a5f270538e9e636e2657fffa3 upstream.
 
-The btrfs_alloc_dummy_root() uses ERR_PTR as the error return value
-rather than NULL, if error happened, there will be a NULL pointer
-dereference:
+When performing seeding on a zoned filesystem it is necessary to
+initialize each zoned device's btrfs_zoned_device_info structure,
+otherwise mounting the filesystem will cause a NULL pointer dereference.
 
-  BUG: KASAN: null-ptr-deref in btrfs_free_dummy_root+0x21/0x50 [btrfs]
-  Read of size 8 at addr 000000000000002c by task insmod/258926
+This was uncovered by fstests' testcase btrfs/163.
 
-  CPU: 2 PID: 258926 Comm: insmod Tainted: G        W          6.1.0-rc2+ #5
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x34/0x44
-   kasan_report+0xb7/0x140
-   kasan_check_range+0x145/0x1a0
-   btrfs_free_dummy_root+0x21/0x50 [btrfs]
-   btrfs_test_free_space_cache+0x1a8c/0x1add [btrfs]
-   btrfs_run_sanity_tests+0x65/0x80 [btrfs]
-   init_btrfs_fs+0xec/0x154 [btrfs]
-   do_one_initcall+0x87/0x2a0
-   do_init_module+0xdf/0x320
-   load_module+0x3006/0x3390
-   __do_sys_finit_module+0x113/0x1b0
-   do_syscall_64+0x35/0x80
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Fixes: aaedb55bc08f ("Btrfs: add tests for btrfs_get_extent")
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+CC: stable@vger.kernel.org # 5.15+
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tests/btrfs-tests.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/disk-io.c |    4 +++-
+ fs/btrfs/volumes.c |   11 +++++++++--
+ fs/btrfs/volumes.h |    2 +-
+ 3 files changed, 13 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/tests/btrfs-tests.c
-+++ b/fs/btrfs/tests/btrfs-tests.c
-@@ -199,7 +199,7 @@ void btrfs_free_dummy_fs_info(struct btr
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -2404,7 +2404,9 @@ static int btrfs_read_roots(struct btrfs
+ 		fs_info->dev_root = root;
+ 	}
+ 	/* Initialize fs_info for all devices in any case */
+-	btrfs_init_devices_late(fs_info);
++	ret = btrfs_init_devices_late(fs_info);
++	if (ret)
++		goto out;
  
- void btrfs_free_dummy_root(struct btrfs_root *root)
+ 	/* If IGNOREDATACSUMS is set don't bother reading the csum root. */
+ 	if (!btrfs_test_opt(fs_info, IGNOREDATACSUMS)) {
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -7681,10 +7681,11 @@ error:
+ 	return ret;
+ }
+ 
+-void btrfs_init_devices_late(struct btrfs_fs_info *fs_info)
++int btrfs_init_devices_late(struct btrfs_fs_info *fs_info)
  {
--	if (!root)
-+	if (IS_ERR_OR_NULL(root))
- 		return;
- 	/* Will be freed by btrfs_free_fs_roots */
- 	if (WARN_ON(test_bit(BTRFS_ROOT_IN_RADIX, &root->state)))
+ 	struct btrfs_fs_devices *fs_devices = fs_info->fs_devices, *seed_devs;
+ 	struct btrfs_device *device;
++	int ret = 0;
+ 
+ 	fs_devices->fs_info = fs_info;
+ 
+@@ -7693,12 +7694,18 @@ void btrfs_init_devices_late(struct btrf
+ 		device->fs_info = fs_info;
+ 
+ 	list_for_each_entry(seed_devs, &fs_devices->seed_list, seed_list) {
+-		list_for_each_entry(device, &seed_devs->devices, dev_list)
++		list_for_each_entry(device, &seed_devs->devices, dev_list) {
+ 			device->fs_info = fs_info;
++			ret = btrfs_get_dev_zone_info(device, false);
++			if (ret)
++				break;
++		}
+ 
+ 		seed_devs->fs_info = fs_info;
+ 	}
+ 	mutex_unlock(&fs_devices->device_list_mutex);
++
++	return ret;
+ }
+ 
+ static u64 btrfs_dev_stats_value(const struct extent_buffer *eb,
+--- a/fs/btrfs/volumes.h
++++ b/fs/btrfs/volumes.h
+@@ -539,7 +539,7 @@ int find_free_dev_extent(struct btrfs_de
+ void btrfs_dev_stat_inc_and_print(struct btrfs_device *dev, int index);
+ int btrfs_get_dev_stats(struct btrfs_fs_info *fs_info,
+ 			struct btrfs_ioctl_get_dev_stats *stats);
+-void btrfs_init_devices_late(struct btrfs_fs_info *fs_info);
++int btrfs_init_devices_late(struct btrfs_fs_info *fs_info);
+ int btrfs_init_dev_stats(struct btrfs_fs_info *fs_info);
+ int btrfs_run_dev_stats(struct btrfs_trans_handle *trans);
+ void btrfs_rm_dev_replace_remove_srcdev(struct btrfs_device *srcdev);
 
 
