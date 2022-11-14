@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF04F628087
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:06:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F4CA628088
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:06:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237818AbiKNNGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:06:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32960 "EHLO
+        id S237816AbiKNNGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:06:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237840AbiKNNGg (ORCPT
+        with ESMTP id S237843AbiKNNGg (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:06:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2A922AC4D
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:06:34 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24D132A974
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:06:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81CBDB80EB8
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:06:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFF9DC433C1;
-        Mon, 14 Nov 2022 13:06:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EC686117F
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:06:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80719C433C1;
+        Mon, 14 Nov 2022 13:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431192;
-        bh=GsEPf9UiXsPXAdRtpSzJ3L4F00fqPSfxMQNxEZmDn/w=;
+        s=korg; t=1668431194;
+        bh=3/nS9cBNPeZvjK8qdD5rfSxsGVWJQO7Isn6O6l3dF/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zH5iEJ2roO24WH8V+f/eoV1F3dsswHbTcD5R5/SwVw0TMFNPW0IQf0Q7m1pqssN8O
-         0La2GHEKYTXBA/mctwQv2jNV5L3Uorj+ZfCVGWEgT9MH+IaL1z9s9/H06jfjAD+bdL
-         5lK54qnBoEKZJK5qzBPAyN7rOrPWUSWpCMe4RrV8=
+        b=uqUv3MSRJtGNMFudjY3wUVME2DsDoNFJvMA+3O6f8a9Gz8j4zXg/QOdI2RkpOXcAx
+         nY7uFQHs/7aEHNGL4JEbeHjp0ss9+0OEcDbGB+uAC7130+VTBEYp1WJWA0U8iZNtz1
+         53s7BHlD20RWEaK0XYMcGTyzDn1RItoh/ooJrfT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 6.0 133/190] ata: libata-scsi: fix SYNCHRONIZE CACHE (16) command failure
-Date:   Mon, 14 Nov 2022 13:45:57 +0100
-Message-Id: <20221114124504.612148335@linuxfoundation.org>
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+45d6ce7b7ad7ef455d03@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.0 134/190] nilfs2: fix deadlock in nilfs_count_free_blocks()
+Date:   Mon, 14 Nov 2022 13:45:58 +0100
+Message-Id: <20221114124504.652482817@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -55,53 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit ea045fd344cb15c164e9ffc8b8cffb6883df8475 upstream.
+commit 8ac932a4921a96ca52f61935dbba64ea87bbd5dc upstream.
 
-SAT SCSI/ATA Translation specification requires SCSI SYNCHRONIZE CACHE
-(10) and (16) commands both shall be translated to ATA flush command.
-Also, ZBC Zoned Block Commands specification mandates SYNCHRONIZE CACHE
-(16) command support. However, libata translates only SYNCHRONIZE CACHE
-(10). This results in SYNCHRONIZE CACHE (16) command failures on SATA
-drives and then libata translation does not conform to ZBC. To avoid the
-failure, add support for SYNCHRONIZE CACHE (16).
+A semaphore deadlock can occur if nilfs_get_block() detects metadata
+corruption while locating data blocks and a superblock writeback occurs at
+the same time:
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+task 1                               task 2
+------                               ------
+* A file operation *
+nilfs_truncate()
+  nilfs_get_block()
+    down_read(rwsem A) <--
+    nilfs_bmap_lookup_contig()
+      ...                            generic_shutdown_super()
+                                       nilfs_put_super()
+                                         * Prepare to write superblock *
+                                         down_write(rwsem B) <--
+                                         nilfs_cleanup_super()
+      * Detect b-tree corruption *         nilfs_set_log_cursor()
+      nilfs_bmap_convert_error()             nilfs_count_free_blocks()
+        __nilfs_error()                        down_read(rwsem A) <--
+          nilfs_set_error()
+            down_write(rwsem B) <--
+
+                           *** DEADLOCK ***
+
+Here, nilfs_get_block() readlocks rwsem A (= NILFS_MDT(dat_inode)->mi_sem)
+and then calls nilfs_bmap_lookup_contig(), but if it fails due to metadata
+corruption, __nilfs_error() is called from nilfs_bmap_convert_error()
+inside the lock section.
+
+Since __nilfs_error() calls nilfs_set_error() unless the filesystem is
+read-only and nilfs_set_error() attempts to writelock rwsem B (=
+nilfs->ns_sem) to write back superblock exclusively, hierarchical lock
+acquisition occurs in the order rwsem A -> rwsem B.
+
+Now, if another task starts updating the superblock, it may writelock
+rwsem B during the lock sequence above, and can deadlock trying to
+readlock rwsem A in nilfs_count_free_blocks().
+
+However, there is actually no need to take rwsem A in
+nilfs_count_free_blocks() because it, within the lock section, only reads
+a single integer data on a shared struct with
+nilfs_sufile_get_ncleansegs().  This has been the case after commit
+aa474a220180 ("nilfs2: add local variable to cache the number of clean
+segments"), that is, even before this bug was introduced.
+
+So, this resolves the deadlock problem by just not taking the semaphore in
+nilfs_count_free_blocks().
+
+Link: https://lkml.kernel.org/r/20221029044912.9139-1-konishi.ryusuke@gmail.com
+Fixes: e828949e5b42 ("nilfs2: call nilfs_error inside bmap routines")
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+45d6ce7b7ad7ef455d03@syzkaller.appspotmail.com
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>	[2.6.38+
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-scsi.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/nilfs2/the_nilfs.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/ata/libata-scsi.c
-+++ b/drivers/ata/libata-scsi.c
-@@ -3266,6 +3266,7 @@ static unsigned int ata_scsiop_maint_in(
- 	case REPORT_LUNS:
- 	case REQUEST_SENSE:
- 	case SYNCHRONIZE_CACHE:
-+	case SYNCHRONIZE_CACHE_16:
- 	case REZERO_UNIT:
- 	case SEEK_6:
- 	case SEEK_10:
-@@ -3924,6 +3925,7 @@ static inline ata_xlat_func_t ata_get_xl
- 		return ata_scsi_write_same_xlat;
+--- a/fs/nilfs2/the_nilfs.c
++++ b/fs/nilfs2/the_nilfs.c
+@@ -690,9 +690,7 @@ int nilfs_count_free_blocks(struct the_n
+ {
+ 	unsigned long ncleansegs;
  
- 	case SYNCHRONIZE_CACHE:
-+	case SYNCHRONIZE_CACHE_16:
- 		if (ata_try_flush_cache(dev))
- 			return ata_scsi_flush_xlat;
- 		break;
-@@ -4147,6 +4149,7 @@ void ata_scsi_simulate(struct ata_device
- 	 * turning this into a no-op.
- 	 */
- 	case SYNCHRONIZE_CACHE:
-+	case SYNCHRONIZE_CACHE_16:
- 		fallthrough;
- 
- 	/* no-op's, complete with success */
+-	down_read(&NILFS_MDT(nilfs->ns_dat)->mi_sem);
+ 	ncleansegs = nilfs_sufile_get_ncleansegs(nilfs->ns_sufile);
+-	up_read(&NILFS_MDT(nilfs->ns_dat)->mi_sem);
+ 	*nblocks = (sector_t)ncleansegs * nilfs->ns_blocks_per_segment;
+ 	return 0;
+ }
 
 
