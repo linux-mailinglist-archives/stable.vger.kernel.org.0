@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA9AD627EEF
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:53:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 575E7627EF8
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:54:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236638AbiKNMxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:53:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46122 "EHLO
+        id S237483AbiKNMyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:54:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237474AbiKNMxc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:53:32 -0500
+        with ESMTP id S237482AbiKNMyD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:54:03 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 912C8A1B0
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:53:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24C3117AB2
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DAD8DCE1009
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:53:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92E0DC433D7;
-        Mon, 14 Nov 2022 12:53:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 71F33CE100E
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:54:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D77BC433C1;
+        Mon, 14 Nov 2022 12:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430408;
-        bh=RKvN1kyaBatJ+467RcUCZfzWCDYAj7wqRw0ImaeHN5Y=;
+        s=korg; t=1668430438;
+        bh=wspomMSRnZUBG7cHQ8nPBwItbd1jFaK7Pti6INzHzr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pEMcuXv0xWN0a3uyeS0umB2XbSJr6sd6/ua7P+M49lDNRF4vQQ1NLXUCZrpsQP+1o
-         1MPwK57XMx8fB2FOegj/vKboL0k7fR0NylNlKxgGLe9DcEEJS+5efc9of3LaOC4pz+
-         xQrbJSj3fg9C5dlLXwo5SnHc9swfUvmy0FDh62bw=
+        b=p0ymAupg1D5QG4lKBtYVWMtfOBLszWo8399U+Vg/PSnOoSKuiuqv/m6QIdLr0vVz6
+         aUugL/lv0l8wdUnRqXKfo0nYsDzwv5r6GgNoPq8wcQpxW7WteP7ruSM9TVTeJvrzAw
+         oCcfKvetYmnbyw/oARsNJoiBbmbXThRhAa7hpn+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sanjay R Mehta <sanju.mehta@amd.com>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Renjith Pananchikkal <Renjith.Pananchikkal@amd.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.15 002/131] thunderbolt: Add DP OUT resource when DP tunnel is discovered
-Date:   Mon, 14 Nov 2022 13:44:31 +0100
-Message-Id: <20221114124448.848423682@linuxfoundation.org>
+        patches@lists.linux.dev, Frank Sorenson <fsorenso@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 003/131] fuse: fix readdir cache race
+Date:   Mon, 14 Nov 2022 13:44:32 +0100
+Message-Id: <20221114124448.889514585@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
 References: <20221114124448.729235104@linuxfoundation.org>
@@ -55,70 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sanjay R Mehta <sanju.mehta@amd.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit b60e31bf18a7064032dbcb73dcb5b58f8a00a110 upstream.
+[ Upstream commit 9fa248c65bdbf5af0a2f74dd38575acfc8dfd2bf ]
 
-If the boot firmware implements a connection manager of its own it may
-create a DisplayPort tunnel and will be handed off to Linux connection
-manager, but the DP OUT resource is not saved in the dp_resource list.
+There's a race in fuse's readdir cache that can result in an uninitilized
+page being read.  The page lock is supposed to prevent this from happening
+but in the following case it doesn't:
 
-This patch adds tunnelled DP OUT port to the dp_resource list once the
-DP tunnel is discovered.
+Two fuse_add_dirent_to_cache() start out and get the same parameters
+(size=0,offset=0).  One of them wins the race to create and lock the page,
+after which it fills in data, sets rdc.size and unlocks the page.
 
-Signed-off-by: Sanjay R Mehta <sanju.mehta@amd.com>
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Tested-by: Renjith Pananchikkal <Renjith.Pananchikkal@amd.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In the meantime the page gets evicted from the cache before the other
+instance gets to run.  That one also creates the page, but finds the
+size to be mismatched, bails out and leaves the uninitialized page in the
+cache.
+
+Fix by marking a filled page uptodate and ignoring non-uptodate pages.
+
+Reported-by: Frank Sorenson <fsorenso@redhat.com>
+Fixes: 5d7bc7e8680c ("fuse: allow using readdir cache")
+Cc: <stable@vger.kernel.org> # v4.20
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/tb.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ fs/fuse/readdir.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/thunderbolt/tb.c
-+++ b/drivers/thunderbolt/tb.c
-@@ -105,6 +105,32 @@ static void tb_remove_dp_resources(struc
- 	}
- }
+diff --git a/fs/fuse/readdir.c b/fs/fuse/readdir.c
+index bc267832310c..d5294e663df5 100644
+--- a/fs/fuse/readdir.c
++++ b/fs/fuse/readdir.c
+@@ -77,8 +77,10 @@ static void fuse_add_dirent_to_cache(struct file *file,
+ 		goto unlock;
  
-+static void tb_discover_dp_resource(struct tb *tb, struct tb_port *port)
-+{
-+	struct tb_cm *tcm = tb_priv(tb);
-+	struct tb_port *p;
-+
-+	list_for_each_entry(p, &tcm->dp_resources, list) {
-+		if (p == port)
-+			return;
+ 	addr = kmap_atomic(page);
+-	if (!offset)
++	if (!offset) {
+ 		clear_page(addr);
++		SetPageUptodate(page);
 +	}
-+
-+	tb_port_dbg(port, "DP %s resource available discovered\n",
-+		    tb_port_is_dpin(port) ? "IN" : "OUT");
-+	list_add_tail(&port->list, &tcm->dp_resources);
-+}
-+
-+static void tb_discover_dp_resources(struct tb *tb)
-+{
-+	struct tb_cm *tcm = tb_priv(tb);
-+	struct tb_tunnel *tunnel;
-+
-+	list_for_each_entry(tunnel, &tcm->tunnel_list, list) {
-+		if (tb_tunnel_is_dp(tunnel))
-+			tb_discover_dp_resource(tb, tunnel->dst_port);
+ 	memcpy(addr + offset, dirent, reclen);
+ 	kunmap_atomic(addr);
+ 	fi->rdc.size = (index << PAGE_SHIFT) + offset + reclen;
+@@ -516,6 +518,12 @@ static int fuse_readdir_cached(struct file *file, struct dir_context *ctx)
+ 
+ 	page = find_get_page_flags(file->f_mapping, index,
+ 				   FGP_ACCESSED | FGP_LOCK);
++	/* Page gone missing, then re-added to cache, but not initialized? */
++	if (page && !PageUptodate(page)) {
++		unlock_page(page);
++		put_page(page);
++		page = NULL;
 +	}
-+}
-+
- static void tb_switch_discover_tunnels(struct tb_switch *sw,
- 				       struct list_head *list,
- 				       bool alloc_hopids)
-@@ -1396,6 +1422,8 @@ static int tb_start(struct tb *tb)
- 	tb_scan_switch(tb->root_switch);
- 	/* Find out tunnels created by the boot firmware */
- 	tb_discover_tunnels(tb);
-+	/* Add DP resources from the DP tunnels created by the boot firmware */
-+	tb_discover_dp_resources(tb);
- 	/*
- 	 * If the boot firmware did not create USB 3.x tunnels create them
- 	 * now for the whole topology.
+ 	spin_lock(&fi->rdc.lock);
+ 	if (!page) {
+ 		/*
+-- 
+2.35.1
+
 
 
