@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 575E7627EF8
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:54:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB71F627FEE
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:02:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237483AbiKNMyE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:54:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46556 "EHLO
+        id S237687AbiKNNCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:02:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237482AbiKNMyD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:54:03 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24C3117AB2
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:02 -0800 (PST)
+        with ESMTP id S237717AbiKNNCj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:02:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4161B29370
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:02:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 71F33CE100E
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:54:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D77BC433C1;
-        Mon, 14 Nov 2022 12:53:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CED7961173
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:02:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0529C43470;
+        Mon, 14 Nov 2022 13:02:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430438;
-        bh=wspomMSRnZUBG7cHQ8nPBwItbd1jFaK7Pti6INzHzr4=;
+        s=korg; t=1668430957;
+        bh=2cVBtfCfD96RA3g+oq+0HS9yZ2X6WhHc8nepJziZPt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0ymAupg1D5QG4lKBtYVWMtfOBLszWo8399U+Vg/PSnOoSKuiuqv/m6QIdLr0vVz6
-         aUugL/lv0l8wdUnRqXKfo0nYsDzwv5r6GgNoPq8wcQpxW7WteP7ruSM9TVTeJvrzAw
-         oCcfKvetYmnbyw/oARsNJoiBbmbXThRhAa7hpn+w=
+        b=uPwvS28wrBqwlgERi/UKomCZixQbzzRKU+udqNt2YVZozz+ryz2rCxpP5TxKBago9
+         FF4Y2K5BeWbcsMYpQwy8mlVf4VuUDnTLsG6agfQ79pdKNquvaWLotxvobGW5T8L8QJ
+         CYOPZRzWwkwe3brzmXG/j7OHEPIgS8U/dx/Nygts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frank Sorenson <fsorenso@redhat.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 003/131] fuse: fix readdir cache race
+Subject: [PATCH 6.0 048/190] net: lapbether: fix issue of dev reference count leakage in lapbeth_device_event()
 Date:   Mon, 14 Nov 2022 13:44:32 +0100
-Message-Id: <20221114124448.889514585@linuxfoundation.org>
+Message-Id: <20221114124500.909153217@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
+References: <20221114124458.806324402@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 9fa248c65bdbf5af0a2f74dd38575acfc8dfd2bf ]
+[ Upstream commit 531705a765493655472c993627106e19f7e5a6d2 ]
 
-There's a race in fuse's readdir cache that can result in an uninitilized
-page being read.  The page lock is supposed to prevent this from happening
-but in the following case it doesn't:
+When following tests are performed, it will cause dev reference counting
+leakage.
+a)ip link add bond2 type bond mode balance-rr
+b)ip link set bond2 up
+c)ifenslave -f bond2 rose1
+d)ip link del bond2
 
-Two fuse_add_dirent_to_cache() start out and get the same parameters
-(size=0,offset=0).  One of them wins the race to create and lock the page,
-after which it fills in data, sets rdc.size and unlocks the page.
+When new bond device is created, the default type of the bond device is
+ether. And the bond device is up, lapbeth_device_event() receives the
+message and creates a new lapbeth device. In this case, the reference
+count value of dev is hold once. But after "ifenslave -f bond2 rose1"
+command is executed, the type of the bond device is changed to rose. When
+the bond device is unregistered, lapbeth_device_event() will not put the
+dev reference count.
 
-In the meantime the page gets evicted from the cache before the other
-instance gets to run.  That one also creates the page, but finds the
-size to be mismatched, bails out and leaves the uninitialized page in the
-cache.
-
-Fix by marking a filled page uptodate and ignoring non-uptodate pages.
-
-Reported-by: Frank Sorenson <fsorenso@redhat.com>
-Fixes: 5d7bc7e8680c ("fuse: allow using readdir cache")
-Cc: <stable@vger.kernel.org> # v4.20
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/readdir.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/wan/lapbether.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/fuse/readdir.c b/fs/fuse/readdir.c
-index bc267832310c..d5294e663df5 100644
---- a/fs/fuse/readdir.c
-+++ b/fs/fuse/readdir.c
-@@ -77,8 +77,10 @@ static void fuse_add_dirent_to_cache(struct file *file,
- 		goto unlock;
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 960f1393595c..cb360dca3250 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -446,7 +446,7 @@ static int lapbeth_device_event(struct notifier_block *this,
+ 	if (dev_net(dev) != &init_net)
+ 		return NOTIFY_DONE;
  
- 	addr = kmap_atomic(page);
--	if (!offset)
-+	if (!offset) {
- 		clear_page(addr);
-+		SetPageUptodate(page);
-+	}
- 	memcpy(addr + offset, dirent, reclen);
- 	kunmap_atomic(addr);
- 	fi->rdc.size = (index << PAGE_SHIFT) + offset + reclen;
-@@ -516,6 +518,12 @@ static int fuse_readdir_cached(struct file *file, struct dir_context *ctx)
+-	if (!dev_is_ethdev(dev))
++	if (!dev_is_ethdev(dev) && !lapbeth_get_x25_dev(dev))
+ 		return NOTIFY_DONE;
  
- 	page = find_get_page_flags(file->f_mapping, index,
- 				   FGP_ACCESSED | FGP_LOCK);
-+	/* Page gone missing, then re-added to cache, but not initialized? */
-+	if (page && !PageUptodate(page)) {
-+		unlock_page(page);
-+		put_page(page);
-+		page = NULL;
-+	}
- 	spin_lock(&fi->rdc.lock);
- 	if (!page) {
- 		/*
+ 	switch (event) {
 -- 
 2.35.1
 
