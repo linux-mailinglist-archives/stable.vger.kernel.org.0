@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DE5E62808E
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:07:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C72F362808D
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:07:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237753AbiKNNGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:06:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32962 "EHLO
+        id S237823AbiKNNGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:06:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237821AbiKNNGo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:06:44 -0500
+        with ESMTP id S237831AbiKNNGr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:06:47 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9A92A962
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:06:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8DE32AC64
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:06:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B08796117F
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:06:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5916C433C1;
-        Mon, 14 Nov 2022 13:06:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64C0E61173
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:06:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73DDDC433D6;
+        Mon, 14 Nov 2022 13:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431203;
-        bh=bhiukteCK3wgTfUrBzjZScGhIJ5cj2FimMysUYSGIqs=;
+        s=korg; t=1668431205;
+        bh=r1AEeOc2vhYyxOawqbiSE9gC+rtW6aTqa4JrE+XWZRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cBCeBsanrUqTXtHFid1rTdQZD5y4QIl0RCZAI8V5+Ea2k87OtCnaAeD0lWlc7meyL
-         kTmyWI7JVe2gCPaVkOPdIjBA5vcmGflQ+cvEoyNWh4KDxEzlqcUXDqsAeBo7HFP2Nj
-         JlL0MtQaEMlSZmheWuwgJnziUJx3RCSMYeq9bEUY=
+        b=z2ETNNYrGAQvP5eJHGieNernbuSCP+2+cBxrwfeOOFk6wcXjw47J1HQSdTIQejmve
+         ex36tD6GiNeVlLi3SGTLXoalIH/NSmb4KMNAYfggS8flY8z+zUCIxqnOtVZIBK9c1E
+         LKsykXqoSR7hnjNKcwaxTR1f6bHXZ1WiiXDfcPI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 108/190] ALSA: memalloc: Dont fall back for SG-buffer with IOMMU
-Date:   Mon, 14 Nov 2022 13:45:32 +0100
-Message-Id: <20221114124503.407429608@linuxfoundation.org>
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 109/190] ethernet: tundra: free irq when alloc ring failed in tsi108_open()
+Date:   Mon, 14 Nov 2022 13:45:33 +0100
+Message-Id: <20221114124503.447470593@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -53,94 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 9736a325137b62499d2b4be3fc2d742b131f75da ]
+[ Upstream commit acce40037041f97baad18142bb253064491ebde3 ]
 
-When the non-contiguous page allocation for SG buffer allocation
-fails, the memalloc helper tries to fall back to the old page
-allocation methods.  This would, however, result in the bogus page
-addresses when IOMMU is enabled.  Usually in such a case, the fallback
-allocation should fail as well, but occasionally it succeeds and
-hitting a bad access.
+When alloc tx/rx ring failed in tsi108_open(), it doesn't free irq. Fix
+it.
 
-The fallback was thought for non-IOMMU case, and as the error from
-dma_alloc_noncontiguous() with IOMMU essentially implies a fatal
-memory allocation error, we should return the error straightforwardly
-without fallback.  This avoids the corner case like the above.
-
-The patch also renames the local variable "dma_ops" with snd_ prefix
-for avoiding the name conflict.
-
-Fixes: a8d302a0b770 ("ALSA: memalloc: Revive x86-specific WC page allocations again")
-Reported-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.22.394.2211041541090.3532114@eliteleevi.tm.intel.com
-Link: https://lore.kernel.org/r/20221110132216.30605-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 5e123b844a1c ("[PATCH] Add tsi108/9 On Chip Ethernet device driver support")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Link: https://lore.kernel.org/r/20221109044016.126866-1-shaozhengchao@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/memalloc.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/tundra/tsi108_eth.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/core/memalloc.c b/sound/core/memalloc.c
-index cfcd8eff4139..2a773ed2b32a 100644
---- a/sound/core/memalloc.c
-+++ b/sound/core/memalloc.c
-@@ -9,6 +9,7 @@
- #include <linux/slab.h>
- #include <linux/mm.h>
- #include <linux/dma-mapping.h>
-+#include <linux/dma-map-ops.h>
- #include <linux/genalloc.h>
- #include <linux/highmem.h>
- #include <linux/vmalloc.h>
-@@ -526,19 +527,20 @@ static void *snd_dma_noncontig_alloc(struct snd_dma_buffer *dmab, size_t size)
- 	struct sg_table *sgt;
- 	void *p;
+diff --git a/drivers/net/ethernet/tundra/tsi108_eth.c b/drivers/net/ethernet/tundra/tsi108_eth.c
+index 5251fc324221..a2fe0534c769 100644
+--- a/drivers/net/ethernet/tundra/tsi108_eth.c
++++ b/drivers/net/ethernet/tundra/tsi108_eth.c
+@@ -1303,12 +1303,15 @@ static int tsi108_open(struct net_device *dev)
  
--	sgt = dma_alloc_noncontiguous(dmab->dev.dev, size, dmab->dev.dir,
--				      DEFAULT_GFP, 0);
--	if (!sgt) {
- #ifdef CONFIG_SND_DMA_SGBUF
-+	if (!get_dma_ops(dmab->dev.dev)) {
- 		if (dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC_SG)
- 			dmab->dev.type = SNDRV_DMA_TYPE_DEV_WC_SG_FALLBACK;
- 		else
- 			dmab->dev.type = SNDRV_DMA_TYPE_DEV_SG_FALLBACK;
- 		return snd_dma_sg_fallback_alloc(dmab, size);
--#else
--		return NULL;
--#endif
- 	}
-+#endif
-+
-+	sgt = dma_alloc_noncontiguous(dmab->dev.dev, size, dmab->dev.dir,
-+				      DEFAULT_GFP, 0);
-+	if (!sgt)
-+		return NULL;
+ 	data->rxring = dma_alloc_coherent(&data->pdev->dev, rxring_size,
+ 					  &data->rxdma, GFP_KERNEL);
+-	if (!data->rxring)
++	if (!data->rxring) {
++		free_irq(data->irq_num, dev);
+ 		return -ENOMEM;
++	}
  
- 	dmab->dev.need_sync = dma_need_sync(dmab->dev.dev,
- 					    sg_dma_address(sgt->sgl));
-@@ -874,7 +876,7 @@ static const struct snd_malloc_ops snd_dma_noncoherent_ops = {
- /*
-  * Entry points
-  */
--static const struct snd_malloc_ops *dma_ops[] = {
-+static const struct snd_malloc_ops *snd_dma_ops[] = {
- 	[SNDRV_DMA_TYPE_CONTINUOUS] = &snd_dma_continuous_ops,
- 	[SNDRV_DMA_TYPE_VMALLOC] = &snd_dma_vmalloc_ops,
- #ifdef CONFIG_HAS_DMA
-@@ -900,7 +902,7 @@ static const struct snd_malloc_ops *snd_dma_get_ops(struct snd_dma_buffer *dmab)
- 	if (WARN_ON_ONCE(!dmab))
- 		return NULL;
- 	if (WARN_ON_ONCE(dmab->dev.type <= SNDRV_DMA_TYPE_UNKNOWN ||
--			 dmab->dev.type >= ARRAY_SIZE(dma_ops)))
-+			 dmab->dev.type >= ARRAY_SIZE(snd_dma_ops)))
- 		return NULL;
--	return dma_ops[dmab->dev.type];
-+	return snd_dma_ops[dmab->dev.type];
- }
+ 	data->txring = dma_alloc_coherent(&data->pdev->dev, txring_size,
+ 					  &data->txdma, GFP_KERNEL);
+ 	if (!data->txring) {
++		free_irq(data->irq_num, dev);
+ 		dma_free_coherent(&data->pdev->dev, rxring_size, data->rxring,
+ 				    data->rxdma);
+ 		return -ENOMEM;
 -- 
 2.35.1
 
