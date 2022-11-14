@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9EC3628093
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:07:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 143746280A1
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:07:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237822AbiKNNHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:07:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33734 "EHLO
+        id S237898AbiKNNHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:07:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237829AbiKNNHC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:07:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A579E2AC40
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:07:01 -0800 (PST)
+        with ESMTP id S237864AbiKNNHa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:07:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 700482AE2D
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:07:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59C0DB80EB9
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:07:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5357C433D6;
-        Mon, 14 Nov 2022 13:06:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01EB46116E
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:07:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14C9EC433D6;
+        Mon, 14 Nov 2022 13:07:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431219;
-        bh=SduOTHmJ5cDLFORcw6jRYxtlpm4W4ETIHCZNrbXPr4s=;
+        s=korg; t=1668431248;
+        bh=mvFdGgjn8zYp7A7xzeSt2jWzAKWYCgs7eDNoq38LvSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQ+VkADohfZ8g3XbbJyzPI9qtj1G8xb71PTpJMeE/BkziaCwVctpFv+ew+Ru9KxgZ
-         H+RC1Io6H09YYKMWkYkFBzLL0z3WYoUiO6Ll4Bl178mtzTiZANsHdAnr3jFfhPEBkt
-         CF6Si0vfsAIEin/F+iYVrJeIHrONwCQjBEpdSDGE=
+        b=dmRPwLVloruOVF18yY2eis0g8SgbT3Kz0XECijTSDO6ksFpHxy0yqJ4sfPF8NuqUl
+         CV+ivRIUt82GMXWkfHYF3Nx+nmYgTxLojRSAOFNeowZPeZ3X/LvVqtN+p0j9wF5v0Q
+         6LBVHUgu5ypSpBP3mvIflAwEAVJm1KQrXdLWCetE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roman Li <Roman.Li@amd.com>,
-        Alan Liu <HaoPing.Liu@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 137/190] drm/amd/display: Fix reg timeout in enc314_enable_fifo
-Date:   Mon, 14 Nov 2022 13:46:01 +0100
-Message-Id: <20221114124504.786238611@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Tim Huang <tim.huang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Yifan Zhang <yifan1.zhang@amd.com>
+Subject: [PATCH 6.0 138/190] drm/amd/pm: update SMU IP v13.0.4 msg interface header
+Date:   Mon, 14 Nov 2022 13:46:02 +0100
+Message-Id: <20221114124504.837818284@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -55,80 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Tim Huang <tim.huang@amd.com>
 
-commit ce62198d8b62734a985d22652e75a649be052390 upstream.
+commit bc66c9ab162d2a633ee3eb864d7bc2369e79c1e4 upstream.
 
-[Why]
-The link enablement sequence can end up resetting the encoder while
-the PHY symclk isn't yet on.
+Some of the unused messages that were used earlier in development have
+been freed up as spare messages, no intended functional changes.
 
-This means that waiting for symclk on will timeout, along with the reset
-bit never asserting high.
-
-This causes unnecessary delay when enabling the link and produces a
-warning affecting multiple IGT tests.
-
-[How]
-Don't wait for the symclk to be on here because firmware already does.
-
-Don't wait for reset if we know the symclk isn't on.
-
-Split the reset into a helper function that checks the bit and decides
-whether or not a delay is sufficient.
-
-Reviewed-by: Roman Li <Roman.Li@amd.com>
-Acked-by: Alan Liu <HaoPing.Liu@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Tim Huang <tim.huang@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Yifan Zhang <yifan1.zhang@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org # 6.0.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../dc/dcn314/dcn314_dio_stream_encoder.c     | 24 ++++++++++++++-----
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ .../amd/pm/swsmu/inc/pmfw_if/smu_v13_0_4_ppsmc.h  | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c
-index 7e773bf7b895..38842f938bed 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c
-@@ -49,18 +49,30 @@
- #define CTX \
- 	enc1->base.ctx
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu_v13_0_4_ppsmc.h b/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu_v13_0_4_ppsmc.h
+index d9b0cd752200..f4d6c07b56ea 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu_v13_0_4_ppsmc.h
++++ b/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu_v13_0_4_ppsmc.h
+@@ -54,14 +54,14 @@
+ #define PPSMC_MSG_TestMessage                   0x01 ///< To check if PMFW is alive and responding. Requirement specified by PMFW team
+ #define PPSMC_MSG_GetPmfwVersion                0x02 ///< Get PMFW version
+ #define PPSMC_MSG_GetDriverIfVersion            0x03 ///< Get PMFW_DRIVER_IF version
+-#define PPSMC_MSG_EnableGfxOff                  0x04 ///< Enable GFXOFF
+-#define PPSMC_MSG_DisableGfxOff                 0x05 ///< Disable GFXOFF
++#define PPSMC_MSG_SPARE0                        0x04 ///< SPARE
++#define PPSMC_MSG_SPARE1                        0x05 ///< SPARE
+ #define PPSMC_MSG_PowerDownVcn                  0x06 ///< Power down VCN
+ #define PPSMC_MSG_PowerUpVcn                    0x07 ///< Power up VCN; VCN is power gated by default
+ #define PPSMC_MSG_SetHardMinVcn                 0x08 ///< For wireless display
+ #define PPSMC_MSG_SetSoftMinGfxclk              0x09 ///< Set SoftMin for GFXCLK, argument is frequency in MHz
+-#define PPSMC_MSG_ActiveProcessNotify           0x0A ///< Needs update
+-#define PPSMC_MSG_ForcePowerDownGfx             0x0B ///< Force power down GFX, i.e. enter GFXOFF
++#define PPSMC_MSG_SPARE2                        0x0A ///< SPARE
++#define PPSMC_MSG_SPARE3                        0x0B ///< SPARE
+ #define PPSMC_MSG_PrepareMp1ForUnload           0x0C ///< Prepare PMFW for GFX driver unload
+ #define PPSMC_MSG_SetDriverDramAddrHigh         0x0D ///< Set high 32 bits of DRAM address for Driver table transfer
+ #define PPSMC_MSG_SetDriverDramAddrLow          0x0E ///< Set low 32 bits of DRAM address for Driver table transfer
+@@ -73,8 +73,7 @@
+ #define PPSMC_MSG_SetSoftMinFclk                0x14 ///< Set hard min for FCLK
+ #define PPSMC_MSG_SetSoftMinVcn                 0x15 ///< Set soft min for VCN clocks (VCLK and DCLK)
  
-+static void enc314_reset_fifo(struct stream_encoder *enc, bool reset)
-+{
-+	struct dcn10_stream_encoder *enc1 = DCN10STRENC_FROM_STRENC(enc);
-+	uint32_t reset_val = reset ? 1 : 0;
-+	uint32_t is_symclk_on;
-+
-+	REG_UPDATE(DIG_FIFO_CTRL0, DIG_FIFO_RESET, reset_val);
-+	REG_GET(DIG_FE_CNTL, DIG_SYMCLK_FE_ON, &is_symclk_on);
-+
-+	if (is_symclk_on)
-+		REG_WAIT(DIG_FIFO_CTRL0, DIG_FIFO_RESET_DONE, reset_val, 10, 5000);
-+	else
-+		udelay(10);
-+}
+-
+-#define PPSMC_MSG_EnableGfxImu                  0x16 ///< Needs update
++#define PPSMC_MSG_EnableGfxImu                  0x16 ///< Enable GFX IMU
  
- static void enc314_enable_fifo(struct stream_encoder *enc)
- {
- 	struct dcn10_stream_encoder *enc1 = DCN10STRENC_FROM_STRENC(enc);
+ #define PPSMC_MSG_GetGfxclkFrequency            0x17 ///< Get GFX clock frequency
+ #define PPSMC_MSG_GetFclkFrequency              0x18 ///< Get FCLK frequency
+@@ -102,8 +101,8 @@
+ #define PPSMC_MSG_SetHardMinIspxclkByFreq       0x2C ///< Set HardMin by frequency for ISPXCLK
+ #define PPSMC_MSG_PowerDownUmsch                0x2D ///< Power down VCN.UMSCH (aka VSCH) scheduler
+ #define PPSMC_MSG_PowerUpUmsch                  0x2E ///< Power up VCN.UMSCH (aka VSCH) scheduler
+-#define PPSMC_Message_IspStutterOn_MmhubPgDis   0x2F ///< ISP StutterOn mmHub PgDis
+-#define PPSMC_Message_IspStutterOff_MmhubPgEn   0x30 ///< ISP StufferOff mmHub PgEn
++#define PPSMC_MSG_IspStutterOn_MmhubPgDis       0x2F ///< ISP StutterOn mmHub PgDis
++#define PPSMC_MSG_IspStutterOff_MmhubPgEn       0x30 ///< ISP StufferOff mmHub PgEn
  
--	/* TODO: Confirm if we need to wait for DIG_SYMCLK_FE_ON */
--	REG_WAIT(DIG_FE_CNTL, DIG_SYMCLK_FE_ON, 1, 10, 5000);
- 	REG_UPDATE(DIG_FIFO_CTRL0, DIG_FIFO_READ_START_LEVEL, 0x7);
--	REG_UPDATE(DIG_FIFO_CTRL0, DIG_FIFO_RESET, 1);
--	REG_WAIT(DIG_FIFO_CTRL0, DIG_FIFO_RESET_DONE, 1, 10, 5000);
--	REG_UPDATE(DIG_FIFO_CTRL0, DIG_FIFO_RESET, 0);
--	REG_WAIT(DIG_FIFO_CTRL0, DIG_FIFO_RESET_DONE, 0, 10, 5000);
-+
-+	enc314_reset_fifo(enc, true);
-+	enc314_reset_fifo(enc, false);
-+
- 	REG_UPDATE(DIG_FIFO_CTRL0, DIG_FIFO_ENABLE, 1);
- }
- 
+ #define PPSMC_Message_Count                     0x31 ///< Total number of PPSMC messages
+ /** @}*/
 -- 
 2.38.1
 
