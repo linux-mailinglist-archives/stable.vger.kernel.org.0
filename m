@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A1A627E9D
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:49:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DE7C627E72
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:48:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237358AbiKNMtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:49:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42068 "EHLO
+        id S237295AbiKNMsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:48:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237362AbiKNMtl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:49:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2B7F2AF2
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:49:38 -0800 (PST)
+        with ESMTP id S237239AbiKNMrw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:47:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE409270E
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:47:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77E9CB80EB9
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:49:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7D1EC433C1;
-        Mon, 14 Nov 2022 12:49:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CFA36116A
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:47:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E4A2C4347C;
+        Mon, 14 Nov 2022 12:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430176;
-        bh=KrmbM0EXfk1c5IK+tj0IHRg9gKB7QHAbHJ5ndL/U38A=;
+        s=korg; t=1668430070;
+        bh=i8dNssIxTe2FEkOuppenqrbevSdt0S9J+tbw16VClQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErfUGjRgZS2q6kZNUv6rtO+WQad6Xh64cyEpnuU71RtOVxpGvojOq2V7Vayi5WDYL
-         JQ+PkeYP549a1NQ7r1MoH8RYoIMhnNlLfLrMtTQ1S6WW8VGEQlQXJIFPrfRfadh0Bz
-         OM2KEsGWQi29KQj9LkY1yZ0xaCzkTqdtYew21hQE=
+        b=DMsy1l9wMPNUTEkxB3CD15BUkZ/4yJrEbebPeXiVA8j7m1rTftJnT6vRTwV4zedSq
+         Y28fFR7ZyxyVaHlCqv+E/673SirYoEdi8hx+1c2IF4gJDc+hnFJk0xeE3NFQB5YrKa
+         wtAhZwkeXBzoit2t54iynOGZFNCQELsL7eI+ae0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akshay Navgire <anavgire@purestorage.com>,
-        Alex Barba <alex.barba@broadcom.com>,
-        Andy Gospodarek <gospo@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        patches@lists.linux.dev, Sean Anderson <sean.anderson@seco.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 19/95] bnxt_en: fix potentially incorrect return value for ndo_rx_flow_steer
-Date:   Mon, 14 Nov 2022 13:45:13 +0100
-Message-Id: <20221114124443.311575261@linuxfoundation.org>
+Subject: [PATCH 5.10 20/95] net: fman: Unregister ethernet device on removal
+Date:   Mon, 14 Nov 2022 13:45:14 +0100
+Message-Id: <20221114124443.353875474@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
 References: <20221114124442.530286937@linuxfoundation.org>
@@ -56,43 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Barba <alex.barba@broadcom.com>
+From: Sean Anderson <sean.anderson@seco.com>
 
-[ Upstream commit 02597d39145bb0aa81d04bf39b6a913ce9a9d465 ]
+[ Upstream commit b7cbc6740bd6ad5d43345a2504f7e4beff0d709f ]
 
-In the bnxt_en driver ndo_rx_flow_steer returns '0' whenever an entry
-that we are attempting to steer is already found.  This is not the
-correct behavior.  The return code should be the value/index that
-corresponds to the entry.  Returning zero all the time causes the
-RFS records to be incorrect unless entry '0' is the correct one.  As
-flows migrate to different cores this can create entries that are not
-correct.
+When the mac device gets removed, it leaves behind the ethernet device.
+This will result in a segfault next time the ethernet device accesses
+mac_dev. Remove the ethernet device when we get removed to prevent
+this. This is not completely reversible, since some resources aren't
+cleaned up properly, but that can be addressed later.
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Reported-by: Akshay Navgire <anavgire@purestorage.com>
-Signed-off-by: Alex Barba <alex.barba@broadcom.com>
-Signed-off-by: Andy Gospodarek <gospo@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Fixes: 3933961682a3 ("fsl/fman: Add FMan MAC driver")
+Signed-off-by: Sean Anderson <sean.anderson@seco.com>
+Link: https://lore.kernel.org/r/20221103182831.2248833-1-sean.anderson@seco.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/fman/mac.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index b818d5f342d5..8311473d537b 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -12008,8 +12008,8 @@ static int bnxt_rx_flow_steer(struct net_device *dev, const struct sk_buff *skb,
- 	rcu_read_lock();
- 	hlist_for_each_entry_rcu(fltr, head, hash) {
- 		if (bnxt_fltr_match(fltr, new_fltr)) {
-+			rc = fltr->sw_id;
- 			rcu_read_unlock();
--			rc = 0;
- 			goto err_free;
- 		}
- 	}
+diff --git a/drivers/net/ethernet/freescale/fman/mac.c b/drivers/net/ethernet/freescale/fman/mac.c
+index 6eeccc11b76e..3312dc4083a0 100644
+--- a/drivers/net/ethernet/freescale/fman/mac.c
++++ b/drivers/net/ethernet/freescale/fman/mac.c
+@@ -884,12 +884,21 @@ static int mac_probe(struct platform_device *_of_dev)
+ 	return err;
+ }
+ 
++static int mac_remove(struct platform_device *pdev)
++{
++	struct mac_device *mac_dev = platform_get_drvdata(pdev);
++
++	platform_device_unregister(mac_dev->priv->eth_dev);
++	return 0;
++}
++
+ static struct platform_driver mac_driver = {
+ 	.driver = {
+ 		.name		= KBUILD_MODNAME,
+ 		.of_match_table	= mac_match,
+ 	},
+ 	.probe		= mac_probe,
++	.remove		= mac_remove,
+ };
+ 
+ builtin_platform_driver(mac_driver);
 -- 
 2.35.1
 
