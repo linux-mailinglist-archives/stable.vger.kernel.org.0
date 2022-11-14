@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F38B628050
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C6A0628051
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:05:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237765AbiKNNFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:05:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59640 "EHLO
+        id S237770AbiKNNFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:05:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237770AbiKNNE5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:04:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6347C2A273
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:04:56 -0800 (PST)
+        with ESMTP id S237769AbiKNNFB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:05:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C05C42A242
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:05:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3FBA6118F
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:04:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1001BC433D6;
-        Mon, 14 Nov 2022 13:04:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70975B80EC1
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:04:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B86A3C433D6;
+        Mon, 14 Nov 2022 13:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431095;
-        bh=B5MVTi98roTok3UDwmm8bFdSgwT37VJd+p1tHGCvFGc=;
+        s=korg; t=1668431098;
+        bh=4DTsmTV7tjrPTVNor5mkQCVSPn2c9laJOxJjFztQ8Lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UllOQ01rtrknDQnCDAbanOkDRY+0EeS1O1pfGlTBAkYxs9GTJ2j2ISmP6oeMpZGrk
-         7MFSfR/CMCcvhXpFp6EbrHm1oNll37dHJlOiUGwYxs9MTKBqWLddTijhAAgHgMAAM1
-         lIUzr8b4VRL1JXOe9NmCZnK9qiWIhD/JMrnsEe0E=
+        b=VWSnNWyMpoxqFq+BPbq7PbEpYhp1jJ8JKauGki8F7xiGCA3ZS6Av+shzl9dIwBtHj
+         qAlI5IWVaMoj2FrdrgPy+Pt6GWDccCEo+O/2ejxx8odF2y5tbYLrDGQk075w6dJyVI
+         PUSbTjS9JTz+TSKOi/2CjAMmmm2t39yt1Aypq6qY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ling Pei Lee <pei.lee.ling@intel.com>,
-        "Tan, Tee Min" <tee.min.tan@intel.com>,
-        Voon Weifeng <weifeng.voon@intel.com>,
-        Gan Yi Fang <yi.fang.gan@intel.com>,
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        Matt Johnston <matt@codeconstruct.com.au>,
         Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, Tan@vger.kernel.org
-Subject: [PATCH 6.0 098/190] stmmac: intel: Update PCH PTP clock rate from 200MHz to 204.8MHz
-Date:   Mon, 14 Nov 2022 13:45:22 +0100
-Message-Id: <20221114124502.982515398@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 099/190] mctp: Fix an error handling path in mctp_init()
+Date:   Mon, 14 Nov 2022 13:45:23 +0100
+Message-Id: <20221114124503.031546933@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -56,85 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tan, Tee Min <tee.min.tan@intel.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit dcea1a8107c04b9521dee1dd37971757a22db162 ]
+[ Upstream commit d4072058af4fd8fb4658e7452289042a406a9398 ]
 
-Current Intel platform has an output of ~976ms interval
-when probed on 1 Pulse-per-Second(PPS) hardware pin.
+If mctp_neigh_init() return error, the routes resources should
+be released in the error handling path. Otherwise some resources
+leak.
 
-The correct PTP clock frequency for PCH GbE should be 204.8MHz
-instead of 200MHz. PSE GbE PTP clock rate remains at 200MHz.
-
-Fixes: 58da0cfa6cf1 ("net: stmmac: create dwmac-intel.c to contain all Intel platform")
-Signed-off-by: Ling Pei Lee <pei.lee.ling@intel.com>
-Signed-off-by: Tan, Tee Min <tee.min.tan@intel.com>
-Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
-Signed-off-by: Gan Yi Fang <yi.fang.gan@intel.com>
-Link: https://lore.kernel.org/r/20221108020811.12919-1-yi.fang.gan@intel.com
+Fixes: 4d8b9319282a ("mctp: Add neighbour implementation")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Matt Johnston <matt@codeconstruct.com.au>
+Link: https://lore.kernel.org/r/20221108095517.620115-1-weiyongjun@huaweicloud.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ net/mctp/af_mctp.c | 4 +++-
+ net/mctp/route.c   | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-index 9af25be42401..66c30a40a6a2 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-@@ -630,7 +630,6 @@ static int ehl_common_data(struct pci_dev *pdev,
- {
- 	plat->rx_queues_to_use = 8;
- 	plat->tx_queues_to_use = 8;
--	plat->clk_ptp_rate = 200000000;
- 	plat->use_phy_wol = 1;
+diff --git a/net/mctp/af_mctp.c b/net/mctp/af_mctp.c
+index b6b5e496fa40..fc9e728b6333 100644
+--- a/net/mctp/af_mctp.c
++++ b/net/mctp/af_mctp.c
+@@ -665,12 +665,14 @@ static __init int mctp_init(void)
  
- 	plat->safety_feat_cfg->tsoee = 1;
-@@ -655,6 +654,8 @@ static int ehl_sgmii_data(struct pci_dev *pdev,
- 	plat->serdes_powerup = intel_serdes_powerup;
- 	plat->serdes_powerdown = intel_serdes_powerdown;
+ 	rc = mctp_neigh_init();
+ 	if (rc)
+-		goto err_unreg_proto;
++		goto err_unreg_routes;
  
-+	plat->clk_ptp_rate = 204800000;
-+
- 	return ehl_common_data(pdev, plat);
+ 	mctp_device_init();
+ 
+ 	return 0;
+ 
++err_unreg_routes:
++	mctp_routes_exit();
+ err_unreg_proto:
+ 	proto_unregister(&mctp_proto);
+ err_unreg_sock:
+diff --git a/net/mctp/route.c b/net/mctp/route.c
+index 2155f15a074c..f9a80b82dc51 100644
+--- a/net/mctp/route.c
++++ b/net/mctp/route.c
+@@ -1400,7 +1400,7 @@ int __init mctp_routes_init(void)
+ 	return register_pernet_subsys(&mctp_net_ops);
  }
  
-@@ -668,6 +669,8 @@ static int ehl_rgmii_data(struct pci_dev *pdev,
- 	plat->bus_id = 1;
- 	plat->phy_interface = PHY_INTERFACE_MODE_RGMII;
- 
-+	plat->clk_ptp_rate = 204800000;
-+
- 	return ehl_common_data(pdev, plat);
- }
- 
-@@ -684,6 +687,8 @@ static int ehl_pse0_common_data(struct pci_dev *pdev,
- 	plat->bus_id = 2;
- 	plat->addr64 = 32;
- 
-+	plat->clk_ptp_rate = 200000000;
-+
- 	intel_mgbe_pse_crossts_adj(intel_priv, EHL_PSE_ART_MHZ);
- 
- 	return ehl_common_data(pdev, plat);
-@@ -723,6 +728,8 @@ static int ehl_pse1_common_data(struct pci_dev *pdev,
- 	plat->bus_id = 3;
- 	plat->addr64 = 32;
- 
-+	plat->clk_ptp_rate = 200000000;
-+
- 	intel_mgbe_pse_crossts_adj(intel_priv, EHL_PSE_ART_MHZ);
- 
- 	return ehl_common_data(pdev, plat);
-@@ -758,7 +765,7 @@ static int tgl_common_data(struct pci_dev *pdev,
+-void __exit mctp_routes_exit(void)
++void mctp_routes_exit(void)
  {
- 	plat->rx_queues_to_use = 6;
- 	plat->tx_queues_to_use = 4;
--	plat->clk_ptp_rate = 200000000;
-+	plat->clk_ptp_rate = 204800000;
- 	plat->speed_mode_2500 = intel_speed_mode_2500;
- 
- 	plat->safety_feat_cfg->tsoee = 1;
+ 	unregister_pernet_subsys(&mctp_net_ops);
+ 	rtnl_unregister(PF_MCTP, RTM_DELROUTE);
 -- 
 2.35.1
 
