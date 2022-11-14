@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12E5E627F23
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:55:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24711627E87
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:48:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237521AbiKNMzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:55:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48058 "EHLO
+        id S237315AbiKNMsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:48:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237531AbiKNMzv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:55:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C5A727CCD
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:55:50 -0800 (PST)
+        with ESMTP id S237427AbiKNMss (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:48:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97F463B2
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:48:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53D12B80EAF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:55:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BAC8C433C1;
-        Mon, 14 Nov 2022 12:55:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 357916113D
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:48:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43C5DC433D6;
+        Mon, 14 Nov 2022 12:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430548;
-        bh=RqUyiHnUBhBA/SXC6gg/z7KldM/kWeP7E7ew84j3TU0=;
+        s=korg; t=1668430126;
+        bh=sp+gBnK1+NEnweJEGrxConGz44K1rSTcau4w/OVgd+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BvfCWY5DlDW+AswnccNN3rOSfyPqu9DiRKLohXtjmA1GVYXa/ONBD95DuiT+h5+L9
-         L80VFCuKUTee05grkbNrL0KbPXtBJoooONlonJU86Wio6cnuI2hE/adGSTNOpSg/Fy
-         RHbv1gl5AU3DWklFIuVG8I1sT25AatA0jK9UHL2Y=
+        b=XEsqb7J/73RyKO4WAuT+Ln1AsZjw4Ybjnh2uoeX7cPSwxOMVFuQnWdBXoxo5pTDzY
+         YeG4uKuC1KkGw10EG1kxjy11B6bYrUIugC5qkO57T0OrjpK7gBkeiaTWMytqFPru3j
+         c1tfBlHUnPLl7tkBrfo3ckBGIfh3Fq36AObq43eY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 059/131] net: nixge: disable napi when enable interrupts failed in nixge_open()
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 34/95] dmaengine: mv_xor_v2: Fix a resource leak in mv_xor_v2_remove()
 Date:   Mon, 14 Nov 2022 13:45:28 +0100
-Message-Id: <20221114124451.206883022@linuxfoundation.org>
+Message-Id: <20221114124443.981312612@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit b06334919c7a068d54ba5b219c05e919d89943f7 ]
+[ Upstream commit 081195d17a0c4c636da2b869bd5809d42e8cbb13 ]
 
-When failed to enable interrupts in nixge_open() for opening device,
-napi isn't disabled. When open nixge device next time, it will reports
-a invalid opcode issue. Fix it. Only be compiled, not be tested.
+A clk_prepare_enable() call in the probe is not balanced by a corresponding
+clk_disable_unprepare() in the remove function.
 
-Fixes: 492caffa8a1a ("net: ethernet: nixge: Add support for National Instruments XGE netdev")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221107101443.120205-1-shaozhengchao@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Add the missing call.
+
+Fixes: 3cd2c313f1d6 ("dmaengine: mv_xor_v2: Fix clock resource by adding a register clock")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/e9e3837a680c9bd2438e4db2b83270c6c052d005.1666640987.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ni/nixge.c | 1 +
+ drivers/dma/mv_xor_v2.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/ni/nixge.c b/drivers/net/ethernet/ni/nixge.c
-index 346145d3180e..057b7419404d 100644
---- a/drivers/net/ethernet/ni/nixge.c
-+++ b/drivers/net/ethernet/ni/nixge.c
-@@ -899,6 +899,7 @@ static int nixge_open(struct net_device *ndev)
- err_rx_irq:
- 	free_irq(priv->tx_irq, ndev);
- err_tx_irq:
-+	napi_disable(&priv->napi);
- 	phy_stop(phy);
- 	phy_disconnect(phy);
- 	tasklet_kill(&priv->dma_err_tasklet);
+diff --git a/drivers/dma/mv_xor_v2.c b/drivers/dma/mv_xor_v2.c
+index 9b0d463f89bb..4800c596433a 100644
+--- a/drivers/dma/mv_xor_v2.c
++++ b/drivers/dma/mv_xor_v2.c
+@@ -899,6 +899,7 @@ static int mv_xor_v2_remove(struct platform_device *pdev)
+ 	tasklet_kill(&xor_dev->irq_tasklet);
+ 
+ 	clk_disable_unprepare(xor_dev->clk);
++	clk_disable_unprepare(xor_dev->reg_clk);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
