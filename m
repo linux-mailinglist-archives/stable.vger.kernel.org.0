@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37DC0627F85
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:00:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33176627EB7
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:50:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237635AbiKNNAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:00:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53842 "EHLO
+        id S237430AbiKNMuu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:50:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237642AbiKNNAJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:00:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 915BA27FF8
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:00:08 -0800 (PST)
+        with ESMTP id S237431AbiKNMut (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:50:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D01A912755
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:50:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EF1A6117F
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:00:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DEA2C433C1;
-        Mon, 14 Nov 2022 13:00:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E6256112D
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:50:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D823C433D6;
+        Mon, 14 Nov 2022 12:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430807;
-        bh=62ufeGsXePwp45gL/cQ4qlqy69IFaJTRaamkN4WhHpE=;
+        s=korg; t=1668430246;
+        bh=BOEz3zk41q+UcLDi0zw0I8vNjSoVCa+vRV8HJdPlwIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vqEfWsxVVhxk0sULc/yGwuzZyojGZ8QMZ5kRV9Utclf3D+prV4jjEh1e7Kinphi87
-         /+m2jqH2vOTCj2uvGMDfTqG8ebf+IPPMFlLvwuAFbboBKFg6zH5HX8qhE+tAY729fY
-         RZP14Ckw6mtUrGtfsj7pS4AdsgJ392gCwcZJ0Fkc=
+        b=H9szn0LG2s1zNJl3dYrYU8Ok+bBP4LwPGoOmGUYh5LV2Tc7jb8J9bV1BO1pWWUm2m
+         Mid0WwxyOctTOeB3zQjCC+Wt8AgMll5ciCUK0rV17Y0u7l/tUc6+J1fSToLih5IuPN
+         ti8Afk3k9IsPbxqnwNiZGGyt4K0uE27ZJoYp49AY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 093/131] ALSA: usb-audio: Yet more regression for for the delayed card registration
+        patches@lists.linux.dev,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 5.10 68/95] ata: libata-scsi: fix SYNCHRONIZE CACHE (16) command failure
 Date:   Mon, 14 Nov 2022 13:46:02 +0100
-Message-Id: <20221114124452.651498320@linuxfoundation.org>
+Message-Id: <20221114124445.366851068@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,83 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-commit 971cb608d1c5d95533a43b549bb8ec9637f10043 upstream.
+commit ea045fd344cb15c164e9ffc8b8cffb6883df8475 upstream.
 
-Although we tried to fix the regression for the recent changes with
-the delayed card registration, it doesn't seem covering the all
-cases; e.g. on Roland EDIROL M-100FX, where the generic quirk for
-Roland devices is applied, it misses the card registration because the
-detection of the last interface (apparently for MIDI) fails.
+SAT SCSI/ATA Translation specification requires SCSI SYNCHRONIZE CACHE
+(10) and (16) commands both shall be translated to ATA flush command.
+Also, ZBC Zoned Block Commands specification mandates SYNCHRONIZE CACHE
+(16) command support. However, libata translates only SYNCHRONIZE CACHE
+(10). This results in SYNCHRONIZE CACHE (16) command failures on SATA
+drives and then libata translation does not conform to ZBC. To avoid the
+failure, add support for SYNCHRONIZE CACHE (16).
 
-This patch is an attempt to recover from those failures by calling the
-card register also at the error path for the secondary interfaces.
-The card register condition is also extended to match with the old
-check in the previous patch, too (i.e. the simple check of the
-interface number) for catching the probe with errors.
-
-Fixes: 39efc9c8a973 ("ALSA: usb-audio: Fix last interface check for registration")
-Cc: <stable@vger.kernel.org>
-Link: https://bugzilla.suse.com/show_bug.cgi?id=1205111
-Link: https://lore.kernel.org/r/20221108065824.14418-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/card.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ drivers/ata/libata-scsi.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -741,6 +741,18 @@ get_alias_quirk(struct usb_device *dev,
- 	return NULL;
- }
+--- a/drivers/ata/libata-scsi.c
++++ b/drivers/ata/libata-scsi.c
+@@ -3303,6 +3303,7 @@ static unsigned int ata_scsiop_maint_in(
+ 	case REPORT_LUNS:
+ 	case REQUEST_SENSE:
+ 	case SYNCHRONIZE_CACHE:
++	case SYNCHRONIZE_CACHE_16:
+ 	case REZERO_UNIT:
+ 	case SEEK_6:
+ 	case SEEK_10:
+@@ -3969,6 +3970,7 @@ static inline ata_xlat_func_t ata_get_xl
+ 		return ata_scsi_write_same_xlat;
  
-+/* register card if we reach to the last interface or to the specified
-+ * one given via option
-+ */
-+static int try_to_register_card(struct snd_usb_audio *chip, int ifnum)
-+{
-+	if (check_delayed_register_option(chip) == ifnum ||
-+	    chip->last_iface == ifnum ||
-+	    usb_interface_claimed(usb_ifnum_to_if(chip->dev, chip->last_iface)))
-+		return snd_card_register(chip->card);
-+	return 0;
-+}
-+
- /*
-  * probe the active usb device
-  *
-@@ -879,15 +891,9 @@ static int usb_audio_probe(struct usb_in
- 		chip->need_delayed_register = false; /* clear again */
- 	}
+ 	case SYNCHRONIZE_CACHE:
++	case SYNCHRONIZE_CACHE_16:
+ 		if (ata_try_flush_cache(dev))
+ 			return ata_scsi_flush_xlat;
+ 		break;
+@@ -4215,6 +4217,7 @@ void ata_scsi_simulate(struct ata_device
+ 	 * turning this into a no-op.
+ 	 */
+ 	case SYNCHRONIZE_CACHE:
++	case SYNCHRONIZE_CACHE_16:
+ 		fallthrough;
  
--	/* register card if we reach to the last interface or to the specified
--	 * one given via option
--	 */
--	if (check_delayed_register_option(chip) == ifnum ||
--	    usb_interface_claimed(usb_ifnum_to_if(dev, chip->last_iface))) {
--		err = snd_card_register(chip->card);
--		if (err < 0)
--			goto __error;
--	}
-+	err = try_to_register_card(chip, ifnum);
-+	if (err < 0)
-+		goto __error_no_register;
- 
- 	if (chip->quirk_flags & QUIRK_FLAG_SHARE_MEDIA_DEVICE) {
- 		/* don't want to fail when snd_media_device_create() fails */
-@@ -906,6 +912,11 @@ static int usb_audio_probe(struct usb_in
- 	return 0;
- 
-  __error:
-+	/* in the case of error in secondary interface, still try to register */
-+	if (chip)
-+		try_to_register_card(chip, ifnum);
-+
-+ __error_no_register:
- 	if (chip) {
- 		/* chip->active is inside the chip->card object,
- 		 * decrement before memory is possibly returned.
+ 	/* no-op's, complete with success */
 
 
