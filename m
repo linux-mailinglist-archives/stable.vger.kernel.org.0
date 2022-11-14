@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D64D462806B
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:05:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FD1162806E
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:05:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237797AbiKNNFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:05:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60366 "EHLO
+        id S237782AbiKNNFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:05:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237801AbiKNNFs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:05:48 -0500
+        with ESMTP id S237801AbiKNNFu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:05:50 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F7732A726
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:05:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA782A723
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:05:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BE2261169
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:05:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C26BC433D6;
-        Mon, 14 Nov 2022 13:05:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD98C61169
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:05:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B94E2C433D6;
+        Mon, 14 Nov 2022 13:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431146;
-        bh=6/mqBGBbGDV5vhPl0+iOzXBqKyq9yKNg/8BY94L0bTM=;
+        s=korg; t=1668431149;
+        bh=jb4gz7jINxNiXE9Lvhxsy7eqkNTsAIKqyShViNjP7JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jK/XpkglspMG9/cGZ1ei54SxJhDe6w7Krm1mEV6ZS2G9D2yd0/9TWVhCG5kf6dgCR
-         yltUz7hINaokBfOxJlWbII09wvdfTu5hVGHQIUZD+Zj6FBSqBy21pUM6rOLr12jphW
-         oWw2pHbBAQYp8iRBSTOiVjn62SLwyXi0VkM1niT4=
+        b=Mk98TlHGIg9qQ8LkhKPCm9xhoLymr4/fceGXPfWVi5h28k3hT9PBEwUtZppWI978T
+         dd0ZmxmhSZjjkNHQEaYwyP9HBxFdAa1C8SlZMDeNcSwL3ST4QpWRxX5jNLTpyh69/k
+         2wX1Ht2OF8MzsoPjAUne8cFuODVykAkZNMwRAO8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Brian Norris <briannorris@chromium.org>,
+        Guenter Roeck <linux@roeck-us.net>,
         Adrian Hunter <adrian.hunter@intel.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.0 118/190] mmc: cqhci: Provide helper for resetting both SDHCI and CQHCI
-Date:   Mon, 14 Nov 2022 13:45:42 +0100
-Message-Id: <20221114124503.971956221@linuxfoundation.org>
+Subject: [PATCH 6.0 119/190] mmc: sdhci-of-arasan: Fix SDHCI_RESET_ALL for CQHCI
+Date:   Mon, 14 Nov 2022 13:45:43 +0100
+Message-Id: <20221114124504.022275285@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -56,67 +56,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Brian Norris <briannorris@chromium.org>
 
-commit ebb5fd38f41132e6924cb33b647337f4a5d5360c upstream.
+commit 5d249ac37fc2396e8acc1adb0650cdacae5a990d upstream.
 
-Several SDHCI drivers need to deactivate command queueing in their reset
-hook (see sdhci_cqhci_reset() / sdhci-pci-core.c, for example), and
-several more are coming.
+SDHCI_RESET_ALL resets will reset the hardware CQE state, but we aren't
+tracking that properly in software. When out of sync, we may trigger
+various timeouts.
 
-Those reset implementations have some small subtleties (e.g., ordering
-of initialization of SDHCI vs. CQHCI might leave us resetting with a
-NULL ->cqe_private), and are often identical across different host
-drivers.
+It's not typical to perform resets while CQE is enabled, but one
+particular case I hit commonly enough: mmc_suspend() -> mmc_power_off().
+Typically we will eventually deactivate CQE (cqhci_suspend() ->
+cqhci_deactivate()), but that's not guaranteed -- in particular, if
+we perform a partial (e.g., interrupted) system suspend.
 
-We also don't want to force a dependency between SDHCI and CQHCI, or
-vice versa; non-SDHCI drivers use CQHCI, and SDHCI drivers might support
-command queueing through some other means.
+The same bug was already found and fixed for two other drivers, in v5.7
+and v5.9:
 
-So, implement a small helper, to avoid repeating the same mistakes in
-different drivers. Simply stick it in a header, because it's so small it
-doesn't deserve its own module right now, and inlining to each driver is
-pretty reasonable.
+  5cf583f1fb9c ("mmc: sdhci-msm: Deactivate CQE during SDHC reset")
+  df57d73276b8 ("mmc: sdhci-pci: Fix SDHCI_RESET_ALL for CQHCI for Intel
+                 GLK-based controllers")
 
-This is marked for -stable, as it is an important prerequisite patch for
-several SDHCI controller bugfixes that follow.
+The latter is especially prescient, saying "other drivers using CQHCI
+might benefit from a similar change, if they also have CQHCI reset by
+SDHCI_RESET_ALL."
 
+So like these other patches, deactivate CQHCI when resetting the
+controller. Do this via the new sdhci_and_cqhci_reset() helper.
+
+This patch depends on (and should not compile without) the patch
+entitled "mmc: cqhci: Provide helper for resetting both SDHCI and
+CQHCI".
+
+Fixes: 84362d79f436 ("mmc: sdhci-of-arasan: Add CQHCI support for arasan,sdhci-5.1")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20221026124150.v4.1.Ie85faa09432bfe1b0890d8c24ff95e17f3097317@changeid
+Link: https://lore.kernel.org/r/20221026124150.v4.2.I29f6a2189e84e35ad89c1833793dca9e36c64297@changeid
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-cqhci.h |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
- create mode 100644 drivers/mmc/host/sdhci-cqhci.h
+ drivers/mmc/host/sdhci-of-arasan.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- /dev/null
-+++ b/drivers/mmc/host/sdhci-cqhci.h
-@@ -0,0 +1,24 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright 2022 The Chromium OS Authors
-+ *
-+ * Support that applies to the combination of SDHCI and CQHCI, while not
-+ * expressing a dependency between the two modules.
-+ */
-+
-+#ifndef __MMC_HOST_SDHCI_CQHCI_H__
-+#define __MMC_HOST_SDHCI_CQHCI_H__
-+
-+#include "cqhci.h"
-+#include "sdhci.h"
-+
-+static inline void sdhci_and_cqhci_reset(struct sdhci_host *host, u8 mask)
-+{
-+	if ((host->mmc->caps2 & MMC_CAP2_CQE) && (mask & SDHCI_RESET_ALL) &&
-+	    host->mmc->cqe_private)
-+		cqhci_deactivate(host->mmc);
-+
-+	sdhci_reset(host, mask);
-+}
-+
-+#endif /* __MMC_HOST_SDHCI_CQHCI_H__ */
+--- a/drivers/mmc/host/sdhci-of-arasan.c
++++ b/drivers/mmc/host/sdhci-of-arasan.c
+@@ -25,6 +25,7 @@
+ #include <linux/firmware/xlnx-zynqmp.h>
+ 
+ #include "cqhci.h"
++#include "sdhci-cqhci.h"
+ #include "sdhci-pltfm.h"
+ 
+ #define SDHCI_ARASAN_VENDOR_REGISTER	0x78
+@@ -366,7 +367,7 @@ static void sdhci_arasan_reset(struct sd
+ 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+ 	struct sdhci_arasan_data *sdhci_arasan = sdhci_pltfm_priv(pltfm_host);
+ 
+-	sdhci_reset(host, mask);
++	sdhci_and_cqhci_reset(host, mask);
+ 
+ 	if (sdhci_arasan->quirks & SDHCI_ARASAN_QUIRK_FORCE_CDTEST) {
+ 		ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
 
 
