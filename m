@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C0D627EBE
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10271627F7F
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:59:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237269AbiKNMvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:51:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43830 "EHLO
+        id S237639AbiKNM76 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:59:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237207AbiKNMvF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:51:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 679EE2037B
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:51:04 -0800 (PST)
+        with ESMTP id S237640AbiKNM7z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:59:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EEED25E94
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:59:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02F7D61175
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:51:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFAB9C433C1;
-        Mon, 14 Nov 2022 12:51:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02B16B80EB9
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:59:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3140C433C1;
+        Mon, 14 Nov 2022 12:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430263;
-        bh=EHfPIQoblo7pXSYbNPfq6NEtB6reBU4dGTJgiyH1qw0=;
+        s=korg; t=1668430789;
+        bh=3/nS9cBNPeZvjK8qdD5rfSxsGVWJQO7Isn6O6l3dF/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=epZILCdxcG7P+xzCuG/2lSs9BtavGmqAuRFqu9WBRH7caDSrWFfwnMsJRefIUHArf
-         ifv0b4kEdLBpEkbkkRnPE88Ijf1Kq8Sy+VIs/QnemFs19JQLf7KUSFSdCq14kLU6rx
-         ivKZh6gQEhXDc+Q+40QHKpIar/8ucTsWEIPpl0iI=
+        b=uh/uhqdJB9Hqpocx5XlizyaFzTtwXwLlplnl2FiuMNC3/yBoFYLtDfrl95dXm3SZA
+         uBWYMqpRhXpxUbyLmsyaio2OoxvzCE+NiuOfeDLhEmUd/TJtfLwkuU0Dku3QOFp84n
+         vANPF18DFcco+lmeliam1hCfSjY4erfyxjhwtSsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jorge Lopez <jorge.lopez2@hp.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.10 72/95] platform/x86: hp_wmi: Fix rfkill causing soft blocked wifi
-Date:   Mon, 14 Nov 2022 13:46:06 +0100
-Message-Id: <20221114124445.538539825@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+45d6ce7b7ad7ef455d03@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 098/131] nilfs2: fix deadlock in nilfs_count_free_blocks()
+Date:   Mon, 14 Nov 2022 13:46:07 +0100
+Message-Id: <20221114124452.854647161@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorge Lopez <jorge.lopez2@hp.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 1598bfa8e1faa932de42e1ee7628a1c4c4263f0a upstream.
+commit 8ac932a4921a96ca52f61935dbba64ea87bbd5dc upstream.
 
-After upgrading BIOS to U82 01.02.01 Rev.A, the console is flooded
-strange char "^@" which printed out every second and makes login
-nearly impossible. Also the below messages were shown both in console
-and journal/dmesg every second:
+A semaphore deadlock can occur if nilfs_get_block() detects metadata
+corruption while locating data blocks and a superblock writeback occurs at
+the same time:
 
-usb 1-3: Device not responding to setup address.
-usb 1-3: device not accepting address 4, error -71
-usb 1-3: device descriptor read/all, error -71
-usb usb1-port3: unable to enumerate USB device
+task 1                               task 2
+------                               ------
+* A file operation *
+nilfs_truncate()
+  nilfs_get_block()
+    down_read(rwsem A) <--
+    nilfs_bmap_lookup_contig()
+      ...                            generic_shutdown_super()
+                                       nilfs_put_super()
+                                         * Prepare to write superblock *
+                                         down_write(rwsem B) <--
+                                         nilfs_cleanup_super()
+      * Detect b-tree corruption *         nilfs_set_log_cursor()
+      nilfs_bmap_convert_error()             nilfs_count_free_blocks()
+        __nilfs_error()                        down_read(rwsem A) <--
+          nilfs_set_error()
+            down_write(rwsem B) <--
 
-Wifi is soft blocked by checking rfkill. When unblocked manually,
-after few seconds it would be soft blocked again. So I was suspecting
-something triggered rfkill to soft block wifi.  At the end it was
-fixed by removing hp_wmi module.
+                           *** DEADLOCK ***
 
-The root cause is the way hp-wmi driver handles command 1B on
-post-2009 BIOS.  In pre-2009 BIOS, command 1Bh return 0x4 to indicate
-that BIOS no longer controls the power for the wireless devices.
+Here, nilfs_get_block() readlocks rwsem A (= NILFS_MDT(dat_inode)->mi_sem)
+and then calls nilfs_bmap_lookup_contig(), but if it fails due to metadata
+corruption, __nilfs_error() is called from nilfs_bmap_convert_error()
+inside the lock section.
 
-Signed-off-by: Jorge Lopez <jorge.lopez2@hp.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216468
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://lore.kernel.org/r/20221028155527.7724-1-jorge.lopez2@hp.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Since __nilfs_error() calls nilfs_set_error() unless the filesystem is
+read-only and nilfs_set_error() attempts to writelock rwsem B (=
+nilfs->ns_sem) to write back superblock exclusively, hierarchical lock
+acquisition occurs in the order rwsem A -> rwsem B.
+
+Now, if another task starts updating the superblock, it may writelock
+rwsem B during the lock sequence above, and can deadlock trying to
+readlock rwsem A in nilfs_count_free_blocks().
+
+However, there is actually no need to take rwsem A in
+nilfs_count_free_blocks() because it, within the lock section, only reads
+a single integer data on a shared struct with
+nilfs_sufile_get_ncleansegs().  This has been the case after commit
+aa474a220180 ("nilfs2: add local variable to cache the number of clean
+segments"), that is, even before this bug was introduced.
+
+So, this resolves the deadlock problem by just not taking the semaphore in
+nilfs_count_free_blocks().
+
+Link: https://lkml.kernel.org/r/20221029044912.9139-1-konishi.ryusuke@gmail.com
+Fixes: e828949e5b42 ("nilfs2: call nilfs_error inside bmap routines")
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+45d6ce7b7ad7ef455d03@syzkaller.appspotmail.com
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>	[2.6.38+
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/hp-wmi.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ fs/nilfs2/the_nilfs.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -900,8 +900,16 @@ static int __init hp_wmi_bios_setup(stru
- 	wwan_rfkill = NULL;
- 	rfkill2_count = 0;
+--- a/fs/nilfs2/the_nilfs.c
++++ b/fs/nilfs2/the_nilfs.c
+@@ -690,9 +690,7 @@ int nilfs_count_free_blocks(struct the_n
+ {
+ 	unsigned long ncleansegs;
  
--	if (hp_wmi_rfkill_setup(device))
--		hp_wmi_rfkill2_setup(device);
-+	/*
-+	 * In pre-2009 BIOS, command 1Bh return 0x4 to indicate that
-+	 * BIOS no longer controls the power for the wireless
-+	 * devices. All features supported by this command will no
-+	 * longer be supported.
-+	 */
-+	if (!hp_wmi_bios_2009_later()) {
-+		if (hp_wmi_rfkill_setup(device))
-+			hp_wmi_rfkill2_setup(device);
-+	}
- 
- 	thermal_policy_setup(device);
- 
+-	down_read(&NILFS_MDT(nilfs->ns_dat)->mi_sem);
+ 	ncleansegs = nilfs_sufile_get_ncleansegs(nilfs->ns_sufile);
+-	up_read(&NILFS_MDT(nilfs->ns_dat)->mi_sem);
+ 	*nblocks = (sector_t)ncleansegs * nilfs->ns_blocks_per_segment;
+ 	return 0;
+ }
 
 
