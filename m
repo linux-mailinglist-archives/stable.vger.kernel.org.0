@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 828A8627F06
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:54:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AD45627E98
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:49:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237480AbiKNMym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:54:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47058 "EHLO
+        id S237351AbiKNMtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:49:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237495AbiKNMyl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:54:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CE19275C7
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:36 -0800 (PST)
+        with ESMTP id S237349AbiKNMtY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:49:24 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E21F2C8
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:49:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93242B80EAF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:54:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE457C433D6;
-        Mon, 14 Nov 2022 12:54:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D97A7CE1005
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:49:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A342DC433C1;
+        Mon, 14 Nov 2022 12:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430474;
-        bh=eNedAj3LiEpTOLGy7HNTSREuXGDv3wh9rMdWr/CUjzY=;
+        s=korg; t=1668430160;
+        bh=NR9hBtNSoSsxO+5zi/Fn6pJ6tCTcXMeaRIV18WsZrzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=06qcwNbNVpMAEwuM06ESwTjI69HPM/bUKUh8V1ERFW1ZkRfX2DQc4sNWqX1FOydMh
-         pkFSwkpLCA3Dh6H7np6lN0Lon4Ri4XbmvBma3fyKbSu3w96z5ahiooYp06rKoHnPHJ
-         e51l3vk8+2J7On20iXa/IckVN/SzypU10lzaEUjk=
+        b=XnkZPZzpusCfFKc2wsRgahq0M7IK0DwSNT+xLjcrGpuASwiXT9dZMweqfvPZtYueH
+         I1Cc79/pBug5BkrDUfQ0gYqKnNbOKe2QGqRfYBThC6Sq7Fqmv5yHQ3/tBklkacsABF
+         mzx4NInfPpjnPLOdsnE2/k/007MezELiHPPt7MDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, HW He <hw.he@mediatek.com>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Zhaoping Shu <zhaoping.shu@mediatek.com>,
+        patches@lists.linux.dev, Sabrina Dubroca <sd@queasysnail.net>,
+        Antoine Tenart <atenart@kernel.org>,
+        Leon Romanovsky <leonro@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 039/131] net: wwan: iosm: fix memory leak in ipc_wwan_dellink
+Subject: [PATCH 5.10 14/95] macsec: fix secy->n_rx_sc accounting
 Date:   Mon, 14 Nov 2022 13:45:08 +0100
-Message-Id: <20221114124450.353156255@linuxfoundation.org>
+Message-Id: <20221114124443.101050630@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: HW He <hw.he@mediatek.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit f25caaca424703d5a0607310f0452f978f1f78d9 ]
+[ Upstream commit 73a4b31c9d11f98ae3bc5286d5382930adb0e9c7 ]
 
-IOSM driver registers network device without setting the
-needs_free_netdev flag, and does NOT call free_netdev() when
-unregisters network device, which causes a memory leak.
+secy->n_rx_sc is supposed to be the number of _active_ rxsc's within a
+secy. This is then used by macsec_send_sci to help decide if we should
+add the SCI to the header or not.
 
-This patch sets needs_free_netdev to true when registers
-network device, which makes netdev subsystem call free_netdev()
-automatically after unregister_netdevice().
+This logic is currently broken when we create a new RXSC and turn it
+off at creation, as create_rx_sc always sets ->active to true (and
+immediately uses that to increment n_rx_sc), and only later
+macsec_add_rxsc sets rx_sc->active.
 
-Fixes: 2a54f2c77934 ("net: iosm: net driver")
-Signed-off-by: HW He <hw.he@mediatek.com>
-Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: Zhaoping Shu <zhaoping.shu@mediatek.com>
+Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Reviewed-by: Antoine Tenart <atenart@kernel.org>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wwan/iosm/iosm_ipc_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/macsec.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wwan/iosm/iosm_ipc_wwan.c b/drivers/net/wwan/iosm/iosm_ipc_wwan.c
-index 92f064a8f837..3449f877e19f 100644
---- a/drivers/net/wwan/iosm/iosm_ipc_wwan.c
-+++ b/drivers/net/wwan/iosm/iosm_ipc_wwan.c
-@@ -167,6 +167,7 @@ static void ipc_wwan_setup(struct net_device *iosm_dev)
- 	iosm_dev->max_mtu = ETH_MAX_MTU;
- 
- 	iosm_dev->flags = IFF_POINTOPOINT | IFF_NOARP;
-+	iosm_dev->needs_free_netdev = true;
- 
- 	iosm_dev->netdev_ops = &ipc_inm_ops;
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index 65e0af28c950..a816fbbe23a7 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -1390,7 +1390,8 @@ static struct macsec_rx_sc *del_rx_sc(struct macsec_secy *secy, sci_t sci)
+ 	return NULL;
  }
+ 
+-static struct macsec_rx_sc *create_rx_sc(struct net_device *dev, sci_t sci)
++static struct macsec_rx_sc *create_rx_sc(struct net_device *dev, sci_t sci,
++					 bool active)
+ {
+ 	struct macsec_rx_sc *rx_sc;
+ 	struct macsec_dev *macsec;
+@@ -1414,7 +1415,7 @@ static struct macsec_rx_sc *create_rx_sc(struct net_device *dev, sci_t sci)
+ 	}
+ 
+ 	rx_sc->sci = sci;
+-	rx_sc->active = true;
++	rx_sc->active = active;
+ 	refcount_set(&rx_sc->refcnt, 1);
+ 
+ 	secy = &macsec_priv(dev)->secy;
+@@ -1867,6 +1868,7 @@ static int macsec_add_rxsc(struct sk_buff *skb, struct genl_info *info)
+ 	struct macsec_rx_sc *rx_sc;
+ 	struct nlattr *tb_rxsc[MACSEC_RXSC_ATTR_MAX + 1];
+ 	struct macsec_secy *secy;
++	bool active = true;
+ 	int ret;
+ 
+ 	if (!attrs[MACSEC_ATTR_IFINDEX])
+@@ -1888,15 +1890,15 @@ static int macsec_add_rxsc(struct sk_buff *skb, struct genl_info *info)
+ 	secy = &macsec_priv(dev)->secy;
+ 	sci = nla_get_sci(tb_rxsc[MACSEC_RXSC_ATTR_SCI]);
+ 
+-	rx_sc = create_rx_sc(dev, sci);
++	if (tb_rxsc[MACSEC_RXSC_ATTR_ACTIVE])
++		active = nla_get_u8(tb_rxsc[MACSEC_RXSC_ATTR_ACTIVE]);
++
++	rx_sc = create_rx_sc(dev, sci, active);
+ 	if (IS_ERR(rx_sc)) {
+ 		rtnl_unlock();
+ 		return PTR_ERR(rx_sc);
+ 	}
+ 
+-	if (tb_rxsc[MACSEC_RXSC_ATTR_ACTIVE])
+-		rx_sc->active = !!nla_get_u8(tb_rxsc[MACSEC_RXSC_ATTR_ACTIVE]);
+-
+ 	if (macsec_is_offloaded(netdev_priv(dev))) {
+ 		const struct macsec_ops *ops;
+ 		struct macsec_context ctx;
 -- 
 2.35.1
 
