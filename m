@@ -2,124 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74BF06289BC
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 20:48:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B83A6289C1
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 20:49:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237392AbiKNTsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 14:48:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49174 "EHLO
+        id S236787AbiKNTtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 14:49:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237393AbiKNTsQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 14:48:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE6A22503;
-        Mon, 14 Nov 2022 11:47:52 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82959B8121C;
-        Mon, 14 Nov 2022 19:47:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D2B1C433D6;
-        Mon, 14 Nov 2022 19:47:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668455270;
-        bh=gc9A5nj2R6mNJZ7b2bJwX609pNXszLURKRE2NYuQFt8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vQuxY3uXHey+wBOxJUaZ9NdOn71uWj81VuEkhVHuiZO4Lxne7uFgFYu2Y2X/s33su
-         gGjJGmACuLypkOM85cmLs3VES85A9gglMIXxlGo4O7rCKZL2X57KUdB1Dk89B9E0bT
-         vnaqrICHk9mS+vX9uS/Ejdpa2H4ZQbEigJxLuJ+Xvd8vohEOE/TybROmx9Vk91lYlm
-         KZjUsg7R1QbDt+DvFcWkutCNml3R4vKhnXpPHPOqgZUd5Hg2k4D7YZjgHW1vb/MR3Q
-         4ct388zDi2owQbqpg91TmpUtaquW0BVEwc4ytilBZhPce5Bwx3XWjKHgd4yKRoEspD
-         9o6lIyp2idQjQ==
-Date:   Mon, 14 Nov 2022 20:47:44 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Ricardo Ribalda <ribalda@chromium.org>
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Hidenori Kobayashi <hidenorik@chromium.org>,
-        stable@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        linux-kernel@vger.kernel.org,
-        Hidenori Kobayashi <hidenorik@google.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v6 1/1] i2c: Restore initial power state if probe fails
-Message-ID: <Y3KbYLSFLUuVnSIa@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Hidenori Kobayashi <hidenorik@chromium.org>, stable@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        linux-kernel@vger.kernel.org,
-        Hidenori Kobayashi <hidenorik@google.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        linux-i2c@vger.kernel.org
-References: <20221109-i2c-waive-v6-0-bc059fb7e8fa@chromium.org>
- <20221109-i2c-waive-v6-1-bc059fb7e8fa@chromium.org>
+        with ESMTP id S237110AbiKNTsu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 14:48:50 -0500
+Received: from mail-qv1-xf32.google.com (mail-qv1-xf32.google.com [IPv6:2607:f8b0:4864:20::f32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22F432A247
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 11:48:13 -0800 (PST)
+Received: by mail-qv1-xf32.google.com with SMTP id w10so8446625qvr.3
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 11:48:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cmpxchg-org.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=omJyx+p3MZnXmMetOfD+Vb81mPQBWZRFtKehGT/esV0=;
+        b=oPRUVWptCQQmFoRVOuC0Bg4LNaPVc12ejrt634brCi0WT/hC+s0sQDVTF10pFjtxTY
+         2yzL0yNRUHUd1oX17N/BxcyF/qmvW3QhZXrPtNzOoYFRIF5RqMINMd8PvVISkRHPY2nu
+         68op9yrb34dqOW+3Y/FmdRZGxNalulMhlZOhIWvbmehB0CgB/lnmP/jC1uO6+q+bozBP
+         R2kGUT3x9G/BALjKomL4YolNC6TRbHvc0sb4+upz0vx0CduE+3gfG/V/K3kVbe2xce5l
+         UexYq0kHvri6fpktU2NgA+FKrK4tHRhL88cyTTD/yRn0z7X5yBdQ4jbRxt0ut+v9nLt0
+         MaLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=omJyx+p3MZnXmMetOfD+Vb81mPQBWZRFtKehGT/esV0=;
+        b=TYjXkJt2vCGYV/aFFhzHe31BbqCuw4IBM78aeVq5/vVsQXb5aCSOPt3xcw9z+1MZOM
+         1L+eyiROSskZffEfUB5zpv+93ekxQLI2Vwv4AP4ZPc8zG/03FrOUu6jnRNd20ZO3Oz4r
+         lLlpgD3TShpLHQw12aW7GAsg0QM0HndI23a5oRpFaJwj0T1z4nXCv9YDYFX1uEhW56Ns
+         Zd6xcdPBqjeJ8w3D5cLWW2hyQkXequYeWEpruoS9vj2biItSuHedUSSO+FjM/L4cxDvf
+         ZxEKAWDZ5acQ0V8EFOL3uV6+/9sAJcFgVWGgSVCyRuJ/BLpHz+N2/GQsk/kL4+CbKgNV
+         ToQA==
+X-Gm-Message-State: ANoB5pmt1ZJu6DWf41dwqbYMF/R3JIOwGUtKHgunIST5ZBcmSKmeVcFO
+        qYDxp1ef6FXsq9737Bx1X56fC4EVI0Qv8g==
+X-Google-Smtp-Source: AA0mqf4wUNlfuKye4Owp4CiIw1RKoijXmW0oaG+ryyGoW8oK71GRxdThjAXUznrw22jSjvSwItFBFA==
+X-Received: by 2002:a05:6214:2b9c:b0:4bb:684e:c94f with SMTP id kr28-20020a0562142b9c00b004bb684ec94fmr13996725qvb.52.1668455287880;
+        Mon, 14 Nov 2022 11:48:07 -0800 (PST)
+Received: from localhost ([2620:10d:c091:480::1:e032])
+        by smtp.gmail.com with ESMTPSA id s36-20020a05622a1aa400b0039cc944ebdasm6121471qtc.54.2022.11.14.11.48.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Nov 2022 11:48:07 -0800 (PST)
+From:   Johannes Weiner <hannes@cmpxchg.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-mm@kvack.org, cgroups@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Li Liguang <liliguang@baidu.com>,
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Muchun Song <songmuchun@bytedance.com>
+Subject: [PATCH] mm: correctly charge compressed memory to its memcg
+Date:   Mon, 14 Nov 2022 14:48:28 -0500
+Message-Id: <20221114194828.100822-1-hannes@cmpxchg.org>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="qv6denHYt0WD4nxL"
-Content-Disposition: inline
-In-Reply-To: <20221109-i2c-waive-v6-1-bc059fb7e8fa@chromium.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Li Liguang <liliguang@baidu.com>
 
---qv6denHYt0WD4nxL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Kswapd will reclaim memory when memory pressure is high, the
+annonymous memory will be compressed and stored in the zpool
+if zswap is enabled. The memcg_kmem_bypass() in
+get_obj_cgroup_from_page() will bypass the kernel thread and
+cause the compressed memory not charged to its memory cgroup.
 
-wOn Mon, Nov 14, 2022 at 01:20:34PM +0100, Ricardo Ribalda wrote:
-> A driver that supports I2C_DRV_ACPI_WAIVE_D0_PROBE is not expected to
-> power off a device that it has not powered on previously.
->=20
-> For devices operating in "full_power" mode, the first call to
-> `i2c_acpi_waive_d0_probe` will return 0, which means that the device
-> will be turned on with `dev_pm_domain_attach`.
->=20
-> If probe fails the second call to `i2c_acpi_waive_d0_probe` will
-> return 1, which means that the device will not be turned off.
-> This is, it will be left in a different power state. Lets fix it.
->=20
-> Reviewed-by: Hidenori Kobayashi <hidenorik@chromium.org>
-> Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-> Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-> Cc: stable@vger.kernel.org
-> Fixes: b18c1ad685d9 ("i2c: Allow an ACPI driver to manage the device's po=
-wer state during probe")
-> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Remove the memcg_kmem_bypass() and properly charge compressed
+memory to its corresponding memory cgroup.
 
-Applied to for-current, thanks!
+Link: https://lore.kernel.org/linux-mm/CALvZod4nnn8BHYqAM4xtcR0Ddo2-Wr8uKm9h_CHWUaXw7g_DCg@mail.gmail.com/
+Fixes: f4840ccfca25 ("zswap: memcg accounting")
+Cc: stable@vger.kernel.org # 5.19+
+Acked-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Li Liguang <liliguang@baidu.com>
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+---
+ mm/memcontrol.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+This fell through the cracks in summer as it didn't make it to the
+right mailing lists. Resending.
 
---qv6denHYt0WD4nxL
-Content-Type: application/pgp-signature; name="signature.asc"
+I know it's close to 6.1-final, but the fix should be safe to put
+in. It's straight-forward and obvious code-wise. We also have large
+parts of production running on it without problems.
 
------BEGIN PGP SIGNATURE-----
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index 2d8549ae1b30..a1a35c12635e 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -3026,7 +3026,7 @@ struct obj_cgroup *get_obj_cgroup_from_page(struct page *page)
+ {
+ 	struct obj_cgroup *objcg;
+ 
+-	if (!memcg_kmem_enabled() || memcg_kmem_bypass())
++	if (!memcg_kmem_enabled())
+ 		return NULL;
+ 
+ 	if (PageMemcgKmem(page)) {
+-- 
+2.38.1
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmNym1wACgkQFA3kzBSg
-KbYxLxAAmxOGLCEUVGi4wIh35Mh/wHx3+QiIhPMBmv4OOoAh5iVxbeW01GOdSXYf
-BwuyzxaiuQHsnl1JWnn9RDEnSjeSM2xKIdk3nA9HXpUGt42W5OzV2+HaDOee/7tg
-oWD2gV5ikgNCqvTl8usOgCrxZTW6RFtYPVNFDgI8a38LAPdDfyhda5v1Mq7vGJBi
-RIuNLRbHErZB70X0gzBV6YFbm8LBRHkWRTMQVHoOQgN3208BRtCjlkIafKnDbh6j
-Ws+7l3g83Epe7M+ExEK/RhStAxYmpayTu/Jv52SjHE/i8cUF0ipntrGrnuAmqnxb
-FYExcs9jhCp8AuyN6UwvIlYS4hi0bch/YV9utG4ZMMiBsrvP2z1wjRc+b1mnxhb2
-YjzvLKlzqN84ZtoeqrC7F0wrwR5ZJg781cULsIskEpi7l+2DvbMXCHBpwH+1rwLk
-gKc30l4JsarA6S5eCyA57ESdB5PuQ9w/6c6wD5KSKFVuF5/wksLyVrm3l75Q/HfL
-JCQhUNc9ka4BpFtXpHxHs+UZnYn3aDAobnhzDa0bl1HDS93b1IRr8ETKiMFALgTo
-cTMcajw+JU6BBNnaiRlhVxlfKSb/H/fz632R93slQU7+Av0p9SC5/xnUuvL/BSto
-VpsepytfbcVTUVy4c4Sjk5Ccw0Kb7RF4XeMmowF9fTt3RBt5gUg=
-=wZMu
------END PGP SIGNATURE-----
-
---qv6denHYt0WD4nxL--
