@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5311627FB0
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:01:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B0C6627FB3
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:01:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237689AbiKNNB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:01:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54712 "EHLO
+        id S237708AbiKNNB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:01:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237691AbiKNNBU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:01:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5017F28E0F
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:01:18 -0800 (PST)
+        with ESMTP id S237703AbiKNNBW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:01:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E39329372
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:01:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E091A61184
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:01:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CACD8C433D6;
-        Mon, 14 Nov 2022 13:01:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BEB661185
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:01:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D0F8C433D7;
+        Mon, 14 Nov 2022 13:01:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430877;
-        bh=UjaY3x5BYTiogatwDI42p2bqEu6nVgtpaU59IQtGH9A=;
+        s=korg; t=1668430880;
+        bh=+idu5prAScrpCAZSG3fLhZY2MHQ40ENAPUldZR8CzTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r4rW90E00LLWhmnDoo0ZPszgXyv6sJXAbkdq3UdOCuEcwbMXTZoAyrva8kWohw+B4
-         L/HK+FjXKAom7Z/ml2ADJPo28BBlAebVw0oCgNQK8rxgqzHfOAhIfQ+HzCa7ZepYNj
-         f12W4Dx0trD0T44XpznOBF2usUWaFZ3rDzFJ8EOE=
+        b=E3QMTcaqxMoGh65bTtHTwRxdC8NgbqSAv3QG6NV7mJXIyl1mkdEIdomTrrE9zCCfz
+         B4XUJ5f+juyLmI7DPfA9q732irGr9m0yKbv3BQ7F9x10bI/2jXE0IenSdqnn6BVP8H
+         RgyR/nj7lj8oMo679K4/Nxuxdlo0hNKFzbCXfob0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "zhichao.liu" <zhichao.liu@mediatek.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Bill Wendling <morbo@google.com>, Lorenz Bauer <oss@lmb.io>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 022/190] spi: mediatek: Fix package division error
-Date:   Mon, 14 Nov 2022 13:44:06 +0100
-Message-Id: <20221114124459.744185511@linuxfoundation.org>
+Subject: [PATCH 6.0 023/190] bpf, verifier: Fix memory leak in array reallocation for stack state
+Date:   Mon, 14 Nov 2022 13:44:07 +0100
+Message-Id: <20221114124459.781986946@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -53,97 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhichao.liu <zhichao.liu@mediatek.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit cf82d0ecb84e8ef9958721193f901609b408655b ]
+[ Upstream commit 42378a9ca55347102bbf86708776061d8fe3ece2 ]
 
-Commit 7e963fb2a33ce ("spi: mediatek: add ipm design support
-for MT7986") makes a mistake on package dividing operation
-(one change is missing), need to fix it.
+If an error (NULL) is returned by krealloc(), callers of realloc_array()
+were setting their allocation pointers to NULL, but on error krealloc()
+does not touch the original allocation. This would result in a memory
+resource leak. Instead, free the old allocation on the error handling
+path.
 
-Background:
-Ipm design is expanding the HW capability of dma (adjust package
-length from 1KB to 64KB), and using "dev_comp->ipm_support" flag
-to indicate it.
+The memory leak information is as follows as also reported by Zhengchao:
 
-Issue description:
-Ipm support patch (said above) is missing to handle remainder at
-package dividing operation.
-One case, a transmission length is 65KB, is will divide to 1K
-(package length) * 65(package loop) in non-ipm desgin case, and
-will divide to 64K(package length) * 1(package loop) + 1K(remainder)
-in ipm design case. And the 1K remainder will be lost with the
-current SW flow, and the transmission will be failure.
-So, it should be fixed.
+  unreferenced object 0xffff888019801800 (size 256):
+  comm "bpf_repo", pid 6490, jiffies 4294959200 (age 17.170s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000b211474b>] __kmalloc_node_track_caller+0x45/0xc0
+    [<0000000086712a0b>] krealloc+0x83/0xd0
+    [<00000000139aab02>] realloc_array+0x82/0xe2
+    [<00000000b1ca41d1>] grow_stack_state+0xfb/0x186
+    [<00000000cd6f36d2>] check_mem_access.cold+0x141/0x1341
+    [<0000000081780455>] do_check_common+0x5358/0xb350
+    [<0000000015f6b091>] bpf_check.cold+0xc3/0x29d
+    [<000000002973c690>] bpf_prog_load+0x13db/0x2240
+    [<00000000028d1644>] __sys_bpf+0x1605/0x4ce0
+    [<00000000053f29bd>] __x64_sys_bpf+0x75/0xb0
+    [<0000000056fedaf5>] do_syscall_64+0x35/0x80
+    [<000000002bd58261>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Solution:
-Add "ipm_design" flag in function "mtk_spi_get_mult_delta()" to
-indicate HW capability, and modify the parameters corespondingly.
-
-fixes: 7e963fb2a33ce ("spi: mediatek: add ipm design support for MT7986")
-Signed-off-by: zhichao.liu <zhichao.liu@mediatek.com>
-Link: https://lore.kernel.org/r/20221021091653.18297-1-zhichao.liu@mediatek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: c69431aab67a ("bpf: verifier: Improve function state reallocation")
+Reported-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reported-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Bill Wendling <morbo@google.com>
+Cc: Lorenz Bauer <oss@lmb.io>
+Link: https://lore.kernel.org/bpf/20221029025433.2533810-1-keescook@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mt65xx.c | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ kernel/bpf/verifier.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-mt65xx.c b/drivers/spi/spi-mt65xx.c
-index 0a3b9f7eed30..cd9dc358d396 100644
---- a/drivers/spi/spi-mt65xx.c
-+++ b/drivers/spi/spi-mt65xx.c
-@@ -551,14 +551,17 @@ static void mtk_spi_enable_transfer(struct spi_master *master)
- 	writel(cmd, mdata->base + SPI_CMD_REG);
- }
- 
--static int mtk_spi_get_mult_delta(u32 xfer_len)
-+static int mtk_spi_get_mult_delta(struct mtk_spi *mdata, u32 xfer_len)
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 8b5ea7f6b536..2d7ece2a87fa 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1011,12 +1011,17 @@ static void *copy_array(void *dst, const void *src, size_t n, size_t size, gfp_t
+  */
+ static void *realloc_array(void *arr, size_t old_n, size_t new_n, size_t size)
  {
--	u32 mult_delta;
-+	u32 mult_delta = 0;
++	void *new_arr;
++
+ 	if (!new_n || old_n == new_n)
+ 		goto out;
  
--	if (xfer_len > MTK_SPI_PACKET_SIZE)
--		mult_delta = xfer_len % MTK_SPI_PACKET_SIZE;
--	else
--		mult_delta = 0;
-+	if (mdata->dev_comp->ipm_design) {
-+		if (xfer_len > MTK_SPI_IPM_PACKET_SIZE)
-+			mult_delta = xfer_len % MTK_SPI_IPM_PACKET_SIZE;
-+	} else {
-+		if (xfer_len > MTK_SPI_PACKET_SIZE)
-+			mult_delta = xfer_len % MTK_SPI_PACKET_SIZE;
+-	arr = krealloc_array(arr, new_n, size, GFP_KERNEL);
+-	if (!arr)
++	new_arr = krealloc_array(arr, new_n, size, GFP_KERNEL);
++	if (!new_arr) {
++		kfree(arr);
+ 		return NULL;
 +	}
++	arr = new_arr;
  
- 	return mult_delta;
- }
-@@ -570,22 +573,22 @@ static void mtk_spi_update_mdata_len(struct spi_master *master)
- 
- 	if (mdata->tx_sgl_len && mdata->rx_sgl_len) {
- 		if (mdata->tx_sgl_len > mdata->rx_sgl_len) {
--			mult_delta = mtk_spi_get_mult_delta(mdata->rx_sgl_len);
-+			mult_delta = mtk_spi_get_mult_delta(mdata, mdata->rx_sgl_len);
- 			mdata->xfer_len = mdata->rx_sgl_len - mult_delta;
- 			mdata->rx_sgl_len = mult_delta;
- 			mdata->tx_sgl_len -= mdata->xfer_len;
- 		} else {
--			mult_delta = mtk_spi_get_mult_delta(mdata->tx_sgl_len);
-+			mult_delta = mtk_spi_get_mult_delta(mdata, mdata->tx_sgl_len);
- 			mdata->xfer_len = mdata->tx_sgl_len - mult_delta;
- 			mdata->tx_sgl_len = mult_delta;
- 			mdata->rx_sgl_len -= mdata->xfer_len;
- 		}
- 	} else if (mdata->tx_sgl_len) {
--		mult_delta = mtk_spi_get_mult_delta(mdata->tx_sgl_len);
-+		mult_delta = mtk_spi_get_mult_delta(mdata, mdata->tx_sgl_len);
- 		mdata->xfer_len = mdata->tx_sgl_len - mult_delta;
- 		mdata->tx_sgl_len = mult_delta;
- 	} else if (mdata->rx_sgl_len) {
--		mult_delta = mtk_spi_get_mult_delta(mdata->rx_sgl_len);
-+		mult_delta = mtk_spi_get_mult_delta(mdata, mdata->rx_sgl_len);
- 		mdata->xfer_len = mdata->rx_sgl_len - mult_delta;
- 		mdata->rx_sgl_len = mult_delta;
- 	}
+ 	if (new_n > old_n)
+ 		memset(arr + old_n * size, 0, (new_n - old_n) * size);
 -- 
 2.35.1
 
