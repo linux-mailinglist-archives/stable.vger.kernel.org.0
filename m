@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27608627EC3
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:51:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1FB8627F34
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:56:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237362AbiKNMvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:51:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44124 "EHLO
+        id S237578AbiKNM4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:56:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237323AbiKNMvY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:51:24 -0500
+        with ESMTP id S237548AbiKNM4e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:56:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05CB724BDD
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:51:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19DCF27FC3
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:56:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97EC26112D
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:51:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABB04C433D6;
-        Mon, 14 Nov 2022 12:51:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E48326117E
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:56:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ACA2C433C1;
+        Mon, 14 Nov 2022 12:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430283;
-        bh=3TyFuUbIadTSaWQa+oB4zOqjtmiC5MLjAWD1/qWEbOQ=;
+        s=korg; t=1668430589;
+        bh=6wZbWtX0447m3dqN179O85Iu8PadKz4h4y/HDJ8kDI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V1pfqqUj8GtTD4n4UdoR18YC5wfeq4woGJ6U9hBU1RUGlgyE3PSFiDhoJfNqnlvcG
-         J3t7iXwWtKe2DWMKk68Exc7wMMM5e4R+v/QV/4j63/pqrjas5dp365Ugw65CgNfHeu
-         KYfFA7pNww5+XJdU+kz1bRXF+20fuEbUQLYCRx4E=
+        b=sUccJQR45jTAYNZ+67fw3IAh/Fk66ew5VQ3G6Ji+p0B38O46QKePTWRD9rmi1MkgT
+         IE5EZxDHyoRyVRORvaKyweGGJWErQfV8YiVgx+8zcWuhmDZkeKDJ4DDRpzqjGNlWwi
+         GKvXyy+5q1NzSq+wsrDtzK/jAB13WOIEqliWKrqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        patches@lists.linux.dev, Antoine Tenart <atenart@kernel.org>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 48/95] ethernet: tundra: free irq when alloc ring failed in tsi108_open()
+Subject: [PATCH 5.15 073/131] net: phy: mscc: macsec: clear encryption keys when freeing a flow
 Date:   Mon, 14 Nov 2022 13:45:42 +0100
-Message-Id: <20221114124444.530889517@linuxfoundation.org>
+Message-Id: <20221114124451.806343783@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-[ Upstream commit acce40037041f97baad18142bb253064491ebde3 ]
+[ Upstream commit 1b16b3fdf675cca15a537572bac50cc5354368fc ]
 
-When alloc tx/rx ring failed in tsi108_open(), it doesn't free irq. Fix
-it.
+Commit aaab73f8fba4 ("macsec: clear encryption keys from the stack after
+setting up offload") made sure to clean encryption keys from the stack
+after setting up offloading, but the MSCC PHY driver made a copy, kept
+it in the flow data and did not clear it when freeing a flow. Fix this.
 
-Fixes: 5e123b844a1c ("[PATCH] Add tsi108/9 On Chip Ethernet device driver support")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221109044016.126866-1-shaozhengchao@huawei.com
+Fixes: 28c5107aa904 ("net: phy: mscc: macsec support")
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/tundra/tsi108_eth.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/phy/mscc/mscc_macsec.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/tundra/tsi108_eth.c b/drivers/net/ethernet/tundra/tsi108_eth.c
-index c62f474b6d08..fcebd2418dbd 100644
---- a/drivers/net/ethernet/tundra/tsi108_eth.c
-+++ b/drivers/net/ethernet/tundra/tsi108_eth.c
-@@ -1302,12 +1302,15 @@ static int tsi108_open(struct net_device *dev)
+diff --git a/drivers/net/phy/mscc/mscc_macsec.c b/drivers/net/phy/mscc/mscc_macsec.c
+index b7b2521c73fb..c00eef457b85 100644
+--- a/drivers/net/phy/mscc/mscc_macsec.c
++++ b/drivers/net/phy/mscc/mscc_macsec.c
+@@ -632,6 +632,7 @@ static void vsc8584_macsec_free_flow(struct vsc8531_private *priv,
  
- 	data->rxring = dma_alloc_coherent(&data->pdev->dev, rxring_size,
- 					  &data->rxdma, GFP_KERNEL);
--	if (!data->rxring)
-+	if (!data->rxring) {
-+		free_irq(data->irq_num, dev);
- 		return -ENOMEM;
-+	}
+ 	list_del(&flow->list);
+ 	clear_bit(flow->index, bitmap);
++	memzero_explicit(flow->key, sizeof(flow->key));
+ 	kfree(flow);
+ }
  
- 	data->txring = dma_alloc_coherent(&data->pdev->dev, txring_size,
- 					  &data->txdma, GFP_KERNEL);
- 	if (!data->txring) {
-+		free_irq(data->irq_num, dev);
- 		dma_free_coherent(&data->pdev->dev, rxring_size, data->rxring,
- 				    data->rxdma);
- 		return -ENOMEM;
 -- 
 2.35.1
 
