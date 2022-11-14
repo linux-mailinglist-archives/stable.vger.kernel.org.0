@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E22C627BAA
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 12:08:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9B6627BB1
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 12:09:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236788AbiKNLI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 06:08:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33844 "EHLO
+        id S236656AbiKNLJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 06:09:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236702AbiKNLHr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 06:07:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5613A205E3
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 03:07:27 -0800 (PST)
+        with ESMTP id S236575AbiKNLHv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 06:07:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 534F42181F
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 03:07:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id ACA8FCE0EEB
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 11:07:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A322C433D7;
-        Mon, 14 Nov 2022 11:07:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09BD8B80DD0
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 11:07:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51C91C433D7;
+        Mon, 14 Nov 2022 11:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668424044;
-        bh=Vqokiv9mTVAJ/W2iYwtkYTCFMvqI4BG3zKwApZq0i1Y=;
+        s=korg; t=1668424048;
+        bh=Qp07lQk7n7F+wq8nUPHi3xwMxymXpab+EiK+sgXSz94=;
         h=Subject:To:Cc:From:Date:From;
-        b=ioIwo/EaFoqwJQt44stj/ntVvpVePlaoWeif/VkZx+OtEQXCaajMXw9EiX1aRA/JW
-         uY0ZfYRXt99BotJh6Y4cdHEg5oAS95N0NUVL2THN6Mv7LQQAFMS8jjBE25oHJVmAUI
-         cXEhxfQo7fM0q2krRYvxfEaFaA7we544GXGyobYQ=
-Subject: FAILED: patch "[PATCH] dmaengine: at_hdmac: Start transfer for cyclic channels in" failed to apply to 4.9-stable tree
+        b=NlzTE6/Su3f3sXZpJyLWnX9p1QTOrI68A3ESsUccYzEtYskIOKJi1gC13i8pme882
+         bVlnZq33wnZ6hs0Nj8JHjZxXKL2K2cJseSWMFM2OFcZmM4GVlmC1NnH05WWVcRCCBZ
+         HwjI7i9v8jETAb4z/vhRzXatbBpfdWbnQyTPqM5M=
+Subject: FAILED: patch "[PATCH] dmaengine: at_hdmac: Fix premature completion of desc in" failed to apply to 5.4-stable tree
 To:     tudor.ambarus@microchip.com, nicolas.ferre@microchip.com,
         peda@axentia.se, vkoul@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Nov 2022 12:07:07 +0100
-Message-ID: <166842402723437@kroah.com>
+Date:   Mon, 14 Nov 2022 12:07:25 +0100
+Message-ID: <16684240451938@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,13 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
+fcd37565efda ("dmaengine: at_hdmac: Fix premature completion of desc in issue_pending")
 8a47221fc284 ("dmaengine: at_hdmac: Start transfer for cyclic channels in issue_pending")
 078a6506141a ("dmaengine: at_hdmac: Fix deadlocks")
 
@@ -64,40 +65,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8a47221fc28417ff8a32a4f92d4448a56c3cf7e1 Mon Sep 17 00:00:00 2001
+From fcd37565efdaffeac179d0f0ce980ac79bfdf569 Mon Sep 17 00:00:00 2001
 From: Tudor Ambarus <tudor.ambarus@microchip.com>
-Date: Tue, 25 Oct 2022 12:02:37 +0300
-Subject: [PATCH] dmaengine: at_hdmac: Start transfer for cyclic channels in
+Date: Tue, 25 Oct 2022 12:02:38 +0300
+Subject: [PATCH] dmaengine: at_hdmac: Fix premature completion of desc in
  issue_pending
 
-Cyclic channels must too call issue_pending in order to start a transfer.
-Start the transfer in issue_pending regardless of the type of channel.
-This wrongly worked before, because in the past the transfer was started
-at tx_submit level when only a desc in the transfer list.
+Multiple calls to atc_issue_pending() could result in a premature
+completion of a descriptor from the atchan->active list, as the method
+always completed the first active descriptor from the list. Instead,
+issue_pending() should just take the first transaction descriptor from the
+pending queue, move it to active_list and start the transfer.
 
-Fixes: 53830cc75974 ("dmaengine: at_hdmac: add cyclic DMA operation support")
+Fixes: dc78baa2b90b ("dmaengine: at_hdmac: new driver for the Atmel AHB DMA Controller")
 Reported-by: Peter Rosin <peda@axentia.se>
 Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
 Cc: stable@vger.kernel.org
 Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
 Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 Link: https://lore.kernel.org/r/20221025090306.297886-1-tudor.ambarus@microchip.com
-Link: https://lore.kernel.org/r/20221025090306.297886-4-tudor.ambarus@microchip.com
+Link: https://lore.kernel.org/r/20221025090306.297886-5-tudor.ambarus@microchip.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 
 diff --git a/drivers/dma/at_hdmac.c b/drivers/dma/at_hdmac.c
-index 3f71f4d2f467..e9d0c3632868 100644
+index e9d0c3632868..cb5522417db6 100644
 --- a/drivers/dma/at_hdmac.c
 +++ b/drivers/dma/at_hdmac.c
-@@ -1536,10 +1536,6 @@ static void atc_issue_pending(struct dma_chan *chan)
+@@ -1527,16 +1527,26 @@ atc_tx_status(struct dma_chan *chan,
+ }
+ 
+ /**
+- * atc_issue_pending - try to finish work
++ * atc_issue_pending - takes the first transaction descriptor in the pending
++ * queue and starts the transfer.
+  * @chan: target DMA channel
+  */
+ static void atc_issue_pending(struct dma_chan *chan)
+ {
+-	struct at_dma_chan	*atchan = to_at_dma_chan(chan);
++	struct at_dma_chan *atchan = to_at_dma_chan(chan);
++	struct at_desc *desc;
++	unsigned long flags;
  
  	dev_vdbg(chan2dev(chan), "issue_pending\n");
  
--	/* Not needed for cyclic transfers */
--	if (atc_chan_is_cyclic(atchan))
--		return;
--
- 	atc_advance_work(atchan);
+-	atc_advance_work(atchan);
++	spin_lock_irqsave(&atchan->lock, flags);
++	if (atc_chan_is_enabled(atchan) || list_empty(&atchan->queue))
++		return spin_unlock_irqrestore(&atchan->lock, flags);
++
++	desc = atc_first_queued(atchan);
++	list_move_tail(&desc->desc_node, &atchan->active_list);
++	atc_dostart(atchan, desc);
++	spin_unlock_irqrestore(&atchan->lock, flags);
  }
  
+ /**
 
