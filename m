@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1CC2628086
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:06:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B19762808C
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:07:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237824AbiKNNGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:06:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32870 "EHLO
+        id S237840AbiKNNGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:06:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237829AbiKNNGd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:06:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 131432A963
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:06:32 -0800 (PST)
+        with ESMTP id S237835AbiKNNGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:06:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5F52A950
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:06:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C98D9B80EB9
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:06:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A8EAC433D6;
-        Mon, 14 Nov 2022 13:06:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A50EFB80EA6
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:06:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C52DAC433B5;
+        Mon, 14 Nov 2022 13:06:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431189;
-        bh=w88P+0OV4qLNxFR1I4UXlX0YNhWMwZ6uvAjmSyID5iU=;
+        s=korg; t=1668431200;
+        bh=IaQAV87arvBD3pKiqQLOuNjtaG5jOTE8VUO5ubkoQnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xMxLt/9VVamYP9JCSqoj0qGK1NkH7ZGrplfJyzB1amFQJA57IeUOJDfw9bYZZgOP0
-         ax395Lsy4V70m6omj9s4lS2ZvTGuigfE84MB7XUukxpOtMXOqp7adsAV7GrmFIxhJj
-         +c35n8bc0Jb4ODrkB4s26TVtxEMNv2jApG67Qo0o=
+        b=n00scA+ZXaj3wUpaWlb3sZKpKu0H2E95eu+QwfVpmh62ulTK3mTQdvtosUq++iEix
+         lGuBvNlUV31FtoSh1PYMN0q4aMS/78oQzOyrKJKey84/nGHmsrOgFTfNakafCfbDi/
+         vcVSo146evEoz0G6bXSAgxrodKKBznUoeyKEzQCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 106/190] ethernet: s2io: disable napi when start nic failed in s2io_card_up()
-Date:   Mon, 14 Nov 2022 13:45:30 +0100
-Message-Id: <20221114124503.331178685@linuxfoundation.org>
+Subject: [PATCH 6.0 107/190] net: mv643xx_eth: disable napi when init rxq or txq failed in mv643xx_eth_open()
+Date:   Mon, 14 Nov 2022 13:45:31 +0100
+Message-Id: <20221114124503.376815420@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -55,82 +55,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 0348c1ab980c1d43fb37b758d4b760990c066cb5 ]
+[ Upstream commit f111606b63ff2282428ffbac0447c871eb957b6c ]
 
-When failed to start nic or add interrupt service routine in
-s2io_card_up() for opening device, napi isn't disabled. When open
-s2io device next time, it will trigger a BUG_ON()in napi_enable().
-Compile tested only.
+When failed to init rxq or txq in mv643xx_eth_open() for opening device,
+napi isn't disabled. When open mv643xx_eth device next time, it will
+trigger a BUG_ON() in napi_enable(). Compile tested only.
 
-Fixes: 5f490c968056 ("S2io: Fixed synchronization between scheduling of napi with card reset and close")
+Fixes: 2257e05c1705 ("mv643xx_eth: get rid of receive-side locking")
 Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221109023741.131552-1-shaozhengchao@huawei.com
+Link: https://lore.kernel.org/r/20221109025432.80900-1-shaozhengchao@huawei.com
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/neterion/s2io.c | 29 +++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/marvell/mv643xx_eth.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/neterion/s2io.c b/drivers/net/ethernet/neterion/s2io.c
-index 30f955efa830..8f74c039b3be 100644
---- a/drivers/net/ethernet/neterion/s2io.c
-+++ b/drivers/net/ethernet/neterion/s2io.c
-@@ -7128,9 +7128,8 @@ static int s2io_card_up(struct s2io_nic *sp)
- 		if (ret) {
- 			DBG_PRINT(ERR_DBG, "%s: Out of memory in Open\n",
- 				  dev->name);
--			s2io_reset(sp);
--			free_rx_buffers(sp);
--			return -ENOMEM;
-+			ret = -ENOMEM;
-+			goto err_fill_buff;
- 		}
- 		DBG_PRINT(INFO_DBG, "Buf in ring:%d is %d:\n", i,
- 			  ring->rx_bufs_left);
-@@ -7168,18 +7167,16 @@ static int s2io_card_up(struct s2io_nic *sp)
- 	/* Enable Rx Traffic and interrupts on the NIC */
- 	if (start_nic(sp)) {
- 		DBG_PRINT(ERR_DBG, "%s: Starting NIC failed\n", dev->name);
--		s2io_reset(sp);
--		free_rx_buffers(sp);
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_out;
- 	}
+diff --git a/drivers/net/ethernet/marvell/mv643xx_eth.c b/drivers/net/ethernet/marvell/mv643xx_eth.c
+index b6be0552a6c1..40a5957b1449 100644
+--- a/drivers/net/ethernet/marvell/mv643xx_eth.c
++++ b/drivers/net/ethernet/marvell/mv643xx_eth.c
+@@ -2481,6 +2481,7 @@ static int mv643xx_eth_open(struct net_device *dev)
+ 	for (i = 0; i < mp->rxq_count; i++)
+ 		rxq_deinit(mp->rxq + i);
+ out:
++	napi_disable(&mp->napi);
+ 	free_irq(dev->irq, dev);
  
- 	/* Add interrupt service routine */
- 	if (s2io_add_isr(sp) != 0) {
- 		if (sp->config.intr_type == MSI_X)
- 			s2io_rem_isr(sp);
--		s2io_reset(sp);
--		free_rx_buffers(sp);
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_out;
- 	}
- 
- 	timer_setup(&sp->alarm_timer, s2io_alarm_handle, 0);
-@@ -7199,6 +7196,20 @@ static int s2io_card_up(struct s2io_nic *sp)
- 	}
- 
- 	return 0;
-+
-+err_out:
-+	if (config->napi) {
-+		if (config->intr_type == MSI_X) {
-+			for (i = 0; i < sp->config.rx_ring_num; i++)
-+				napi_disable(&sp->mac_control.rings[i].napi);
-+		} else {
-+			napi_disable(&sp->napi);
-+		}
-+	}
-+err_fill_buff:
-+	s2io_reset(sp);
-+	free_rx_buffers(sp);
-+	return ret;
- }
- 
- /**
+ 	return err;
 -- 
 2.35.1
 
