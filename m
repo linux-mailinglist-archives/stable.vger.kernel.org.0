@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D613627EE9
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:53:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D68DD627EEA
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237466AbiKNMxK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:53:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45492 "EHLO
+        id S237461AbiKNMxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:53:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237461AbiKNMxJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:53:09 -0500
+        with ESMTP id S237467AbiKNMxN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:53:13 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD80F25C47
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:53:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 782D6252BA
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:53:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8893FB80EAF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:53:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A00C433D6;
-        Mon, 14 Nov 2022 12:53:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A36AB80EBF
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:53:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C7EFC433C1;
+        Mon, 14 Nov 2022 12:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430386;
-        bh=kr0NInOYHKqg37L7JDKRzvT34L7qcZid0EVj57D1Sn8=;
+        s=korg; t=1668430389;
+        bh=87jc1f9aBeUUoqpANk80a/kPipWvHgjrk22lJX2TRdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aYYOVN08NmSs5kBc2nZs48lpD8SW10v92iLXh+3idioVIoBJ1JvoSigsB22xrdm4w
-         u+r1rYCStgHxPS2YKAS/KPp6IpKcJ8E/7mjRDZJdZ5vVmAcUv5+dNszkXDr2oxw7ML
-         KkRuTsSeaGDdBBTUpfKvNZ81rzoWeqI/DHDld09k=
+        b=LXymy9qi30nZchf0uTAcu0L5gGZ8A9znjf25sdhQ0cC9SY/aT6XzWV5kf4ZR5z1VX
+         wRlWKOT60Xttk8Xu5Pz8GcwqHfCn/TINnZ1CBVEYq94KXGRyTNw9KTDQ9C57hwzAXJ
+         uzwWc5j4VQKb0bIGioVUPMKuOy4j6+pLPwWh+0Xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jakub Sitnicki <jakub@cloudflare.com>,
-        Wang Yufen <wangyufen@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
+        patches@lists.linux.dev, Howard Hsu <howard-yh.hsu@mediatek.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 014/131] bpf, sockmap: Fix the sk->sk_forward_alloc warning of sk_stream_kill_queues
-Date:   Mon, 14 Nov 2022 13:44:43 +0100
-Message-Id: <20221114124449.342299181@linuxfoundation.org>
+Subject: [PATCH 5.15 015/131] wifi: mac80211: Set TWT Information Frame Disabled bit as 1
+Date:   Mon, 14 Nov 2022 13:44:44 +0100
+Message-Id: <20221114124449.373944029@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
 References: <20221114124448.729235104@linuxfoundation.org>
@@ -55,87 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Howard Hsu <howard-yh.hsu@mediatek.com>
 
-[ Upstream commit 8ec95b94716a1e4d126edc3fb2bc426a717e2dba ]
+[ Upstream commit 30ac96f7cc973bb850c718c9bbe1fdcedfbe826b ]
 
-When running `test_sockmap` selftests, the following warning appears:
+The TWT Information Frame Disabled bit of control field of TWT Setup
+frame shall be set to 1 since handling TWT Information frame is not
+supported by current mac80211 implementation.
 
-  WARNING: CPU: 2 PID: 197 at net/core/stream.c:205 sk_stream_kill_queues+0xd3/0xf0
-  Call Trace:
-  <TASK>
-  inet_csk_destroy_sock+0x55/0x110
-  tcp_rcv_state_process+0xd28/0x1380
-  ? tcp_v4_do_rcv+0x77/0x2c0
-  tcp_v4_do_rcv+0x77/0x2c0
-  __release_sock+0x106/0x130
-  __tcp_close+0x1a7/0x4e0
-  tcp_close+0x20/0x70
-  inet_release+0x3c/0x80
-  __sock_release+0x3a/0xb0
-  sock_close+0x14/0x20
-  __fput+0xa3/0x260
-  task_work_run+0x59/0xb0
-  exit_to_user_mode_prepare+0x1b3/0x1c0
-  syscall_exit_to_user_mode+0x19/0x50
-  do_syscall_64+0x48/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The root case is in commit 84472b436e76 ("bpf, sockmap: Fix more uncharged
-while msg has more_data"), where I used msg->sg.size to replace the tosend,
-causing breakage:
-
-  if (msg->apply_bytes && msg->apply_bytes < tosend)
-    tosend = psock->apply_bytes;
-
-Fixes: 84472b436e76 ("bpf, sockmap: Fix more uncharged while msg has more_data")
-Reported-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/1667266296-8794-1-git-send-email-wangyufen@huawei.com
+Fixes: f5a4c24e689f ("mac80211: introduce individual TWT support in AP mode")
+Signed-off-by: Howard Hsu <howard-yh.hsu@mediatek.com>
+Link: https://lore.kernel.org/r/20221027015653.1448-1-howard-yh.hsu@mediatek.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/mac80211/s1g.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 2c597a4e429a..72892ebe9607 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -279,7 +279,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- {
- 	bool cork = false, enospc = sk_msg_full(msg);
- 	struct sock *sk_redir;
--	u32 tosend, delta = 0;
-+	u32 tosend, origsize, sent, delta = 0;
- 	u32 eval = __SK_NONE;
- 	int ret;
- 
-@@ -334,10 +334,12 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 			cork = true;
- 			psock->cork = NULL;
- 		}
--		sk_msg_return(sk, msg, msg->sg.size);
-+		sk_msg_return(sk, msg, tosend);
- 		release_sock(sk);
- 
-+		origsize = msg->sg.size;
- 		ret = tcp_bpf_sendmsg_redir(sk_redir, msg, tosend, flags);
-+		sent = origsize - msg->sg.size;
- 
- 		if (eval == __SK_REDIRECT)
- 			sock_put(sk_redir);
-@@ -376,7 +378,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 		    msg->sg.data[msg->sg.start].page_link &&
- 		    msg->sg.data[msg->sg.start].length) {
- 			if (eval == __SK_REDIRECT)
--				sk_mem_charge(sk, msg->sg.size);
-+				sk_mem_charge(sk, tosend - sent);
- 			goto more_data;
- 		}
+diff --git a/net/mac80211/s1g.c b/net/mac80211/s1g.c
+index 4141bc80cdfd..10b34bc4b67d 100644
+--- a/net/mac80211/s1g.c
++++ b/net/mac80211/s1g.c
+@@ -112,6 +112,9 @@ ieee80211_s1g_rx_twt_setup(struct ieee80211_sub_if_data *sdata,
+ 		goto out;
  	}
+ 
++	/* TWT Information not supported yet */
++	twt->control |= IEEE80211_TWT_CONTROL_RX_DISABLED;
++
+ 	drv_add_twt_setup(sdata->local, sdata, &sta->sta, twt);
+ out:
+ 	ieee80211_s1g_send_twt_setup(sdata, mgmt->sa, sdata->vif.addr, twt);
 -- 
 2.35.1
 
