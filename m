@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AD20627EC4
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:51:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC54B627EC5
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:51:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237357AbiKNMvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:51:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44162 "EHLO
+        id S237429AbiKNMvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:51:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237395AbiKNMv3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:51:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6985424BDD
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:51:28 -0800 (PST)
+        with ESMTP id S237323AbiKNMva (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:51:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF2B024BCF
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:51:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2325EB80EC0
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:51:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 718EEC433D7;
-        Mon, 14 Nov 2022 12:51:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67CB761175
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:51:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64188C433D6;
+        Mon, 14 Nov 2022 12:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430285;
-        bh=jVoUS1eU9XE+HtByPsMF/JAUXFajX2U1E1J9pcBTzDA=;
+        s=korg; t=1668430288;
+        bh=jqCPru3y732058yacaCblkiHERY4EMkNIoNU3ZxoKmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C7Ig4SRiyyJjAdnfRCsGH0vsArRNleCcrjP4RY9Nf7+O8/epSWAD6F4PAmKM+70sG
-         rh6Xvn/drsmb7tJngwuyCP/ROdqr3yYjWGpipLoRxCwCY0leGnBV63/rL8ur5AJL5t
-         kG3VsEvfdF4gkHPmWsHZRM47BDDMU3DXwPppZalA=
+        b=0bWhVfAVq3p82yP4xd2DL6q51xfFQ93SJOsHkBs/KY2CCATTsOgaYjvq3/v+SSiLD
+         T9vnftpoEq2SDpN1O0MbGPxSXj2t4WBtnq9Ep07rAWun942EGH6hOj6er7FbwAQdyK
+         BPZV3czVfqVize7zKrPzg5/XxnfIXPXh3/8zFWfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chuang Wang <nashuiliang@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
+        Guo Ren <guoren@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 49/95] net: macvlan: fix memory leaks of macvlan_common_newlink
-Date:   Mon, 14 Nov 2022 13:45:43 +0100
-Message-Id: <20221114124444.576247722@linuxfoundation.org>
+Subject: [PATCH 5.10 50/95] riscv: process: fix kernel info leakage
+Date:   Mon, 14 Nov 2022 13:45:44 +0100
+Message-Id: <20221114124444.606890069@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
 References: <20221114124442.530286937@linuxfoundation.org>
@@ -53,66 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuang Wang <nashuiliang@gmail.com>
+From: Jisheng Zhang <jszhang@kernel.org>
 
-[ Upstream commit 23569b5652ee8e8e55a12f7835f59af6f3cefc30 ]
+[ Upstream commit 6510c78490c490a6636e48b61eeaa6fb65981f4b ]
 
-kmemleak reports memory leaks in macvlan_common_newlink, as follows:
+thread_struct's s[12] may contain random kernel memory content, which
+may be finally leaked to userspace. This is a security hole. Fix it
+by clearing the s[12] array in thread_struct when fork.
 
- ip link add link eth0 name .. type macvlan mode source macaddr add
- <MAC-ADDR>
+As for kthread case, it's better to clear the s[12] array as well.
 
-kmemleak reports:
-
-unreferenced object 0xffff8880109bb140 (size 64):
-  comm "ip", pid 284, jiffies 4294986150 (age 430.108s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 b8 aa 5a 12 80 88 ff ff  ..........Z.....
-    80 1b fa 0d 80 88 ff ff 1e ff ac af c7 c1 6b 6b  ..............kk
-  backtrace:
-    [<ffffffff813e06a7>] kmem_cache_alloc_trace+0x1c7/0x300
-    [<ffffffff81b66025>] macvlan_hash_add_source+0x45/0xc0
-    [<ffffffff81b66a67>] macvlan_changelink_sources+0xd7/0x170
-    [<ffffffff81b6775c>] macvlan_common_newlink+0x38c/0x5a0
-    [<ffffffff81b6797e>] macvlan_newlink+0xe/0x20
-    [<ffffffff81d97f8f>] __rtnl_newlink+0x7af/0xa50
-    [<ffffffff81d98278>] rtnl_newlink+0x48/0x70
-    ...
-
-In the scenario where the macvlan mode is configured as 'source',
-macvlan_changelink_sources() will be execured to reconfigure list of
-remote source mac addresses, at the same time, if register_netdevice()
-return an error, the resource generated by macvlan_changelink_sources()
-is not cleaned up.
-
-Using this patch, in the case of an error, it will execute
-macvlan_flush_sources() to ensure that the resource is cleaned up.
-
-Fixes: aa5fd0fb7748 ("driver: macvlan: Destroy new macvlan port if macvlan_common_newlink failed.")
-Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
-Link: https://lore.kernel.org/r/20221109090735.690500-1-nashuiliang@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 7db91e57a0ac ("RISC-V: Task implementation")
+Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+Tested-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/20221029113450.4027-1-jszhang@kernel.org
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/CAJF2gTSdVyAaM12T%2B7kXAdRPGS4VyuO08X1c7paE-n4Fr8OtRA@mail.gmail.com/
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macvlan.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/riscv/kernel/process.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
-index c8d803d3616c..6b269a72388b 100644
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -1509,8 +1509,10 @@ int macvlan_common_newlink(struct net *src_net, struct net_device *dev,
- 	/* the macvlan port may be freed by macvlan_uninit when fail to register.
- 	 * so we destroy the macvlan port only when it's valid.
- 	 */
--	if (create && macvlan_port_get_rtnl(lowerdev))
-+	if (create && macvlan_port_get_rtnl(lowerdev)) {
-+		macvlan_flush_sources(port, vlan);
- 		macvlan_port_destroy(port->dev);
-+	}
- 	return err;
- }
- EXPORT_SYMBOL_GPL(macvlan_common_newlink);
+diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
+index dd5f985b1f40..9a8b2e60adcf 100644
+--- a/arch/riscv/kernel/process.c
++++ b/arch/riscv/kernel/process.c
+@@ -111,6 +111,8 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
+ {
+ 	struct pt_regs *childregs = task_pt_regs(p);
+ 
++	memset(&p->thread.s, 0, sizeof(p->thread.s));
++
+ 	/* p->thread holds context to be restored by __switch_to() */
+ 	if (unlikely(p->flags & PF_KTHREAD)) {
+ 		/* Kernel thread */
 -- 
 2.35.1
 
