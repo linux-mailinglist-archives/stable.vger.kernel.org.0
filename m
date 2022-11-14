@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ACA8627A29
+	by mail.lfdr.de (Postfix) with ESMTP id F09A7627A2B
 	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:13:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235963AbiKNKNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 05:13:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44452 "EHLO
+        id S235924AbiKNKNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 05:13:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235924AbiKNKMO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:12:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8E5386
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:11:23 -0800 (PST)
+        with ESMTP id S235846AbiKNKMX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:12:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 760C46385
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:11:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29AA7B80DAC
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:11:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70973C433D6;
-        Mon, 14 Nov 2022 10:11:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37E49B80DAB
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:11:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66CC1C433C1;
+        Mon, 14 Nov 2022 10:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668420680;
-        bh=8oOHkS3iu1drQ9Q4EUsuwZVotQGd6at+szLsP2pJqe0=;
+        s=korg; t=1668420689;
+        bh=NFv/Z1vaFM66luRd9+1BDjvWnrouN/rPZ0hEYfySSgY=;
         h=Subject:To:Cc:From:Date:From;
-        b=x/tf2qWd9C7GygKPQaz8oco01OaTQWbZEERD0+/5DH+D3FJ/82EZbN6p45kHkuRtF
-         ZWPelafnUZE/FLEkEHTL9BnmMQs//XdwREpcnwbRWnav1I2wzo4joDdFtBRPs3T4qi
-         SpMAdRiKAWUIIMnhQYnJ575a8zl6NbiNYZ0ZDnHI=
-Subject: FAILED: patch "[PATCH] mmc: sdhci-brcmstb: Fix SDHCI_RESET_ALL for CQHCI" failed to apply to 5.15-stable tree
+        b=cv3Wbjx6genMgM9jeTHBxQJuPHoOkvsrDWhxJ4uFIEugxTr0p3GFOObARDN2BsKWl
+         CKTacIqsVmGk43JwZ3kTKGTi0P0gu8FP1QrlBqDWj7itOZZ86dSr3/EZynaNPfmIN1
+         3SSxSJ94A85iJRgJCgR7PMwmUZ+HrSHQbevnnfYU=
+Subject: FAILED: patch "[PATCH] mmc: sdhci-brcmstb: Fix SDHCI_RESET_ALL for CQHCI" failed to apply to 5.10-stable tree
 To:     briannorris@chromium.org, adrian.hunter@intel.com,
         f.fainelli@gmail.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Nov 2022 11:11:17 +0100
-Message-ID: <1668420677175183@kroah.com>
+Date:   Mon, 14 Nov 2022 11:11:18 +0100
+Message-ID: <166842067866102@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
