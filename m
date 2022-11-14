@@ -2,183 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48765627A8E
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:33:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8C59627A95
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:34:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229816AbiKNKdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 05:33:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33676 "EHLO
+        id S235592AbiKNKeL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 05:34:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230391AbiKNKdK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:33:10 -0500
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA7401BEBE;
-        Mon, 14 Nov 2022 02:33:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1668421988; x=1699957988;
-  h=date:from:to:subject:message-id:references:mime-version:
-   in-reply-to;
-  bh=Y0WdUR+FeU2C43ZxBmO//rjLti3e/g0n9XgzSjyHz+U=;
-  b=BCoNOUekDCrU3jD7MiC1LDjmda/cdFGRavFxfxrjZ8XMNxg9SQR32Ifg
-   K7Tk9UjBeQZB7xP/v2PBnk9FzbB0Jg4KQDWB7hjOyll2r5GzFGvycxKZ4
-   yE8pP6f14b4DW7cnuE9KsXtaa4cp7/uYf/hjC2j5lB6f9bT+gQKhMw0M4
-   wYqaEzxL/GJXOy3RTcvv4u2aND6yyEIZ+M3OnoD76ot0UIdlJNeO9j5ye
-   oMazl7EAxcGO4ZigUe/PpZVKMzfoTCE8a98HktHqZvJ15rZssmdnkk1qz
-   ba6Q1hcZoPj81lFUAG88QdxKBmpk0z+mESlU07EI+sEnJGgO/BlQephd2
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10530"; a="309563246"
-X-IronPort-AV: E=Sophos;i="5.96,161,1665471600"; 
-   d="scan'208";a="309563246"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Nov 2022 02:33:08 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10530"; a="616256319"
-X-IronPort-AV: E=Sophos;i="5.96,161,1665471600"; 
-   d="scan'208";a="616256319"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga006.jf.intel.com with ESMTP; 14 Nov 2022 02:33:02 -0800
-Received: by black.fi.intel.com (Postfix, from userid 1001)
-        id C75CE32E; Mon, 14 Nov 2022 12:33:26 +0200 (EET)
-Date:   Mon, 14 Nov 2022 12:33:26 +0200
-From:   Mika Westerberg <mika.westerberg@linux.intel.com>
-To:     Wolfram Sang <wsa@kernel.org>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Tomasz Figa <tfiga@chromium.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Hidenori Kobayashi <hidenorik@google.com>,
-        stable@vger.kernel.org, linux-i2c@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 1/1] i2c: Restore initial power state when we are done.
-Message-ID: <Y3IZdrwwfiolSjB4@black.fi.intel.com>
-References: <20221109-i2c-waive-v5-0-2839667f8f6a@chromium.org>
- <20221109-i2c-waive-v5-1-2839667f8f6a@chromium.org>
- <Y3AA7hZFvoI9+2fF@shikoro>
+        with ESMTP id S236384AbiKNKd7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:33:59 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B45B217404
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:33:57 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C9736CE0EA3
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:33:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8F8CC433C1;
+        Mon, 14 Nov 2022 10:33:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1668422034;
+        bh=vFVvdGWxt8zDlcPlP+ZhWCI5CM4HgsUJfJxyaPHSWAc=;
+        h=Subject:To:Cc:From:Date:From;
+        b=ECoxISLit5gJ6ggvpazD0atDIEpTA9HxunnoIVc2r2HYZQoDHI0lbOUYLBiwqy4hO
+         sD3JYZZDvwqkv8OYsDu/93PGyKQreEzvnmtVdxcAHD/eR+fz2Z65ba2+DMVpOmd7LA
+         47ITAkP3XHn6ffEVP7aRWXB/KCbAqsXODNeGwkn8=
+Subject: FAILED: patch "[PATCH] hugetlbfs: don't delete error page from pagecache" failed to apply to 6.0-stable tree
+To:     jthoughton@google.com, akpm@linux-foundation.org,
+        axelrasmussen@google.com, linmiaohe@huawei.com,
+        mike.kravetz@oracle.com, naoya.horiguchi@nec.com,
+        shy828301@gmail.com, songmuchun@bytedance.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 14 Nov 2022 11:33:50 +0100
+Message-ID: <166842203040114@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y3AA7hZFvoI9+2fF@shikoro>
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-On Sat, Nov 12, 2022 at 09:24:14PM +0100, Wolfram Sang wrote:
-> On Thu, Nov 10, 2022 at 05:20:39PM +0100, Ricardo Ribalda wrote:
-> > A driver that supports I2C_DRV_ACPI_WAIVE_D0_PROBE is not expected to
-> > power off a device that it has not powered on previously.
-> > 
-> > For devices operating in "full_power" mode, the first call to
-> > `i2c_acpi_waive_d0_probe` will return 0, which means that the device
-> > will be turned on with `dev_pm_domain_attach`.
-> > 
-> > If probe fails or the device is removed the second call to
-> > `i2c_acpi_waive_d0_probe` will return 1, which means that the device
-> > will not be turned off. This is, it will be left in a different power
-> > state. Lets fix it.
-> > 
-> > Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-> > Cc: stable@vger.kernel.org
-> > Fixes: b18c1ad685d9 ("i2c: Allow an ACPI driver to manage the device's power state during probe")
-> > Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-> 
-> Adding I2C ACPI maintainer to CC. Mika, could you please help
-> reviewing?
+The patch below does not apply to the 6.0-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Sure.
+Possible dependencies:
 
-> > diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> > index b4edf10e8fd0..6f4974c76404 100644
-> > --- a/drivers/i2c/i2c-core-base.c
-> > +++ b/drivers/i2c/i2c-core-base.c
-> > @@ -467,6 +467,7 @@ static int i2c_device_probe(struct device *dev)
-> >  {
-> >  	struct i2c_client	*client = i2c_verify_client(dev);
-> >  	struct i2c_driver	*driver;
-> > +	bool do_power_on;
-> >  	int status;
-> >  
-> >  	if (!client)
-> > @@ -545,8 +546,8 @@ static int i2c_device_probe(struct device *dev)
-> >  	if (status < 0)
-> >  		goto err_clear_wakeup_irq;
-> >  
-> > -	status = dev_pm_domain_attach(&client->dev,
-> > -				      !i2c_acpi_waive_d0_probe(dev));
-> > +	do_power_on = !i2c_acpi_waive_d0_probe(dev);
-> > +	status = dev_pm_domain_attach(&client->dev, do_power_on);
+8625147cafaa ("hugetlbfs: don't delete error page from pagecache")
+7e1813d48dd3 ("hugetlb: rename remove_huge_page to hugetlb_delete_from_page_cache")
 
-I think this is fine as the driver says it is OK to see the device in
-whatever power state (I assume this is what the
-i2c_acpi_waive_d0_probe() is supposed to be doing but there is no
-kernel-doc, though).
+thanks,
 
-> >  	if (status)
-> >  		goto err_clear_wakeup_irq;
-> >  
-> > @@ -580,12 +581,14 @@ static int i2c_device_probe(struct device *dev)
-> >  	if (status)
-> >  		goto err_release_driver_resources;
-> >  
-> > +	client->power_off_on_remove = do_power_on;
-> > +
-> >  	return 0;
-> >  
-> >  err_release_driver_resources:
-> >  	devres_release_group(&client->dev, client->devres_group_id);
-> >  err_detach_pm_domain:
-> > -	dev_pm_domain_detach(&client->dev, !i2c_acpi_waive_d0_probe(dev));
-> > +	dev_pm_domain_detach(&client->dev, do_power_on);
-> >  err_clear_wakeup_irq:
-> >  	dev_pm_clear_wake_irq(&client->dev);
-> >  	device_init_wakeup(&client->dev, false);
-> > @@ -610,7 +613,7 @@ static void i2c_device_remove(struct device *dev)
-> >  
-> >  	devres_release_group(&client->dev, client->devres_group_id);
-> >  
-> > -	dev_pm_domain_detach(&client->dev, !i2c_acpi_waive_d0_probe(dev));
-> > +	dev_pm_domain_detach(&client->dev, client->power_off_on_remove);
+greg k-h
 
-However, on the remove path I think we should not call
-i2c_acpi_waive_d0_probe() at all as that has nothing to do with remove
-(it is for whether the driver accepts any power state on probe AFAICT)
-so this should stil be "true" here. Unless I'm missing something.
+------------------ original commit in Linus's tree ------------------
 
-> >  
-> >  	dev_pm_clear_wake_irq(&client->dev);
-> >  	device_init_wakeup(&client->dev, false);
-> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> > index f7c49bbdb8a1..eba83bc5459e 100644
-> > --- a/include/linux/i2c.h
-> > +++ b/include/linux/i2c.h
-> > @@ -326,6 +326,8 @@ struct i2c_driver {
-> >   *	calls it to pass on slave events to the slave driver.
-> >   * @devres_group_id: id of the devres group that will be created for resources
-> >   *	acquired when probing this device.
-> > + * @power_off_on_remove: Record if we have turned on the device before probing
-> > + *	so we can turn off the device at removal.
-> >   *
-> >   * An i2c_client identifies a single device (i.e. chip) connected to an
-> >   * i2c bus. The behaviour exposed to Linux is defined by the driver
-> > @@ -355,6 +357,8 @@ struct i2c_client {
-> >  	i2c_slave_cb_t slave_cb;	/* callback for slave mode	*/
-> >  #endif
-> >  	void *devres_group_id;		/* ID of probe devres group	*/
-> > +	bool power_off_on_remove;	/* if device needs to be turned	*/
-> > +					/* off by framework at removal	*/
-> >  };
-> >  #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
-> >  
-> > 
-> > -- 
-> > b4 0.11.0-dev-d93f8
+From 8625147cafaa9ba74713d682f5185eb62cb2aedb Mon Sep 17 00:00:00 2001
+From: James Houghton <jthoughton@google.com>
+Date: Tue, 18 Oct 2022 20:01:25 +0000
+Subject: [PATCH] hugetlbfs: don't delete error page from pagecache
 
+This change is very similar to the change that was made for shmem [1], and
+it solves the same problem but for HugeTLBFS instead.
+
+Currently, when poison is found in a HugeTLB page, the page is removed
+from the page cache.  That means that attempting to map or read that
+hugepage in the future will result in a new hugepage being allocated
+instead of notifying the user that the page was poisoned.  As [1] states,
+this is effectively memory corruption.
+
+The fix is to leave the page in the page cache.  If the user attempts to
+use a poisoned HugeTLB page with a syscall, the syscall will fail with
+EIO, the same error code that shmem uses.  For attempts to map the page,
+the thread will get a BUS_MCEERR_AR SIGBUS.
+
+[1]: commit a76054266661 ("mm: shmem: don't truncate page if memory failure happens")
+
+Link: https://lkml.kernel.org/r/20221018200125.848471-1-jthoughton@google.com
+Signed-off-by: James Houghton <jthoughton@google.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Tested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: James Houghton <jthoughton@google.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index dd54f67e47fd..df7772335dc0 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -328,6 +328,12 @@ static ssize_t hugetlbfs_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 		} else {
+ 			unlock_page(page);
+ 
++			if (PageHWPoison(page)) {
++				put_page(page);
++				retval = -EIO;
++				break;
++			}
++
+ 			/*
+ 			 * We have the page, copy it to user space buffer.
+ 			 */
+@@ -1111,13 +1117,6 @@ static int hugetlbfs_migrate_folio(struct address_space *mapping,
+ static int hugetlbfs_error_remove_page(struct address_space *mapping,
+ 				struct page *page)
+ {
+-	struct inode *inode = mapping->host;
+-	pgoff_t index = page->index;
+-
+-	hugetlb_delete_from_page_cache(page);
+-	if (unlikely(hugetlb_unreserve_pages(inode, index, index + 1, 1)))
+-		hugetlb_fix_reserve_counts(inode);
+-
+ 	return 0;
+ }
+ 
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 546df97c31e4..e48f8ef45b17 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -6111,6 +6111,10 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
+ 
+ 	ptl = huge_pte_lock(h, dst_mm, dst_pte);
+ 
++	ret = -EIO;
++	if (PageHWPoison(page))
++		goto out_release_unlock;
++
+ 	/*
+ 	 * We allow to overwrite a pte marker: consider when both MISSING|WP
+ 	 * registered, we firstly wr-protect a none pte which has no page cache
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index 145bb561ddb3..bead6bccc7f2 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1080,6 +1080,7 @@ static int me_huge_page(struct page_state *ps, struct page *p)
+ 	int res;
+ 	struct page *hpage = compound_head(p);
+ 	struct address_space *mapping;
++	bool extra_pins = false;
+ 
+ 	if (!PageHuge(hpage))
+ 		return MF_DELAYED;
+@@ -1087,6 +1088,8 @@ static int me_huge_page(struct page_state *ps, struct page *p)
+ 	mapping = page_mapping(hpage);
+ 	if (mapping) {
+ 		res = truncate_error_page(hpage, page_to_pfn(p), mapping);
++		/* The page is kept in page cache. */
++		extra_pins = true;
+ 		unlock_page(hpage);
+ 	} else {
+ 		unlock_page(hpage);
+@@ -1104,7 +1107,7 @@ static int me_huge_page(struct page_state *ps, struct page *p)
+ 		}
+ 	}
+ 
+-	if (has_extra_refcount(ps, p, false))
++	if (has_extra_refcount(ps, p, extra_pins))
+ 		res = MF_FAILED;
+ 
+ 	return res;
 
