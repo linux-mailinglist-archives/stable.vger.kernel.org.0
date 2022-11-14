@@ -2,162 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70BE2628990
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 20:41:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74BF06289BC
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 20:48:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236947AbiKNTll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 14:41:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44660 "EHLO
+        id S237392AbiKNTsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 14:48:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236982AbiKNTlk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 14:41:40 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4D141B1E5
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 11:41:39 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id m14-20020a17090a3f8e00b00212dab39bcdso14827671pjc.0
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 11:41:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=5LgnjyN55RUfsSqkDlRobrNq04ErFPW9kmSc5YdZns0=;
-        b=4TsSqzNTUCo6VUpAL66ys5EqcmbHkdBuhR0ezUUZwWgwMTIvLQXWbqVePMnEhWjl6V
-         uMdFfuTB+7l/G/Bkh1gksh6cmS/K5mmAxjnL3eXMdrJXHmN6uDg1Q8W1PN4wzs6kYrM1
-         FY69efQw+5QQNGm0hJ3Pz1YnOImGTbMHD0GPCMCK2vd1/+n6aEG02GTNxeQCflDpzQgU
-         +NHVNxgbaYnOlv4nVyF0gNGyliWb6RzaSqe4HcskHXD3ONiYjw1oWRMWwRh+IZCd4ne6
-         fbwq+GuTugC8j/MyI8545ZEmOFk5YRaVqGinvHh/KMb9fWv3HPh6J7HTJhm5AayFtA3/
-         Ugww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5LgnjyN55RUfsSqkDlRobrNq04ErFPW9kmSc5YdZns0=;
-        b=jY5Nx8PBA/DEtTw+g0BhMuJu8Xfyo/CQ/vpius0mOm63M34J9s1CZB6WTrAXvrYVkr
-         oG7GWn7uVV1+yJhKUOboStlBDFRiegsM+CMeXTNX+m3BpM7YShXKN7XOW7Yjx2k/v2nQ
-         UgqTndW8D04U7bPupOZnBhvuLpjW0YC8BC1jGOQZG4D3k1CPOKABYfDihJehP9W1qWj4
-         mAmJje8g7YubVaaDtiSVt/xWMW7Z/10Iw9Yo9bffpKwOiC07onLMfJTwwAkIzUn19VoK
-         +sw9pePUE+HVA+HVigvSjxf7bBR/hIKpjl+YEz1AwBT0MLeqwtaF7jgpird2c/earXuG
-         l2Xw==
-X-Gm-Message-State: ANoB5pkcVBRaArRVYRU0LL3DU6T0TLqMsWVTOQfQDBTpoyZqHCOg75VP
-        kvH9Rc7DglQT9SQE35hUGYqrbnbdbN4LSXvGUac=
-X-Google-Smtp-Source: AA0mqf7v+0UK4L8soriKtm3nEnrmlRGuigz8Qjv48FPcUsJikM/vI1Na699pSXNDZGPhB4RSW3z3WA==
-X-Received: by 2002:a17:902:bf03:b0:186:cb66:9dca with SMTP id bi3-20020a170902bf0300b00186cb669dcamr694581plb.98.1668454899175;
-        Mon, 14 Nov 2022 11:41:39 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e2-20020a170902d38200b00186e2b3e12fsm7855055pld.261.2022.11.14.11.41.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Nov 2022 11:41:38 -0800 (PST)
-Message-ID: <637299f2.170a0220.cdb1e.ba4d@mx.google.com>
-Date:   Mon, 14 Nov 2022 11:41:38 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S237393AbiKNTsQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 14:48:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE6A22503;
+        Mon, 14 Nov 2022 11:47:52 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82959B8121C;
+        Mon, 14 Nov 2022 19:47:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D2B1C433D6;
+        Mon, 14 Nov 2022 19:47:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1668455270;
+        bh=gc9A5nj2R6mNJZ7b2bJwX609pNXszLURKRE2NYuQFt8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vQuxY3uXHey+wBOxJUaZ9NdOn71uWj81VuEkhVHuiZO4Lxne7uFgFYu2Y2X/s33su
+         gGjJGmACuLypkOM85cmLs3VES85A9gglMIXxlGo4O7rCKZL2X57KUdB1Dk89B9E0bT
+         vnaqrICHk9mS+vX9uS/Ejdpa2H4ZQbEigJxLuJ+Xvd8vohEOE/TybROmx9Vk91lYlm
+         KZjUsg7R1QbDt+DvFcWkutCNml3R4vKhnXpPHPOqgZUd5Hg2k4D7YZjgHW1vb/MR3Q
+         4ct388zDi2owQbqpg91TmpUtaquW0BVEwc4ytilBZhPce5Bwx3XWjKHgd4yKRoEspD
+         9o6lIyp2idQjQ==
+Date:   Mon, 14 Nov 2022 20:47:44 +0100
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Ricardo Ribalda <ribalda@chromium.org>
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hidenori Kobayashi <hidenorik@chromium.org>,
+        stable@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        linux-kernel@vger.kernel.org,
+        Hidenori Kobayashi <hidenorik@google.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v6 1/1] i2c: Restore initial power state if probe fails
+Message-ID: <Y3KbYLSFLUuVnSIa@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hidenori Kobayashi <hidenorik@chromium.org>, stable@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        linux-kernel@vger.kernel.org,
+        Hidenori Kobayashi <hidenorik@google.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        linux-i2c@vger.kernel.org
+References: <20221109-i2c-waive-v6-0-bc059fb7e8fa@chromium.org>
+ <20221109-i2c-waive-v6-1-bc059fb7e8fa@chromium.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.78-131-g8f06926bb1b0
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 150 runs,
- 2 regressions (v5.15.78-131-g8f06926bb1b0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="qv6denHYt0WD4nxL"
+Content-Disposition: inline
+In-Reply-To: <20221109-i2c-waive-v6-1-bc059fb7e8fa@chromium.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 150 runs, 2 regressions (v5.15.78-131-g8f069=
-26bb1b0)
 
-Regressions Summary
--------------------
+--qv6denHYt0WD4nxL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-platform    | arch | lab     | compiler | defconfig           | regressions
-------------+------+---------+----------+---------------------+------------
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1          =
+wOn Mon, Nov 14, 2022 at 01:20:34PM +0100, Ricardo Ribalda wrote:
+> A driver that supports I2C_DRV_ACPI_WAIVE_D0_PROBE is not expected to
+> power off a device that it has not powered on previously.
+>=20
+> For devices operating in "full_power" mode, the first call to
+> `i2c_acpi_waive_d0_probe` will return 0, which means that the device
+> will be turned on with `dev_pm_domain_attach`.
+>=20
+> If probe fails the second call to `i2c_acpi_waive_d0_probe` will
+> return 1, which means that the device will not be turned off.
+> This is, it will be left in a different power state. Lets fix it.
+>=20
+> Reviewed-by: Hidenori Kobayashi <hidenorik@chromium.org>
+> Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+> Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> Cc: stable@vger.kernel.org
+> Fixes: b18c1ad685d9 ("i2c: Allow an ACPI driver to manage the device's po=
+wer state during probe")
+> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | multi_v7_defconfig  | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.78-131-g8f06926bb1b0/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.78-131-g8f06926bb1b0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8f06926bb1b0e2aff588997f5e4cb06c88498bb4 =
-
-
-
-Test Regressions
----------------- =
-
+Applied to for-current, thanks!
 
 
-platform    | arch | lab     | compiler | defconfig           | regressions
-------------+------+---------+----------+---------------------+------------
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1          =
+--qv6denHYt0WD4nxL
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
-  Details:     https://kernelci.org/test/plan/id/637266066bdee08b53e7dc40
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmNym1wACgkQFA3kzBSg
+KbYxLxAAmxOGLCEUVGi4wIh35Mh/wHx3+QiIhPMBmv4OOoAh5iVxbeW01GOdSXYf
+BwuyzxaiuQHsnl1JWnn9RDEnSjeSM2xKIdk3nA9HXpUGt42W5OzV2+HaDOee/7tg
+oWD2gV5ikgNCqvTl8usOgCrxZTW6RFtYPVNFDgI8a38LAPdDfyhda5v1Mq7vGJBi
+RIuNLRbHErZB70X0gzBV6YFbm8LBRHkWRTMQVHoOQgN3208BRtCjlkIafKnDbh6j
+Ws+7l3g83Epe7M+ExEK/RhStAxYmpayTu/Jv52SjHE/i8cUF0ipntrGrnuAmqnxb
+FYExcs9jhCp8AuyN6UwvIlYS4hi0bch/YV9utG4ZMMiBsrvP2z1wjRc+b1mnxhb2
+YjzvLKlzqN84ZtoeqrC7F0wrwR5ZJg781cULsIskEpi7l+2DvbMXCHBpwH+1rwLk
+gKc30l4JsarA6S5eCyA57ESdB5PuQ9w/6c6wD5KSKFVuF5/wksLyVrm3l75Q/HfL
+JCQhUNc9ka4BpFtXpHxHs+UZnYn3aDAobnhzDa0bl1HDS93b1IRr8ETKiMFALgTo
+cTMcajw+JU6BBNnaiRlhVxlfKSb/H/fz632R93slQU7+Av0p9SC5/xnUuvL/BSto
+VpsepytfbcVTUVy4c4Sjk5Ccw0Kb7RF4XeMmowF9fTt3RBt5gUg=
+=wZMu
+-----END PGP SIGNATURE-----
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.78-=
-131-g8f06926bb1b0/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
-vk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.78-=
-131-g8f06926bb1b0/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
-vk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221024.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/637266066bdee08b53e7d=
-c41
-        failing since 49 days (last pass: v5.15.70-117-g5ae36aa8ead6e, firs=
-t fail: v5.15.70-133-gbad831d5b9cf) =
-
- =
-
-
-
-platform    | arch | lab     | compiler | defconfig           | regressions
-------------+------+---------+----------+---------------------+------------
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | multi_v7_defconfig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6372648ab0e7c17858e7db4e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.78-=
-131-g8f06926bb1b0/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
-k.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.78-=
-131-g8f06926bb1b0/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-ev=
-k.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221024.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6372648ab0e7c17858e7d=
-b4f
-        failing since 50 days (last pass: v5.15.69-44-g09c929d3da79, first =
-fail: v5.15.70-123-gaf951c1b9b36) =
-
- =20
+--qv6denHYt0WD4nxL--
