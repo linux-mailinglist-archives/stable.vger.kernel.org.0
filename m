@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C343627EDA
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13DA8627F84
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:00:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237458AbiKNMwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:52:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44740 "EHLO
+        id S237630AbiKNNAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:00:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237525AbiKNMwR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:52:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2B4924BFA
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:52:16 -0800 (PST)
+        with ESMTP id S237635AbiKNNAG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:00:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D4242649A
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:00:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 900286112D
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:52:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88D66C433D7;
-        Mon, 14 Nov 2022 12:52:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0FC261154
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:00:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B75DCC433C1;
+        Mon, 14 Nov 2022 13:00:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430336;
-        bh=dNQfRiqTqqFK6rGFyhBXQa9aLwkqh/0KfhUx3q3zvmo=;
+        s=korg; t=1668430804;
+        bh=0e0ZvnEgq74GnzpDzoPoYInDatd4rbOtDlkf3Mdwfqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1281L8bK/J/nNYYiqOpkBrchmakIRMOB8UoLCQkIjgaS1JyyoPeUKDYQWFzF31gLi
-         nl+Zrm3ZIg4bIBJhx71VhgqFFwa4HINBe3gCkj+OkZuDEl/ijGVNbsNBREllraxFmv
-         0WWt5tYZOwUz58ROUgjPvmB0hXxiyoDzjOiRceRw=
+        b=FeyK033X2RNn8dyvDFECOPNKFuVnbqpGMOhusNndQ2enEgrowMQ2Gh6qw13AUO1Ew
+         let33Jk0qQWbg/56IMi4XDltuzfhliXlMuTw+iOgvyYWfFR6R+T/KTFBbdCQuB52eh
+         gjCTXK+Wp3uYaZcpEZMbcZVkZX+fulFRRFSqYRfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Oleksij Rempel <o.rempel@pengutronix.de>,
-        syzbot+d168ec0caca4697e03b1@syzkaller.appspotmail.com,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 77/95] can: j1939: j1939_send_one(): fix missing CAN header initialization
+        patches@lists.linux.dev, Jorge Lopez <jorge.lopez2@hp.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.15 102/131] platform/x86: hp_wmi: Fix rfkill causing soft blocked wifi
 Date:   Mon, 14 Nov 2022 13:46:11 +0100
-Message-Id: <20221114124445.747975407@linuxfoundation.org>
+Message-Id: <20221114124453.029945801@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Jorge Lopez <jorge.lopez2@hp.com>
 
-commit 3eb3d283e8579a22b81dd2ac3987b77465b2a22f upstream.
+commit 1598bfa8e1faa932de42e1ee7628a1c4c4263f0a upstream.
 
-The read access to struct canxl_frame::len inside of a j1939 created
-skbuff revealed a missing initialization of reserved and later filled
-elements in struct can_frame.
+After upgrading BIOS to U82 01.02.01 Rev.A, the console is flooded
+strange char "^@" which printed out every second and makes login
+nearly impossible. Also the below messages were shown both in console
+and journal/dmesg every second:
 
-This patch initializes the 8 byte CAN header with zero.
+usb 1-3: Device not responding to setup address.
+usb 1-3: device not accepting address 4, error -71
+usb 1-3: device descriptor read/all, error -71
+usb usb1-port3: unable to enumerate USB device
 
-Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
-Cc: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/linux-can/20221104052235.GA6474@pengutronix.de
-Reported-by: syzbot+d168ec0caca4697e03b1@syzkaller.appspotmail.com
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Link: https://lore.kernel.org/all/20221104075000.105414-1-socketcan@hartkopp.net
+Wifi is soft blocked by checking rfkill. When unblocked manually,
+after few seconds it would be soft blocked again. So I was suspecting
+something triggered rfkill to soft block wifi.  At the end it was
+fixed by removing hp_wmi module.
+
+The root cause is the way hp-wmi driver handles command 1B on
+post-2009 BIOS.  In pre-2009 BIOS, command 1Bh return 0x4 to indicate
+that BIOS no longer controls the power for the wireless devices.
+
+Signed-off-by: Jorge Lopez <jorge.lopez2@hp.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216468
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://lore.kernel.org/r/20221028155527.7724-1-jorge.lopez2@hp.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/j1939/main.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/platform/x86/hp-wmi.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/net/can/j1939/main.c
-+++ b/net/can/j1939/main.c
-@@ -332,6 +332,9 @@ int j1939_send_one(struct j1939_priv *pr
- 	/* re-claim the CAN_HDR from the SKB */
- 	cf = skb_push(skb, J1939_CAN_HDR);
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -984,8 +984,16 @@ static int __init hp_wmi_bios_setup(stru
+ 	wwan_rfkill = NULL;
+ 	rfkill2_count = 0;
  
-+	/* initialize header structure */
-+	memset(cf, 0, J1939_CAN_HDR);
-+
- 	/* make it a full can frame again */
- 	skb_put(skb, J1939_CAN_FTR + (8 - dlc));
+-	if (hp_wmi_rfkill_setup(device))
+-		hp_wmi_rfkill2_setup(device);
++	/*
++	 * In pre-2009 BIOS, command 1Bh return 0x4 to indicate that
++	 * BIOS no longer controls the power for the wireless
++	 * devices. All features supported by this command will no
++	 * longer be supported.
++	 */
++	if (!hp_wmi_bios_2009_later()) {
++		if (hp_wmi_rfkill_setup(device))
++			hp_wmi_rfkill2_setup(device);
++	}
+ 
+ 	thermal_profile_setup();
  
 
 
