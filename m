@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6607627EA1
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:49:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33D3B627F3F
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237248AbiKNMtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:49:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42240 "EHLO
+        id S237574AbiKNM5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:57:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237380AbiKNMts (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:49:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D62702AF2
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:49:47 -0800 (PST)
+        with ESMTP id S237617AbiKNM4t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:56:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DA9F27DC9
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:56:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 724A461154
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:49:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53977C433D7;
-        Mon, 14 Nov 2022 12:49:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24D1661171
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:56:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21DDAC433C1;
+        Mon, 14 Nov 2022 12:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430186;
-        bh=YnaSHKFbIshoO9+bOSUe3RvsKn81p/tl9zRdqedM/8E=;
+        s=korg; t=1668430604;
+        bh=DFgmAcj7cgrNN1QIu1QqCK//obnsJ5Hb/4cf4+twIJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYNnRf9gjR8U2EgUR2cvot9ZQTQ10FhFz5X4V3VqHp3YFPHP/zfERgZ8dZFpgkmfQ
-         JmdY3uYy+buBajnt1Pa6ShdsnbfMJO4aTQrcclc7igKShCNUsDXkuNQVBHPMdocukT
-         bJepPCGA57k3xx26l74d2QkKbNIakXm2kWuHnbik=
+        b=RSQYitVe7vcQMc8xXO+3IXwaRUPtszxEJrQZ3d3cM6/++7Jw7RAZv2EycBVWEmGk8
+         5cvopjXWiwveEHEZz3vj4RifggPBsb+E4FBu13hacJCEFUg2v6LwJnsGnvu/0qgdtC
+         AsWrNF7alVqYfvFd9g7dNBR/Ivy4RYfl/KhylTGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        patches@lists.linux.dev, Chuang Wang <nashuiliang@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 52/95] riscv: Enable CMA support
-Date:   Mon, 14 Nov 2022 13:45:46 +0100
-Message-Id: <20221114124444.693709445@linuxfoundation.org>
+Subject: [PATCH 5.15 078/131] net: macvlan: fix memory leaks of macvlan_common_newlink
+Date:   Mon, 14 Nov 2022 13:45:47 +0100
+Message-Id: <20221114124451.981789122@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Chuang Wang <nashuiliang@gmail.com>
 
-[ Upstream commit da815582cf4594e96defa1cddb72cd00b1e7aac5 ]
+[ Upstream commit 23569b5652ee8e8e55a12f7835f59af6f3cefc30 ]
 
-riscv has selected HAVE_DMA_CONTIGUOUS, but doesn't call
-dma_contiguous_reserve().  This calls dma_contiguous_reserve(), which
-enables CMA.
+kmemleak reports memory leaks in macvlan_common_newlink, as follows:
 
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Stable-dep-of: 50e63dd8ed92 ("riscv: fix reserved memory setup")
+ ip link add link eth0 name .. type macvlan mode source macaddr add
+ <MAC-ADDR>
+
+kmemleak reports:
+
+unreferenced object 0xffff8880109bb140 (size 64):
+  comm "ip", pid 284, jiffies 4294986150 (age 430.108s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 b8 aa 5a 12 80 88 ff ff  ..........Z.....
+    80 1b fa 0d 80 88 ff ff 1e ff ac af c7 c1 6b 6b  ..............kk
+  backtrace:
+    [<ffffffff813e06a7>] kmem_cache_alloc_trace+0x1c7/0x300
+    [<ffffffff81b66025>] macvlan_hash_add_source+0x45/0xc0
+    [<ffffffff81b66a67>] macvlan_changelink_sources+0xd7/0x170
+    [<ffffffff81b6775c>] macvlan_common_newlink+0x38c/0x5a0
+    [<ffffffff81b6797e>] macvlan_newlink+0xe/0x20
+    [<ffffffff81d97f8f>] __rtnl_newlink+0x7af/0xa50
+    [<ffffffff81d98278>] rtnl_newlink+0x48/0x70
+    ...
+
+In the scenario where the macvlan mode is configured as 'source',
+macvlan_changelink_sources() will be execured to reconfigure list of
+remote source mac addresses, at the same time, if register_netdevice()
+return an error, the resource generated by macvlan_changelink_sources()
+is not cleaned up.
+
+Using this patch, in the case of an error, it will execute
+macvlan_flush_sources() to ensure that the resource is cleaned up.
+
+Fixes: aa5fd0fb7748 ("driver: macvlan: Destroy new macvlan port if macvlan_common_newlink failed.")
+Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
+Link: https://lore.kernel.org/r/20221109090735.690500-1-nashuiliang@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/mm/init.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/macvlan.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index e8921e78a292..56314e82f051 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -13,6 +13,7 @@
- #include <linux/of_fdt.h>
- #include <linux/libfdt.h>
- #include <linux/set_memory.h>
-+#include <linux/dma-map-ops.h>
- 
- #include <asm/fixmap.h>
- #include <asm/tlbflush.h>
-@@ -41,13 +42,14 @@ struct pt_alloc_ops {
- #endif
- };
- 
-+static phys_addr_t dma32_phys_limit __ro_after_init;
-+
- static void __init zone_sizes_init(void)
- {
- 	unsigned long max_zone_pfns[MAX_NR_ZONES] = { 0, };
- 
- #ifdef CONFIG_ZONE_DMA32
--	max_zone_pfns[ZONE_DMA32] = PFN_DOWN(min(4UL * SZ_1G,
--			(unsigned long) PFN_PHYS(max_low_pfn)));
-+	max_zone_pfns[ZONE_DMA32] = PFN_DOWN(dma32_phys_limit);
- #endif
- 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
- 
-@@ -193,6 +195,7 @@ void __init setup_bootmem(void)
- 
- 	max_pfn = PFN_DOWN(dram_end);
- 	max_low_pfn = max_pfn;
-+	dma32_phys_limit = min(4UL * SZ_1G, (unsigned long)PFN_PHYS(max_low_pfn));
- 	set_max_mapnr(max_low_pfn);
- 
- #ifdef CONFIG_BLK_DEV_INITRD
-@@ -206,6 +209,7 @@ void __init setup_bootmem(void)
- 	memblock_reserve(dtb_early_pa, fdt_totalsize(dtb_early_va));
- 
- 	early_init_fdt_scan_reserved_mem();
-+	dma_contiguous_reserve(dma32_phys_limit);
- 	memblock_allow_resize();
- 	memblock_dump_all();
+diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
+index 6363459ba1d0..cdc238dda1e1 100644
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -1521,8 +1521,10 @@ int macvlan_common_newlink(struct net *src_net, struct net_device *dev,
+ 	/* the macvlan port may be freed by macvlan_uninit when fail to register.
+ 	 * so we destroy the macvlan port only when it's valid.
+ 	 */
+-	if (create && macvlan_port_get_rtnl(lowerdev))
++	if (create && macvlan_port_get_rtnl(lowerdev)) {
++		macvlan_flush_sources(port, vlan);
+ 		macvlan_port_destroy(port->dev);
++	}
+ 	return err;
  }
+ EXPORT_SYMBOL_GPL(macvlan_common_newlink);
 -- 
 2.35.1
 
