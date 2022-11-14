@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B19762808C
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:07:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE5E62808E
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:07:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237840AbiKNNGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:06:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32882 "EHLO
+        id S237753AbiKNNGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:06:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237835AbiKNNGo (ORCPT
+        with ESMTP id S237821AbiKNNGo (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:06:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5F52A950
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:06:43 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9A92A962
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:06:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A50EFB80EA6
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:06:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C52DAC433B5;
-        Mon, 14 Nov 2022 13:06:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B08796117F
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:06:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5916C433C1;
+        Mon, 14 Nov 2022 13:06:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431200;
-        bh=IaQAV87arvBD3pKiqQLOuNjtaG5jOTE8VUO5ubkoQnM=;
+        s=korg; t=1668431203;
+        bh=bhiukteCK3wgTfUrBzjZScGhIJ5cj2FimMysUYSGIqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n00scA+ZXaj3wUpaWlb3sZKpKu0H2E95eu+QwfVpmh62ulTK3mTQdvtosUq++iEix
-         lGuBvNlUV31FtoSh1PYMN0q4aMS/78oQzOyrKJKey84/nGHmsrOgFTfNakafCfbDi/
-         vcVSo146evEoz0G6bXSAgxrodKKBznUoeyKEzQCg=
+        b=cBCeBsanrUqTXtHFid1rTdQZD5y4QIl0RCZAI8V5+Ea2k87OtCnaAeD0lWlc7meyL
+         kTmyWI7JVe2gCPaVkOPdIjBA5vcmGflQ+cvEoyNWh4KDxEzlqcUXDqsAeBo7HFP2Nj
+         JlL0MtQaEMlSZmheWuwgJnziUJx3RCSMYeq9bEUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 107/190] net: mv643xx_eth: disable napi when init rxq or txq failed in mv643xx_eth_open()
-Date:   Mon, 14 Nov 2022 13:45:31 +0100
-Message-Id: <20221114124503.376815420@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 108/190] ALSA: memalloc: Dont fall back for SG-buffer with IOMMU
+Date:   Mon, 14 Nov 2022 13:45:32 +0100
+Message-Id: <20221114124503.407429608@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -53,35 +53,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit f111606b63ff2282428ffbac0447c871eb957b6c ]
+[ Upstream commit 9736a325137b62499d2b4be3fc2d742b131f75da ]
 
-When failed to init rxq or txq in mv643xx_eth_open() for opening device,
-napi isn't disabled. When open mv643xx_eth device next time, it will
-trigger a BUG_ON() in napi_enable(). Compile tested only.
+When the non-contiguous page allocation for SG buffer allocation
+fails, the memalloc helper tries to fall back to the old page
+allocation methods.  This would, however, result in the bogus page
+addresses when IOMMU is enabled.  Usually in such a case, the fallback
+allocation should fail as well, but occasionally it succeeds and
+hitting a bad access.
 
-Fixes: 2257e05c1705 ("mv643xx_eth: get rid of receive-side locking")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221109025432.80900-1-shaozhengchao@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+The fallback was thought for non-IOMMU case, and as the error from
+dma_alloc_noncontiguous() with IOMMU essentially implies a fatal
+memory allocation error, we should return the error straightforwardly
+without fallback.  This avoids the corner case like the above.
+
+The patch also renames the local variable "dma_ops" with snd_ prefix
+for avoiding the name conflict.
+
+Fixes: a8d302a0b770 ("ALSA: memalloc: Revive x86-specific WC page allocations again")
+Reported-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.22.394.2211041541090.3532114@eliteleevi.tm.intel.com
+Link: https://lore.kernel.org/r/20221110132216.30605-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mv643xx_eth.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/core/memalloc.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mv643xx_eth.c b/drivers/net/ethernet/marvell/mv643xx_eth.c
-index b6be0552a6c1..40a5957b1449 100644
---- a/drivers/net/ethernet/marvell/mv643xx_eth.c
-+++ b/drivers/net/ethernet/marvell/mv643xx_eth.c
-@@ -2481,6 +2481,7 @@ static int mv643xx_eth_open(struct net_device *dev)
- 	for (i = 0; i < mp->rxq_count; i++)
- 		rxq_deinit(mp->rxq + i);
- out:
-+	napi_disable(&mp->napi);
- 	free_irq(dev->irq, dev);
+diff --git a/sound/core/memalloc.c b/sound/core/memalloc.c
+index cfcd8eff4139..2a773ed2b32a 100644
+--- a/sound/core/memalloc.c
++++ b/sound/core/memalloc.c
+@@ -9,6 +9,7 @@
+ #include <linux/slab.h>
+ #include <linux/mm.h>
+ #include <linux/dma-mapping.h>
++#include <linux/dma-map-ops.h>
+ #include <linux/genalloc.h>
+ #include <linux/highmem.h>
+ #include <linux/vmalloc.h>
+@@ -526,19 +527,20 @@ static void *snd_dma_noncontig_alloc(struct snd_dma_buffer *dmab, size_t size)
+ 	struct sg_table *sgt;
+ 	void *p;
  
- 	return err;
+-	sgt = dma_alloc_noncontiguous(dmab->dev.dev, size, dmab->dev.dir,
+-				      DEFAULT_GFP, 0);
+-	if (!sgt) {
+ #ifdef CONFIG_SND_DMA_SGBUF
++	if (!get_dma_ops(dmab->dev.dev)) {
+ 		if (dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC_SG)
+ 			dmab->dev.type = SNDRV_DMA_TYPE_DEV_WC_SG_FALLBACK;
+ 		else
+ 			dmab->dev.type = SNDRV_DMA_TYPE_DEV_SG_FALLBACK;
+ 		return snd_dma_sg_fallback_alloc(dmab, size);
+-#else
+-		return NULL;
+-#endif
+ 	}
++#endif
++
++	sgt = dma_alloc_noncontiguous(dmab->dev.dev, size, dmab->dev.dir,
++				      DEFAULT_GFP, 0);
++	if (!sgt)
++		return NULL;
+ 
+ 	dmab->dev.need_sync = dma_need_sync(dmab->dev.dev,
+ 					    sg_dma_address(sgt->sgl));
+@@ -874,7 +876,7 @@ static const struct snd_malloc_ops snd_dma_noncoherent_ops = {
+ /*
+  * Entry points
+  */
+-static const struct snd_malloc_ops *dma_ops[] = {
++static const struct snd_malloc_ops *snd_dma_ops[] = {
+ 	[SNDRV_DMA_TYPE_CONTINUOUS] = &snd_dma_continuous_ops,
+ 	[SNDRV_DMA_TYPE_VMALLOC] = &snd_dma_vmalloc_ops,
+ #ifdef CONFIG_HAS_DMA
+@@ -900,7 +902,7 @@ static const struct snd_malloc_ops *snd_dma_get_ops(struct snd_dma_buffer *dmab)
+ 	if (WARN_ON_ONCE(!dmab))
+ 		return NULL;
+ 	if (WARN_ON_ONCE(dmab->dev.type <= SNDRV_DMA_TYPE_UNKNOWN ||
+-			 dmab->dev.type >= ARRAY_SIZE(dma_ops)))
++			 dmab->dev.type >= ARRAY_SIZE(snd_dma_ops)))
+ 		return NULL;
+-	return dma_ops[dmab->dev.type];
++	return snd_dma_ops[dmab->dev.type];
+ }
 -- 
 2.35.1
 
