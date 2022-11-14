@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 752DF6280AB
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:08:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA046280AC
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:08:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237850AbiKNNIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:08:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34818 "EHLO
+        id S237855AbiKNNID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:08:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237854AbiKNNHy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:07:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CFE12B1B4
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:07:53 -0800 (PST)
+        with ESMTP id S237868AbiKNNH6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:07:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBA0E2AC40
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:07:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CF9161184
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:07:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3235EC433C1;
-        Mon, 14 Nov 2022 13:07:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D5B1B80EB9
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:07:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3FA3C433D6;
+        Mon, 14 Nov 2022 13:07:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431272;
-        bh=Ohy91wSNQM7wh3iawGDCuotHLUMINbW35wA1AQ3XlGU=;
+        s=korg; t=1668431275;
+        bh=uk2rUXfvKEHZmXIU1t1q/MTJBpxeGB/JKi5uA+D+Zoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qt/XUoDfoNEHi7rXaRyldiqolGSwmEDZ5mKLbNojnnt216m5mEvTLpwk3MjbXUqhJ
-         nGmArPrgTuAR7/dBspuhotqVBHk0meMQ9KXQZr5L1WnDaWpg2K4LyhTs/CVmGSsviF
-         j1WHw+b8nq34u6DDVAnW/r/uoPWDsiywdDtsoBL4=
+        b=Jz2snKCcouVWxb8jiJCnWNpJ6+Db/c3zp1ApIZvg5TkCMEMD0MG+jruFmpR+HehE3
+         gPQY/whwFlmIk7k/SXVWs5aWSAuL93V3Y+OaZQHvv/G5lzfh9ZWY1BEnNKtwmpsSTc
+         g9EYT4UKtG9FfLlbQGaNboh81wiZflREZVDESTzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 6.0 164/190] can: rcar_canfd: Add missing ECC error checks for channels 2-7
-Date:   Mon, 14 Nov 2022 13:46:28 +0100
-Message-Id: <20221114124506.002130844@linuxfoundation.org>
+        patches@lists.linux.dev, Chao Peng <chao.p.peng@linux.intel.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 6.0 165/190] KVM: x86/mmu: Block all page faults during kvm_zap_gfn_range()
+Date:   Mon, 14 Nov 2022 13:46:29 +0100
+Message-Id: <20221114124506.052191739@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -54,64 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 8b043dfb3dc7c32f9c2c0c93e3c2de346ee5e358 upstream.
+commit 6d3085e4d89ad7e6c7f1c6cf929d903393565861 upstream.
 
-When introducing support for R-Car V3U, which has 8 instead of 2
-channels, the ECC error bitmask was extended to take into account the
-extra channels, but rcar_canfd_global_error() was not updated to act
-upon the extra bits.
+When zapping a GFN range, pass 0 => ALL_ONES for the to-be-invalidated
+range to effectively block all page faults while the zap is in-progress.
+The invalidation helpers take a host virtual address, whereas zapping a
+GFN obviously provides a guest physical address and with the wrong unit
+of measurement (frame vs. byte).
 
-Replace the RCANFD_GERFL_EEF[01] macros by a new macro that takes the
-channel number, fixing R-Car V3U while simplifying the code.
+Alternatively, KVM could walk all memslots to get the associated HVAs,
+but thanks to SMM, that would require multiple lookups.  And practically
+speaking, kvm_zap_gfn_range() usage is quite rare and not a hot path,
+e.g. MTRR and CR0.CD are almost guaranteed to be done only on vCPU0
+during boot, and APICv inhibits are similarly infrequent operations.
 
-Fixes: 45721c406dcf50d4 ("can: rcar_canfd: Add support for r8a779a0 SoC")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/all/4edb2ea46cc64d0532a08a924179827481e14b4f.1666951503.git.geert+renesas@glider.be
+Fixes: edb298c663fc ("KVM: x86/mmu: bump mmu notifier count in kvm_zap_gfn_range")
+Reported-by: Chao Peng <chao.p.peng@linux.intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20221111001841.2412598-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/rcar/rcar_canfd.c |   13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ arch/x86/kvm/mmu/mmu.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/rcar/rcar_canfd.c
-+++ b/drivers/net/can/rcar/rcar_canfd.c
-@@ -81,8 +81,7 @@ enum rcanfd_chip_id {
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -6044,7 +6044,7 @@ void kvm_zap_gfn_range(struct kvm *kvm,
  
- /* RSCFDnCFDGERFL / RSCFDnGERFL */
- #define RCANFD_GERFL_EEF0_7		GENMASK(23, 16)
--#define RCANFD_GERFL_EEF1		BIT(17)
--#define RCANFD_GERFL_EEF0		BIT(16)
-+#define RCANFD_GERFL_EEF(ch)		BIT(16 + (ch))
- #define RCANFD_GERFL_CMPOF		BIT(3)	/* CAN FD only */
- #define RCANFD_GERFL_THLES		BIT(2)
- #define RCANFD_GERFL_MES		BIT(1)
-@@ -90,7 +89,7 @@ enum rcanfd_chip_id {
+ 	write_lock(&kvm->mmu_lock);
  
- #define RCANFD_GERFL_ERR(gpriv, x) \
- 	((x) & (reg_v3u(gpriv, RCANFD_GERFL_EEF0_7, \
--			RCANFD_GERFL_EEF0 | RCANFD_GERFL_EEF1) | \
-+			RCANFD_GERFL_EEF(0) | RCANFD_GERFL_EEF(1)) | \
- 		RCANFD_GERFL_MES | \
- 		((gpriv)->fdmode ? RCANFD_GERFL_CMPOF : 0)))
+-	kvm_mmu_invalidate_begin(kvm, gfn_start, gfn_end);
++	kvm_mmu_invalidate_begin(kvm, 0, -1ul);
  
-@@ -936,12 +935,8 @@ static void rcar_canfd_global_error(stru
- 	u32 ridx = ch + RCANFD_RFFIFO_IDX;
+ 	flush = kvm_rmap_zap_gfn_range(kvm, gfn_start, gfn_end);
  
- 	gerfl = rcar_canfd_read(priv->base, RCANFD_GERFL);
--	if ((gerfl & RCANFD_GERFL_EEF0) && (ch == 0)) {
--		netdev_dbg(ndev, "Ch0: ECC Error flag\n");
--		stats->tx_dropped++;
--	}
--	if ((gerfl & RCANFD_GERFL_EEF1) && (ch == 1)) {
--		netdev_dbg(ndev, "Ch1: ECC Error flag\n");
-+	if (gerfl & RCANFD_GERFL_EEF(ch)) {
-+		netdev_dbg(ndev, "Ch%u: ECC Error flag\n", ch);
- 		stats->tx_dropped++;
- 	}
- 	if (gerfl & RCANFD_GERFL_MES) {
+@@ -6058,7 +6058,7 @@ void kvm_zap_gfn_range(struct kvm *kvm,
+ 		kvm_flush_remote_tlbs_with_address(kvm, gfn_start,
+ 						   gfn_end - gfn_start);
+ 
+-	kvm_mmu_invalidate_end(kvm, gfn_start, gfn_end);
++	kvm_mmu_invalidate_end(kvm, 0, -1ul);
+ 
+ 	write_unlock(&kvm->mmu_lock);
+ }
 
 
