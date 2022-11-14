@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C3C3628038
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:04:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9701162800F
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237742AbiKNNED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:04:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58662 "EHLO
+        id S237720AbiKNNDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:03:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237737AbiKNNED (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:04:03 -0500
+        with ESMTP id S237724AbiKNNDG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:03:06 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4AB527DC1
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:04:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF7BF28E0F
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:03:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5314B61186
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:04:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A369C433D6;
-        Mon, 14 Nov 2022 13:04:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C1266117F
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:03:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E4C5C433B5;
+        Mon, 14 Nov 2022 13:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431041;
-        bh=753NHkoX2FMngVXD5VNMheySHQtuxbGXWgCpO/sResE=;
+        s=korg; t=1668430984;
+        bh=LcA3sElU/WkVV8FIdHi8RqxqOyexcubLdgqkSshWkPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gBVeVV+7fduHFmu1uUiiFU/8RQnoJxkDT1fyOt8ATZjca7CgJmu8/A1QTMdaXZyCj
-         KY7+UgRKYbBU30oeAUi2Yl8eH2LNNqTmpdtAFICpe3ePs6adH+vYIoDFgjm2Pp3Q+9
-         4/qqFTORyszx00zAVzUNwSad5JHNSOWiT/Av4bgY=
+        b=ID1esuExdt49v9v4NPgo2/7kghJwwFvdombOaAj5r7tm3qMFEOHF2r/PXqQQDcoaO
+         0AG5DpsZ4TyO9BFRwRFC/Ifjh2AVJxZ/DacpU90k3mupnPBPyJqIWKtgYxZ4+aH5Lc
+         AsuzYc0Km8F6y/VdWw/9R3zBaY5x75Kuc7FhNIEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sabrina Dubroca <sd@queasysnail.net>,
-        Antoine Tenart <atenart@kernel.org>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 038/190] macsec: clear encryption keys from the stack after setting up offload
-Date:   Mon, 14 Nov 2022 13:44:22 +0100
-Message-Id: <20221114124500.440959834@linuxfoundation.org>
+Subject: [PATCH 6.0 040/190] net: tun: Fix memory leaks of napi_get_frags
+Date:   Mon, 14 Nov 2022 13:44:24 +0100
+Message-Id: <20221114124500.535502374@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -55,45 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit aaab73f8fba4fd38f4d2617440d541a1c334e819 ]
+[ Upstream commit 1118b2049d77ca0b505775fc1a8d1909cf19a7ec ]
 
-macsec_add_rxsa and macsec_add_txsa copy the key to an on-stack
-offloading context to pass it to the drivers, but leaves it there when
-it's done. Clear it with memzero_explicit as soon as it's not needed
-anymore.
+kmemleak reports after running test_progs:
 
-Fixes: 3cf3227a21d1 ("net: macsec: hardware offloading infrastructure")
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Reviewed-by: Antoine Tenart <atenart@kernel.org>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+unreferenced object 0xffff8881b1672dc0 (size 232):
+  comm "test_progs", pid 394388, jiffies 4354712116 (age 841.975s)
+  hex dump (first 32 bytes):
+    e0 84 d7 a8 81 88 ff ff 80 2c 67 b1 81 88 ff ff  .........,g.....
+    00 40 c5 9b 81 88 ff ff 00 00 00 00 00 00 00 00  .@..............
+  backtrace:
+    [<00000000c8f01748>] napi_skb_cache_get+0xd4/0x150
+    [<0000000041c7fc09>] __napi_build_skb+0x15/0x50
+    [<00000000431c7079>] __napi_alloc_skb+0x26e/0x540
+    [<000000003ecfa30e>] napi_get_frags+0x59/0x140
+    [<0000000099b2199e>] tun_get_user+0x183d/0x3bb0 [tun]
+    [<000000008a5adef0>] tun_chr_write_iter+0xc0/0x1b1 [tun]
+    [<0000000049993ff4>] do_iter_readv_writev+0x19f/0x320
+    [<000000008f338ea2>] do_iter_write+0x135/0x630
+    [<000000008a3377a4>] vfs_writev+0x12e/0x440
+    [<00000000a6b5639a>] do_writev+0x104/0x280
+    [<00000000ccf065d8>] do_syscall_64+0x3b/0x90
+    [<00000000d776e329>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+The issue occurs in the following scenarios:
+tun_get_user()
+  napi_gro_frags()
+    napi_frags_finish()
+      case GRO_NORMAL:
+        gro_normal_one()
+          list_add_tail(&skb->list, &napi->rx_list);
+          <-- While napi->rx_count < READ_ONCE(gro_normal_batch),
+          <-- gro_normal_list() is not called, napi->rx_list is not empty
+  <-- not ask to complete the gro work, will cause memory leaks in
+  <-- following tun_napi_del()
+...
+tun_napi_del()
+  netif_napi_del()
+    __netif_napi_del()
+    <-- &napi->rx_list is not empty, which caused memory leaks
+
+To fix, add napi_complete() after napi_gro_frags().
+
+Fixes: 90e33d459407 ("tun: enable napi_gro_frags() for TUN/TAP driver")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/tun.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 2add76c8064b..ddfa853ec9b5 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -1861,6 +1861,7 @@ static int macsec_add_rxsa(struct sk_buff *skb, struct genl_info *info)
- 		       secy->key_len);
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index b02bd0a6c0a9..975b9912bf8f 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1977,6 +1977,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
  
- 		err = macsec_offload(ops->mdo_add_rxsa, &ctx);
-+		memzero_explicit(ctx.sa.key, secy->key_len);
- 		if (err)
- 			goto cleanup;
- 	}
-@@ -2103,6 +2104,7 @@ static int macsec_add_txsa(struct sk_buff *skb, struct genl_info *info)
- 		       secy->key_len);
- 
- 		err = macsec_offload(ops->mdo_add_txsa, &ctx);
-+		memzero_explicit(ctx.sa.key, secy->key_len);
- 		if (err)
- 			goto cleanup;
- 	}
+ 		local_bh_disable();
+ 		napi_gro_frags(&tfile->napi);
++		napi_complete(&tfile->napi);
+ 		local_bh_enable();
+ 		mutex_unlock(&tfile->napi_mutex);
+ 	} else if (tfile->napi_enabled) {
 -- 
 2.35.1
 
