@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF04627A6A
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:26:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9EE9627A81
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:31:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235967AbiKNK0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 05:26:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56326 "EHLO
+        id S236409AbiKNKbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 05:31:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235809AbiKNK0D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:26:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0010B7EF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:26:01 -0800 (PST)
+        with ESMTP id S236433AbiKNKbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:31:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D51A1261F
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:30:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CCD2B80DA0
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:26:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00D9EC433D6;
-        Mon, 14 Nov 2022 10:25:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BDF9A60C96
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:30:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3775C433C1;
+        Mon, 14 Nov 2022 10:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668421559;
-        bh=CYLBtZgKYzRpPykbUQO1w//p5I3b9Eouu6FWfPUsXDo=;
+        s=korg; t=1668421842;
+        bh=86LedFTFA/T5m4AIew8rKo2fbOI65t3lt/108jjB+14=;
         h=Subject:To:Cc:From:Date:From;
-        b=jl78lyxbU/zXRvqcxHsZpAolzrIZLiFijGOh0W5iLijt71zR4Ba/PNv67XZ4jDv+T
-         ZsyrreEBhWjdfOouLX8rq6+Nh+eQFVxFfRE/qtTQOZjm5996BPQ2KBCtRZNjIM6Rz5
-         4qCSx6LA2fyn9B7uuPx9HlPPP+P6pjMNR2zlKnx8=
-Subject: FAILED: patch "[PATCH] drm/i915/dmabuf: fix sg_table handling in map_dma_buf" failed to apply to 4.9-stable tree
-To:     matthew.auld@intel.com, lionel.g.landwerlin@intel.com,
-        michael.j.ruhl@intel.com, stable@vger.kernel.org,
-        tvrtko.ursulin@intel.com, tvrtko.ursulin@linux.intel.com,
-        ville.syrjala@linux.intel.com
+        b=D/tlYAmj100975E9C9/fAU0ImRZweyiqsu1/3U8x9AZHpYcPj01/73BliMRd+sxY9
+         4QdkCO5/hu9oRywPt4xnJiZR6m4/GQUg4YBPvHgoIpiYPIyPmox0zuU67pTPQmGJWE
+         WyD65M//Uj5tRkQX+MH0vr3d1a4GsxEMfx6gwGKU=
+Subject: FAILED: patch "[PATCH] mms: sdhci-esdhc-imx: Fix SDHCI_RESET_ALL for CQHCI" failed to apply to 5.4-stable tree
+To:     briannorris@chromium.org, adrian.hunter@intel.com,
+        haibo.chen@nxp.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Nov 2022 11:25:56 +0100
-Message-ID: <166842155623272@kroah.com>
+Date:   Mon, 14 Nov 2022 11:30:38 +0100
+Message-ID: <166842183814113@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -50,15 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-f90daa975911 ("drm/i915/dmabuf: fix sg_table handling in map_dma_buf")
-10be98a77c55 ("drm/i915: Move more GEM objects under gem/")
+fb1dec44c675 ("mms: sdhci-esdhc-imx: Fix SDHCI_RESET_ALL for CQHCI")
 
 thanks,
 
@@ -66,53 +63,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f90daa975911961b65070ec72bd7dd8d448f9ef7 Mon Sep 17 00:00:00 2001
-From: Matthew Auld <matthew.auld@intel.com>
-Date: Fri, 28 Oct 2022 16:50:26 +0100
-Subject: [PATCH] drm/i915/dmabuf: fix sg_table handling in map_dma_buf
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From fb1dec44c6750bb414f47b929c8c175a1a127c31 Mon Sep 17 00:00:00 2001
+From: Brian Norris <briannorris@chromium.org>
+Date: Wed, 26 Oct 2022 12:42:06 -0700
+Subject: [PATCH] mms: sdhci-esdhc-imx: Fix SDHCI_RESET_ALL for CQHCI
 
-We need to iterate over the original entries here for the sg_table,
-pulling out the struct page for each one, to be remapped. However
-currently this incorrectly iterates over the final dma mapped entries,
-which is likely just one gigantic sg entry if the iommu is enabled,
-leading to us only mapping the first struct page (and any physically
-contiguous pages following it), even if there is potentially lots more
-data to follow.
+[[ NOTE: this is completely untested by the author, but included solely
+    because, as noted in commit df57d73276b8 ("mmc: sdhci-pci: Fix
+    SDHCI_RESET_ALL for CQHCI for Intel GLK-based controllers"), "other
+    drivers using CQHCI might benefit from a similar change, if they
+    also have CQHCI reset by SDHCI_RESET_ALL." We've now seen the same
+    bug on at least MSM, Arasan, and Intel hardware. ]]
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7306
-Fixes: 1286ff739773 ("i915: add dmabuf/prime buffer sharing support.")
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Cc: <stable@vger.kernel.org> # v3.5+
-Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221028155029.494736-1-matthew.auld@intel.com
-(cherry picked from commit 28d52f99bbca7227008cf580c9194c9b3516968e)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+SDHCI_RESET_ALL resets will reset the hardware CQE state, but we aren't
+tracking that properly in software. When out of sync, we may trigger
+various timeouts.
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c b/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
-index f5062d0c6333..824971a1ceec 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
-@@ -40,13 +40,13 @@ static struct sg_table *i915_gem_map_dma_buf(struct dma_buf_attachment *attachme
- 		goto err;
- 	}
+It's not typical to perform resets while CQE is enabled, but this may
+occur in some suspend or error recovery scenarios.
+
+Include this fix by way of the new sdhci_and_cqhci_reset() helper.
+
+This patch depends on (and should not compile without) the patch
+entitled "mmc: cqhci: Provide helper for resetting both SDHCI and
+CQHCI".
+
+Fixes: bb6e358169bf ("mmc: sdhci-esdhc-imx: add CMDQ support")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Haibo Chen <haibo.chen@nxp.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221026124150.v4.4.I7d01f9ad11bacdc9213dee61b7918982aea39115@changeid
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+
+diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
+index 747df79d90ee..89225faa242a 100644
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -25,6 +25,7 @@
+ #include <linux/of_device.h>
+ #include <linux/pinctrl/consumer.h>
+ #include <linux/pm_runtime.h>
++#include "sdhci-cqhci.h"
+ #include "sdhci-pltfm.h"
+ #include "sdhci-esdhc.h"
+ #include "cqhci.h"
+@@ -1288,7 +1289,7 @@ static void esdhc_set_uhs_signaling(struct sdhci_host *host, unsigned timing)
  
--	ret = sg_alloc_table(st, obj->mm.pages->nents, GFP_KERNEL);
-+	ret = sg_alloc_table(st, obj->mm.pages->orig_nents, GFP_KERNEL);
- 	if (ret)
- 		goto err_free;
+ static void esdhc_reset(struct sdhci_host *host, u8 mask)
+ {
+-	sdhci_reset(host, mask);
++	sdhci_and_cqhci_reset(host, mask);
  
- 	src = obj->mm.pages->sgl;
- 	dst = st->sgl;
--	for (i = 0; i < obj->mm.pages->nents; i++) {
-+	for (i = 0; i < obj->mm.pages->orig_nents; i++) {
- 		sg_set_page(dst, sg_page(src), src->length, 0);
- 		dst = sg_next(dst);
- 		src = sg_next(src);
+ 	sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
+ 	sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
 
