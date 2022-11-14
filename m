@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8465627F1A
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:55:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78398627E7F
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:48:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237533AbiKNMzc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:55:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47702 "EHLO
+        id S237292AbiKNMsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:48:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237524AbiKNMz2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:55:28 -0500
+        with ESMTP id S237312AbiKNMsZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:48:25 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 655F127B09
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:55:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56571B54
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:48:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E50AB80EAF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:55:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C849C433C1;
-        Mon, 14 Nov 2022 12:55:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E906B80EB5
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:48:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC7BDC433D6;
+        Mon, 14 Nov 2022 12:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430524;
-        bh=BSW3+x0dejfOs9ISzQra0XL/zi8D5pHLvB37Ze2K/d4=;
+        s=korg; t=1668430101;
+        bh=sun2Z1GG3xPPxE+oBoADHbJltqL/2m3iWLgXTzsuyy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9DjzHSoVrcGYctL/WH0mfrW9d/iRHTDLmFfn2o9py0AwjHKrkybHAWJjfvBgXQ2V
-         sJK2eMPBcQvNmrYb7B6EjEyhb24VcuADyBOkLSCk3pq2oyVh2uZpiGF92bRNGkXisu
-         xgQ1e+hOUCYWvwbQv3hzmRGhHmLDoqqtnK8Te8so=
+        b=LqvQop/tRUpyxnhOptL5OKdSqqPeuBSYeJcixdf1gf0lmRySJmpZ2/Nxu+CnHsxZk
+         ZiIjFKIYzOUpxkznSDyCBZVs5NOWDQKKhZEGXRtpgkTkK6WaIoaP7NDSns4x7cTk/R
+         yvZq7irE6pNM26+N1MjNhA1zz2r7JCif6BYTCHpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev,
+        syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com,
+        Alexander Potapenko <glider@google.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 053/131] drivers: net: xgene: disable napi when register irq failed in xgene_enet_open()
+Subject: [PATCH 5.10 28/95] ipv6: addrlabel: fix infoleak when sending struct ifaddrlblmsg to network
 Date:   Mon, 14 Nov 2022 13:45:22 +0100
-Message-Id: <20221114124450.973517399@linuxfoundation.org>
+Message-Id: <20221114124443.692795238@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Alexander Potapenko <glider@google.com>
 
-[ Upstream commit ce9e57feeed81d17d5e80ed86f516ff0d39c3867 ]
+[ Upstream commit c23fb2c82267638f9d206cb96bb93e1f93ad7828 ]
 
-When failed to register irq in xgene_enet_open() for opening device,
-napi isn't disabled. When open xgene device next time, it will reports
-a invalid opcode issue. Fix it. Only be compiled, not be tested.
+When copying a `struct ifaddrlblmsg` to the network, __ifal_reserved
+remained uninitialized, resulting in a 1-byte infoleak:
 
-Fixes: aeb20b6b3f4e ("drivers: net: xgene: fix: ifconfig up/down crash")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221107043032.357673-1-shaozhengchao@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+  BUG: KMSAN: kernel-network-infoleak in __netdev_start_xmit ./include/linux/netdevice.h:4841
+   __netdev_start_xmit ./include/linux/netdevice.h:4841
+   netdev_start_xmit ./include/linux/netdevice.h:4857
+   xmit_one net/core/dev.c:3590
+   dev_hard_start_xmit+0x1dc/0x800 net/core/dev.c:3606
+   __dev_queue_xmit+0x17e8/0x4350 net/core/dev.c:4256
+   dev_queue_xmit ./include/linux/netdevice.h:3009
+   __netlink_deliver_tap_skb net/netlink/af_netlink.c:307
+   __netlink_deliver_tap+0x728/0xad0 net/netlink/af_netlink.c:325
+   netlink_deliver_tap net/netlink/af_netlink.c:338
+   __netlink_sendskb net/netlink/af_netlink.c:1263
+   netlink_sendskb+0x1d9/0x200 net/netlink/af_netlink.c:1272
+   netlink_unicast+0x56d/0xf50 net/netlink/af_netlink.c:1360
+   nlmsg_unicast ./include/net/netlink.h:1061
+   rtnl_unicast+0x5a/0x80 net/core/rtnetlink.c:758
+   ip6addrlbl_get+0xfad/0x10f0 net/ipv6/addrlabel.c:628
+   rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
+  ...
+  Uninit was created at:
+   slab_post_alloc_hook+0x118/0xb00 mm/slab.h:742
+   slab_alloc_node mm/slub.c:3398
+   __kmem_cache_alloc_node+0x4f2/0x930 mm/slub.c:3437
+   __do_kmalloc_node mm/slab_common.c:954
+   __kmalloc_node_track_caller+0x117/0x3d0 mm/slab_common.c:975
+   kmalloc_reserve net/core/skbuff.c:437
+   __alloc_skb+0x27a/0xab0 net/core/skbuff.c:509
+   alloc_skb ./include/linux/skbuff.h:1267
+   nlmsg_new ./include/net/netlink.h:964
+   ip6addrlbl_get+0x490/0x10f0 net/ipv6/addrlabel.c:608
+   rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
+   netlink_rcv_skb+0x299/0x550 net/netlink/af_netlink.c:2540
+   rtnetlink_rcv+0x26/0x30 net/core/rtnetlink.c:6109
+   netlink_unicast_kernel net/netlink/af_netlink.c:1319
+   netlink_unicast+0x9ab/0xf50 net/netlink/af_netlink.c:1345
+   netlink_sendmsg+0xebc/0x10f0 net/netlink/af_netlink.c:1921
+  ...
+
+This patch ensures that the reserved field is always initialized.
+
+Reported-by: syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com
+Fixes: 2a8cc6c89039 ("[IPV6] ADDRCONF: Support RFC3484 configurable address selection policy table.")
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/apm/xgene/xgene_enet_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/ipv6/addrlabel.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/apm/xgene/xgene_enet_main.c b/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-index 78c7cbc372b0..71151f675a49 100644
---- a/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-+++ b/drivers/net/ethernet/apm/xgene/xgene_enet_main.c
-@@ -1004,8 +1004,10 @@ static int xgene_enet_open(struct net_device *ndev)
- 
- 	xgene_enet_napi_enable(pdata);
- 	ret = xgene_enet_register_irq(ndev);
--	if (ret)
-+	if (ret) {
-+		xgene_enet_napi_disable(pdata);
- 		return ret;
-+	}
- 
- 	if (ndev->phydev) {
- 		phy_start(ndev->phydev);
+diff --git a/net/ipv6/addrlabel.c b/net/ipv6/addrlabel.c
+index 8a22486cf270..17ac45aa7194 100644
+--- a/net/ipv6/addrlabel.c
++++ b/net/ipv6/addrlabel.c
+@@ -437,6 +437,7 @@ static void ip6addrlbl_putmsg(struct nlmsghdr *nlh,
+ {
+ 	struct ifaddrlblmsg *ifal = nlmsg_data(nlh);
+ 	ifal->ifal_family = AF_INET6;
++	ifal->__ifal_reserved = 0;
+ 	ifal->ifal_prefixlen = prefixlen;
+ 	ifal->ifal_flags = 0;
+ 	ifal->ifal_index = ifindex;
 -- 
 2.35.1
 
