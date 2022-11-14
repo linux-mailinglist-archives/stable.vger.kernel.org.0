@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 303CC62757D
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 06:20:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD30B627583
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 06:21:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234239AbiKNFU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 00:20:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51414 "EHLO
+        id S235440AbiKNFVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 00:21:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234021AbiKNFU0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 00:20:26 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A96112AEC
-        for <stable@vger.kernel.org>; Sun, 13 Nov 2022 21:19:32 -0800 (PST)
+        with ESMTP id S234723AbiKNFVW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 00:21:22 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79CED15FF8
+        for <stable@vger.kernel.org>; Sun, 13 Nov 2022 21:19:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1668403171;
+        s=mimecast20190719; t=1668403175;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=7TWhTxoz7ZCoWrDk02O5ObxSYgKtRZs5v5SIwfgUViA=;
-        b=bcPab/S5gBRII4hyIrNvGPHJ4tacEdPK2wbWIqobp+SMyoM8YoqGLHtPtVUUG1OhiYVwop
-        r3fGqcG+XfRE7RpBXjENlCeo8fNXakfMGdiqvSUQKg2V9ie+nBtRyonrt8eaeOByWexKiA
-        nwARjpZIJ//6++VvUojhT4sAJv1ZFa0=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=1YQW+h8At8TotEHH/obztMQqcPYR5REQYupiiZjkQKY=;
+        b=Z/fCL42nkxKi71DCX3kEMbtOnS0oyCICOHiXELLmR1X4EV9fmGHcnyFZCvUjI4MN3mF7c9
+        e8cW4PakXtdYMub24VpyzsFgennr1bwenV1Zl2PgpIQAbiAmcjKNQr1YepDEAzZ4vQKvGe
+        QcL+aTzTBGPGJL6KC94D97+UvDD6TYM=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-616-OU_lYuh-O6SoP8jkClJS1A-1; Mon, 14 Nov 2022 00:19:28 -0500
-X-MC-Unique: OU_lYuh-O6SoP8jkClJS1A-1
+ us-mta-529-4jOgDensOIiEfawCgNpNig-1; Mon, 14 Nov 2022 00:19:32 -0500
+X-MC-Unique: 4jOgDensOIiEfawCgNpNig-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 83B74806001;
-        Mon, 14 Nov 2022 05:19:27 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id EFC693C0E454;
+        Mon, 14 Nov 2022 05:19:31 +0000 (UTC)
 Received: from lxbceph1.gsslab.pek2.redhat.com (unknown [10.72.47.117])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B2310200BA7B;
-        Mon, 14 Nov 2022 05:19:23 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2914A2028DC1;
+        Mon, 14 Nov 2022 05:19:27 +0000 (UTC)
 From:   xiubli@redhat.com
 To:     ceph-devel@vger.kernel.org, jlayton@kernel.org, idryomov@gmail.com,
         viro@zeniv.linux.org.uk
 Cc:     lhenriques@suse.de, mchangir@redhat.com,
         linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         Xiubo Li <xiubli@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH 1/2 v2] ceph: add ceph_lock_info support for file_lock
-Date:   Mon, 14 Nov 2022 13:19:00 +0800
-Message-Id: <20221114051901.15371-2-xiubli@redhat.com>
+Subject: [PATCH 2/2 v2] ceph: use a xarray to record all the opened files for each inode
+Date:   Mon, 14 Nov 2022 13:19:01 +0800
+Message-Id: <20221114051901.15371-3-xiubli@redhat.com>
 In-Reply-To: <20221114051901.15371-1-xiubli@redhat.com>
 References: <20221114051901.15371-1-xiubli@redhat.com>
 MIME-Version: 1.0
@@ -63,122 +63,129 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xiubo Li <xiubli@redhat.com>
 
-When ceph releasing the file_lock it will try to get the inode pointer
-from the fl->fl_file, which the memory could already be released by
-another thread in filp_close(). Because in VFS layer the fl->fl_file
-doesn't increase the file's reference counter.
-
-Will switch to use ceph dedicate lock info to track the inode.
-
-And in ceph_fl_release_lock() we should skip all the operations if
-the fl->fl_u.ceph_fl.fl_inode is not set, which should come from
-the request file_lock. And we will set fl->fl_u.ceph_fl.fl_inode when
-inserting it to the inode lock list, which is when copying the lock.
+When releasing the file locks the fl->fl_file memory could be
+already released by another thread in filp_close(), so we couldn't
+depend on fl->fl_file to get the inode. Just use a xarray to record
+the opened files for each inode.
 
 Cc: stable@vger.kernel.org
 URL: https://tracker.ceph.com/issues/57986
 Signed-off-by: Xiubo Li <xiubli@redhat.com>
 ---
- fs/ceph/locks.c                 | 18 +++++++++++++++---
- include/linux/ceph/ceph_fs_fl.h | 26 ++++++++++++++++++++++++++
- include/linux/fs.h              |  2 ++
- 3 files changed, 43 insertions(+), 3 deletions(-)
- create mode 100644 include/linux/ceph/ceph_fs_fl.h
+ fs/ceph/file.c  |  9 +++++++++
+ fs/ceph/inode.c |  4 ++++
+ fs/ceph/locks.c | 17 ++++++++++++++++-
+ fs/ceph/super.h |  4 ++++
+ 4 files changed, 33 insertions(+), 1 deletion(-)
 
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index 85afcbbb5648..cb4a9c52df27 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -231,6 +231,13 @@ static int ceph_init_file_info(struct inode *inode, struct file *file,
+ 			fi->flags |= CEPH_F_SYNC;
+ 
+ 		file->private_data = fi;
++
++		ret = xa_insert(&ci->i_opened_files, (unsigned long)file,
++				CEPH_FILP_AVAILABLE, GFP_KERNEL);
++		if (ret) {
++			kmem_cache_free(ceph_file_cachep, fi);
++			return ret;
++		}
+ 	}
+ 
+ 	ceph_get_fmode(ci, fmode, 1);
+@@ -932,6 +939,8 @@ int ceph_release(struct inode *inode, struct file *file)
+ 		dout("release inode %p regular file %p\n", inode, file);
+ 		WARN_ON(!list_empty(&fi->rw_contexts));
+ 
++		xa_erase(&ci->i_opened_files, (unsigned long)file);
++
+ 		ceph_fscache_unuse_cookie(inode, file->f_mode & FMODE_WRITE);
+ 		ceph_put_fmode(ci, fi->fmode, 1);
+ 
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 77b0cd9af370..554450838e44 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -619,6 +619,8 @@ struct inode *ceph_alloc_inode(struct super_block *sb)
+ 	INIT_LIST_HEAD(&ci->i_unsafe_iops);
+ 	spin_lock_init(&ci->i_unsafe_lock);
+ 
++	xa_init(&ci->i_opened_files);
++
+ 	ci->i_snap_realm = NULL;
+ 	INIT_LIST_HEAD(&ci->i_snap_realm_item);
+ 	INIT_LIST_HEAD(&ci->i_snap_flush_item);
+@@ -637,6 +639,8 @@ void ceph_free_inode(struct inode *inode)
+ {
+ 	struct ceph_inode_info *ci = ceph_inode(inode);
+ 
++	xa_destroy(&ci->i_opened_files);
++
+ 	kfree(ci->i_symlink);
+ #ifdef CONFIG_FS_ENCRYPTION
+ 	kfree(ci->fscrypt_auth);
 diff --git a/fs/ceph/locks.c b/fs/ceph/locks.c
-index 3e2843e86e27..d8385dd0076e 100644
+index d8385dd0076e..a176a30badd0 100644
 --- a/fs/ceph/locks.c
 +++ b/fs/ceph/locks.c
-@@ -34,22 +34,34 @@ static void ceph_fl_copy_lock(struct file_lock *dst, struct file_lock *src)
- {
- 	struct ceph_file_info *fi = dst->fl_file->private_data;
- 	struct inode *inode = file_inode(dst->fl_file);
-+
- 	atomic_inc(&ceph_inode(inode)->i_filelock_ref);
- 	atomic_inc(&fi->num_locks);
-+	dst->fl_u.ceph_fl.fl_inode = igrab(inode);
- }
+@@ -42,9 +42,10 @@ static void ceph_fl_copy_lock(struct file_lock *dst, struct file_lock *src)
  
  static void ceph_fl_release_lock(struct file_lock *fl)
  {
- 	struct ceph_file_info *fi = fl->fl_file->private_data;
--	struct inode *inode = file_inode(fl->fl_file);
--	struct ceph_inode_info *ci = ceph_inode(inode);
--	atomic_dec(&fi->num_locks);
-+	struct inode *inode = fl->fl_u.ceph_fl.fl_inode;
-+	struct ceph_inode_info *ci;
+-	struct ceph_file_info *fi = fl->fl_file->private_data;
+ 	struct inode *inode = fl->fl_u.ceph_fl.fl_inode;
+ 	struct ceph_inode_info *ci;
++	struct ceph_file_info *fi;
++	void *val;
+ 
+ 	/*
+ 	 * If inode is NULL it should be a request file_lock,
+@@ -54,6 +55,20 @@ static void ceph_fl_release_lock(struct file_lock *fl)
+ 		return;
+ 
+ 	ci = ceph_inode(inode);
 +
 +	/*
-+	 * If inode is NULL it should be a request file_lock,
-+	 * nothing we can do.
++	 * For Posix-style locks, it may race between filp_close()s,
++	 * and it's possible that the 'file' memory pointed by
++	 * 'fl->fl_file' has been released. If so just skip it.
 +	 */
-+	if (!inode)
-+		return;
++	rcu_read_lock();
++	val = xa_load(&ci->i_opened_files, (unsigned long)fl->fl_file);
++	if (val == CEPH_FILP_AVAILABLE) {
++		fi = fl->fl_file->private_data;
++		atomic_dec(&fi->num_locks);
++	}
++	rcu_read_unlock();
 +
-+	ci = ceph_inode(inode);
  	if (atomic_dec_and_test(&ci->i_filelock_ref)) {
  		/* clear error when all locks are released */
  		spin_lock(&ci->i_ceph_lock);
- 		ci->i_ceph_flags &= ~CEPH_I_ERROR_FILELOCK;
- 		spin_unlock(&ci->i_ceph_lock);
- 	}
-+	iput(inode);
-+	atomic_dec(&fi->num_locks);
- }
+diff --git a/fs/ceph/super.h b/fs/ceph/super.h
+index 7b75a84ba48d..b3e89192cbec 100644
+--- a/fs/ceph/super.h
++++ b/fs/ceph/super.h
+@@ -329,6 +329,8 @@ struct ceph_inode_xattrs_info {
+ 	u64 version, index_version;
+ };
  
- static const struct file_lock_operations ceph_fl_lock_ops = {
-diff --git a/include/linux/ceph/ceph_fs_fl.h b/include/linux/ceph/ceph_fs_fl.h
-new file mode 100644
-index 000000000000..02a412b26095
---- /dev/null
-+++ b/include/linux/ceph/ceph_fs_fl.h
-@@ -0,0 +1,26 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * ceph_fs.h - Ceph constants and data types to share between kernel and
-+ * user space.
-+ *
-+ * Most types in this file are defined as little-endian, and are
-+ * primarily intended to describe data structures that pass over the
-+ * wire or that are stored on disk.
-+ *
-+ * LGPL2
-+ */
++#define CEPH_FILP_AVAILABLE         xa_mk_value(1)
 +
-+#ifndef CEPH_FS_FL_H
-+#define CEPH_FS_FL_H
-+
-+#include <linux/fs.h>
-+
-+/*
-+ * Ceph lock info
-+ */
-+
-+struct ceph_lock_info {
-+	struct inode *fl_inode;
-+};
-+
-+#endif
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index e654435f1651..db4810d19e26 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -1066,6 +1066,7 @@ bool opens_in_grace(struct net *);
- 
- /* that will die - we need it for nfs_lock_info */
- #include <linux/nfs_fs_i.h>
-+#include <linux/ceph/ceph_fs_fl.h>
- 
  /*
-  * struct file_lock represents a generic "file lock". It's used to represent
-@@ -1119,6 +1120,7 @@ struct file_lock {
- 			int state;		/* state of grant or error if -ve */
- 			unsigned int	debug_id;
- 		} afs;
-+		struct ceph_lock_info	ceph_fl;
- 	} fl_u;
- } __randomize_layout;
+  * Ceph inode.
+  */
+@@ -434,6 +436,8 @@ struct ceph_inode_info {
+ 	struct list_head i_unsafe_iops;   /* uncommitted mds inode ops */
+ 	spinlock_t i_unsafe_lock;
  
++	struct xarray		i_opened_files;
++
+ 	union {
+ 		struct ceph_snap_realm *i_snap_realm; /* snap realm (if caps) */
+ 		struct ceph_snapid_map *i_snapid_map; /* snapid -> dev_t */
 -- 
 2.31.1
 
