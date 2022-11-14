@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7676C628095
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:07:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C318628096
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:07:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237832AbiKNNHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:07:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33770 "EHLO
+        id S237829AbiKNNHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:07:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237835AbiKNNHD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:07:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C14AC2AC44
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:07:02 -0800 (PST)
+        with ESMTP id S237862AbiKNNHK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:07:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 271AA2AC40
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:07:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E0D36116E
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:07:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AF75C433D7;
-        Mon, 14 Nov 2022 13:07:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABF33B80EA5
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:07:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E2CEC43470;
+        Mon, 14 Nov 2022 13:07:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431221;
-        bh=a26DtNwVDV57TeVZmSOUDIdgInS4Fl8zhnx6+WuQsBQ=;
+        s=korg; t=1668431224;
+        bh=VqpykugGVNhP+b/NW4Sf/9WIYiVmg/nnPSEUJEPY9+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=041uO7X9db+uzYpRcnEWAEMzTDTClUufXw+ye1kDjZsXSc5WNGf6HB7rPJ7c/7cip
-         MJtf2AN5fF9SKujV09NmIchdaQMp8KnEVanuSCSrcJm77AjUSB4kYSOkuPxNGx+fZM
-         /hZ5YvrLzg7FlUYjbiqyStp4XU4RTMlcBHUbkKbA=
+        b=I8IWY5Gvibbrn3VLyZ/S2yO61Emz38X+4+wfo3EslVbPETBLfej9oBsoVxzPeqdEP
+         lwazQPTSH8N1BAxdFRS1bA7FYvtxNkgqiHnZSDVRitVxwtgDxFfRhEsNxXDKGGKr7F
+         u6mI9IpAgY3Aln9HA5rG5GApkAwj2wjRZmiPctLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+031687116258450f9853@syzkaller.appspotmail.com,
-        Nikolay Borisov <nborisov@suse.com>,
-        Liu Shixin <liushixin2@huawei.com>,
+        patches@lists.linux.dev, Anand Jain <anand.jain@oracle.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 6.0 146/190] btrfs: fix match incorrectly in dev_args_match_device
-Date:   Mon, 14 Nov 2022 13:46:10 +0100
-Message-Id: <20221114124505.175789887@linuxfoundation.org>
+Subject: [PATCH 6.0 147/190] btrfs: selftests: fix wrong error check in btrfs_free_dummy_root()
+Date:   Mon, 14 Nov 2022 13:46:11 +0100
+Message-Id: <20221114124505.224995621@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -55,62 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit 0fca385d6ebc3cabb20f67bcf8a71f1448bdc001 upstream.
+commit 9b2f20344d450137d015b380ff0c2e2a6a170135 upstream.
 
-syzkaller found a failed assertion:
+The btrfs_alloc_dummy_root() uses ERR_PTR as the error return value
+rather than NULL, if error happened, there will be a NULL pointer
+dereference:
 
-  assertion failed: (args->devid != (u64)-1) || args->missing, in fs/btrfs/volumes.c:6921
+  BUG: KASAN: null-ptr-deref in btrfs_free_dummy_root+0x21/0x50 [btrfs]
+  Read of size 8 at addr 000000000000002c by task insmod/258926
 
-This can be triggered when we set devid to (u64)-1 by ioctl. In this
-case, the match of devid will be skipped and the match of device may
-succeed incorrectly.
+  CPU: 2 PID: 258926 Comm: insmod Tainted: G        W          6.1.0-rc2+ #5
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x44
+   kasan_report+0xb7/0x140
+   kasan_check_range+0x145/0x1a0
+   btrfs_free_dummy_root+0x21/0x50 [btrfs]
+   btrfs_test_free_space_cache+0x1a8c/0x1add [btrfs]
+   btrfs_run_sanity_tests+0x65/0x80 [btrfs]
+   init_btrfs_fs+0xec/0x154 [btrfs]
+   do_one_initcall+0x87/0x2a0
+   do_init_module+0xdf/0x320
+   load_module+0x3006/0x3390
+   __do_sys_finit_module+0x113/0x1b0
+   do_syscall_64+0x35/0x80
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Patch 562d7b1512f7 introduced this function which is used to match device.
-This function contains two matching scenarios, we can distinguish them by
-checking the value of args->missing rather than check whether args->devid
-and args->uuid is default value.
-
-Reported-by: syzbot+031687116258450f9853@syzkaller.appspotmail.com
-Fixes: 562d7b1512f7 ("btrfs: handle device lookup with btrfs_dev_lookup_args")
-CC: stable@vger.kernel.org # 5.16+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Fixes: aaedb55bc08f ("Btrfs: add tests for btrfs_get_extent")
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/volumes.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ fs/btrfs/tests/btrfs-tests.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -6805,18 +6805,18 @@ static bool dev_args_match_fs_devices(co
- static bool dev_args_match_device(const struct btrfs_dev_lookup_args *args,
- 				  const struct btrfs_device *device)
+--- a/fs/btrfs/tests/btrfs-tests.c
++++ b/fs/btrfs/tests/btrfs-tests.c
+@@ -200,7 +200,7 @@ void btrfs_free_dummy_fs_info(struct btr
+ 
+ void btrfs_free_dummy_root(struct btrfs_root *root)
  {
--	ASSERT((args->devid != (u64)-1) || args->missing);
-+	if (args->missing) {
-+		if (test_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &device->dev_state) &&
-+		    !device->bdev)
-+			return true;
-+		return false;
-+	}
- 
--	if ((args->devid != (u64)-1) && device->devid != args->devid)
-+	if (device->devid != args->devid)
- 		return false;
- 	if (args->uuid && memcmp(device->uuid, args->uuid, BTRFS_UUID_SIZE) != 0)
- 		return false;
--	if (!args->missing)
--		return true;
--	if (test_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &device->dev_state) &&
--	    !device->bdev)
--		return true;
--	return false;
-+	return true;
- }
- 
- /*
+-	if (!root)
++	if (IS_ERR_OR_NULL(root))
+ 		return;
+ 	/* Will be freed by btrfs_free_fs_roots */
+ 	if (WARN_ON(test_bit(BTRFS_ROOT_IN_RADIX, &root->state)))
 
 
