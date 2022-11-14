@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D69B627E99
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:49:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 758D8627F08
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:54:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237349AbiKNMt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:49:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41662 "EHLO
+        id S237501AbiKNMyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:54:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237320AbiKNMt1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:49:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3519E6144
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:49:27 -0800 (PST)
+        with ESMTP id S237513AbiKNMyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:54:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 068D526563
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 59706CE1005
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:49:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05CD8C433C1;
-        Mon, 14 Nov 2022 12:49:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84F09B80EBB
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:54:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3029C433C1;
+        Mon, 14 Nov 2022 12:54:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430163;
-        bh=kX220HN9+Y5IbOgSEVx/YuwIZ6ClEswRR4kjbwsbLxY=;
+        s=korg; t=1668430478;
+        bh=GEKTbl+Xb4gm5PiM1gfG8Mj8wVHRQEFVCKi3d5MdWg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8Hvjihwn7+DY2hFIBpWTINi5nHYA1pIue2h3h/3IJ5lsoZ5I6t/ZjCvC10uG85pk
-         hnA+hf8DHOEy8XLwZHGg2Denkz7FVotRrU66Hz+LarS17YGp9V1qm0fE6Q+c9SQ/K3
-         8x5R1dbXWz4ui+FKqHv/y7x4pqLmQ9JwlVIJUYyY=
+        b=TU8JYhetimyLQx0ySrH8tHaxUmgsijlAU4stSvdjwg5dldM3m16B05fBH0h0oEtIf
+         aonJeF4orxQvJelYAPNnsO7RQjOZkYvj0eY0bwk/1DrX/A7/VbxDCl7LXSUQOKZCUb
+         +DLdYcm0GywbHD+8R3GCvC540C0BZ+7yCE5+RI7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sabrina Dubroca <sd@queasysnail.net>,
-        Antoine Tenart <atenart@kernel.org>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        patches@lists.linux.dev, HW He <hw.he@mediatek.com>,
+        Zhaoping Shu <zhaoping.shu@mediatek.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 15/95] macsec: fix detection of RXSCs when toggling offloading
+Subject: [PATCH 5.15 040/131] net: wwan: mhi: fix memory leak in mhi_mbim_dellink
 Date:   Mon, 14 Nov 2022 13:45:09 +0100
-Message-Id: <20221114124443.150207572@linuxfoundation.org>
+Message-Id: <20221114124450.403006871@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: HW He <hw.he@mediatek.com>
 
-[ Upstream commit 80df4706357a5a06bbbc70273bf2611df1ceee04 ]
+[ Upstream commit 668205b9c9f94d5ed6ab00cce9a46a654c2b5d16 ]
 
-macsec_is_configured incorrectly uses secy->n_rx_sc to check if some
-RXSCs exist. secy->n_rx_sc only counts the number of active RXSCs, but
-there can also be inactive SCs as well, which may be stored in the
-driver (in case we're disabling offloading), or would have to be
-pushed to the device (in case we're trying to enable offloading).
+MHI driver registers network device without setting the
+needs_free_netdev flag, and does NOT call free_netdev() when
+unregisters network device, which causes a memory leak.
 
-As long as RXSCs active on creation and never turned off, the issue is
-not visible.
+This patch sets needs_free_netdev to true when registers
+network device, which makes netdev subsystem call free_netdev()
+automatically after unregister_netdevice().
 
-Fixes: dcb780fb2795 ("net: macsec: add nla support for changing the offloading selection")
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Reviewed-by: Antoine Tenart <atenart@kernel.org>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Fixes: aa730a9905b7 ("net: wwan: Add MHI MBIM network driver")
+Signed-off-by: HW He <hw.he@mediatek.com>
+Signed-off-by: Zhaoping Shu <zhaoping.shu@mediatek.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wwan/mhi_wwan_mbim.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index a816fbbe23a7..69108c1db130 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -2562,7 +2562,7 @@ static bool macsec_is_configured(struct macsec_dev *macsec)
- 	struct macsec_tx_sc *tx_sc = &secy->tx_sc;
- 	int i;
+diff --git a/drivers/net/wwan/mhi_wwan_mbim.c b/drivers/net/wwan/mhi_wwan_mbim.c
+index 6872782e8dd8..ef70bb7c88ad 100644
+--- a/drivers/net/wwan/mhi_wwan_mbim.c
++++ b/drivers/net/wwan/mhi_wwan_mbim.c
+@@ -582,6 +582,7 @@ static void mhi_mbim_setup(struct net_device *ndev)
+ 	ndev->min_mtu = ETH_MIN_MTU;
+ 	ndev->max_mtu = MHI_MAX_BUF_SZ - ndev->needed_headroom;
+ 	ndev->tx_queue_len = 1000;
++	ndev->needs_free_netdev = true;
+ }
  
--	if (secy->n_rx_sc > 0)
-+	if (secy->rx_sc)
- 		return true;
- 
- 	for (i = 0; i < MACSEC_NUM_AN; i++)
+ static const struct wwan_ops mhi_mbim_wwan_ops = {
 -- 
 2.35.1
 
