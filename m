@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78398627E7F
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:48:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25101627E81
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:48:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237292AbiKNMsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:48:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40452 "EHLO
+        id S237305AbiKNMsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:48:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237312AbiKNMsZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:48:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56571B54
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:48:24 -0800 (PST)
+        with ESMTP id S237324AbiKNMs3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:48:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D85923AB
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:48:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E906B80EB5
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:48:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC7BDC433D6;
-        Mon, 14 Nov 2022 12:48:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81043B80EB9
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:48:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4CEDC4347C;
+        Mon, 14 Nov 2022 12:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430101;
-        bh=sun2Z1GG3xPPxE+oBoADHbJltqL/2m3iWLgXTzsuyy8=;
+        s=korg; t=1668430105;
+        bh=ZoBt3qvMhdsIn/BFlJ18Ovy3hVUYO2Au2vRDwhYNrzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LqvQop/tRUpyxnhOptL5OKdSqqPeuBSYeJcixdf1gf0lmRySJmpZ2/Nxu+CnHsxZk
-         ZiIjFKIYzOUpxkznSDyCBZVs5NOWDQKKhZEGXRtpgkTkK6WaIoaP7NDSns4x7cTk/R
-         yvZq7irE6pNM26+N1MjNhA1zz2r7JCif6BYTCHpQ=
+        b=OJmwZVjxYEPQauIiK+cGZ6ZyJxDWUZlMvKqE/GrB5CWpMgSkcBDJbugoBx+AfjZzi
+         pmBlCkoBSd79j9Jt9EB2nsaQx+Md4X1UTmD7Ab3nrvbFsBGBnECM1MrJezCoqJR73s
+         Ib1C0o54HSCpnO8fGmtezfkGtozYfkn7zFCwuBy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 28/95] ipv6: addrlabel: fix infoleak when sending struct ifaddrlblmsg to network
-Date:   Mon, 14 Nov 2022 13:45:22 +0100
-Message-Id: <20221114124443.692795238@linuxfoundation.org>
+Subject: [PATCH 5.10 29/95] can: af_can: fix NULL pointer dereference in can_rx_register()
+Date:   Mon, 14 Nov 2022 13:45:23 +0100
+Message-Id: <20221114124443.742516245@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
 References: <20221114124442.530286937@linuxfoundation.org>
@@ -56,74 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit c23fb2c82267638f9d206cb96bb93e1f93ad7828 ]
+[ Upstream commit 8aa59e355949442c408408c2d836e561794c40a1 ]
 
-When copying a `struct ifaddrlblmsg` to the network, __ifal_reserved
-remained uninitialized, resulting in a 1-byte infoleak:
+It causes NULL pointer dereference when testing as following:
+(a) use syscall(__NR_socket, 0x10ul, 3ul, 0) to create netlink socket.
+(b) use syscall(__NR_sendmsg, ...) to create bond link device and vxcan
+    link device, and bind vxcan device to bond device (can also use
+    ifenslave command to bind vxcan device to bond device).
+(c) use syscall(__NR_socket, 0x1dul, 3ul, 1) to create CAN socket.
+(d) use syscall(__NR_bind, ...) to bind the bond device to CAN socket.
 
-  BUG: KMSAN: kernel-network-infoleak in __netdev_start_xmit ./include/linux/netdevice.h:4841
-   __netdev_start_xmit ./include/linux/netdevice.h:4841
-   netdev_start_xmit ./include/linux/netdevice.h:4857
-   xmit_one net/core/dev.c:3590
-   dev_hard_start_xmit+0x1dc/0x800 net/core/dev.c:3606
-   __dev_queue_xmit+0x17e8/0x4350 net/core/dev.c:4256
-   dev_queue_xmit ./include/linux/netdevice.h:3009
-   __netlink_deliver_tap_skb net/netlink/af_netlink.c:307
-   __netlink_deliver_tap+0x728/0xad0 net/netlink/af_netlink.c:325
-   netlink_deliver_tap net/netlink/af_netlink.c:338
-   __netlink_sendskb net/netlink/af_netlink.c:1263
-   netlink_sendskb+0x1d9/0x200 net/netlink/af_netlink.c:1272
-   netlink_unicast+0x56d/0xf50 net/netlink/af_netlink.c:1360
-   nlmsg_unicast ./include/net/netlink.h:1061
-   rtnl_unicast+0x5a/0x80 net/core/rtnetlink.c:758
-   ip6addrlbl_get+0xfad/0x10f0 net/ipv6/addrlabel.c:628
-   rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
-  ...
-  Uninit was created at:
-   slab_post_alloc_hook+0x118/0xb00 mm/slab.h:742
-   slab_alloc_node mm/slub.c:3398
-   __kmem_cache_alloc_node+0x4f2/0x930 mm/slub.c:3437
-   __do_kmalloc_node mm/slab_common.c:954
-   __kmalloc_node_track_caller+0x117/0x3d0 mm/slab_common.c:975
-   kmalloc_reserve net/core/skbuff.c:437
-   __alloc_skb+0x27a/0xab0 net/core/skbuff.c:509
-   alloc_skb ./include/linux/skbuff.h:1267
-   nlmsg_new ./include/net/netlink.h:964
-   ip6addrlbl_get+0x490/0x10f0 net/ipv6/addrlabel.c:608
-   rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
-   netlink_rcv_skb+0x299/0x550 net/netlink/af_netlink.c:2540
-   rtnetlink_rcv+0x26/0x30 net/core/rtnetlink.c:6109
-   netlink_unicast_kernel net/netlink/af_netlink.c:1319
-   netlink_unicast+0x9ab/0xf50 net/netlink/af_netlink.c:1345
-   netlink_sendmsg+0xebc/0x10f0 net/netlink/af_netlink.c:1921
-  ...
+The bond device invokes the can-raw protocol registration interface to
+receive CAN packets. However, ml_priv is not allocated to the dev,
+dev_rcv_lists is assigned to NULL in can_rx_register(). In this case,
+it will occur the NULL pointer dereference issue.
 
-This patch ensures that the reserved field is always initialized.
+The following is the stack information:
+BUG: kernel NULL pointer dereference, address: 0000000000000008
+PGD 122a4067 P4D 122a4067 PUD 1223c067 PMD 0
+Oops: 0000 [#1] PREEMPT SMP
+RIP: 0010:can_rx_register+0x12d/0x1e0
+Call Trace:
+<TASK>
+raw_enable_filters+0x8d/0x120
+raw_enable_allfilters+0x3b/0x130
+raw_bind+0x118/0x4f0
+__sys_bind+0x163/0x1a0
+__x64_sys_bind+0x1e/0x30
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+</TASK>
 
-Reported-by: syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com
-Fixes: 2a8cc6c89039 ("[IPV6] ADDRCONF: Support RFC3484 configurable address selection policy table.")
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4e096a18867a ("net: introduce CAN specific pointer in the struct net_device")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/all/20221028085650.170470-1-shaozhengchao@huawei.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/addrlabel.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/can/af_can.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/addrlabel.c b/net/ipv6/addrlabel.c
-index 8a22486cf270..17ac45aa7194 100644
---- a/net/ipv6/addrlabel.c
-+++ b/net/ipv6/addrlabel.c
-@@ -437,6 +437,7 @@ static void ip6addrlbl_putmsg(struct nlmsghdr *nlh,
- {
- 	struct ifaddrlblmsg *ifal = nlmsg_data(nlh);
- 	ifal->ifal_family = AF_INET6;
-+	ifal->__ifal_reserved = 0;
- 	ifal->ifal_prefixlen = prefixlen;
- 	ifal->ifal_flags = 0;
- 	ifal->ifal_index = ifindex;
+diff --git a/net/can/af_can.c b/net/can/af_can.c
+index 1c95ede2c9a6..cf554e855521 100644
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -451,7 +451,7 @@ int can_rx_register(struct net *net, struct net_device *dev, canid_t can_id,
+ 
+ 	/* insert new receiver  (dev,canid,mask) -> (func,data) */
+ 
+-	if (dev && dev->type != ARPHRD_CAN)
++	if (dev && (dev->type != ARPHRD_CAN || !can_get_ml_priv(dev)))
+ 		return -ENODEV;
+ 
+ 	if (dev && !net_eq(net, dev_net(dev)))
 -- 
 2.35.1
 
