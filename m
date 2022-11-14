@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9AE6627F2B
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:56:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1110B627E70
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:48:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237540AbiKNM4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:56:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48262 "EHLO
+        id S237268AbiKNMr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:47:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237548AbiKNM4K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:56:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E59227915
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:56:09 -0800 (PST)
+        with ESMTP id S237294AbiKNMru (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:47:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A1FA25C8
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:47:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D040E61154
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:56:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA368C433D6;
-        Mon, 14 Nov 2022 12:56:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55FC6B80EB5
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:47:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9319BC433D6;
+        Mon, 14 Nov 2022 12:47:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430568;
-        bh=F07MC+fc/23PQHkMP8mRiLhx4hAnJteA9ISqz9NJZYk=;
+        s=korg; t=1668430067;
+        bh=x61Pqm2h2ckGMyu7rL5bm1ulGU9GoAsJvRKZt8MiH7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y54CqEBGuMpNoLFCEDMwLntVyVJkrrUp2dmTnioaq/VSXgx+4ToliSm9/UEQfG/pI
-         pdUCQyazYxXUCx7nApspJ7Oem//29xuwR2uP7piJqV483fxliDjb4JkZwf3/mviwKm
-         lS82UmUVyebakeymh4xCZWRgL6tRgdtb5OFct2K8=
+        b=lGFOax84x9FRxppslDD8VCUZKUvrG/9VM0f3EHEYcpuA9U3ZR5Ya7Ig667d56RKzc
+         xe2Y0mqXEdeIUrFrEIicWXlu40pvtm5sBC0zN9klAEXvXJWGCrtK93zL1710d/okGk
+         4JnIz0R0VPgxkkqjpC98zYjyfbEFNRbN2k5ETJGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Hartmayer <mhartmay@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
+        patches@lists.linux.dev, Youlin Li <liulin063@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 036/131] KVM: s390: pv: dont allow userspace to set the clock under PV
+Subject: [PATCH 5.10 11/95] bpf: Fix wrong reg type conversion in release_reference()
 Date:   Mon, 14 Nov 2022 13:45:05 +0100
-Message-Id: <20221114124450.224393842@linuxfoundation.org>
+Message-Id: <20221114124442.973025824@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,164 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nico Boehr <nrb@linux.ibm.com>
+From: Youlin Li <liulin063@gmail.com>
 
-[ Upstream commit 6973091d1b50ab4042f6a2d495f59e9db3662ab8 ]
+[ Upstream commit f1db20814af532f85e091231223e5e4818e8464b ]
 
-When running under PV, the guest's TOD clock is under control of the
-ultravisor and the hypervisor isn't allowed to change it. Hence, don't
-allow userspace to change the guest's TOD clock by returning
--EOPNOTSUPP.
+Some helper functions will allocate memory. To avoid memory leaks, the
+verifier requires the eBPF program to release these memories by calling
+the corresponding helper functions.
 
-When userspace changes the guest's TOD clock, KVM updates its
-kvm.arch.epoch field and, in addition, the epoch field in all state
-descriptions of all VCPUs.
+When a resource is released, all pointer registers corresponding to the
+resource should be invalidated. The verifier use release_references() to
+do this job, by apply  __mark_reg_unknown() to each relevant register.
 
-But, under PV, the ultravisor will ignore the epoch field in the state
-description and simply overwrite it on next SIE exit with the actual
-guest epoch. This leads to KVM having an incorrect view of the guest's
-TOD clock: it has updated its internal kvm.arch.epoch field, but the
-ultravisor ignores the field in the state description.
+It will give these registers the type of SCALAR_VALUE. A register that
+will contain a pointer value at runtime, but of type SCALAR_VALUE, which
+may allow the unprivileged user to get a kernel pointer by storing this
+register into a map.
 
-Whenever a guest is now waiting for a clock comparator, KVM will
-incorrectly calculate the time when the guest should wake up, possibly
-causing the guest to sleep for much longer than expected.
+Using __mark_reg_not_init() while NOT allow_ptr_leaks can mitigate this
+problem.
 
-With this change, kvm_s390_set_tod() will now take the kvm->lock to be
-able to call kvm_s390_pv_is_protected(). Since kvm_s390_set_tod_clock()
-also takes kvm->lock, use __kvm_s390_set_tod_clock() instead.
-
-The function kvm_s390_set_tod_clock is now unused, hence remove it.
-Update the documentation to indicate the TOD clock attr calls can now
-return -EOPNOTSUPP.
-
-Fixes: 0f3035047140 ("KVM: s390: protvirt: Do only reset registers that are accessible")
-Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221011160712.928239-2-nrb@linux.ibm.com
-Message-Id: <20221011160712.928239-2-nrb@linux.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Fixes: fd978bf7fd31 ("bpf: Add reference tracking to verifier")
+Signed-off-by: Youlin Li <liulin063@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20221103093440.3161-1-liulin063@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/virt/kvm/devices/vm.rst |  3 +++
- arch/s390/kvm/kvm-s390.c              | 26 +++++++++++++++++---------
- arch/s390/kvm/kvm-s390.h              |  1 -
- 3 files changed, 20 insertions(+), 10 deletions(-)
+ kernel/bpf/verifier.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/virt/kvm/devices/vm.rst b/Documentation/virt/kvm/devices/vm.rst
-index 0aa5b1cfd700..60acc39e0e93 100644
---- a/Documentation/virt/kvm/devices/vm.rst
-+++ b/Documentation/virt/kvm/devices/vm.rst
-@@ -215,6 +215,7 @@ KVM_S390_VM_TOD_EXT).
- :Parameters: address of a buffer in user space to store the data (u8) to
- :Returns:   -EFAULT if the given address is not accessible from kernel space;
- 	    -EINVAL if setting the TOD clock extension to != 0 is not supported
-+	    -EOPNOTSUPP for a PV guest (TOD managed by the ultravisor)
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 3a0f288f538c..50364031eb4d 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5045,8 +5045,12 @@ static int release_reference(struct bpf_verifier_env *env,
+ 		return err;
  
- 3.2. ATTRIBUTE: KVM_S390_VM_TOD_LOW
- -----------------------------------
-@@ -224,6 +225,7 @@ the POP (u64).
+ 	bpf_for_each_reg_in_vstate(env->cur_state, state, reg, ({
+-		if (reg->ref_obj_id == ref_obj_id)
+-			__mark_reg_unknown(env, reg);
++		if (reg->ref_obj_id == ref_obj_id) {
++			if (!env->allow_ptr_leaks)
++				__mark_reg_not_init(env, reg);
++			else
++				__mark_reg_unknown(env, reg);
++		}
+ 	}));
  
- :Parameters: address of a buffer in user space to store the data (u64) to
- :Returns:    -EFAULT if the given address is not accessible from kernel space
-+	     -EOPNOTSUPP for a PV guest (TOD managed by the ultravisor)
- 
- 3.3. ATTRIBUTE: KVM_S390_VM_TOD_EXT
- -----------------------------------
-@@ -237,6 +239,7 @@ it, it is stored as 0 and not allowed to be set to a value != 0.
- 	     (kvm_s390_vm_tod_clock) to
- :Returns:   -EFAULT if the given address is not accessible from kernel space;
- 	    -EINVAL if setting the TOD clock extension to != 0 is not supported
-+	    -EOPNOTSUPP for a PV guest (TOD managed by the ultravisor)
- 
- 4. GROUP: KVM_S390_VM_CRYPTO
- ============================
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index b456aa196c04..c61533e1448a 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1117,6 +1117,8 @@ static int kvm_s390_vm_get_migration(struct kvm *kvm,
  	return 0;
- }
- 
-+static void __kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
-+
- static int kvm_s390_set_tod_ext(struct kvm *kvm, struct kvm_device_attr *attr)
- {
- 	struct kvm_s390_vm_tod_clock gtod;
-@@ -1126,7 +1128,7 @@ static int kvm_s390_set_tod_ext(struct kvm *kvm, struct kvm_device_attr *attr)
- 
- 	if (!test_kvm_facility(kvm, 139) && gtod.epoch_idx)
- 		return -EINVAL;
--	kvm_s390_set_tod_clock(kvm, &gtod);
-+	__kvm_s390_set_tod_clock(kvm, &gtod);
- 
- 	VM_EVENT(kvm, 3, "SET: TOD extension: 0x%x, TOD base: 0x%llx",
- 		gtod.epoch_idx, gtod.tod);
-@@ -1157,7 +1159,7 @@ static int kvm_s390_set_tod_low(struct kvm *kvm, struct kvm_device_attr *attr)
- 			   sizeof(gtod.tod)))
- 		return -EFAULT;
- 
--	kvm_s390_set_tod_clock(kvm, &gtod);
-+	__kvm_s390_set_tod_clock(kvm, &gtod);
- 	VM_EVENT(kvm, 3, "SET: TOD base: 0x%llx", gtod.tod);
- 	return 0;
- }
-@@ -1169,6 +1171,16 @@ static int kvm_s390_set_tod(struct kvm *kvm, struct kvm_device_attr *attr)
- 	if (attr->flags)
- 		return -EINVAL;
- 
-+	mutex_lock(&kvm->lock);
-+	/*
-+	 * For protected guests, the TOD is managed by the ultravisor, so trying
-+	 * to change it will never bring the expected results.
-+	 */
-+	if (kvm_s390_pv_is_protected(kvm)) {
-+		ret = -EOPNOTSUPP;
-+		goto out_unlock;
-+	}
-+
- 	switch (attr->attr) {
- 	case KVM_S390_VM_TOD_EXT:
- 		ret = kvm_s390_set_tod_ext(kvm, attr);
-@@ -1183,6 +1195,9 @@ static int kvm_s390_set_tod(struct kvm *kvm, struct kvm_device_attr *attr)
- 		ret = -ENXIO;
- 		break;
- 	}
-+
-+out_unlock:
-+	mutex_unlock(&kvm->lock);
- 	return ret;
- }
- 
-@@ -3941,13 +3956,6 @@ static void __kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_t
- 	preempt_enable();
- }
- 
--void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
--{
--	mutex_lock(&kvm->lock);
--	__kvm_s390_set_tod_clock(kvm, gtod);
--	mutex_unlock(&kvm->lock);
--}
--
- int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
- {
- 	if (!mutex_trylock(&kvm->lock))
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index f8803bf0ff17..a2fde6d69057 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -326,7 +326,6 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
- 
- /* implemented in kvm-s390.c */
--void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
- int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
- long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
- int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
 -- 
 2.35.1
 
