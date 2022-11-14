@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39973627E9E
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:49:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED576627F2A
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:56:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237354AbiKNMtn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:49:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42078 "EHLO
+        id S237536AbiKNM4L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:56:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237248AbiKNMtm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:49:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9032C2DFA
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:49:40 -0800 (PST)
+        with ESMTP id S237546AbiKNM4H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:56:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F57127DE5
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:56:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E23B6115D
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:49:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FA44C433C1;
-        Mon, 14 Nov 2022 12:49:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F06F961175
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:56:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07686C433C1;
+        Mon, 14 Nov 2022 12:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430179;
-        bh=/ETS89VmAzbekOXZ6jtaIpo/wM5auMTiWB4inkY7OBw=;
+        s=korg; t=1668430565;
+        bh=gYTMm7VUwqh4kPxOTqmx9VLN2+89m1+IW9DrhUoao9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RkDD4YwD4aVqoDOsuFltXmtoIfeqtwdInhWVGUv7wvcRiO69ujgwrZyg8204bm9bX
-         UXmq5TlAeldsUyh6gVunO/4s1jtrnKucvdkbwIwAbvvPrxvxqpbc1eexEQBooaZVLF
-         0K7nOB2G2/iLZUZwU7uKSL/PG2j8u0D2Krh3l5to=
+        b=GLU32+ME7tdiqH1UPT8Ct5cVEWQdXbWYbEQwA1ixO8/0w26RyR+ifhCkmeIPu090N
+         2TiVe6hvllP7gQVqfHEx/JN8EyBfQlrSdG4T9FDOf7I4kCk0dvXfgdyzUxpu4kg5eX
+         N36GRGG5hSGfehG8bfNOl+g5v2JJBl/1cwv2Rais=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 10/95] bpf: Add helper macro bpf_for_each_reg_in_vstate
+        John Thomson <git@johnthomson.fastmail.com.au>,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 035/131] phy: ralink: mt7621-pci: add sentinel to quirks table
 Date:   Mon, 14 Nov 2022 13:45:04 +0100
-Message-Id: <20221114124442.941905502@linuxfoundation.org>
+Message-Id: <20221114124450.183598125@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,302 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: John Thomson <git@johnthomson.fastmail.com.au>
 
-[ Upstream commit b239da34203f49c40b5d656220c39647c3ff0b3c ]
+[ Upstream commit 819b885cd886c193782891c4f51bbcab3de119a4 ]
 
-For a lot of use cases in future patches, we will want to modify the
-state of registers part of some same 'group' (e.g. same ref_obj_id). It
-won't just be limited to releasing reference state, but setting a type
-flag dynamically based on certain actions, etc.
+With mt7621 soc_dev_attr fixed to register the soc as a device,
+kernel will experience an oops in soc_device_match_attr
 
-Hence, we need a way to easily pass a callback to the function that
-iterates over all registers in current bpf_verifier_state in all frames
-upto (and including) the curframe.
+This quirk test was introduced in the staging driver in
+commit 9445ccb3714c ("staging: mt7621-pci-phy: add quirks for 'E2'
+revision using 'soc_device_attribute'"). The staging driver was removed,
+and later re-added in commit d87da32372a0 ("phy: ralink: Add PHY driver
+for MT7621 PCIe PHY") for kernel 5.11
 
-While in C++ we would be able to easily use a lambda to pass state and
-the callback together, sadly we aren't using C++ in the kernel. The next
-best thing to avoid defining a function for each case seems like
-statement expressions in GNU C. The kernel already uses them heavily,
-hence they can passed to the macro in the style of a lambda. The
-statement expression will then be substituted in the for loop bodies.
-
-Variables __state and __reg are set to current bpf_func_state and reg
-for each invocation of the expression inside the passed in verifier
-state.
-
-Then, convert mark_ptr_or_null_regs, clear_all_pkt_pointers,
-release_reference, find_good_pkt_pointers, find_equal_scalars to
-use bpf_for_each_reg_in_vstate.
-
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Link: https://lore.kernel.org/r/20220904204145.3089-16-memxor@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Stable-dep-of: f1db20814af5 ("bpf: Fix wrong reg type conversion in release_reference()")
+Link: https://lore.kernel.org/lkml/26ebbed1-0fe9-4af9-8466-65f841d0b382@app.fastmail.com
+Fixes: d87da32372a0 ("phy: ralink: Add PHY driver for MT7621 PCIe PHY")
+Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
+Acked-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Link: https://lore.kernel.org/r/20221104205242.3440388-2-git@johnthomson.fastmail.com.au
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bpf_verifier.h |  21 ++++++
- kernel/bpf/verifier.c        | 135 ++++++++---------------------------
- 2 files changed, 49 insertions(+), 107 deletions(-)
+ drivers/phy/ralink/phy-mt7621-pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/bpf_verifier.h b/include/linux/bpf_verifier.h
-index f49165f9229c..4d37c69e76b1 100644
---- a/include/linux/bpf_verifier.h
-+++ b/include/linux/bpf_verifier.h
-@@ -290,6 +290,27 @@ struct bpf_verifier_state {
- 	     iter < frame->allocated_stack / BPF_REG_SIZE;		\
- 	     iter++, reg = bpf_get_spilled_reg(iter, frame))
- 
-+/* Invoke __expr over regsiters in __vst, setting __state and __reg */
-+#define bpf_for_each_reg_in_vstate(__vst, __state, __reg, __expr)   \
-+	({                                                               \
-+		struct bpf_verifier_state *___vstate = __vst;            \
-+		int ___i, ___j;                                          \
-+		for (___i = 0; ___i <= ___vstate->curframe; ___i++) {    \
-+			struct bpf_reg_state *___regs;                   \
-+			__state = ___vstate->frame[___i];                \
-+			___regs = __state->regs;                         \
-+			for (___j = 0; ___j < MAX_BPF_REG; ___j++) {     \
-+				__reg = &___regs[___j];                  \
-+				(void)(__expr);                          \
-+			}                                                \
-+			bpf_for_each_spilled_reg(___j, __state, __reg) { \
-+				if (!__reg)                              \
-+					continue;                        \
-+				(void)(__expr);                          \
-+			}                                                \
-+		}                                                        \
-+	})
-+
- /* linked list of verifier states used to prune search */
- struct bpf_verifier_state_list {
- 	struct bpf_verifier_state state;
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 510a54471f13..3a0f288f538c 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -4993,31 +4993,15 @@ static int check_func_proto(const struct bpf_func_proto *fn, int func_id)
- /* Packet data might have moved, any old PTR_TO_PACKET[_META,_END]
-  * are now invalid, so turn them into unknown SCALAR_VALUE.
-  */
--static void __clear_all_pkt_pointers(struct bpf_verifier_env *env,
--				     struct bpf_func_state *state)
-+static void clear_all_pkt_pointers(struct bpf_verifier_env *env)
- {
--	struct bpf_reg_state *regs = state->regs, *reg;
--	int i;
--
--	for (i = 0; i < MAX_BPF_REG; i++)
--		if (reg_is_pkt_pointer_any(&regs[i]))
--			mark_reg_unknown(env, regs, i);
-+	struct bpf_func_state *state;
-+	struct bpf_reg_state *reg;
- 
--	bpf_for_each_spilled_reg(i, state, reg) {
--		if (!reg)
--			continue;
-+	bpf_for_each_reg_in_vstate(env->cur_state, state, reg, ({
- 		if (reg_is_pkt_pointer_any(reg))
- 			__mark_reg_unknown(env, reg);
--	}
--}
--
--static void clear_all_pkt_pointers(struct bpf_verifier_env *env)
--{
--	struct bpf_verifier_state *vstate = env->cur_state;
--	int i;
--
--	for (i = 0; i <= vstate->curframe; i++)
--		__clear_all_pkt_pointers(env, vstate->frame[i]);
-+	}));
+diff --git a/drivers/phy/ralink/phy-mt7621-pci.c b/drivers/phy/ralink/phy-mt7621-pci.c
+index 5e6530f545b5..85888ab2d307 100644
+--- a/drivers/phy/ralink/phy-mt7621-pci.c
++++ b/drivers/phy/ralink/phy-mt7621-pci.c
+@@ -280,7 +280,8 @@ static struct phy *mt7621_pcie_phy_of_xlate(struct device *dev,
  }
  
- enum {
-@@ -5046,41 +5030,24 @@ static void mark_pkt_end(struct bpf_verifier_state *vstate, int regn, bool range
- 		reg->range = AT_PKT_END;
- }
+ static const struct soc_device_attribute mt7621_pci_quirks_match[] = {
+-	{ .soc_id = "mt7621", .revision = "E2" }
++	{ .soc_id = "mt7621", .revision = "E2" },
++	{ /* sentinel */ }
+ };
  
--static void release_reg_references(struct bpf_verifier_env *env,
--				   struct bpf_func_state *state,
--				   int ref_obj_id)
--{
--	struct bpf_reg_state *regs = state->regs, *reg;
--	int i;
--
--	for (i = 0; i < MAX_BPF_REG; i++)
--		if (regs[i].ref_obj_id == ref_obj_id)
--			mark_reg_unknown(env, regs, i);
--
--	bpf_for_each_spilled_reg(i, state, reg) {
--		if (!reg)
--			continue;
--		if (reg->ref_obj_id == ref_obj_id)
--			__mark_reg_unknown(env, reg);
--	}
--}
--
- /* The pointer with the specified id has released its reference to kernel
-  * resources. Identify all copies of the same pointer and clear the reference.
-  */
- static int release_reference(struct bpf_verifier_env *env,
- 			     int ref_obj_id)
- {
--	struct bpf_verifier_state *vstate = env->cur_state;
-+	struct bpf_func_state *state;
-+	struct bpf_reg_state *reg;
- 	int err;
--	int i;
- 
- 	err = release_reference_state(cur_func(env), ref_obj_id);
- 	if (err)
- 		return err;
- 
--	for (i = 0; i <= vstate->curframe; i++)
--		release_reg_references(env, vstate->frame[i], ref_obj_id);
-+	bpf_for_each_reg_in_vstate(env->cur_state, state, reg, ({
-+		if (reg->ref_obj_id == ref_obj_id)
-+			__mark_reg_unknown(env, reg);
-+	}));
- 
- 	return 0;
- }
-@@ -7219,34 +7186,14 @@ static int check_alu_op(struct bpf_verifier_env *env, struct bpf_insn *insn)
- 	return 0;
- }
- 
--static void __find_good_pkt_pointers(struct bpf_func_state *state,
--				     struct bpf_reg_state *dst_reg,
--				     enum bpf_reg_type type, int new_range)
--{
--	struct bpf_reg_state *reg;
--	int i;
--
--	for (i = 0; i < MAX_BPF_REG; i++) {
--		reg = &state->regs[i];
--		if (reg->type == type && reg->id == dst_reg->id)
--			/* keep the maximum range already checked */
--			reg->range = max(reg->range, new_range);
--	}
--
--	bpf_for_each_spilled_reg(i, state, reg) {
--		if (!reg)
--			continue;
--		if (reg->type == type && reg->id == dst_reg->id)
--			reg->range = max(reg->range, new_range);
--	}
--}
--
- static void find_good_pkt_pointers(struct bpf_verifier_state *vstate,
- 				   struct bpf_reg_state *dst_reg,
- 				   enum bpf_reg_type type,
- 				   bool range_right_open)
- {
--	int new_range, i;
-+	struct bpf_func_state *state;
-+	struct bpf_reg_state *reg;
-+	int new_range;
- 
- 	if (dst_reg->off < 0 ||
- 	    (dst_reg->off == 0 && range_right_open))
-@@ -7311,9 +7258,11 @@ static void find_good_pkt_pointers(struct bpf_verifier_state *vstate,
- 	 * the range won't allow anything.
- 	 * dst_reg->off is known < MAX_PACKET_OFF, therefore it fits in a u16.
- 	 */
--	for (i = 0; i <= vstate->curframe; i++)
--		__find_good_pkt_pointers(vstate->frame[i], dst_reg, type,
--					 new_range);
-+	bpf_for_each_reg_in_vstate(vstate, state, reg, ({
-+		if (reg->type == type && reg->id == dst_reg->id)
-+			/* keep the maximum range already checked */
-+			reg->range = max(reg->range, new_range);
-+	}));
- }
- 
- static int is_branch32_taken(struct bpf_reg_state *reg, u32 val, u8 opcode)
-@@ -7826,7 +7775,7 @@ static void mark_ptr_or_null_reg(struct bpf_func_state *state,
- 			reg->ref_obj_id = 0;
- 		} else if (!reg_may_point_to_spin_lock(reg)) {
- 			/* For not-NULL ptr, reg->ref_obj_id will be reset
--			 * in release_reg_references().
-+			 * in release_reference().
- 			 *
- 			 * reg->id is still used by spin_lock ptr. Other
- 			 * than spin_lock ptr type, reg->id can be reset.
-@@ -7836,22 +7785,6 @@ static void mark_ptr_or_null_reg(struct bpf_func_state *state,
- 	}
- }
- 
--static void __mark_ptr_or_null_regs(struct bpf_func_state *state, u32 id,
--				    bool is_null)
--{
--	struct bpf_reg_state *reg;
--	int i;
--
--	for (i = 0; i < MAX_BPF_REG; i++)
--		mark_ptr_or_null_reg(state, &state->regs[i], id, is_null);
--
--	bpf_for_each_spilled_reg(i, state, reg) {
--		if (!reg)
--			continue;
--		mark_ptr_or_null_reg(state, reg, id, is_null);
--	}
--}
--
- /* The logic is similar to find_good_pkt_pointers(), both could eventually
-  * be folded together at some point.
-  */
-@@ -7859,10 +7792,9 @@ static void mark_ptr_or_null_regs(struct bpf_verifier_state *vstate, u32 regno,
- 				  bool is_null)
- {
- 	struct bpf_func_state *state = vstate->frame[vstate->curframe];
--	struct bpf_reg_state *regs = state->regs;
-+	struct bpf_reg_state *regs = state->regs, *reg;
- 	u32 ref_obj_id = regs[regno].ref_obj_id;
- 	u32 id = regs[regno].id;
--	int i;
- 
- 	if (ref_obj_id && ref_obj_id == id && is_null)
- 		/* regs[regno] is in the " == NULL" branch.
-@@ -7871,8 +7803,9 @@ static void mark_ptr_or_null_regs(struct bpf_verifier_state *vstate, u32 regno,
- 		 */
- 		WARN_ON_ONCE(release_reference_state(state, id));
- 
--	for (i = 0; i <= vstate->curframe; i++)
--		__mark_ptr_or_null_regs(vstate->frame[i], id, is_null);
-+	bpf_for_each_reg_in_vstate(vstate, state, reg, ({
-+		mark_ptr_or_null_reg(state, reg, id, is_null);
-+	}));
- }
- 
- static bool try_match_pkt_pointers(const struct bpf_insn *insn,
-@@ -7985,23 +7918,11 @@ static void find_equal_scalars(struct bpf_verifier_state *vstate,
- {
- 	struct bpf_func_state *state;
- 	struct bpf_reg_state *reg;
--	int i, j;
- 
--	for (i = 0; i <= vstate->curframe; i++) {
--		state = vstate->frame[i];
--		for (j = 0; j < MAX_BPF_REG; j++) {
--			reg = &state->regs[j];
--			if (reg->type == SCALAR_VALUE && reg->id == known_reg->id)
--				*reg = *known_reg;
--		}
--
--		bpf_for_each_spilled_reg(j, state, reg) {
--			if (!reg)
--				continue;
--			if (reg->type == SCALAR_VALUE && reg->id == known_reg->id)
--				*reg = *known_reg;
--		}
--	}
-+	bpf_for_each_reg_in_vstate(vstate, state, reg, ({
-+		if (reg->type == SCALAR_VALUE && reg->id == known_reg->id)
-+			*reg = *known_reg;
-+	}));
- }
- 
- static int check_cond_jmp_op(struct bpf_verifier_env *env,
+ static const struct regmap_config mt7621_pci_phy_regmap_config = {
 -- 
 2.35.1
 
