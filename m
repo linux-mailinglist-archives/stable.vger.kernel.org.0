@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7F4C627EF2
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:53:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12079627EF3
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:53:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237474AbiKNMxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:53:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46246 "EHLO
+        id S237476AbiKNMxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:53:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237477AbiKNMxk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:53:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAFE4B4BA
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:53:39 -0800 (PST)
+        with ESMTP id S237477AbiKNMxp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:53:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C60EDEA4
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:53:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 684C16117B
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:53:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70590C433D6;
-        Mon, 14 Nov 2022 12:53:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22549B80EAF
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:53:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62515C433D6;
+        Mon, 14 Nov 2022 12:53:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430418;
-        bh=vqoqU349YzzvV+0xXowfbLnhc9WiZJE4c2kSoVGoJmA=;
+        s=korg; t=1668430421;
+        bh=1ELwc/nfl11WxJjnHVIr6YLdnhdgm95Ig8TqvTclX+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uxq/lBYYufRAAnpBg03wZoIiwEe6zNkW6ZL3SO5ACfWRa7fz+ZjouO5hiwH12Si8V
-         f3r2dsFntChbimC4jWfOloEzVvRNwisdM2AIe6Frs20Ib+3DsM2cEnaYezL/f7bWoY
-         YB2b5xMkCdw2G16UfCAwrmalCuWlQf+MjuG8+9IY=
+        b=ZeH2MinsRyKO2kM4+AuVcyHz14O3P6tfGBAnofGDP7Xi5cenoiuxmmvMpv665AL8/
+         QNvx9GF6NbDid/nUie5GlC1guP3/lI55qFSp7VobEDaul+RQ/otX1jINRc3lZVRQVl
+         Y4DzwJfIHp7DCVe4MoEtG98eBMQhl9Q6vL2pz0hM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Youlin Li <liulin063@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        patches@lists.linux.dev, Jiri Benc <jbenc@redhat.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 022/131] bpf: Fix wrong reg type conversion in release_reference()
-Date:   Mon, 14 Nov 2022 13:44:51 +0100
-Message-Id: <20221114124449.645454889@linuxfoundation.org>
+Subject: [PATCH 5.15 023/131] net: gso: fix panic on frag_list with mixed head alloc types
+Date:   Mon, 14 Nov 2022 13:44:52 +0100
+Message-Id: <20221114124449.685865819@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
 References: <20221114124448.729235104@linuxfoundation.org>
@@ -53,54 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Youlin Li <liulin063@gmail.com>
+From: Jiri Benc <jbenc@redhat.com>
 
-[ Upstream commit f1db20814af532f85e091231223e5e4818e8464b ]
+[ Upstream commit 9e4b7a99a03aefd37ba7bb1f022c8efab5019165 ]
 
-Some helper functions will allocate memory. To avoid memory leaks, the
-verifier requires the eBPF program to release these memories by calling
-the corresponding helper functions.
+Since commit 3dcbdb134f32 ("net: gso: Fix skb_segment splat when
+splitting gso_size mangled skb having linear-headed frag_list"), it is
+allowed to change gso_size of a GRO packet. However, that commit assumes
+that "checking the first list_skb member suffices; i.e if either of the
+list_skb members have non head_frag head, then the first one has too".
 
-When a resource is released, all pointer registers corresponding to the
-resource should be invalidated. The verifier use release_references() to
-do this job, by apply  __mark_reg_unknown() to each relevant register.
+It turns out this assumption does not hold. We've seen BUG_ON being hit
+in skb_segment when skbs on the frag_list had differing head_frag with
+the vmxnet3 driver. This happens because __netdev_alloc_skb and
+__napi_alloc_skb can return a skb that is page backed or kmalloced
+depending on the requested size. As the result, the last small skb in
+the GRO packet can be kmalloced.
 
-It will give these registers the type of SCALAR_VALUE. A register that
-will contain a pointer value at runtime, but of type SCALAR_VALUE, which
-may allow the unprivileged user to get a kernel pointer by storing this
-register into a map.
+There are three different locations where this can be fixed:
 
-Using __mark_reg_not_init() while NOT allow_ptr_leaks can mitigate this
-problem.
+(1) We could check head_frag in GRO and not allow GROing skbs with
+    different head_frag. However, that would lead to performance
+    regression on normal forward paths with unmodified gso_size, where
+    !head_frag in the last packet is not a problem.
 
-Fixes: fd978bf7fd31 ("bpf: Add reference tracking to verifier")
-Signed-off-by: Youlin Li <liulin063@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20221103093440.3161-1-liulin063@gmail.com
+(2) Set a flag in bpf_skb_net_grow and bpf_skb_net_shrink indicating
+    that NETIF_F_SG is undesirable. That would need to eat a bit in
+    sk_buff. Furthermore, that flag can be unset when all skbs on the
+    frag_list are page backed. To retain good performance,
+    bpf_skb_net_grow/shrink would have to walk the frag_list.
+
+(3) Walk the frag_list in skb_segment when determining whether
+    NETIF_F_SG should be cleared. This of course slows things down.
+
+This patch implements (3). To limit the performance impact in
+skb_segment, the list is walked only for skbs with SKB_GSO_DODGY set
+that have gso_size changed. Normal paths thus will not hit it.
+
+We could check only the last skb but since we need to walk the whole
+list anyway, let's stay on the safe side.
+
+Fixes: 3dcbdb134f32 ("net: gso: Fix skb_segment splat when splitting gso_size mangled skb having linear-headed frag_list")
+Signed-off-by: Jiri Benc <jbenc@redhat.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/e04426a6a91baf4d1081e1b478c82b5de25fdf21.1667407944.git.jbenc@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/core/skbuff.c | 36 +++++++++++++++++++-----------------
+ 1 file changed, 19 insertions(+), 17 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 96f317c494d9..8a73a165ac76 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5686,8 +5686,12 @@ static int release_reference(struct bpf_verifier_env *env,
- 		return err;
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 9cc607b2d3d2..6706bd3c8e9c 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -4010,23 +4010,25 @@ struct sk_buff *skb_segment(struct sk_buff *head_skb,
+ 	int i = 0;
+ 	int pos;
  
- 	bpf_for_each_reg_in_vstate(env->cur_state, state, reg, ({
--		if (reg->ref_obj_id == ref_obj_id)
--			__mark_reg_unknown(env, reg);
-+		if (reg->ref_obj_id == ref_obj_id) {
-+			if (!env->allow_ptr_leaks)
-+				__mark_reg_not_init(env, reg);
-+			else
-+				__mark_reg_unknown(env, reg);
+-	if (list_skb && !list_skb->head_frag && skb_headlen(list_skb) &&
+-	    (skb_shinfo(head_skb)->gso_type & SKB_GSO_DODGY)) {
+-		/* gso_size is untrusted, and we have a frag_list with a linear
+-		 * non head_frag head.
+-		 *
+-		 * (we assume checking the first list_skb member suffices;
+-		 * i.e if either of the list_skb members have non head_frag
+-		 * head, then the first one has too).
+-		 *
+-		 * If head_skb's headlen does not fit requested gso_size, it
+-		 * means that the frag_list members do NOT terminate on exact
+-		 * gso_size boundaries. Hence we cannot perform skb_frag_t page
+-		 * sharing. Therefore we must fallback to copying the frag_list
+-		 * skbs; we do so by disabling SG.
+-		 */
+-		if (mss != GSO_BY_FRAGS && mss != skb_headlen(head_skb))
+-			features &= ~NETIF_F_SG;
++	if ((skb_shinfo(head_skb)->gso_type & SKB_GSO_DODGY) &&
++	    mss != GSO_BY_FRAGS && mss != skb_headlen(head_skb)) {
++		struct sk_buff *check_skb;
++
++		for (check_skb = list_skb; check_skb; check_skb = check_skb->next) {
++			if (skb_headlen(check_skb) && !check_skb->head_frag) {
++				/* gso_size is untrusted, and we have a frag_list with
++				 * a linear non head_frag item.
++				 *
++				 * If head_skb's headlen does not fit requested gso_size,
++				 * it means that the frag_list members do NOT terminate
++				 * on exact gso_size boundaries. Hence we cannot perform
++				 * skb_frag_t page sharing. Therefore we must fallback to
++				 * copying the frag_list skbs; we do so by disabling SG.
++				 */
++				features &= ~NETIF_F_SG;
++				break;
++			}
 +		}
- 	}));
+ 	}
  
- 	return 0;
+ 	__skb_push(head_skb, doffset);
 -- 
 2.35.1
 
