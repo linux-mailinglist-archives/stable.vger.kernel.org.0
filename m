@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 362176280B6
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:08:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9EC3628093
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:07:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237868AbiKNNIa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:08:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35920 "EHLO
+        id S237822AbiKNNHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:07:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237870AbiKNNI2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:08:28 -0500
+        with ESMTP id S237829AbiKNNHC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:07:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C152C2
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:08:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A579E2AC40
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:07:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39E88B80EA6
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:08:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84670C433D6;
-        Mon, 14 Nov 2022 13:08:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59C0DB80EB9
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:07:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5357C433D6;
+        Mon, 14 Nov 2022 13:06:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431301;
-        bh=t6HQoBP45Pxb5RIBJYmnGomTSikW0r5YCalU0pVR7H4=;
+        s=korg; t=1668431219;
+        bh=SduOTHmJ5cDLFORcw6jRYxtlpm4W4ETIHCZNrbXPr4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QWp2WloQ5YloofiuaKIkHtGNw3Lz4WCF2wgskQmp1JvIX7lW/wV8jsKZ8BlLihCs2
-         /2LHejv02b/51bTZg8ExG3+DKQm2ToMPEScfBVpG7I+SWgPliTI8sUts8bzCXbrWj5
-         JxrQ4lXtpL/jEN9/D0pSFh0YyNJJ+Jvwahro6hGs=
+        b=PQ+VkADohfZ8g3XbbJyzPI9qtj1G8xb71PTpJMeE/BkziaCwVctpFv+ew+Ru9KxgZ
+         H+RC1Io6H09YYKMWkYkFBzLL0z3WYoUiO6Ll4Bl178mtzTiZANsHdAnr3jFfhPEBkt
+         CF6Si0vfsAIEin/F+iYVrJeIHrONwCQjBEpdSDGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthew Auld <matthew.auld@intel.com>,
-        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 6.0 136/190] drm/i915/dmabuf: fix sg_table handling in map_dma_buf
-Date:   Mon, 14 Nov 2022 13:46:00 +0100
-Message-Id: <20221114124504.733888965@linuxfoundation.org>
+        patches@lists.linux.dev, Roman Li <Roman.Li@amd.com>,
+        Alan Liu <HaoPing.Liu@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.0 137/190] drm/amd/display: Fix reg timeout in enc314_enable_fifo
+Date:   Mon, 14 Nov 2022 13:46:01 +0100
+Message-Id: <20221114124504.786238611@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -57,52 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Auld <matthew.auld@intel.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-commit f90daa975911961b65070ec72bd7dd8d448f9ef7 upstream.
+commit ce62198d8b62734a985d22652e75a649be052390 upstream.
 
-We need to iterate over the original entries here for the sg_table,
-pulling out the struct page for each one, to be remapped. However
-currently this incorrectly iterates over the final dma mapped entries,
-which is likely just one gigantic sg entry if the iommu is enabled,
-leading to us only mapping the first struct page (and any physically
-contiguous pages following it), even if there is potentially lots more
-data to follow.
+[Why]
+The link enablement sequence can end up resetting the encoder while
+the PHY symclk isn't yet on.
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7306
-Fixes: 1286ff739773 ("i915: add dmabuf/prime buffer sharing support.")
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Cc: <stable@vger.kernel.org> # v3.5+
-Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221028155029.494736-1-matthew.auld@intel.com
-(cherry picked from commit 28d52f99bbca7227008cf580c9194c9b3516968e)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+This means that waiting for symclk on will timeout, along with the reset
+bit never asserting high.
+
+This causes unnecessary delay when enabling the link and produces a
+warning affecting multiple IGT tests.
+
+[How]
+Don't wait for the symclk to be on here because firmware already does.
+
+Don't wait for reset if we know the symclk isn't on.
+
+Split the reset into a helper function that checks the bit and decides
+whether or not a delay is sufficient.
+
+Reviewed-by: Roman Li <Roman.Li@amd.com>
+Acked-by: Alan Liu <HaoPing.Liu@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.0.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../dc/dcn314/dcn314_dio_stream_encoder.c     | 24 ++++++++++++++-----
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
-@@ -40,13 +40,13 @@ static struct sg_table *i915_gem_map_dma
- 		goto err;
- 	}
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c
+index 7e773bf7b895..38842f938bed 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c
+@@ -49,18 +49,30 @@
+ #define CTX \
+ 	enc1->base.ctx
  
--	ret = sg_alloc_table(st, obj->mm.pages->nents, GFP_KERNEL);
-+	ret = sg_alloc_table(st, obj->mm.pages->orig_nents, GFP_KERNEL);
- 	if (ret)
- 		goto err_free;
++static void enc314_reset_fifo(struct stream_encoder *enc, bool reset)
++{
++	struct dcn10_stream_encoder *enc1 = DCN10STRENC_FROM_STRENC(enc);
++	uint32_t reset_val = reset ? 1 : 0;
++	uint32_t is_symclk_on;
++
++	REG_UPDATE(DIG_FIFO_CTRL0, DIG_FIFO_RESET, reset_val);
++	REG_GET(DIG_FE_CNTL, DIG_SYMCLK_FE_ON, &is_symclk_on);
++
++	if (is_symclk_on)
++		REG_WAIT(DIG_FIFO_CTRL0, DIG_FIFO_RESET_DONE, reset_val, 10, 5000);
++	else
++		udelay(10);
++}
  
- 	src = obj->mm.pages->sgl;
- 	dst = st->sgl;
--	for (i = 0; i < obj->mm.pages->nents; i++) {
-+	for (i = 0; i < obj->mm.pages->orig_nents; i++) {
- 		sg_set_page(dst, sg_page(src), src->length, 0);
- 		dst = sg_next(dst);
- 		src = sg_next(src);
+ static void enc314_enable_fifo(struct stream_encoder *enc)
+ {
+ 	struct dcn10_stream_encoder *enc1 = DCN10STRENC_FROM_STRENC(enc);
+ 
+-	/* TODO: Confirm if we need to wait for DIG_SYMCLK_FE_ON */
+-	REG_WAIT(DIG_FE_CNTL, DIG_SYMCLK_FE_ON, 1, 10, 5000);
+ 	REG_UPDATE(DIG_FIFO_CTRL0, DIG_FIFO_READ_START_LEVEL, 0x7);
+-	REG_UPDATE(DIG_FIFO_CTRL0, DIG_FIFO_RESET, 1);
+-	REG_WAIT(DIG_FIFO_CTRL0, DIG_FIFO_RESET_DONE, 1, 10, 5000);
+-	REG_UPDATE(DIG_FIFO_CTRL0, DIG_FIFO_RESET, 0);
+-	REG_WAIT(DIG_FIFO_CTRL0, DIG_FIFO_RESET_DONE, 0, 10, 5000);
++
++	enc314_reset_fifo(enc, true);
++	enc314_reset_fifo(enc, false);
++
+ 	REG_UPDATE(DIG_FIFO_CTRL0, DIG_FIFO_ENABLE, 1);
+ }
+ 
+-- 
+2.38.1
+
 
 
