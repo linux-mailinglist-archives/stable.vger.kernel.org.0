@@ -2,117 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DCCB6278B7
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 10:09:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1FAB6278DF
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 10:19:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236898AbiKNJJA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 04:09:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47604 "EHLO
+        id S235816AbiKNJT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 04:19:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236760AbiKNJIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 04:08:45 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88BCF1D65B
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 01:06:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1668416784;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=MyDiWdKe1VYdsKgzDX1uadXsuftR4IzIbTjD84A1VBs=;
-        b=dblZtqCZI/A9DnFghamLFJOYF1RO/sX6lVM1tzgSYxFIPTaCkXFOF5VjenheiJ2Q0zPq2o
-        16KXRan1hxQLbVmk5EfnXQ+YnIgtsEe0+AlwKhi3Mxp7hyzh6Xdj/NneWM/EbJMLQGkzmt
-        Ik4K6JoWjyn59rZVqaZyn/XOE/+NqYo=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-505-KjDLDgBlOamkSYkmw4ignw-1; Mon, 14 Nov 2022 04:06:21 -0500
-X-MC-Unique: KjDLDgBlOamkSYkmw4ignw-1
-Received: by mail-wr1-f70.google.com with SMTP id r4-20020adfbb04000000b00236639438e9so1796943wrg.11
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 01:06:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:organization:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=MyDiWdKe1VYdsKgzDX1uadXsuftR4IzIbTjD84A1VBs=;
-        b=dSEg/nxP0bKW0upzMpa19qYBKW5pzzZ36f76rOMLLugXipE4LeU1YRR1dpMVcBaTDP
-         ZAguMBLxewgpdvqJ36Wm3z+qwHTK5dk9G3erJT8+Pvwl073ZKzxd9LsUr8pk5agYLSyf
-         amBYOGzKPokLqHuOwU9duC2qSMNLDcwSgK2QGZzUHWTwIEVdLEXPUtahtllHj+1ee4b8
-         G3+w+E3TpKSOT6699ici/kSYIwmiGd8QiWTHPqIv9RRyHZxZxEuhDxvcyXWcyzAqsUng
-         lRpfWJnNep64FWr+8TagXXx5bFpFITl7QwTxuAbTVMySi3q/CthrCUYs5PgB+kTEsx3T
-         IAlg==
-X-Gm-Message-State: ANoB5pkYNi6UWe5Y+3ekCFgIPqJr72sGOL7ZjCYZy7q7+qtf0Rc7C3C+
-        wqOVO5wdpZlvfoym38dr7wGphGp84Pxcha+Fc5igte3oAu/udeaYW8kJogycqrxsHRv4zoivKgy
-        T0m+Kr291QYHysjMw
-X-Received: by 2002:a05:6000:51:b0:241:553e:5040 with SMTP id k17-20020a056000005100b00241553e5040mr6948321wrx.578.1668416780299;
-        Mon, 14 Nov 2022 01:06:20 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf4l1B+wPdFoYaTSboiqdtBGcv+KQQAevPv9Adl6JHAVGpTZ8odXESHyxfOdy80t/1su8czTaA==
-X-Received: by 2002:a05:6000:51:b0:241:553e:5040 with SMTP id k17-20020a056000005100b00241553e5040mr6948298wrx.578.1668416780032;
-        Mon, 14 Nov 2022 01:06:20 -0800 (PST)
-Received: from ?IPV6:2003:cb:c703:d300:8765:6ef2:3111:de53? (p200300cbc703d30087656ef23111de53.dip0.t-ipconnect.de. [2003:cb:c703:d300:8765:6ef2:3111:de53])
-        by smtp.gmail.com with ESMTPSA id i22-20020a05600c355600b003cf894c05e4sm19299080wmq.22.2022.11.14.01.06.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Nov 2022 01:06:19 -0800 (PST)
-Message-ID: <cfb2e9de-3bf8-6380-f336-dc3d7a5ecc29@redhat.com>
-Date:   Mon, 14 Nov 2022 10:06:18 +0100
+        with ESMTP id S235832AbiKNJT0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 04:19:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB16AE017
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 01:19:23 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3CF02B80D61
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 09:19:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66593C433D6;
+        Mon, 14 Nov 2022 09:19:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1668417560;
+        bh=saECQ2yS6PlJevtDI4stbY/MNbrhbsmSEFS+ibRYzd8=;
+        h=Subject:To:Cc:From:Date:From;
+        b=0fuA5slYWQcR7ha6nyLBVUbTJz4Plu0uvnGX+9Lg+DA8WgmwLYO6xp9AK1zLStu3D
+         XE5wnHkoIpdPkobJpNoCZxtkdDtzxVezVhVPnDDpheVS8cp054+vyZ0GkcJetRYBNV
+         X/M4xB3HHF+ypy1l7YdIFBUrnt1xZhuVm9foDMtM=
+Subject: FAILED: patch "[PATCH] arm64: fix rodata=full again" failed to apply to 6.0-stable tree
+To:     ardb@kernel.org, catalin.marinas@arm.com, stable@vger.kernel.org,
+        will@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 14 Nov 2022 10:19:16 +0100
+Message-ID: <16684175567415@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH v9 2/3] hugetlb: remove duplicate mmu notifications
-Content-Language: en-US
-To:     Mike Kravetz <mike.kravetz@oracle.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Cc:     Naoya Horiguchi <naoya.horiguchi@linux.dev>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Mina Almasry <almasrymina@google.com>,
-        Peter Xu <peterx@redhat.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Rik van Riel <riel@surriel.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Wei Chen <harperchen1110@gmail.com>, stable@vger.kernel.org
-References: <20221111232628.290160-1-mike.kravetz@oracle.com>
- <20221111232628.290160-3-mike.kravetz@oracle.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20221111232628.290160-3-mike.kravetz@oracle.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12.11.22 00:26, Mike Kravetz wrote:
-> The common hugetlb unmap routine __unmap_hugepage_range performs mmu
-> notification calls.  However, in the case where __unmap_hugepage_range
-> is called via __unmap_hugepage_range_final, mmu notification calls are
-> performed earlier in other calling routines.
-> 
-> Remove mmu notification calls from __unmap_hugepage_range.  Add
-> notification calls to the only other caller: unmap_hugepage_range.
-> unmap_hugepage_range is called for truncation and hole punch, so
-> change notification type from UNMAP to CLEAR as this is more appropriate.
-> 
-> Fixes: 90e7e7f5ef3f ("mm: enable MADV_DONTNEED for hugetlb mappings")
-> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-> Reported-by: Wei Chen <harperchen1110@gmail.com>
-> Cc: <stable@vger.kernel.org>
 
-Why exactly do we care about stable backports here? What's the 
-user-visible impact?
+The patch below does not apply to the 6.0-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
--- 
-Thanks,
+Possible dependencies:
 
-David / dhildenb
+2081b3bd0c11 ("arm64: fix rodata=full again")
+b9dd04a20f81 ("arm64/mm: fold check for KFENCE into can_set_direct_map()")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 2081b3bd0c11757725dcab9ba5d38e1bddb03459 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Thu, 3 Nov 2022 18:00:15 +0100
+Subject: [PATCH] arm64: fix rodata=full again
+
+Commit 2e8cff0a0eee87b2 ("arm64: fix rodata=full") addressed a couple of
+issues with the rodata= kernel command line option, which is not a
+simple boolean on arm64, and inadvertently got broken due to changes in
+the generic bool handling.
+
+Unfortunately, the resulting code never clears the rodata_full boolean
+variable if it defaults to true and rodata=on or rodata=off is passed,
+as the generic code is not aware of the existence of this variable.
+
+Given the way this code is plumbed together, clearing rodata_full when
+returning false from arch_parse_debug_rodata() may result in
+inconsistencies if the generic code decides that it cannot parse the
+right hand side, so the best way to deal with this is to only take
+rodata_full in account if rodata_enabled is also true.
+
+Fixes: 2e8cff0a0eee ("arm64: fix rodata=full")
+Cc: <stable@vger.kernel.org> # 6.0.x
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20221103170015.4124426-1-ardb@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+
+diff --git a/arch/arm64/mm/pageattr.c b/arch/arm64/mm/pageattr.c
+index d107c3d434e2..5922178d7a06 100644
+--- a/arch/arm64/mm/pageattr.c
++++ b/arch/arm64/mm/pageattr.c
+@@ -26,7 +26,7 @@ bool can_set_direct_map(void)
+ 	 * mapped at page granularity, so that it is possible to
+ 	 * protect/unprotect single pages.
+ 	 */
+-	return rodata_full || debug_pagealloc_enabled() ||
++	return (rodata_enabled && rodata_full) || debug_pagealloc_enabled() ||
+ 		IS_ENABLED(CONFIG_KFENCE);
+ }
+ 
+@@ -102,7 +102,8 @@ static int change_memory_common(unsigned long addr, int numpages,
+ 	 * If we are manipulating read-only permissions, apply the same
+ 	 * change to the linear mapping of the pages that back this VM area.
+ 	 */
+-	if (rodata_full && (pgprot_val(set_mask) == PTE_RDONLY ||
++	if (rodata_enabled &&
++	    rodata_full && (pgprot_val(set_mask) == PTE_RDONLY ||
+ 			    pgprot_val(clear_mask) == PTE_RDONLY)) {
+ 		for (i = 0; i < area->nr_pages; i++) {
+ 			__change_memory_common((u64)page_address(area->pages[i]),
 
