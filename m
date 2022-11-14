@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE60627E9C
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:49:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D15FA627F0D
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:55:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237333AbiKNMtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:49:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41790 "EHLO
+        id S237506AbiKNMzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:55:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237248AbiKNMte (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:49:34 -0500
+        with ESMTP id S237500AbiKNMyz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:54:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C1D25E0
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:49:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD01C26AC7
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F92E61175
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:49:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86A47C433C1;
-        Mon, 14 Nov 2022 12:49:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49F996112D
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:54:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A177C433C1;
+        Mon, 14 Nov 2022 12:54:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430173;
-        bh=TeEWFTff7tFwU1VOmvTRcUB3IN+UzX+w/cCY6oIcouw=;
+        s=korg; t=1668430491;
+        bh=xozkKr46cau8Ve05XuSrklunkCeJz8a+K5891h61wWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LUA3cGSCL3vJ7NIW3ictiW0+4QYTq+3AvuAQhqAeVld9kh7n2Y16PAcx/pMB7SzsC
-         XZLXIIcxXBIyWtqQxXlQcnTyZ0TD5arVTiW+2RycH7zN6RBg3mUOo+5SjIJ10KMuVK
-         uJSwBg+ZiCuOPiNeIY0vXXM5NjwCFCiPrc3sUTAU=
+        b=eIX8vG10DSvog6S1KsYByX+fs1lmpWJuTffsBpb2r6PlYp9fL1S1RoK5FqlCWx3x2
+         QFeO+qGy6d2N3pI+uKxNFSk/RAsEUSKDym67IcFH7h91nNY4dyBo0+OQy8OgRGyJfc
+         262f8WEvNgVcSY0QqUjb9ydSpKo3j8v32NgbvOJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Somnath Kotur <somnath.kotur@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 18/95] bnxt_en: Fix possible crash in bnxt_hwrm_set_coal()
-Date:   Mon, 14 Nov 2022 13:45:12 +0100
-Message-Id: <20221114124443.273147584@linuxfoundation.org>
+Subject: [PATCH 5.15 044/131] can: af_can: fix NULL pointer dereference in can_rx_register()
+Date:   Mon, 14 Nov 2022 13:45:13 +0100
+Message-Id: <20221114124450.590498161@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 6d81ea3765dfa6c8a20822613c81edad1c4a16a0 ]
+[ Upstream commit 8aa59e355949442c408408c2d836e561794c40a1 ]
 
-During the error recovery sequence, the rtnl_lock is not held for the
-entire duration and some datastructures may be freed during the sequence.
-Check for the BNXT_STATE_OPEN flag instead of netif_running() to ensure
-that the device is fully operational before proceeding to reconfigure
-the coalescing settings.
+It causes NULL pointer dereference when testing as following:
+(a) use syscall(__NR_socket, 0x10ul, 3ul, 0) to create netlink socket.
+(b) use syscall(__NR_sendmsg, ...) to create bond link device and vxcan
+    link device, and bind vxcan device to bond device (can also use
+    ifenslave command to bind vxcan device to bond device).
+(c) use syscall(__NR_socket, 0x1dul, 3ul, 1) to create CAN socket.
+(d) use syscall(__NR_bind, ...) to bind the bond device to CAN socket.
 
-This will fix a possible crash like this:
+The bond device invokes the can-raw protocol registration interface to
+receive CAN packets. However, ml_priv is not allocated to the dev,
+dev_rcv_lists is assigned to NULL in can_rx_register(). In this case,
+it will occur the NULL pointer dereference issue.
 
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
-PGD 0 P4D 0
-Oops: 0000 [#1] SMP NOPTI
-CPU: 10 PID: 181276 Comm: ethtool Kdump: loaded Tainted: G          IOE    --------- -  - 4.18.0-348.el8.x86_64 #1
-Hardware name: Dell Inc. PowerEdge R740/0F9N89, BIOS 2.3.10 08/15/2019
-RIP: 0010:bnxt_hwrm_set_coal+0x1fb/0x2a0 [bnxt_en]
-Code: c2 66 83 4e 22 08 66 89 46 1c e8 10 cb 00 00 41 83 c6 01 44 39 b3 68 01 00 00 0f 8e a3 00 00 00 48 8b 93 c8 00 00 00 49 63 c6 <48> 8b 2c c2 48 8b 85 b8 02 00 00 48 85 c0 74 2e 48 8b 74 24 08 f6
-RSP: 0018:ffffb11c8dcaba50 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: ffff8d168a8b0ac0 RCX: 00000000000000c5
-RDX: 0000000000000000 RSI: ffff8d162f72c000 RDI: ffff8d168a8b0b28
-RBP: 0000000000000000 R08: b6e1f68a12e9a7eb R09: 0000000000000000
-R10: 0000000000000001 R11: 0000000000000037 R12: ffff8d168a8b109c
-R13: ffff8d168a8b10aa R14: 0000000000000000 R15: ffffffffc01ac4e0
-FS:  00007f3852e4c740(0000) GS:ffff8d24c0080000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000000 CR3: 000000041b3ee003 CR4: 00000000007706e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
+The following is the stack information:
+BUG: kernel NULL pointer dereference, address: 0000000000000008
+PGD 122a4067 P4D 122a4067 PUD 1223c067 PMD 0
+Oops: 0000 [#1] PREEMPT SMP
+RIP: 0010:can_rx_register+0x12d/0x1e0
 Call Trace:
- ethnl_set_coalesce+0x3ce/0x4c0
- genl_family_rcv_msg_doit.isra.15+0x10f/0x150
- genl_family_rcv_msg+0xb3/0x160
- ? coalesce_fill_reply+0x480/0x480
- genl_rcv_msg+0x47/0x90
- ? genl_family_rcv_msg+0x160/0x160
- netlink_rcv_skb+0x4c/0x120
- genl_rcv+0x24/0x40
- netlink_unicast+0x196/0x230
- netlink_sendmsg+0x204/0x3d0
- sock_sendmsg+0x4c/0x50
- __sys_sendto+0xee/0x160
- ? syscall_trace_enter+0x1d3/0x2c0
- ? __audit_syscall_exit+0x249/0x2a0
- __x64_sys_sendto+0x24/0x30
- do_syscall_64+0x5b/0x1a0
- entry_SYSCALL_64_after_hwframe+0x65/0xca
-RIP: 0033:0x7f38524163bb
+<TASK>
+raw_enable_filters+0x8d/0x120
+raw_enable_allfilters+0x3b/0x130
+raw_bind+0x118/0x4f0
+__sys_bind+0x163/0x1a0
+__x64_sys_bind+0x1e/0x30
+do_syscall_64+0x35/0x80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+</TASK>
 
-Fixes: 2151fe0830fd ("bnxt_en: Handle RESET_NOTIFY async event from firmware.")
-Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 4e096a18867a ("net: introduce CAN specific pointer in the struct net_device")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/all/20221028085650.170470-1-shaozhengchao@huawei.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 +-
+ net/can/af_can.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index f8f775619520..81b63d1c2391 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -125,7 +125,7 @@ static int bnxt_set_coalesce(struct net_device *dev,
- 	}
+diff --git a/net/can/af_can.c b/net/can/af_can.c
+index cce2af10eb3e..4ddefa6a3e05 100644
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -451,7 +451,7 @@ int can_rx_register(struct net *net, struct net_device *dev, canid_t can_id,
  
- reset_coalesce:
--	if (netif_running(dev)) {
-+	if (test_bit(BNXT_STATE_OPEN, &bp->state)) {
- 		if (update_stats) {
- 			rc = bnxt_close_nic(bp, true, false);
- 			if (!rc)
+ 	/* insert new receiver  (dev,canid,mask) -> (func,data) */
+ 
+-	if (dev && dev->type != ARPHRD_CAN)
++	if (dev && (dev->type != ARPHRD_CAN || !can_get_ml_priv(dev)))
+ 		return -ENODEV;
+ 
+ 	if (dev && !net_eq(net, dev_net(dev)))
 -- 
 2.35.1
 
