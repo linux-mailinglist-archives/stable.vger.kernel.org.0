@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A05C6280B3
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:08:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15B586280B4
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:08:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237863AbiKNNIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:08:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35412 "EHLO
+        id S237867AbiKNNIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:08:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237866AbiKNNIQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:08:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB37E2AC75
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:08:14 -0800 (PST)
+        with ESMTP id S237866AbiKNNIW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:08:22 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3CDA2AC7C
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:08:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77BD36109A
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:08:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76BBAC433D6;
-        Mon, 14 Nov 2022 13:08:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3C0E8CE0FFD
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:08:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F37FC433C1;
+        Mon, 14 Nov 2022 13:08:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431293;
-        bh=D+DCsuIcRJ4vbV4E3qA1L+0bPBEs8zBxwZkkEeLmORE=;
+        s=korg; t=1668431296;
+        bh=u/gZYEOJK9y5xZsAUoUI8K2A6pI2ePtnPQHJMW6vhR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMllzzZNLCouy9Uv90s5XkqIBsNaXqO0ONX4joUa/T0gF71XQqulovV6KqI76KDsh
-         3LLrmQ+MB0jyUvPZJb2AoVluVlg34nm/7xrzviW686fKVk7faEGKdsFLDou842BBiW
-         sYSr0+9q1aleSor0gI20vVjPCFvILq8PrYYeLn3w=
+        b=uvB6OdJS91Rf8zbdWM6iRu90doQxk6Q03NnNe/328S/7c7Db947xzgvMQw8r25Ztd
+         yFR5YCLqz73C3emxaTtBuK+2jFephWX3p9paMEIFHBW2sgLiQGTn8MWKHxAz1qAmtX
+         ib0MEGwG1Os1XC6xAsDAq5+2U21Z0BUhbA16gtJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Felix Kuehling <Felix.Kuehling@amd.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 143/190] drm/amdkfd: Fix error handling in kfd_criu_restore_events
-Date:   Mon, 14 Nov 2022 13:46:07 +0100
-Message-Id: <20221114124505.049330709@linuxfoundation.org>
+        patches@lists.linux.dev, Jorge Lopez <jorge.lopez2@hp.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 6.0 144/190] platform/x86: hp_wmi: Fix rfkill causing soft blocked wifi
+Date:   Mon, 14 Nov 2022 13:46:08 +0100
+Message-Id: <20221114124505.096398251@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -53,42 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+From: Jorge Lopez <jorge.lopez2@hp.com>
 
-commit 66f7903779fbbc620bf1040017e4833ef6a0b541 upstream.
+commit 1598bfa8e1faa932de42e1ee7628a1c4c4263f0a upstream.
 
-mutex_unlock before the exit label because all the error code paths that
-jump there didn't take that lock. This fixes unbalanced locking errors
-in case of restore errors.
+After upgrading BIOS to U82 01.02.01 Rev.A, the console is flooded
+strange char "^@" which printed out every second and makes login
+nearly impossible. Also the below messages were shown both in console
+and journal/dmesg every second:
 
-Fixes: 40e8a766a761 ("drm/amdkfd: CRIU checkpoint and restore events")
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+usb 1-3: Device not responding to setup address.
+usb 1-3: device not accepting address 4, error -71
+usb 1-3: device descriptor read/all, error -71
+usb usb1-port3: unable to enumerate USB device
+
+Wifi is soft blocked by checking rfkill. When unblocked manually,
+after few seconds it would be soft blocked again. So I was suspecting
+something triggered rfkill to soft block wifi.  At the end it was
+fixed by removing hp_wmi module.
+
+The root cause is the way hp-wmi driver handles command 1B on
+post-2009 BIOS.  In pre-2009 BIOS, command 1Bh return 0x4 to indicate
+that BIOS no longer controls the power for the wireless devices.
+
+Signed-off-by: Jorge Lopez <jorge.lopez2@hp.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216468
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://lore.kernel.org/r/20221028155527.7724-1-jorge.lopez2@hp.com
 Cc: stable@vger.kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_events.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/platform/x86/hp-wmi.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-@@ -506,6 +506,7 @@ int kfd_criu_restore_event(struct file *
- 		ret = create_other_event(p, ev, &ev_priv->event_id);
- 		break;
- 	}
-+	mutex_unlock(&p->event_mutex);
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -1298,8 +1298,16 @@ static int __init hp_wmi_bios_setup(stru
+ 	wwan_rfkill = NULL;
+ 	rfkill2_count = 0;
  
- exit:
- 	if (ret)
-@@ -513,8 +514,6 @@ exit:
+-	if (hp_wmi_rfkill_setup(device))
+-		hp_wmi_rfkill2_setup(device);
++	/*
++	 * In pre-2009 BIOS, command 1Bh return 0x4 to indicate that
++	 * BIOS no longer controls the power for the wireless
++	 * devices. All features supported by this command will no
++	 * longer be supported.
++	 */
++	if (!hp_wmi_bios_2009_later()) {
++		if (hp_wmi_rfkill_setup(device))
++			hp_wmi_rfkill2_setup(device);
++	}
  
- 	kfree(ev_priv);
- 
--	mutex_unlock(&p->event_mutex);
--
- 	return ret;
- }
+ 	err = hp_wmi_hwmon_init();
  
 
 
