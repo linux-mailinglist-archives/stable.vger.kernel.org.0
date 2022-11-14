@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 758D8627F08
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:54:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D88A7627E9A
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:49:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237501AbiKNMyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:54:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47200 "EHLO
+        id S237320AbiKNMt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:49:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237513AbiKNMyp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:54:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 068D526563
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:40 -0800 (PST)
+        with ESMTP id S237352AbiKNMt2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:49:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7775E617A
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:49:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84F09B80EBB
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:54:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3029C433C1;
-        Mon, 14 Nov 2022 12:54:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15DA86112D
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:49:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 261D8C433D6;
+        Mon, 14 Nov 2022 12:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430478;
-        bh=GEKTbl+Xb4gm5PiM1gfG8Mj8wVHRQEFVCKi3d5MdWg4=;
+        s=korg; t=1668430166;
+        bh=oY+UezdTr/K1EZ2C5qj3HRlI6WPuO3tXyP04F1h6nMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TU8JYhetimyLQx0ySrH8tHaxUmgsijlAU4stSvdjwg5dldM3m16B05fBH0h0oEtIf
-         aonJeF4orxQvJelYAPNnsO7RQjOZkYvj0eY0bwk/1DrX/A7/VbxDCl7LXSUQOKZCUb
-         +DLdYcm0GywbHD+8R3GCvC540C0BZ+7yCE5+RI7U=
+        b=wG+HGIsLximCeZOQX3grd86lDP5zT3Rd+RGrQ0APWCQHaoT6o4XuvfGWZolvw2iTr
+         OSkKr3dtETfPXvW4Qi0ouq3HzzrBYOzRQ9fLixvmI31jiuRVThTMmRPfU6m96WbjVI
+         fQeq5Od2A6h0f0O8rerbXyIaDLLABzPziUFd/07A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, HW He <hw.he@mediatek.com>,
-        Zhaoping Shu <zhaoping.shu@mediatek.com>,
+        patches@lists.linux.dev, Sabrina Dubroca <sd@queasysnail.net>,
+        Antoine Tenart <atenart@kernel.org>,
+        Leon Romanovsky <leonro@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 040/131] net: wwan: mhi: fix memory leak in mhi_mbim_dellink
-Date:   Mon, 14 Nov 2022 13:45:09 +0100
-Message-Id: <20221114124450.403006871@linuxfoundation.org>
+Subject: [PATCH 5.10 16/95] macsec: clear encryption keys from the stack after setting up offload
+Date:   Mon, 14 Nov 2022 13:45:10 +0100
+Message-Id: <20221114124443.192368785@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: HW He <hw.he@mediatek.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 668205b9c9f94d5ed6ab00cce9a46a654c2b5d16 ]
+[ Upstream commit aaab73f8fba4fd38f4d2617440d541a1c334e819 ]
 
-MHI driver registers network device without setting the
-needs_free_netdev flag, and does NOT call free_netdev() when
-unregisters network device, which causes a memory leak.
+macsec_add_rxsa and macsec_add_txsa copy the key to an on-stack
+offloading context to pass it to the drivers, but leaves it there when
+it's done. Clear it with memzero_explicit as soon as it's not needed
+anymore.
 
-This patch sets needs_free_netdev to true when registers
-network device, which makes netdev subsystem call free_netdev()
-automatically after unregister_netdevice().
-
-Fixes: aa730a9905b7 ("net: wwan: Add MHI MBIM network driver")
-Signed-off-by: HW He <hw.he@mediatek.com>
-Signed-off-by: Zhaoping Shu <zhaoping.shu@mediatek.com>
+Fixes: 3cf3227a21d1 ("net: macsec: hardware offloading infrastructure")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Reviewed-by: Antoine Tenart <atenart@kernel.org>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wwan/mhi_wwan_mbim.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/macsec.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wwan/mhi_wwan_mbim.c b/drivers/net/wwan/mhi_wwan_mbim.c
-index 6872782e8dd8..ef70bb7c88ad 100644
---- a/drivers/net/wwan/mhi_wwan_mbim.c
-+++ b/drivers/net/wwan/mhi_wwan_mbim.c
-@@ -582,6 +582,7 @@ static void mhi_mbim_setup(struct net_device *ndev)
- 	ndev->min_mtu = ETH_MIN_MTU;
- 	ndev->max_mtu = MHI_MAX_BUF_SZ - ndev->needed_headroom;
- 	ndev->tx_queue_len = 1000;
-+	ndev->needs_free_netdev = true;
- }
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index 69108c1db130..f84e3cc0d3ec 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -1824,6 +1824,7 @@ static int macsec_add_rxsa(struct sk_buff *skb, struct genl_info *info)
+ 		       secy->key_len);
  
- static const struct wwan_ops mhi_mbim_wwan_ops = {
+ 		err = macsec_offload(ops->mdo_add_rxsa, &ctx);
++		memzero_explicit(ctx.sa.key, secy->key_len);
+ 		if (err)
+ 			goto cleanup;
+ 	}
+@@ -2066,6 +2067,7 @@ static int macsec_add_txsa(struct sk_buff *skb, struct genl_info *info)
+ 		       secy->key_len);
+ 
+ 		err = macsec_offload(ops->mdo_add_txsa, &ctx);
++		memzero_explicit(ctx.sa.key, secy->key_len);
+ 		if (err)
+ 			goto cleanup;
+ 	}
 -- 
 2.35.1
 
