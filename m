@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A90B628018
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:03:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D28162801B
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:03:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237727AbiKNNDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:03:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57310 "EHLO
+        id S237728AbiKNNDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:03:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237726AbiKNNDO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:03:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8B2E2870E
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:03:13 -0800 (PST)
+        with ESMTP id S237726AbiKNNDS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:03:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24E1028E0F
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:03:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7535E6117E
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:03:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8652DC433C1;
-        Mon, 14 Nov 2022 13:03:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0893B80EA6
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:03:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34E59C433D6;
+        Mon, 14 Nov 2022 13:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430992;
-        bh=0ov3wHGr7evKOo69+G0XrGuCiIeo/R0reDLsWRceCiw=;
+        s=korg; t=1668430995;
+        bh=0a3oUZGDpFtByFzZyGRGxGRIcLBdalGZ36N4F/zToO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tL5rmGcCVvTyNG1lbrj2qofA5004ZFvM1urwskAKHRysQ5IAg1YjKx4F7oNg0BEyT
-         G4UYLf2sHHS0lxmvVwJWOgMAvFXzg09sDAcS2ybmUArIF2ZmNC9KgPePZCXmTnz+4J
-         UgpYRjxLs5PFJ9EAlt+Md130JwI5x/Vp+NmQvRMU=
+        b=jFG/2SJ1iTWJfZDf/wW/xa8TJr8nu5OaTHbaM5e6lDIOXpHjfP9IlvDw+HruvU7yJ
+         IbAAFCo2GZAgpnUHnSkZJqY8w5wy49Q9BAYdFs5MyzCBKj6N91OCXB7wnRH8mA4gxC
+         MSAjWNL3OKOW9/1OPbvodU4itx/Z0OuDlxKa+oqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Gerhard Engleder <gerhard@engleder-embedded.com>,
-        Rob Herring <robh@kernel.org>,
+        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
+        Florian Fainelli <f.fainelli@broadcom.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 060/190] dt-bindings: net: tsnep: Fix typo on generic nvmem property
-Date:   Mon, 14 Nov 2022 13:44:44 +0100
-Message-Id: <20221114124501.380293125@linuxfoundation.org>
+Subject: [PATCH 6.0 061/190] net: broadcom: Fix BCMGENET Kconfig
+Date:   Mon, 14 Nov 2022 13:44:45 +0100
+Message-Id: <20221114124501.413468841@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -55,38 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit ec683f02a150b9c4428f08accd387c8c216ea0e5 ]
+[ Upstream commit 8d820bc9d12b8beebca836cceaf2bbe68216c2f8 ]
 
-While working on the nvmem description I figured out this file had the
-"nvmem-cell-names" property name misspelled. Fix the typo, as
-"nvmem-cells-names" has never existed.
+While BCMGENET select BROADCOM_PHY as y, but PTP_1588_CLOCK_OPTIONAL is m,
+kconfig warning and build errors:
 
-Fixes: 603094b2cdb7 ("dt-bindings: net: Add tsnep Ethernet controller")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Gerhard Engleder <gerhard@engleder-embedded.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20221104162147.1288230-1-miquel.raynal@bootlin.com
+WARNING: unmet direct dependencies detected for BROADCOM_PHY
+  Depends on [m]: NETDEVICES [=y] && PHYLIB [=y] && PTP_1588_CLOCK_OPTIONAL [=m]
+  Selected by [y]:
+  - BCMGENET [=y] && NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_BROADCOM [=y] && HAS_IOMEM [=y] && ARCH_BCM2835 [=y]
+
+drivers/net/phy/broadcom.o: In function `bcm54xx_suspend':
+broadcom.c:(.text+0x6ac): undefined reference to `bcm_ptp_stop'
+drivers/net/phy/broadcom.o: In function `bcm54xx_phy_probe':
+broadcom.c:(.text+0x784): undefined reference to `bcm_ptp_probe'
+drivers/net/phy/broadcom.o: In function `bcm54xx_config_init':
+broadcom.c:(.text+0xd4c): undefined reference to `bcm_ptp_config_init'
+
+Fixes: 99addbe31f55 ("net: broadcom: Select BROADCOM_PHY for BCMGENET")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Florian Fainelli <f.fainelli@broadcom.com>
+Link: https://lore.kernel.org/r/20221105090245.8508-1-yuehaibing@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/net/engleder,tsnep.yaml | 2 +-
+ drivers/net/ethernet/broadcom/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/net/engleder,tsnep.yaml b/Documentation/devicetree/bindings/net/engleder,tsnep.yaml
-index d0e1476e15b5..ccc42cb470da 100644
---- a/Documentation/devicetree/bindings/net/engleder,tsnep.yaml
-+++ b/Documentation/devicetree/bindings/net/engleder,tsnep.yaml
-@@ -28,7 +28,7 @@ properties:
- 
-   nvmem-cells: true
- 
--  nvmem-cells-names: true
-+  nvmem-cell-names: true
- 
-   phy-connection-type:
-     enum:
+diff --git a/drivers/net/ethernet/broadcom/Kconfig b/drivers/net/ethernet/broadcom/Kconfig
+index 56e0fb07aec7..1cd3c289f49b 100644
+--- a/drivers/net/ethernet/broadcom/Kconfig
++++ b/drivers/net/ethernet/broadcom/Kconfig
+@@ -77,7 +77,7 @@ config BCMGENET
+ 	select BCM7XXX_PHY
+ 	select MDIO_BCM_UNIMAC
+ 	select DIMLIB
+-	select BROADCOM_PHY if ARCH_BCM2835
++	select BROADCOM_PHY if (ARCH_BCM2835 && PTP_1588_CLOCK_OPTIONAL)
+ 	help
+ 	  This driver supports the built-in Ethernet MACs found in the
+ 	  Broadcom BCM7xxx Set Top Box family chipset.
 -- 
 2.35.1
 
