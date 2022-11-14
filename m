@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0709627B47
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 12:00:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11D4B627B51
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 12:00:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236392AbiKNK77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 05:59:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55090 "EHLO
+        id S236415AbiKNLAe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 06:00:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235617AbiKNK74 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:59:56 -0500
+        with ESMTP id S236432AbiKNLAb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 06:00:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE8D81EACE
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:59:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B351C1E73D
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 03:00:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 124D960FF1
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:59:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3F1DC433D6;
-        Mon, 14 Nov 2022 10:59:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FF2D60FFA
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 11:00:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 562A1C433D6;
+        Mon, 14 Nov 2022 11:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668423594;
-        bh=e4mR53ZRTWXhOfyr74YiDYr+YG1s/kAyualjkxgma/o=;
+        s=korg; t=1668423624;
+        bh=qB8OF5TJYyq3vRQGsEIp+ghW6KZPB1W9L8jdCJpeGjo=;
         h=Subject:To:Cc:From:Date:From;
-        b=NYaUh+y2PF5gdkp7hPEVwMyh/W/dp9vwfAyPCnZuy2vL/yXMofMxkHOdPTEB8zWHR
-         MBxrCccPX9DptqzC+fogm/Sj6UNj2CPcjU+/aAEdV3RkpwJKVaIEESKorPVSOed3FM
-         FPQ3uVDpp8lz5p7m7y8EBOwfQxcbNjGRmmAIKrTM=
-Subject: FAILED: patch "[PATCH] KVM: SVM: adjust register allocation for __svm_vcpu_run()" failed to apply to 5.10-stable tree
+        b=PlK7UTyIWEZtbCu/SWOKnUqfUSh4jLT9rPZbe8PYsSwS8YTUG/hX7182unYc2cmkD
+         c2H2XyyCZLVj/l/bD9VN6QF3X7DILOg2e9FZV7dzUfcPK87MucrosG4pnADbVg6Nfm
+         Hucr6tDpZL3z+4ajhfrIWBUa2B/eUWFRFfI/g+A0=
+Subject: FAILED: patch "[PATCH] KVM: SVM: retrieve VMCB from assembly" failed to apply to 5.15-stable tree
 To:     pbonzini@redhat.com, seanjc@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Nov 2022 11:59:44 +0100
-Message-ID: <166842358481172@kroah.com>
+Date:   Mon, 14 Nov 2022 12:00:21 +0100
+Message-ID: <166842362113929@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,13 +47,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
+f6d58266d731 ("KVM: SVM: retrieve VMCB from assembly")
 f7ef280132f9 ("KVM: SVM: adjust register allocation for __svm_vcpu_run()")
 16fdc1de169e ("KVM: SVM: replace regs argument of __svm_vcpu_run() with vcpu_svm")
 debc5a1ec0d1 ("KVM: x86: use a separate asm-offsets.c file")
@@ -74,19 +75,20 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f7ef280132f9bf6f82acf5aa5c3c837206eef501 Mon Sep 17 00:00:00 2001
+From f6d58266d731fd7e63163790aad21e0dbb1d5264 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Fri, 28 Oct 2022 17:30:07 -0400
-Subject: [PATCH] KVM: SVM: adjust register allocation for __svm_vcpu_run()
+Date: Mon, 7 Nov 2022 04:17:29 -0500
+Subject: [PATCH] KVM: SVM: retrieve VMCB from assembly
 
-32-bit ABI uses RAX/RCX/RDX as its argument registers, so they are in
-the way of instructions that hardcode their operands such as RDMSR/WRMSR
-or VMLOAD/VMRUN/VMSAVE.
+Continue moving accesses to struct vcpu_svm to vmenter.S.  Reducing the
+number of arguments limits the chance of mistakes due to different
+registers used for argument passing in 32- and 64-bit ABIs; pushing the
+VMCB argument and almost immediately popping it into a different
+register looks pretty weird.
 
-In preparation for moving vmload/vmsave to __svm_vcpu_run(), keep
-the pointer to the struct vcpu_svm in %rdi.  In particular, it is now
-possible to load svm->vmcb01.pa in %rax without clobbering the struct
-vcpu_svm pointer.
+32-bit ABI is not a concern for __svm_sev_es_vcpu_run() which is 64-bit
+only; however, it will soon need @svm to save/restore SPEC_CTRL so stay
+consistent with __svm_vcpu_run() and let them share the same prototype.
 
 No functional change intended.
 
@@ -95,56 +97,113 @@ Fixes: a149180fbcf3 ("x86: Add magic AMD return-thunk")
 Reviewed-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
+diff --git a/arch/x86/kvm/kvm-asm-offsets.c b/arch/x86/kvm/kvm-asm-offsets.c
+index 30db96852e2d..f1b694e431ae 100644
+--- a/arch/x86/kvm/kvm-asm-offsets.c
++++ b/arch/x86/kvm/kvm-asm-offsets.c
+@@ -15,6 +15,8 @@ static void __used common(void)
+ 	if (IS_ENABLED(CONFIG_KVM_AMD)) {
+ 		BLANK();
+ 		OFFSET(SVM_vcpu_arch_regs, vcpu_svm, vcpu.arch.regs);
++		OFFSET(SVM_current_vmcb, vcpu_svm, current_vmcb);
++		OFFSET(KVM_VMCB_pa, kvm_vmcb_info, pa);
+ 	}
+ 
+ 	if (IS_ENABLED(CONFIG_KVM_INTEL)) {
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index b412bc5773c5..0c86c435c51f 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -3914,12 +3914,11 @@ static fastpath_t svm_exit_handlers_fastpath(struct kvm_vcpu *vcpu)
+ static noinstr void svm_vcpu_enter_exit(struct kvm_vcpu *vcpu)
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
+-	unsigned long vmcb_pa = svm->current_vmcb->pa;
+ 
+ 	guest_state_enter_irqoff();
+ 
+ 	if (sev_es_guest(vcpu->kvm)) {
+-		__svm_sev_es_vcpu_run(vmcb_pa);
++		__svm_sev_es_vcpu_run(svm);
+ 	} else {
+ 		struct svm_cpu_data *sd = per_cpu(svm_data, vcpu->cpu);
+ 
+@@ -3930,7 +3929,7 @@ static noinstr void svm_vcpu_enter_exit(struct kvm_vcpu *vcpu)
+ 		 * vmcb02 when switching vmcbs for nested virtualization.
+ 		 */
+ 		vmload(svm->vmcb01.pa);
+-		__svm_vcpu_run(vmcb_pa, svm);
++		__svm_vcpu_run(svm);
+ 		vmsave(svm->vmcb01.pa);
+ 
+ 		vmload(__sme_page_pa(sd->save_area));
+diff --git a/arch/x86/kvm/svm/svm.h b/arch/x86/kvm/svm/svm.h
+index 447e25c9101a..7ff1879e73c5 100644
+--- a/arch/x86/kvm/svm/svm.h
++++ b/arch/x86/kvm/svm/svm.h
+@@ -683,7 +683,7 @@ void sev_es_unmap_ghcb(struct vcpu_svm *svm);
+ 
+ /* vmenter.S */
+ 
+-void __svm_sev_es_vcpu_run(unsigned long vmcb_pa);
+-void __svm_vcpu_run(unsigned long vmcb_pa, struct vcpu_svm *svm);
++void __svm_sev_es_vcpu_run(struct vcpu_svm *svm);
++void __svm_vcpu_run(struct vcpu_svm *svm);
+ 
+ #endif
 diff --git a/arch/x86/kvm/svm/vmenter.S b/arch/x86/kvm/svm/vmenter.S
-index f0ff41103e4c..531510ab6072 100644
+index 531510ab6072..d07bac1952c5 100644
 --- a/arch/x86/kvm/svm/vmenter.S
 +++ b/arch/x86/kvm/svm/vmenter.S
-@@ -54,29 +54,29 @@ SYM_FUNC_START(__svm_vcpu_run)
- 	/* Save @vmcb. */
+@@ -32,7 +32,6 @@
+ 
+ /**
+  * __svm_vcpu_run - Run a vCPU via a transition to SVM guest mode
+- * @vmcb_pa:	unsigned long
+  * @svm:	struct vcpu_svm *
+  */
+ SYM_FUNC_START(__svm_vcpu_run)
+@@ -49,16 +48,16 @@ SYM_FUNC_START(__svm_vcpu_run)
+ 	push %_ASM_BX
+ 
+ 	/* Save @svm. */
+-	push %_ASM_ARG2
+-
+-	/* Save @vmcb. */
  	push %_ASM_ARG1
  
--	/* Move @svm to RAX. */
--	mov %_ASM_ARG2, %_ASM_AX
-+	/* Move @svm to RDI. */
-+	mov %_ASM_ARG2, %_ASM_DI
-+
-+	/* "POP" @vmcb to RAX. */
-+	pop %_ASM_AX
++.ifnc _ASM_ARG1, _ASM_DI
+ 	/* Move @svm to RDI. */
+-	mov %_ASM_ARG2, %_ASM_DI
++	mov %_ASM_ARG1, %_ASM_DI
++.endif
  
- 	/* Load guest registers. */
--	mov VCPU_RCX(%_ASM_AX), %_ASM_CX
--	mov VCPU_RDX(%_ASM_AX), %_ASM_DX
--	mov VCPU_RBX(%_ASM_AX), %_ASM_BX
--	mov VCPU_RBP(%_ASM_AX), %_ASM_BP
--	mov VCPU_RSI(%_ASM_AX), %_ASM_SI
--	mov VCPU_RDI(%_ASM_AX), %_ASM_DI
-+	mov VCPU_RCX(%_ASM_DI), %_ASM_CX
-+	mov VCPU_RDX(%_ASM_DI), %_ASM_DX
-+	mov VCPU_RBX(%_ASM_DI), %_ASM_BX
-+	mov VCPU_RBP(%_ASM_DI), %_ASM_BP
-+	mov VCPU_RSI(%_ASM_DI), %_ASM_SI
- #ifdef CONFIG_X86_64
--	mov VCPU_R8 (%_ASM_AX),  %r8
--	mov VCPU_R9 (%_ASM_AX),  %r9
--	mov VCPU_R10(%_ASM_AX), %r10
--	mov VCPU_R11(%_ASM_AX), %r11
--	mov VCPU_R12(%_ASM_AX), %r12
--	mov VCPU_R13(%_ASM_AX), %r13
--	mov VCPU_R14(%_ASM_AX), %r14
--	mov VCPU_R15(%_ASM_AX), %r15
-+	mov VCPU_R8 (%_ASM_DI),  %r8
-+	mov VCPU_R9 (%_ASM_DI),  %r9
-+	mov VCPU_R10(%_ASM_DI), %r10
-+	mov VCPU_R11(%_ASM_DI), %r11
-+	mov VCPU_R12(%_ASM_DI), %r12
-+	mov VCPU_R13(%_ASM_DI), %r13
-+	mov VCPU_R14(%_ASM_DI), %r14
-+	mov VCPU_R15(%_ASM_DI), %r15
- #endif
--
 -	/* "POP" @vmcb to RAX. */
 -	pop %_ASM_AX
-+	mov VCPU_RDI(%_ASM_DI), %_ASM_DI
++	/* Get svm->current_vmcb->pa into RAX. */
++	mov SVM_current_vmcb(%_ASM_DI), %_ASM_AX
++	mov KVM_VMCB_pa(%_ASM_AX), %_ASM_AX
+ 
+ 	/* Load guest registers. */
+ 	mov VCPU_RCX(%_ASM_DI), %_ASM_CX
+@@ -170,7 +169,7 @@ SYM_FUNC_END(__svm_vcpu_run)
+ 
+ /**
+  * __svm_sev_es_vcpu_run - Run a SEV-ES vCPU via a transition to SVM guest mode
+- * @vmcb_pa:	unsigned long
++ * @svm:	struct vcpu_svm *
+  */
+ SYM_FUNC_START(__svm_sev_es_vcpu_run)
+ 	push %_ASM_BP
+@@ -185,8 +184,9 @@ SYM_FUNC_START(__svm_sev_es_vcpu_run)
+ #endif
+ 	push %_ASM_BX
+ 
+-	/* Move @vmcb to RAX. */
+-	mov %_ASM_ARG1, %_ASM_AX
++	/* Get svm->current_vmcb->pa into RAX. */
++	mov SVM_current_vmcb(%_ASM_ARG1), %_ASM_AX
++	mov KVM_VMCB_pa(%_ASM_AX), %_ASM_AX
  
  	/* Enter guest mode */
  	sti
