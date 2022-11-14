@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C398627EF0
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:53:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02BA0627EF1
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:53:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237472AbiKNMxf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:53:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46136 "EHLO
+        id S237473AbiKNMxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:53:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237473AbiKNMxe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:53:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ADDF2BCB
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:53:33 -0800 (PST)
+        with ESMTP id S237474AbiKNMxi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:53:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C86155B2
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:53:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEEC06109A
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:53:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91DEDC433C1;
-        Mon, 14 Nov 2022 12:53:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F89A61162
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:53:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E5EC433C1;
+        Mon, 14 Nov 2022 12:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430412;
-        bh=+nPvoQzhrZBO9LeCZKH9gIjAg0JhSoFYgsMg4Hg9E3A=;
+        s=korg; t=1668430416;
+        bh=WilOf7pzFfXT0u7E8HLVm7/xolJiOgBqRjq+SqDXW3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BeHcyisCy8QZktczWFYRkZLvYQok0bWGzfpsNNN/zoWQ65Wg0AeSpEfAKBZD6za0H
-         pADJhIamZDm+wRa+sMuLxC7DvqW9S9LzelsOmbS6uxmdSeQSS/oy63GH3U+KRbF7e4
-         /zrq9yCLEEdgcI074ctjffIV/B61k0c4WbLdMmTk=
+        b=iHLArPz+gX0emjGD1jjT+pMxXvxm3OdF0QbQfIqhvYXMcysmvbXqRVKX3YJJ3Pbzz
+         /FKLne7DBytciwaMHlTTdPsg6Aps7+wkxxY0wLnqR0Rta/TkZA0wJ8GclNz5ryaKYc
+         2NGsK6M+QSutvbqXroDxmvJspvhHOFSqIaE8ucBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stanislav Fomichev <sdf@google.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        John Fastabend <john.fastabend@gmail.com>,
+        patches@lists.linux.dev,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 020/131] bpf, sock_map: Move cancel_work_sync() out of sock lock
-Date:   Mon, 14 Nov 2022 13:44:49 +0100
-Message-Id: <20221114124449.574142755@linuxfoundation.org>
+Subject: [PATCH 5.15 021/131] bpf: Add helper macro bpf_for_each_reg_in_vstate
+Date:   Mon, 14 Nov 2022 13:44:50 +0100
+Message-Id: <20221114124449.614062180@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
 References: <20221114124448.729235104@linuxfoundation.org>
@@ -56,126 +54,302 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-[ Upstream commit 8bbabb3fddcd0f858be69ed5abc9b470a239d6f2 ]
+[ Upstream commit b239da34203f49c40b5d656220c39647c3ff0b3c ]
 
-Stanislav reported a lockdep warning, which is caused by the
-cancel_work_sync() called inside sock_map_close(), as analyzed
-below by Jakub:
+For a lot of use cases in future patches, we will want to modify the
+state of registers part of some same 'group' (e.g. same ref_obj_id). It
+won't just be limited to releasing reference state, but setting a type
+flag dynamically based on certain actions, etc.
 
-psock->work.func = sk_psock_backlog()
-  ACQUIRE psock->work_mutex
-    sk_psock_handle_skb()
-      skb_send_sock()
-        __skb_send_sock()
-          sendpage_unlocked()
-            kernel_sendpage()
-              sock->ops->sendpage = inet_sendpage()
-                sk->sk_prot->sendpage = tcp_sendpage()
-                  ACQUIRE sk->sk_lock
-                    tcp_sendpage_locked()
-                  RELEASE sk->sk_lock
-  RELEASE psock->work_mutex
+Hence, we need a way to easily pass a callback to the function that
+iterates over all registers in current bpf_verifier_state in all frames
+upto (and including) the curframe.
 
-sock_map_close()
-  ACQUIRE sk->sk_lock
-  sk_psock_stop()
-    sk_psock_clear_state(psock, SK_PSOCK_TX_ENABLED)
-    cancel_work_sync()
-      __cancel_work_timer()
-        __flush_work()
-          // wait for psock->work to finish
-  RELEASE sk->sk_lock
+While in C++ we would be able to easily use a lambda to pass state and
+the callback together, sadly we aren't using C++ in the kernel. The next
+best thing to avoid defining a function for each case seems like
+statement expressions in GNU C. The kernel already uses them heavily,
+hence they can passed to the macro in the style of a lambda. The
+statement expression will then be substituted in the for loop bodies.
 
-We can move the cancel_work_sync() out of the sock lock protection,
-but still before saved_close() was called.
+Variables __state and __reg are set to current bpf_func_state and reg
+for each invocation of the expression inside the passed in verifier
+state.
 
-Fixes: 799aa7f98d53 ("skmsg: Avoid lock_sock() in sk_psock_backlog()")
-Reported-by: Stanislav Fomichev <sdf@google.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20221102043417.279409-1-xiyou.wangcong@gmail.com
+Then, convert mark_ptr_or_null_regs, clear_all_pkt_pointers,
+release_reference, find_good_pkt_pointers, find_equal_scalars to
+use bpf_for_each_reg_in_vstate.
+
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Link: https://lore.kernel.org/r/20220904204145.3089-16-memxor@gmail.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Stable-dep-of: f1db20814af5 ("bpf: Fix wrong reg type conversion in release_reference()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skmsg.h | 2 +-
- net/core/skmsg.c      | 7 ++-----
- net/core/sock_map.c   | 7 ++++---
- 3 files changed, 7 insertions(+), 9 deletions(-)
+ include/linux/bpf_verifier.h |  21 ++++++
+ kernel/bpf/verifier.c        | 135 ++++++++---------------------------
+ 2 files changed, 49 insertions(+), 107 deletions(-)
 
-diff --git a/include/linux/skmsg.h b/include/linux/skmsg.h
-index ee7c67d8442d..ba015a77238a 100644
---- a/include/linux/skmsg.h
-+++ b/include/linux/skmsg.h
-@@ -382,7 +382,7 @@ static inline void sk_psock_report_error(struct sk_psock *psock, int err)
+diff --git a/include/linux/bpf_verifier.h b/include/linux/bpf_verifier.h
+index 5625e19ae95b..3d04b48e502d 100644
+--- a/include/linux/bpf_verifier.h
++++ b/include/linux/bpf_verifier.h
+@@ -328,6 +328,27 @@ struct bpf_verifier_state {
+ 	     iter < frame->allocated_stack / BPF_REG_SIZE;		\
+ 	     iter++, reg = bpf_get_spilled_reg(iter, frame))
+ 
++/* Invoke __expr over regsiters in __vst, setting __state and __reg */
++#define bpf_for_each_reg_in_vstate(__vst, __state, __reg, __expr)   \
++	({                                                               \
++		struct bpf_verifier_state *___vstate = __vst;            \
++		int ___i, ___j;                                          \
++		for (___i = 0; ___i <= ___vstate->curframe; ___i++) {    \
++			struct bpf_reg_state *___regs;                   \
++			__state = ___vstate->frame[___i];                \
++			___regs = __state->regs;                         \
++			for (___j = 0; ___j < MAX_BPF_REG; ___j++) {     \
++				__reg = &___regs[___j];                  \
++				(void)(__expr);                          \
++			}                                                \
++			bpf_for_each_spilled_reg(___j, __state, __reg) { \
++				if (!__reg)                              \
++					continue;                        \
++				(void)(__expr);                          \
++			}                                                \
++		}                                                        \
++	})
++
+ /* linked list of verifier states used to prune search */
+ struct bpf_verifier_state_list {
+ 	struct bpf_verifier_state state;
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 259248306056..96f317c494d9 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5634,31 +5634,15 @@ static int check_func_proto(const struct bpf_func_proto *fn, int func_id)
+ /* Packet data might have moved, any old PTR_TO_PACKET[_META,_END]
+  * are now invalid, so turn them into unknown SCALAR_VALUE.
+  */
+-static void __clear_all_pkt_pointers(struct bpf_verifier_env *env,
+-				     struct bpf_func_state *state)
++static void clear_all_pkt_pointers(struct bpf_verifier_env *env)
+ {
+-	struct bpf_reg_state *regs = state->regs, *reg;
+-	int i;
+-
+-	for (i = 0; i < MAX_BPF_REG; i++)
+-		if (reg_is_pkt_pointer_any(&regs[i]))
+-			mark_reg_unknown(env, regs, i);
++	struct bpf_func_state *state;
++	struct bpf_reg_state *reg;
+ 
+-	bpf_for_each_spilled_reg(i, state, reg) {
+-		if (!reg)
+-			continue;
++	bpf_for_each_reg_in_vstate(env->cur_state, state, reg, ({
+ 		if (reg_is_pkt_pointer_any(reg))
+ 			__mark_reg_unknown(env, reg);
+-	}
+-}
+-
+-static void clear_all_pkt_pointers(struct bpf_verifier_env *env)
+-{
+-	struct bpf_verifier_state *vstate = env->cur_state;
+-	int i;
+-
+-	for (i = 0; i <= vstate->curframe; i++)
+-		__clear_all_pkt_pointers(env, vstate->frame[i]);
++	}));
  }
  
- struct sk_psock *sk_psock_init(struct sock *sk, int node);
--void sk_psock_stop(struct sk_psock *psock, bool wait);
-+void sk_psock_stop(struct sk_psock *psock);
+ enum {
+@@ -5687,41 +5671,24 @@ static void mark_pkt_end(struct bpf_verifier_state *vstate, int regn, bool range
+ 		reg->range = AT_PKT_END;
+ }
  
- #if IS_ENABLED(CONFIG_BPF_STREAM_PARSER)
- int sk_psock_init_strp(struct sock *sk, struct sk_psock *psock);
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index 680f51f8974a..f562f7e2bdc7 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -797,16 +797,13 @@ static void sk_psock_link_destroy(struct sk_psock *psock)
+-static void release_reg_references(struct bpf_verifier_env *env,
+-				   struct bpf_func_state *state,
+-				   int ref_obj_id)
+-{
+-	struct bpf_reg_state *regs = state->regs, *reg;
+-	int i;
+-
+-	for (i = 0; i < MAX_BPF_REG; i++)
+-		if (regs[i].ref_obj_id == ref_obj_id)
+-			mark_reg_unknown(env, regs, i);
+-
+-	bpf_for_each_spilled_reg(i, state, reg) {
+-		if (!reg)
+-			continue;
+-		if (reg->ref_obj_id == ref_obj_id)
+-			__mark_reg_unknown(env, reg);
+-	}
+-}
+-
+ /* The pointer with the specified id has released its reference to kernel
+  * resources. Identify all copies of the same pointer and clear the reference.
+  */
+ static int release_reference(struct bpf_verifier_env *env,
+ 			     int ref_obj_id)
+ {
+-	struct bpf_verifier_state *vstate = env->cur_state;
++	struct bpf_func_state *state;
++	struct bpf_reg_state *reg;
+ 	int err;
+-	int i;
+ 
+ 	err = release_reference_state(cur_func(env), ref_obj_id);
+ 	if (err)
+ 		return err;
+ 
+-	for (i = 0; i <= vstate->curframe; i++)
+-		release_reg_references(env, vstate->frame[i], ref_obj_id);
++	bpf_for_each_reg_in_vstate(env->cur_state, state, reg, ({
++		if (reg->ref_obj_id == ref_obj_id)
++			__mark_reg_unknown(env, reg);
++	}));
+ 
+ 	return 0;
+ }
+@@ -8221,34 +8188,14 @@ static int check_alu_op(struct bpf_verifier_env *env, struct bpf_insn *insn)
+ 	return 0;
+ }
+ 
+-static void __find_good_pkt_pointers(struct bpf_func_state *state,
+-				     struct bpf_reg_state *dst_reg,
+-				     enum bpf_reg_type type, int new_range)
+-{
+-	struct bpf_reg_state *reg;
+-	int i;
+-
+-	for (i = 0; i < MAX_BPF_REG; i++) {
+-		reg = &state->regs[i];
+-		if (reg->type == type && reg->id == dst_reg->id)
+-			/* keep the maximum range already checked */
+-			reg->range = max(reg->range, new_range);
+-	}
+-
+-	bpf_for_each_spilled_reg(i, state, reg) {
+-		if (!reg)
+-			continue;
+-		if (reg->type == type && reg->id == dst_reg->id)
+-			reg->range = max(reg->range, new_range);
+-	}
+-}
+-
+ static void find_good_pkt_pointers(struct bpf_verifier_state *vstate,
+ 				   struct bpf_reg_state *dst_reg,
+ 				   enum bpf_reg_type type,
+ 				   bool range_right_open)
+ {
+-	int new_range, i;
++	struct bpf_func_state *state;
++	struct bpf_reg_state *reg;
++	int new_range;
+ 
+ 	if (dst_reg->off < 0 ||
+ 	    (dst_reg->off == 0 && range_right_open))
+@@ -8313,9 +8260,11 @@ static void find_good_pkt_pointers(struct bpf_verifier_state *vstate,
+ 	 * the range won't allow anything.
+ 	 * dst_reg->off is known < MAX_PACKET_OFF, therefore it fits in a u16.
+ 	 */
+-	for (i = 0; i <= vstate->curframe; i++)
+-		__find_good_pkt_pointers(vstate->frame[i], dst_reg, type,
+-					 new_range);
++	bpf_for_each_reg_in_vstate(vstate, state, reg, ({
++		if (reg->type == type && reg->id == dst_reg->id)
++			/* keep the maximum range already checked */
++			reg->range = max(reg->range, new_range);
++	}));
+ }
+ 
+ static int is_branch32_taken(struct bpf_reg_state *reg, u32 val, u8 opcode)
+@@ -8804,7 +8753,7 @@ static void mark_ptr_or_null_reg(struct bpf_func_state *state,
+ 
+ 		if (!reg_may_point_to_spin_lock(reg)) {
+ 			/* For not-NULL ptr, reg->ref_obj_id will be reset
+-			 * in release_reg_references().
++			 * in release_reference().
+ 			 *
+ 			 * reg->id is still used by spin_lock ptr. Other
+ 			 * than spin_lock ptr type, reg->id can be reset.
+@@ -8814,22 +8763,6 @@ static void mark_ptr_or_null_reg(struct bpf_func_state *state,
  	}
  }
  
--void sk_psock_stop(struct sk_psock *psock, bool wait)
-+void sk_psock_stop(struct sk_psock *psock)
- {
- 	spin_lock_bh(&psock->ingress_lock);
- 	sk_psock_clear_state(psock, SK_PSOCK_TX_ENABLED);
- 	sk_psock_cork_free(psock);
- 	__sk_psock_zap_ingress(psock);
- 	spin_unlock_bh(&psock->ingress_lock);
+-static void __mark_ptr_or_null_regs(struct bpf_func_state *state, u32 id,
+-				    bool is_null)
+-{
+-	struct bpf_reg_state *reg;
+-	int i;
 -
--	if (wait)
--		cancel_work_sync(&psock->work);
+-	for (i = 0; i < MAX_BPF_REG; i++)
+-		mark_ptr_or_null_reg(state, &state->regs[i], id, is_null);
+-
+-	bpf_for_each_spilled_reg(i, state, reg) {
+-		if (!reg)
+-			continue;
+-		mark_ptr_or_null_reg(state, reg, id, is_null);
+-	}
+-}
+-
+ /* The logic is similar to find_good_pkt_pointers(), both could eventually
+  * be folded together at some point.
+  */
+@@ -8837,10 +8770,9 @@ static void mark_ptr_or_null_regs(struct bpf_verifier_state *vstate, u32 regno,
+ 				  bool is_null)
+ {
+ 	struct bpf_func_state *state = vstate->frame[vstate->curframe];
+-	struct bpf_reg_state *regs = state->regs;
++	struct bpf_reg_state *regs = state->regs, *reg;
+ 	u32 ref_obj_id = regs[regno].ref_obj_id;
+ 	u32 id = regs[regno].id;
+-	int i;
+ 
+ 	if (ref_obj_id && ref_obj_id == id && is_null)
+ 		/* regs[regno] is in the " == NULL" branch.
+@@ -8849,8 +8781,9 @@ static void mark_ptr_or_null_regs(struct bpf_verifier_state *vstate, u32 regno,
+ 		 */
+ 		WARN_ON_ONCE(release_reference_state(state, id));
+ 
+-	for (i = 0; i <= vstate->curframe; i++)
+-		__mark_ptr_or_null_regs(vstate->frame[i], id, is_null);
++	bpf_for_each_reg_in_vstate(vstate, state, reg, ({
++		mark_ptr_or_null_reg(state, reg, id, is_null);
++	}));
  }
  
- static void sk_psock_done_strp(struct sk_psock *psock);
-@@ -844,7 +841,7 @@ void sk_psock_drop(struct sock *sk, struct sk_psock *psock)
- 		sk_psock_stop_verdict(sk, psock);
- 	write_unlock_bh(&sk->sk_callback_lock);
+ static bool try_match_pkt_pointers(const struct bpf_insn *insn,
+@@ -8963,23 +8896,11 @@ static void find_equal_scalars(struct bpf_verifier_state *vstate,
+ {
+ 	struct bpf_func_state *state;
+ 	struct bpf_reg_state *reg;
+-	int i, j;
  
--	sk_psock_stop(psock, false);
-+	sk_psock_stop(psock);
+-	for (i = 0; i <= vstate->curframe; i++) {
+-		state = vstate->frame[i];
+-		for (j = 0; j < MAX_BPF_REG; j++) {
+-			reg = &state->regs[j];
+-			if (reg->type == SCALAR_VALUE && reg->id == known_reg->id)
+-				*reg = *known_reg;
+-		}
+-
+-		bpf_for_each_spilled_reg(j, state, reg) {
+-			if (!reg)
+-				continue;
+-			if (reg->type == SCALAR_VALUE && reg->id == known_reg->id)
+-				*reg = *known_reg;
+-		}
+-	}
++	bpf_for_each_reg_in_vstate(vstate, state, reg, ({
++		if (reg->type == SCALAR_VALUE && reg->id == known_reg->id)
++			*reg = *known_reg;
++	}));
+ }
  
- 	INIT_RCU_WORK(&psock->rwork, sk_psock_destroy);
- 	queue_rcu_work(system_wq, &psock->rwork);
-diff --git a/net/core/sock_map.c b/net/core/sock_map.c
-index 6eef46eafb3e..4f4bc163a223 100644
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -1541,7 +1541,7 @@ void sock_map_destroy(struct sock *sk)
- 	saved_destroy = psock->saved_destroy;
- 	sock_map_remove_links(sk, psock);
- 	rcu_read_unlock();
--	sk_psock_stop(psock, false);
-+	sk_psock_stop(psock);
- 	sk_psock_put(sk, psock);
- 	saved_destroy(sk);
- }
-@@ -1564,9 +1564,10 @@ void sock_map_close(struct sock *sk, long timeout)
- 	saved_close = psock->saved_close;
- 	sock_map_remove_links(sk, psock);
- 	rcu_read_unlock();
--	sk_psock_stop(psock, true);
--	sk_psock_put(sk, psock);
-+	sk_psock_stop(psock);
- 	release_sock(sk);
-+	cancel_work_sync(&psock->work);
-+	sk_psock_put(sk, psock);
- 	saved_close(sk, timeout);
- }
- EXPORT_SYMBOL_GPL(sock_map_close);
+ static int check_cond_jmp_op(struct bpf_verifier_env *env,
 -- 
 2.35.1
 
