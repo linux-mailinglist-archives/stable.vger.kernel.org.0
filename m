@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F09A7627A2B
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:13:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8A91627A2E
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 11:13:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235924AbiKNKNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 05:13:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42644 "EHLO
+        id S235633AbiKNKNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 05:13:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235846AbiKNKMX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:12:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 760C46385
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:11:32 -0800 (PST)
+        with ESMTP id S236066AbiKNKM3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 05:12:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA95226E8
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 02:12:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37E49B80DAB
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:11:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66CC1C433C1;
-        Mon, 14 Nov 2022 10:11:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 679F460FB5
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 10:12:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59B65C433C1;
+        Mon, 14 Nov 2022 10:12:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668420689;
-        bh=NFv/Z1vaFM66luRd9+1BDjvWnrouN/rPZ0hEYfySSgY=;
+        s=korg; t=1668420720;
+        bh=07GQzw91NBYzw+1icirgXXq6MSWE0i148ZFfrGG202g=;
         h=Subject:To:Cc:From:Date:From;
-        b=cv3Wbjx6genMgM9jeTHBxQJuPHoOkvsrDWhxJ4uFIEugxTr0p3GFOObARDN2BsKWl
-         CKTacIqsVmGk43JwZ3kTKGTi0P0gu8FP1QrlBqDWj7itOZZ86dSr3/EZynaNPfmIN1
-         3SSxSJ94A85iJRgJCgR7PMwmUZ+HrSHQbevnnfYU=
-Subject: FAILED: patch "[PATCH] mmc: sdhci-brcmstb: Fix SDHCI_RESET_ALL for CQHCI" failed to apply to 5.10-stable tree
-To:     briannorris@chromium.org, adrian.hunter@intel.com,
-        f.fainelli@gmail.com, ulf.hansson@linaro.org
+        b=u5GWbjFKo9vatVHJ3lw63JqfYN2o1HYRICpw1gQFLb3KDIaJM8P9j37HlzD9cWMMJ
+         +bwZNgIMLptpKWdukbFBSUtc1Zxhh8puRUjPwsoxuqd0AiUnutL0ubH2oi3iQkeOv6
+         bY5PRlkXN1QS9YDa3VK/FlFotzjrkIcGEDPnS2Xg=
+Subject: FAILED: patch "[PATCH] mmc: sdhci-esdhc-imx: use the correct host caps for" failed to apply to 5.10-stable tree
+To:     haibo.chen@nxp.com, adrian.hunter@intel.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Nov 2022 11:11:18 +0100
-Message-ID: <166842067866102@kroah.com>
+Date:   Mon, 14 Nov 2022 11:11:57 +0100
+Message-ID: <1668420717137218@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -55,9 +54,10 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-56baa208f910 ("mmc: sdhci-brcmstb: Fix SDHCI_RESET_ALL for CQHCI")
-6bcc55fe648b ("mmc: sdhci-brcmstb: Enable Clock Gating to save power")
-f3a70f991dd0 ("mmc: sdhci-brcmstb: Re-organize flags")
+f002f45a00ee ("mmc: sdhci-esdhc-imx: use the correct host caps for MMC_CAP_8_BIT_DATA")
+1ed5c3b22fc7 ("mmc: sdhci-esdhc-imx: Propagate ESDHC_FLAG_HS400* only on 8bit bus")
+2991ad76d253 ("mmc: sdhci-esdhc-imx: advertise HS400 mode through MMC caps")
+854a22997ad5 ("mmc: sdhci-esdhc-imx: Convert the driver to DT-only")
 
 thanks,
 
@@ -65,64 +65,41 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 56baa208f91061ff27ec2d93fbc483f624d373b4 Mon Sep 17 00:00:00 2001
-From: Brian Norris <briannorris@chromium.org>
-Date: Wed, 26 Oct 2022 12:42:05 -0700
-Subject: [PATCH] mmc: sdhci-brcmstb: Fix SDHCI_RESET_ALL for CQHCI
+From f002f45a00ee14214d96b18b9a555fe2c56afb20 Mon Sep 17 00:00:00 2001
+From: Haibo Chen <haibo.chen@nxp.com>
+Date: Tue, 8 Nov 2022 15:45:03 +0800
+Subject: [PATCH] mmc: sdhci-esdhc-imx: use the correct host caps for
+ MMC_CAP_8_BIT_DATA
 
-[[ NOTE: this is completely untested by the author, but included solely
-    because, as noted in commit df57d73276b8 ("mmc: sdhci-pci: Fix
-    SDHCI_RESET_ALL for CQHCI for Intel GLK-based controllers"), "other
-    drivers using CQHCI might benefit from a similar change, if they
-    also have CQHCI reset by SDHCI_RESET_ALL." We've now seen the same
-    bug on at least MSM, Arasan, and Intel hardware. ]]
+MMC_CAP_8_BIT_DATA belongs to struct mmc_host, not struct sdhci_host.
+So correct it here.
 
-SDHCI_RESET_ALL resets will reset the hardware CQE state, but we aren't
-tracking that properly in software. When out of sync, we may trigger
-various timeouts.
-
-It's not typical to perform resets while CQE is enabled, but this may
-occur in some suspend or error recovery scenarios.
-
-Include this fix by way of the new sdhci_and_cqhci_reset() helper.
-
-I only patch the bcm7216 variant even though others potentially *could*
-provide the 'supports-cqe' property (and thus enable CQHCI), because
-d46ba2d17f90 ("mmc: sdhci-brcmstb: Add support for Command Queuing
-(CQE)") and some Broadcom folks confirm that only the 7216 variant
-actually supports it.
-
-This patch depends on (and should not compile without) the patch
-entitled "mmc: cqhci: Provide helper for resetting both SDHCI and
-CQHCI".
-
-Fixes: d46ba2d17f90 ("mmc: sdhci-brcmstb: Add support for Command Queuing (CQE)")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: 1ed5c3b22fc7 ("mmc: sdhci-esdhc-imx: Propagate ESDHC_FLAG_HS400* only on 8bit bus")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221026124150.v4.3.I6a715feab6d01f760455865e968ecf0d85036018@changeid
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/1667893503-20583-1-git-send-email-haibo.chen@nxp.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-diff --git a/drivers/mmc/host/sdhci-brcmstb.c b/drivers/mmc/host/sdhci-brcmstb.c
-index aff36a933ebe..55d8bd232695 100644
---- a/drivers/mmc/host/sdhci-brcmstb.c
-+++ b/drivers/mmc/host/sdhci-brcmstb.c
-@@ -12,6 +12,7 @@
- #include <linux/bitops.h>
- #include <linux/delay.h>
+diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
+index 89225faa242a..31ea0a2fce35 100644
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -1672,14 +1672,14 @@ static int sdhci_esdhc_imx_probe(struct platform_device *pdev)
+ 	if (imx_data->socdata->flags & ESDHC_FLAG_ERR004536)
+ 		host->quirks |= SDHCI_QUIRK_BROKEN_ADMA;
  
-+#include "sdhci-cqhci.h"
- #include "sdhci-pltfm.h"
- #include "cqhci.h"
+-	if (host->caps & MMC_CAP_8_BIT_DATA &&
++	if (host->mmc->caps & MMC_CAP_8_BIT_DATA &&
+ 	    imx_data->socdata->flags & ESDHC_FLAG_HS400)
+ 		host->mmc->caps2 |= MMC_CAP2_HS400;
  
-@@ -55,7 +56,7 @@ static void brcmstb_reset(struct sdhci_host *host, u8 mask)
- 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
- 	struct sdhci_brcmstb_priv *priv = sdhci_pltfm_priv(pltfm_host);
+ 	if (imx_data->socdata->flags & ESDHC_FLAG_BROKEN_AUTO_CMD23)
+ 		host->quirks2 |= SDHCI_QUIRK2_ACMD23_BROKEN;
  
--	sdhci_reset(host, mask);
-+	sdhci_and_cqhci_reset(host, mask);
- 
- 	/* Reset will clear this, so re-enable it */
- 	if (priv->flags & BRCMSTB_PRIV_FLAGS_GATE_CLOCK)
+-	if (host->caps & MMC_CAP_8_BIT_DATA &&
++	if (host->mmc->caps & MMC_CAP_8_BIT_DATA &&
+ 	    imx_data->socdata->flags & ESDHC_FLAG_HS400_ES) {
+ 		host->mmc->caps2 |= MMC_CAP2_HS400_ES;
+ 		host->mmc_host_ops.hs400_enhanced_strobe =
 
