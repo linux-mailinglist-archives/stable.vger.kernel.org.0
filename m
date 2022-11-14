@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2FD362801D
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:03:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D47A62801E
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237733AbiKNNDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237726AbiKNNDX (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 14 Nov 2022 08:03:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57366 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237726AbiKNNDV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:03:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C506C29370
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:03:20 -0800 (PST)
+        with ESMTP id S237732AbiKNNDW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:03:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3CF42870E
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:03:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87479B80EA6
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:03:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E14E1C433C1;
-        Mon, 14 Nov 2022 13:03:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8ADDF6117F
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:03:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B0FCC433D7;
+        Mon, 14 Nov 2022 13:03:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430998;
-        bh=gDnZN7fCufaGTT8XPD/pDu0ELoutYAsWpCYdNcYDmtU=;
+        s=korg; t=1668431001;
+        bh=nn+U3izxFY6tY1K7v6bDa/UPz2VqRb8yFi+48NZoN1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CSuf/oXr3MC4UBNlguJD9Di+GNFfx5bHMpgBQfExFMOPQW9xtI9IhTkhvV2U22+jW
-         al4ZoTHQB2cF5vcBBzyKSCBChCAjvoeTh6Wrd46IG3YCExzp4hYdpa8NW0Oy9QUomi
-         TTZKCryeQcqwgG1b45W4SUb1oMHMfdzNML+JxVJ0=
+        b=UOYoJpD0px+NkqsJrqjHs1V/elR9FFkRmsCWNrg5fO/Lt0z0I38NzPsO8LGEcn2Pe
+         5IV39k8zp7ysg2jduXXnTFPFgI4oUzBXBfN+xydKCEPcwOKu2sDCi2hkKJWP8edH5T
+         xN40+U+MFhfPBTSMIgmyd9xkpFLydx7zpzuyhHnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+e5dbaaa238680ce206ea@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 062/190] tipc: fix the msg->req tlv len check in tipc_nl_compat_name_table_dump_header
-Date:   Mon, 14 Nov 2022 13:44:46 +0100
-Message-Id: <20221114124501.451856580@linuxfoundation.org>
+        patches@lists.linux.dev, Doug Brown <doug@schmorgal.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 063/190] dmaengine: pxa_dma: use platform_get_irq_optional
+Date:   Mon, 14 Nov 2022 13:44:47 +0100
+Message-Id: <20221114124501.488684644@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -55,56 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Doug Brown <doug@schmorgal.com>
 
-[ Upstream commit 1c075b192fe41030457cd4a5f7dea730412bca40 ]
+[ Upstream commit b3d726cb8497c6b12106fd617d46eef11763ea86 ]
 
-This is a follow-up for commit 974cb0e3e7c9 ("tipc: fix uninit-value
-in tipc_nl_compat_name_table_dump") where it should have type casted
-sizeof(..) to int to work when TLV_GET_DATA_LEN() returns a negative
-value.
+The first IRQ is required, but IRQs 1 through (nb_phy_chans - 1) are
+optional, because on some platforms (e.g. PXA168) there is a single IRQ
+shared between all channels.
 
-syzbot reported a call trace because of it:
+This change inhibits a flood of "IRQ index # not found" messages at
+startup. Tested on a PXA168-based device.
 
-  BUG: KMSAN: uninit-value in ...
-   tipc_nl_compat_name_table_dump+0x841/0xea0 net/tipc/netlink_compat.c:934
-   __tipc_nl_compat_dumpit+0xab2/0x1320 net/tipc/netlink_compat.c:238
-   tipc_nl_compat_dumpit+0x991/0xb50 net/tipc/netlink_compat.c:321
-   tipc_nl_compat_recv+0xb6e/0x1640 net/tipc/netlink_compat.c:1324
-   genl_family_rcv_msg_doit net/netlink/genetlink.c:731 [inline]
-   genl_family_rcv_msg net/netlink/genetlink.c:775 [inline]
-   genl_rcv_msg+0x103f/0x1260 net/netlink/genetlink.c:792
-   netlink_rcv_skb+0x3a5/0x6c0 net/netlink/af_netlink.c:2501
-   genl_rcv+0x3c/0x50 net/netlink/genetlink.c:803
-   netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
-   netlink_unicast+0xf3b/0x1270 net/netlink/af_netlink.c:1345
-   netlink_sendmsg+0x1288/0x1440 net/netlink/af_netlink.c:1921
-   sock_sendmsg_nosec net/socket.c:714 [inline]
-   sock_sendmsg net/socket.c:734 [inline]
-
-Reported-by: syzbot+e5dbaaa238680ce206ea@syzkaller.appspotmail.com
-Fixes: 974cb0e3e7c9 ("tipc: fix uninit-value in tipc_nl_compat_name_table_dump")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/ccd6a7ea801b15aec092c3b532a883b4c5708695.1667594933.git.lucien.xin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 7723f4c5ecdb ("driver core: platform: Add an error message to platform_get_irq*()")
+Signed-off-by: Doug Brown <doug@schmorgal.com>
+Link: https://lore.kernel.org/r/20220906000709.52705-1-doug@schmorgal.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/netlink_compat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/pxa_dma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/tipc/netlink_compat.c b/net/tipc/netlink_compat.c
-index 0749df80454d..ce00f271ca6b 100644
---- a/net/tipc/netlink_compat.c
-+++ b/net/tipc/netlink_compat.c
-@@ -880,7 +880,7 @@ static int tipc_nl_compat_name_table_dump_header(struct tipc_nl_compat_msg *msg)
- 	};
+diff --git a/drivers/dma/pxa_dma.c b/drivers/dma/pxa_dma.c
+index e7034f6f3994..22a392fe6d32 100644
+--- a/drivers/dma/pxa_dma.c
++++ b/drivers/dma/pxa_dma.c
+@@ -1247,14 +1247,14 @@ static int pxad_init_phys(struct platform_device *op,
+ 		return -ENOMEM;
  
- 	ntq = (struct tipc_name_table_query *)TLV_DATA(msg->req);
--	if (TLV_GET_DATA_LEN(msg->req) < sizeof(struct tipc_name_table_query))
-+	if (TLV_GET_DATA_LEN(msg->req) < (int)sizeof(struct tipc_name_table_query))
- 		return -EINVAL;
+ 	for (i = 0; i < nb_phy_chans; i++)
+-		if (platform_get_irq(op, i) > 0)
++		if (platform_get_irq_optional(op, i) > 0)
+ 			nr_irq++;
  
- 	depth = ntohl(ntq->depth);
+ 	for (i = 0; i < nb_phy_chans; i++) {
+ 		phy = &pdev->phys[i];
+ 		phy->base = pdev->base;
+ 		phy->idx = i;
+-		irq = platform_get_irq(op, i);
++		irq = platform_get_irq_optional(op, i);
+ 		if ((nr_irq > 1) && (irq > 0))
+ 			ret = devm_request_irq(&op->dev, irq,
+ 					       pxad_chan_handler,
 -- 
 2.35.1
 
