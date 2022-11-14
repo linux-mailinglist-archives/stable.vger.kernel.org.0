@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3193B627EFB
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:54:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAA43627EFC
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:54:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237220AbiKNMyN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:54:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46706 "EHLO
+        id S237482AbiKNMyP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:54:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237482AbiKNMyN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:54:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 614C02610A
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:12 -0800 (PST)
+        with ESMTP id S237480AbiKNMyO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:54:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30B6D26127
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1CB99B80EBF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:54:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F5E5C433C1;
-        Mon, 14 Nov 2022 12:54:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C4CA86109A
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:54:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A123AC433D6;
+        Mon, 14 Nov 2022 12:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430449;
-        bh=1/paTGE8pkTYhJJeKRYG4J9dbBycu+fl9mrxZlfJ290=;
+        s=korg; t=1668430453;
+        bh=iaGBA/UcAujYRIIjY3ej4pfQg0jkZ7eLdsgtE7X2aeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e90xhlxXvXZEKZFTBdyTRRGc6rKjDjdOR8cNcJPEagqUKeAnZuv/CZCcxeVeeZKWx
-         RwOpe3o5q/jJ6GEJAYw6lwUbS233n+pu5hoiA0TwA3NeXH1+f5tDPh3d03S21ncox4
-         tSd2wbB06D5jffNn1tGKlJx/tK3PJEN+YHO0aheM=
+        b=oSF5HKAMBs7qgErDZpknv0WvAVv+Sp96wA3FIJ5PgsPvbvCM9TVFWrZ89rEhzbqdd
+         BBflb4ynLgGmrDoidhiW6+h0TBSm5tIRIqjUMLMdD60sVpzeA4z125tgkFuuLlwv+n
+         NCMR66qH/nTkFoMrog/ImgI5HKWzB+hHTPIgIOn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Abaci Robot <abaci@linux.alibaba.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 006/131] drm/amdkfd: Fix NULL pointer dereference in svm_migrate_to_ram()
-Date:   Mon, 14 Nov 2022 13:44:35 +0100
-Message-Id: <20221114124449.023178874@linuxfoundation.org>
+Subject: [PATCH 5.15 007/131] hwspinlock: qcom: correct MMIO max register for newer SoCs
+Date:   Mon, 14 Nov 2022 13:44:36 +0100
+Message-Id: <20221114124449.063291147@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
 References: <20221114124448.729235104@linuxfoundation.org>
@@ -55,41 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 5b994354af3cab770bf13386469c5725713679af ]
+[ Upstream commit 90cb380f9ceb811059340d06ff5fd0c0e93ecbe1 ]
 
-./drivers/gpu/drm/amd/amdkfd/kfd_migrate.c:985:58-62: ERROR: p is NULL but dereferenced.
+Newer ARMv8 Qualcomm SoCs using 0x1000 register stride have maximum
+register 0x20000 (32 mutexes * 0x1000).
 
-Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=2549
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: 7a1e6fb1c606 ("hwspinlock: qcom: Allow mmio usage in addition to syscon")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220909092035.223915-4-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_migrate.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/hwspinlock/qcom_hwspinlock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-index 0cc425f198b4..93307be8f7a9 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_migrate.c
-@@ -865,12 +865,10 @@ static vm_fault_t svm_migrate_to_ram(struct vm_fault *vmf)
- out_unlock_svms:
- 	mutex_unlock(&p->svms.lock);
- out_unref_process:
-+	pr_debug("CPU fault svms 0x%p address 0x%lx done\n", &p->svms, addr);
- 	kfd_unref_process(p);
- out_mmput:
- 	mmput(mm);
--
--	pr_debug("CPU fault svms 0x%p address 0x%lx done\n", &p->svms, addr);
--
- 	return r ? VM_FAULT_SIGBUS : 0;
- }
+diff --git a/drivers/hwspinlock/qcom_hwspinlock.c b/drivers/hwspinlock/qcom_hwspinlock.c
+index 364710966665..e49914664863 100644
+--- a/drivers/hwspinlock/qcom_hwspinlock.c
++++ b/drivers/hwspinlock/qcom_hwspinlock.c
+@@ -105,7 +105,7 @@ static const struct regmap_config tcsr_mutex_config = {
+ 	.reg_bits		= 32,
+ 	.reg_stride		= 4,
+ 	.val_bits		= 32,
+-	.max_register		= 0x40000,
++	.max_register		= 0x20000,
+ 	.fast_io		= true,
+ };
  
 -- 
 2.35.1
