@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B28627FE7
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:02:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79F3C627FE9
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:02:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237703AbiKNNCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:02:32 -0500
+        id S237694AbiKNNCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:02:35 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237687AbiKNNC2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:02:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF37129369
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:02:27 -0800 (PST)
+        with ESMTP id S237680AbiKNNCc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:02:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C432E2935C
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:02:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E4A961173
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:02:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EFDDC433C1;
-        Mon, 14 Nov 2022 13:02:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81D14B80EC0
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:02:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB274C433D7;
+        Mon, 14 Nov 2022 13:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430946;
-        bh=NvaNtfmqUDMCeqFWjAfpqtmNkblW/VWYIQLZaiZQIgE=;
+        s=korg; t=1668430949;
+        bh=ZkQFO2lsxpKKmTMwyzIdFgipSSX6fq+UGbj0zhWWjMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F2tJM8S/PBbaI6MvQMpm3W0TLtYiEFxbOnjwnMlhzjRKRi73oE5H1cycGdgNxlBTa
-         QbnChz9kJU6oIPIXSQTJb9fsfnLrW2S87zk/1lchnY/4W2T2sJZTCUl1HSeZ9uJxRk
-         kWsfeOyAeeYTFBRBQtRCoWQrp+qWqMq0nlqji2uE=
+        b=OaiJ0zb8KfvTmvD3nQNDHbR32TRf8MV5wSsv5rf/trDuFundGo5xBnJcQ3hj4Ew5D
+         dmmikQoSf+JqlI1yZwIzXf738KvcoExvn0S2YKPyb4aotFxMgb3kEBmbvhTew4Di3A
+         4IKmYQILDeXqbr5v3fbNuQ2uuUoJTC4fhPkVBC3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Gerecke <jason.gerecke@wacom.com>,
-        Joshua Dickens <joshua.dickens@wacom.com>,
-        Ping Cheng <ping.cheng@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 6.0 014/190] HID: wacom: Fix logic used for 3rd barrel switch emulation
-Date:   Mon, 14 Nov 2022 13:43:58 +0100
-Message-Id: <20221114124459.407870128@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 015/190] hwspinlock: qcom: correct MMIO max register for newer SoCs
+Date:   Mon, 14 Nov 2022 13:43:59 +0100
+Message-Id: <20221114124459.451149434@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -54,53 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit f77810f744139572a63e5a85ab6a8c10c2d44fb1 upstream.
+[ Upstream commit 90cb380f9ceb811059340d06ff5fd0c0e93ecbe1 ]
 
-When support was added for devices using an explicit 3rd barrel switch,
-the logic used by devices emulating this feature was broken. The 'if'
-statement / block that was introduced only handles the case where the
-button is pressed (i.e. 'barrelswitch' and 'barrelswitch2' are both set)
-but not the case where it is released (i.e. one or both being cleared).
-This results in a BTN_STYLUS3 "down" event being sent when the button
-is pressed, but no "up" event ever being sent afterwards.
+Newer ARMv8 Qualcomm SoCs using 0x1000 register stride have maximum
+register 0x20000 (32 mutexes * 0x1000).
 
-This patch restores the previously-used logic for determining button
-states in the emulated case so that switches are reported correctly
-again.
-
-Link: https://github.com/linuxwacom/xf86-input-wacom/issues/292
-Fixes: 6d09085b38e5 ("HID: wacom: Adding Support for new usages")
-CC: stable@vger.kernel.org #v5.19+
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Tested-by: Joshua Dickens <joshua.dickens@wacom.com>
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7a1e6fb1c606 ("hwspinlock: qcom: Allow mmio usage in addition to syscon")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220909092035.223915-4-krzysztof.kozlowski@linaro.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/hwspinlock/qcom_hwspinlock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2522,11 +2522,12 @@ static void wacom_wac_pen_report(struct
+diff --git a/drivers/hwspinlock/qcom_hwspinlock.c b/drivers/hwspinlock/qcom_hwspinlock.c
+index 80ea45b3a815..9734e149d981 100644
+--- a/drivers/hwspinlock/qcom_hwspinlock.c
++++ b/drivers/hwspinlock/qcom_hwspinlock.c
+@@ -121,7 +121,7 @@ static const struct regmap_config tcsr_mutex_config = {
+ 	.reg_bits		= 32,
+ 	.reg_stride		= 4,
+ 	.val_bits		= 32,
+-	.max_register		= 0x40000,
++	.max_register		= 0x20000,
+ 	.fast_io		= true,
+ };
  
- 	if (!delay_pen_events(wacom_wac) && wacom_wac->tool[0]) {
- 		int id = wacom_wac->id[0];
--		if (wacom_wac->features.quirks & WACOM_QUIRK_PEN_BUTTON3 &&
--		    wacom_wac->hid_data.barrelswitch & wacom_wac->hid_data.barrelswitch2) {
--			wacom_wac->hid_data.barrelswitch = 0;
--			wacom_wac->hid_data.barrelswitch2 = 0;
--			wacom_wac->hid_data.barrelswitch3 = 1;
-+		if (wacom_wac->features.quirks & WACOM_QUIRK_PEN_BUTTON3) {
-+			int sw_state = wacom_wac->hid_data.barrelswitch |
-+				       (wacom_wac->hid_data.barrelswitch2 << 1);
-+			wacom_wac->hid_data.barrelswitch = sw_state == 1;
-+			wacom_wac->hid_data.barrelswitch2 = sw_state == 2;
-+			wacom_wac->hid_data.barrelswitch3 = sw_state == 3;
- 		}
- 		input_report_key(input, BTN_STYLUS, wacom_wac->hid_data.barrelswitch);
- 		input_report_key(input, BTN_STYLUS2, wacom_wac->hid_data.barrelswitch2);
+-- 
+2.35.1
+
 
 
