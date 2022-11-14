@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21760627E73
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:48:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 745BE627F0F
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:55:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237221AbiKNMsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:48:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39584 "EHLO
+        id S237509AbiKNMzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:55:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237256AbiKNMr6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:47:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F855EAA
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:47:57 -0800 (PST)
+        with ESMTP id S237508AbiKNMzC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:55:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D548B2714F
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:55:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DBCA3B80EBC
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:47:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D14CAC433D7;
-        Mon, 14 Nov 2022 12:47:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D443B80EAF
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:54:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDD64C433C1;
+        Mon, 14 Nov 2022 12:54:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430074;
-        bh=IGVuUwPgjY9AaZnR2/MWF4Zw2btBxNpZ4NYH1Jhzx/E=;
+        s=korg; t=1668430498;
+        bh=0a3oUZGDpFtByFzZyGRGxGRIcLBdalGZ36N4F/zToO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xo/HFu0gKgZvG7AfVuvq+J7XVpAczCwyiickVU5kSiXT/i8XdEQLXDz7NYXZrE+Qq
-         NDmxwyY9+EtlkkyGJ/woGSHRWr1PIKgWQqlYf8iTASiiKWKdeGwoSvJdH3VD9g/4J1
-         FebeBK+DD8assqDzz87N8b6UEjwJKox8CZtmGfyw=
+        b=KQowicVfNd1viw38bLq0m0hD9j1ytLkxsqRqOFDp7ElYxupOqWRFrxUnyY6uWUqep
+         IH/o0dEOV/0YYqm7PwC8ZKvAcFFR+iyHJfnjQaYHda7LX7yveoau0shbt2OTaoeK4g
+         Izke1W/WvKX3lvJR/Fykdy+iQFUELMyUr6OtwQmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        "Andrew G. Morgan" <morgan@kernel.org>,
-        Serge Hallyn <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
+        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
+        Florian Fainelli <f.fainelli@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 21/95] capabilities: fix undefined behavior in bit shift for CAP_TO_MASK
+Subject: [PATCH 5.15 046/131] net: broadcom: Fix BCMGENET Kconfig
 Date:   Mon, 14 Nov 2022 13:45:15 +0100
-Message-Id: <20221114124443.394687519@linuxfoundation.org>
+Message-Id: <20221114124450.690203793@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 46653972e3ea64f79e7f8ae3aa41a4d3fdb70a13 ]
+[ Upstream commit 8d820bc9d12b8beebca836cceaf2bbe68216c2f8 ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+While BCMGENET select BROADCOM_PHY as y, but PTP_1588_CLOCK_OPTIONAL is m,
+kconfig warning and build errors:
 
-UBSAN: shift-out-of-bounds in security/commoncap.c:1252:2
-left shift of 1 by 31 places cannot be represented in type 'int'
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7d/0xa5
- dump_stack+0x15/0x1b
- ubsan_epilogue+0xe/0x4e
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
- cap_task_prctl+0x561/0x6f0
- security_task_prctl+0x5a/0xb0
- __x64_sys_prctl+0x61/0x8f0
- do_syscall_64+0x58/0x80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- </TASK>
+WARNING: unmet direct dependencies detected for BROADCOM_PHY
+  Depends on [m]: NETDEVICES [=y] && PHYLIB [=y] && PTP_1588_CLOCK_OPTIONAL [=m]
+  Selected by [y]:
+  - BCMGENET [=y] && NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_BROADCOM [=y] && HAS_IOMEM [=y] && ARCH_BCM2835 [=y]
 
-Fixes: e338d263a76a ("Add 64-bit capability support to the kernel")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Acked-by: Andrew G. Morgan <morgan@kernel.org>
-Reviewed-by: Serge Hallyn <serge@hallyn.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+drivers/net/phy/broadcom.o: In function `bcm54xx_suspend':
+broadcom.c:(.text+0x6ac): undefined reference to `bcm_ptp_stop'
+drivers/net/phy/broadcom.o: In function `bcm54xx_phy_probe':
+broadcom.c:(.text+0x784): undefined reference to `bcm_ptp_probe'
+drivers/net/phy/broadcom.o: In function `bcm54xx_config_init':
+broadcom.c:(.text+0xd4c): undefined reference to `bcm_ptp_config_init'
+
+Fixes: 99addbe31f55 ("net: broadcom: Select BROADCOM_PHY for BCMGENET")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Florian Fainelli <f.fainelli@broadcom.com>
+Link: https://lore.kernel.org/r/20221105090245.8508-1-yuehaibing@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/capability.h | 2 +-
+ drivers/net/ethernet/broadcom/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
-index 2ddb4226cd23..43a44538ec8d 100644
---- a/include/uapi/linux/capability.h
-+++ b/include/uapi/linux/capability.h
-@@ -427,7 +427,7 @@ struct vfs_ns_cap_data {
-  */
- 
- #define CAP_TO_INDEX(x)     ((x) >> 5)        /* 1 << 5 == bits in __u32 */
--#define CAP_TO_MASK(x)      (1 << ((x) & 31)) /* mask for indexed __u32 */
-+#define CAP_TO_MASK(x)      (1U << ((x) & 31)) /* mask for indexed __u32 */
- 
- 
- #endif /* _UAPI_LINUX_CAPABILITY_H */
+diff --git a/drivers/net/ethernet/broadcom/Kconfig b/drivers/net/ethernet/broadcom/Kconfig
+index 56e0fb07aec7..1cd3c289f49b 100644
+--- a/drivers/net/ethernet/broadcom/Kconfig
++++ b/drivers/net/ethernet/broadcom/Kconfig
+@@ -77,7 +77,7 @@ config BCMGENET
+ 	select BCM7XXX_PHY
+ 	select MDIO_BCM_UNIMAC
+ 	select DIMLIB
+-	select BROADCOM_PHY if ARCH_BCM2835
++	select BROADCOM_PHY if (ARCH_BCM2835 && PTP_1588_CLOCK_OPTIONAL)
+ 	help
+ 	  This driver supports the built-in Ethernet MACs found in the
+ 	  Broadcom BCM7xxx Set Top Box family chipset.
 -- 
 2.35.1
 
