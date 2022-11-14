@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36A38627EBC
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:51:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 608B4627F59
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:58:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237196AbiKNMvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:51:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43818 "EHLO
+        id S237591AbiKNM6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:58:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237309AbiKNMvD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:51:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D011FCF9
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:51:02 -0800 (PST)
+        with ESMTP id S237612AbiKNM6I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:58:08 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE6B27DEB
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:58:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FBCDB80EB9
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:51:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A393C433D7;
-        Mon, 14 Nov 2022 12:50:59 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A2789CE0FFA
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:58:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 625BDC433C1;
+        Mon, 14 Nov 2022 12:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430259;
-        bh=nBlm+v1dOqo1wbfiEy6ePI7Hn9qcD82yOUJzcIHMbHY=;
+        s=korg; t=1668430681;
+        bh=pbjHkRa32eCxvtsv1gRPCfndlC5deERTDpYYYAbdaQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F/B24uEce2ntB05o2EgHJEMt0k65ocv54T2DQhuTeaB2kSx19yO8wPR8Yu/hiv5t9
-         /H+jDCUzWr594dUQABnk3Tuzmx5jxCjM5ocqA0n/OjHSiPeb0t6nIkC1aTHyCH4HQO
-         dqQEger/flAJEmomwVqWuA6vp6cdhYa+dmDMa+vA=
+        b=clj9k/1nz8RfQkmhMcRDI80P40hrvxAEl+BHk0ZmCW74roYWozbkXRX/tGsRvzJFi
+         RNgRzBhyPZ1TJ+RuvAfiKRmZL0ICJbx6B4/DmkVYw3azr+8A2xXpWO5HuKs4Caf8kG
+         4NyEMS3dNoEzXojvk6CZzBlVuqZv1oiEcO5yYyyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Antoine Tenart <atenart@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 45/95] net: atlantic: macsec: clear encryption keys from the stack
+Subject: [PATCH 5.15 070/131] stmmac: dwmac-loongson: fix missing pci_disable_msi() while module exiting
 Date:   Mon, 14 Nov 2022 13:45:39 +0100
-Message-Id: <20221114124444.402791650@linuxfoundation.org>
+Message-Id: <20221114124451.669537752@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,96 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 879785def0f5e71d54399de0f8a5cb399db14171 ]
+[ Upstream commit f2d45fdf9a0ed2c94c01c422a0d0add8ffd42099 ]
 
-Commit aaab73f8fba4 ("macsec: clear encryption keys from the stack after
-setting up offload") made sure to clean encryption keys from the stack
-after setting up offloading, but the atlantic driver made a copy and did
-not clear it. Fix this.
+pci_enable_msi() has been called in loongson_dwmac_probe(),
+so pci_disable_msi() needs be called in remove path and error
+path of probe().
 
-[4 Fixes tags below, all part of the same series, no need to split this]
-
-Fixes: 9ff40a751a6f ("net: atlantic: MACSec ingress offload implementation")
-Fixes: b8f8a0b7b5cb ("net: atlantic: MACSec ingress offload HW bindings")
-Fixes: 27736563ce32 ("net: atlantic: MACSec egress offload implementation")
-Fixes: 9d106c6dd81b ("net: atlantic: MACSec egress offload HW bindings")
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Fixes: 30bba69d7db4 ("stmmac: pci: Add dwmac support for Loongson")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/aquantia/atlantic/aq_macsec.c |  2 ++
- .../aquantia/atlantic/macsec/macsec_api.c      | 18 +++++++++++-------
- 2 files changed, 13 insertions(+), 7 deletions(-)
+ .../net/ethernet/stmicro/stmmac/dwmac-loongson.c    | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_macsec.c b/drivers/net/ethernet/aquantia/atlantic/aq_macsec.c
-index 7c6e0811f2e6..ee823a18294c 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_macsec.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_macsec.c
-@@ -585,6 +585,7 @@ static int aq_update_txsa(struct aq_nic_s *nic, const unsigned int sc_idx,
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
+index 220bb454626c..b18f1e24f4f3 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.c
+@@ -125,6 +125,7 @@ static int loongson_dwmac_probe(struct pci_dev *pdev, const struct pci_device_id
+ 	if (res.irq < 0) {
+ 		dev_err(&pdev->dev, "IRQ macirq not found\n");
+ 		ret = -ENODEV;
++		goto err_disable_msi;
+ 	}
  
- 	ret = aq_mss_set_egress_sakey_record(hw, &key_rec, sa_idx);
+ 	res.wol_irq = of_irq_get_byname(np, "eth_wake_irq");
+@@ -137,9 +138,18 @@ static int loongson_dwmac_probe(struct pci_dev *pdev, const struct pci_device_id
+ 	if (res.lpi_irq < 0) {
+ 		dev_err(&pdev->dev, "IRQ eth_lpi not found\n");
+ 		ret = -ENODEV;
++		goto err_disable_msi;
+ 	}
  
-+	memzero_explicit(&key_rec, sizeof(key_rec));
- 	return ret;
- }
- 
-@@ -932,6 +933,7 @@ static int aq_update_rxsa(struct aq_nic_s *nic, const unsigned int sc_idx,
- 
- 	ret = aq_mss_set_ingress_sakey_record(hw, &sa_key_record, sa_idx);
- 
-+	memzero_explicit(&sa_key_record, sizeof(sa_key_record));
- 	return ret;
- }
- 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/macsec/macsec_api.c b/drivers/net/ethernet/aquantia/atlantic/macsec/macsec_api.c
-index 36c7cf05630a..431924959520 100644
---- a/drivers/net/ethernet/aquantia/atlantic/macsec/macsec_api.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/macsec/macsec_api.c
-@@ -757,6 +757,7 @@ set_ingress_sakey_record(struct aq_hw_s *hw,
- 			 u16 table_index)
- {
- 	u16 packed_record[18];
-+	int ret;
- 
- 	if (table_index >= NUMROWS_INGRESSSAKEYRECORD)
- 		return -EINVAL;
-@@ -789,9 +790,12 @@ set_ingress_sakey_record(struct aq_hw_s *hw,
- 
- 	packed_record[16] = rec->key_len & 0x3;
- 
--	return set_raw_ingress_record(hw, packed_record, 18, 2,
--				      ROWOFFSET_INGRESSSAKEYRECORD +
--					      table_index);
-+	ret = set_raw_ingress_record(hw, packed_record, 18, 2,
-+				     ROWOFFSET_INGRESSSAKEYRECORD +
-+				     table_index);
+-	return stmmac_dvr_probe(&pdev->dev, plat, &res);
++	ret = stmmac_dvr_probe(&pdev->dev, plat, &res);
++	if (ret)
++		goto err_disable_msi;
 +
-+	memzero_explicit(packed_record, sizeof(packed_record));
++	return ret;
++
++err_disable_msi:
++	pci_disable_msi(pdev);
 +	return ret;
  }
  
- int aq_mss_set_ingress_sakey_record(struct aq_hw_s *hw,
-@@ -1739,14 +1743,14 @@ static int set_egress_sakey_record(struct aq_hw_s *hw,
- 	ret = set_raw_egress_record(hw, packed_record, 8, 2,
- 				    ROWOFFSET_EGRESSSAKEYRECORD + table_index);
- 	if (unlikely(ret))
--		return ret;
-+		goto clear_key;
- 	ret = set_raw_egress_record(hw, packed_record + 8, 8, 2,
- 				    ROWOFFSET_EGRESSSAKEYRECORD + table_index -
- 					    32);
--	if (unlikely(ret))
--		return ret;
+ static void loongson_dwmac_remove(struct pci_dev *pdev)
+@@ -155,6 +165,7 @@ static void loongson_dwmac_remove(struct pci_dev *pdev)
+ 		break;
+ 	}
  
--	return 0;
-+clear_key:
-+	memzero_explicit(packed_record, sizeof(packed_record));
-+	return ret;
++	pci_disable_msi(pdev);
+ 	pci_disable_device(pdev);
  }
  
- int aq_mss_set_egress_sakey_record(struct aq_hw_s *hw,
 -- 
 2.35.1
 
