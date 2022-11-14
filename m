@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0EA6627B69
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 12:03:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6165C627B6A
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 12:03:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236431AbiKNLDh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 06:03:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58642 "EHLO
+        id S236517AbiKNLDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 06:03:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236518AbiKNLDf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 06:03:35 -0500
+        with ESMTP id S236450AbiKNLDm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 06:03:42 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5A6AB19
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 03:03:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AECDB08
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 03:03:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0046B80D13
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 11:03:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C8FC433D6;
-        Mon, 14 Nov 2022 11:03:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DBA53B80DDD
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 11:03:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D533C433C1;
+        Mon, 14 Nov 2022 11:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668423802;
-        bh=+akv4EsB5pMwjENZyt48V+ofE3FVjPRo9aM83EzE6C8=;
+        s=korg; t=1668423818;
+        bh=kk3LuYdB7B1lauK5XagzNGQSSw3yOfHcJrCN4HjDeaU=;
         h=Subject:To:Cc:From:Date:From;
-        b=AgOuWPXwW2rE5VflrJnLeoOk0iVHMmNgRUCLMHjejRvhxNRg20mG6X3KzRmzatQ/R
-         xg4SCPIs9+u021RRvhJtIwj3ITXmky8JlYCDQVs3kRJcXWan5AUfX/0vkvRs0rKrnY
-         t84Rfg4XCbo8NkCfCWTC3hEigbssGa0fAD52nvuI=
-Subject: FAILED: patch "[PATCH] KVM: SVM: move guest vmsave/vmload back to assembly" failed to apply to 5.15-stable tree
+        b=CuB7uc6qzZtuldP9jqqExWQoMsdIk919kSNLLNgqkQYwI5GUziN4L1Ln/z7vsVPfV
+         r1Ddha2BCeqy4ptdskSGoCqBeMdH9i91fQgchR8zUUSFNFb5QQy1RVI1WC38Zg4PPZ
+         2kP97e1ckhsbEk77j44pfl9GoE+J2NTaTUpLTWUk=
+Subject: FAILED: patch "[PATCH] KVM: SVM: move guest vmsave/vmload back to assembly" failed to apply to 5.10-stable tree
 To:     pbonzini@redhat.com, seanjc@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Nov 2022 12:00:35 +0100
-Message-ID: <16684236359817@kroah.com>
+Date:   Mon, 14 Nov 2022 12:00:36 +0100
+Message-ID: <166842363695195@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
