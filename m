@@ -2,63 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3271628C0C
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 23:22:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFF92628C25
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 23:33:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236364AbiKNWWW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 17:22:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55614 "EHLO
+        id S236735AbiKNWdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 17:33:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235639AbiKNWWV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 17:22:21 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 440791B1FF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 14:21:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1668464464;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=DEzbZbxMDVtgKO4mt4UPz1wY8+F4/UNYjVn0w1tPxSA=;
-        b=iqXQ8i560D42hRrICxm5hunzVnmD1FmJKpmx0WqEA9xDM9LmDgUTEoNT+xZxhE8LdYhBvJ
-        yU8eW/CwnNYqkHYkp4m74OS4uqxcnDctfhZf9QKDX55GvcgyNnHOUUnEhEhGmkfOVnl56y
-        dnva12YsmjqreSwqtLDEIuGSnU213uM=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-656-6FMgJgeyP1ayoZEDfjKcwA-1; Mon, 14 Nov 2022 17:20:59 -0500
-X-MC-Unique: 6FMgJgeyP1ayoZEDfjKcwA-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 80D9138012D2;
-        Mon, 14 Nov 2022 22:20:58 +0000 (UTC)
-Received: from emerald.lyude.net (unknown [10.22.18.150])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9CDD22166B46;
-        Mon, 14 Nov 2022 22:20:57 +0000 (UTC)
-From:   Lyude Paul <lyude@redhat.com>
-To:     amd-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Alan Liu <HaoPing.Liu@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        dri-devel@lists.freedesktop.org (open list:DRM DRIVERS),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH] drm/amd/dc/dce120: Fix audio register mapping, stop triggering KASAN
-Date:   Mon, 14 Nov 2022 17:20:45 -0500
-Message-Id: <20221114222046.386560-1-lyude@redhat.com>
+        with ESMTP id S236889AbiKNWdU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 17:33:20 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC15F1A3A7;
+        Mon, 14 Nov 2022 14:33:18 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id r61-20020a17090a43c300b00212f4e9cccdso15168579pjg.5;
+        Mon, 14 Nov 2022 14:33:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ObnPkYP9VPHLOLvmYFnfmYoPmSZxQGJ5X5zELinPx1M=;
+        b=YymYRK9EE+gX1+Ek0dWAYwMDdT6L4cpJL9lJQsMZibBYAVVIILjUdgcu3jP1tc0rzn
+         C3mxhtEyu+DIRjVV1ZYypjaSBKxQTjmNvFT7ZUqBUh5cFeaIY8lPHXWy14u4MRTJYjeB
+         xhnY9E3I++2vkE4sxLGpBdmaa25iYG0yiAuLPz3B+JaElSaBEmlHIr2Vbp1HPX6Kxcfr
+         mrX4XxVZB1EaQYpewL5bBDO1APQLiHJfXWVO8jvjRD7+hb2ML1Xt+T6bT0qg5PqxYWwe
+         tNBJdFh4XUYFkmoUIBeDFiKCChzTB1hugux3/ZGbdFX1tpAIPUaMIGt/TobM0pURE7fM
+         z9bA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ObnPkYP9VPHLOLvmYFnfmYoPmSZxQGJ5X5zELinPx1M=;
+        b=LRrIV5fsXxNLoFV/uK5j6jDSweNLyQQd8r3bKNhdP8sev7TYsTKQR35WMQ+8M8lmsm
+         rfUIis/ENnG0c2JWfq/0nCWDPcpajT3XMl2lGmbkW06rZp06pRcKv48BEEFSAeaffvB8
+         5778vbW5I+nnsOta5dY+A6T+lMT2mCPZoHvChZXHOzPuzfZv8oqz+0f0fNe1llAlheBR
+         a4WbBxAe5fWXLrkLXc4jinM+SDwcOYANWOEeHEx1KcjBVb2Gm8XpDO+5W4kam+p+PwYS
+         JPhrgjKugv+mupoAYFRR5Q4isqBdggZE2eLYDFHZ86ksG7GZatcsqN2espewJmmvjlWY
+         MDfw==
+X-Gm-Message-State: ANoB5plo0SQ6wAs0jwAmoIm1CqAFX6VsEXHv990va6Vigz/AD/pDCG6L
+        H5aZnjhoEUxdTID4zEQdDN+vwCFKw2SG4A==
+X-Google-Smtp-Source: AA0mqf4n2XQ0bxWpFtbCviTJi+M2vDFbL3p8vni35A3arpiMnRgs/2M/jabQQ4FkpqszwFQIhw3qMA==
+X-Received: by 2002:a17:90a:af92:b0:212:e307:b59f with SMTP id w18-20020a17090aaf9200b00212e307b59fmr15887409pjq.208.1668465198236;
+        Mon, 14 Nov 2022 14:33:18 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id z25-20020aa79499000000b0056ca3569a66sm7242901pfk.129.2022.11.14.14.32.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 14 Nov 2022 14:33:17 -0800 (PST)
+Message-ID: <b42b369f-827e-5ac5-664e-c70fb4ed82e7@gmail.com>
+Date:   Mon, 14 Nov 2022 14:32:53 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH 6.0 000/190] 6.0.9-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20221114124458.806324402@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -66,44 +78,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There's been a very long running bug that seems to have been neglected for
-a while, where amdgpu consistently triggers a KASAN error at start:
+On 11/14/22 04:43, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.9 release.
+> There are 190 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 16 Nov 2022 12:44:21 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.9-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-  BUG: KASAN: global-out-of-bounds in read_indirect_azalia_reg+0x1d4/0x2a0 [amdgpu]
-  Read of size 4 at addr ffffffffc2274b28 by task modprobe/1889
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
+BMIPS_GENERIC:
 
-After digging through amd's rather creative method for accessing registers,
-I eventually discovered the problem likely has to do with the fact that on
-my dce120 GPU there are supposedly 7 sets of audio registers. But we only
-define a register mapping for 6 sets.
-
-So, fix this and fix the KASAN warning finally.
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
----
-Sending this one separately from the rest of my fixes since:
-
-* It's definitely completely unrelated to the Gitlab 2171 issue
-* I'm not sure if this is the correct fix since it's in DC
-
- drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c b/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
-index 1b70b78e2fa15..af631085e88c5 100644
---- a/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
-@@ -359,7 +359,8 @@ static const struct dce_audio_registers audio_regs[] = {
- 	audio_regs(2),
- 	audio_regs(3),
- 	audio_regs(4),
--	audio_regs(5)
-+	audio_regs(5),
-+	audio_regs(6),
- };
- 
- #define DCE120_AUD_COMMON_MASK_SH_LIST(mask_sh)\
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.37.3
+Florian
 
