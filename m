@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03393627F44
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:57:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C763627EA7
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:50:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237565AbiKNM5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:57:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50028 "EHLO
+        id S237400AbiKNMuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:50:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237581AbiKNM5F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:57:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D62027FCF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:57:03 -0800 (PST)
+        with ESMTP id S237388AbiKNMuG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:50:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3774B2AF2
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:50:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CEA74B80EAF
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:57:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D305C433D6;
-        Mon, 14 Nov 2022 12:57:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C490E6114B
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:50:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA704C433B5;
+        Mon, 14 Nov 2022 12:50:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430620;
-        bh=8IfkqfMxJK2YoSoN1zZiN6UGcsT3EwoxMp7xeWbD2Nc=;
+        s=korg; t=1668430204;
+        bh=6/mqBGBbGDV5vhPl0+iOzXBqKyq9yKNg/8BY94L0bTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vahouz2aPSQhQSig0zQ9EyGSfxtpieCdvb/Sj30jafTwH9/VpfOtypJo7O/G7oz9Z
-         1NdZOxgqEEJF/TOz3Lj4XN+PWHlYdUN1wdNxR13FDW1anJtuuHaLIrNUqfVPi0AkGe
-         Es18ogzcXI12Z6loUfQ8zEcEZhUiUCwklGNzpEG4=
+        b=d+fKfUUvTtA83dbMnuM3FwhHWAc9LUX5kCLZ4ODnaIu1oC5tgvc6DtN0qdpsis0KL
+         4/68y0K3ekm2SMzjhySjvjmwDJ+LG4dpdjNsiZMuzuDnt9qRcnmgnO93i7SP+HOWkm
+         8BiykU//COY3ts5F04jdVtBIG2egKGH/W7bLahuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.15 082/131] arm64: efi: Fix handling of misaligned runtime regions and drop warning
+        patches@lists.linux.dev, Brian Norris <briannorris@chromium.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 57/95] mmc: cqhci: Provide helper for resetting both SDHCI and CQHCI
 Date:   Mon, 14 Nov 2022 13:45:51 +0100
-Message-Id: <20221114124452.177696658@linuxfoundation.org>
+Message-Id: <20221114124444.886153576@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,117 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 9b9eaee9828fe98b030cf43ac50065a54a2f5d52 upstream.
+commit ebb5fd38f41132e6924cb33b647337f4a5d5360c upstream.
 
-Currently, when mapping the EFI runtime regions in the EFI page tables,
-we complain about misaligned regions in a rather noisy way, using
-WARN().
+Several SDHCI drivers need to deactivate command queueing in their reset
+hook (see sdhci_cqhci_reset() / sdhci-pci-core.c, for example), and
+several more are coming.
 
-Not only does this produce a lot of irrelevant clutter in the log, it is
-factually incorrect, as misaligned runtime regions are actually allowed
-by the EFI spec as long as they don't require conflicting memory types
-within the same 64k page.
+Those reset implementations have some small subtleties (e.g., ordering
+of initialization of SDHCI vs. CQHCI might leave us resetting with a
+NULL ->cqe_private), and are often identical across different host
+drivers.
 
-So let's drop the warning, and tweak the code so that we
-- take both the start and end of the region into account when checking
-  for misalignment
-- only revert to RWX mappings for non-code regions if misaligned code
-  regions are also known to exist.
+We also don't want to force a dependency between SDHCI and CQHCI, or
+vice versa; non-SDHCI drivers use CQHCI, and SDHCI drivers might support
+command queueing through some other means.
+
+So, implement a small helper, to avoid repeating the same mistakes in
+different drivers. Simply stick it in a header, because it's so small it
+doesn't deserve its own module right now, and inlining to each driver is
+pretty reasonable.
+
+This is marked for -stable, as it is an important prerequisite patch for
+several SDHCI controller bugfixes that follow.
 
 Cc: <stable@vger.kernel.org>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20221026124150.v4.1.Ie85faa09432bfe1b0890d8c24ff95e17f3097317@changeid
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/efi.c |   52 +++++++++++++++++++++++++++++++-----------------
- 1 file changed, 34 insertions(+), 18 deletions(-)
+ drivers/mmc/host/sdhci-cqhci.h |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+ create mode 100644 drivers/mmc/host/sdhci-cqhci.h
 
---- a/arch/arm64/kernel/efi.c
-+++ b/arch/arm64/kernel/efi.c
-@@ -12,6 +12,14 @@
- 
- #include <asm/efi.h>
- 
-+static bool region_is_misaligned(const efi_memory_desc_t *md)
+--- /dev/null
++++ b/drivers/mmc/host/sdhci-cqhci.h
+@@ -0,0 +1,24 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Copyright 2022 The Chromium OS Authors
++ *
++ * Support that applies to the combination of SDHCI and CQHCI, while not
++ * expressing a dependency between the two modules.
++ */
++
++#ifndef __MMC_HOST_SDHCI_CQHCI_H__
++#define __MMC_HOST_SDHCI_CQHCI_H__
++
++#include "cqhci.h"
++#include "sdhci.h"
++
++static inline void sdhci_and_cqhci_reset(struct sdhci_host *host, u8 mask)
 +{
-+	if (PAGE_SIZE == EFI_PAGE_SIZE)
-+		return false;
-+	return !PAGE_ALIGNED(md->phys_addr) ||
-+	       !PAGE_ALIGNED(md->num_pages << EFI_PAGE_SHIFT);
++	if ((host->mmc->caps2 & MMC_CAP2_CQE) && (mask & SDHCI_RESET_ALL) &&
++	    host->mmc->cqe_private)
++		cqhci_deactivate(host->mmc);
++
++	sdhci_reset(host, mask);
 +}
 +
- /*
-  * Only regions of type EFI_RUNTIME_SERVICES_CODE need to be
-  * executable, everything else can be mapped with the XN bits
-@@ -25,14 +33,22 @@ static __init pteval_t create_mapping_pr
- 	if (type == EFI_MEMORY_MAPPED_IO)
- 		return PROT_DEVICE_nGnRE;
- 
--	if (WARN_ONCE(!PAGE_ALIGNED(md->phys_addr),
--		      "UEFI Runtime regions are not aligned to 64 KB -- buggy firmware?"))
-+	if (region_is_misaligned(md)) {
-+		static bool __initdata code_is_misaligned;
-+
- 		/*
--		 * If the region is not aligned to the page size of the OS, we
--		 * can not use strict permissions, since that would also affect
--		 * the mapping attributes of the adjacent regions.
-+		 * Regions that are not aligned to the OS page size cannot be
-+		 * mapped with strict permissions, as those might interfere
-+		 * with the permissions that are needed by the adjacent
-+		 * region's mapping. However, if we haven't encountered any
-+		 * misaligned runtime code regions so far, we can safely use
-+		 * non-executable permissions for non-code regions.
- 		 */
--		return pgprot_val(PAGE_KERNEL_EXEC);
-+		code_is_misaligned |= (type == EFI_RUNTIME_SERVICES_CODE);
-+
-+		return code_is_misaligned ? pgprot_val(PAGE_KERNEL_EXEC)
-+					  : pgprot_val(PAGE_KERNEL);
-+	}
- 
- 	/* R-- */
- 	if ((attr & (EFI_MEMORY_XP | EFI_MEMORY_RO)) ==
-@@ -63,19 +79,16 @@ int __init efi_create_mapping(struct mm_
- 	bool page_mappings_only = (md->type == EFI_RUNTIME_SERVICES_CODE ||
- 				   md->type == EFI_RUNTIME_SERVICES_DATA);
- 
--	if (!PAGE_ALIGNED(md->phys_addr) ||
--	    !PAGE_ALIGNED(md->num_pages << EFI_PAGE_SHIFT)) {
--		/*
--		 * If the end address of this region is not aligned to page
--		 * size, the mapping is rounded up, and may end up sharing a
--		 * page frame with the next UEFI memory region. If we create
--		 * a block entry now, we may need to split it again when mapping
--		 * the next region, and support for that is going to be removed
--		 * from the MMU routines. So avoid block mappings altogether in
--		 * that case.
--		 */
-+	/*
-+	 * If this region is not aligned to the page size used by the OS, the
-+	 * mapping will be rounded outwards, and may end up sharing a page
-+	 * frame with an adjacent runtime memory region. Given that the page
-+	 * table descriptor covering the shared page will be rewritten when the
-+	 * adjacent region gets mapped, we must avoid block mappings here so we
-+	 * don't have to worry about splitting them when that happens.
-+	 */
-+	if (region_is_misaligned(md))
- 		page_mappings_only = true;
--	}
- 
- 	create_pgd_mapping(mm, md->phys_addr, md->virt_addr,
- 			   md->num_pages << EFI_PAGE_SHIFT,
-@@ -102,6 +115,9 @@ int __init efi_set_mapping_permissions(s
- 	BUG_ON(md->type != EFI_RUNTIME_SERVICES_CODE &&
- 	       md->type != EFI_RUNTIME_SERVICES_DATA);
- 
-+	if (region_is_misaligned(md))
-+		return 0;
-+
- 	/*
- 	 * Calling apply_to_page_range() is only safe on regions that are
- 	 * guaranteed to be mapped down to pages. Since we are only called
++#endif /* __MMC_HOST_SDHCI_CQHCI_H__ */
 
 
