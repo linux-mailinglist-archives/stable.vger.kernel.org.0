@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C23627F0B
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:55:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE60627E9C
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:49:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237499AbiKNMy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:54:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47120 "EHLO
+        id S237333AbiKNMtf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:49:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237508AbiKNMyx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:54:53 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF1AB26ACC
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:54:51 -0800 (PST)
+        with ESMTP id S237248AbiKNMte (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:49:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C1D25E0
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:49:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 674DBCE0FEE
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:54:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CBE4C433C1;
-        Mon, 14 Nov 2022 12:54:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F92E61175
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:49:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86A47C433C1;
+        Mon, 14 Nov 2022 12:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430488;
-        bh=sun2Z1GG3xPPxE+oBoADHbJltqL/2m3iWLgXTzsuyy8=;
+        s=korg; t=1668430173;
+        bh=TeEWFTff7tFwU1VOmvTRcUB3IN+UzX+w/cCY6oIcouw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fsQb8vVuNRITZ/CqWBD2C5bSB48E1og/2YYIYaMgwzgiur/XS3rxOdXYY9MpPJwwi
-         T5VmjW+cg59iiI9Ak9XxzQhXlmJ2xSnOAyFV+QsBW/GZa2jOdO26+pbz2MRdSd6oxw
-         CovGHs5cStvS7q2kO4wpuJComyk1FelEcBldu80E=
+        b=LUA3cGSCL3vJ7NIW3ictiW0+4QYTq+3AvuAQhqAeVld9kh7n2Y16PAcx/pMB7SzsC
+         XZLXIIcxXBIyWtqQxXlQcnTyZ0TD5arVTiW+2RycH7zN6RBg3mUOo+5SjIJ10KMuVK
+         uJSwBg+ZiCuOPiNeIY0vXXM5NjwCFCiPrc3sUTAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        Somnath Kotur <somnath.kotur@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 043/131] ipv6: addrlabel: fix infoleak when sending struct ifaddrlblmsg to network
+Subject: [PATCH 5.10 18/95] bnxt_en: Fix possible crash in bnxt_hwrm_set_coal()
 Date:   Mon, 14 Nov 2022 13:45:12 +0100
-Message-Id: <20221114124450.540422477@linuxfoundation.org>
+Message-Id: <20221114124443.273147584@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit c23fb2c82267638f9d206cb96bb93e1f93ad7828 ]
+[ Upstream commit 6d81ea3765dfa6c8a20822613c81edad1c4a16a0 ]
 
-When copying a `struct ifaddrlblmsg` to the network, __ifal_reserved
-remained uninitialized, resulting in a 1-byte infoleak:
+During the error recovery sequence, the rtnl_lock is not held for the
+entire duration and some datastructures may be freed during the sequence.
+Check for the BNXT_STATE_OPEN flag instead of netif_running() to ensure
+that the device is fully operational before proceeding to reconfigure
+the coalescing settings.
 
-  BUG: KMSAN: kernel-network-infoleak in __netdev_start_xmit ./include/linux/netdevice.h:4841
-   __netdev_start_xmit ./include/linux/netdevice.h:4841
-   netdev_start_xmit ./include/linux/netdevice.h:4857
-   xmit_one net/core/dev.c:3590
-   dev_hard_start_xmit+0x1dc/0x800 net/core/dev.c:3606
-   __dev_queue_xmit+0x17e8/0x4350 net/core/dev.c:4256
-   dev_queue_xmit ./include/linux/netdevice.h:3009
-   __netlink_deliver_tap_skb net/netlink/af_netlink.c:307
-   __netlink_deliver_tap+0x728/0xad0 net/netlink/af_netlink.c:325
-   netlink_deliver_tap net/netlink/af_netlink.c:338
-   __netlink_sendskb net/netlink/af_netlink.c:1263
-   netlink_sendskb+0x1d9/0x200 net/netlink/af_netlink.c:1272
-   netlink_unicast+0x56d/0xf50 net/netlink/af_netlink.c:1360
-   nlmsg_unicast ./include/net/netlink.h:1061
-   rtnl_unicast+0x5a/0x80 net/core/rtnetlink.c:758
-   ip6addrlbl_get+0xfad/0x10f0 net/ipv6/addrlabel.c:628
-   rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
-  ...
-  Uninit was created at:
-   slab_post_alloc_hook+0x118/0xb00 mm/slab.h:742
-   slab_alloc_node mm/slub.c:3398
-   __kmem_cache_alloc_node+0x4f2/0x930 mm/slub.c:3437
-   __do_kmalloc_node mm/slab_common.c:954
-   __kmalloc_node_track_caller+0x117/0x3d0 mm/slab_common.c:975
-   kmalloc_reserve net/core/skbuff.c:437
-   __alloc_skb+0x27a/0xab0 net/core/skbuff.c:509
-   alloc_skb ./include/linux/skbuff.h:1267
-   nlmsg_new ./include/net/netlink.h:964
-   ip6addrlbl_get+0x490/0x10f0 net/ipv6/addrlabel.c:608
-   rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
-   netlink_rcv_skb+0x299/0x550 net/netlink/af_netlink.c:2540
-   rtnetlink_rcv+0x26/0x30 net/core/rtnetlink.c:6109
-   netlink_unicast_kernel net/netlink/af_netlink.c:1319
-   netlink_unicast+0x9ab/0xf50 net/netlink/af_netlink.c:1345
-   netlink_sendmsg+0xebc/0x10f0 net/netlink/af_netlink.c:1921
-  ...
+This will fix a possible crash like this:
 
-This patch ensures that the reserved field is always initialized.
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP NOPTI
+CPU: 10 PID: 181276 Comm: ethtool Kdump: loaded Tainted: G          IOE    --------- -  - 4.18.0-348.el8.x86_64 #1
+Hardware name: Dell Inc. PowerEdge R740/0F9N89, BIOS 2.3.10 08/15/2019
+RIP: 0010:bnxt_hwrm_set_coal+0x1fb/0x2a0 [bnxt_en]
+Code: c2 66 83 4e 22 08 66 89 46 1c e8 10 cb 00 00 41 83 c6 01 44 39 b3 68 01 00 00 0f 8e a3 00 00 00 48 8b 93 c8 00 00 00 49 63 c6 <48> 8b 2c c2 48 8b 85 b8 02 00 00 48 85 c0 74 2e 48 8b 74 24 08 f6
+RSP: 0018:ffffb11c8dcaba50 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: ffff8d168a8b0ac0 RCX: 00000000000000c5
+RDX: 0000000000000000 RSI: ffff8d162f72c000 RDI: ffff8d168a8b0b28
+RBP: 0000000000000000 R08: b6e1f68a12e9a7eb R09: 0000000000000000
+R10: 0000000000000001 R11: 0000000000000037 R12: ffff8d168a8b109c
+R13: ffff8d168a8b10aa R14: 0000000000000000 R15: ffffffffc01ac4e0
+FS:  00007f3852e4c740(0000) GS:ffff8d24c0080000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000000 CR3: 000000041b3ee003 CR4: 00000000007706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ ethnl_set_coalesce+0x3ce/0x4c0
+ genl_family_rcv_msg_doit.isra.15+0x10f/0x150
+ genl_family_rcv_msg+0xb3/0x160
+ ? coalesce_fill_reply+0x480/0x480
+ genl_rcv_msg+0x47/0x90
+ ? genl_family_rcv_msg+0x160/0x160
+ netlink_rcv_skb+0x4c/0x120
+ genl_rcv+0x24/0x40
+ netlink_unicast+0x196/0x230
+ netlink_sendmsg+0x204/0x3d0
+ sock_sendmsg+0x4c/0x50
+ __sys_sendto+0xee/0x160
+ ? syscall_trace_enter+0x1d3/0x2c0
+ ? __audit_syscall_exit+0x249/0x2a0
+ __x64_sys_sendto+0x24/0x30
+ do_syscall_64+0x5b/0x1a0
+ entry_SYSCALL_64_after_hwframe+0x65/0xca
+RIP: 0033:0x7f38524163bb
 
-Reported-by: syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com
-Fixes: 2a8cc6c89039 ("[IPV6] ADDRCONF: Support RFC3484 configurable address selection policy table.")
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2151fe0830fd ("bnxt_en: Handle RESET_NOTIFY async event from firmware.")
+Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/addrlabel.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/addrlabel.c b/net/ipv6/addrlabel.c
-index 8a22486cf270..17ac45aa7194 100644
---- a/net/ipv6/addrlabel.c
-+++ b/net/ipv6/addrlabel.c
-@@ -437,6 +437,7 @@ static void ip6addrlbl_putmsg(struct nlmsghdr *nlh,
- {
- 	struct ifaddrlblmsg *ifal = nlmsg_data(nlh);
- 	ifal->ifal_family = AF_INET6;
-+	ifal->__ifal_reserved = 0;
- 	ifal->ifal_prefixlen = prefixlen;
- 	ifal->ifal_flags = 0;
- 	ifal->ifal_index = ifindex;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index f8f775619520..81b63d1c2391 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -125,7 +125,7 @@ static int bnxt_set_coalesce(struct net_device *dev,
+ 	}
+ 
+ reset_coalesce:
+-	if (netif_running(dev)) {
++	if (test_bit(BNXT_STATE_OPEN, &bp->state)) {
+ 		if (update_stats) {
+ 			rc = bnxt_close_nic(bp, true, false);
+ 			if (!rc)
 -- 
 2.35.1
 
