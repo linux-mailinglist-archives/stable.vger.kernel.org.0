@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1685627FA6
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:01:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A965627FA7
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:01:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237670AbiKNNBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:01:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54294 "EHLO
+        id S237684AbiKNNBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:01:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237684AbiKNNBN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:01:13 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D764428E16
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:01:05 -0800 (PST)
+        with ESMTP id S237689AbiKNNBO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:01:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62B0128E2E
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:01:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4E291CE0FEE
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:01:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D708C4314E;
-        Mon, 14 Nov 2022 13:01:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F37AF61185
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:01:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D568CC433D6;
+        Mon, 14 Nov 2022 13:01:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430862;
-        bh=446ubT/kIDeD+csxWTtNdK4Sv2dXtTLafMOSOMo6k5Q=;
+        s=korg; t=1668430866;
+        bh=a+B5EDo+CWbn4dxVurRfH1vkEuN1bk5TEUBPx81hUOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9MU4aR69A9jN6aK0iZpzNMTpOuKozac2W6mUk7dX1fEgKn93H/s1gZxG4j1uKNKR
-         P0VZ6UwGN2Um2dnXSsZ8Vh7Gr5ElZjY01hKYq9t45zSPreVMU+mNtkP6/kiSU1Bnrk
-         fV3JQpwq41c8gCuShvKtUMWx2q8wOyzhNZ37jYfM=
+        b=r1xHR4udv1EwlSwWhIou7VKzl6bT5UTRULfFWnaxREWxrEZSPBcRS/29nKVw54GME
+         9vrDAuakfyd8oiasP8x45QrJAuQDiq23Oa9kIDUBnhAqNlRadM/FZClh9FAJBLWkaF
+         Ze6urcZwVLaKK16CqHqZIqBn87cdFC+4h83Capz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 018/190] wifi: cfg80211: fix memory leak in query_regdb_file()
-Date:   Mon, 14 Nov 2022 13:44:02 +0100
-Message-Id: <20221114124459.564426807@linuxfoundation.org>
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 019/190] soundwire: qcom: reinit broadcast completion
+Date:   Mon, 14 Nov 2022 13:44:03 +0100
+Message-Id: <20221114124459.615118398@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -54,53 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arend van Spriel <arend.vanspriel@broadcom.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 57b962e627ec0ae53d4d16d7bd1033e27e67677a ]
+[ Upstream commit f936fa7a954b262cb3908bbc8f01ba19dfaf9fbf ]
 
-In the function query_regdb_file() the alpha2 parameter is duplicated
-using kmemdup() and subsequently freed in regdb_fw_cb(). However,
-request_firmware_nowait() can fail without calling regdb_fw_cb() and
-thus leak memory.
+For some reason we never reinit the broadcast completion, there is a
+danger that broadcast commands could be treated as completed by driver
+from previous complete status.
+Fix this by reinitializing the completion before sending a broadcast command.
 
-Fixes: 007f6c5e6eb4 ("cfg80211: support loading regulatory database as firmware file")
-Signed-off-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: ddea6cf7b619 ("soundwire: qcom: update register read/write routine")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20221026110210.6575-2-srinivas.kandagatla@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/soundwire/qcom.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index d5c7a5aa6853..c3d950d29432 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -1084,6 +1084,8 @@ MODULE_FIRMWARE("regulatory.db");
+diff --git a/drivers/soundwire/qcom.c b/drivers/soundwire/qcom.c
+index 3a992a6478c3..87ccaebc8453 100644
+--- a/drivers/soundwire/qcom.c
++++ b/drivers/soundwire/qcom.c
+@@ -344,6 +344,9 @@ static int qcom_swrm_cmd_fifo_wr_cmd(struct qcom_swrm_ctrl *swrm, u8 cmd_data,
+ 	if (swrm_wait_for_wr_fifo_avail(swrm))
+ 		return SDW_CMD_FAIL_OTHER;
  
- static int query_regdb_file(const char *alpha2)
- {
-+	int err;
++	if (cmd_id == SWR_BROADCAST_CMD_ID)
++		reinit_completion(&swrm->broadcast);
 +
- 	ASSERT_RTNL();
+ 	/* Its assumed that write is okay as we do not get any status back */
+ 	swrm->reg_write(swrm, SWRM_CMD_FIFO_WR_CMD, val);
  
- 	if (regdb)
-@@ -1093,9 +1095,13 @@ static int query_regdb_file(const char *alpha2)
- 	if (!alpha2)
- 		return -ENOMEM;
- 
--	return request_firmware_nowait(THIS_MODULE, true, "regulatory.db",
--				       &reg_pdev->dev, GFP_KERNEL,
--				       (void *)alpha2, regdb_fw_cb);
-+	err = request_firmware_nowait(THIS_MODULE, true, "regulatory.db",
-+				      &reg_pdev->dev, GFP_KERNEL,
-+				      (void *)alpha2, regdb_fw_cb);
-+	if (err)
-+		kfree(alpha2);
-+
-+	return err;
- }
- 
- int reg_reload_regdb(void)
 -- 
 2.35.1
 
