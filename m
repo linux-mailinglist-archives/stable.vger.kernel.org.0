@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA195628037
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:04:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C450627FF4
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:02:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237729AbiKNNED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:04:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58634 "EHLO
+        id S237723AbiKNNCq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:02:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237649AbiKNNEC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:04:02 -0500
+        with ESMTP id S237722AbiKNNCp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:02:45 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81BF927FE8
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:04:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83C162980A
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:02:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3398FB80EB8
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:04:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A860C433D6;
-        Mon, 14 Nov 2022 13:03:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43764B80EA5
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:02:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9593AC433D7;
+        Mon, 14 Nov 2022 13:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431038;
-        bh=qT8Ch8T0CQRk9Wxj6UVwHjnXsqZRW8z0jOICmJbIuwc=;
+        s=korg; t=1668430959;
+        bh=AAHd2nsvD91YZhghRBw4m9erM/tQW6YU7Rj0fdsgqhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0WVz7ViDCdim3v/+rMQHRPFqeuiVVatMXMo2ZLTbE/+evCZSqqvzjmdGtgGaaO1X5
-         k0NcAWlEocqae1QZdarxxarZXSf+znR9n5d7Lae88rHg5xnqTgLW8x33LgDX+BJtVC
-         gCvUydDBHSctM8wvWIjXHJLmKBGWru1jvuxvZx+4=
+        b=vTO6TrcGYkOXyT/+gj9GhMMLzFhL0MxpLhPZSLlsA1VWDfLuvAhpvkpYuYpoDzUo5
+         IBiLhxxsIQJuFROSVPD9KOyTaWv89h6Shdg5LnX0l+lhG4mEQ09nkeOPk6rQ0rVp3r
+         2ntTHAXIVOAsrTICLK8xguSZ5Wwd1E3oIpFj//Ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 047/190] KVM: s390: pci: Fix allocation size of aift kzdev elements
-Date:   Mon, 14 Nov 2022 13:44:31 +0100
-Message-Id: <20221114124500.870551020@linuxfoundation.org>
+Subject: [PATCH 6.0 049/190] hamradio: fix issue of dev reference count leakage in bpq_device_event()
+Date:   Mon, 14 Nov 2022 13:44:33 +0100
+Message-Id: <20221114124500.948637497@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -55,41 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit b6662e37772715447aeff2538444ff291e02ea31 ]
+[ Upstream commit 85cbaf032d3cd9f595152625eda5d4ecb1d6d78d ]
 
-The 'kzdev' field of struct 'zpci_aift' is an array of pointers to
-'kvm_zdev' structs. Allocate the proper size accordingly.
+When following tests are performed, it will cause dev reference counting
+leakage.
+a)ip link add bond2 type bond mode balance-rr
+b)ip link set bond2 up
+c)ifenslave -f bond2 rose1
+d)ip link del bond2
 
-Reported by Coccinelle:
-  WARNING: Use correct pointer type argument for sizeof
+When new bond device is created, the default type of the bond device is
+ether. And the bond device is up, bpq_device_event() receives the message
+and creates a new bpq device. In this case, the reference count value of
+dev is hold once. But after "ifenslave -f bond2 rose1" command is
+executed, the type of the bond device is changed to rose. When the bond
+device is unregistered, bpq_device_event() will not put the dev reference
+count.
 
-Fixes: 98b1d33dac5f ("KVM: s390: pci: do initial setup for AEN interpretation")
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221026013234.960859-1-rafaelmendsr@gmail.com
-Message-Id: <20221026013234.960859-1-rafaelmendsr@gmail.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/pci.c | 2 +-
+ drivers/net/hamradio/bpqether.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-index c50c1645c0ae..ded1af2ddae9 100644
---- a/arch/s390/kvm/pci.c
-+++ b/arch/s390/kvm/pci.c
-@@ -126,7 +126,7 @@ int kvm_s390_pci_aen_init(u8 nisc)
- 		return -EPERM;
+diff --git a/drivers/net/hamradio/bpqether.c b/drivers/net/hamradio/bpqether.c
+index 30af0081e2be..83a16d10eedb 100644
+--- a/drivers/net/hamradio/bpqether.c
++++ b/drivers/net/hamradio/bpqether.c
+@@ -533,7 +533,7 @@ static int bpq_device_event(struct notifier_block *this,
+ 	if (!net_eq(dev_net(dev), &init_net))
+ 		return NOTIFY_DONE;
  
- 	mutex_lock(&aift->aift_lock);
--	aift->kzdev = kcalloc(ZPCI_NR_DEVICES, sizeof(struct kvm_zdev),
-+	aift->kzdev = kcalloc(ZPCI_NR_DEVICES, sizeof(struct kvm_zdev *),
- 			      GFP_KERNEL);
- 	if (!aift->kzdev) {
- 		rc = -ENOMEM;
+-	if (!dev_is_ethdev(dev))
++	if (!dev_is_ethdev(dev) && !bpq_get_ax25_dev(dev))
+ 		return NOTIFY_DONE;
+ 
+ 	switch (event) {
 -- 
 2.35.1
 
