@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43E34627EDC
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:52:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 673B7627F5D
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:58:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237452AbiKNMwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:52:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44792 "EHLO
+        id S237537AbiKNM6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:58:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237461AbiKNMwY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:52:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A9FC25282
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:52:23 -0800 (PST)
+        with ESMTP id S237596AbiKNM6U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:58:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48F3F27DEB
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:58:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22B366112D
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:52:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A266C433C1;
-        Mon, 14 Nov 2022 12:52:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04EFAB80EB9
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:58:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 319A1C433C1;
+        Mon, 14 Nov 2022 12:58:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430342;
-        bh=NgcgWbgq+NHzd1MVDmZVgA4UGHow7sBhCZKIKBlN88o=;
+        s=korg; t=1668430696;
+        bh=+k7f3ERpIhzgGvt/56nHrrXcZijM1pibjzFdkSmyqm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lhx3TQy43IPkvGhN7dueNFiKoDogULbRQOtb+yzLbESAhJiw2GBotXHpcOnChgUPd
-         QUhKSMib2SdFuBZfrGhnYr0Fx+QDDp0oc8uhMF5vCVJ8MNViLiwl8Ky6frDgH0d7bb
-         qPlLhyca2DNWxV4PTMmf3B/qSIuklv/2zTc9IqjU=
+        b=gzbwWl7oYetvPEKXpdYkvCfqWzlhBQ/mtFp7LNHF6NLSMTJwQoOlJEZhh3r4e/br4
+         ssPvNPj6gXpX6szCLIXVBJNp15VWFMzgIBLXMhh+ftNgwa3E555diHJ20rN3QAEBhv
+         QFRCpRN3cQjX7O1i3L5A2B9gsU54P2o2xYYN5YDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 78/95] cert host tools: Stop complaining about deprecated OpenSSL functions
-Date:   Mon, 14 Nov 2022 13:46:12 +0100
-Message-Id: <20221114124445.792031654@linuxfoundation.org>
+        syzbot+031687116258450f9853@syzkaller.appspotmail.com,
+        Nikolay Borisov <nborisov@suse.com>,
+        Liu Shixin <liushixin2@huawei.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 104/131] btrfs: fix match incorrectly in dev_args_match_device
+Date:   Mon, 14 Nov 2022 13:46:13 +0100
+Message-Id: <20221114124453.107792189@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
-References: <20221114124442.530286937@linuxfoundation.org>
+In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
+References: <20221114124448.729235104@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,52 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Liu Shixin <liushixin2@huawei.com>
 
-commit 6bfb56e93bcef41859c2d5ab234ffd80b691be35 upstream.
+commit 0fca385d6ebc3cabb20f67bcf8a71f1448bdc001 upstream.
 
-OpenSSL 3.0 deprecated the OpenSSL's ENGINE API.  That is as may be, but
-the kernel build host tools still use it.  Disable the warning about
-deprecated declarations until somebody who cares fixes it.
+syzkaller found a failed assertion:
 
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+  assertion failed: (args->devid != (u64)-1) || args->missing, in fs/btrfs/volumes.c:6921
+
+This can be triggered when we set devid to (u64)-1 by ioctl. In this
+case, the match of devid will be skipped and the match of device may
+succeed incorrectly.
+
+Patch 562d7b1512f7 introduced this function which is used to match device.
+This function contains two matching scenarios, we can distinguish them by
+checking the value of args->missing rather than check whether args->devid
+and args->uuid is default value.
+
+Reported-by: syzbot+031687116258450f9853@syzkaller.appspotmail.com
+Fixes: 562d7b1512f7 ("btrfs: handle device lookup with btrfs_dev_lookup_args")
+CC: stable@vger.kernel.org # 5.16+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/extract-cert.c |    7 +++++++
- scripts/sign-file.c    |    7 +++++++
- 2 files changed, 14 insertions(+)
+ fs/btrfs/volumes.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/scripts/extract-cert.c
-+++ b/scripts/extract-cert.c
-@@ -23,6 +23,13 @@
- #include <openssl/err.h>
- #include <openssl/engine.h>
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -6841,18 +6841,18 @@ static bool dev_args_match_fs_devices(co
+ static bool dev_args_match_device(const struct btrfs_dev_lookup_args *args,
+ 				  const struct btrfs_device *device)
+ {
+-	ASSERT((args->devid != (u64)-1) || args->missing);
++	if (args->missing) {
++		if (test_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &device->dev_state) &&
++		    !device->bdev)
++			return true;
++		return false;
++	}
  
-+/*
-+ * OpenSSL 3.0 deprecates the OpenSSL's ENGINE API.
-+ *
-+ * Remove this if/when that API is no longer used
-+ */
-+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-+
- #define PKEY_ID_PKCS7 2
- 
- static __attribute__((noreturn))
---- a/scripts/sign-file.c
-+++ b/scripts/sign-file.c
-@@ -30,6 +30,13 @@
- #include <openssl/engine.h>
+-	if ((args->devid != (u64)-1) && device->devid != args->devid)
++	if (device->devid != args->devid)
+ 		return false;
+ 	if (args->uuid && memcmp(device->uuid, args->uuid, BTRFS_UUID_SIZE) != 0)
+ 		return false;
+-	if (!args->missing)
+-		return true;
+-	if (test_bit(BTRFS_DEV_STATE_IN_FS_METADATA, &device->dev_state) &&
+-	    !device->bdev)
+-		return true;
+-	return false;
++	return true;
+ }
  
  /*
-+ * OpenSSL 3.0 deprecates the OpenSSL's ENGINE API.
-+ *
-+ * Remove this if/when that API is no longer used
-+ */
-+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-+
-+/*
-  * Use CMS if we have openssl-1.0.0 or newer available - otherwise we have to
-  * assume that it's not available and its header file is missing and that we
-  * should use PKCS#7 instead.  Switching to the older PKCS#7 format restricts
 
 
