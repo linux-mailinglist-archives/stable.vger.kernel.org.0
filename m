@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEFB9627F71
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B555D627EDB
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 13:52:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237628AbiKNM7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 07:59:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52878 "EHLO
+        id S237460AbiKNMwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 07:52:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237633AbiKNM7T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:59:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6558125286
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:59:18 -0800 (PST)
+        with ESMTP id S237453AbiKNMwW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 07:52:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82E3A24F36
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 04:52:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2068B80EC1
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:59:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A724C433D6;
-        Mon, 14 Nov 2022 12:59:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F009B80EAF
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 12:52:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 941A3C433D6;
+        Mon, 14 Nov 2022 12:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430755;
-        bh=BAy51qeeWC3mS3b2ZIFgDST4enSbQIbQX1B3HVSOo/U=;
+        s=korg; t=1668430338;
+        bh=7IxYRpzAfcw0NE7ZtzcT1hrQ9jkYNODiGwheE+4JyVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V0xoI3ufZqPjUS7g28OiTH3+WDXcwSWsuZfK4lut1H0TIfjLSvp9k8Y9kKZSNRfFG
-         k9uQhEYMb91wU5ENC50GtIHenPnO8C3ZzpFdbEyz10klgNp8D6dSI6TOCypuRdmwgO
-         SSRXekXhv3Z1SHRXbputfbu+RGiQ0oW4RNtXhcSE=
+        b=eUCvYDd7zTapAlkZ+/twlwRjCLhGBwmFxAoD4HGkarUEaSFsuGnSRXAkxlrDrF6SN
+         PqC4cEVzK+o34wPUhVN+30IHX4Se0yUBVd34ZgfXwEaDwombFCMNprN6DMMRCkc7Bi
+         sSY4eNnDctJ76/OuauvH40tKzjwKmD5Kl5FFv4WA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Rosin <peda@axentia.se>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 120/131] dmaengine: at_hdmac: Fix concurrency problems by removing atc_complete_all()
+        patches@lists.linux.dev, Fabio Estevam <festevam@gmail.com>,
+        Haibo Chen <haibo.chen@nxp.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 95/95] mmc: sdhci-esdhc-imx: Convert the driver to DT-only
 Date:   Mon, 14 Nov 2022 13:46:29 +0100
-Message-Id: <20221114124453.806550571@linuxfoundation.org>
+Message-Id: <20221114124446.434875111@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221114124448.729235104@linuxfoundation.org>
-References: <20221114124448.729235104@linuxfoundation.org>
+In-Reply-To: <20221114124442.530286937@linuxfoundation.org>
+References: <20221114124442.530286937@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,110 +53,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit c6babed879fbe82796a601bf097649e07382db46 upstream.
+commit 854a22997ad5d6c9860a2d695c40cd4004151d5b upstream.
 
-atc_complete_all() had concurrency bugs, thus remove it:
-1/ atc_complete_all() in its entirety was buggy, as when the atchan->queue
-list (the one that contains descriptors that are not yet issued to the
-hardware) contained descriptors, it fired just the first from the
-atchan->queue, but moved all the desc from atchan->queue to
-atchan->active_list and considered them all as fired. This could result in
-calling the completion of a descriptor that was not yet issued to the
-hardware.
-2/ when in tasklet at atc_advance_work() time, atchan->active_list was
-queried without holding the lock of the chan. This can result in
-atchan->active_list concurrency problems between the tasklet and
-issue_pending().
+Since 5.10-rc1 i.MX is a devicetree-only platform, so simplify the code
+by removing the unused non-DT support.
 
-Fixes: dc78baa2b90b ("dmaengine: at_hdmac: new driver for the Atmel AHB DMA Controller")
-Reported-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20221025090306.297886-1-tudor.ambarus@microchip.com
-Link: https://lore.kernel.org/r/20221025090306.297886-8-tudor.ambarus@microchip.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Haibo Chen <haibo.chen@nxp.com>
+Link: https://lore.kernel.org/r/20201117113750.25053-1-festevam@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/at_hdmac.c |   49 ++++---------------------------------------------
- 1 file changed, 4 insertions(+), 45 deletions(-)
+ drivers/mmc/host/sdhci-esdhc-imx.c |   86 -------------------------------------
+ 1 file changed, 1 insertion(+), 85 deletions(-)
 
---- a/drivers/dma/at_hdmac.c
-+++ b/drivers/dma/at_hdmac.c
-@@ -486,67 +486,26 @@ atc_chain_complete(struct at_dma_chan *a
- }
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -295,22 +295,6 @@ struct pltfm_imx_data {
+ 	struct pm_qos_request pm_qos_req;
+ };
  
- /**
-- * atc_complete_all - finish work for all transactions
-- * @atchan: channel to complete transactions for
-- *
-- * Eventually submit queued descriptors if any
-- *
-- * Assume channel is idle while calling this function
-- * Called with atchan->lock held and bh disabled
-- */
--static void atc_complete_all(struct at_dma_chan *atchan)
+-static const struct platform_device_id imx_esdhc_devtype[] = {
+-	{
+-		.name = "sdhci-esdhc-imx25",
+-		.driver_data = (kernel_ulong_t) &esdhc_imx25_data,
+-	}, {
+-		.name = "sdhci-esdhc-imx35",
+-		.driver_data = (kernel_ulong_t) &esdhc_imx35_data,
+-	}, {
+-		.name = "sdhci-esdhc-imx51",
+-		.driver_data = (kernel_ulong_t) &esdhc_imx51_data,
+-	}, {
+-		/* sentinel */
+-	}
+-};
+-MODULE_DEVICE_TABLE(platform, imx_esdhc_devtype);
+-
+ static const struct of_device_id imx_esdhc_dt_ids[] = {
+ 	{ .compatible = "fsl,imx25-esdhc", .data = &esdhc_imx25_data, },
+ 	{ .compatible = "fsl,imx35-esdhc", .data = &esdhc_imx35_data, },
+@@ -1546,72 +1530,6 @@ sdhci_esdhc_imx_probe_dt(struct platform
+ }
+ #endif
+ 
+-static int sdhci_esdhc_imx_probe_nondt(struct platform_device *pdev,
+-			 struct sdhci_host *host,
+-			 struct pltfm_imx_data *imx_data)
 -{
--	struct at_desc *desc, *_desc;
--	LIST_HEAD(list);
--	unsigned long flags;
+-	struct esdhc_platform_data *boarddata = &imx_data->boarddata;
+-	int err;
 -
--	dev_vdbg(chan2dev(&atchan->chan_common), "complete all\n");
+-	if (!host->mmc->parent->platform_data) {
+-		dev_err(mmc_dev(host->mmc), "no board data!\n");
+-		return -EINVAL;
+-	}
 -
--	spin_lock_irqsave(&atchan->lock, flags);
+-	imx_data->boarddata = *((struct esdhc_platform_data *)
+-				host->mmc->parent->platform_data);
+-	/* write_protect */
+-	if (boarddata->wp_type == ESDHC_WP_GPIO) {
+-		host->mmc->caps2 |= MMC_CAP2_RO_ACTIVE_HIGH;
 -
--	/*
--	 * Submit queued descriptors ASAP, i.e. before we go through
--	 * the completed ones.
--	 */
--	if (!list_empty(&atchan->queue))
--		atc_dostart(atchan, atc_first_queued(atchan));
--	/* empty active_list now it is completed */
--	list_splice_init(&atchan->active_list, &list);
--	/* empty queue list by moving descriptors (if any) to active_list */
--	list_splice_init(&atchan->queue, &atchan->active_list);
+-		err = mmc_gpiod_request_ro(host->mmc, "wp", 0, 0);
+-		if (err) {
+-			dev_err(mmc_dev(host->mmc),
+-				"failed to request write-protect gpio!\n");
+-			return err;
+-		}
+-	}
 -
--	spin_unlock_irqrestore(&atchan->lock, flags);
+-	/* card_detect */
+-	switch (boarddata->cd_type) {
+-	case ESDHC_CD_GPIO:
+-		err = mmc_gpiod_request_cd(host->mmc, "cd", 0, false, 0);
+-		if (err) {
+-			dev_err(mmc_dev(host->mmc),
+-				"failed to request card-detect gpio!\n");
+-			return err;
+-		}
+-		fallthrough;
 -
--	list_for_each_entry_safe(desc, _desc, &list, desc_node)
--		atc_chain_complete(atchan, desc);
+-	case ESDHC_CD_CONTROLLER:
+-		/* we have a working card_detect back */
+-		host->quirks &= ~SDHCI_QUIRK_BROKEN_CARD_DETECTION;
+-		break;
+-
+-	case ESDHC_CD_PERMANENT:
+-		host->mmc->caps |= MMC_CAP_NONREMOVABLE;
+-		break;
+-
+-	case ESDHC_CD_NONE:
+-		break;
+-	}
+-
+-	switch (boarddata->max_bus_width) {
+-	case 8:
+-		host->mmc->caps |= MMC_CAP_8_BIT_DATA | MMC_CAP_4_BIT_DATA;
+-		break;
+-	case 4:
+-		host->mmc->caps |= MMC_CAP_4_BIT_DATA;
+-		break;
+-	case 1:
+-	default:
+-		host->quirks |= SDHCI_QUIRK_FORCE_1_BIT_DATA;
+-		break;
+-	}
+-
+-	return 0;
 -}
 -
--/**
-  * atc_advance_work - at the end of a transaction, move forward
-  * @atchan: channel where the transaction ended
-  */
- static void atc_advance_work(struct at_dma_chan *atchan)
+ static int sdhci_esdhc_imx_probe(struct platform_device *pdev)
  {
- 	unsigned long flags;
--	int ret;
+ 	const struct of_device_id *of_id =
+@@ -1631,8 +1549,7 @@ static int sdhci_esdhc_imx_probe(struct
  
- 	dev_vdbg(chan2dev(&atchan->chan_common), "advance_work\n");
+ 	imx_data = sdhci_pltfm_priv(pltfm_host);
  
- 	spin_lock_irqsave(&atchan->lock, flags);
--	ret = atc_chan_is_enabled(atchan);
-+	if (atc_chan_is_enabled(atchan) || list_empty(&atchan->active_list))
-+		return spin_unlock_irqrestore(&atchan->lock, flags);
- 	spin_unlock_irqrestore(&atchan->lock, flags);
--	if (ret)
--		return;
--
--	if (list_empty(&atchan->active_list) ||
--	    list_is_singular(&atchan->active_list))
--		return atc_complete_all(atchan);
+-	imx_data->socdata = of_id ? of_id->data : (struct esdhc_soc_data *)
+-						  pdev->id_entry->driver_data;
++	imx_data->socdata = of_id->data;
  
- 	atc_chain_complete(atchan, atc_first_active(atchan));
- 
- 	/* advance work */
- 	spin_lock_irqsave(&atchan->lock, flags);
--	atc_dostart(atchan, atc_first_active(atchan));
-+	if (!list_empty(&atchan->active_list))
-+		atc_dostart(atchan, atc_first_active(atchan));
- 	spin_unlock_irqrestore(&atchan->lock, flags);
- }
- 
+ 	if (imx_data->socdata->flags & ESDHC_FLAG_PMQOS)
+ 		cpu_latency_qos_add_request(&imx_data->pm_qos_req, 0);
+@@ -1944,7 +1861,6 @@ static struct platform_driver sdhci_esdh
+ 		.of_match_table = imx_esdhc_dt_ids,
+ 		.pm	= &sdhci_esdhc_pmops,
+ 	},
+-	.id_table	= imx_esdhc_devtype,
+ 	.probe		= sdhci_esdhc_imx_probe,
+ 	.remove		= sdhci_esdhc_imx_remove,
+ };
 
 
