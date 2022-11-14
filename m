@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E799628091
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:07:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56842628065
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:05:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237833AbiKNNHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:07:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33528 "EHLO
+        id S237791AbiKNNFh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:05:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237869AbiKNNG6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:06:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A8B62AC63
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:06:56 -0800 (PST)
+        with ESMTP id S237794AbiKNNFe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:05:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05CC32A41B
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:05:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F2A2B80EA5
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:06:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74253C433C1;
-        Mon, 14 Nov 2022 13:06:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9348E61173
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:05:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5CF5C433C1;
+        Mon, 14 Nov 2022 13:05:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431213;
-        bh=3pbEg6rr6hN2TQDBXyM+LPjxjOyH9ZsI8chGweJIWlY=;
+        s=korg; t=1668431133;
+        bh=p0SjPoqK6Z+gcv9Bt1XkR18MajwOGsvHFnKGTJ6pQLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOlINtDsO+bTZbLX6kkviE0tYwdGkYBnWGYBKEbjJkT+FeGnpiaFeH1DWa6IdxoXU
-         /pdDpOZFjespOvbk+JLVLHa1TJQkAO7K1U8GtC2sp/jYWqw6Uq+dT+ezFkT8gRv5pD
-         eTpHzv0dwzGwbRbiYPRCyAPqqi/LsKE2u6N8pwwM=
+        b=I2xpE0a1+jfDXjejFcV/Wb3CN2zfB6wXwmM0gCUi9XYAx548MI5LI8QDaEK9prdWK
+         dOJA/rC4OdHBu3M8CUbYK4Q3vIiQmr7OdXWhUrNQ8K6T792+tt7txP67QzmJLysBcm
+         MQwveIfwSVhKK9oYV3H0465p/VQb4D3jDK4kSp8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
+        patches@lists.linux.dev,
+        Valentina Fernandez <valentina.fernandezalanis@microchip.com>,
+        Evgenii Shatokhin <e.shatokhin@yadro.com>,
         Conor Dooley <conor.dooley@microchip.com>,
         Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 112/190] riscv: vdso: fix build with llvm
-Date:   Mon, 14 Nov 2022 13:45:36 +0100
-Message-Id: <20221114124503.598569973@linuxfoundation.org>
+Subject: [PATCH 6.0 113/190] riscv: fix reserved memory setup
+Date:   Mon, 14 Nov 2022 13:45:37 +0100
+Message-Id: <20221114124503.638313331@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -54,64 +56,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit 50f4dd657a0fcf90aa8da8dc2794a8100ff4c37c ]
+[ Upstream commit 50e63dd8ed92045eb70a72d7ec725488320fb68b ]
 
-Even after commit 89fd4a1df829 ("riscv: jump_label: mark arguments as
-const to satisfy asm constraints"), building with CC_OPTIMIZE_FOR_SIZE
-+ LLVM=1 can reproduce below build error:
+Currently, RISC-V sets up reserved memory using the "early" copy of the
+device tree. As a result, when trying to get a reserved memory region
+using of_reserved_mem_lookup(), the pointer to reserved memory regions
+is using the early, pre-virtual-memory address which causes a kernel
+panic when trying to use the buffer's name:
 
-  CC      arch/riscv/kernel/vdso/vgettimeofday.o
-In file included from <built-in>:4:
-In file included from lib/vdso/gettimeofday.c:5:
-In file included from include/vdso/datapage.h:17:
-In file included from include/vdso/processor.h:10:
-In file included from arch/riscv/include/asm/vdso/processor.h:7:
-In file included from include/linux/jump_label.h:112:
-arch/riscv/include/asm/jump_label.h:42:3: error:
-invalid operand for inline asm constraint 'i'
-                "       .option push                            \n\t"
-                ^
-1 error generated.
+ Unable to handle kernel paging request at virtual address 00000000401c31ac
+ Oops [#1]
+ Modules linked in:
+ CPU: 0 PID: 0 Comm: swapper Not tainted 6.0.0-rc1-00001-g0d9d6953d834 #1
+ Hardware name: Microchip PolarFire-SoC Icicle Kit (DT)
+ epc : string+0x4a/0xea
+  ra : vsnprintf+0x1e4/0x336
+ epc : ffffffff80335ea0 ra : ffffffff80338936 sp : ffffffff81203be0
+  gp : ffffffff812e0a98 tp : ffffffff8120de40 t0 : 0000000000000000
+  t1 : ffffffff81203e28 t2 : 7265736572203a46 s0 : ffffffff81203c20
+  s1 : ffffffff81203e28 a0 : ffffffff81203d22 a1 : 0000000000000000
+  a2 : ffffffff81203d08 a3 : 0000000081203d21 a4 : ffffffffffffffff
+  a5 : 00000000401c31ac a6 : ffff0a00ffffff04 a7 : ffffffffffffffff
+  s2 : ffffffff81203d08 s3 : ffffffff81203d00 s4 : 0000000000000008
+  s5 : ffffffff000000ff s6 : 0000000000ffffff s7 : 00000000ffffff00
+  s8 : ffffffff80d9821a s9 : ffffffff81203d22 s10: 0000000000000002
+  s11: ffffffff80d9821c t3 : ffffffff812f3617 t4 : ffffffff812f3617
+  t5 : ffffffff812f3618 t6 : ffffffff81203d08
+ status: 0000000200000100 badaddr: 00000000401c31ac cause: 000000000000000d
+ [<ffffffff80338936>] vsnprintf+0x1e4/0x336
+ [<ffffffff80055ae2>] vprintk_store+0xf6/0x344
+ [<ffffffff80055d86>] vprintk_emit+0x56/0x192
+ [<ffffffff80055ed8>] vprintk_default+0x16/0x1e
+ [<ffffffff800563d2>] vprintk+0x72/0x80
+ [<ffffffff806813b2>] _printk+0x36/0x50
+ [<ffffffff8068af48>] print_reserved_mem+0x1c/0x24
+ [<ffffffff808057ec>] paging_init+0x528/0x5bc
+ [<ffffffff808031ae>] setup_arch+0xd0/0x592
+ [<ffffffff8080070e>] start_kernel+0x82/0x73c
 
-I think the problem is when "-Os" is passed as CFLAGS, it's removed by
-"CFLAGS_REMOVE_vgettimeofday.o = $(CC_FLAGS_FTRACE) -Os" which is
-introduced in commit e05d57dcb8c7 ("riscv: Fixup __vdso_gettimeofday
-broke dynamic ftrace"), thus no optimization at all for vgettimeofday.c
-arm64 does remove "-Os" as well, but it forces "-O2" after removing
-"-Os".
+early_init_fdt_scan_reserved_mem() takes no arguments as it operates on
+initial_boot_params, which is populated by early_init_dt_verify(). On
+RISC-V, early_init_dt_verify() is called twice. Once, directly, in
+setup_arch() if CONFIG_BUILTIN_DTB is not enabled and once indirectly,
+very early in the boot process, by parse_dtb() when it calls
+early_init_dt_scan_nodes().
 
-I compared the generated vgettimeofday.o with "-O2" and "-Os",
-I think no big performance difference. So let's tell the kbuild not
-to remove "-Os" rather than follow arm64 style.
+This first call uses dtb_early_va to set initial_boot_params, which is
+not usable later in the boot process when
+early_init_fdt_scan_reserved_mem() is called. On arm64 for example, the
+corresponding call to early_init_dt_scan_nodes() uses fixmap addresses
+and doesn't suffer the same fate.
 
-vdso related performance can be improved a lot when building kernel with
-CC_OPTIMIZE_FOR_SIZE after this commit, ("-Os" VS no optimization)
+Move early_init_fdt_scan_reserved_mem() further along the boot sequence,
+after the direct call to early_init_dt_verify() in setup_arch() so that
+the names use the correct virtual memory addresses. The above supposed
+that CONFIG_BUILTIN_DTB was not set, but should work equally in the case
+where it is - unflatted_and_copy_device_tree() also updates
+initial_boot_params.
 
-Fixes: e05d57dcb8c7 ("riscv: Fixup __vdso_gettimeofday broke dynamic ftrace")
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Tested-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/20221031182943.2453-1-jszhang@kernel.org
+Reported-by: Valentina Fernandez <valentina.fernandezalanis@microchip.com>
+Reported-by: Evgenii Shatokhin <e.shatokhin@yadro.com>
+Link: https://lore.kernel.org/linux-riscv/f8e67f82-103d-156c-deb0-d6d6e2756f5e@microchip.com/
+Fixes: 922b0375fc93 ("riscv: Fix memblock reservation for device tree blob")
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Tested-by: Evgenii Shatokhin <e.shatokhin@yadro.com>
+Link: https://lore.kernel.org/r/20221107151524.3941467-1-conor.dooley@microchip.com
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/vdso/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/kernel/setup.c | 1 +
+ arch/riscv/mm/init.c      | 1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-index f2e065671e4d..84ac0fe612e7 100644
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -30,7 +30,7 @@ obj-y += vdso.o
- CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
+diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+index ad76bb59b059..67ec1fadcfe2 100644
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
+@@ -283,6 +283,7 @@ void __init setup_arch(char **cmdline_p)
+ 	else
+ 		pr_err("No DTB found in kernel mappings\n");
+ #endif
++	early_init_fdt_scan_reserved_mem();
+ 	misc_mem_init();
  
- # Disable -pg to prevent insert call site
--CFLAGS_REMOVE_vgettimeofday.o = $(CC_FLAGS_FTRACE) -Os
-+CFLAGS_REMOVE_vgettimeofday.o = $(CC_FLAGS_FTRACE)
+ 	init_resources();
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index b56a0a75533f..50a1b6edd491 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -262,7 +262,6 @@ static void __init setup_bootmem(void)
+ 			memblock_reserve(dtb_early_pa, fdt_totalsize(dtb_early_va));
+ 	}
  
- # Disable profiling and instrumentation for VDSO code
- GCOV_PROFILE := n
+-	early_init_fdt_scan_reserved_mem();
+ 	dma_contiguous_reserve(dma32_phys_limit);
+ 	if (IS_ENABLED(CONFIG_64BIT))
+ 		hugetlb_cma_reserve(PUD_SHIFT - PAGE_SHIFT);
 -- 
 2.35.1
 
