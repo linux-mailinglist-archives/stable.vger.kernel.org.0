@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B5EF628082
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:06:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56084628085
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:06:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237815AbiKNNGa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:06:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60998 "EHLO
+        id S237826AbiKNNGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:06:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237826AbiKNNG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:06:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80C172AC45
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:06:26 -0800 (PST)
+        with ESMTP id S237824AbiKNNGd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:06:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576E82AC51
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:06:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 247C9B80EA6
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:06:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D376C433D6;
-        Mon, 14 Nov 2022 13:06:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E351B80EA5
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:06:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A9DDC433D6;
+        Mon, 14 Nov 2022 13:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668431183;
-        bh=bHt5Bd9WzZUzm0G96otR07u0Ptujs3FERupGBlclfLU=;
+        s=korg; t=1668431186;
+        bh=cufJMALQRxsWPm4GhyIwlgHFdtdzqQpNLVMVOZFKaIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJzm+EinZW5pFTT6iNCuEXXFwa7QAqU4ybe5LjTIKkUwpQDlJbCEowefWn7j+sDxd
-         ffPHOFnOHMUBHXPOQlnVvC+AfEf1Lj06PeVRulnej7ROC4HMo76TLLWuXwEchJzkRv
-         kErBmdeRKKXc9OBSanMMfTEZb76gxabir8H40+fQ=
+        b=sGIXdfKqFYnHh9kySHGSe6oQtzqZh9uOwSxKq1VwzslMDCAIQCMxe9MnwlNjOw62h
+         1qdoz1PSAhCvju598SuLvucS6MFe6eI2MigwKUCsYwwXSwCUOpHWEWL0VhX+lcxrF4
+         9s2kPDO/8Kv2QCAqySK77jbw135We4nxspOZzCDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jussi Laako <jussi@sonarnerd.net>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.0 131/190] ALSA: usb-audio: Add DSD support for Accuphase DAC-60
-Date:   Mon, 14 Nov 2022 13:45:55 +0100
-Message-Id: <20221114124504.536672724@linuxfoundation.org>
+        patches@lists.linux.dev, Zhao Wenhui <zhaowenhui8@huawei.com>,
+        xiafukun <xiafukun@huawei.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 6.0 132/190] vmlinux.lds.h: Fix placement of .data..decrypted section
+Date:   Mon, 14 Nov 2022 13:45:56 +0100
+Message-Id: <20221114124504.574305390@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
@@ -52,32 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jussi Laako <jussi@sonarnerd.net>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 8cbd4725ffff3eface1f5f3397af02acad5b2831 upstream.
+commit 000f8870a47bdc36730357883b6aef42bced91ee upstream.
 
-Accuphase DAC-60 option card supports native DSD up to DSD256,
-but doesn't have support for auto-detection. Explicitly enable
-DSD support for the correct altsetting.
+Commit d4c639990036 ("vmlinux.lds.h: Avoid orphan section with !SMP")
+fixed an orphan section warning by adding the '.data..decrypted' section
+to the linker script under the PERCPU_DECRYPTED_SECTION define but that
+placement introduced a panic with !SMP, as the percpu sections are not
+instantiated with that configuration so attempting to access variables
+defined with DEFINE_PER_CPU_DECRYPTED() will result in a page fault.
 
-Signed-off-by: Jussi Laako <jussi@sonarnerd.net>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221108221241.1220878-1-jussi@sonarnerd.net
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Move the '.data..decrypted' section to the DATA_MAIN define so that the
+variables in it are properly instantiated at boot time with
+CONFIG_SMP=n.
+
+Cc: stable@vger.kernel.org
+Fixes: d4c639990036 ("vmlinux.lds.h: Avoid orphan section with !SMP")
+Link: https://lore.kernel.org/cbbd3548-880c-d2ca-1b67-5bb93b291d5f@huawei.com/
+Debugged-by: Ard Biesheuvel <ardb@kernel.org>
+Reported-by: Zhao Wenhui <zhaowenhui8@huawei.com>
+Tested-by: xiafukun <xiafukun@huawei.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221108174934.3384275-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/asm-generic/vmlinux.lds.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1913,6 +1913,7 @@ u64 snd_usb_interface_dsd_format_quirks(
- 	/* XMOS based USB DACs */
- 	switch (chip->usb_id) {
- 	case USB_ID(0x1511, 0x0037): /* AURALiC VEGA */
-+	case USB_ID(0x21ed, 0xd75a): /* Accuphase DAC-60 option card */
- 	case USB_ID(0x2522, 0x0012): /* LH Labs VI DAC Infinity */
- 	case USB_ID(0x2772, 0x0230): /* Pro-Ject Pre Box S2 Digital */
- 		if (fp->altsetting == 2)
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -333,6 +333,7 @@
+ #define DATA_DATA							\
+ 	*(.xiptext)							\
+ 	*(DATA_MAIN)							\
++	*(.data..decrypted)						\
+ 	*(.ref.data)							\
+ 	*(.data..shared_aligned) /* percpu related */			\
+ 	MEM_KEEP(init.data*)						\
+@@ -975,7 +976,6 @@
+ #ifdef CONFIG_AMD_MEM_ENCRYPT
+ #define PERCPU_DECRYPTED_SECTION					\
+ 	. = ALIGN(PAGE_SIZE);						\
+-	*(.data..decrypted)						\
+ 	*(.data..percpu..decrypted)					\
+ 	. = ALIGN(PAGE_SIZE);
+ #else
 
 
