@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D6A627F94
-	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:00:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FE8A627F95
+	for <lists+stable@lfdr.de>; Mon, 14 Nov 2022 14:00:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237645AbiKNNAg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 08:00:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54156 "EHLO
+        id S237655AbiKNNAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 08:00:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237661AbiKNNAe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:00:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93A7527930
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:00:33 -0800 (PST)
+        with ESMTP id S237662AbiKNNAg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 08:00:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDC0128706
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 05:00:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5612BB80EC0
-        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:00:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88330C433C1;
-        Mon, 14 Nov 2022 13:00:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B42E61154
+        for <stable@vger.kernel.org>; Mon, 14 Nov 2022 13:00:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39497C433C1;
+        Mon, 14 Nov 2022 13:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668430831;
-        bh=4Uo66OujtDjkWCG1jV6phbbX6rPMrqdC1cmmmNPWQTw=;
+        s=korg; t=1668430834;
+        bh=aVObdXlgRr1dGfhokV0cmM9KrKjXES3RKywx0o4U5WQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WWz6V6oLt2x4mR2dkx/u649JVs18QLLp7YwG4PcXUMawjs7wRHcyPh7f7/6UzcHSj
-         6HBJHpI+7BR0CJe27unmBOqSGwrRt6FXUyGMVB5kKYsjPwG6kFOQdKmISDrSoDvLlN
-         ryRBZx6w5ZXxyFWleW/3ya+CXKsvxwQsLkEDhm/8=
+        b=AephgfrjD1NwhVu7VPRb8FVY5JvlvmTlvLKSr9xGuq/nzcxxTG2M+mMFL9KRqb3fy
+         sZ7mY2EFcHjQ8VykFjJMC7TDF8LCF7zWshZeiTMQHROJ20WRiKluoDxduHxTydn9lL
+         2UQoDTAjCbVrXGuX8/b85vJiS5xO30ITjf6ykNtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sanjay R Mehta <sanju.mehta@amd.com>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Renjith Pananchikkal <Renjith.Pananchikkal@amd.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Subject: [PATCH 6.0 001/190] thunderbolt: Add DP OUT resource when DP tunnel is discovered
-Date:   Mon, 14 Nov 2022 13:43:45 +0100
-Message-Id: <20221114124458.871681671@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 6.0 002/190] drm/i915/gvt: Add missing vfio_unregister_group_dev() call
+Date:   Mon, 14 Nov 2022 13:43:46 +0100
+Message-Id: <20221114124458.911937352@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
 References: <20221114124458.806324402@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,70 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sanjay R Mehta <sanju.mehta@amd.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-commit b60e31bf18a7064032dbcb73dcb5b58f8a00a110 upstream.
+commit f423fa1bc9fe1978e6b9f54927411b62cb43eb04 upstream.
 
-If the boot firmware implements a connection manager of its own it may
-create a DisplayPort tunnel and will be handed off to Linux connection
-manager, but the DP OUT resource is not saved in the dp_resource list.
+When converting to directly create the vfio_device the mdev driver has to
+put a vfio_register_emulated_iommu_dev() in the probe() and a pairing
+vfio_unregister_group_dev() in the remove.
 
-This patch adds tunnelled DP OUT port to the dp_resource list once the
-DP tunnel is discovered.
+This was missed for gvt, add it.
 
-Signed-off-by: Sanjay R Mehta <sanju.mehta@amd.com>
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Tested-by: Renjith Pananchikkal <Renjith.Pananchikkal@amd.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Cc: stable@vger.kernel.org
+Fixes: 978cf586ac35 ("drm/i915/gvt: convert to use vfio_register_emulated_iommu_dev")
+Reported-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/0-v1-013609965fe8+9d-vfio_gvt_unregister_jgg@nvidia.com
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com> # v6.0 backport
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com> # v6.0 backport
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/tb.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/gpu/drm/i915/gvt/kvmgt.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/thunderbolt/tb.c
-+++ b/drivers/thunderbolt/tb.c
-@@ -105,6 +105,32 @@ static void tb_remove_dp_resources(struc
- 	}
+--- a/drivers/gpu/drm/i915/gvt/kvmgt.c
++++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+@@ -1595,6 +1595,9 @@ static void intel_vgpu_remove(struct mde
+ 
+ 	if (WARN_ON_ONCE(vgpu->attached))
+ 		return;
++
++	vfio_unregister_group_dev(&vgpu->vfio_device);
++	vfio_uninit_group_dev(&vgpu->vfio_device);
+ 	intel_gvt_destroy_vgpu(vgpu);
  }
  
-+static void tb_discover_dp_resource(struct tb *tb, struct tb_port *port)
-+{
-+	struct tb_cm *tcm = tb_priv(tb);
-+	struct tb_port *p;
-+
-+	list_for_each_entry(p, &tcm->dp_resources, list) {
-+		if (p == port)
-+			return;
-+	}
-+
-+	tb_port_dbg(port, "DP %s resource available discovered\n",
-+		    tb_port_is_dpin(port) ? "IN" : "OUT");
-+	list_add_tail(&port->list, &tcm->dp_resources);
-+}
-+
-+static void tb_discover_dp_resources(struct tb *tb)
-+{
-+	struct tb_cm *tcm = tb_priv(tb);
-+	struct tb_tunnel *tunnel;
-+
-+	list_for_each_entry(tunnel, &tcm->tunnel_list, list) {
-+		if (tb_tunnel_is_dp(tunnel))
-+			tb_discover_dp_resource(tb, tunnel->dst_port);
-+	}
-+}
-+
- static void tb_switch_discover_tunnels(struct tb_switch *sw,
- 				       struct list_head *list,
- 				       bool alloc_hopids)
-@@ -1446,6 +1472,8 @@ static int tb_start(struct tb *tb)
- 	tb_scan_switch(tb->root_switch);
- 	/* Find out tunnels created by the boot firmware */
- 	tb_discover_tunnels(tb);
-+	/* Add DP resources from the DP tunnels created by the boot firmware */
-+	tb_discover_dp_resources(tb);
- 	/*
- 	 * If the boot firmware did not create USB 3.x tunnels create them
- 	 * now for the whole topology.
 
 
