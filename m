@@ -2,117 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1407E629B6E
-	for <lists+stable@lfdr.de>; Tue, 15 Nov 2022 15:04:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F106629B55
+	for <lists+stable@lfdr.de>; Tue, 15 Nov 2022 14:59:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238495AbiKOOEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Nov 2022 09:04:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60508 "EHLO
+        id S229583AbiKON7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Nov 2022 08:59:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229836AbiKOOEW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Nov 2022 09:04:22 -0500
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83E722A272;
-        Tue, 15 Nov 2022 06:04:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1668521061; x=1700057061;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=JYGN4YJCKpoBV1HK1xLD1KHTUJxt32dHk1bzAhudxGo=;
-  b=hRHuYgEqyjvzCjtcxSzsmO4RvIN7pIR6x43963SPoseRe4AvD/8/XSkC
-   9mNblLeUQX2enO9dN0zPpL35NfLGHeE7uMFRBqov+7B2EBrjyk/qJ93gK
-   LJMqyCNXyIGO7fY3aUsMmQ7WBV0vSRSJUlm3BE682bWGjR423Ga90IDAJ
-   wbnU+XVQzXVzPQX2k2FyAv1pvqtbFjx9IMyA0Rf/nyryuwmo2M5Trmp60
-   1NbHt9xw5lo4lTwSwrBPUyMBclBRAIcKEA5lgl6AKRbKfMO/yNqHowSAN
-   1xuj8nontZuU5Jmyj0mDyZE+4HIBTKfKv8VqyyB0612a6NOOgGRyPT6R9
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10531"; a="292653173"
-X-IronPort-AV: E=Sophos;i="5.96,166,1665471600"; 
-   d="scan'208";a="292653173"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2022 06:04:21 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10531"; a="781352842"
-X-IronPort-AV: E=Sophos;i="5.96,166,1665471600"; 
-   d="scan'208";a="781352842"
-Received: from yilunxu-optiplex-7050.sh.intel.com (HELO localhost) ([10.239.159.165])
-  by fmsmga001.fm.intel.com with ESMTP; 15 Nov 2022 06:04:18 -0800
-Date:   Tue, 15 Nov 2022 21:54:54 +0800
-From:   Xu Yilun <yilun.xu@intel.com>
-To:     Randy Dunlap <rdunlap@infradead.org>
-Cc:     Russ Weight <russell.h.weight@intel.com>, mdf@kernel.org,
-        hao.wu@intel.com, trix@redhat.com, linux-fpga@vger.kernel.org,
-        linux-kernel@vger.kernel.org, lgoncalv@redhat.com,
-        marpagan@redhat.com, matthew.gerlach@linux.intel.com,
-        basheer.ahmed.muddebihal@intel.com, tianfei.zhang@intel.com,
-        kernel test robot <lkp@intel.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v1 1/1] fpga: m10bmc-sec: Fix kconfig dependencies
-Message-ID: <Y3OaLlcTJECIeZoB@yilunxu-OptiPlex-7050>
-References: <20221115001127.289890-1-russell.h.weight@intel.com>
- <48206188-97e3-1477-87f1-8946320be737@infradead.org>
+        with ESMTP id S232718AbiKON7c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Nov 2022 08:59:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D86211C93D;
+        Tue, 15 Nov 2022 05:59:31 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EFD061796;
+        Tue, 15 Nov 2022 13:59:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31184C433D6;
+        Tue, 15 Nov 2022 13:59:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1668520770;
+        bh=rb5W412jHJ/fNXONcq6nglbdvHNvzF+Z6trcJyoQiqs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WZmIZuK+5K/X909vL/BiLFOSl9OxbdgweO1tD51w1yrv8K+Ok3QSrf8r1ppfXy+St
+         ibj2tKPCR5uvlIQc7Iop6dXHehLMyVklgOdZmZbAXJqyWbn23t49eiZIzbK3oPQO5F
+         YJpwLcpL3rAIKA3cbola/HXrqCJuFKYQy3/n60t4=
+Date:   Tue, 15 Nov 2022 14:59:27 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     shaozhengchao <shaozhengchao@huawei.com>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>, stable@vger.kernel.org,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.15 000/131] 5.15.79-rc1 review
+Message-ID: <Y3ObPwyWx4bEAoAt@kroah.com>
+References: <20221114124448.729235104@linuxfoundation.org>
+ <CA+G9fYvdqK23zAa+=-x29Hq7BGVd2pN1_1XOp5U1X-GUWM4MAA@mail.gmail.com>
+ <f0136268-63d4-66ec-98fe-b7584b388906@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <48206188-97e3-1477-87f1-8946320be737@infradead.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <f0136268-63d4-66ec-98fe-b7584b388906@huawei.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-11-14 at 17:03:03 -0800, Randy Dunlap wrote:
+On Tue, Nov 15, 2022 at 11:34:12AM +0800, shaozhengchao wrote:
 > 
 > 
-> On 11/14/22 16:11, Russ Weight wrote:
-> > The secure update driver depends on the firmware-upload functionality of
-> > the firmware-loader. The firmware-loader is carried in the firmware-class
-> > driver which is enabled with the tristate CONFIG_FW_LOADER option. The
-> > firmware-upload functionality is included in the firmware-class driver if
-> > the bool FW_UPLOAD config is set.
+> On 2022/11/15 10:56, Naresh Kamboju wrote:
+> > On Mon, 14 Nov 2022 at 18:24, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > > 
+> > > This is the start of the stable review cycle for the 5.15.79 release.
+> > > There are 131 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > > 
+> > > Responses should be made by Wed, 16 Nov 2022 12:44:21 +0000.
+> > > Anything received after that time might be too late.
+> > > 
+> > > The whole patch series can be found in one patch at:
+> > >          https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.79-rc1.gz
+> > > or in the git tree and branch at:
+> > >          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> > > and the diffstat can be found below.
+> > > 
+> > > thanks,
+> > > 
+> > > greg k-h
 > > 
-> > The current dependency statement, "depends on FW_UPLOAD", is not adequate
-> > because it does not implicitly turn on FW_LOADER. Instead of adding a
-> > dependency, follow the convention used by drivers that require the
-> > FW_LOADER_USER_HELPER functionality of the firmware-loader by using
-> > select for both FW_LOADER and FW_UPLOAD.
+> > As others reported,
+> > arm: allmodconfig  failed [1] due to following warnings / errors.
 > > 
-> > Fixes: bdf86d0e6ca3 ("fpga: m10bmc-sec: create max10 bmc secure update")
-> > Reported-by: kernel test robot <lkp@intel.com>
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Russ Weight <russell.h.weight@intel.com>
-> 
-> Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-
-Acked-by: Xu Yilun <yilun.xu@intel.com>
-
-Applied to for-6.1
-
-> 
-> Thanks.
-> 
+> > drivers/net/ethernet/mediatek/mtk_star_emac.c: In function 'mtk_star_enable':
+> > drivers/net/ethernet/mediatek/mtk_star_emac.c:980:22: error: 'struct
+> > mtk_star_priv' has no member named 'rx_napi'; did you mean 'napi'?
+> >    980 |  napi_disable(&priv->rx_napi);
+> >        |                      ^~~~~~~
+> >        |                      napi
+> > drivers/net/ethernet/mediatek/mtk_star_emac.c:981:22: error: 'struct
+> > mtk_star_priv' has no member named 'tx_napi'; did you mean 'napi'?
+> >    981 |  napi_disable(&priv->tx_napi);
+> >        |                      ^~~~~~~
+> >        |                      napi
+> > 
+> > 
 > > ---
-> >  drivers/fpga/Kconfig | 4 +++-
-> >  1 file changed, 3 insertions(+), 1 deletion(-)
+> > net: ethernet: mtk-star-emac: disable napi when connect and start PHY
+> > failed in mtk_star_enable()
+> > [ Upstream commit b0c09c7f08c2467b2089bdf4adb2fbbc2464f4a8 ]
 > > 
-> > diff --git a/drivers/fpga/Kconfig b/drivers/fpga/Kconfig
-> > index d1a8107fdcb3..6ce143dafd04 100644
-> > --- a/drivers/fpga/Kconfig
-> > +++ b/drivers/fpga/Kconfig
-> > @@ -246,7 +246,9 @@ config FPGA_MGR_VERSAL_FPGA
-> >  
-> >  config FPGA_M10_BMC_SEC_UPDATE
-> >  	tristate "Intel MAX10 BMC Secure Update driver"
-> > -	depends on MFD_INTEL_M10_BMC && FW_UPLOAD
-> > +	depends on MFD_INTEL_M10_BMC
-> > +	select FW_LOADER
-> > +	select FW_UPLOAD
-> >  	help
-> >  	  Secure update support for the Intel MAX10 board management
-> >  	  controller.
+> > 
+> > [1] https://builds.tuxbuild.com/2HXmwUDUvmWI1Uc7zsdXNcsTqW1/
+> > 
+> > --
+> > Linaro LKFT
+> > https://lkft.linaro.org
 > 
-> -- 
-> ~Randy
+> Yes ,For stable-5.10, commit 0a8bd81fd6aaace14979152e0540da8ff158a00a
+> ("net: ethernet: mtk-star-emac: separate tx/rx handling with two NAPIs")
+> is not merged. So, please use napi_disable(&priv->napi) instead of
+> napi_disable(&priv->rx_napi) and napi_disable(&priv->tx_napi).
+
+I think you mean 5.15 here, not 5.10, right?
+
+Can you send a properly backported version of this commit for 5.10.y and
+5.15.y so that I can queue it up?  I'll go drop this offending one from
+the queue now and push out a -rc2 so that it doesn't stall the release.
+
+thanks,
+
+greg k-h
