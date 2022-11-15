@@ -2,96 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73B56628E13
-	for <lists+stable@lfdr.de>; Tue, 15 Nov 2022 01:14:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC6FF628E9B
+	for <lists+stable@lfdr.de>; Tue, 15 Nov 2022 01:46:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231169AbiKOAOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 19:14:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60160 "EHLO
+        id S232021AbiKOAq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 19:46:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236661AbiKOAOn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 19:14:43 -0500
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D229D2F6;
-        Mon, 14 Nov 2022 16:14:42 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id k15so12618995pfg.2;
-        Mon, 14 Nov 2022 16:14:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=0PUgakfIb3B+WPgvAwfy7fwsocSPx2wCqEn/4/3wPns=;
-        b=JOBUc794LxPvDMrzGKaD5a5K55kIAW+6brQoFjJLTZ+FMCx7uKUfKgz7JsEqFofro4
-         7ochCrTt5ZXIbqkSI4AjF+KaorwoF9JmPtDLz+zcIvsZDdohdIV9eaC6RMdTcYlnPils
-         eH8+hZz4jKNOBOnccNba7D1ag8wG/W4jZ61v/xG+hyI+/iv8Kegzpb4I+6S3Elsc43+V
-         xRLJ82tdrhy69F7Z3QZf9Apnysi7EgN0SmEWDUv+EYwTfZdZrK7XGLw6Qn2CkKT28QKc
-         JdSxIwgpRbJ+rJ/TU3R5WOO9eCXPi/gW/uhJSbtOo5IQiyn5lPY0vdMVRbmG55ZOWryZ
-         dZYA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0PUgakfIb3B+WPgvAwfy7fwsocSPx2wCqEn/4/3wPns=;
-        b=5ZPUwfYuykrAW7SJSKx2K9MVym4nSuigpgfNSIvIpgq5ZUjlE+rulyvPpEdDFhUH7J
-         Bxx2mFAJ+AyvRf6PqSqgKF7YwTloxfQ3el13tQAXvEKpcWD0nGkm3ujps9DMwh5r5bXI
-         SMmHWvGqq5cT2oUBLb/yJRQ3tBZkB67hguoW9U3AQAcTGOn98LmhbR1/aOjOGpMe/4yr
-         8BzdQ208pcHs7qN1iMgtGHuPfpIxQjMgapRmLKUtUCF+q7zCqdHoI3COYLJAoaxnv+fW
-         yjstj4iHwIBa5Q6R7sylDq7H3ySkP9JPCxmXOVu7BEh8Z3kKJUX8m8CnROVVoG9NJ9AU
-         QVTQ==
-X-Gm-Message-State: ANoB5pnaE6SdxhVsXEKlEIZtxkFlCNYeSaCeUNnD0LwRgRh0v2wGAhiF
-        N35QgHlK+qn98S7qloD75I0=
-X-Google-Smtp-Source: AA0mqf62gToNtfuLSSzYaP98r/OvEYkU56JLLSCIkEu4DiQuEPHf5zvmjD0O12y75crS3Li59EiODQ==
-X-Received: by 2002:a63:f658:0:b0:474:bbb:6523 with SMTP id u24-20020a63f658000000b004740bbb6523mr13727218pgj.476.1668471282126;
-        Mon, 14 Nov 2022 16:14:42 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id mu4-20020a17090b388400b00206023cbcc7sm10427386pjb.15.2022.11.14.16.14.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Nov 2022 16:14:41 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Mon, 14 Nov 2022 16:14:40 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.0 000/190] 6.0.9-rc1 review
-Message-ID: <20221115001440.GC2291336@roeck-us.net>
-References: <20221114124458.806324402@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221114124458.806324402@linuxfoundation.org>
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+        with ESMTP id S231602AbiKOAq1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 19:46:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C75D11D648;
+        Mon, 14 Nov 2022 16:46:25 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3DDBDCE1333;
+        Tue, 15 Nov 2022 00:46:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CBEBC433C1;
+        Tue, 15 Nov 2022 00:46:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1668473182;
+        bh=VpQrjkUAdI5NRkFYCpqIluaDEwvqvAKtxcMfqAXdVyI=;
+        h=Date:To:From:Subject:From;
+        b=UGWSTrrT3eRts63pOoosmsXoS3LNMyDgm7D285xy9Ai/FahP+yIVYF5JFfwQuWg8/
+         LRXVIDlYEf9SjyGTuvtajsMyXUXInGwezt6+w7Lu16Bd2+cRbQeyB6XzuB49su1djK
+         M5yiRBh8Hagsv9nQtlGCDJdGd0O0YHTmRD4DggRY=
+Date:   Mon, 14 Nov 2022 16:46:21 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        rppt@linux.vnet.ibm.com, nadav.amit@gmail.com, ives@codesandbox.io,
+        axelrasmussen@google.com, apopple@nvidia.com, aarcange@redhat.com,
+        peterx@redhat.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-migrate-fix-read-only-page-got-writable-when-recover-pte.patch added to mm-hotfixes-unstable branch
+Message-Id: <20221115004622.2CBEBC433C1@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 14, 2022 at 01:43:44PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.9 release.
-> There are 190 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 16 Nov 2022 12:44:21 +0000.
-> Anything received after that time might be too late.
-> 
 
-Build results:
-	total: 152 pass: 152 fail: 0
-Qemu test results:
-	total: 500 pass: 500 fail: 0
+The patch titled
+     Subject: mm/migrate: fix read-only page got writable when recover pte
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mm-migrate-fix-read-only-page-got-writable-when-recover-pte.patch
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-migrate-fix-read-only-page-got-writable-when-recover-pte.patch
 
-Guenter
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Peter Xu <peterx@redhat.com>
+Subject: mm/migrate: fix read-only page got writable when recover pte
+Date: Sun, 13 Nov 2022 19:04:46 -0500
+
+Ives van Hoorne from codesandbox.io reported an issue regarding possible
+data loss of uffd-wp when applied to memfds on heavily loaded systems. 
+The symptom is some read page got data mismatch from the snapshot child
+VMs.
+
+Here I can also reproduce with a Rust reproducer that was provided by Ives
+that keeps taking snapshot of a 256MB VM, on a 32G system when I initiate
+80 instances I can trigger the issues in ten minutes.
+
+It turns out that we got some pages write-through even if uffd-wp is
+applied to the pte.
+
+The problem is, when removing migration entries, we didn't really worry
+about write bit as long as we know it's not a write migration entry.  That
+may not be true, for some memory types (e.g.  writable shmem) mk_pte can
+return a pte with write bit set, then to recover the migration entry to
+its original state we need to explicit wr-protect the pte or it'll has the
+write bit set if it's a read migration entry.  For uffd it can cause
+write-through.
+
+The relevant code on uffd was introduced in the anon support, which is
+commit f45ec5ff16a7 ("userfaultfd: wp: support swap and page migration",
+2020-04-07).  However anon shouldn't suffer from this problem because anon
+should already have the write bit cleared always, so that may not be a
+proper Fixes target, while I'm adding the Fixes to be uffd shmem support.
+
+Link: https://lkml.kernel.org/r/20221114000447.1681003-2-peterx@redhat.com
+Fixes: b1f9e876862d ("mm/uffd: enable write protection for shmem & hugetlbfs")
+Reported-by: Ives van Hoorne <ives@codesandbox.io>
+Reviewed-by: Alistair Popple <apopple@nvidia.com>
+Tested-by: Ives van Hoorne <ives@codesandbox.io>
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Nadav Amit <nadav.amit@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/migrate.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+--- a/mm/migrate.c~mm-migrate-fix-read-only-page-got-writable-when-recover-pte
++++ a/mm/migrate.c
+@@ -213,8 +213,14 @@ static bool remove_migration_pte(struct
+ 			pte = pte_mkdirty(pte);
+ 		if (is_writable_migration_entry(entry))
+ 			pte = maybe_mkwrite(pte, vma);
+-		else if (pte_swp_uffd_wp(*pvmw.pte))
++		else
++			/* NOTE: mk_pte can have write bit set */
++			pte = pte_wrprotect(pte);
++
++		if (pte_swp_uffd_wp(*pvmw.pte)) {
++			WARN_ON_ONCE(pte_write(pte));
+ 			pte = pte_mkuffd_wp(pte);
++		}
+ 
+ 		if (folio_test_anon(folio) && !is_readable_migration_entry(entry))
+ 			rmap_flags |= RMAP_EXCLUSIVE;
+_
+
+Patches currently in -mm which might be from peterx@redhat.com are
+
+mm-migrate-fix-read-only-page-got-writable-when-recover-pte.patch
+mm-always-compile-in-pte-markers.patch
+mm-use-pte-markers-for-swap-errors.patch
+
