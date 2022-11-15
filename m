@@ -2,194 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5659629335
-	for <lists+stable@lfdr.de>; Tue, 15 Nov 2022 09:23:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 788B96293F9
+	for <lists+stable@lfdr.de>; Tue, 15 Nov 2022 10:14:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232302AbiKOIXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Nov 2022 03:23:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44166 "EHLO
+        id S229684AbiKOJO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Nov 2022 04:14:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229585AbiKOIXT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Nov 2022 03:23:19 -0500
-Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70BA711828;
-        Tue, 15 Nov 2022 00:23:17 -0800 (PST)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.west.internal (Postfix) with ESMTP id AFEFA32009CA;
-        Tue, 15 Nov 2022 03:23:14 -0500 (EST)
-Received: from imap51 ([10.202.2.101])
-  by compute3.internal (MEProxy); Tue, 15 Nov 2022 03:23:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm3; t=1668500594; x=1668586994; bh=H5y7W61lqF
-        YUGE6TQj7c/3Zmp9mShTInI16ioHw7osE=; b=Mm/Xft4g8RRygI97bABRS/8b8N
-        tZ88eNgxPm16JNnD8wRgHMlhbDWhqdvfsJZVSbqwotARd8SYga5pBniQ4vpkyCUv
-        xqlC2OrUtsnj5umUQDdd4b50E+OEZDz+87ewHy+WGeVRyHpmVEAm0iICnwW2sQq5
-        9lBZgqLoVMDIhjD/vqilZj7NjmmMtRImDO9mI/b2adgsgu03BBERNuYf09VO2//h
-        ShCG3KmM8jadFbzLnEabK72ks9qKF9LxqWqQuXlL5JkRY9WrZaIPXY/IElckXuvy
-        BkRsJh6tCaqd+X9kVZVG9zrgR4s+2vgtahdsc6Hi2gyCfMjX7E8o6hYMpQsQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; t=1668500594; x=1668586994; bh=H5y7W61lqFYUGE6TQj7c/3Zmp9mS
-        hTInI16ioHw7osE=; b=VhwQBu5MxlURgb2su1hxRr2IlhVfrCbbhU/T1+PMDuO4
-        2zZrY3ROp666Z64feWZeD9IDBDOrDHFTZ3td8eMyYLkUetAjsqMXrkvcDO7Cr7xl
-        mNVDbxeptLR/CYBzBfP7Tkzbmcp3adaAmQrRJthTJkqBgKDESK4oX3oxPoXPa9fJ
-        QJPZymbC9xqIuT92whcyRq7jN7o8M0VGdiN+uVqcIn4YT+Cp91ZjdRJZ6pp9O7mu
-        LIjBNJfhQwQEEDJ7aM3dzn29yIiPmWj0lt50cfxGRhGKkrW/E7bV7RCKVpboF36E
-        Fv8zKZqjnKusth52yMt9VWIVGVB0gvWTqf4Vf7U2Cg==
-X-ME-Sender: <xms:ckxzY4q3Bpm_2pes40f0tgqf8QdyilXJF--HmzgjQcmKS8q6uXXz4A>
-    <xme:ckxzY-o98FeAeFxngSyDRbiVL_uSbkrsnL0MkJxjtcjbjOQ3zLYNGE_ndp1pln0I9
-    zBXDbRBIYvB7nS79ic>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrgeefgdduudelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhephfdtlefhtedttedvtedvueeugedvueelueduvefhuefhuefgvddtveevvdff
-    hfdunecuffhomhgrihhnpehlihhnrghrohdrohhrghenucevlhhushhtvghrufhiiigvpe
-    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggv
-X-ME-Proxy: <xmx:ckxzY9PwAkDb5qk8c-GpLVsDSphyE5mTpMV_1TM19pdRhjXCdFLrXg>
-    <xmx:ckxzY_6HBSfxcq8LUZ2XKIaqhddJLegePHQBP-h-sfwaTgQUDc1j3A>
-    <xmx:ckxzY37f9HOypzwIup6RdvpGqqKoGyYb8nnfo2wGa8PnJzix-YJSHA>
-    <xmx:ckxzY9TYtD_z2CKhnVuF0Uh5QYjsRNHWfydYbNqRRgXSVVEde_sPZA>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 05600B60086; Tue, 15 Nov 2022 03:23:14 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.7.0-alpha0-1115-g8b801eadce-fm-20221102.001-g8b801ead
-Mime-Version: 1.0
-Message-Id: <97c413be-1a24-4447-b7ea-fa81a3170765@app.fastmail.com>
-In-Reply-To: <CA+G9fYuXG7Rh_A8W1NRVWbgWjozwzxzQY7tYw7bA4NsCuSovMg@mail.gmail.com>
-References: <CA+G9fYuXG7Rh_A8W1NRVWbgWjozwzxzQY7tYw7bA4NsCuSovMg@mail.gmail.com>
-Date:   Tue, 15 Nov 2022 09:22:53 +0100
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Naresh Kamboju" <naresh.kamboju@linaro.org>,
-        "open list" <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org
-Cc:     "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Mark Brown" <broonie@kernel.org>,
-        "Catalin Marinas" <catalin.marinas@arm.com>,
-        "Ard Biesheuvel" <ardb@kernel.org>
-Subject: Re: WARNING: CPU: 0 PID: 1111 at arch/arm64/kernel/fpsimd.c:464
- fpsimd_save+0x170/0x1b0
-Content-Type: text/plain
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229676AbiKOJOZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Nov 2022 04:14:25 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC3231119
+        for <stable@vger.kernel.org>; Tue, 15 Nov 2022 01:13:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1668503608;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=9bGG1jGVV02EQAPeqlOkm4CeIaBapLMU4o4CCV8AKv8=;
+        b=YJWTO7+6Vvyz4p8oN9SZ0cGFgJSam+Dc2tLmJhXP6mjqdt7y8SjnKBMTJKxlFNHNTBRc5Y
+        BaRjg5/NTABvsGXPmhmW6ZgxBwKNoSUG8IAUTlfx7vWdUavWFAehA0lHrctzLHPNs2GfZZ
+        GnyF6BRNrpdSevZ3WWNqfCpvlxpJzek=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-74-6HNVPAHZOtCb3-7StCuSOA-1; Tue, 15 Nov 2022 04:13:27 -0500
+X-MC-Unique: 6HNVPAHZOtCb3-7StCuSOA-1
+Received: by mail-wm1-f70.google.com with SMTP id l1-20020a7bc341000000b003bfe1273d6cso3558855wmj.4
+        for <stable@vger.kernel.org>; Tue, 15 Nov 2022 01:13:27 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:subject:organization:from
+         :content-language:references:cc:to:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9bGG1jGVV02EQAPeqlOkm4CeIaBapLMU4o4CCV8AKv8=;
+        b=Poux9BWVks+gqhwnSriFt0ldYrpOr/3LVVUWEkiNw8kQQU+6mxcpQx9giyeQ4Yv9Ne
+         WqdiO916vV+9WQdW8VUDawCrBxoA0k/+XPf56SZGQCIM8rrrrkKJXhY/usH2OCrK2kKX
+         v33TekbHqJfy6O+HdZS81dHQNJM6rbM0XHWUxSnBRQybAXQnrNdz0Ed4TnRyr3EuA7op
+         6yynqDx3JWjhzJquU7IBo/3aCBi7kWXpNQodPtIT4pNHvR/1lHaQeisNZAvUr91ubipt
+         AevspPPL4yhPB1J0e3gGh8rdiuR2hNR6/f/tdlSIEgG1mBS9BXJWsNOmhCYRhCjK+cCm
+         S2AQ==
+X-Gm-Message-State: ANoB5plYp/d0dtnD0/utwxETnm66lgNLTBrW7U6Lt6+L2Ciya75T7mrL
+        3sOWLfgp7dim2d01vzVapZY0kXGQXKB1/9wG97lIua6vPp7IRQ+MEm07gPZwLvbpdY6CnV2fzc8
+        ZCcox7fkNhqNLNOhg
+X-Received: by 2002:a05:6000:508:b0:236:5e77:b58e with SMTP id a8-20020a056000050800b002365e77b58emr10055801wrf.320.1668503606095;
+        Tue, 15 Nov 2022 01:13:26 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf5fR1dfQFe+f3e2gDVTnKiSkgViBOihC6UfuqBQMHKFk8w9A4JPD9Sub6SLnzxINQNIwBlh9g==
+X-Received: by 2002:a05:6000:508:b0:236:5e77:b58e with SMTP id a8-20020a056000050800b002365e77b58emr10055771wrf.320.1668503605686;
+        Tue, 15 Nov 2022 01:13:25 -0800 (PST)
+Received: from ?IPV6:2003:cb:c707:9d00:9303:90ce:6dcb:2bc9? (p200300cbc7079d00930390ce6dcb2bc9.dip0.t-ipconnect.de. [2003:cb:c707:9d00:9303:90ce:6dcb:2bc9])
+        by smtp.gmail.com with ESMTPSA id b15-20020adff24f000000b002345cb2723esm11723317wrp.17.2022.11.15.01.13.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Nov 2022 01:13:25 -0800 (PST)
+Message-ID: <ec8b3c86-d3b2-f898-7297-c20a58ae2ac1@redhat.com>
+Date:   Tue, 15 Nov 2022 10:13:24 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.1
+To:     Peter Xu <peterx@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Ives van Hoorne <ives@codesandbox.io>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>, stable@vger.kernel.org
+References: <20221110203132.1498183-1-peterx@redhat.com>
+ <20221110203132.1498183-2-peterx@redhat.com>
+ <9af36be3-313b-e39c-85bb-bf30011bccb8@redhat.com> <Y3KgYeMTdTM0FN5W@x1n>
+Content-Language: en-US
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH v2 1/2] mm/migrate: Fix read-only page got writable when
+ recover pte
+In-Reply-To: <Y3KgYeMTdTM0FN5W@x1n>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 15, 2022, at 08:27, Naresh Kamboju wrote:
-> Following kernel warning noticed while running kselftest arm64 sve-ptrace
-> on qemu-arm64 on ampere-altra server.
->
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
->
->  /usr/bin/qemu-system-aarch64 -cpu max,pauth-impdef=on \
->  -machine virt-2.10 \
->  -nographic \
->  -net nic,model=virtio,macaddr=BA:DD:AD:FC:09:12 \
->  -net tap -m 4096 -monitor none \
->  -kernel Image.gz --append "console=ttyAMA0 root=/dev/vda rw"
->  -hda lkft-kselftest-image-juno-20221114150409.rootfs.ext4
->  -smp 4 -nographic
+>>
+>> Any particular reason why not to simply glue this to pte_swp_uffd_wp(),
+>> because only that needs special care:
+>>
+>> if (pte_swp_uffd_wp(*pvmw.pte)) {
+>> 	pte = pte_wrprotect(pte);
+>> 	pte = pte_mkuffd_wp(pte);
+>> }
+>>
+>>
+>> And that would match what actually should have been done in commit
+>> f45ec5ff16a7 -- only special-case uffd-wp.
+>>
+>> Note that I think there are cases where we have a PTE that was !writable,
+>> but after migration we can map it writable.
+> 
+> The thing is recovering the pte into its original form is the safest
+> approach to me, so I think we need justification on why it's always safe to
+> set the write bit.
+> 
+> Or do you perhaps have solid clue and think it's always safe
+The problem I am having with this broader change, is that this changes 
+something independent of your original patch/problem.
 
-Hi Naresh,
-
-Have you tried what happens if you run the same thing on an x86
-machine? I would expect them to behave the same way, but it's
-possible something goes wrong with the guest CPU if this ends
-up using some (but not all) of the logic from KVM that would
-use '-cpu host' instead of '-cpu max'. Note that the Neoverse
-CPU in the Altra machine does not support SVE.
-
-Other things you could easily try would use the same command
-line as above, with the possible combinations of '-cpu host'
-(replacing -cpu max) and '-enable-kvm'. Do you always get
-the same result?
-
->
-> Boot log:
-> ---------
-> [    0.000000] Linux version 6.0.9-rc1 (tuxmake@tuxmake)
-> (aarch64-linux-gnu-gcc (Debian 11.3.0-6) 11.3.0, GNU ld (GNU Binutils
-> for Debian) 2.39) #1 SMP PREEMPT @1668438377
-> [    0.000000] random: crng init done
-> [    0.000000] Machine model: linux,dummy-virt
->
->
-> # selftests: arm64: sve-ptrace
-> # ok 680 # SKIP SVE set FPSIMD get SVE for VL 2704
-> # ok 681 Set SVE VL 2720
->
-> [  422.607034] ------------[ cut here ]------------
-> [  422.615382] WARNING: CPU: 0 PID: 1111 at
-> arch/arm64/kernel/fpsimd.c:464 fpsimd_save+0x170/0x1b0
-> [  422.617588] Modules linked in: cfg80211 bluetooth rfkill
-> crct10dif_ce sm3_ce sm3 sha3_ce sha512_ce sha512_arm64 fuse drm
-> [  422.619758] CPU: 0 PID: 1111 Comm: sve-ptrace Not tainted 6.0.9-rc1 #1
-> [  422.620402] Hardware name: linux,dummy-virt (DT)
-> [  422.620958] pstate: 804000c5 (Nzcv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-> [  422.621614] pc : fpsimd_save+0x170/0x1b0
-> [  422.621988] lr : fpsimd_save+0xd8/0x1b0
-> [  422.622307] sp : ffff800008f3bb00
-> [  422.622612] x29: ffff800008f3bb00 x28: ffffae14dd664bc0 x27: 0000000000000001
-> [  422.623519] x26: ffff0000ff773858 x25: 0000000000000000 x24: ffff0000c0994fa8
-> [  422.624102] x23: 0000000000000001 x22: 0000000000000100 x21: ffff0000ff75f0b0
-> [  422.624706] x20: ffff51ec22a8b000 x19: ffffae14dccd40b0 x18: 0000000000000000
-> [  422.625292] x17: ffff51ec22a8b000 x16: 0000000000000000 x15: 0000000000000000
-> [  422.626041] x14: 0000000000000003 x13: 0000000000000000 x12: 0000000000000002
-> [  422.626647] x11: ffffae14ddbee840 x10: 0000000000000312 x9 : ffffae14da818210
-> [  422.627326] x8 : ffff0000c09935c0 x7 : ffffae14de2b8d08 x6 : 0000000000000000
-> [  422.627889] x5 : 000000c91075a4a8 x4 : 0000000000000000 x3 : 0000000000000001
-> [  422.628487] x2 : ffff51ec22a8b000 x1 : 0000000000000204 x0 : 0000000000000010
-> [  422.629203] Call trace:
-> [  422.629579]  fpsimd_save+0x170/0x1b0
-> [  422.630014]  fpsimd_thread_switch+0x2c/0xc4
+If we identify this to be an actual problem, it should most probably be 
+separate fix + backport.
 
 
-This is the location of the WARN_ON(), it tests that the
-vector size matches. If for some reason it takes the vector
-size of the host CPU, this would warn.
+My understanding is that vma->vm_page_prot always tells you what the 
+default PTE protection in a mapping is.
 
-        if (IS_ENABLED(CONFIG_ARM64_SVE) && save_sve_regs) {
-                /* Get the configured VL from RDVL, will account for SM */
-                if (WARN_ON(sve_get_vl() != vl)) {
-                        /*
+If the mapping is private, it is never writable (due to COW). Similarly, 
+if the shared file mapping needs writenotify, it is never writable.
 
 
-> [  422.630431]  __switch_to+0x20/0x160
-> [  422.630745]  __schedule+0x380/0xb90
-> [  422.631038]  preempt_schedule_irq+0x4c/0x130
-> [  422.631386]  el1_interrupt+0x4c/0x64
-> [  422.631689]  el1h_64_irq_handler+0x18/0x24
-> [  422.632037]  el1h_64_irq+0x64/0x68
-> [  422.632335]  do_page_fault+0x31c/0x4d0
-> [  422.632660]  do_translation_fault+0xd8/0x100
-> [  422.632993]  do_mem_abort+0x58/0xb0
-> [  422.633311]  el0_ia+0x8c/0x134
-> [  422.633685]  el0t_64_sync_handler+0x134/0x140
-> [  422.634061]  el0t_64_sync+0x18c/0x190
-> [  422.634580] irq event stamp: 654
-> [  422.634923] hardirqs last  enabled at (653): [<ffffae14dbeafc94>]
-> exit_to_kernel_mode+0x34/0x130
-> [  422.635713] hardirqs last disabled at (654): [<ffffae14dbeb7700>]
-> __schedule+0x3f0/0xb90
-> [  422.636309] softirqs last  enabled at (650): [<ffffae14da810be4>]
-> __do_softirq+0x514/0x62c
-> [  422.636877] softirqs last disabled at (637): [<ffffae14da8b4f58>]
-> __irq_exit_rcu+0x164/0x19c
-> [  422.637446] ---[ end trace 0000000000000000 ]---
->
-> Full test log:
-> https://lkft.validation.linaro.org/scheduler/job/5847349#L2206
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.0.y/build/v6.0.8-191-gf8896c3ebbcf/testrun/13007451/suite/log-parser-test/test/check-kernel-exception/log
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.0.y/build/v6.0.8-191-gf8896c3ebbcf/testrun/13007451/suite/log-parser-test/test/check-kernel-exception/details/
+I consider UFFD-wp a special case: while the default VMA protection 
+might state that it is writable, you actually want individual PTEs to be 
+write-protected and have to manually remove the protection.
+
+softdirty tracking is another special case: however, softdirty tracking 
+is enabled for the whole VMA. For remove_migration_pte() that should be 
+fine (I guess) because writenotify is active when the VMA needs to track 
+softdirty bits, and consequently vma->vm_page_prot has the proper 
+default permissions.
+
+
+I wonder if the following (valid), for example is possible:
+
+
+1) clear_refs() clears VM_SOFTDIRTY and pte_wrprotect() the pte.
+-> writenotify is active and vma->vm_page_prot updated accordingly
+
+VM_SOFTDIRTY is reset due to VMA merging and vma->vm_page_prot is 
+updated accordingly. See mmap_region() where we set VM_SOFTDIRTY.
+
+If you now migrate the (still write-protected in the PTE) page, it was 
+not writable, but it can be writable on the destination.
+
+> 
+>>
+>> BTW, does unuse_pte() need similar care?
+>>
+>> new_pte = pte_mkold(mk_pte(page, vma->vm_page_prot));
+>> if (pte_swp_uffd_wp(*pte))
+>> 	new_pte = pte_mkuffd_wp(new_pte);
+>> set_pte_at(vma->vm_mm, addr, pte, new_pte);
+> 
+> I think unuse path is fine because unuse only applies to private mappings,
+> so we should always have the W bit removed there within mk_pte().
+
+You're right, however, shmem swapping confuses me. Maybe that does not 
+apply here.
+
+-- 
+Thanks,
+
+David / dhildenb
+
