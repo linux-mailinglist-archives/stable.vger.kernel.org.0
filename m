@@ -2,43 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC6FF628E9B
-	for <lists+stable@lfdr.de>; Tue, 15 Nov 2022 01:46:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B5D6628ED6
+	for <lists+stable@lfdr.de>; Tue, 15 Nov 2022 02:03:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232021AbiKOAq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Nov 2022 19:46:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45000 "EHLO
+        id S231750AbiKOBDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Nov 2022 20:03:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231602AbiKOAq1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 19:46:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C75D11D648;
-        Mon, 14 Nov 2022 16:46:25 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3DDBDCE1333;
-        Tue, 15 Nov 2022 00:46:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CBEBC433C1;
-        Tue, 15 Nov 2022 00:46:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1668473182;
-        bh=VpQrjkUAdI5NRkFYCpqIluaDEwvqvAKtxcMfqAXdVyI=;
-        h=Date:To:From:Subject:From;
-        b=UGWSTrrT3eRts63pOoosmsXoS3LNMyDgm7D285xy9Ai/FahP+yIVYF5JFfwQuWg8/
-         LRXVIDlYEf9SjyGTuvtajsMyXUXInGwezt6+w7Lu16Bd2+cRbQeyB6XzuB49su1djK
-         M5yiRBh8Hagsv9nQtlGCDJdGd0O0YHTmRD4DggRY=
-Date:   Mon, 14 Nov 2022 16:46:21 -0800
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        rppt@linux.vnet.ibm.com, nadav.amit@gmail.com, ives@codesandbox.io,
-        axelrasmussen@google.com, apopple@nvidia.com, aarcange@redhat.com,
-        peterx@redhat.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-migrate-fix-read-only-page-got-writable-when-recover-pte.patch added to mm-hotfixes-unstable branch
-Message-Id: <20221115004622.2CBEBC433C1@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S231201AbiKOBDN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Nov 2022 20:03:13 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C40B0D102;
+        Mon, 14 Nov 2022 17:03:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+        bh=S6yPAiRk+t6GLKlx3IP8Wnv/9rrtxQRSekfjt97Zb+8=; b=JnabfKpwSCOpDwZ0W2eKClxxIQ
+        soxyUh9RIFMta8dqyp/uw27XIPqsMMSVskTC14VDTkCQ+R2dU6JlxP2kCE9DdJaphOLiOZlNYLzFV
+        W1etSV11Izu0Uxep73RR0ArJ1n0rkYQbU3ILUI9yfRmk+8ewr8RfrUil93kHUjjePjOBDDdVWZCdt
+        cGr/bV0fUzTXtPZL7qm8cLa2gv6CCPnLckRHFoOsNilPaRNGAOSqqJ5O9cuwbs1khzKTFoMcfD+tG
+        dx1sbHTe8tPwVoMB4W9vsI8GmiDrb9slBd9EwiPqyy+Ss9OTmtDrYz7cXTJIo1NjsZ9hqL1ovHuS4
+        WJc0Fbaw==;
+Received: from [2601:1c2:d80:3110::a2e7]
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1oukLw-006VGP-GI; Tue, 15 Nov 2022 01:03:04 +0000
+Message-ID: <48206188-97e3-1477-87f1-8946320be737@infradead.org>
+Date:   Mon, 14 Nov 2022 17:03:03 -0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH v1 1/1] fpga: m10bmc-sec: Fix kconfig dependencies
+Content-Language: en-US
+To:     Russ Weight <russell.h.weight@intel.com>, mdf@kernel.org,
+        hao.wu@intel.com, yilun.xu@intel.com, trix@redhat.com,
+        linux-fpga@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     lgoncalv@redhat.com, marpagan@redhat.com,
+        matthew.gerlach@linux.intel.com,
+        basheer.ahmed.muddebihal@intel.com, tianfei.zhang@intel.com,
+        kernel test robot <lkp@intel.com>, stable@vger.kernel.org
+References: <20221115001127.289890-1-russell.h.weight@intel.com>
+From:   Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20221115001127.289890-1-russell.h.weight@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -46,100 +56,48 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/migrate: fix read-only page got writable when recover pte
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-migrate-fix-read-only-page-got-writable-when-recover-pte.patch
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-migrate-fix-read-only-page-got-writable-when-recover-pte.patch
+On 11/14/22 16:11, Russ Weight wrote:
+> The secure update driver depends on the firmware-upload functionality of
+> the firmware-loader. The firmware-loader is carried in the firmware-class
+> driver which is enabled with the tristate CONFIG_FW_LOADER option. The
+> firmware-upload functionality is included in the firmware-class driver if
+> the bool FW_UPLOAD config is set.
+> 
+> The current dependency statement, "depends on FW_UPLOAD", is not adequate
+> because it does not implicitly turn on FW_LOADER. Instead of adding a
+> dependency, follow the convention used by drivers that require the
+> FW_LOADER_USER_HELPER functionality of the firmware-loader by using
+> select for both FW_LOADER and FW_UPLOAD.
+> 
+> Fixes: bdf86d0e6ca3 ("fpga: m10bmc-sec: create max10 bmc secure update")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Russ Weight <russell.h.weight@intel.com>
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Thanks.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+> ---
+>  drivers/fpga/Kconfig | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/fpga/Kconfig b/drivers/fpga/Kconfig
+> index d1a8107fdcb3..6ce143dafd04 100644
+> --- a/drivers/fpga/Kconfig
+> +++ b/drivers/fpga/Kconfig
+> @@ -246,7 +246,9 @@ config FPGA_MGR_VERSAL_FPGA
+>  
+>  config FPGA_M10_BMC_SEC_UPDATE
+>  	tristate "Intel MAX10 BMC Secure Update driver"
+> -	depends on MFD_INTEL_M10_BMC && FW_UPLOAD
+> +	depends on MFD_INTEL_M10_BMC
+> +	select FW_LOADER
+> +	select FW_UPLOAD
+>  	help
+>  	  Secure update support for the Intel MAX10 board management
+>  	  controller.
 
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: mm/migrate: fix read-only page got writable when recover pte
-Date: Sun, 13 Nov 2022 19:04:46 -0500
-
-Ives van Hoorne from codesandbox.io reported an issue regarding possible
-data loss of uffd-wp when applied to memfds on heavily loaded systems. 
-The symptom is some read page got data mismatch from the snapshot child
-VMs.
-
-Here I can also reproduce with a Rust reproducer that was provided by Ives
-that keeps taking snapshot of a 256MB VM, on a 32G system when I initiate
-80 instances I can trigger the issues in ten minutes.
-
-It turns out that we got some pages write-through even if uffd-wp is
-applied to the pte.
-
-The problem is, when removing migration entries, we didn't really worry
-about write bit as long as we know it's not a write migration entry.  That
-may not be true, for some memory types (e.g.  writable shmem) mk_pte can
-return a pte with write bit set, then to recover the migration entry to
-its original state we need to explicit wr-protect the pte or it'll has the
-write bit set if it's a read migration entry.  For uffd it can cause
-write-through.
-
-The relevant code on uffd was introduced in the anon support, which is
-commit f45ec5ff16a7 ("userfaultfd: wp: support swap and page migration",
-2020-04-07).  However anon shouldn't suffer from this problem because anon
-should already have the write bit cleared always, so that may not be a
-proper Fixes target, while I'm adding the Fixes to be uffd shmem support.
-
-Link: https://lkml.kernel.org/r/20221114000447.1681003-2-peterx@redhat.com
-Fixes: b1f9e876862d ("mm/uffd: enable write protection for shmem & hugetlbfs")
-Reported-by: Ives van Hoorne <ives@codesandbox.io>
-Reviewed-by: Alistair Popple <apopple@nvidia.com>
-Tested-by: Ives van Hoorne <ives@codesandbox.io>
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/migrate.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
---- a/mm/migrate.c~mm-migrate-fix-read-only-page-got-writable-when-recover-pte
-+++ a/mm/migrate.c
-@@ -213,8 +213,14 @@ static bool remove_migration_pte(struct
- 			pte = pte_mkdirty(pte);
- 		if (is_writable_migration_entry(entry))
- 			pte = maybe_mkwrite(pte, vma);
--		else if (pte_swp_uffd_wp(*pvmw.pte))
-+		else
-+			/* NOTE: mk_pte can have write bit set */
-+			pte = pte_wrprotect(pte);
-+
-+		if (pte_swp_uffd_wp(*pvmw.pte)) {
-+			WARN_ON_ONCE(pte_write(pte));
- 			pte = pte_mkuffd_wp(pte);
-+		}
- 
- 		if (folio_test_anon(folio) && !is_readable_migration_entry(entry))
- 			rmap_flags |= RMAP_EXCLUSIVE;
-_
-
-Patches currently in -mm which might be from peterx@redhat.com are
-
-mm-migrate-fix-read-only-page-got-writable-when-recover-pte.patch
-mm-always-compile-in-pte-markers.patch
-mm-use-pte-markers-for-swap-errors.patch
-
+-- 
+~Randy
