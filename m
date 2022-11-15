@@ -2,135 +2,255 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F199E629FAB
-	for <lists+stable@lfdr.de>; Tue, 15 Nov 2022 17:54:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E796629FAE
+	for <lists+stable@lfdr.de>; Tue, 15 Nov 2022 17:55:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231779AbiKOQyq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Nov 2022 11:54:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34956 "EHLO
+        id S232161AbiKOQzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Nov 2022 11:55:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233044AbiKOQyq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Nov 2022 11:54:46 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3891F1CFF4
-        for <stable@vger.kernel.org>; Tue, 15 Nov 2022 08:54:45 -0800 (PST)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1ouzCc-0007iv-CD; Tue, 15 Nov 2022 17:54:26 +0100
-Received: from pengutronix.de (unknown [IPv6:2a03:f580:87bc:d400:6ac2:39cd:4970:9b29])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        (Authenticated sender: mkl-all@blackshift.org)
-        by smtp.blackshift.org (Postfix) with ESMTPSA id 6717211F6D8;
-        Tue, 15 Nov 2022 16:54:22 +0000 (UTC)
-Date:   Tue, 15 Nov 2022 17:54:13 +0100
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     Frieder Schrempf <frieder@fris.de>
-Cc:     David Jander <david@protonic.nl>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-spi@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>, Marek Vasut <marex@denx.de>,
-        NXP Linux Team <linux-imx@nxp.com>, stable@vger.kernel.org,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Baruch Siach <baruch.siach@siklu.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Minghao Chi <chi.minghao@zte.com.cn>
-Subject: Re: [PATCH v2] spi: spi-imx: Fix spi_bus_clk if requested clock is
- higher than input clock
-Message-ID: <20221115165413.4tvmhiv64gdmctml@pengutronix.de>
-References: <20221115162654.2016820-1-frieder@fris.de>
+        with ESMTP id S231964AbiKOQzk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Nov 2022 11:55:40 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80CB226559
+        for <stable@vger.kernel.org>; Tue, 15 Nov 2022 08:54:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1668531291;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=bf49TSFUAvXLR/UDxu1axsoIgxWQpSpKCGmRK4/brSA=;
+        b=cq69AVaQqjOu6eVVz4e/Lb9xc1XPe0GDmGYOTvmFiVtw/dC4Hw8qyNGFYgPvF6PggV/rcG
+        lbV77WMn/NQZuDCKNWozST8XxrsmOYYoxDHXUCOyfJEfG6dEKlA1mcqVo9xkIxSKSesQLw
+        1OzvmABu7VlZGdrQ2C3qwf9+lhIFyQk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-160-tvrgDWGRNSKS4_okb8LSqA-1; Tue, 15 Nov 2022 11:54:50 -0500
+X-MC-Unique: tvrgDWGRNSKS4_okb8LSqA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1DBED85A583;
+        Tue, 15 Nov 2022 16:54:50 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 195AE2166B2B;
+        Tue, 15 Nov 2022 16:54:50 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 2AFGsoLr002383;
+        Tue, 15 Nov 2022 11:54:50 -0500
+Received: from localhost (mpatocka@localhost)
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 2AFGsnfv002379;
+        Tue, 15 Nov 2022 11:54:50 -0500
+X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
+Date:   Tue, 15 Nov 2022 11:54:49 -0500 (EST)
+From:   Mikulas Patocka <mpatocka@redhat.com>
+X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
+To:     Greg KH <gregkh@linuxfoundation.org>
+cc:     stable@vger.kernel.org
+Subject: [PATCH 4.14 2/3] wait_on_bit: add an acquire memory barrier
+Message-ID: <alpine.LRH.2.21.2211151154110.32285@file01.intranet.prod.int.rdu2.redhat.com>
+User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ewz52byjukhww6c4"
-Content-Disposition: inline
-In-Reply-To: <20221115162654.2016820-1-frieder@fris.de>
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit 8238b4579866b7c1bb99883cfe102a43db5506ff upstream.
 
---ewz52byjukhww6c4
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There are several places in the kernel where wait_on_bit is not followed
+by a memory barrier (for example, in drivers/md/dm-bufio.c:new_read).
 
-On 15.11.2022 17:26:53, Frieder Schrempf wrote:
-> From: Frieder Schrempf <frieder.schrempf@kontron.de>
->=20
-> In case the requested bus clock is higher than the input clock, the corre=
-ct
-> dividers (pre =3D 0, post =3D 0) are returned from mx51_ecspi_clkdiv(), b=
-ut
-> *fres is left uninitialized and therefore contains an arbitrary value.
->=20
-> This causes trouble for the recently introduced PIO polling feature as the
-> value in spi_imx->spi_bus_clk is used there to calculate for which
-> transfers to enable PIO polling.
->=20
-> Fix this by setting *fres even if no clock dividers are in use.
->=20
-> This issue was observed on Kontron BL i.MX8MM with an SPI peripheral cloc=
-k set
-> to 50 MHz by default and a requested SPI bus clock of 80 MHz for the SPI =
-NOR
-> flash.
->=20
-> With the fix applied the debug message from mx51_ecspi_clkdiv() now print=
-s the
-> following:
->=20
-> spi_imx 30820000.spi: mx51_ecspi_clkdiv: fin: 50000000, fspi: 50000000,
-> post: 0, pre: 0
->=20
-> Fixes: 07e759387788 ("spi: spi-imx: add PIO polling support")
+On architectures with weak memory ordering, it may happen that memory
+accesses that follow wait_on_bit are reordered before wait_on_bit and
+they may return invalid data.
 
-The *fres parameter was introduced in:
+Fix this class of bugs by introducing a new function "test_bit_acquire"
+that works like test_bit, but has acquire memory ordering semantics.
 
-| Fixes: 6fd8b8503a0d ("spi: spi-imx: Fix out-of-order CS/SCLK operation at=
- low speeds")
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Acked-by: Will Deacon <will@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-The exiting code:
+---
+ arch/x86/include/asm/bitops.h                   |   21 +++++++++++++++++++++
+ include/asm-generic/bitops/generic-non-atomic.h |   13 +++++++++++++
+ include/asm-generic/bitops/non-atomic.h         |   14 ++++++++++++++
+ include/linux/buffer_head.h                     |    2 +-
+ include/linux/wait_bit.h                        |    8 ++++----
+ kernel/sched/wait_bit.c                         |    2 +-
+ 6 files changed, 54 insertions(+), 6 deletions(-)
 
-|	if (unlikely(fspi > fin))
-|		return 0;
+Index: linux-stable/arch/x86/include/asm/bitops.h
+===================================================================
+--- linux-stable.orig/arch/x86/include/asm/bitops.h	2022-11-14 22:15:43.000000000 +0100
++++ linux-stable/arch/x86/include/asm/bitops.h	2022-11-14 22:15:43.000000000 +0100
+@@ -328,6 +328,20 @@ static __always_inline bool constant_tes
+ 		(addr[nr >> _BITOPS_LONG_SHIFT])) != 0;
+ }
+ 
++static __always_inline bool constant_test_bit_acquire(long nr, const volatile unsigned long *addr)
++{
++	bool oldbit;
++
++	asm volatile("testb %2,%1"
++		     CC_SET(nz)
++		     : CC_OUT(nz) (oldbit)
++		     : "m" (((unsigned char *)addr)[nr >> 3]),
++		       "i" (1 << (nr & 7))
++		     :"memory");
++
++	return oldbit;
++}
++
+ static __always_inline bool variable_test_bit(long nr, volatile const unsigned long *addr)
+ {
+ 	bool oldbit;
+@@ -354,6 +368,13 @@ static bool test_bit(int nr, const volat
+ 	 ? constant_test_bit((nr), (addr))	\
+ 	 : variable_test_bit((nr), (addr)))
+ 
++static __always_inline bool
++test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++{
++	return __builtin_constant_p(nr) ? constant_test_bit_acquire(nr, addr) :
++					  variable_test_bit(nr, addr);
++}
++
+ /**
+  * __ffs - find first set bit in word
+  * @word: The word to search
+Index: linux-stable/include/asm-generic/bitops/non-atomic.h
+===================================================================
+--- linux-stable.orig/include/asm-generic/bitops/non-atomic.h	2022-11-14 22:15:43.000000000 +0100
++++ linux-stable/include/asm-generic/bitops/non-atomic.h	2022-11-14 22:15:43.000000000 +0100
+@@ -3,6 +3,7 @@
+ #define _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
+ 
+ #include <asm/types.h>
++#include <asm/barrier.h>
+ 
+ /**
+  * __set_bit - Set a bit in memory
+@@ -106,4 +107,17 @@ static inline int test_bit(int nr, const
+ 	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
+ }
+ 
++/**
++ * arch_test_bit_acquire - Determine, with acquire semantics, whether a bit is set
++ * @nr: bit number to test
++ * @addr: Address to start counting from
++ */
++static __always_inline bool
++arch_test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++{
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
++}
++#define test_bit_acquire arch_test_bit_acquire
++
+ #endif /* _ASM_GENERIC_BITOPS_NON_ATOMIC_H_ */
+Index: linux-stable/include/linux/buffer_head.h
+===================================================================
+--- linux-stable.orig/include/linux/buffer_head.h	2022-11-14 22:15:43.000000000 +0100
++++ linux-stable/include/linux/buffer_head.h	2022-11-14 22:15:43.000000000 +0100
+@@ -163,7 +163,7 @@ static __always_inline int buffer_uptoda
+ 	 * make it consistent with folio_test_uptodate
+ 	 * pairs with smp_mb__before_atomic in set_buffer_uptodate
+ 	 */
+-	return (smp_load_acquire(&bh->b_state) & (1UL << BH_Uptodate)) != 0;
++	return test_bit_acquire(BH_Uptodate, &bh->b_state);
+ }
+ 
+ #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
+Index: linux-stable/include/linux/wait_bit.h
+===================================================================
+--- linux-stable.orig/include/linux/wait_bit.h	2022-11-14 22:15:43.000000000 +0100
++++ linux-stable/include/linux/wait_bit.h	2022-11-14 22:15:43.000000000 +0100
+@@ -76,7 +76,7 @@ static inline int
+ wait_on_bit(unsigned long *word, int bit, unsigned mode)
+ {
+ 	might_sleep();
+-	if (!test_bit(bit, word))
++	if (!test_bit_acquire(bit, word))
+ 		return 0;
+ 	return out_of_line_wait_on_bit(word, bit,
+ 				       bit_wait,
+@@ -101,7 +101,7 @@ static inline int
+ wait_on_bit_io(unsigned long *word, int bit, unsigned mode)
+ {
+ 	might_sleep();
+-	if (!test_bit(bit, word))
++	if (!test_bit_acquire(bit, word))
+ 		return 0;
+ 	return out_of_line_wait_on_bit(word, bit,
+ 				       bit_wait_io,
+@@ -128,7 +128,7 @@ wait_on_bit_timeout(unsigned long *word,
+ 		    unsigned long timeout)
+ {
+ 	might_sleep();
+-	if (!test_bit(bit, word))
++	if (!test_bit_acquire(bit, word))
+ 		return 0;
+ 	return out_of_line_wait_on_bit_timeout(word, bit,
+ 					       bit_wait_timeout,
+@@ -156,7 +156,7 @@ wait_on_bit_action(unsigned long *word,
+ 		   unsigned mode)
+ {
+ 	might_sleep();
+-	if (!test_bit(bit, word))
++	if (!test_bit_acquire(bit, word))
+ 		return 0;
+ 	return out_of_line_wait_on_bit(word, bit, action, mode);
+ }
+Index: linux-stable/kernel/sched/wait_bit.c
+===================================================================
+--- linux-stable.orig/kernel/sched/wait_bit.c	2022-11-14 22:15:43.000000000 +0100
++++ linux-stable/kernel/sched/wait_bit.c	2022-11-14 22:15:43.000000000 +0100
+@@ -49,7 +49,7 @@ __wait_on_bit(struct wait_queue_head *wq
+ 		prepare_to_wait(wq_head, &wbq_entry->wq_entry, mode);
+ 		if (test_bit(wbq_entry->key.bit_nr, wbq_entry->key.flags))
+ 			ret = (*action)(&wbq_entry->key, mode);
+-	} while (test_bit(wbq_entry->key.bit_nr, wbq_entry->key.flags) && !ret);
++	} while (test_bit_acquire(wbq_entry->key.bit_nr, wbq_entry->key.flags) && !ret);
+ 	finish_wait(wq_head, &wbq_entry->wq_entry);
+ 	return ret;
+ }
+Index: linux-stable/include/asm-generic/bitops/generic-non-atomic.h
+===================================================================
+--- linux-stable.orig/include/asm-generic/bitops/generic-non-atomic.h	2022-11-14 22:15:43.000000000 +0100
++++ linux-stable/include/asm-generic/bitops/generic-non-atomic.h	2022-11-14 22:15:43.000000000 +0100
+@@ -4,6 +4,7 @@
+ #define __ASM_GENERIC_BITOPS_GENERIC_NON_ATOMIC_H
+ 
+ #include <linux/bits.h>
++#include <asm/barrier.h>
+ 
+ #ifndef _LINUX_BITOPS_H
+ #error only <linux/bitops.h> can be included directly
+@@ -127,4 +128,16 @@ generic_test_bit(unsigned int nr, const
+ 	return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
+ }
+ 
++/**
++ * generic_test_bit_acquire - Determine, with acquire semantics, whether a bit is set
++ * @nr: bit number to test
++ * @addr: Address to start counting from
++ */
++static __always_inline bool
++generic_test_bit_acquire(unsigned long nr, const volatile unsigned long *addr)
++{
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	return 1UL & (smp_load_acquire(p) >> (nr & (BITS_PER_LONG-1)));
++}
++
+ #endif /* __ASM_GENERIC_BITOPS_GENERIC_NON_ATOMIC_H */
 
-was not sufficient any more and should be fixed.
-
-Marc
-
---=20
-Pengutronix e.K.                 | Marc Kleine-Budde           |
-Embedded Linux                   | https://www.pengutronix.de  |
-Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
-
---ewz52byjukhww6c4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEBsvAIBsPu6mG7thcrX5LkNig010FAmNzxDMACgkQrX5LkNig
-0110Zgf/Rqhnp8+E6FdaZsP6cCH4rkGX9yPjEfdoke2AoOZYNlE2+z/TNpYclQ5D
-bTbfVjwa8E68JFsqUBwCoAY68xQ0N53ijC65ziL1veRdOJafpCIAUU12USeDCSvX
-JzIQPTfzpzsHJyQqUoShoP4BGCZI0k56WQndSs2nrOcQku1u8XYuLlJHDyi8LhI4
-p+W+o8Efaszewd4IuIrYPROrKA+FHGN4PHQh4UjQtICIWoFWQhaE4p0OeLY4yLph
-Rf1/i+yrrxhciog1YkHEAqQfdofcCSAq6NrZo9/MdXQwiRCXyhDhe+L0YOfvXQn3
-IGHS49ow9mnNg/LLLUUKOHDqzOcNvA==
-=bbCr
------END PGP SIGNATURE-----
-
---ewz52byjukhww6c4--
