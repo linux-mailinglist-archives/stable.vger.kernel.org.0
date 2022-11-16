@@ -2,86 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BF3062B63A
-	for <lists+stable@lfdr.de>; Wed, 16 Nov 2022 10:17:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90B0662B656
+	for <lists+stable@lfdr.de>; Wed, 16 Nov 2022 10:22:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231659AbiKPJRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Nov 2022 04:17:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40604 "EHLO
+        id S233332AbiKPJWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Nov 2022 04:22:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229826AbiKPJQj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 04:16:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78AD3636E
-        for <stable@vger.kernel.org>; Wed, 16 Nov 2022 01:16:39 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 145CD61B20
-        for <stable@vger.kernel.org>; Wed, 16 Nov 2022 09:16:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D14DC433C1;
-        Wed, 16 Nov 2022 09:16:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1668590198;
-        bh=mN/GYXPUK/cgG2rFY58a57XnliiG0/yQN4/WhO8m/8s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RUraSMAEK7XQFcDPMJRXdItdpjQ1l1PvPa95BhlfI5+DDS1tS+t2lb4W1h1+uj3++
-         lQIYHm/mFJo0hdKPhRyegB0RSTjPr4aYDSbspb2pnyFIQWyBROKHnSL1y/+KHd6/PF
-         mYHnx8EsxJZNRA1kCnEJmHlBzwqsxTffXIKQJpoY=
-Date:   Wed, 16 Nov 2022 10:16:36 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Naoya Horiguchi <naoya.horiguchi@linux.dev>
-Cc:     stable@vger.kernel.org, Yang Shi <shy828301@gmail.com>,
-        James Houghton <jthoughton@google.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>
-Subject: Re: hwpoison, shmem: fix data lost issue for 5.15.y
-Message-ID: <Y3SqdCSdvJGz35ku@kroah.com>
-References: <20221114131403.GA3807058@u2004>
- <Y3JotyM0Flj5ijVW@kroah.com>
- <20221114223900.GA3883066@u2004>
+        with ESMTP id S233652AbiKPJWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 04:22:00 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28C7427146;
+        Wed, 16 Nov 2022 01:21:59 -0800 (PST)
+Date:   Wed, 16 Nov 2022 09:21:56 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1668590517;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=YA4CPPTUVtYwpqhvtLMRcFwGP6fQVGdvDsF0bj73KSA=;
+        b=VxmlUt0Rfc7jGSAI7OPLtXBB0F272IfyHu+aMj1kOvVlO84Fs6ubReh6wipUI8pjsWSOLk
+        Ab+CPw8tiJJQLU30OYACyETBV4Ucpo1r5vpnZA1hqPImlOo/4tGMQ74MkF3EmAZx2/CYci
+        pk/Hj1ztosTQQWfSv9uPp4x3/at5lFGZDc+osC0X6MT7/jDtvL5+U5rzvv6zFpl4B7BRrq
+        TCly7rIImcCKaq7kmWxxzbgGwmQeNnVoy7tQSUmUQJ9RXF+6YDEpk8+892YszFBFH4BkGn
+        hn1GOR6mD03KuMVILEsguEj0imM/xAtGuR8SJQe9puIWPCyGhpmbYa3oLECtCQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1668590517;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=YA4CPPTUVtYwpqhvtLMRcFwGP6fQVGdvDsF0bj73KSA=;
+        b=mF5Ennni/19N9fRtmA1MwQPUMpq6OZaTAFlrt9sC3R/jXGLd7sWCcVg4L2z/HbulXszbWe
+        Ofoft4PSuldlt8CQ==
+From:   "tip-bot2 for Adrian Hunter" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: perf/urgent] perf/x86/intel/pt: Fix sampling using single range output
+Cc:     Adrian Hunter <adrian.hunter@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20221112151508.13768-1-adrian.hunter@intel.com>
+References: <20221112151508.13768-1-adrian.hunter@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221114223900.GA3883066@u2004>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Message-ID: <166859051658.4906.7352282169801138446.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 15, 2022 at 07:39:00AM +0900, Naoya Horiguchi wrote:
-> On Mon, Nov 14, 2022 at 05:11:35PM +0100, Greg KH wrote:
-> > On Mon, Nov 14, 2022 at 10:14:03PM +0900, Naoya Horiguchi wrote:
-> > > Hi,
-> > > 
-> > > I'd like to request the follow commits to be backported to 5.15.y.
-> > > 
-> > > - dd0f230a0a80 ("mm: hwpoison: refactor refcount check handling")
-> > > - 4966455d9100 ("mm: hwpoison: handle non-anonymous THP correctly")
-> > > - a76054266661 ("mm: shmem: don't truncate page if memory failure happens")
-> > > 
-> > > These patches fixed a data lost issue by preventing shmem pagecache from
-> > > being removed by memory error.  These were not tagged for stable originally,
-> > > but that's revisited recently.
-> > 
-> > And have you tested that these all apply properly (and in which order?)
-> 
-> Yes, I've checked that these cleanly apply (without any change) on
-> 5.15.78 in the above order (i.e. dd0f23 is first, 496645 comes next,
-> then a76054).
-> 
-> > and work correctly?
-> 
-> Yes, I ran related testcases in my test suite, and their status changed
-> FAIL to PASS with these patches.
+The following commit has been merged into the perf/urgent branch of tip:
 
-Great, all now queued up, thanks.
+Commit-ID:     ce0d998be9274dd3a3d971cbeaa6fe28fd2c3062
+Gitweb:        https://git.kernel.org/tip/ce0d998be9274dd3a3d971cbeaa6fe28fd2c3062
+Author:        Adrian Hunter <adrian.hunter@intel.com>
+AuthorDate:    Sat, 12 Nov 2022 17:15:08 +02:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Wed, 16 Nov 2022 10:12:59 +01:00
 
-greg k-h
+perf/x86/intel/pt: Fix sampling using single range output
+
+Deal with errata TGL052, ADL037 and RPL017 "Trace May Contain Incorrect
+Data When Configured With Single Range Output Larger Than 4KB" by
+disabling single range output whenever larger than 4KB.
+
+Fixes: 670638477aed ("perf/x86/intel/pt: Opportunistically use single range output mode")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20221112151508.13768-1-adrian.hunter@intel.com
+---
+ arch/x86/events/intel/pt.c |  9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
+index 82ef87e..42a5579 100644
+--- a/arch/x86/events/intel/pt.c
++++ b/arch/x86/events/intel/pt.c
+@@ -1263,6 +1263,15 @@ static int pt_buffer_try_single(struct pt_buffer *buf, int nr_pages)
+ 	if (1 << order != nr_pages)
+ 		goto out;
+ 
++	/*
++	 * Some processors cannot always support single range for more than
++	 * 4KB - refer errata TGL052, ADL037 and RPL017. Future processors might
++	 * also be affected, so for now rather than trying to keep track of
++	 * which ones, just disable it for all.
++	 */
++	if (nr_pages > 1)
++		goto out;
++
+ 	buf->single = true;
+ 	buf->nr_pages = nr_pages;
+ 	ret = 0;
