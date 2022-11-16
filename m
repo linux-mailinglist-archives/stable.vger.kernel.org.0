@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13F9462CEEB
-	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 00:42:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2609C62CEEE
+	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 00:42:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234389AbiKPXms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Nov 2022 18:42:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34206 "EHLO
+        id S234476AbiKPXmt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Nov 2022 18:42:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238946AbiKPXme (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 18:42:34 -0500
+        with ESMTP id S238951AbiKPXmf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 18:42:35 -0500
 Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51FD06F36D;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E943B70194;
         Wed, 16 Nov 2022 15:41:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1668642088; x=1700178088;
-  h=subject:mime-version:content-transfer-encoding:from:date:
-   message-id:to;
-  bh=gcknXCLuemBiw6QyYPT0m60B03ddAIIJISsWvFv8N2A=;
-  b=gvC8nGezjg2vJC8Y/Pz/9r3y13zbtrwNeatmAvIPAC8aBeBVM6MI7H2k
-   Yz49o4s2mFNMG5q3k063JV1d5mkNgbw6KiYGQm5m6jRf+Ndr7Wsx7zC0d
-   KwXT2vVp3/9/308iT92lbvwvchPp4hRHC87MWExmQOGe6cNOEXPh35j3G
-   +Hdv4xHI9JE2wtWo8DxJFTVybiuL+0UTEq6T/sbsMmbtvB3PDP5CML+rg
-   hgVOdSzRb7iKMiFd/dGk5dyLn7D/81kdLr9OEJzB/0AbIjDJKSHz7tPYR
-   KvMquCKmVkVRjdO5cZjWsJS0XAVT9XrcyUq+nOOcOkcQsphiqx4tx/8BS
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10533"; a="292405778"
+  h=from:date:subject:mime-version:content-transfer-encoding:
+   message-id:references:in-reply-to:to;
+  bh=51lOlSScMtNXt0xN1+cfGR14o3FY+CtRO0z+BQRrxHI=;
+  b=XJ11pM1JlWWKR41KpZXdg1sA7VIYNoxlZWl8/310qe8E8ttspsIf6R0L
+   +um1SY9khbPNOx+leRn5fKvWpjHW3a9pOUvw05n5J+lFpKdG9KDWpayny
+   JMFiQQq7eYm8ZyQWWNSgGXu0DQk2pjyvSzwgzLAAJlatD1qVmKg+N+xXT
+   c4zRhJWTPwXkuKAOY+Vvl2x/WWWa8en5bFOiarpPkexFQ84Pyqp8OOwam
+   zf6MoEVowldhTduAZflqBAqVOKy9E+PjYlfCLpz95UIUM0yR3viYTOIge
+   NLgnLNWHJVk9Jawck8NOt9wqe0VCHH84KY8Eky2lXB/3zOcflaEP0T08h
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10533"; a="292405779"
 X-IronPort-AV: E=Sophos;i="5.96,169,1665471600"; 
-   d="scan'208";a="292405778"
+   d="scan'208";a="292405779"
 Received: from fmsmga007.fm.intel.com ([10.253.24.52])
   by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Nov 2022 15:41:28 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10533"; a="641848518"
+X-IronPort-AV: E=McAfee;i="6500,9779,10533"; a="641848521"
 X-IronPort-AV: E=Sophos;i="5.96,169,1665471600"; 
-   d="scan'208";a="641848518"
+   d="scan'208";a="641848521"
 Received: from jjeyaram-mobl1.amr.corp.intel.com (HELO [192.168.1.28]) ([10.212.1.223])
   by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Nov 2022 15:41:27 -0800
-Subject: [PATCH v2 0/2] ACPI: HMAT: fix single-initiator target registrations
+From:   Vishal Verma <vishal.l.verma@intel.com>
+Date:   Wed, 16 Nov 2022 16:37:36 -0700
+Subject: [PATCH v2 1/2] ACPI: HMAT: remove unnecessary variable initialization
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-b4-tracking: H4sIAD90dWMC/z2OwQrCMBBEf6Xs2YQk1YZ68j9EynZNzUKaSFKLUvrvBg+ehhl4M7NBcZldgXOzQX
- YrF06xGnNogDzGhxN8rx6MMkZr3QmkJw9+xmWY+C0s0nQcCVtLCiozYnFizBjJVyq+Qqih57Kk/Plt
- rLrK9V+n7Mm2ndS96rteCS3qA49BBrm6POOF4+KCpDTDbd/3L3hSabKuAAAA
-From:   Vishal Verma <vishal.l.verma@intel.com>
-Date:   Wed, 16 Nov 2022 16:37:35 -0700
-Message-Id: <20221116-acpi_hmat_fix-v2-0-3712569be691@intel.com>
+Message-Id: <20221116-acpi_hmat_fix-v2-1-3712569be691@intel.com>
+References: <20221116-acpi_hmat_fix-v2-0-3712569be691@intel.com>
+In-Reply-To: <20221116-acpi_hmat_fix-v2-0-3712569be691@intel.com>
 To:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Vishal Verma <vishal.l.verma@intel.com>,
         linux-kernel@vger.kernel.org,
@@ -57,12 +56,12 @@ To:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Dan Williams <dan.j.williams@intel.com>,
         Liu Shixin <liushixin2@huawei.com>, stable@vger.kernel.org
 X-Mailer: b4 0.11.0-dev-d1636
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1380;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1117;
  i=vishal.l.verma@intel.com; h=from:subject:message-id;
- bh=gcknXCLuemBiw6QyYPT0m60B03ddAIIJISsWvFv8N2A=;
- b=owGbwMvMwCXGf25diOft7jLG02pJDMmlpeqLbCaqG/ZfYnqxx+nhqoR3PKfqXh/hYqsqXyDMtOJO
- 9MGfHaUsDGJcDLJiiix/93xkPCa3PZ8nMMERZg4rE8gQBi5OAZiInCzDP4Vfyk9MrX5umfrqYflbtu
- meV6foTm1bxyRpUbljS4mbyXKG/9X2l2XXX1yVdbupbdVGjmTG6hWRbzaWzyzmclKJEpdjYwYA
+ bh=51lOlSScMtNXt0xN1+cfGR14o3FY+CtRO0z+BQRrxHI=;
+ b=owGbwMvMwCXGf25diOft7jLG02pJDMmlpeqV387XKDrnL1W5XHjGteB445I/szYv821ZPCW64y+D
+ 3t3pHaUsDGJcDLJiiix/93xkPCa3PZ8nMMERZg4rE8gQBi5OAZjIsXhGhvNT0uw5Flzl3fGsPfR98d
+ 4lAjamAdlH/XOymz5N+mwr+pWRYUHWnfP5Dnasz87t9dx0IzyqtjtEKoFrn0t7++qta44KcgIA
 X-Developer-Key: i=vishal.l.verma@intel.com; a=openpgp;
  fpr=F8682BE134C67A12332A2ED07AFA61BEA3B84DFF
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -74,42 +73,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Patch 1 is an obvious cleanup found while fixing this problem.
-
-Patch 2 Fixes a bug with initiator registration for single-initiator
-systems. More details on this in its commit message.
-
-Rafael - I didn't retain your ack for patch 2 since it seemed like a
-nontrivial change.
+In hmat_register_target_initiators(), the variable 'best' gets
+initialized in the outer per-locality-type for loop. The initialization
+just before setting up 'Access 1' targets was unnecessary. Remove it.
 
 Cc: Rafael J. Wysocki <rafael@kernel.org>
 Cc: Liu Shixin <liushixin2@huawei.com>
 Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-acpi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: <stable@vger.kernel.org>
-Cc: Chris Piper <chris.d.piper@intel.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
-
 ---
-Changes in v2:
-- Collect Acks for patch 1.
-- Separate out the bitmask generation from the comparision helper to make
-  it more explicit and easier to follow (Kirill)
-- Link to v1: https://lore.kernel.org/r/20221116075736.1909690-1-vishal.l.verma@intel.com
+ drivers/acpi/numa/hmat.c | 1 -
+ 1 file changed, 1 deletion(-)
 
----
-Vishal Verma (2):
-      ACPI: HMAT: remove unnecessary variable initialization
-      ACPI: HMAT: Fix initiator registration for single-initiator systems
+diff --git a/drivers/acpi/numa/hmat.c b/drivers/acpi/numa/hmat.c
+index 23f49a2f4d14..144a84f429ed 100644
+--- a/drivers/acpi/numa/hmat.c
++++ b/drivers/acpi/numa/hmat.c
+@@ -644,7 +644,6 @@ static void hmat_register_target_initiators(struct memory_target *target)
+ 	/* Access 1 ignores Generic Initiators */
+ 	bitmap_zero(p_nodes, MAX_NUMNODES);
+ 	list_sort(p_nodes, &initiators, initiator_cmp);
+-	best = 0;
+ 	for (i = WRITE_LATENCY; i <= READ_BANDWIDTH; i++) {
+ 		loc = localities_types[i];
+ 		if (!loc)
 
- drivers/acpi/numa/hmat.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
----
-base-commit: 9abf2313adc1ca1b6180c508c25f22f9395cc780
-change-id: 20221116-acpi_hmat_fix-7acf4bca37c0
-
-Best regards,
 -- 
-Vishal Verma <vishal.l.verma@intel.com>
+2.38.1
