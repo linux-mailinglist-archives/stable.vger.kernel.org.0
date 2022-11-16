@@ -2,132 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CB2462CF2C
-	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 00:55:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15B2462CF3E
+	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 00:58:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234393AbiKPXzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Nov 2022 18:55:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44096 "EHLO
+        id S231231AbiKPX65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Nov 2022 18:58:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233886AbiKPXzB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 18:55:01 -0500
-Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C339066C9E;
-        Wed, 16 Nov 2022 15:55:00 -0800 (PST)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 8FBA832003C0;
-        Wed, 16 Nov 2022 18:54:59 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 16 Nov 2022 18:55:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shutemov.name;
-         h=cc:cc:content-type:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm2; t=1668642899; x=1668729299; bh=E6
-        JF0cEeUYzVPtpcCWq54L+1lUQkLjUmOjkjEOpTZQs=; b=HxYk+rY3975eYJAPSW
-        Ph7ZU1IwAnV4TanjbmZUbDB6VzD/zAZfucXLQXGfvHyoibQO0lD1E2qcwXsf3Alp
-        7PPDHs2Y7WKoBapqB+/iV0/iTm0RXFCMrsgHaag5LHGYqbiLx/IuUsTwkZsCbBRG
-        0Z3zd3w0NkBhAfzrNz8A/8Ll+OU1CmIwCLOtNvkPGmvh7+EjfSFMHTGC7Xjqz3Wn
-        wi7vbkyOHminV0tsPsCiMU3LBwZeDZ9ErNMA4tICmPEqmoCe6R+Ei1yI4avkZ9wy
-        leIpyBk4x1WB7nUXHJu1FP4KLZZ+rVhChhJNTuarphOpvXAIlq4Vknwov//y13RI
-        s8sg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; t=1668642899; x=1668729299; bh=E6JF0cEeUYzVPtpcCWq54L+1lUQk
-        LjUmOjkjEOpTZQs=; b=G07M2l3GSh3PLRpUpbkrFfJDVMCtKW0iGwiKO8yVW688
-        ZPOucYUGnER+7H6ToVIvXVQDpXtrNMor5uRwNLLAKXFG9fk5/97wq7YoI0/rNtLd
-        IWWocrNz3QIS/18Ltl2wAuGImJe8BZizYkyzEoz29+wFZBwXrrjnnY4Vw+5naKL/
-        1QQ9Ol7iYPlEtwt+C0WBLRenclkgXHuCJvxo3anJr/aJmTRWP7Q/9ujfOd8KSnjl
-        VABLD32s5ltm4PfAvK7gBzffZyDqQTO9BFVPARHIElY2Gu5jV0YDLka5u6YlmMFL
-        0kUe9ac6M5uXZ4U43WwFBojxgvm5W+DQNIGNHJaJLw==
-X-ME-Sender: <xms:Unh1Y854ORzk8SFRgynH9lD4k_-BLpT6Vg3ODpSR1Vcs_p_sVrMZyg>
-    <xme:Unh1Y96f3_BXmDZJ0FjEkx0fsO4UhHjD3_O2O04XZdLpFg-nlIP5BwgDJD9SA1yLv
-    zBCtXTsXwOrwcxKrSY>
-X-ME-Received: <xmr:Unh1Y7fd4FQnxXfNnAs_lVR-Ad9HbRsJXxBHKEG-UNlH3z-s5DLQ-AdYoRnBPYubNhnp3A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrgeejgdduiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvvefukfhfgggtuggjsehttddttddttddvnecuhfhrohhmpedfmfhirhhi
-    lhhlucetrdcuufhhuhhtvghmohhvfdcuoehkihhrihhllhesshhhuhhtvghmohhvrdhnrg
-    hmvgeqnecuggftrfgrthhtvghrnhephfeigefhtdefhedtfedthefghedutddvueehtedt
-    tdehjeeukeejgeeuiedvkedtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepkhhirhhilhhlsehshhhuthgvmhhovhdrnhgrmhgv
-X-ME-Proxy: <xmx:Unh1YxI9iIYdKgHxx2SGafkvR7A5ElwzVHFEn0Dgj5n8wQrEVljFbw>
-    <xmx:Unh1YwLxu9M0RFU14x20Qo__UDf-WabQX-f-fkbHcvELqCyBSXadCA>
-    <xmx:Unh1YywGTGww3BJL_IVBSnir7p7Ut6GxjQPE6OWW3E-wURkQ0M9CNg>
-    <xmx:U3h1Y1XGTsKaY2E1nHo6LGGHZAd7Gxgkw29BGhfWxjRD5Qq8EuHuRQ>
-Feedback-ID: ie3994620:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 16 Nov 2022 18:54:58 -0500 (EST)
-Received: by box.shutemov.name (Postfix, from userid 1000)
-        id 9E6CC109702; Thu, 17 Nov 2022 02:54:55 +0300 (+03)
-Date:   Thu, 17 Nov 2022 02:54:55 +0300
-From:   "Kirill A. Shutemov" <kirill@shutemov.name>
-To:     Vishal Verma <vishal.l.verma@intel.com>
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        linux-kernel@vger.kernel.org,
-        Chris Piper <chris.d.piper@intel.com>, nvdimm@lists.linux.dev,
-        linux-acpi@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Liu Shixin <liushixin2@huawei.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] ACPI: HMAT: Fix initiator registration for
- single-initiator systems
-Message-ID: <20221116235455.74nqyfdcqe72mhbi@box.shutemov.name>
-References: <20221116-acpi_hmat_fix-v2-0-3712569be691@intel.com>
- <20221116-acpi_hmat_fix-v2-2-3712569be691@intel.com>
+        with ESMTP id S231394AbiKPX6z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 18:58:55 -0500
+Received: from out0.migadu.com (out0.migadu.com [IPv6:2001:41d0:2:267::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C6244D5C2
+        for <stable@vger.kernel.org>; Wed, 16 Nov 2022 15:58:54 -0800 (PST)
+Date:   Thu, 17 Nov 2022 08:58:42 +0900
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1668643132;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=gjK5EzpHE+rDdWbI4MHlxAzITuMlzelLH4x2GZwCazc=;
+        b=o3Qb3toyB6Nqyb4VmO9IHkoEhhvvGcmFH5Ggw9mC6iJ86KzyNhk92miGAXm2FtDDSLpLd4
+        L3pM43dHhaR8aT3M3+a0wdKWT3YcKykF5IjFzzq5gp6hB6z9IVZsJXQ77ebRE4ocEtKfzk
+        hePckGY4WWGGOguek6ZB6VYq+Xz3eeA=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Naoya Horiguchi <naoya.horiguchi@linux.dev>
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+Cc:     HORIGUCHI =?utf-8?B?TkFPWUEo5aCA5Y+j44CA55u05LmfKQ==?= 
+        <naoya.horiguchi@nec.com>, Greg KH <gregkh@linuxfoundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Yang Shi <shy828301@gmail.com>,
+        James Houghton <jthoughton@google.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: hwpoison, shmem: fix data lost issue for 5.15.y
+Message-ID: <20221116235842.GA62826@u2004>
+References: <20221114131403.GA3807058@u2004>
+ <Y3JotyM0Flj5ijVW@kroah.com>
+ <20221114223900.GA3883066@u2004>
+ <Y3LG/+wWSSj6ZYzl@monkey>
+ <20221115011646.GA767662@hori.linux.bs1.fc.nec.co.jp>
+ <Y3LrtTmLdBU7atso@monkey>
+ <20221115063912.GA3928893@u2004>
+ <Y3RdmvpUq3XzYqq+@monkey>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20221116-acpi_hmat_fix-v2-2-3712569be691@intel.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Y3RdmvpUq3XzYqq+@monkey>
+X-Migadu-Flow: FLOW_OUT
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 16, 2022 at 04:37:37PM -0700, Vishal Verma wrote:
-> In a system with a single initiator node, and one or more memory-only
-> 'target' nodes, the memory-only node(s) would fail to register their
-> initiator node correctly. i.e. in sysfs:
+On Tue, Nov 15, 2022 at 07:48:42PM -0800, Mike Kravetz wrote:
+> On 11/15/22 15:39, Naoya Horiguchi wrote:
+> > On Mon, Nov 14, 2022 at 05:30:29PM -0800, Mike Kravetz wrote:
+> > > On 11/15/22 01:16, HORIGUCHI NAOYA(堀口 直也) wrote:
+> > > > On Mon, Nov 14, 2022 at 02:53:51PM -0800, Mike Kravetz wrote:
+> > > > > On 11/15/22 07:39, Naoya Horiguchi wrote:
+> > > > > > On Mon, Nov 14, 2022 at 05:11:35PM +0100, Greg KH wrote:
+> > > > > > > On Mon, Nov 14, 2022 at 10:14:03PM +0900, Naoya Horiguchi wrote:
+> > > > > > > > Hi,
+> > > > > > > > 
+> > > > > > > > I'd like to request the follow commits to be backported to 5.15.y.
+> > > > > > > > 
+> > > > > > > > - dd0f230a0a80 ("mm: hwpoison: refactor refcount check handling")
+> > > > > > > > - 4966455d9100 ("mm: hwpoison: handle non-anonymous THP correctly")
+> > > > > > > > - a76054266661 ("mm: shmem: don't truncate page if memory failure happens")
+> > > > > > > > 
+> > > > > > > > These patches fixed a data lost issue by preventing shmem pagecache from
+> > > > > > > > being removed by memory error.  These were not tagged for stable originally,
+> > > > > > > > but that's revisited recently.
+> > > > > > > 
+> > > > > > > And have you tested that these all apply properly (and in which order?)
+> > > > > > 
+> > > > > > Yes, I've checked that these cleanly apply (without any change) on
+> > > > > > 5.15.78 in the above order (i.e. dd0f23 is first, 496645 comes next,
+> > > > > > then a76054).
+> > > > > > 
+> > > > > > > and work correctly?
+> > > > > > 
+> > > > > > Yes, I ran related testcases in my test suite, and their status changed
+> > > > > > FAIL to PASS with these patches.
+> > > > > 
+> > > > > Hi Naoya,
+> > > > > 
+> > > > > Just curious if you have plans to do backports for earlier releases?
+> > > > 
+> > > > I didn't have a clear plan.  I just thought that we should backport to
+> > > > earlier kernels if someone want and the patches are applicable easily
+> > > > enough and well-tested.
+> > > > 
+> > > > > 
+> > > > > If not, I can start that effort.  We have seen data loss/corruption because of
+> > > > > this on a 4.14 based release.   So, I would go at least that far back.
+> > > > 
+> > > > Thank you for raising hand, that's really helpful.
+> > > > 
+> > > > Maybe dd0f230a0a80 ("[PATCH] hugetlbfs: don't delete error page from
+> > 
+> > # I meant 8625147cafaa, sorry if the wrong commit ID confused you.
+> > 
+> > I tested with 8625147cafaa too, and it made hugetlb-related testcases
+> > passed.
+> <snip>
+> > We need to slightly modify 8625147cafaa to apply to 5.15.y.  So in summary,
+> > my updated suggestion for 5.15.y is like below:
+> > 
+> > - [1/4] cherry-pick dd0f230a0a80 ("mm: hwpoison: refactor refcount check handling")
+> > - [2/4] cherry-pick 4966455d9100 ("mm: hwpoison: handle non-anonymous THP correctly")
+> > - [3/4] cherry-pick a76054266661 ("mm: shmem: don't truncate page if memory failure happens")
+> > - [4/4] apply the following patch (as a modified version of 8625147cafaa)
 > 
->   # ls /sys/devices/system/node/node0/access0/targets/
->   node0
+> Hi Naoya,
 > 
-> Where as the correct behavior should be:
-> 
->   # ls /sys/devices/system/node/node0/access0/targets/
->   node0 node1
-> 
-> This happened because hmat_register_target_initiators() uses list_sort()
-> to sort the initiator list, but the sort comparision function
-> (initiator_cmp()) is overloaded to also set the node mask's bits.
-> 
-> In a system with a single initiator, the list is singular, and list_sort
-> elides the comparision helper call. Thus the node mask never gets set,
-> and the subsequent search for the best initiator comes up empty.
-> 
-> Add a new helper to consume the sorted initiator list, and generate the
-> nodemask, decoupling it from the overloaded initiator_cmp() comparision
-> callback. This prevents the singular list corner case naturally, and
-> makes the code easier to follow as well.
-> 
-> Cc: <stable@vger.kernel.org>
-> Cc: Rafael J. Wysocki <rafael@kernel.org>
-> Cc: Liu Shixin <liushixin2@huawei.com>
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-> Reported-by: Chris Piper <chris.d.piper@intel.com>
-> Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
+> Just curious, do you have automated tests for this?  I wanted test backports
+> to each stable release.  I could manually test, but that would be a bit
+> involved and was hoping you had something automated.
 
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Yes, related testcases are available on https://github.com/nhoriguchi/mm_regression.
+You can run them by the following steps:
 
--- 
-  Kiryl Shutsemau / Kirill A. Shutemov
+  $ git clone https://github.com/nhoriguchi/mm_regression.
+  $ cd mm_regression
+
+  # Check that your testing server meets the prerequisite
+  # https://github.com/nhoriguchi/mm_regression#prerequisite    
+
+  $ make
+  ...
+  # Compiler might show errors but that's OK because all
+  # files are not needed to run relevant testcases.
+
+  $ bash run.sh prepare debug
+
+  # List the testcases in work/debug/recipelist like below:
+
+  $ cat work/debug/recipelist
+  mm/hwpoison/shmem_link/link-hard.auto3
+  mm/hwpoison/shmem_link/link-sym.auto3
+  mm/hwpoison/shmem_rw/thp-always.auto3
+  mm/hwpoison/shmem_rw/thp-never.auto3
+
+  $ bash run.sh project run
+
+Thanks,
+Naoya Horiguchi
