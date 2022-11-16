@@ -2,109 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90B0662B656
-	for <lists+stable@lfdr.de>; Wed, 16 Nov 2022 10:22:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEC7162B77B
+	for <lists+stable@lfdr.de>; Wed, 16 Nov 2022 11:16:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233332AbiKPJWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Nov 2022 04:22:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44256 "EHLO
+        id S232243AbiKPKQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Nov 2022 05:16:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233652AbiKPJWA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 04:22:00 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28C7427146;
-        Wed, 16 Nov 2022 01:21:59 -0800 (PST)
-Date:   Wed, 16 Nov 2022 09:21:56 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1668590517;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=YA4CPPTUVtYwpqhvtLMRcFwGP6fQVGdvDsF0bj73KSA=;
-        b=VxmlUt0Rfc7jGSAI7OPLtXBB0F272IfyHu+aMj1kOvVlO84Fs6ubReh6wipUI8pjsWSOLk
-        Ab+CPw8tiJJQLU30OYACyETBV4Ucpo1r5vpnZA1hqPImlOo/4tGMQ74MkF3EmAZx2/CYci
-        pk/Hj1ztosTQQWfSv9uPp4x3/at5lFGZDc+osC0X6MT7/jDtvL5+U5rzvv6zFpl4B7BRrq
-        TCly7rIImcCKaq7kmWxxzbgGwmQeNnVoy7tQSUmUQJ9RXF+6YDEpk8+892YszFBFH4BkGn
-        hn1GOR6mD03KuMVILEsguEj0imM/xAtGuR8SJQe9puIWPCyGhpmbYa3oLECtCQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1668590517;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=YA4CPPTUVtYwpqhvtLMRcFwGP6fQVGdvDsF0bj73KSA=;
-        b=mF5Ennni/19N9fRtmA1MwQPUMpq6OZaTAFlrt9sC3R/jXGLd7sWCcVg4L2z/HbulXszbWe
-        Ofoft4PSuldlt8CQ==
-From:   "tip-bot2 for Adrian Hunter" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/urgent] perf/x86/intel/pt: Fix sampling using single range output
-Cc:     Adrian Hunter <adrian.hunter@intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        stable@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20221112151508.13768-1-adrian.hunter@intel.com>
-References: <20221112151508.13768-1-adrian.hunter@intel.com>
+        with ESMTP id S229719AbiKPKQJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 05:16:09 -0500
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBFE115706
+        for <stable@vger.kernel.org>; Wed, 16 Nov 2022 02:16:07 -0800 (PST)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 8269B1C09F6; Wed, 16 Nov 2022 11:16:06 +0100 (CET)
+Date:   Wed, 16 Nov 2022 11:16:05 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        Anders Blomdell <anders.blomdell@control.lth.se>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 001/118] serial: 8250: Let drivers request full
+ 16550A feature probing
+Message-ID: <Y3S4ZT9Vz8VmU3Zw@duo.ucw.cz>
+References: <20221108133340.718216105@linuxfoundation.org>
+ <20221108133340.777783271@linuxfoundation.org>
 MIME-Version: 1.0
-Message-ID: <166859051658.4906.7352282169801138446.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="gdASTUNSMj+b2l8n"
+Content-Disposition: inline
+In-Reply-To: <20221108133340.777783271@linuxfoundation.org>
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the perf/urgent branch of tip:
 
-Commit-ID:     ce0d998be9274dd3a3d971cbeaa6fe28fd2c3062
-Gitweb:        https://git.kernel.org/tip/ce0d998be9274dd3a3d971cbeaa6fe28fd2c3062
-Author:        Adrian Hunter <adrian.hunter@intel.com>
-AuthorDate:    Sat, 12 Nov 2022 17:15:08 +02:00
-Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Wed, 16 Nov 2022 10:12:59 +01:00
+--gdASTUNSMj+b2l8n
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-perf/x86/intel/pt: Fix sampling using single range output
+Hi!
 
-Deal with errata TGL052, ADL037 and RPL017 "Trace May Contain Incorrect
-Data When Configured With Single Range Output Larger Than 4KB" by
-disabling single range output whenever larger than 4KB.
+> From: Maciej W. Rozycki <macro@orcam.me.uk>
+>=20
+> [ Upstream commit 9906890c89e4dbd900ed87ad3040080339a7f411 ]
+>=20
+> A SERIAL_8250_16550A_VARIANTS configuration option has been recently
+> defined that lets one request the 8250 driver not to probe for 16550A
+> device features so as to reduce the driver's device startup time in
+> virtual machines.
+>=20
+> Some actual hardware devices require these features to have been fully
+> determined however for their driver to work correctly, so define a flag
+> to let drivers request full 16550A feature probing on a device-by-device
+> basis if required regardless of the SERIAL_8250_16550A_VARIANTS option
+> setting chosen.
+>=20
+> Fixes: dc56ecb81a0a ("serial: 8250: Support disabling mdelay-filled probe=
+s of 16550A variants")
+> Cc: stable@vger.kernel.org # v5.6+
 
-Fixes: 670638477aed ("perf/x86/intel/pt: Opportunistically use single range output mode")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20221112151508.13768-1-adrian.hunter@intel.com
----
- arch/x86/events/intel/pt.c |  9 +++++++++
- 1 file changed, 9 insertions(+)
+You said you'd drop this. It is still unused in 5.10.155, as flag is
+never set.
 
-diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
-index 82ef87e..42a5579 100644
---- a/arch/x86/events/intel/pt.c
-+++ b/arch/x86/events/intel/pt.c
-@@ -1263,6 +1263,15 @@ static int pt_buffer_try_single(struct pt_buffer *buf, int nr_pages)
- 	if (1 << order != nr_pages)
- 		goto out;
- 
-+	/*
-+	 * Some processors cannot always support single range for more than
-+	 * 4KB - refer errata TGL052, ADL037 and RPL017. Future processors might
-+	 * also be affected, so for now rather than trying to keep track of
-+	 * which ones, just disable it for all.
-+	 */
-+	if (nr_pages > 1)
-+		goto out;
-+
- 	buf->single = true;
- 	buf->nr_pages = nr_pages;
- 	ret = 0;
+Best regards,
+								Pavel
+
+> diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/825=
+0/8250_port.c
+> index 8b3756e4bb05..f648fd1d7548 100644
+> --- a/drivers/tty/serial/8250/8250_port.c
+> +++ b/drivers/tty/serial/8250/8250_port.c
+> @@ -1023,7 +1023,8 @@ static void autoconfig_16550a(struct uart_8250_port=
+ *up)
+>  	up->port.type =3D PORT_16550A;
+>  	up->capabilities |=3D UART_CAP_FIFO;
+> =20
+> -	if (!IS_ENABLED(CONFIG_SERIAL_8250_16550A_VARIANTS))
+> +	if (!IS_ENABLED(CONFIG_SERIAL_8250_16550A_VARIANTS) &&
+> +	    !(up->port.flags & UPF_FULL_PROBE))
+>  		return;
+> =20
+>  	/*
+> diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
+> index 59a8caf3230a..6df4c3356ae6 100644
+> --- a/include/linux/serial_core.h
+> +++ b/include/linux/serial_core.h
+> @@ -100,7 +100,7 @@ struct uart_icount {
+>  	__u32	buf_overrun;
+>  };
+> =20
+> -typedef unsigned int __bitwise upf_t;
+> +typedef u64 __bitwise upf_t;
+>  typedef unsigned int __bitwise upstat_t;
+> =20
+>  struct uart_port {
+> @@ -207,6 +207,7 @@ struct uart_port {
+>  #define UPF_FIXED_PORT		((__force upf_t) (1 << 29))
+>  #define UPF_DEAD		((__force upf_t) (1 << 30))
+>  #define UPF_IOREMAP		((__force upf_t) (1 << 31))
+> +#define UPF_FULL_PROBE		((__force upf_t) (1ULL << 32))
+> =20
+>  #define __UPF_CHANGE_MASK	0x17fff
+>  #define UPF_CHANGE_MASK		((__force upf_t) __UPF_CHANGE_MASK)
+
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--gdASTUNSMj+b2l8n
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY3S4ZQAKCRAw5/Bqldv6
+8vh0AJ4to+GGntRYthVZloBmFo7qmn3/oACdF0baGwVtk8P0OWvaLCNPg6GFMV0=
+=A/qX
+-----END PGP SIGNATURE-----
+
+--gdASTUNSMj+b2l8n--
