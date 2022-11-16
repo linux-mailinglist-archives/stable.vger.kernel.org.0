@@ -2,205 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8C1462B3C3
-	for <lists+stable@lfdr.de>; Wed, 16 Nov 2022 08:11:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E7BC62B455
+	for <lists+stable@lfdr.de>; Wed, 16 Nov 2022 08:57:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232138AbiKPHLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Nov 2022 02:11:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40226 "EHLO
+        id S232833AbiKPH5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Nov 2022 02:57:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232125AbiKPHLO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 02:11:14 -0500
-Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8A081F608
-        for <stable@vger.kernel.org>; Tue, 15 Nov 2022 23:11:13 -0800 (PST)
-Received: by mail-yb1-xb36.google.com with SMTP id 136so4291834ybn.1
-        for <stable@vger.kernel.org>; Tue, 15 Nov 2022 23:11:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Uo+F/dwYBu2BhWYicwDQ8MtuLYkYaCVTN8Id6vfMvJo=;
-        b=R4KqyeGLPbUUjCItTraIjdotOGDD1uGF0L7fGq0fcAywAJ9m4Ul9f0o6VELMAm47i7
-         w3gTfXPJp2s0YdtwLIiR4aM7hXal2+2yvToqSATcgFDNS0E9Ho8EdKcDRi5hxONV3+XK
-         kiQ5+4YbgYMtccXaG+V4Sa3mEmIA7ObdfhTu8p3bfdELWR0JUQffWy/MtfqFkQTAC2jq
-         MWK1YxOFNQ4/V8FXjzpMQgk/S2U+Ro0MCZ6M95SR3TadmkxlJ6ru95wXZYS//qbpqzpX
-         aHd9ODCvGEUxA0GHbMfViNtPNEE5+29AMmZgY9Bdy81pHPdlv708bCa0mcnIrU0Iozl2
-         X1qg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Uo+F/dwYBu2BhWYicwDQ8MtuLYkYaCVTN8Id6vfMvJo=;
-        b=22dCh9+RedKSGBEfXYPb7lWJp3BM+hlZAHlbyZXILPF3LeGCe7XBAIxM4yHe19zsq4
-         SEReUTPAHa2wrvUcLwpw9zFZxPm7wcvGFUhSr9soEP8iGSx+mJZateO2fIuhQhXcYQU+
-         Y4CXK6zRT/7esxS2PtZTO/xP4QxrLP+xDoVQhMzFFj2KzBcNb4JIkcKOfBVDWAWVWRqW
-         jAmX9yk0armuMI2PFQSVOR2pF+/W7sebyZtXe/OiLYBEHPJM9NuFZlPVXV2r4GhX/EXk
-         mgqQHXRthVxG4WI81yLqJPgc3LmhFkcw7/UvHb5sfFmvKvI5oEfOClaY8+un+shd9ssl
-         O0xA==
-X-Gm-Message-State: ANoB5pkPWL6R94tTEuP64RaIIlhYUTrcmDzQqGS7DbC2OObDoOtihyRi
-        aSx0y+YXIe8wYWW6frzEmSQn3d11QBepV5+1QGI8TQ==
-X-Google-Smtp-Source: AA0mqf71t/B31O1SMQbQNqK9FKEIDd2aMNyebi06GCPBX950F0v4uWiUqlAfmoD5JhIL9YHK+qvFTNEtmIs8gqnYaik=
-X-Received: by 2002:a25:bb93:0:b0:6e4:c5c4:a62b with SMTP id
- y19-20020a25bb93000000b006e4c5c4a62bmr4081097ybg.560.1668582672799; Tue, 15
- Nov 2022 23:11:12 -0800 (PST)
+        with ESMTP id S232793AbiKPH5u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 02:57:50 -0500
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB5123154;
+        Tue, 15 Nov 2022 23:57:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1668585470; x=1700121470;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=verj7hVUBInaUTF3sejWeZjrgjgv2y6v3Lf9mbwz5Qg=;
+  b=ktiYYRaVPz2+PliAKTwVkG3LO+dbbsgvG4mS+EWHYgtczXej+6FLOe6x
+   nA4gyqwT5Z8+sHjvI4mZalfPbu+GzQUpU/Zf9sU19/W9UtfhAjHtoRuAe
+   hKFRtiu95z7BKsLCIkJArAC1zPtX8Pd5p8L+whwy3HgAbrCerdif6YPGJ
+   XUylVolqsURspS+4z4SSVNIAmBuHtP6v/K/2LKn8knwwUwqSSb0xKsFLr
+   TlLRBsT0+DmnBLbhwMfbc41uj5+NMLuY2lwYEXhfklSQfW9C7FwINn3e9
+   uGEgw55HJpF7uoY9YsBxHQzmTl5mZ7mB3/NUmGqVFL4R/o+7l0BLzU1QR
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10532"; a="398767160"
+X-IronPort-AV: E=Sophos;i="5.96,167,1665471600"; 
+   d="scan'208";a="398767160"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2022 23:57:49 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10532"; a="702769368"
+X-IronPort-AV: E=Sophos;i="5.96,167,1665471600"; 
+   d="scan'208";a="702769368"
+Received: from ake-mobl.amr.corp.intel.com (HELO vverma7-desk1.intel.com) ([10.209.189.231])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2022 23:57:48 -0800
+From:   Vishal Verma <vishal.l.verma@intel.com>
+To:     <linux-acpi@vger.kernel.org>
+Cc:     <linux-kernel@vger.kernel.org>, <nvdimm@lists.linux.dev>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>, liushixin2@huawei.com,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Chris Piper <chris.d.piper@intel.com>, stable@vger.kernel.org,
+        "Rafael J . Wysocki" <rafael@kernel.org>
+Subject: [PATCH 2/2] ACPI: HMAT: Fix initiator registration for single-initiator systems
+Date:   Wed, 16 Nov 2022 00:57:36 -0700
+Message-Id: <20221116075736.1909690-3-vishal.l.verma@intel.com>
+X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20221116075736.1909690-1-vishal.l.verma@intel.com>
+References: <20221116075736.1909690-1-vishal.l.verma@intel.com>
 MIME-Version: 1.0
-References: <20221115140300.534663914@linuxfoundation.org>
-In-Reply-To: <20221115140300.534663914@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 16 Nov 2022 12:41:01 +0530
-Message-ID: <CA+G9fYu9iacRZf1gQeVi84GyNTM+x5GMurB9PrDt3P3h5-2+yw@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/130] 5.15.79-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3279; h=from:subject; bh=verj7hVUBInaUTF3sejWeZjrgjgv2y6v3Lf9mbwz5Qg=; b=owGbwMvMwCXGf25diOft7jLG02pJDMkl0z9svJ/buO2c3Rtu9enxRRNuzgtbEmQ67VaDm8jbhSIb 5/RP7ShlYRDjYpAVU2T5u+cj4zG57fk8gQmOMHNYmUCGMHBxCsBECqIY/vs7MtucytbScuKRXbFYMr ro6v09R37KLFjgFX8/0Z2j8AnDH47sSynStb89puWtldx+bNK/fQLWPxZavtp/xEj2bdZzRjYA
+X-Developer-Key: i=vishal.l.verma@intel.com; a=openpgp; fpr=F8682BE134C67A12332A2ED07AFA61BEA3B84DFF
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 15 Nov 2022 at 19:34, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.15.79 release.
-> There are 130 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 17 Nov 2022 14:02:33 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.79-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+In a system with a single initiator node, and one or more memory-only
+'target' nodes, the memory-only node(s) would fail to register their
+initiator node correctly. i.e. in sysfs:
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+  # ls /sys/devices/system/node/node0/access0/targets/
+  node0
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Where as the correct behavior should be:
 
-## Build
-* kernel: 5.15.79-rc2
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.15.y
-* git commit: 0963ae7afcba623c33f520314e776e107c35c45f
-* git describe: v5.15.78-131-g0963ae7afcba
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15.78-131-g0963ae7afcba
+  # ls /sys/devices/system/node/node0/access0/targets/
+  node0 node1
 
-## Test Regressions (compared to v5.15.78)
+This happened because hmat_register_target_initiators() uses list_sort()
+to sort the initiator list, but the sort comparision function
+(initiator_cmp()) is overloaded to also set the node mask's bits.
 
-## Metric Regressions (compared to v5.15.78)
+In a system with a single initiator, the list is singular, and list_sort
+elides the comparision helper call. Thus the node mask never gets set,
+and the subsequent search for the best initiator comes up empty.
 
-## Test Fixes (compared to v5.15.78)
+Add a new helper to sort the initiator list, and handle the singular
+list corner case by setting the node mask for that explicitly.
 
-## Metric Fixes (compared to v5.15.78)
+Reported-by: Chris Piper <chris.d.piper@intel.com>
+Cc: <stable@vger.kernel.org>
+Cc: Rafael J. Wysocki <rafael@kernel.org>
+Cc: Liu Shixin <liushixin2@huawei.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
+---
+ drivers/acpi/numa/hmat.c | 32 ++++++++++++++++++++++++++++++--
+ 1 file changed, 30 insertions(+), 2 deletions(-)
 
-## Test result summary
-total: 98827, pass: 84513, fail: 2937, skip: 11065, xfail: 312
+diff --git a/drivers/acpi/numa/hmat.c b/drivers/acpi/numa/hmat.c
+index 144a84f429ed..cd20b0e9cdfa 100644
+--- a/drivers/acpi/numa/hmat.c
++++ b/drivers/acpi/numa/hmat.c
+@@ -573,6 +573,30 @@ static int initiator_cmp(void *priv, const struct list_head *a,
+ 	return ia->processor_pxm - ib->processor_pxm;
+ }
+ 
++static int initiators_to_nodemask(unsigned long *p_nodes)
++{
++	/*
++	 * list_sort doesn't call @cmp (initiator_cmp) for 0 or 1 sized lists.
++	 * For a single-initiator system with other memory-only nodes, this
++	 * means an empty p_nodes mask, since that is set by initiator_cmp().
++	 * Special case the singular list, and make sure the node mask gets set
++	 * appropriately.
++	 */
++	if (list_empty(&initiators))
++		return -ENXIO;
++
++	if (list_is_singular(&initiators)) {
++		struct memory_initiator *initiator = list_first_entry(
++			&initiators, struct memory_initiator, node);
++
++		set_bit(initiator->processor_pxm, p_nodes);
++		return 0;
++	}
++
++	list_sort(p_nodes, &initiators, initiator_cmp);
++	return 0;
++}
++
+ static void hmat_register_target_initiators(struct memory_target *target)
+ {
+ 	static DECLARE_BITMAP(p_nodes, MAX_NUMNODES);
+@@ -609,7 +633,9 @@ static void hmat_register_target_initiators(struct memory_target *target)
+ 	 * initiators.
+ 	 */
+ 	bitmap_zero(p_nodes, MAX_NUMNODES);
+-	list_sort(p_nodes, &initiators, initiator_cmp);
++	if (initiators_to_nodemask(p_nodes) < 0)
++		return;
++
+ 	if (!access0done) {
+ 		for (i = WRITE_LATENCY; i <= READ_BANDWIDTH; i++) {
+ 			loc = localities_types[i];
+@@ -643,7 +669,9 @@ static void hmat_register_target_initiators(struct memory_target *target)
+ 
+ 	/* Access 1 ignores Generic Initiators */
+ 	bitmap_zero(p_nodes, MAX_NUMNODES);
+-	list_sort(p_nodes, &initiators, initiator_cmp);
++	if (initiators_to_nodemask(p_nodes) < 0)
++		return;
++
+ 	for (i = WRITE_LATENCY; i <= READ_BANDWIDTH; i++) {
+ 		loc = localities_types[i];
+ 		if (!loc)
+-- 
+2.38.1
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 285 total, 283 passed, 2 failed
-* arm64: 80 total, 77 passed, 3 failed
-* i386: 62 total, 59 passed, 3 failed
-* mips: 54 total, 54 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 60 total, 60 passed, 0 failed
-* riscv: 20 total, 20 passed, 0 failed
-* s390: 24 total, 24 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 67 total, 64 passed, 3 failed
-
-## Test suites summary
-* fwts
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-breakpoints
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-kvm
-* kselftest-lib
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-openat2
-* kselftest-seccomp
-* kselftest-timens
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* perf
-* perf/Zstd-perf.data-compression
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
