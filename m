@@ -2,107 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6397D62CBC3
-	for <lists+stable@lfdr.de>; Wed, 16 Nov 2022 21:59:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8CDB62CC31
+	for <lists+stable@lfdr.de>; Wed, 16 Nov 2022 22:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233854AbiKPU7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Nov 2022 15:59:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42870 "EHLO
+        id S239198AbiKPVGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Nov 2022 16:06:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234263AbiKPU7j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 15:59:39 -0500
-Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com [IPv6:2607:f8b0:4864:20::72f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 731ED686B3;
-        Wed, 16 Nov 2022 12:56:31 -0800 (PST)
-Received: by mail-qk1-x72f.google.com with SMTP id v8so12535214qkg.12;
-        Wed, 16 Nov 2022 12:56:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:subject:from:user-agent:mime-version:date:message-id:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=zy7OuB/i0g5N8OKRO3fubXKgptPvlvXmoLmFRS8NTW8=;
-        b=j6HBmryqK8UClOg/NS2PiSDE3d0BOoNDUsw5wVvkdE0wr9OTpHZALel85g70S45O2f
-         fCSJeao726reXsNBDQL50RLxInJb23XC4joKUCS5oCuSxdDVH70QY61xrpF8iwIxlM1b
-         IbjifGFRl9t+kbRs76zJ0i6usxyt+x5tpNxG/BtFcqzhMYu1c5ps/uouSq/k2sBzotyr
-         6fDi80j/8vI8rrHYMAVFo0cLQwCo8XRKXT9tZAgpGZ+jO8io5GuVvnZHY6+tkdZNPiqp
-         ZL624rkRCsm+8G4CJLCB+6okz9qpVMZsNwgCDrq+oWdpIfUaZulVeJ7ybBaZ6QdZfYTi
-         1unQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:subject:from:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=zy7OuB/i0g5N8OKRO3fubXKgptPvlvXmoLmFRS8NTW8=;
-        b=dlTb6I8JesZHi1oKUy062mNSKy8FOxLV/f/2pg2u4dyjHVodHCrkjP0wgPjzy9u2mY
-         XBgEobQO60TNI71se/FHBsTnx66IgMJR/13pUmFgcVnjMLoqNFuUd2uwwihkXlMlwUI9
-         CyxMDA5z9nXnZrmYB5afSbFYTzIZRrWaR8XEJlSFRObnXc4+Tp6gOYKUNdCkGS4MTySd
-         OjIyfY27pDPvqKG0LTj08K/qA56JrroYufL1t4+smhesY5EkFT3sm30yqUEpfqu195+a
-         QuNEnfHuFIz/mN0Tiux7L/sZTx4SnXXilbnRcLF/wy8UdnL9lVRlbCgS5eFcOkhaKieQ
-         dZrQ==
-X-Gm-Message-State: ANoB5pn1topIykAhLUn9pTNvQwS9doJnyFxUSoFpdyUIZEL2zWI/5QI1
-        uo0w1kmPOqV2qLplYAlafcZHGhkaRDY=
-X-Google-Smtp-Source: AA0mqf7FqMZWHCQ9PQ4tImKAUuWMnFGM1yghpJiRtIoziRTs/wLppTh+C+I9D1YmCueKME7UEYWpTQ==
-X-Received: by 2002:a37:aa53:0:b0:6fa:4b0b:d08f with SMTP id t80-20020a37aa53000000b006fa4b0bd08fmr21387495qke.488.1668632190553;
-        Wed, 16 Nov 2022 12:56:30 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id u12-20020a05620a084c00b006bc192d277csm10482915qku.10.2022.11.16.12.56.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 16 Nov 2022 12:56:29 -0800 (PST)
-Message-ID: <f12edc46-0fed-654b-62da-9e6866f6b607@gmail.com>
-Date:   Wed, 16 Nov 2022 12:56:24 -0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH 5.15 000/130] 5.15.79-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20221115140300.534663914@linuxfoundation.org>
-Content-Language: en-US
-In-Reply-To: <20221115140300.534663914@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        with ESMTP id S239142AbiKPVFb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 16:05:31 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3139B45A02;
+        Wed, 16 Nov 2022 13:04:35 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AGKLQi0037116;
+        Wed, 16 Nov 2022 21:03:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=Hm6PNSbhq9LhjwmrseFl2/g4hvgBcTxn6rmb+SYDL5c=;
+ b=bNf/hxDYWOMp2O92YGnU7xVy3OwLgzGKpoVrHxy71bXWxTVCuL3T4OjnGMiRmoNWY5jc
+ 4neXymNU7N3SWSRlsGuvGqlLNTBzshBiwOpW/ti3Yeao0Y5IqkCjTqkJXa41qNSOpBs0
+ rFMtoeJgl7zqed+Ygvs9Z+93uf39ebgpUeCkvgGVQQg35HV7qvK2yRg8JHyOrk2joV2c
+ iPliU5nmIm9OCIWNTJpJOAu/vR436Y4qwsCFhDhGcoPRXohNoRqje2nfof3tHjpvWPPD
+ BTFQK24dmOHGygvTHBtfoETW2mlXR3yu9EBiJKpZR7UygS4xSvq9nGhybFtp0XqV6elX WA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kw6u08xt3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Nov 2022 21:03:51 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AGKT2Xv025076;
+        Wed, 16 Nov 2022 21:03:50 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kw6u08xsn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Nov 2022 21:03:50 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AGKpQCr014409;
+        Wed, 16 Nov 2022 21:03:49 GMT
+Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
+        by ppma02dal.us.ibm.com with ESMTP id 3kt34a43pj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Nov 2022 21:03:49 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com ([9.208.128.114])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AGL3mdB7143996
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Nov 2022 21:03:48 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 327935805E;
+        Wed, 16 Nov 2022 21:03:48 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 182395805D;
+        Wed, 16 Nov 2022 21:03:46 +0000 (GMT)
+Received: from sig-9-77-134-48.ibm.com (unknown [9.77.134.48])
+        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 16 Nov 2022 21:03:45 +0000 (GMT)
+Message-ID: <e46fb092970bd12a8461a513f1cf8b63e4f54714.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 1/5] reiserfs: Add missing calls to
+ reiserfs_security_free()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Date:   Wed, 16 Nov 2022 16:03:45 -0500
+In-Reply-To: <20221110094639.3086409-2-roberto.sassu@huaweicloud.com>
+References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
+         <20221110094639.3086409-2-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 4WI5dW9j1NtENgHLvVqyis6bif4IMoub
+X-Proofpoint-ORIG-GUID: oHtKRpgB1VOFGdykFp3diWuPuAl-uBcg
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-16_03,2022-11-16_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
+ bulkscore=0 malwarescore=0 spamscore=0 priorityscore=1501 mlxlogscore=316
+ suspectscore=0 clxscore=1011 impostorscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211160144
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 11/15/2022 6:04 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.79 release.
-> There are 130 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, 2022-11-10 at 10:46 +0100, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
 > 
-> Responses should be made by Thu, 17 Nov 2022 14:02:33 +0000.
-> Anything received after that time might be too late.
+> Commit 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes
+> during inode creation") defined reiserfs_security_free() to free the name
+> and value of a security xattr allocated by the active LSM through
+> security_old_inode_init_security(). However, this function is not called
+> in the reiserfs code.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.79-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
+> Thus, add a call to reiserfs_security_free() whenever
+> reiserfs_security_init() is called, and initialize value to NULL, to avoid
+> to call kfree() on an uninitialized pointer.
 > 
-> thanks,
+> Finally, remove the kfree() for the xattr name, as it is not allocated
+> anymore.
 > 
-> greg k-h
+> Fixes: 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes during inode creation")
+> Cc: stable@vger.kernel.org
+> Cc: Jeff Mahoney <jeffm@suse.com>
+> Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Reported-by: Mimi Zohar <zohar@linux.ibm.com>
+> Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 
