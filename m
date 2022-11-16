@@ -2,111 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F346862BB44
-	for <lists+stable@lfdr.de>; Wed, 16 Nov 2022 12:17:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DCAC62BB8E
+	for <lists+stable@lfdr.de>; Wed, 16 Nov 2022 12:24:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233746AbiKPLRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Nov 2022 06:17:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58842 "EHLO
+        id S232584AbiKPLYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Nov 2022 06:24:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236947AbiKPLRi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 06:17:38 -0500
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBDC32E9C8;
-        Wed, 16 Nov 2022 03:06:02 -0800 (PST)
-Received: by mail-wr1-x429.google.com with SMTP id k8so29344467wrh.1;
-        Wed, 16 Nov 2022 03:06:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=BQx3mUtsIUh3Vy0b9GmrxhmpzLCHkLOldYvI6VMUkAY=;
-        b=PagfyanFb0luTYvKTSg8oz5N/SnKghrXCv4UfuXCjAE15ywI3tvQZhnVNuAKBaUMqa
-         4Wu5CDvGFIPSWneNKkM51lb3W9HOJ26l//zf2LbvAvqyAxl+LtEj9KQqeR/XR/Pf844y
-         7pT6xeTirO7YEBQ7O9nFKIt3vVoiI5Ga2GITEP2sOEazgp1Tji2vJ6WL3UtQ/dnKmhSr
-         5c/B3p6XyCgVD9G3hkRlKN5KItm2dzewleCyeJEs1cO/2pYJiFws5O4ybw6m6iTdRf4o
-         SIyVmNfaRAgFdNbsMSGSpkUmWUjk+XqSU/IwYy9N/p0TMrAjPXpQauS5IY7mD0DHJ0pf
-         IlKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BQx3mUtsIUh3Vy0b9GmrxhmpzLCHkLOldYvI6VMUkAY=;
-        b=EQtT8DhPZYotQMkvqZoGZTgxDWvI5It+StHudPWo/icMCE1Vf45SSGJkPfZxN2IKtc
-         mBCxVjNetp1E+ZlzrgUzl5X+GQZ+kkVG2p3/Sn9XoCNI3APPtj7jHRcFzzqiAydQ8nul
-         1bA/cK8FNNjgvP9qVsXine72M3vnK6o7fnGMJNa0FR4Pr+tALnj14KGmlBbYjPxKp3yF
-         z0vqAi/1oDIr/Ov38UuBb2slA9wCtlblDKNSpFaMiB2blpaQQzzbqM65r1ap3SU4DJoJ
-         OI8UC18Rh+Lph30Cpw/y1qg7Y1L430eoful55u0EPXHGqcA+Zmqf7lgT7FfrrPEiVmRP
-         UBaA==
-X-Gm-Message-State: ANoB5pmb+qD2AhaSlAK5zWIqd8QJT8tJPvIK6L0x5y3TGp9YsZZ1Tt+B
-        UnHBwhXmCjK2ttP8uYYVhqA=
-X-Google-Smtp-Source: AA0mqf5+Askp+qzYt/NicE/3sALjyeDRdAyZXWwm1sSuh+ZpzsaN+OqOZ/IsCE/e4Bh3M+8bXo8p9A==
-X-Received: by 2002:adf:e384:0:b0:230:e4e7:b191 with SMTP id e4-20020adfe384000000b00230e4e7b191mr12922337wrm.158.1668596761278;
-        Wed, 16 Nov 2022 03:06:01 -0800 (PST)
-Received: from debian ([167.98.27.226])
-        by smtp.gmail.com with ESMTPSA id p15-20020a05600c468f00b003cfd10a33afsm1763981wmo.11.2022.11.16.03.06.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Nov 2022 03:06:00 -0800 (PST)
-Date:   Wed, 16 Nov 2022 11:05:59 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
-        rwarsow@gmx.de
-Subject: Re: [PATCH 5.15 000/130] 5.15.79-rc2 review
-Message-ID: <Y3TEF6piNsjAXVAY@debian>
-References: <20221115140300.534663914@linuxfoundation.org>
+        with ESMTP id S232802AbiKPLYb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Nov 2022 06:24:31 -0500
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFC162983F;
+        Wed, 16 Nov 2022 03:14:35 -0800 (PST)
+Received: from zn.tnic (p200300ea9733e74b329c23fffea6a903.dip0.t-ipconnect.de [IPv6:2003:ea:9733:e74b:329c:23ff:fea6:a903])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 1E7C61EC053B;
+        Wed, 16 Nov 2022 12:14:34 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1668597274;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=X1MDsyX35MKj8p8BBuZRg90EXQO3G67HQhry3OHcka8=;
+        b=DSGOQbJpJv+KxURrpQgIQPuVJekdhfOZ00fJUqPkzhyKl4+ATbQeTQbVJOQXIHIfciSzVs
+        xxPKTH/yyDuBQFHCD4YlURtYv/zVqNqSzLxv8mE28ihkkOgDkciTsuv8hZJ7mEiQDCY/4y
+        HofKmWLWSlgW4eB+LM8+1t5LIiotDyc=
+Date:   Wed, 16 Nov 2022 12:14:28 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Jason Baron <jbaron@akamai.com>
+Cc:     linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        James Morse <james.morse@arm.com>,
+        Robert Richter <rric@kernel.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Shuai Xue <xueshuai@linux.alibaba.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] EDAC/edac_module: order edac_init() before
+ ghes_edac_register()
+Message-ID: <Y3TGFJn7ykeUMk+O@zn.tnic>
+References: <20221116003729.194802-1-jbaron@akamai.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20221115140300.534663914@linuxfoundation.org>
+In-Reply-To: <20221116003729.194802-1-jbaron@akamai.com>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Tue, Nov 15, 2022 at 07:37:29PM -0500, Jason Baron wrote:
+> Currently, ghes_edac_register() is called via ghes_init() from acpi_init()
 
-On Tue, Nov 15, 2022 at 03:04:00PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.79 release.
-> There are 130 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 17 Nov 2022 14:02:33 +0000.
-> Anything received after that time might be too late.
-
-Build test (gcc version 12.2.1 20221016):
-mips: 62 configs -> no failure
-arm: 99 configs -> no failure
-arm64: 3 configs -> no failure
-x86_64: 4 configs -> no failure
-alpha allmodconfig -> no failure
-csky allmodconfig -> no failure
-powerpc allmodconfig -> no failure
-riscv allmodconfig -> no failure
-s390 allmodconfig -> no failure
-xtensa allmodconfig -> no failure
-
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-arm64: Booted on rpi4b (4GB model). No regression. [2]
-
-[1]. https://openqa.qa.codethink.co.uk/tests/2173
-[2]. https://openqa.qa.codethink.co.uk/tests/2174
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+https://git.kernel.org/pub/scm/linux/kernel/git/ras/ras.git/log/?h=edac-ghes
 
 -- 
-Regards
-Sudip
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
