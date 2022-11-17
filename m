@@ -2,100 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4129D62D42E
-	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 08:36:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA7562D656
+	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 10:20:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239224AbiKQHgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Nov 2022 02:36:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36796 "EHLO
+        id S239590AbiKQJUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Nov 2022 04:20:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239382AbiKQHgQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 02:36:16 -0500
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2050.outbound.protection.outlook.com [40.107.94.50])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86050701A2;
-        Wed, 16 Nov 2022 23:36:15 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lqcETzXaxQ7e4M3WdNVVUhOaY0VnoqKIansmLrS2RJwTj0wYplkvl+HQ6JfPv5EVq947eVaCmfffVcIakoWwdKFw5HtZWRnyx9cZeRAxmidZH7o+WQfF5TgVOcdmryem0utzExQpyYRcze+NCSwTazbh6vEP+GM+qpsprBQkqA7cUp1kAK07n+6FaMikiwdxny7qMnoOzZnwlfNISXfP3KBqMR8jzeWJuAoPYf+GUuWFYCTb/MKbMZE3ornWBNXYNLaIyoorOt+NJOja7dIiVEgdWu6koB/vSaG6ZCWRvZbklG7B/jwni/MiIzfVs32HX5u2Uzcuef9vKQ6TnrNMGQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=uH2vHdND+rpaickxtwrYN7XcES8PAQW96yRrcD1vcN4=;
- b=dUKFp5qupR6Y7B9SiTcqgmDMmcYZjcGvHqr1k0GNGnnkFhg5LZ0YwYlwklhkWr4zjdYqx8ZjsYrQmbky7ruTkvclh0QE35oTl7PpshGvoYvDcbRqbntvOcF0cUG6HQXBQJgIioFMFWgfx3zZnH56a3nCDWYwjc4lJpzj7ZjISGls/bh1BcGtnkRR5Xoc+Q1eSu7+kK8G7laS93xK5mYpyEZp/kRfFXV88vuB7HZePxNovt01nShMYmSMvxSw0Kx/ezPUeSizyKXT3mmxSMZunbkQxHA/ii3VA7Wyq7V4RtCnQrO5civWDTTNR4YnoBwsusS3sXncocLH4XVs+MDVbw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=intel.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=uH2vHdND+rpaickxtwrYN7XcES8PAQW96yRrcD1vcN4=;
- b=pIKrYPEaUyXRRjNHWR6nAAkqCtkcW9b72aARGZ5w6gPysQ8e0wK6R5Red4wiYJWsuz6PSDBnTTvMkTYuPoF1lxDLA2FvFohcJkXVQRc65bFa5mtCA3KHqkCgJKJwb20AKrdukIc9mKV/Ymxs/xg5OibD9W8wRka+QTVVS/8P120=
-Received: from MW4PR04CA0160.namprd04.prod.outlook.com (2603:10b6:303:85::15)
- by SA0PR12MB4573.namprd12.prod.outlook.com (2603:10b6:806:9c::24) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5813.20; Thu, 17 Nov
- 2022 07:36:14 +0000
-Received: from CO1NAM11FT055.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:85:cafe::69) by MW4PR04CA0160.outlook.office365.com
- (2603:10b6:303:85::15) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5813.20 via Frontend
- Transport; Thu, 17 Nov 2022 07:36:14 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CO1NAM11FT055.mail.protection.outlook.com (10.13.175.129) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.5834.8 via Frontend Transport; Thu, 17 Nov 2022 07:36:13 +0000
-Received: from pyuan-Cloudripper.amd.com (10.180.168.240) by
- SATLEXMB04.amd.com (10.181.40.145) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.34; Thu, 17 Nov 2022 01:36:08 -0600
-From:   Perry Yuan <Perry.Yuan@amd.com>
-To:     <rafael.j.wysocki@intel.com>, <ray.huang@amd.com>,
-        <viresh.kumar@linaro.org>, <Mario.Limonciello@amd.com>
-CC:     <Nathan.Fontenot@amd.com>, <Alexander.Deucher@amd.com>,
-        <Deepak.Sharma@amd.com>, <Shimmer.Huang@amd.com>,
-        <Li.Meng@amd.com>, <Xiaojian.Du@amd.com>, <wyes.karny@amd.com>,
-        <gautham.shenoy@amd.com>, <ananth.narayan@amd.com>,
-        <linux-pm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>, Perry Yuan <Perry.Yuan@amd.com>
-Subject: [PATCH v3 1/5] cpufreq: amd-pstate: cpufreq: amd-pstate: reset MSR_AMD_PERF_CTL register at init
-Date:   Thu, 17 Nov 2022 15:35:37 +0800
-Message-ID: <20221117073541.3350600-2-Perry.Yuan@amd.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221117073541.3350600-1-Perry.Yuan@amd.com>
-References: <20221117073541.3350600-1-Perry.Yuan@amd.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1NAM11FT055:EE_|SA0PR12MB4573:EE_
-X-MS-Office365-Filtering-Correlation-Id: d1046258-238a-4416-57aa-08dac86e67cb
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: YwneT5QstTR9I3uj1JlRLqzf6RY3wZKKBA2TP7U3a6BwLxJxXHQerkJz9JAclmVR3JF22eb2U/JWG5ziBvpFRZAf/iz+bhXQasucPGFhQHBzxoAxB/cqhD18cz9xb1CzFyz34LkVJ/F0jh7I66bLV3bV8gNpTymRNzVgFusojEIB3/lFIoGbhrPkbNB5y4f4ZSTzoIOk0bkdJspmDOe01k0/c0m8/mJ4lqVdaH85JbQbBljp+dpPoxjDKCeVCmNl5pHRvvKSrJ3OeWO744E0r6wMwTzr/6uLp8MD6FtQG5GvMw/aUxMMvc/Y1z1vX8gkhmOB+tOfQ6rIAY0MzLZIyz8mOZBFPHRhiscVbPhQt0RYFzMHOZGY3Ki8/cH0hfgAhRoRgfur22dxMUFSI5WiCJFH6zHBlhbeD6J/+LGi6B/KQ7HdkXXFmR+ST0qQPT4XMf8i578N3MVuz7NYk8h6YXScIFOLAT6cX4aM38oi6hhr53o9nmqA3a+8R0axExKfWyLf7Gg25ivahPSNRuQezgabipIrBOIWmEfENPLKNXMuW2n/TVaC/B2jgMKqTk3mGMgLYhYDjYfJ2lTS+pDuWFh44MEa3gvba2cHUEFzl07URYgqhDnyoWROXVwP1ukf+nLaCZuJ3y+uJEtpG7/DYmtn/v3mdvG7wRbl9Hd4C3/+Ne05hNpGKJ6sqr67doB/wyhuzEECDiuLbYY+9O9GUq5A1VeqDEk4rF5Z4TrwE34Twt8xt9qnXbXPgeWUe05y
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(136003)(39860400002)(396003)(346002)(376002)(451199015)(36840700001)(40470700004)(46966006)(5660300002)(16526019)(1076003)(186003)(40460700003)(336012)(7696005)(110136005)(54906003)(316002)(6636002)(41300700001)(2616005)(8936002)(70586007)(26005)(70206006)(36756003)(8676002)(4326008)(82310400005)(36860700001)(81166007)(356005)(82740400003)(2906002)(40480700001)(83380400001)(47076005)(426003)(86362001)(6666004)(478600001)(66899015)(36900700001)(2101003);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Nov 2022 07:36:13.8121
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: d1046258-238a-4416-57aa-08dac86e67cb
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT055.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB4573
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        with ESMTP id S239814AbiKQJT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 04:19:59 -0500
+Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA091AF0B1
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:19:57 -0800 (PST)
+Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-3697bd55974so13554347b3.15
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:19:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:mime-version:message-id:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=ACYDPcuAUxUGlMNofZDyVmunW6qXPunSo4acvIqCYtg=;
+        b=iW3mvCX5nq7+oa3xMp0QpEHPi4xWRWMH+u4pu7cFAcdgonhPnHDBiGQ8deYhRy8bza
+         wZfhLna3K1ZOyk0JCiy16dfyjKd3fZVBAo9q7LdYHLmW+Lz1wCZ9wHvf4dwXDDj0Ig8D
+         KT9gLcPxvcc7coyTMlj2pjhuLEctbrMU/O3KqypK4htpNoE4r6QaP7WD9kfRFx9qzz11
+         h2dZdcymbVsfaAnq1xw9OmaiHYaVCw+QTnjF3C7BVLgdY47A30KvTveYaFqBitlpyrVj
+         RYR7KBwGFOJBH9kBjBquzWdpQSPCQ0jNHWq192AesOoknXss4MVMcnlFBLZ6W7e3QbPH
+         OfJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:mime-version:message-id:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ACYDPcuAUxUGlMNofZDyVmunW6qXPunSo4acvIqCYtg=;
+        b=hcr1tq6ZyWxdYdicyLqtQO1ZEPRrJ7OtPn9JiU9k17BC9x9zDRYl0jcFEXcsxgp6gB
+         4invoAL2TbB2Yt5djJJn5Y+I4ixJutfqyTn4/Y1+DBmuZPjcSX6cY11mfaf6DZyGgMpc
+         8vyOPiY28QaGDd1LwyqA200m02fSHeRvwZY4tTfDfcSuLtVI8ew/WPYtvmPVSgcezt2k
+         +dJOM9UwUv/Xr6zIcFDS7fsd4AT+Yh5Ka/4Gv18PzrSDek6AEBsrxgKmOTEWnv7c+lOM
+         Y2MCnR4PYefOIT1+bvA/S1mWoC8edjYzKEStqPES5tbv2ELDZp4lsUUlxOqC7LH2O+hB
+         /pLw==
+X-Gm-Message-State: ANoB5pkodSQbHYiUyZaTj+bTmsI7/8kJrOW+IW7+KTYZhBCZwzpw79YE
+        lLQ94YC+jLbN++Zb1A+JFlrPBhnNaAQYbsTTYmw/eyIwu/EkiAn9qSlKV7TBCKHRHQ/Fvo0rIVr
+        VlFH6cLN1F/tqyiSqiWsiHWMxJmMdJmN71oVj0bleJetQzAs/1i/wyXJOJZMr56v9epM=
+X-Google-Smtp-Source: AA0mqf6wTCJbKpovoDP1hLRmgpkF4nOH/oNEcSfcLZ462mhRJedDGEQSPaLDVxjGeg0bUuldcegXWZbmkcNA5A==
+X-Received: from suleiman1.tok.corp.google.com ([2401:fa00:8f:203:416e:f3c7:7f1d:6e])
+ (user=suleiman job=sendgmr) by 2002:a5b:2c6:0:b0:6be:99e7:c5f0 with SMTP id
+ h6-20020a5b02c6000000b006be99e7c5f0mr1310537ybp.248.1668676797009; Thu, 17
+ Nov 2022 01:19:57 -0800 (PST)
+Date:   Thu, 17 Nov 2022 18:19:18 +0900
+Message-Id: <20221117091952.1940850-1-suleiman@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
+Subject: [PATCH 4.19 00/34] Intel RETBleed mitigations for 4.19.
+From:   Suleiman Souhlal <suleiman@google.com>
+To:     stable@vger.kernel.org
+Cc:     x86@kernel.org, kvm@vger.kernel.org, bp@alien8.de,
+        pbonzini@redhat.com, peterz@infradead.org, jpoimboe@kernel.org,
+        cascardo@canonical.com, surajjs@amazon.com, ssouhlal@FreeBSD.org,
+        suleiman@google.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -103,54 +68,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wyes Karny <wyes.karny@amd.com>
+This series backports the mitigations for RETBleed for Intel CPUs to
+the 4.19 kernel.
 
-MSR_AMD_PERF_CTL is guaranteed to be 0 on a cold boot. However, on a
-kexec boot, for instance, it may have a non-zero value (if the cpu was
-in a non-P0 Pstate).  In such cases, the cores with non-P0 Pstates at
-boot will never be pushed to P0, let alone boost frequencies.
+It's based on the 5.4 [1] and 4.14 [2] backports.
 
-Kexec is a common workflow for reboot on Linux and this creates a
-regression in performance. Fix it by explicitly setting the
-MSR_AMD_PERF_CTL to 0 during amd_pstate driver init.
+Tested on Skylake Chromebook.
 
-Cc: stable@vger.kernel.org
-Acked-by: Huang Rui <ray.huang@amd.com>
-Reviewed-by: Gautham R. Shenoy <gautham.shenoy@amd.com>
-Tested-by: Wyes Karny <wyes.karny@amd.com>
-Signed-off-by: Wyes Karny <wyes.karny@amd.com>
-Signed-off-by: Perry Yuan <Perry.Yuan@amd.com>
----
- drivers/cpufreq/amd-pstate.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+[1] https://lore.kernel.org/stable/20221003131038.12645-1-cascardo@canonical.com/
+[2] https://lore.kernel.org/kvm/20221027204801.13146-1-surajjs@amazon.com/
 
-diff --git a/drivers/cpufreq/amd-pstate.c b/drivers/cpufreq/amd-pstate.c
-index ace7d50cf2ac..d844c6f97caf 100644
---- a/drivers/cpufreq/amd-pstate.c
-+++ b/drivers/cpufreq/amd-pstate.c
-@@ -424,12 +424,22 @@ static void amd_pstate_boost_init(struct amd_cpudata *cpudata)
- 	amd_pstate_driver.boost_enabled = true;
- }
- 
-+static void amd_perf_ctl_reset(unsigned int cpu)
-+{
-+	wrmsrl_on_cpu(cpu, MSR_AMD_PERF_CTL, 0);
-+}
-+
- static int amd_pstate_cpu_init(struct cpufreq_policy *policy)
- {
- 	int min_freq, max_freq, nominal_freq, lowest_nonlinear_freq, ret;
- 	struct device *dev;
- 	struct amd_cpudata *cpudata;
- 
-+	/*
-+	 * Resetting PERF_CTL_MSR will put the CPU in P0 frequency,
-+	 * which is ideal for initialization process.
-+	 */
-+	amd_perf_ctl_reset(policy->cpu);
- 	dev = get_cpu_device(policy->cpu);
- 	if (!dev)
- 		return -ENODEV;
+Alexandre Chartre (2):
+  x86/bugs: Report AMD retbleed vulnerability
+  x86/bugs: Add AMD retbleed= boot parameter
+
+Andrew Cooper (1):
+  x86/cpu/amd: Enumerate BTC_NO
+
+Daniel Sneddon (1):
+  x86/speculation: Add RSB VM Exit protections
+
+Ingo Molnar (1):
+  x86/cpufeature: Fix various quality problems in the
+    <asm/cpu_device_hd.h> header
+
+Josh Poimboeuf (8):
+  x86/speculation: Fix RSB filling with CONFIG_RETPOLINE=n
+  x86/speculation: Fix firmware entry SPEC_CTRL handling
+  x86/speculation: Fix SPEC_CTRL write on SMT state change
+  x86/speculation: Use cached host SPEC_CTRL value for guest entry/exit
+  x86/speculation: Remove x86_spec_ctrl_mask
+  KVM: VMX: Prevent guest RSB poisoning attacks with eIBRS
+  KVM: VMX: Fix IBRS handling after vmexit
+  x86/speculation: Fill RSB on vmexit for IBRS
+
+Kan Liang (1):
+  x86/cpufeature: Add facility to check for min microcode revisions
+
+Mark Gross (1):
+  x86/cpu: Add a steppings field to struct x86_cpu_id
+
+Nathan Chancellor (1):
+  x86/speculation: Use DECLARE_PER_CPU for x86_spec_ctrl_current
+
+Pawan Gupta (4):
+  x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS
+  x86/bugs: Add Cannon lake to RETBleed affected CPU list
+  x86/speculation: Disable RRSBA behavior
+  x86/bugs: Warn when "ibrs" mitigation is selected on Enhanced IBRS
+    parts
+
+Peter Zijlstra (10):
+  x86/cpufeatures: Move RETPOLINE flags to word 11
+  x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value
+  x86/entry: Remove skip_r11rcx
+  x86/entry: Add kernel IBRS implementation
+  x86/bugs: Optimize SPEC_CTRL MSR writes
+  x86/bugs: Split spectre_v2_select_mitigation() and
+    spectre_v2_user_select_mitigation()
+  x86/bugs: Report Intel retbleed vulnerability
+  intel_idle: Disable IBRS during long idle
+  x86/speculation: Change FILL_RETURN_BUFFER to work with objtool
+  x86/common: Stamp out the stepping madness
+
+Suleiman Souhlal (2):
+  Revert "x86/speculation: Add RSB VM Exit protections"
+  Revert "x86/cpu: Add a steppings field to struct x86_cpu_id"
+
+Thomas Gleixner (2):
+  x86/devicetable: Move x86 specific macro out of generic code
+  x86/cpu: Add consistent CPU match macros
+
+ .../admin-guide/kernel-parameters.txt         |  13 +
+ arch/x86/entry/calling.h                      |  68 +++-
+ arch/x86/entry/entry_32.S                     |   2 -
+ arch/x86/entry/entry_64.S                     |  34 +-
+ arch/x86/entry/entry_64_compat.S              |  11 +-
+ arch/x86/include/asm/cpu_device_id.h          | 168 +++++++-
+ arch/x86/include/asm/cpufeatures.h            |  18 +-
+ arch/x86/include/asm/intel-family.h           |   6 +
+ arch/x86/include/asm/msr-index.h              |  10 +
+ arch/x86/include/asm/nospec-branch.h          |  53 ++-
+ arch/x86/kernel/cpu/amd.c                     |  21 +-
+ arch/x86/kernel/cpu/bugs.c                    | 368 ++++++++++++++----
+ arch/x86/kernel/cpu/common.c                  |  60 +--
+ arch/x86/kernel/cpu/match.c                   |  44 ++-
+ arch/x86/kernel/cpu/scattered.c               |   1 +
+ arch/x86/kernel/process.c                     |   2 +-
+ arch/x86/kvm/svm.c                            |   1 +
+ arch/x86/kvm/vmx.c                            |  53 ++-
+ arch/x86/kvm/x86.c                            |   4 +-
+ drivers/base/cpu.c                            |   8 +
+ drivers/cpufreq/acpi-cpufreq.c                |   1 +
+ drivers/cpufreq/amd_freq_sensitivity.c        |   1 +
+ drivers/idle/intel_idle.c                     |  43 +-
+ include/linux/cpu.h                           |   2 +
+ include/linux/kvm_host.h                      |   2 +-
+ include/linux/mod_devicetable.h               |   4 +-
+ tools/arch/x86/include/asm/cpufeatures.h      |   1 +
+ 27 files changed, 813 insertions(+), 186 deletions(-)
+
 -- 
-2.25.1
+2.38.1.431.g37b22c650d-goog
 
