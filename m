@@ -2,57 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 739E662D65A
-	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 10:20:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6C9662D65C
+	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 10:20:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239823AbiKQJUK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Nov 2022 04:20:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44586 "EHLO
+        id S239832AbiKQJUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Nov 2022 04:20:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239478AbiKQJUI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 04:20:08 -0500
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A995EAF0AE
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:20:07 -0800 (PST)
-Received: by mail-yb1-xb4a.google.com with SMTP id 204-20020a250fd5000000b006ccc0e91098so1023171ybp.13
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:20:07 -0800 (PST)
+        with ESMTP id S239834AbiKQJUN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 04:20:13 -0500
+Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35061697C0
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:20:12 -0800 (PST)
+Received: by mail-pj1-x1049.google.com with SMTP id om10-20020a17090b3a8a00b002108b078ab1so3742636pjb.9
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:20:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=3UZNWoJiM/brdBfnlSQVfGomrP8YUnpl+/J+ZYaMsWg=;
-        b=Y7FV1nPzOoJGNKyEGah3rBzXaTAgRbqjNXiA6IMm9OytIJ/ZVdL8nz9t2nXZNr0mb3
-         3fgCwAC3wGzqpyxXTb8XCPQg10PwVJPtC1yv7EelWwHB4DNJN+22iMdry8WRQIWcpZoJ
-         AtaEH4pXVs6DP43ZH3Y0pOg0v1pWzjctIZM1y04S4G0fo/YHUHOHr8iq6IFrG+IieA6A
-         mQMgLUbl4aejQev5s9AdAeh73Ny3m0LXrep27CqBvYRiKi00yEsBXg4oSegGtxEe3uin
-         zxU04orTU57spQqZ5PNccg+hpJM6m874gQTkNixGL2UvUTHzR8gOAXK9JD3TnQ08AosX
-         beuQ==
+        bh=vuiGhimP9TAVmuDVc6HfD7Tzph6VXwtenyyF7FzYBHQ=;
+        b=IUyR9E+jWEjbg1Bnd5pQBTrtrIU4EnUL3mQ84ih5jZ9OcGYU/xxEsqCoXtfQXFVA3j
+         ta4Ag2yWrVNGAma+hY+MmHj+0mOb+dhSreaa4A78kFEwQ8xcbK2bPoFDWgtnIW8sMTjD
+         gl+jUDkteY4lLE2193ixGKPRSfSpu7QqXv2RNH0l9HpcaOCgisrbr+1G6qOL6/IJgh+l
+         RhBaFdmA6P9kC6avD0uoIX9z+8h1eD0OMzbs/dsLOaLvBBofy6gEfDAiXIDlcR/++w5j
+         F6jCp+4fRQHBfEUYolKeeVUjc7MgAMBiNDK/jsokoHtLqnqXlHpP+lAY8gSSklCfnIum
+         +Mxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=3UZNWoJiM/brdBfnlSQVfGomrP8YUnpl+/J+ZYaMsWg=;
-        b=rZzDmH8Ux4TbSmvy90RtYQr+dKf4fuXESEHjxS3lpB/gl4UXGoA22H16+jCrpBuLtY
-         F2eIxTh7+pTRFHVJ8ZXZkIS0yN09XIE5Fcgg16qd4/Qjdk+vu0UkkQJerCE+9v9NkGgV
-         Y5RHdCgknQmO+ceWMrwxzYDLaEud6+OIJdejsHI2OZHzcJas/FgaX3apvXbd65xAY03b
-         NW79M/pM5fCBS/+kUZ86IzBVpSPE2umUzqaFcqB/aS5j7ltQHM3O1NlCrZOaiYLaUkm6
-         rCdTx3xkXra78P1uNmZ/jyrV0aR/gOZv2VCyz8noHFOfOL8vvl6zgX3CZBHE+WXzn7iB
-         fp6w==
-X-Gm-Message-State: ANoB5pngqWnIUTY9XqHb50n1p7EVsyGcDGj6rSuGOeY70hqWH3lT6ZE1
-        /cRq1ICXTJleMW78XeKDJBQAuAGabCf4XAB6zSZylXgtTtJBXqK2o8bOdg7pmmNWXLdGQK8F6ga
-        TdtMXbwz/vMcZbqctH2gGncc+LPgJJ8rH+oGUA3+LR39s40XBopxqwd5MvvQLx+qNPWo=
-X-Google-Smtp-Source: AA0mqf4AQT5Qmc4IPX/RpvDMgv6XG/ZLZL1XrBmItI5NKWJNsIHffBOTuGju3kd9F4Ogyspc3UzyKcOmng3iiw==
+        bh=vuiGhimP9TAVmuDVc6HfD7Tzph6VXwtenyyF7FzYBHQ=;
+        b=LmYbNdiQEmhgOQEF+TevnnwUTN25FnS3/lXENphOodUETs0ly3QMANPJ4Hj7wXiJWz
+         ZT+Wc6uTLmht42PREY10ALP0dOlNu7hP5XBd4DlvtGC/INPA2OtrB4fmt0rJtbFmXJVY
+         WjFFIdm7EyljKU2N2G9A7hiSgHCBywi1BeWDRV3dFAsyMkxfRakOt5jAfRp6Q81CiOKb
+         s5AQCI8HydOf2ZzoRhiMeFs4RW9uks36dWoa47p64680RCzLM/01OyORq1A9Sl365BTT
+         PleDiy8haTZq+IGjDYF74ECyEWffZ+cNZnJs1iJ79aTqrtCy/hIPRDFElnzKYBmsUgx2
+         fUaA==
+X-Gm-Message-State: ANoB5pnMq20EJ9UQrslMpZMgFNyuEBignzwOHAkPP7kFP5nIVbY6HuCj
+        WZebejHYYu9y/hhMQryAqWQ3HF94tI9MKGt52yvPri4hHRGWe3xualrgOlX3G5lxyrQz/sTmYe9
+        dCEeQedEeu9u1Qt8nG2SDlOzERSAFNQD4a5p7AAjVJd5ll93AwIpj942HJsKQl/sIRog=
+X-Google-Smtp-Source: AA0mqf5KkPUWWkxv9K0jVIH54BEavFTYOluIuX/0De0QEHIPyqZCsA5XZl1AYh+dIamLdfrC2H8IYlRgdc2hhw==
 X-Received: from suleiman1.tok.corp.google.com ([2401:fa00:8f:203:416e:f3c7:7f1d:6e])
- (user=suleiman job=sendgmr) by 2002:a25:189:0:b0:6df:d8f1:7b32 with SMTP id
- 131-20020a250189000000b006dfd8f17b32mr1303704ybb.497.1668676806903; Thu, 17
- Nov 2022 01:20:06 -0800 (PST)
-Date:   Thu, 17 Nov 2022 18:19:20 +0900
+ (user=suleiman job=sendgmr) by 2002:a05:6a00:1413:b0:56b:8e99:a5e9 with SMTP
+ id l19-20020a056a00141300b0056b8e99a5e9mr2122245pfu.24.1668676811402; Thu, 17
+ Nov 2022 01:20:11 -0800 (PST)
+Date:   Thu, 17 Nov 2022 18:19:21 +0900
 In-Reply-To: <20221117091952.1940850-1-suleiman@google.com>
-Message-Id: <20221117091952.1940850-3-suleiman@google.com>
+Message-Id: <20221117091952.1940850-4-suleiman@google.com>
 Mime-Version: 1.0
 References: <20221117091952.1940850-1-suleiman@google.com>
 X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
-Subject: [PATCH 4.19 02/34] Revert "x86/cpu: Add a steppings field to struct x86_cpu_id"
+Subject: [PATCH 4.19 03/34] x86/cpufeature: Add facility to check for min
+ microcode revisions
 From:   Suleiman Souhlal <suleiman@google.com>
 To:     stable@vger.kernel.org
 Cc:     x86@kernel.org, kvm@vger.kernel.org, bp@alien8.de,
@@ -62,7 +63,7 @@ Cc:     x86@kernel.org, kvm@vger.kernel.org, bp@alien8.de,
 Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,113 +71,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 6f2f28e71e6af993761b7a70bd2402a8d2096acf.
+From: Kan Liang <kan.liang@linux.intel.com>
 
-This is commit e9d7144597b10ff13ff2264c059f7d4a7fbc89ac upstream. Reverting this
-commit makes the following patches apply cleanly. This patch is then reapplied.
+For bug workarounds or checks, it is useful to check for specific
+microcode revisions.
 
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add a new generic function to match the CPU with stepping.
+Add the other function to check the min microcode revisions for
+the matched CPU.
+
+A new table format is introduced to facilitate the quirk to
+fill the related information.
+
+This does not change the existing x86_cpu_id because it's an ABI
+shared with modules, and also has quite different requirements,
+as in no wildcards, but everything has to be matched exactly.
+
+Originally-by: Andi Kleen <ak@linux.intel.com>
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Borislav Petkov <bp@alien8.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: eranian@google.com
+Link: https://lkml.kernel.org/r/1549319013-4522-1-git-send-email-kan.liang@linux.intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Suleiman Souhlal <suleiman@google.com>
 ---
- arch/x86/include/asm/cpu_device_id.h | 27 ---------------------------
- arch/x86/kernel/cpu/match.c          |  7 +------
- include/linux/mod_devicetable.h      |  6 ------
- 3 files changed, 1 insertion(+), 39 deletions(-)
+ arch/x86/include/asm/cpu_device_id.h | 28 +++++++++++++++++++++++++
+ arch/x86/kernel/cpu/match.c          | 31 ++++++++++++++++++++++++++++
+ 2 files changed, 59 insertions(+)
 
 diff --git a/arch/x86/include/asm/cpu_device_id.h b/arch/x86/include/asm/cpu_device_id.h
-index 884466592943..baeba0567126 100644
+index baeba0567126..3417110574c1 100644
 --- a/arch/x86/include/asm/cpu_device_id.h
 +++ b/arch/x86/include/asm/cpu_device_id.h
-@@ -9,33 +9,6 @@
+@@ -11,4 +11,32 @@
  
- #include <linux/mod_devicetable.h>
- 
--#define X86_STEPPINGS(mins, maxs)    GENMASK(maxs, mins)
--
--/**
-- * X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE - Base macro for CPU matching
-- * @_vendor:	The vendor name, e.g. INTEL, AMD, HYGON, ..., ANY
-- *		The name is expanded to X86_VENDOR_@_vendor
-- * @_family:	The family number or X86_FAMILY_ANY
-- * @_model:	The model number, model constant or X86_MODEL_ANY
-- * @_steppings:	Bitmask for steppings, stepping constant or X86_STEPPING_ANY
-- * @_feature:	A X86_FEATURE bit or X86_FEATURE_ANY
-- * @_data:	Driver specific data or NULL. The internal storage
-- *		format is unsigned long. The supplied value, pointer
-- *		etc. is casted to unsigned long internally.
-- *
-- * Backport version to keep the SRBDS pile consistant. No shorter variants
-- * required for this.
-- */
--#define X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE(_vendor, _family, _model, \
--						    _steppings, _feature, _data) { \
--	.vendor		= X86_VENDOR_##_vendor,				\
--	.family		= _family,					\
--	.model		= _model,					\
--	.steppings	= _steppings,					\
--	.feature	= _feature,					\
--	.driver_data	= (unsigned long) _data				\
--}
--
  extern const struct x86_cpu_id *x86_match_cpu(const struct x86_cpu_id *match);
  
++/*
++ * Match specific microcode revisions.
++ *
++ * vendor/family/model/stepping must be all set.
++ *
++ * Only checks against the boot CPU.  When mixed-stepping configs are
++ * valid for a CPU model, add a quirk for every valid stepping and
++ * do the fine-tuning in the quirk handler.
++ */
++
++struct x86_cpu_desc {
++	__u8	x86_family;
++	__u8	x86_vendor;
++	__u8	x86_model;
++	__u8	x86_stepping;
++	__u32	x86_microcode_rev;
++};
++
++#define INTEL_CPU_DESC(mod, step, rev) {			\
++	.x86_family = 6,					\
++	.x86_vendor = X86_VENDOR_INTEL,				\
++	.x86_model = mod,					\
++	.x86_stepping = step,					\
++	.x86_microcode_rev = rev,				\
++}
++
++extern bool x86_cpu_has_min_microcode_rev(const struct x86_cpu_desc *table);
++
  #endif
 diff --git a/arch/x86/kernel/cpu/match.c b/arch/x86/kernel/cpu/match.c
-index 751e59057466..3fed38812eea 100644
+index 3fed38812eea..6dd78d8235e4 100644
 --- a/arch/x86/kernel/cpu/match.c
 +++ b/arch/x86/kernel/cpu/match.c
-@@ -34,18 +34,13 @@ const struct x86_cpu_id *x86_match_cpu(const struct x86_cpu_id *match)
- 	const struct x86_cpu_id *m;
- 	struct cpuinfo_x86 *c = &boot_cpu_data;
- 
--	for (m = match;
--	     m->vendor | m->family | m->model | m->steppings | m->feature;
--	     m++) {
-+	for (m = match; m->vendor | m->family | m->model | m->feature; m++) {
- 		if (m->vendor != X86_VENDOR_ANY && c->x86_vendor != m->vendor)
- 			continue;
- 		if (m->family != X86_FAMILY_ANY && c->x86 != m->family)
- 			continue;
- 		if (m->model != X86_MODEL_ANY && c->x86_model != m->model)
- 			continue;
--		if (m->steppings != X86_STEPPING_ANY &&
--		    !(BIT(c->x86_stepping) & m->steppings))
--			continue;
- 		if (m->feature != X86_FEATURE_ANY && !cpu_has(c, m->feature))
- 			continue;
- 		return m;
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index 610cdf8082f2..c30839a15f50 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -621,10 +621,6 @@ struct mips_cdmm_device_id {
- /*
-  * MODULE_DEVICE_TABLE expects this struct to be called x86cpu_device_id.
-  * Although gcc seems to ignore this error, clang fails without this define.
-- *
-- * Note: The ordering of the struct is different from upstream because the
-- * static initializers in kernels < 5.7 still use C89 style while upstream
-- * has been converted to proper C99 initializers.
-  */
- #define x86cpu_device_id x86_cpu_id
- struct x86_cpu_id {
-@@ -633,7 +629,6 @@ struct x86_cpu_id {
- 	__u16 model;
- 	__u16 feature;	/* bit index */
- 	kernel_ulong_t driver_data;
--	__u16 steppings;
- };
- 
- #define X86_FEATURE_MATCH(x) \
-@@ -642,7 +637,6 @@ struct x86_cpu_id {
- #define X86_VENDOR_ANY 0xffff
- #define X86_FAMILY_ANY 0
- #define X86_MODEL_ANY  0
--#define X86_STEPPING_ANY 0
- #define X86_FEATURE_ANY 0	/* Same as FPU, you can't test for that */
- 
- /*
+@@ -48,3 +48,34 @@ const struct x86_cpu_id *x86_match_cpu(const struct x86_cpu_id *match)
+ 	return NULL;
+ }
+ EXPORT_SYMBOL(x86_match_cpu);
++
++static const struct x86_cpu_desc *
++x86_match_cpu_with_stepping(const struct x86_cpu_desc *match)
++{
++	struct cpuinfo_x86 *c = &boot_cpu_data;
++	const struct x86_cpu_desc *m;
++
++	for (m = match; m->x86_family | m->x86_model; m++) {
++		if (c->x86_vendor != m->x86_vendor)
++			continue;
++		if (c->x86 != m->x86_family)
++			continue;
++		if (c->x86_model != m->x86_model)
++			continue;
++		if (c->x86_stepping != m->x86_stepping)
++			continue;
++		return m;
++	}
++	return NULL;
++}
++
++bool x86_cpu_has_min_microcode_rev(const struct x86_cpu_desc *table)
++{
++	const struct x86_cpu_desc *res = x86_match_cpu_with_stepping(table);
++
++	if (!res || res->x86_microcode_rev > boot_cpu_data.microcode)
++		return false;
++
++	return true;
++}
++EXPORT_SYMBOL_GPL(x86_cpu_has_min_microcode_rev);
 -- 
 2.38.1.431.g37b22c650d-goog
 
