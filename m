@@ -2,57 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C6962D683
-	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 10:22:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 305C662D684
+	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 10:22:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239498AbiKQJWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Nov 2022 04:22:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47466 "EHLO
+        id S239587AbiKQJWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Nov 2022 04:22:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239958AbiKQJVu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 04:21:50 -0500
-Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24BB5697FD
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:21:45 -0800 (PST)
-Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-368e6c449f2so14005397b3.5
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:21:45 -0800 (PST)
+        with ESMTP id S239923AbiKQJVz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 04:21:55 -0500
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F3F6E550
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:21:50 -0800 (PST)
+Received: by mail-yb1-xb4a.google.com with SMTP id e189-20020a25e7c6000000b006e37f21e689so1036699ybh.10
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:21:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=pZu1L6aeNZHO+yUsZiZqCDyduTaPbwNJn2PXrr8Ee2g=;
-        b=EKyOSgVSRsZSS3rxYo9VEj9jrPmeIBUeeducxdzJPD1QdTr6BVNaM42Bb0b1gXW7Sc
-         O0and3SGj2h9vKSohF/6NFaICsiRowwiq+dLZrnWBJ8wxoJPMp9AcpAjHihomOkGLjat
-         lWUd4qthe90FCRZjC4TBfuELNMbbFuRi1M+vFPGJwlqc/HlcZXCkrHkdVYgQYSxQyCx0
-         nZQ6CzGH8OBf8qDiaHeS0tmqGca92ppqi3hcmEIUX9HMnr4W9lGOoRBchp+duCAswmbN
-         BafJJwpoNHdcgLX3U4PjKk4xrqjKPzKoX7CDvtu1XPJwCoUCzVQLT1RgMVi3IKU55Ez/
-         s8ZA==
+        bh=s8/cKQPsYeoJ6WZzz3pgJJPoeRh1qwoT0hPqple+G7I=;
+        b=qtLk7Kyj04/36JGUurPvVlmER2lO20Sap99vJK/lCF8P7Rx2+ibCgWV/IWzCIAt2Bs
+         PuctttN7P1WWgieHXWKgLhmiyDn/SZB7QK6t7daZQSMLx4OP+KgLNdagUPzM4ES0FB1X
+         AIPwsdYXcyxB2+Tgf4lcGrV0nqqtZn1ZozJXifETfCQ5bgr5bVPZUMsFrRFjbiC3zSSL
+         I7PqtSMMhKU8iF2ssEiwHLBHhHcHipY5oGDzPRjIsKVBz1tbTksqw6vRUYn5hT8bkEZR
+         3QdOuy+iYUXFRF4fzpfn5KNsdVoZKsd7Y6ApmaBiDeicB1fHhPT+ypymUaeOL2y4cEw5
+         6/Jg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=pZu1L6aeNZHO+yUsZiZqCDyduTaPbwNJn2PXrr8Ee2g=;
-        b=Ex9/qKGb+ZDa+rNcpU0jH7z03y7PSLU7cItaNtKGu7zLIGd3faWmHwR+0b7UFaq4YG
-         5by7bOr7nzLJLcdFWalFigKmwu4jcWd13cwjEwp5gYYHso8bhrCvEzktqYmS34/iaJYz
-         muzV3HopzGwV+D5LuNRPeuMa8GeaJGvyea+cTBNiokmzpxPRq+h3R0Wu+gQvsJI2dCM/
-         J6Zy+wfZ0EVpTg22RlfRIel5qr4I691ybT7UOt2J/z0BCB3zE5YZcEz99Qw7hkbuh5ss
-         vjlaaPjyHyNNVP4gfuEq5xUSl+Gy2tZ3fXYFVzd2DJQdabz2FLrME3wTebL0eitRTH0O
-         RaUw==
-X-Gm-Message-State: ANoB5pmHfqyTmIquebDSVZnPKypjJwXGkFctW681qBnUn+uGrPJ145g2
-        dkTfpvm8puMFjpMVKO9wIy53ti/OByityDu4DXrC+Tnb90/O5SBDk7oErNK/uvlye7mHaP3BAO9
-        59oUoEeEXek1V1wlriwBwctbzCSZ2u7b7SNx9wUeFEz9VhVVNgEovdYDInstu5M1zWEM=
-X-Google-Smtp-Source: AA0mqf57MkjOGcj0/5BQEReTka6kyBlsCiDfHCcKTL+Ma4e6pqERrzWn3R2nCPbtW1nTqBYu+Fe15Kg3U0PDGQ==
+        bh=s8/cKQPsYeoJ6WZzz3pgJJPoeRh1qwoT0hPqple+G7I=;
+        b=nJetr0/v+vDIwN8HVg6TgcH1W3qGPt3QzM9jiWGTf/dNOusm2LaFUvBsNCFxHTfN6a
+         nsqhsp5WLzC5rLLIQVjgUf41WZHOFPUpCDHI+b8WkHDLF4LCm3psbG4hABHlVrcFbrHV
+         Q6mY0cvzr++DLcHDtrqOUONpBADxwMkJYfRk2eJmXkuwgCFLBRqaYAypjkchTwgPXzUM
+         NV0TTvlyy0X6meMcq7drxrT7rR7Wn98VKjeA2kd207Cf2ttsyQzFcWl25MP9GFaAdKQA
+         PEC725lG8T1E5Zj2630GFfJT3vLl11vcfM3rNjIZPUZESUjmuUJqH46RyUmG2TSOr/WA
+         jGZQ==
+X-Gm-Message-State: ACrzQf0uNn7UkAhcjgppCcHgdmK9dg2YK67Omj55cccZgDDpMY0lOgN9
+        nKhkcq7Ed3Uro06axmRiauFHiSa3q/tYaQSge0HP8V2ke0ee6OQb97SNzh/fFj8R7SXhGnKx3VT
+        ceJY/Z0Xq9mCP1JRdtmq3l6ydLwHgpR1wxeKLxCH7flZ6Tr4TLxnPyReB4JHv+/8rEO8=
+X-Google-Smtp-Source: AMsMyM5St+3pGP0Ci4+t+wwjSn58P+dUHUog2NS1eeJ8T4E5iaP/eP0MNajlJ1dq2KBRNvyd0Il6tIRWjiKe3g==
 X-Received: from suleiman1.tok.corp.google.com ([2401:fa00:8f:203:416e:f3c7:7f1d:6e])
- (user=suleiman job=sendgmr) by 2002:a25:ef4d:0:b0:6dd:ebd8:6204 with SMTP id
- w13-20020a25ef4d000000b006ddebd86204mr1337937ybm.471.1668676904345; Thu, 17
- Nov 2022 01:21:44 -0800 (PST)
-Date:   Thu, 17 Nov 2022 18:19:40 +0900
+ (user=suleiman job=sendgmr) by 2002:a25:bec1:0:b0:6cc:57e2:6f2c with SMTP id
+ k1-20020a25bec1000000b006cc57e26f2cmr63010965ybm.544.1668676909490; Thu, 17
+ Nov 2022 01:21:49 -0800 (PST)
+Date:   Thu, 17 Nov 2022 18:19:41 +0900
 In-Reply-To: <20221117091952.1940850-1-suleiman@google.com>
-Message-Id: <20221117091952.1940850-23-suleiman@google.com>
+Message-Id: <20221117091952.1940850-24-suleiman@google.com>
 Mime-Version: 1.0
 References: <20221117091952.1940850-1-suleiman@google.com>
 X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
-Subject: [PATCH 4.19 22/34] x86/speculation: Fix SPEC_CTRL write on SMT state change
+Subject: [PATCH 4.19 23/34] x86/speculation: Use cached host SPEC_CTRL value
+ for guest entry/exit
 From:   Suleiman Souhlal <suleiman@google.com>
 To:     stable@vger.kernel.org
 Cc:     x86@kernel.org, kvm@vger.kernel.org, bp@alien8.de,
@@ -72,10 +73,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit 56aa4d221f1ee2c3a49b45b800778ec6e0ab73c5 upstream.
+commit bbb69e8bee1bd882784947095ffb2bfe0f7c9470 upstream.
 
-If the SMT state changes, SSBD might get accidentally disabled.  Fix
-that.
+There's no need to recalculate the host value for every entry/exit.
+Just use the cached value in spec_ctrl_current().
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
@@ -84,23 +85,46 @@ Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Suleiman Souhlal <suleiman@google.com>
 ---
- arch/x86/kernel/cpu/bugs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/bugs.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
 diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 0734f35d1af1..e720dee4d30b 100644
+index e720dee4d30b..8ab96965bf28 100644
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1335,7 +1335,8 @@ static void __init spectre_v2_select_mitigation(void)
- 
- static void update_stibp_msr(void * __unused)
+@@ -198,7 +198,7 @@ void __init check_bugs(void)
+ void
+ x86_virt_spec_ctrl(u64 guest_spec_ctrl, u64 guest_virt_spec_ctrl, bool setguest)
  {
--	write_spec_ctrl_current(x86_spec_ctrl_base, true);
-+	u64 val = spec_ctrl_current() | (x86_spec_ctrl_base & SPEC_CTRL_STIBP);
-+	write_spec_ctrl_current(val, true);
- }
+-	u64 msrval, guestval, hostval = x86_spec_ctrl_base;
++	u64 msrval, guestval, hostval = spec_ctrl_current();
+ 	struct thread_info *ti = current_thread_info();
  
- /* Update x86_spec_ctrl_base in case SMT state changed. */
+ 	/* Is MSR_SPEC_CTRL implemented ? */
+@@ -211,15 +211,6 @@ x86_virt_spec_ctrl(u64 guest_spec_ctrl, u64 guest_virt_spec_ctrl, bool setguest)
+ 		guestval = hostval & ~x86_spec_ctrl_mask;
+ 		guestval |= guest_spec_ctrl & x86_spec_ctrl_mask;
+ 
+-		/* SSBD controlled in MSR_SPEC_CTRL */
+-		if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
+-		    static_cpu_has(X86_FEATURE_AMD_SSBD))
+-			hostval |= ssbd_tif_to_spec_ctrl(ti->flags);
+-
+-		/* Conditional STIBP enabled? */
+-		if (static_branch_unlikely(&switch_to_cond_stibp))
+-			hostval |= stibp_tif_to_spec_ctrl(ti->flags);
+-
+ 		if (hostval != guestval) {
+ 			msrval = setguest ? guestval : hostval;
+ 			wrmsrl(MSR_IA32_SPEC_CTRL, msrval);
+@@ -1274,7 +1265,6 @@ static void __init spectre_v2_select_mitigation(void)
+ 		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
+ 
+ 	if (spectre_v2_in_ibrs_mode(mode)) {
+-		/* Force it so VMEXIT will restore correctly */
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+ 		write_spec_ctrl_current(x86_spec_ctrl_base, true);
+ 	}
 -- 
 2.38.1.431.g37b22c650d-goog
 
