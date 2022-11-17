@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B79162D672
-	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 10:21:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63AF162D673
+	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 10:21:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239890AbiKQJVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Nov 2022 04:21:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45952 "EHLO
+        id S239876AbiKQJVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Nov 2022 04:21:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239425AbiKQJVG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 04:21:06 -0500
-Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D65156D48F
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:21:02 -0800 (PST)
-Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-3697bd55974so13579007b3.15
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:21:02 -0800 (PST)
+        with ESMTP id S239587AbiKQJVP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 04:21:15 -0500
+Received: from mail-pf1-x449.google.com (mail-pf1-x449.google.com [IPv6:2607:f8b0:4864:20::449])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C984697DC
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:21:07 -0800 (PST)
+Received: by mail-pf1-x449.google.com with SMTP id k11-20020aa792cb000000b00558674e8e7fso875598pfa.6
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:21:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=7FzGFGDKGInoiNmFi9RSpCNvBHUr7kXaVKev/EfQ51o=;
-        b=Lf6uAu0Td+CQM4TORv9y3v+VwHyQVrAlGvz3awuWBAjJpdkWDl+gi3MKtIkfyXsXab
-         4eYUKJJRrT0zSNmIUQqGDSlBtdmfjAp9Ct+S/+uI+k/6ZvauCGjpdtGl7QNQRZgC4xPg
-         BJoldh24GseK08gIpIeydNnAGmod6dhdtkEKyJ2AtEEpMTJ6qiWLCUJEJHHbfMTSuYBl
-         P4xaYloCGQNBFqbo6mREbsHFSj6W2PRlwffLdk0R7k4AJDK2yb7p0/AVhqALPlZZaXYU
-         qMy9/Pacu7S4YBETM4vD/33DWxdEvB07Npyyq2xvN+quqD9VOKgnkIIwvkostAES7L3O
-         p3eQ==
+        bh=ONCQMapXMFNqN4E8L/38xXygfmWlcyiuSOGs+oRFy0Q=;
+        b=ApWbalOQkteFEbjAljcmOsMfarW8W5ENKRgGw0Y74hRB1+0fyeHddoco4grbVGH5Uf
+         t0KM5w38Bu+I4BJxgXBN3hqRGFHQ8wKMLx0rvu6pTFyS7inV9bCV9h+tzZPZ4bemGLls
+         aMtn2ikInYpUv+vjyWDCzFgE96YTKMp450xFOXjhSn7GpaMwNDfOOJs8yIlxmrjHZpN6
+         y6ho5B+cxBlJPEW0MqBfxHKGwUIVnX6B5WsEzeb5fkkvIJxcn+z6Dy95NKP/vUX3u/NQ
+         aDHRF/d+MLK48t8WZ51gnLuvaZ2dT+rohGygOeSoTMBW2EUDacGYba4ifKlt3oIQo2zi
+         XuWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7FzGFGDKGInoiNmFi9RSpCNvBHUr7kXaVKev/EfQ51o=;
-        b=FoELnyC/8CDc3fJ55NHsIUHXl8lb/e3NFBwtUgEaQx3Gwq16vYbGG5x2OcLmhcKuoy
-         OdX6i4vN1s0Y37UIO4DIejNoVkDNhpQPrBfOOU1yp+KbqwC+DRatsXmm6RHrqLah6BjG
-         5MxUCoJstYuk2iy+pTG9XThz9ofwCGGaY0fM8OfclgOrcdEPYLwdRqgfB3Vb70idBlQ+
-         R0588xTA/YQI6t80osir6Hw9/hZRXJ5PWgOzqU16T8zwlOVBuVvArX9qTtvrBEsQy4dH
-         BW24pSwAF1IvnqF4LSrpafeqjdaxANucKDQJlbv9gErSq1bPy+ffIehbUQvPLbPy7JJj
-         n4nA==
-X-Gm-Message-State: ANoB5pmUfIVimVENaeBbZ7ve1g3URomQhOsKrgiYN9CkbRL+TJXPXJbT
-        jnFPmN03ZWJ1Ex30/fAjAPabnFRXdHSMXY6KZwyd3v3PEm5RG2vD08rBzSHp8oevYx+BryJUOH/
-        94YYHG4wBDXxN9mzppMHml5SXBu0GN38x3ZG/VHakkGFWtBvID5DAoZedRgdstSB6TuY=
-X-Google-Smtp-Source: AA0mqf7Dqp2hVktavdYlIkKTIb56YGRRpID7BmkS5OX3D7EN3eX3uikNP73GW+yct8M6oWZGRKP6gFeQfk7LoA==
+        bh=ONCQMapXMFNqN4E8L/38xXygfmWlcyiuSOGs+oRFy0Q=;
+        b=q//wpNs0zbluMBM5vPK82EHwOUA2C8HBwkBkyuBlSlqvZpZ2Nt8G0ftUs+5p7PHdmI
+         KG9KoynpUmx8DN1J18kY459r28fnvP9+sTV7Mwn0wO0HvKgdA5YxTqfCYXjrHwhiXcWk
+         9EF2Ll3MrQtj1rKewDSKQ/qLNDM8dr51SGMmJcO1hF4G5s+jCZwdRDt1gZfCmbkLkItv
+         WLnpgCBSVJtku+9Ns/19SALz29+cs33KyPpy+7rJBGdeFiamh6+U135tD9dbrQGzfogO
+         YZ/6jUMdeYVS4emEwcx03v3OrtpBhtYY1yRiFlLdVRPLUngQqnxhbrp3RGphf4VVm8tQ
+         jWng==
+X-Gm-Message-State: ANoB5pns4grZCxBStxAoWuR7+vZh79xHsabww/COR569sjpR/aK8Ak6t
+        H7nzTBxfMNvboe9oofwaNO3HS3wRFjRQkswWwziIDp6DTmtUMTH1UZn5XhAZeY7if2LbOInKaI2
+        q3hWMmCR9ECzZ3Bhgotu75YxeTJkswlGe24OdxJn4K7H9NXA8rIMkYvze2TDScBUEjRU=
+X-Google-Smtp-Source: AA0mqf46/v92SVcAYmYuY8L8jZQku6yEDIjzE0ETCfW5PzVEKFGqjhg7mWnjxyaXxGo9bw1dQYFMD26OWrnOhg==
 X-Received: from suleiman1.tok.corp.google.com ([2401:fa00:8f:203:416e:f3c7:7f1d:6e])
- (user=suleiman job=sendgmr) by 2002:a81:af53:0:b0:390:63df:952c with SMTP id
- x19-20020a81af53000000b0039063df952cmr0ywj.249.1668676861194; Thu, 17 Nov
- 2022 01:21:01 -0800 (PST)
-Date:   Thu, 17 Nov 2022 18:19:31 +0900
+ (user=suleiman job=sendgmr) by 2002:a17:902:ba91:b0:186:c958:6cd8 with SMTP
+ id k17-20020a170902ba9100b00186c9586cd8mr1807542pls.145.1668676866460; Thu,
+ 17 Nov 2022 01:21:06 -0800 (PST)
+Date:   Thu, 17 Nov 2022 18:19:32 +0900
 In-Reply-To: <20221117091952.1940850-1-suleiman@google.com>
-Message-Id: <20221117091952.1940850-14-suleiman@google.com>
+Message-Id: <20221117091952.1940850-15-suleiman@google.com>
 Mime-Version: 1.0
 References: <20221117091952.1940850-1-suleiman@google.com>
 X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
-Subject: [PATCH 4.19 13/34] x86/entry: Add kernel IBRS implementation
+Subject: [PATCH 4.19 14/34] x86/bugs: Optimize SPEC_CTRL MSR writes
 From:   Suleiman Souhlal <suleiman@google.com>
 To:     stable@vger.kernel.org
 Cc:     x86@kernel.org, kvm@vger.kernel.org, bp@alien8.de,
@@ -72,285 +72,114 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 2dbb887e875b1de3ca8f40ddf26bcfe55798c609 upstream.
+commit c779bc1a9002fa474175b80e72b85c9bf628abb0 upstream.
 
-Implement Kernel IBRS - currently the only known option to mitigate RSB
-underflow speculation issues on Skylake hardware.
+When changing SPEC_CTRL for user control, the WRMSR can be delayed
+until return-to-user when KERNEL_IBRS has been enabled.
 
-Note: since IBRS_ENTER requires fuller context established than
-UNTRAIN_RET, it must be placed after it. However, since UNTRAIN_RET
-itself implies a RET, it must come after IBRS_ENTER. This means
-IBRS_ENTER needs to also move UNTRAIN_RET.
-
-Note 2: KERNEL_IBRS is sub-optimal for XenPV.
+This avoids an MSR write during context switch.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: conflict at arch/x86/entry/entry_64.S, skip_r11rcx]
-[cascardo: conflict at arch/x86/entry/entry_64_compat.S]
-[cascardo: conflict fixups, no ANNOTATE_NOENDBR]
-[cascardo: entry fixups because of missing UNTRAIN_RET]
-[cascardo: conflicts on fsgsbase]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Suleiman Souhlal <suleiman@google.com>
 ---
- arch/x86/entry/calling.h           | 58 ++++++++++++++++++++++++++++++
- arch/x86/entry/entry_64.S          | 29 ++++++++++++++-
- arch/x86/entry/entry_64_compat.S   | 11 +++++-
- arch/x86/include/asm/cpufeatures.h |  2 +-
- 4 files changed, 97 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |  2 +-
+ arch/x86/kernel/cpu/bugs.c           | 18 ++++++++++++------
+ arch/x86/kernel/process.c            |  2 +-
+ 3 files changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/entry/calling.h b/arch/x86/entry/calling.h
-index 90a1297550d3..806729a7172f 100644
---- a/arch/x86/entry/calling.h
-+++ b/arch/x86/entry/calling.h
-@@ -6,6 +6,8 @@
- #include <asm/percpu.h>
- #include <asm/asm-offsets.h>
- #include <asm/processor-flags.h>
-+#include <asm/msr.h>
-+#include <asm/nospec-branch.h>
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index 6e2ff31584ae..c87ca2596c8a 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -307,7 +307,7 @@ static inline void indirect_branch_prediction_barrier(void)
+ 
+ /* The Intel SPEC CTRL MSR base value cache */
+ extern u64 x86_spec_ctrl_base;
+-extern void write_spec_ctrl_current(u64 val);
++extern void write_spec_ctrl_current(u64 val, bool force);
  
  /*
+  * With retpoline, we must use IBRS to restrict branch prediction
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index c55570a7c91a..ceb7cf1a1a3c 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -61,13 +61,19 @@ static DEFINE_MUTEX(spec_ctrl_mutex);
+  * Keep track of the SPEC_CTRL MSR value for the current task, which may differ
+  * from x86_spec_ctrl_base due to STIBP/SSB in __speculation_ctrl_update().
+  */
+-void write_spec_ctrl_current(u64 val)
++void write_spec_ctrl_current(u64 val, bool force)
+ {
+ 	if (this_cpu_read(x86_spec_ctrl_current) == val)
+ 		return;
  
-@@ -308,6 +310,62 @@ For 32-bit we have the following conventions - kernel is built with
- 
- #endif
- 
-+/*
-+ * IBRS kernel mitigation for Spectre_v2.
-+ *
-+ * Assumes full context is established (PUSH_REGS, CR3 and GS) and it clobbers
-+ * the regs it uses (AX, CX, DX). Must be called before the first RET
-+ * instruction (NOTE! UNTRAIN_RET includes a RET instruction)
-+ *
-+ * The optional argument is used to save/restore the current value,
-+ * which is used on the paranoid paths.
-+ *
-+ * Assumes x86_spec_ctrl_{base,current} to have SPEC_CTRL_IBRS set.
-+ */
-+.macro IBRS_ENTER save_reg
-+	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
-+	movl	$MSR_IA32_SPEC_CTRL, %ecx
-+
-+.ifnb \save_reg
-+	rdmsr
-+	shl	$32, %rdx
-+	or	%rdx, %rax
-+	mov	%rax, \save_reg
-+	test	$SPEC_CTRL_IBRS, %eax
-+	jz	.Ldo_wrmsr_\@
-+	lfence
-+	jmp	.Lend_\@
-+.Ldo_wrmsr_\@:
-+.endif
-+
-+	movq	PER_CPU_VAR(x86_spec_ctrl_current), %rdx
-+	movl	%edx, %eax
-+	shr	$32, %rdx
-+	wrmsr
-+.Lend_\@:
-+.endm
-+
-+/*
-+ * Similar to IBRS_ENTER, requires KERNEL GS,CR3 and clobbers (AX, CX, DX)
-+ * regs. Must be called after the last RET.
-+ */
-+.macro IBRS_EXIT save_reg
-+	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
-+	movl	$MSR_IA32_SPEC_CTRL, %ecx
-+
-+.ifnb \save_reg
-+	mov	\save_reg, %rdx
-+.else
-+	movq	PER_CPU_VAR(x86_spec_ctrl_current), %rdx
-+	andl	$(~SPEC_CTRL_IBRS), %edx
-+.endif
-+
-+	movl	%edx, %eax
-+	shr	$32, %rdx
-+	wrmsr
-+.Lend_\@:
-+.endm
-+
- /*
-  * Mitigate Spectre v1 for conditional swapgs code paths.
-  *
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index 35bdbd9d50c6..55b61b34c462 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -235,6 +235,10 @@ GLOBAL(entry_SYSCALL_64_after_hwframe)
- 	/* IRQs are off. */
- 	movq	%rax, %rdi
- 	movq	%rsp, %rsi
-+
-+	/* clobbers %rax, make sure it is after saving the syscall nr */
-+	IBRS_ENTER
-+
- 	call	do_syscall_64		/* returns with IRQs disabled */
- 
- 	TRACE_IRQS_IRETQ		/* we're about to change IF */
-@@ -311,6 +315,7 @@ GLOBAL(entry_SYSCALL_64_after_hwframe)
- 	 * perf profiles. Nothing jumps here.
- 	 */
- syscall_return_via_sysret:
-+	IBRS_EXIT
- 	POP_REGS pop_rdi=0
- 
- 	/*
-@@ -684,6 +689,7 @@ GLOBAL(retint_user)
- 	TRACE_IRQS_IRETQ
- 
- GLOBAL(swapgs_restore_regs_and_return_to_usermode)
-+	IBRS_EXIT
- #ifdef CONFIG_DEBUG_ENTRY
- 	/* Assert that pt_regs indicates user mode. */
- 	testb	$3, CS(%rsp)
-@@ -1249,7 +1255,13 @@ ENTRY(paranoid_entry)
- 	 */
- 	FENCE_SWAPGS_KERNEL_ENTRY
- 
--	ret
-+	/*
-+	 * Once we have CR3 and %GS setup save and set SPEC_CTRL. Just like
-+	 * CR3 above, keep the old value in a callee saved register.
-+	 */
-+	IBRS_ENTER save_reg=%r15
-+
-+	RET
- END(paranoid_entry)
- 
- /*
-@@ -1277,12 +1289,20 @@ ENTRY(paranoid_exit)
- 	jmp	.Lparanoid_exit_restore
- .Lparanoid_exit_no_swapgs:
- 	TRACE_IRQS_IRETQ_DEBUG
+ 	this_cpu_write(x86_spec_ctrl_current, val);
+-	wrmsrl(MSR_IA32_SPEC_CTRL, val);
 +
 +	/*
-+	 * Must restore IBRS state before both CR3 and %GS since we need access
-+	 * to the per-CPU x86_spec_ctrl_shadow variable.
++	 * When KERNEL_IBRS this MSR is written on return-to-user, unless
++	 * forced the update can be delayed until that time.
 +	 */
-+	IBRS_EXIT save_reg=%r15
-+
- 	/* Always restore stashed CR3 value (see paranoid_entry) */
- 	RESTORE_CR3	scratch_reg=%rbx save_reg=%r14
- .Lparanoid_exit_restore:
- 	jmp restore_regs_and_return_to_kernel
- END(paranoid_exit)
- 
-+
- /*
-  * Save all registers in pt_regs, and switch GS if needed.
-  */
-@@ -1302,6 +1322,7 @@ ENTRY(error_entry)
- 	FENCE_SWAPGS_USER_ENTRY
- 	/* We have user CR3.  Change to kernel CR3. */
- 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
-+	IBRS_ENTER
- 
- .Lerror_entry_from_usermode_after_swapgs:
- 	/* Put us onto the real thread stack. */
-@@ -1366,6 +1387,7 @@ ENTRY(error_entry)
- 	SWAPGS
- 	FENCE_SWAPGS_USER_ENTRY
- 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
-+	IBRS_ENTER
- 
- 	/*
- 	 * Pretend that the exception came from user mode: set up pt_regs
-@@ -1471,6 +1493,8 @@ ENTRY(nmi)
- 	PUSH_AND_CLEAR_REGS rdx=(%rdx)
- 	ENCODE_FRAME_POINTER
- 
-+	IBRS_ENTER
-+
- 	/*
- 	 * At this point we no longer need to worry about stack damage
- 	 * due to nesting -- we're on the normal thread stack and we're
-@@ -1694,6 +1718,9 @@ end_repeat_nmi:
- 	movq	$-1, %rsi
- 	call	do_nmi
- 
-+	/* Always restore stashed SPEC_CTRL value (see paranoid_entry) */
-+	IBRS_EXIT save_reg=%r15
-+
- 	/* Always restore stashed CR3 value (see paranoid_entry) */
- 	RESTORE_CR3 scratch_reg=%r15 save_reg=%r14
- 
-diff --git a/arch/x86/entry/entry_64_compat.S b/arch/x86/entry/entry_64_compat.S
-index 40d2834a8101..85dd05de648c 100644
---- a/arch/x86/entry/entry_64_compat.S
-+++ b/arch/x86/entry/entry_64_compat.S
-@@ -4,7 +4,6 @@
-  *
-  * Copyright 2000-2002 Andi Kleen, SuSE Labs.
-  */
--#include "calling.h"
- #include <asm/asm-offsets.h>
- #include <asm/current.h>
- #include <asm/errno.h>
-@@ -17,6 +16,8 @@
- #include <linux/linkage.h>
- #include <linux/err.h>
- 
-+#include "calling.h"
-+
- 	.section .entry.text, "ax"
++	if (force || !cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS))
++		wrmsrl(MSR_IA32_SPEC_CTRL, val);
+ }
  
  /*
-@@ -106,6 +107,8 @@ ENTRY(entry_SYSENTER_compat)
- 	xorl	%r15d, %r15d		/* nospec   r15 */
- 	cld
+@@ -1195,7 +1201,7 @@ static void __init spectre_v2_select_mitigation(void)
+ 	if (spectre_v2_in_eibrs_mode(mode)) {
+ 		/* Force it so VMEXIT will restore correctly */
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+-		write_spec_ctrl_current(x86_spec_ctrl_base);
++		write_spec_ctrl_current(x86_spec_ctrl_base, true);
+ 	}
  
-+	IBRS_ENTER
-+
- 	/*
- 	 * SYSENTER doesn't filter flags, so we need to clear NT and AC
- 	 * ourselves.  To save a few cycles, we can check whether
-@@ -253,6 +256,8 @@ GLOBAL(entry_SYSCALL_compat_after_hwframe)
- 	 */
- 	TRACE_IRQS_OFF
+ 	switch (mode) {
+@@ -1250,7 +1256,7 @@ static void __init spectre_v2_select_mitigation(void)
  
-+	IBRS_ENTER
-+
- 	movq	%rsp, %rdi
- 	call	do_fast_syscall_32
- 	/* XEN PV guests always use IRET path */
-@@ -262,6 +267,9 @@ GLOBAL(entry_SYSCALL_compat_after_hwframe)
- 	/* Opportunistic SYSRET */
- sysret32_from_system_call:
- 	TRACE_IRQS_ON			/* User mode traces as IRQs on. */
-+
-+	IBRS_EXIT
-+
- 	movq	RBX(%rsp), %rbx		/* pt_regs->rbx */
- 	movq	RBP(%rsp), %rbp		/* pt_regs->rbp */
- 	movq	EFLAGS(%rsp), %r11	/* pt_regs->flags (in r11) */
-@@ -403,6 +411,7 @@ ENTRY(entry_INT80_compat)
- 	 * gate turned them off.
- 	 */
- 	TRACE_IRQS_OFF
-+	IBRS_ENTER
+ static void update_stibp_msr(void * __unused)
+ {
+-	write_spec_ctrl_current(x86_spec_ctrl_base);
++	write_spec_ctrl_current(x86_spec_ctrl_base, true);
+ }
  
- 	movq	%rsp, %rdi
- 	call	do_int80_syscall_32
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index 0c6734329ed5..23126290185d 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -202,7 +202,7 @@
- #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
- #define X86_FEATURE_SME			( 7*32+10) /* AMD Secure Memory Encryption */
- #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
--/* FREE!				( 7*32+12) */
-+#define X86_FEATURE_KERNEL_IBRS		( 7*32+12) /* "" Set/clear IBRS on kernel entry/exit */
- /* FREE!				( 7*32+13) */
- #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
- #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
+ /* Update x86_spec_ctrl_base in case SMT state changed. */
+@@ -1493,7 +1499,7 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
+ 			x86_amd_ssb_disable();
+ 		} else {
+ 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
+-			write_spec_ctrl_current(x86_spec_ctrl_base);
++			write_spec_ctrl_current(x86_spec_ctrl_base, true);
+ 		}
+ 	}
+ 
+@@ -1698,7 +1704,7 @@ int arch_prctl_spec_ctrl_get(struct task_struct *task, unsigned long which)
+ void x86_spec_ctrl_setup_ap(void)
+ {
+ 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
+-		write_spec_ctrl_current(x86_spec_ctrl_base);
++		write_spec_ctrl_current(x86_spec_ctrl_base, true);
+ 
+ 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
+ 		x86_amd_ssb_disable();
+diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+index d697ccbf0cd2..a95b9e090f9e 100644
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -434,7 +434,7 @@ static __always_inline void __speculation_ctrl_update(unsigned long tifp,
+ 	}
+ 
+ 	if (updmsr)
+-		write_spec_ctrl_current(msr);
++		write_spec_ctrl_current(msr, false);
+ }
+ 
+ static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
 -- 
 2.38.1.431.g37b22c650d-goog
 
