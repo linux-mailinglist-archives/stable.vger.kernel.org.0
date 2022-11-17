@@ -2,65 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD41662E208
-	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 17:35:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0B6962E421
+	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 19:28:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234815AbiKQQfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Nov 2022 11:35:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44092 "EHLO
+        id S235002AbiKQS2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Nov 2022 13:28:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240704AbiKQQfL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 11:35:11 -0500
-Received: from mail-il1-f197.google.com (mail-il1-f197.google.com [209.85.166.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9386252B7
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 08:34:26 -0800 (PST)
-Received: by mail-il1-f197.google.com with SMTP id a15-20020a056e0208af00b00300806a52b6so1532014ilt.22
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 08:34:26 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=UKNN3axs1y811QkhsVcYtMf113asLOYvCITq8yCsIOI=;
-        b=ytRJFAbLxYc/gey6tyPHu5sZGNkWO8VqbwA75D17qtJsYL/L9Nyxni9jFYvLAMVpZl
-         xzzezgjUGZOE1wMWEGAK+plk+i8AyIeRDVWygUm9ZhZEqL6P2kpCbwegps8TABe9Hy8a
-         GCevvWKew5F/30ujzjfkb28tTyx5aieNIqh4278dsH3fs5d+VAsxh9NMPNoIcPUVY6+C
-         Vv4sZS6sXiYTJq1zOQq8R43iaT+0dZxn4iJqFjMXfYPKrrgKJwL+m5MrcFZ/HbxpxwjY
-         XMCBOaeFFgUQR+U9fMrj+OlnYJKG6B+yEqFhzwgW6F4x4DNpiK+Cz0pSR3cOh0jFYZPC
-         C/GQ==
-X-Gm-Message-State: ANoB5pkjoz19hhbhjnPyx6TCWYNTSn2dcq+xFB4kUBPUMX8KNAJ1HhoP
-        wLjYLP2V0f38eFiO1CGF+F7+e0WwtB8dZ0AFTfvWrFdLaf8v
-X-Google-Smtp-Source: AA0mqf5cB8zjsOSC8LHfvAYaU0F7H15UOWRCuC2r5ny9Tj6mj8hA5jpRHTg/4LdRqCujB/GD3+SOVZwgGwscKi4bxIBPLJ2kZP0a
+        with ESMTP id S240288AbiKQS2n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 13:28:43 -0500
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA22697F5;
+        Thu, 17 Nov 2022 10:28:39 -0800 (PST)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHGxX39019741;
+        Thu, 17 Nov 2022 18:28:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=corp-2022-7-12;
+ bh=+4owGTGRmhSdZ2ecuhihdvRvYEiDoPPqpPmps9xlO8Q=;
+ b=xYbBQP0r1w/fxFVrLmeD3SdyXjLjMyaqqU0BWZJ3hvKr2DFTodWyXNa6Xz3IM9zHth13
+ VOZw93FGS7md4oO2DvUaoQxJVI+3iG8kNCtTrd2/elF71YTlG8SkWesm3PHeRdfAp1db
+ LVbNsEeLBxq0zxpSd7k7mw6WoiPvU4JPU7KFIgLya84b3f67+Ltg47I/9UpQWqJsEcNX
+ fXFtE++S6vteZC0w/xg/kxNSSIoeT72cYIEp/cba2xksQsogBUqioorcnjIIl6Xo9xwp
+ JSoxqo8Btld62y5n1wO3dm5rd/qanpDH34aXpjAlJn5IHwC1CNmXSNjsSrcoWb2/iH9U 4g== 
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3kwryb896r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 17 Nov 2022 18:28:38 +0000
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 2AHH95ct008712;
+        Thu, 17 Nov 2022 18:28:37 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3kt1xft5q4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 17 Nov 2022 18:28:37 +0000
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AHISano025586;
+        Thu, 17 Nov 2022 18:28:36 GMT
+Received: from ca-mkp.mkp.ca.oracle.com (ca-mkp.ca.oracle.com [10.156.108.201])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 3kt1xft5pj-1;
+        Thu, 17 Nov 2022 18:28:36 +0000
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+To:     Steffen Maier <maier@linux.ibm.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>
+Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-scsi@vger.kernel.org,
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Fedor Loshakov <loshakov@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>
+Subject: Re: [PATCH] zfcp: fix double free of fsf request when qdio send fails
+Date:   Thu, 17 Nov 2022 13:28:31 -0500
+Message-Id: <166870940540.1572108.9327933975941507142.b4-ty@oracle.com>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <979f6e6019d15f91ba56182f1aaf68d61bf37fc6.1668595505.git.bblock@linux.ibm.com>
+References: <979f6e6019d15f91ba56182f1aaf68d61bf37fc6.1668595505.git.bblock@linux.ibm.com>
 MIME-Version: 1.0
-X-Received: by 2002:a6b:c990:0:b0:6dd:807d:89a3 with SMTP id
- z138-20020a6bc990000000b006dd807d89a3mr1779863iof.33.1668702866278; Thu, 17
- Nov 2022 08:34:26 -0800 (PST)
-Date:   Thu, 17 Nov 2022 08:34:26 -0800
-In-Reply-To: <0000000000006c411605e2f127e5@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000949d0805edad29fc@google.com>
-Subject: Re: kernel BUG in ext4_free_blocks (2)
-From:   syzbot <syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com>
-To:     adilger.kernel@dilger.ca, gregkh@linuxfoundation.org,
-        lczerner@redhat.com, linux-ext4@vger.kernel.org,
-        linux-kernel@vger.kernel.org, sashal@kernel.org,
-        stable@vger.kernel.org, syzkaller-android-bugs@googlegroups.com,
-        tadeusz.struk@linaro.org, tytso@mit.edu
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-17_06,2022-11-17_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=906 bulkscore=0 mlxscore=0
+ phishscore=0 suspectscore=0 spamscore=0 adultscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
+ definitions=main-2211170133
+X-Proofpoint-ORIG-GUID: CYHgXcS4xGL3TriDD0Sz5eB3oTjB5vwp
+X-Proofpoint-GUID: CYHgXcS4xGL3TriDD0Sz5eB3oTjB5vwp
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This bug is marked as fixed by commit:
-ext4: block range must be validated before use in ext4_mb_clear_bb()
-But I can't find it in any tested tree for more than 90 days.
-Is it a correct commit? Please update it by replying:
-#syz fix: exact-commit-title
-Until then the bug is still considered open and
-new crashes with the same signature are ignored.
+On Wed, 16 Nov 2022 11:50:37 +0100, Benjamin Block wrote:
+
+> We used to use the wrong type of integer in `zfcp_fsf_req_send()` to
+> cache the FSF request ID when sending a new FSF request. This is used in
+> case the sending fails and we need to remove the request from our
+> internal hash table again (so we don't keep an invalid reference and use
+> it when we free the request again).
+> 
+> In `zfcp_fsf_req_send()` we used to cache the ID as `int` (signed and 32
+> bit wide), but the rest of the zfcp code (and the firmware
+> specification) handles the ID as `unsigned long`/`u64` (unsigned and 64
+> bit wide [s390x ELF ABI]).
+>     For one this has the obvious problem that when the ID grows past 32
+> bit (this can happen reasonably fast) it is truncated to 32 bit when
+> storing it in the cache variable and so doesn't match the original ID
+> anymore.
+>     The second less obvious problem is that even when the original ID
+> has not yet grown past 32 bit, as soon as the 32nd bit is set in the
+> original ID (0x80000000 = 2'147'483'648) we will have a mismatch when we
+> cast it back to `unsigned long`. As the cached variable is of a signed
+> type, the compiler will choose a sign-extending instruction to
+> load the 32 bit variable into a 64 bit register (e.g.:
+> `lgf %r11,188(%r15)`). So once we pass the cached variable into
+> `zfcp_reqlist_find_rm()` to remove the request again all the leading
+> zeros will be flipped to ones to extend the sign and won't match the
+> original ID anymore (this has been observed in practice).
+> 
+> [...]
+
+Applied to 6.1/scsi-fixes, thanks!
+
+[1/1] zfcp: fix double free of fsf request when qdio send fails
+      https://git.kernel.org/mkp/scsi/c/0954256e970e
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
