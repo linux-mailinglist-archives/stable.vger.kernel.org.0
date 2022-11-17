@@ -2,163 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1F762DCBE
-	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 14:29:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A1D562DD6A
+	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 15:00:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239965AbiKQN3i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Nov 2022 08:29:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45354 "EHLO
+        id S233739AbiKQOAA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Nov 2022 09:00:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239964AbiKQN3h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 08:29:37 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1228716E5
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 05:29:36 -0800 (PST)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1ovexO-0005Hp-6O; Thu, 17 Nov 2022 14:29:30 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1ovexM-004rWq-1M; Thu, 17 Nov 2022 14:29:28 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1ovexM-00HHrg-1B; Thu, 17 Nov 2022 14:29:28 +0100
-Date:   Thu, 17 Nov 2022 14:29:27 +0100
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     Thierry Reding <thierry.reding@gmail.com>, od@opendingux.net,
-        linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/5] pwm: jz4740: Fix pin level of disabled TCU2
- channels, part 1
-Message-ID: <20221117132927.mom5klfd4eww5amk@pengutronix.de>
-References: <20221024205213.327001-1-paul@crapouillou.net>
- <20221024205213.327001-2-paul@crapouillou.net>
- <20221025062129.drzltbavg6hrhv7r@pengutronix.de>
- <CVZAKR.06MA7BGA170W3@crapouillou.net>
+        with ESMTP id S233179AbiKQN77 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 08:59:59 -0500
+Received: from xry111.site (xry111.site [89.208.246.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8FC212616;
+        Thu, 17 Nov 2022 05:59:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xry111.site;
+        s=default; t=1668693594;
+        bh=BEJkus9SbXI3rKcbLiusL3L/dHDxpMdZ5fUjakFE5MU=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=fj+2TDqFTLoW0xpGUKDdR4O0EJmxgcAAhzsN6IWl84bp2UrCUiSCFFj7GsZ6VVtSJ
+         TlGzYQSwv885crsUiOzQEkIScGNu2ysES5vM7iRBS+ba0rkZzOPD7nBEMje883XPpc
+         eeeWtnq8f3/np6PrlvYOggWTi9TJ4e9bCdDjoc2w=
+Received: from localhost.localdomain (xry111.site [IPv6:2001:470:683e::1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature ECDSA (P-384) server-digest SHA384)
+        (Client did not present a certificate)
+        (Authenticated sender: xry111@xry111.site)
+        by xry111.site (Postfix) with ESMTPSA id ACC0D6692F;
+        Thu, 17 Nov 2022 08:59:51 -0500 (EST)
+Message-ID: <b1707e1c04a6a9b91fd5f70ea012b5bcc764516e.camel@xry111.site>
+Subject: Re: [PATCH 04/47] LoongArch: Set _PAGE_DIRTY only if _PAGE_WRITE is
+ set in {pmd,pte}_mkdirty()
+From:   Xi Ruoyao <xry111@xry111.site>
+To:     Huacai Chen <chenhuacai@loongson.cn>,
+        Huacai Chen <chenhuacai@kernel.org>
+Cc:     loongarch@lists.linux.dev, Xuefeng Li <lixuefeng@loongson.cn>,
+        Guo Ren <guoren@kernel.org>, Xuerui Wang <kernel@xen0n.name>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>
+Date:   Thu, 17 Nov 2022 21:59:49 +0800
+In-Reply-To: <20221117042532.4064448-1-chenhuacai@loongson.cn>
+References: <20221117042532.4064448-1-chenhuacai@loongson.cn>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.0 
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="xsmjk3h2yzdssoiw"
-Content-Disposition: inline
-In-Reply-To: <CVZAKR.06MA7BGA170W3@crapouillou.net>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-0.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FROM_SUSPICIOUS_NTLD,
+        PDS_OTHER_BAD_TLD,SPF_HELO_PASS,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Huacai,
 
---xsmjk3h2yzdssoiw
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, 2022-11-17 at 12:25 +0800, Huacai Chen wrote:
+> Now {pmd,pte}_mkdirty() set _PAGE_DIRTY bit unconditionally, this causes
+> random segmentation fault after commit 0ccf7f168e17bb7e ("mm/thp: carry
+> over dirty bit when thp splits on pmd").
 
-Hello Paul,
+Hmm, the pte_mkdirty call is already removed in commit 624a2c94f5b7a081
+("Partly revert \"mm/thp: carry over dirty bit when thp splits on
+pmd\"").
 
-On Tue, Oct 25, 2022 at 11:02:00AM +0100, Paul Cercueil wrote:
-> Le mar. 25 oct. 2022 =E0 08:21:29 +0200, Uwe Kleine-K=F6nig
-> <u.kleine-koenig@pengutronix.de> a =E9crit :
-> > Hello,
-> >=20
-> > On Mon, Oct 24, 2022 at 09:52:09PM +0100, Paul Cercueil wrote:
-> > >  The "duty > cycle" trick to force the pin level of a disabled TCU2
-> > >  channel would only work when the channel had been enabled
-> > > previously.
-> > >=20
-> > >  Address this issue by enabling the PWM mode in jz4740_pwm_disable
-> > >  (I know, right) so that the "duty > cycle" trick works before
-> > > disabling
-> > >  the PWM channel right after.
-> > >=20
-> > >  This issue went unnoticed, as the PWM pins on the majority of the
-> > > boards
-> > >  tested would default to the inactive level once the corresponding
-> > > TCU
-> > >  clock was enabled, so the first call to jz4740_pwm_disable() would
-> > > not
-> > >  actually change the pin levels.
-> > >=20
-> > >  On the GCW Zero however, the PWM pin for the backlight (PWM1, which
-> > > is
-> > >  a TCU2 channel) goes active as soon as the timer1 clock is enabled.
-> > >  Since the jz4740_pwm_disable() function did not work on channels not
-> > >  previously enabled, the backlight would shine at full brightness
-> > > from
-> > >  the moment the backlight driver would probe, until the backlight
-> > > driver
-> > >  tried to *enable* the PWM output.
-> > >=20
-> > >  With this fix, the PWM pins will be forced inactive as soon as
-> > >  jz4740_pwm_apply() is called (and might be reconfigured to active if
-> > >  dictated by the pwm_state). This means that there is still a tiny
-> > > time
-> > >  frame between the .request() and .apply() callbacks where the PWM
-> > > pin
-> > >  might be active. Sadly, there is no way to fix this issue: it is
-> > >  impossible to write a PWM channel's registers if the corresponding
-> > > clock
-> > >  is not enabled, and enabling the clock is what causes the PWM pin
-> > > to go
-> > >  active.
-> > >=20
-> > >  There is a workaround, though, which complements this fix: simply
-> > >  starting the backlight driver (or any PWM client driver) with a
-> > > "init"
-> > >  pinctrl state that sets the pin as an inactive GPIO. Once the
-> > > driver is
-> > >  probed and the pinctrl state switches to "default", the regular PWM
-> > > pin
-> > >  configuration can be used as it will be properly driven.
-> > >=20
-> > >  Fixes: c2693514a0a1 ("pwm: jz4740: Obtain regmap from parent node")
-> > >  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> > >  Cc: stable@vger.kernel.org
-> >=20
-> > OK, understood the issue. I think there is another similar issue: The
-> > clk is get and enabled only in the .request() callback. The result is (I
-> > think---depends on a few further conditions) that if you have the
-> > backlight driver as a module and the bootloader enables the backlight to
-> > show a splash screen, the backlight goes off because of the
-> > clk_disable_unused initcall.
+Not sure if this issue is related to some random segfaults I've observed
+recently though.  My last kernel build contains 0ccf7f168e17bb7e but
+does not contain 624a2c94f5b7a081.
+
 >=20
-> I will have to verify, but I'm pretty sure disabling the clock doesn't
-> change the pin level back to inactive.
-
-Given that you set the clk's rate depending on the period to apply, I'd
-claim that you need to keep the clk on. Maybe it doesn't hurt, because
-another component of the system keeps the clk running, but it's wrong
-anyhow. Assumptions like these tend to break on new chip revisions.
-
-Best regards
-Uwe
+> The reason is: when fork(), parent process use pmd_wrprotect() to clear
+> huge page's _PAGE_WRITE and _PAGE_DIRTY (for COW); then pte_mkdirty() set
+> _PAGE_DIRTY as well as _PAGE_MODIFIED while splitting dirty huge pages;
+> once _PAGE_DIRTY is set, there will be no tlb modify exception so the COW
+> machanism fails; and at last memory corruption occurred between parent
+> and child processes.
+>=20
+> So, we should set _PAGE_DIRTY only when _PAGE_WRITE is set in {pmd,pte}_
+> mkdirty().
+>=20
+> Cc: stable@vger.kernel.org
+> Cc: Peter Xu <peterx@redhat.com>
+> Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+> ---
+> Note: CC sparc maillist because they have similar issues.
+> =C2=A0
+> =C2=A0arch/loongarch/include/asm/pgtable.h | 8 ++++++--
+> =C2=A01 file changed, 6 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/arch/loongarch/include/asm/pgtable.h b/arch/loongarch/includ=
+e/asm/pgtable.h
+> index 946704bee599..debbe116f105 100644
+> --- a/arch/loongarch/include/asm/pgtable.h
+> +++ b/arch/loongarch/include/asm/pgtable.h
+> @@ -349,7 +349,9 @@ static inline pte_t pte_mkclean(pte_t pte)
+> =C2=A0
+> =C2=A0static inline pte_t pte_mkdirty(pte_t pte)
+> =C2=A0{
+> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0pte_val(pte) |=3D (_PAGE_DIRTY=
+ | _PAGE_MODIFIED);
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0pte_val(pte) |=3D _PAGE_MODIFI=
+ED;
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (pte_val(pte) & _PAGE_WRITE=
+)
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0pte_val(pte) |=3D _PAGE_DIRTY;
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return pte;
+> =C2=A0}
+> =C2=A0
+> @@ -478,7 +480,9 @@ static inline pmd_t pmd_mkclean(pmd_t pmd)
+> =C2=A0
+> =C2=A0static inline pmd_t pmd_mkdirty(pmd_t pmd)
+> =C2=A0{
+> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0pmd_val(pmd) |=3D (_PAGE_DIRTY=
+ | _PAGE_MODIFIED);
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0pmd_val(pmd) |=3D _PAGE_MODIFI=
+ED;
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (pmd_val(pmd) & _PAGE_WRITE=
+)
+> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0pmd_val(pmd) |=3D _PAGE_DIRTY;
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return pmd;
+> =C2=A0}
+> =C2=A0
 
 --=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---xsmjk3h2yzdssoiw
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmN2NzQACgkQwfwUeK3K
-7AksvQf9EZfAv7iQBz9ZFUNDv/rCJVBR7ECu9o6TMX63AUmUcgxYFG5meUqypxK0
-jRfD2P6pHB4+cL7W0D4L3t4vA5sS9tfl4egGC4y6wI05ircgRVaUIZfH+t+jjHlb
-c2aOxTQ/eg65jyCkD+tNIE5BPPieMOojXat7rteGQok1JUEZfTMp21hygPYRBKiG
-v5ILRExvbJaC1CYKyfw67P6mVazYfaQMU2UKGbpSHtO+yekIQas26hekUh1i81qC
-Rk7OIMEGLQdMUISVvLtuNXVWRnCXW6GaC90eYrTcdPVpeyhQi7NJaUc6JMWT6Vdv
-W+L1jN0wGwtWNsyy4zjgGnrGQis2zw==
-=VCuW
------END PGP SIGNATURE-----
-
---xsmjk3h2yzdssoiw--
+Xi Ruoyao <xry111@xry111.site>
+School of Aerospace Science and Technology, Xidian University
