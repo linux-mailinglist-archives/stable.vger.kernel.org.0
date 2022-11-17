@@ -2,54 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A1D562DD6A
-	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 15:00:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1846162DDCE
+	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 15:19:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233739AbiKQOAA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Nov 2022 09:00:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38144 "EHLO
+        id S240336AbiKQOTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Nov 2022 09:19:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233179AbiKQN77 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 08:59:59 -0500
-Received: from xry111.site (xry111.site [89.208.246.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8FC212616;
-        Thu, 17 Nov 2022 05:59:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xry111.site;
-        s=default; t=1668693594;
-        bh=BEJkus9SbXI3rKcbLiusL3L/dHDxpMdZ5fUjakFE5MU=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=fj+2TDqFTLoW0xpGUKDdR4O0EJmxgcAAhzsN6IWl84bp2UrCUiSCFFj7GsZ6VVtSJ
-         TlGzYQSwv885crsUiOzQEkIScGNu2ysES5vM7iRBS+ba0rkZzOPD7nBEMje883XPpc
-         eeeWtnq8f3/np6PrlvYOggWTi9TJ4e9bCdDjoc2w=
-Received: from localhost.localdomain (xry111.site [IPv6:2001:470:683e::1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature ECDSA (P-384) server-digest SHA384)
-        (Client did not present a certificate)
-        (Authenticated sender: xry111@xry111.site)
-        by xry111.site (Postfix) with ESMTPSA id ACC0D6692F;
-        Thu, 17 Nov 2022 08:59:51 -0500 (EST)
-Message-ID: <b1707e1c04a6a9b91fd5f70ea012b5bcc764516e.camel@xry111.site>
-Subject: Re: [PATCH 04/47] LoongArch: Set _PAGE_DIRTY only if _PAGE_WRITE is
- set in {pmd,pte}_mkdirty()
-From:   Xi Ruoyao <xry111@xry111.site>
-To:     Huacai Chen <chenhuacai@loongson.cn>,
-        Huacai Chen <chenhuacai@kernel.org>
-Cc:     loongarch@lists.linux.dev, Xuefeng Li <lixuefeng@loongson.cn>,
-        Guo Ren <guoren@kernel.org>, Xuerui Wang <kernel@xen0n.name>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>
-Date:   Thu, 17 Nov 2022 21:59:49 +0800
-In-Reply-To: <20221117042532.4064448-1-chenhuacai@loongson.cn>
-References: <20221117042532.4064448-1-chenhuacai@loongson.cn>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.0 
+        with ESMTP id S234784AbiKQOTb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 09:19:31 -0500
+Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93ADD10079
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 06:19:30 -0800 (PST)
+Received: by mail-lf1-x134.google.com with SMTP id bp15so2977712lfb.13
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 06:19:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=D3x133dVtwVv7jvx8g97kW4FBOvvKkB/v2oc16Tf4lc=;
+        b=HrVH8yqh59n941IfjY8F2X3AvLLvdAiPmJ+LjuOQJSHpEVGtdgWDTTcoEKtqXZjfcH
+         BJYvIAQKdWMlCETZNgkGvK2ciql3SNLG9lNHBolWfrYQlE1P534aKrS/+HPFui6P5pnu
+         +2OW6S+9MkUOpfawuNT4zCy+QFH/k7z27DPt2l8ozLtQ1sEjJcQE+t/YYzx0J3XW1VR1
+         26P7roYiX5qFLu//qxeLGFlXXH/0B/JYGVMXtNsmJekqdxNjeq9hIGghT+h3LNaxKFrA
+         oA48gB3qhT6DzyyqhzUmjAOKTkQJSu2AwoieLsRXVR3gzJv8IOtsNUuO8cFjA+yU+Vrk
+         Ph9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=D3x133dVtwVv7jvx8g97kW4FBOvvKkB/v2oc16Tf4lc=;
+        b=neM605ji/V1w6xzQVPDcIM9/EgWhu2bHwLCRWe7iwr3rvC7LWFH5u87AXWMjSePnOO
+         8HLLgUASuS/PMRsEsb906luaeqla1+aZbUsG1eNYG27AmB4/ksx6tlrXOMCOB4AZ/Q24
+         I3PZ8yNTCxk670OcIpVHjofs95KqD3nuSoOUKDDxCJpNoUXOuEyMysNItaQyB7hMLANQ
+         TZnBu2OvSwm/0QLq/Emlu+QJftQU1kWrCaeMoVeBLTUPAfDDqC7SNly3NIX/pUQaJ1Dc
+         5tGBBQC7pEha767o95swYGqKXVuNgUM/vDATPCD8oOUeGejUwyRRmKoUjmlSmESPAl3j
+         Ur4w==
+X-Gm-Message-State: ANoB5plMaIFHyiXny8hmJuipSVCiYGRodrbVFdMhUIaKohVcjS1J8Qf9
+        3mgpJmUcOVRJNnqg+YHoWsZdKxYCTaAJrouj/oqc6Q==
+X-Google-Smtp-Source: AA0mqf5kzXHbPe7bzUd65hhZ3QFU51HYKZ9rSJYlc9u1KutxM95JyTZBnpvd7beNyf60khWyXGnqT9IfKSkQ9ixHWIo=
+X-Received: by 2002:a05:6512:3a3:b0:4b1:11a3:d1b with SMTP id
+ v3-20020a05651203a300b004b111a30d1bmr1092769lfp.291.1668694768789; Thu, 17
+ Nov 2022 06:19:28 -0800 (PST)
 MIME-Version: 1.0
-X-Spam-Status: No, score=-0.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FROM_SUSPICIOUS_NTLD,
-        PDS_OTHER_BAD_TLD,SPF_HELO_PASS,SPF_PASS autolearn=no
+References: <20221116175558.2373112-1-pgonda@google.com> <3e50c258-8732-088c-d9d8-dfaae82213f0@amd.com>
+In-Reply-To: <3e50c258-8732-088c-d9d8-dfaae82213f0@amd.com>
+From:   Peter Gonda <pgonda@google.com>
+Date:   Thu, 17 Nov 2022 07:19:17 -0700
+Message-ID: <CAMkAt6ppvVUHRCyOjba=_HmYPp_cZaQB1J=HLvFf8yRD1dXPPQ@mail.gmail.com>
+Subject: Re: [PATCH V5] virt: sev: Prevent IV reuse in SNP guest driver
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     Borislav Petkov <bp@suse.de>, Michael Roth <michael.roth@amd.com>,
+        Haowen Bai <baihaowen@meizu.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Marc Orr <marcorr@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Dionna Glaze <dionnaglaze@google.com>,
+        Ashish Kalra <Ashish.Kalra@amd.com>, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,77 +73,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Huacai,
+On Wed, Nov 16, 2022 at 12:02 PM Tom Lendacky <thomas.lendacky@amd.com> wrote:
+>
+> On 11/16/22 11:55, Peter Gonda wrote:
+> > The AMD Secure Processor (ASP) and an SNP guest use a series of
+> > AES-GCM keys called VMPCKs to communicate securely with each other.
+> > The IV to this scheme is a sequence number that both the ASP and the
+> > guest track. Currently this sequence number in a guest request must
+> > exactly match the sequence number tracked by the ASP. This means that
+> > if the guest sees an error from the host during a request it can only
+> > retry that exact request or disable the VMPCK to prevent an IV reuse.
+> > AES-GCM cannot tolerate IV reuse see: "Authentication Failures in NIST
+> > version of GCM" - Antoine Joux et al.
+> >
+> > In order to address this make handle_guest_request() delete the VMPCK
+> > on any non successful return. To allow userspace querying the cert_data
+> > length make handle_guest_request() safe the number of pages required by
+>
+> s/safe/save/
+>
+> > the host, then handle_guest_request() retry the request without
+>
+> ... then have handle_guest_request() ...
+>
+> > requesting the extended data, then return the number of pages required
+> > back to userspace.
+> >
+> > Fixes: fce96cf044308 ("virt: Add SEV-SNP guest driver")
+> > Signed-off-by: Peter Gonda <pgonda@google.com>
+> > Reported-by: Peter Gonda <pgonda@google.com>
+>
+> Just some nits on the commit message and comments below, otherwise
+>
+> Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
 
-On Thu, 2022-11-17 at 12:25 +0800, Huacai Chen wrote:
-> Now {pmd,pte}_mkdirty() set _PAGE_DIRTY bit unconditionally, this causes
-> random segmentation fault after commit 0ccf7f168e17bb7e ("mm/thp: carry
-> over dirty bit when thp splits on pmd").
-
-Hmm, the pte_mkdirty call is already removed in commit 624a2c94f5b7a081
-("Partly revert \"mm/thp: carry over dirty bit when thp splits on
-pmd\"").
-
-Not sure if this issue is related to some random segfaults I've observed
-recently though.  My last kernel build contains 0ccf7f168e17bb7e but
-does not contain 624a2c94f5b7a081.
-
->=20
-> The reason is: when fork(), parent process use pmd_wrprotect() to clear
-> huge page's _PAGE_WRITE and _PAGE_DIRTY (for COW); then pte_mkdirty() set
-> _PAGE_DIRTY as well as _PAGE_MODIFIED while splitting dirty huge pages;
-> once _PAGE_DIRTY is set, there will be no tlb modify exception so the COW
-> machanism fails; and at last memory corruption occurred between parent
-> and child processes.
->=20
-> So, we should set _PAGE_DIRTY only when _PAGE_WRITE is set in {pmd,pte}_
-> mkdirty().
->=20
-> Cc: stable@vger.kernel.org
-> Cc: Peter Xu <peterx@redhat.com>
-> Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-> ---
-> Note: CC sparc maillist because they have similar issues.
-> =C2=A0
-> =C2=A0arch/loongarch/include/asm/pgtable.h | 8 ++++++--
-> =C2=A01 file changed, 6 insertions(+), 2 deletions(-)
->=20
-> diff --git a/arch/loongarch/include/asm/pgtable.h b/arch/loongarch/includ=
-e/asm/pgtable.h
-> index 946704bee599..debbe116f105 100644
-> --- a/arch/loongarch/include/asm/pgtable.h
-> +++ b/arch/loongarch/include/asm/pgtable.h
-> @@ -349,7 +349,9 @@ static inline pte_t pte_mkclean(pte_t pte)
-> =C2=A0
-> =C2=A0static inline pte_t pte_mkdirty(pte_t pte)
-> =C2=A0{
-> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0pte_val(pte) |=3D (_PAGE_DIRTY=
- | _PAGE_MODIFIED);
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0pte_val(pte) |=3D _PAGE_MODIFI=
-ED;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (pte_val(pte) & _PAGE_WRITE=
-)
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0pte_val(pte) |=3D _PAGE_DIRTY;
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return pte;
-> =C2=A0}
-> =C2=A0
-> @@ -478,7 +480,9 @@ static inline pmd_t pmd_mkclean(pmd_t pmd)
-> =C2=A0
-> =C2=A0static inline pmd_t pmd_mkdirty(pmd_t pmd)
-> =C2=A0{
-> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0pmd_val(pmd) |=3D (_PAGE_DIRTY=
- | _PAGE_MODIFIED);
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0pmd_val(pmd) |=3D _PAGE_MODIFI=
-ED;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (pmd_val(pmd) & _PAGE_WRITE=
-)
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0pmd_val(pmd) |=3D _PAGE_DIRTY;
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0return pmd;
-> =C2=A0}
-> =C2=A0
-
---=20
-Xi Ruoyao <xry111@xry111.site>
-School of Aerospace Science and Technology, Xidian University
+Thanks Tom. I'll update with all the feedback after Boris chimes in.
