@@ -2,67 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF8B62E1F3
-	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 17:33:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD41662E208
+	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 17:35:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240277AbiKQQdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Nov 2022 11:33:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44116 "EHLO
+        id S234815AbiKQQfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Nov 2022 11:35:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240280AbiKQQdS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 11:33:18 -0500
-Received: from mail-yw1-x1133.google.com (mail-yw1-x1133.google.com [IPv6:2607:f8b0:4864:20::1133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 953767FF2F
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 08:30:41 -0800 (PST)
-Received: by mail-yw1-x1133.google.com with SMTP id 00721157ae682-36cbcda2157so23568767b3.11
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 08:30:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Y6YfrDiAgG1F9juvXkCUy6r567+YV0JGLP3an+cEUOk=;
-        b=jCJPs2AZ7cuP5j2QijeM2rc7SV8UeJApQMd6DffoRTcd6fkNQ9l+iE/Wi/ip9anNcL
-         lWB1sCs5J6BHK+zh4Q6K/VjKa6VPZHpmJwa6nFh1WpU9bcvJ8Uzl7MdO13Jf2B+XR270
-         5jpEd6kUE/HD/Vz6+yozTnXKwZb7RLxIww95Lrg57NX5uRnOHJkyEXEpqBwYCNuX3Pwn
-         g/ndycnB6UOzvwzN9Fyf3q+JzUj0FgWi7/dTQgVf0iaYtwE5cgcLOXnbp+TK5KT7oQGG
-         c0Vko96//QCRv7oXSSquDDbduXPp1fLJjX83BN2OInvN807v9iwWIn/tXQY+Gnp3Kucz
-         YTiA==
+        with ESMTP id S240704AbiKQQfL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 11:35:11 -0500
+Received: from mail-il1-f197.google.com (mail-il1-f197.google.com [209.85.166.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9386252B7
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 08:34:26 -0800 (PST)
+Received: by mail-il1-f197.google.com with SMTP id a15-20020a056e0208af00b00300806a52b6so1532014ilt.22
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 08:34:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Y6YfrDiAgG1F9juvXkCUy6r567+YV0JGLP3an+cEUOk=;
-        b=45rd2uHirDrRp2oZwI8Ux23E80Lb9eqtyjPqNYcRRauSzy0zxrBcPV8oGj68rWVibh
-         cS+k17nWH3faj3TgDBZOjAkFMe3oQtmDse4GX7A5OWkpwsMjIdCWGO5ShGtS0+5JiS2Q
-         o3JBXQxRm6fV0GEKEbcirWlS8nAg8tUPyDyeIZRnNPJZ/UOozMnOoRoU6MmqPN0MipoP
-         uKPFbKb60QaD2xmILnx2wTaSI1rWr6KkLcY4sxdUHO0rrFpIlb45QX8W4j0ZDwu9fkp3
-         aP/JIVChDEzjo1sPLaIXwhs2TDCTfkNVBXT5FtVj2Ul/lSbm655bZ0VjIQ0pCUgq55mf
-         BNOw==
-X-Gm-Message-State: ANoB5pk2tojPhIvTQy8kFPLgNiUOut00qgwl6Asev/rYkgRsFTIOpJLE
-        GMb0vT5tSRcAK2afihFGMKjFC2au5+fj1VfPRDcmQEyt+rE=
-X-Google-Smtp-Source: AA0mqf7hWqnkaR40+sElU/H1shdyebRg+cgBr5sUFw4Hy0rG3gUqxQxWxn0jlbxwXZNpJsnYBEBeVTroi7ABEgaUHso=
-X-Received: by 2002:a81:5fc6:0:b0:36a:f032:5b4c with SMTP id
- t189-20020a815fc6000000b0036af0325b4cmr2773509ywb.114.1668702640714; Thu, 17
- Nov 2022 08:30:40 -0800 (PST)
+        bh=UKNN3axs1y811QkhsVcYtMf113asLOYvCITq8yCsIOI=;
+        b=ytRJFAbLxYc/gey6tyPHu5sZGNkWO8VqbwA75D17qtJsYL/L9Nyxni9jFYvLAMVpZl
+         xzzezgjUGZOE1wMWEGAK+plk+i8AyIeRDVWygUm9ZhZEqL6P2kpCbwegps8TABe9Hy8a
+         GCevvWKew5F/30ujzjfkb28tTyx5aieNIqh4278dsH3fs5d+VAsxh9NMPNoIcPUVY6+C
+         Vv4sZS6sXiYTJq1zOQq8R43iaT+0dZxn4iJqFjMXfYPKrrgKJwL+m5MrcFZ/HbxpxwjY
+         XMCBOaeFFgUQR+U9fMrj+OlnYJKG6B+yEqFhzwgW6F4x4DNpiK+Cz0pSR3cOh0jFYZPC
+         C/GQ==
+X-Gm-Message-State: ANoB5pkjoz19hhbhjnPyx6TCWYNTSn2dcq+xFB4kUBPUMX8KNAJ1HhoP
+        wLjYLP2V0f38eFiO1CGF+F7+e0WwtB8dZ0AFTfvWrFdLaf8v
+X-Google-Smtp-Source: AA0mqf5cB8zjsOSC8LHfvAYaU0F7H15UOWRCuC2r5ny9Tj6mj8hA5jpRHTg/4LdRqCujB/GD3+SOVZwgGwscKi4bxIBPLJ2kZP0a
 MIME-Version: 1.0
-Received: by 2002:a05:7010:1b12:b0:306:6c70:eb91 with HTTP; Thu, 17 Nov 2022
- 08:30:40 -0800 (PST)
-Reply-To: jenny2likeboo@gmail.com
-From:   JennyBoo <cynthiawilliams1098@gmail.com>
-Date:   Thu, 17 Nov 2022 08:30:40 -0800
-Message-ID: <CAB+y5kDPoj_RSNjvLP6SVCyb2+Ani0tKG-HS78-xvzZJ5V+DrA@mail.gmail.com>
-Subject: Hi
-To:     undisclosed-recipients:;
+X-Received: by 2002:a6b:c990:0:b0:6dd:807d:89a3 with SMTP id
+ z138-20020a6bc990000000b006dd807d89a3mr1779863iof.33.1668702866278; Thu, 17
+ Nov 2022 08:34:26 -0800 (PST)
+Date:   Thu, 17 Nov 2022 08:34:26 -0800
+In-Reply-To: <0000000000006c411605e2f127e5@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000949d0805edad29fc@google.com>
+Subject: Re: kernel BUG in ext4_free_blocks (2)
+From:   syzbot <syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com>
+To:     adilger.kernel@dilger.ca, gregkh@linuxfoundation.org,
+        lczerner@redhat.com, linux-ext4@vger.kernel.org,
+        linux-kernel@vger.kernel.org, sashal@kernel.org,
+        stable@vger.kernel.org, syzkaller-android-bugs@googlegroups.com,
+        tadeusz.struk@linaro.org, tytso@mit.edu
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello, did you receive my message?
+This bug is marked as fixed by commit:
+ext4: block range must be validated before use in ext4_mb_clear_bb()
+But I can't find it in any tested tree for more than 90 days.
+Is it a correct commit? Please update it by replying:
+#syz fix: exact-commit-title
+Until then the bug is still considered open and
+new crashes with the same signature are ignored.
