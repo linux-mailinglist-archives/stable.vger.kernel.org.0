@@ -2,57 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63AF162D673
-	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 10:21:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B26AB62D675
+	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 10:21:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239876AbiKQJVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Nov 2022 04:21:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46462 "EHLO
+        id S239886AbiKQJV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Nov 2022 04:21:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239587AbiKQJVP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 04:21:15 -0500
-Received: from mail-pf1-x449.google.com (mail-pf1-x449.google.com [IPv6:2607:f8b0:4864:20::449])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C984697DC
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:21:07 -0800 (PST)
-Received: by mail-pf1-x449.google.com with SMTP id k11-20020aa792cb000000b00558674e8e7fso875598pfa.6
-        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:21:07 -0800 (PST)
+        with ESMTP id S239885AbiKQJVR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 04:21:17 -0500
+Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C5B6D4AD
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:21:12 -0800 (PST)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-367f94b9b16so13828887b3.11
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 01:21:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ONCQMapXMFNqN4E8L/38xXygfmWlcyiuSOGs+oRFy0Q=;
-        b=ApWbalOQkteFEbjAljcmOsMfarW8W5ENKRgGw0Y74hRB1+0fyeHddoco4grbVGH5Uf
-         t0KM5w38Bu+I4BJxgXBN3hqRGFHQ8wKMLx0rvu6pTFyS7inV9bCV9h+tzZPZ4bemGLls
-         aMtn2ikInYpUv+vjyWDCzFgE96YTKMp450xFOXjhSn7GpaMwNDfOOJs8yIlxmrjHZpN6
-         y6ho5B+cxBlJPEW0MqBfxHKGwUIVnX6B5WsEzeb5fkkvIJxcn+z6Dy95NKP/vUX3u/NQ
-         aDHRF/d+MLK48t8WZ51gnLuvaZ2dT+rohGygOeSoTMBW2EUDacGYba4ifKlt3oIQo2zi
-         XuWA==
+        bh=w4trqKL4NpWu6Bf88RtrpHTY1g3XqtYEsyDKsC+oNEs=;
+        b=qXGDNzusHWfMCjLXuh0n+x369oQIs7Y4sTCGt8c3qvEEJrnbUzlO5OkULolpemLAjw
+         uw+Mp3IUi5Xx9EXO/I5rTgUgWQdNnOnBLWjzdTsOj8+qVpack0Okr+Ur6o6Ud24rZxKe
+         8vDl3lLDmCuJqkgDfS7mTcs3EhOGDBKSvQ022PsXj8MUvl+eI1wADakC4YhqEjrToYdO
+         opjazmLsx+vclWNrWw4ojNmQsfvgfBUWXextb4SDPn1s49TaUvN0WiGn55Jbp22V/cYZ
+         FJrdldI8pgvZEA+WRTE1dz572iZErbpuPI4TFhPjGK1L6KWipzPV1VlP9TwdSyDHoWZ+
+         LcmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ONCQMapXMFNqN4E8L/38xXygfmWlcyiuSOGs+oRFy0Q=;
-        b=q//wpNs0zbluMBM5vPK82EHwOUA2C8HBwkBkyuBlSlqvZpZ2Nt8G0ftUs+5p7PHdmI
-         KG9KoynpUmx8DN1J18kY459r28fnvP9+sTV7Mwn0wO0HvKgdA5YxTqfCYXjrHwhiXcWk
-         9EF2Ll3MrQtj1rKewDSKQ/qLNDM8dr51SGMmJcO1hF4G5s+jCZwdRDt1gZfCmbkLkItv
-         WLnpgCBSVJtku+9Ns/19SALz29+cs33KyPpy+7rJBGdeFiamh6+U135tD9dbrQGzfogO
-         YZ/6jUMdeYVS4emEwcx03v3OrtpBhtYY1yRiFlLdVRPLUngQqnxhbrp3RGphf4VVm8tQ
-         jWng==
-X-Gm-Message-State: ANoB5pns4grZCxBStxAoWuR7+vZh79xHsabww/COR569sjpR/aK8Ak6t
-        H7nzTBxfMNvboe9oofwaNO3HS3wRFjRQkswWwziIDp6DTmtUMTH1UZn5XhAZeY7if2LbOInKaI2
-        q3hWMmCR9ECzZ3Bhgotu75YxeTJkswlGe24OdxJn4K7H9NXA8rIMkYvze2TDScBUEjRU=
-X-Google-Smtp-Source: AA0mqf46/v92SVcAYmYuY8L8jZQku6yEDIjzE0ETCfW5PzVEKFGqjhg7mWnjxyaXxGo9bw1dQYFMD26OWrnOhg==
+        bh=w4trqKL4NpWu6Bf88RtrpHTY1g3XqtYEsyDKsC+oNEs=;
+        b=TSrekF+JbN3UuWWWW/q6MGSjHOh2iAyaDWEHWxw6kq9QpUAY5MHIgodIJ2NdqwwXou
+         D2AlVkrtfWMkbF6udG+3bVUTafNrlkL8UGW+gf5EERDJRCvSSKx4jiaVnLA+bsawc3/I
+         XWtFuMq03XArbAM1d4tO5Hs6qCy9jn8/Wb4oUtC4gMOvBWzq0sqUYGGrFmN8SiSQDQ+Z
+         jICCm+Hbvn0VcxVjwqBlWthfCRB5NSZwT+JF9TMhpQQt9A6rK6QEcNYYM3iAxK1QwYBj
+         kg3HH5Vou8hWtoEpqcV3sEl+lKTydnllsgx24uvprQ1g6vpUQpAnaWqozVBQjf9QA8cq
+         ZbEw==
+X-Gm-Message-State: ANoB5plRRh6+uY3TxD6zd1VyU1DRLTcgFJATJQiRaNu8YC97Rb/Wkxn0
+        fOqRS/KZ2X/G/ejJYw+oiywoGNrh2vhqyOfhfnh/TpH6KdxocnyyS5b45oOKAmkLDE3qCgIW6Eg
+        Al6vQ16Qftf6Rv/NFz0FmEE4A7zmMAEZnp3+8zSqT37y0sCE1Mv0QA7v7eHbeuAbfx3g=
+X-Google-Smtp-Source: AA0mqf4CB/aJoLsZrEtBkjjeTNWDFsS5EppfYt65qcQJJT0DqFyDy4+N7hx2OiQoNVRT/WhAit2dH/NuKRqOog==
 X-Received: from suleiman1.tok.corp.google.com ([2401:fa00:8f:203:416e:f3c7:7f1d:6e])
- (user=suleiman job=sendgmr) by 2002:a17:902:ba91:b0:186:c958:6cd8 with SMTP
- id k17-20020a170902ba9100b00186c9586cd8mr1807542pls.145.1668676866460; Thu,
- 17 Nov 2022 01:21:06 -0800 (PST)
-Date:   Thu, 17 Nov 2022 18:19:32 +0900
+ (user=suleiman job=sendgmr) by 2002:a25:d804:0:b0:6cc:a33f:e48a with SMTP id
+ p4-20020a25d804000000b006cca33fe48amr1453730ybg.193.1668676871238; Thu, 17
+ Nov 2022 01:21:11 -0800 (PST)
+Date:   Thu, 17 Nov 2022 18:19:33 +0900
 In-Reply-To: <20221117091952.1940850-1-suleiman@google.com>
-Message-Id: <20221117091952.1940850-15-suleiman@google.com>
+Message-Id: <20221117091952.1940850-16-suleiman@google.com>
 Mime-Version: 1.0
 References: <20221117091952.1940850-1-suleiman@google.com>
 X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
-Subject: [PATCH 4.19 14/34] x86/bugs: Optimize SPEC_CTRL MSR writes
+Subject: [PATCH 4.19 15/34] x86/speculation: Add spectre_v2=ibrs option to
+ support Kernel IBRS
 From:   Suleiman Souhlal <suleiman@google.com>
 To:     stable@vger.kernel.org
 Cc:     x86@kernel.org, kvm@vger.kernel.org, bp@alien8.de,
@@ -70,15 +71,15 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit c779bc1a9002fa474175b80e72b85c9bf628abb0 upstream.
+commit 7c693f54c873691a4b7da05c7e0f74e67745d144 upstream.
 
-When changing SPEC_CTRL for user control, the WRMSR can be delayed
-until return-to-user when KERNEL_IBRS has been enabled.
+Extend spectre_v2= boot option with Kernel IBRS.
 
-This avoids an MSR write during context switch.
+  [jpoimboe: no STIBP with IBRS]
 
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
@@ -87,99 +88,199 @@ Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Suleiman Souhlal <suleiman@google.com>
 ---
- arch/x86/include/asm/nospec-branch.h |  2 +-
- arch/x86/kernel/cpu/bugs.c           | 18 ++++++++++++------
- arch/x86/kernel/process.c            |  2 +-
- 3 files changed, 14 insertions(+), 8 deletions(-)
+ .../admin-guide/kernel-parameters.txt         |  1 +
+ arch/x86/include/asm/nospec-branch.h          |  1 +
+ arch/x86/kernel/cpu/bugs.c                    | 66 +++++++++++++++----
+ 3 files changed, 54 insertions(+), 14 deletions(-)
 
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 6ff8cf136953..68f31b666032 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -4389,6 +4389,7 @@
+ 			eibrs		  - enhanced IBRS
+ 			eibrs,retpoline   - enhanced IBRS + Retpolines
+ 			eibrs,lfence      - enhanced IBRS + LFENCE
++			ibrs		  - use IBRS to protect kernel
+ 
+ 			Not specifying this option is equivalent to
+ 			spectre_v2=auto.
 diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
-index 6e2ff31584ae..c87ca2596c8a 100644
+index c87ca2596c8a..43a1c7d69dbe 100644
 --- a/arch/x86/include/asm/nospec-branch.h
 +++ b/arch/x86/include/asm/nospec-branch.h
-@@ -307,7 +307,7 @@ static inline void indirect_branch_prediction_barrier(void)
+@@ -244,6 +244,7 @@ enum spectre_v2_mitigation {
+ 	SPECTRE_V2_EIBRS,
+ 	SPECTRE_V2_EIBRS_RETPOLINE,
+ 	SPECTRE_V2_EIBRS_LFENCE,
++	SPECTRE_V2_IBRS,
+ };
  
- /* The Intel SPEC CTRL MSR base value cache */
- extern u64 x86_spec_ctrl_base;
--extern void write_spec_ctrl_current(u64 val);
-+extern void write_spec_ctrl_current(u64 val, bool force);
- 
- /*
-  * With retpoline, we must use IBRS to restrict branch prediction
+ /* The indirect branch speculation control variants */
 diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index c55570a7c91a..ceb7cf1a1a3c 100644
+index ceb7cf1a1a3c..034f0eebb5a2 100644
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -61,13 +61,19 @@ static DEFINE_MUTEX(spec_ctrl_mutex);
-  * Keep track of the SPEC_CTRL MSR value for the current task, which may differ
-  * from x86_spec_ctrl_base due to STIBP/SSB in __speculation_ctrl_update().
-  */
--void write_spec_ctrl_current(u64 val)
-+void write_spec_ctrl_current(u64 val, bool force)
+@@ -877,6 +877,7 @@ enum spectre_v2_mitigation_cmd {
+ 	SPECTRE_V2_CMD_EIBRS,
+ 	SPECTRE_V2_CMD_EIBRS_RETPOLINE,
+ 	SPECTRE_V2_CMD_EIBRS_LFENCE,
++	SPECTRE_V2_CMD_IBRS,
+ };
+ 
+ enum spectre_v2_user_cmd {
+@@ -949,11 +950,12 @@ spectre_v2_parse_user_cmdline(enum spectre_v2_mitigation_cmd v2_cmd)
+ 	return SPECTRE_V2_USER_CMD_AUTO;
+ }
+ 
+-static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation mode)
++static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
  {
- 	if (this_cpu_read(x86_spec_ctrl_current) == val)
+-	return (mode == SPECTRE_V2_EIBRS ||
+-		mode == SPECTRE_V2_EIBRS_RETPOLINE ||
+-		mode == SPECTRE_V2_EIBRS_LFENCE);
++	return mode == SPECTRE_V2_IBRS ||
++	       mode == SPECTRE_V2_EIBRS ||
++	       mode == SPECTRE_V2_EIBRS_RETPOLINE ||
++	       mode == SPECTRE_V2_EIBRS_LFENCE;
+ }
+ 
+ static void __init
+@@ -1018,12 +1020,12 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
+ 	}
+ 
+ 	/*
+-	 * If no STIBP, enhanced IBRS is enabled or SMT impossible, STIBP is not
+-	 * required.
++	 * If no STIBP, IBRS or enhanced IBRS is enabled, or SMT impossible,
++	 * STIBP is not required.
+ 	 */
+ 	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
+ 	    !smt_possible ||
+-	    spectre_v2_in_eibrs_mode(spectre_v2_enabled))
++	    spectre_v2_in_ibrs_mode(spectre_v2_enabled))
  		return;
  
- 	this_cpu_write(x86_spec_ctrl_current, val);
--	wrmsrl(MSR_IA32_SPEC_CTRL, val);
-+
-+	/*
-+	 * When KERNEL_IBRS this MSR is written on return-to-user, unless
-+	 * forced the update can be delayed until that time.
-+	 */
-+	if (force || !cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS))
-+		wrmsrl(MSR_IA32_SPEC_CTRL, val);
- }
+ 	/*
+@@ -1048,6 +1050,7 @@ static const char * const spectre_v2_strings[] = {
+ 	[SPECTRE_V2_EIBRS]			= "Mitigation: Enhanced IBRS",
+ 	[SPECTRE_V2_EIBRS_LFENCE]		= "Mitigation: Enhanced IBRS + LFENCE",
+ 	[SPECTRE_V2_EIBRS_RETPOLINE]		= "Mitigation: Enhanced IBRS + Retpolines",
++	[SPECTRE_V2_IBRS]			= "Mitigation: IBRS",
+ };
  
- /*
-@@ -1195,7 +1201,7 @@ static void __init spectre_v2_select_mitigation(void)
- 	if (spectre_v2_in_eibrs_mode(mode)) {
+ static const struct {
+@@ -1065,6 +1068,7 @@ static const struct {
+ 	{ "eibrs,lfence",	SPECTRE_V2_CMD_EIBRS_LFENCE,	  false },
+ 	{ "eibrs,retpoline",	SPECTRE_V2_CMD_EIBRS_RETPOLINE,	  false },
+ 	{ "auto",		SPECTRE_V2_CMD_AUTO,		  false },
++	{ "ibrs",		SPECTRE_V2_CMD_IBRS,              false },
+ };
+ 
+ static void __init spec_v2_print_cond(const char *reason, bool secure)
+@@ -1127,6 +1131,24 @@ static enum spectre_v2_mitigation_cmd __init spectre_v2_parse_cmdline(void)
+ 		return SPECTRE_V2_CMD_AUTO;
+ 	}
+ 
++	if (cmd == SPECTRE_V2_CMD_IBRS && boot_cpu_data.x86_vendor != X86_VENDOR_INTEL) {
++		pr_err("%s selected but not Intel CPU. Switching to AUTO select\n",
++		       mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
++	}
++
++	if (cmd == SPECTRE_V2_CMD_IBRS && !boot_cpu_has(X86_FEATURE_IBRS)) {
++		pr_err("%s selected but CPU doesn't have IBRS. Switching to AUTO select\n",
++		       mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
++	}
++
++	if (cmd == SPECTRE_V2_CMD_IBRS && boot_cpu_has(X86_FEATURE_XENPV)) {
++		pr_err("%s selected but running as XenPV guest. Switching to AUTO select\n",
++		       mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
++	}
++
+ 	spec_v2_print_cond(mitigation_options[i].option,
+ 			   mitigation_options[i].secure);
+ 	return cmd;
+@@ -1166,6 +1188,14 @@ static void __init spectre_v2_select_mitigation(void)
+ 			break;
+ 		}
+ 
++		if (boot_cpu_has_bug(X86_BUG_RETBLEED) &&
++		    retbleed_cmd != RETBLEED_CMD_OFF &&
++		    boot_cpu_has(X86_FEATURE_IBRS) &&
++		    boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
++			mode = SPECTRE_V2_IBRS;
++			break;
++		}
++
+ 		mode = spectre_v2_select_retpoline();
+ 		break;
+ 
+@@ -1182,6 +1212,10 @@ static void __init spectre_v2_select_mitigation(void)
+ 		mode = spectre_v2_select_retpoline();
+ 		break;
+ 
++	case SPECTRE_V2_CMD_IBRS:
++		mode = SPECTRE_V2_IBRS;
++		break;
++
+ 	case SPECTRE_V2_CMD_EIBRS:
+ 		mode = SPECTRE_V2_EIBRS;
+ 		break;
+@@ -1198,7 +1232,7 @@ static void __init spectre_v2_select_mitigation(void)
+ 	if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
+ 		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
+ 
+-	if (spectre_v2_in_eibrs_mode(mode)) {
++	if (spectre_v2_in_ibrs_mode(mode)) {
  		/* Force it so VMEXIT will restore correctly */
  		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
--		write_spec_ctrl_current(x86_spec_ctrl_base);
-+		write_spec_ctrl_current(x86_spec_ctrl_base, true);
+ 		write_spec_ctrl_current(x86_spec_ctrl_base, true);
+@@ -1209,6 +1243,10 @@ static void __init spectre_v2_select_mitigation(void)
+ 	case SPECTRE_V2_EIBRS:
+ 		break;
+ 
++	case SPECTRE_V2_IBRS:
++		setup_force_cpu_cap(X86_FEATURE_KERNEL_IBRS);
++		break;
++
+ 	case SPECTRE_V2_LFENCE:
+ 	case SPECTRE_V2_EIBRS_LFENCE:
+ 		setup_force_cpu_cap(X86_FEATURE_RETPOLINE_LFENCE);
+@@ -1235,17 +1273,17 @@ static void __init spectre_v2_select_mitigation(void)
+ 	pr_info("Spectre v2 / SpectreRSB mitigation: Filling RSB on context switch\n");
+ 
+ 	/*
+-	 * Retpoline means the kernel is safe because it has no indirect
+-	 * branches. Enhanced IBRS protects firmware too, so, enable restricted
+-	 * speculation around firmware calls only when Enhanced IBRS isn't
+-	 * supported.
++	 * Retpoline protects the kernel, but doesn't protect firmware.  IBRS
++	 * and Enhanced IBRS protect firmware too, so enable IBRS around
++	 * firmware calls only when IBRS / Enhanced IBRS aren't otherwise
++	 * enabled.
+ 	 *
+ 	 * Use "mode" to check Enhanced IBRS instead of boot_cpu_has(), because
+ 	 * the user might select retpoline on the kernel command line and if
+ 	 * the CPU supports Enhanced IBRS, kernel might un-intentionally not
+ 	 * enable IBRS around firmware calls.
+ 	 */
+-	if (boot_cpu_has(X86_FEATURE_IBRS) && !spectre_v2_in_eibrs_mode(mode)) {
++	if (boot_cpu_has(X86_FEATURE_IBRS) && !spectre_v2_in_ibrs_mode(mode)) {
+ 		setup_force_cpu_cap(X86_FEATURE_USE_IBRS_FW);
+ 		pr_info("Enabling Restricted Speculation for firmware calls\n");
  	}
+@@ -1939,7 +1977,7 @@ static ssize_t mmio_stale_data_show_state(char *buf)
  
- 	switch (mode) {
-@@ -1250,7 +1256,7 @@ static void __init spectre_v2_select_mitigation(void)
- 
- static void update_stibp_msr(void * __unused)
+ static char *stibp_state(void)
  {
--	write_spec_ctrl_current(x86_spec_ctrl_base);
-+	write_spec_ctrl_current(x86_spec_ctrl_base, true);
- }
+-	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
++	if (spectre_v2_in_ibrs_mode(spectre_v2_enabled))
+ 		return "";
  
- /* Update x86_spec_ctrl_base in case SMT state changed. */
-@@ -1493,7 +1499,7 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
- 			x86_amd_ssb_disable();
- 		} else {
- 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
--			write_spec_ctrl_current(x86_spec_ctrl_base);
-+			write_spec_ctrl_current(x86_spec_ctrl_base, true);
- 		}
- 	}
- 
-@@ -1698,7 +1704,7 @@ int arch_prctl_spec_ctrl_get(struct task_struct *task, unsigned long which)
- void x86_spec_ctrl_setup_ap(void)
- {
- 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
--		write_spec_ctrl_current(x86_spec_ctrl_base);
-+		write_spec_ctrl_current(x86_spec_ctrl_base, true);
- 
- 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
- 		x86_amd_ssb_disable();
-diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
-index d697ccbf0cd2..a95b9e090f9e 100644
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -434,7 +434,7 @@ static __always_inline void __speculation_ctrl_update(unsigned long tifp,
- 	}
- 
- 	if (updmsr)
--		write_spec_ctrl_current(msr);
-+		write_spec_ctrl_current(msr, false);
- }
- 
- static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
+ 	switch (spectre_v2_user_stibp) {
 -- 
 2.38.1.431.g37b22c650d-goog
 
