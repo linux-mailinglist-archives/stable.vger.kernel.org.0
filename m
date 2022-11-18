@@ -2,101 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 472F762F708
-	for <lists+stable@lfdr.de>; Fri, 18 Nov 2022 15:17:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C40262F9DD
+	for <lists+stable@lfdr.de>; Fri, 18 Nov 2022 17:02:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242376AbiKRORn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 09:17:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49054 "EHLO
+        id S235367AbiKRQCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 11:02:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242298AbiKRORK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 09:17:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC2A66D48F;
-        Fri, 18 Nov 2022 06:16:30 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72D1A6257A;
-        Fri, 18 Nov 2022 14:16:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54E66C433D7;
-        Fri, 18 Nov 2022 14:16:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668780989;
-        bh=+VWgwc6Cv21GOSko5yeeeSuThRGjhJB4uSk3EPnNBlw=;
-        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-        b=K59dSKmhhZEgSVeAs3nsLfliSjVR+4wIiJHvN9VtXYfsilyc5DFHozkPNfDbrKqTH
-         zbQfIXNxXBxxI6/13Jb3k+ELsscXPApwwWIZhS4RJDSuTIiLTikA6CHUxtR7tLeAEe
-         3Rl92YK0Pmtd6HEj5PfHUKcrYvhfrCl9gwDHCvok0U5wJJUx2rsngCeXAcX0CiT3cs
-         b3u3OcqX++INq+gm5iIv/PC6Mp/HHgDQWXoDu94ACTbxg5QI/z+e7jGwcD5HiFPc9q
-         BTmP5+Oiz9DnSVQHStI1g+JmQXPZSzuj3W3dz23Z4KGxljxX6lIKe6CCRZaqcKrPGo
-         bUND9sJkd09wA==
-From:   Mark Brown <broonie@kernel.org>
-To:     linux-spi@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     stable@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        linux-arm-kernel@lists.infradead.org,
-        David Jander <david@protonic.nl>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        kernel@pengutronix.de
-In-Reply-To: <20221116164930.855362-1-mkl@pengutronix.de>
-References: <20221116164930.855362-1-mkl@pengutronix.de>
-Subject: Re: [PATCH] spi: spi-imx: spi_imx_transfer_one(): check for DMA transfer first
-Message-Id: <166878098696.885585.12678167389874876535.b4-ty@kernel.org>
-Date:   Fri, 18 Nov 2022 14:16:26 +0000
+        with ESMTP id S235301AbiKRQCq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 11:02:46 -0500
+Received: from mail-vs1-xe44.google.com (mail-vs1-xe44.google.com [IPv6:2607:f8b0:4864:20::e44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C19062C3
+        for <stable@vger.kernel.org>; Fri, 18 Nov 2022 08:02:44 -0800 (PST)
+Received: by mail-vs1-xe44.google.com with SMTP id i2so5162955vsc.1
+        for <stable@vger.kernel.org>; Fri, 18 Nov 2022 08:02:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TjZxsnocoR7rZICxp2BCTK3Yaa2EAZ5imxDMKJ71dlo=;
+        b=QU4rnIKYAGi91I2GkJNnRSb+X3TwHdQWimMe8i8hNj2+4y3LKaSsM1Vs/4R9lcZ86i
+         wTjSPh90bM39zsi30muxo4jwxttDEQZKjp1yq2P50adIs/B6tlCUSlbmVLYpN5LNRbsx
+         LaE8zqzDHO5BxBbsuHr/YwXaMKXZZuJF49Tzt2sb1RR6JnPPDJ4JjBjfbuDxJaXLYtku
+         w1LFiOp9iwlGnHceY0rp/0GlGdbInJ3cXT/xtTP/JdYkcvt48GHEZVyMTRt0reIV5XHh
+         9BVzNv046MMorwjRy/uZi5Ovc0OywHXdywLR2ZXof9Fc+idif89ibR8lznj8GpDxZm34
+         naZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=TjZxsnocoR7rZICxp2BCTK3Yaa2EAZ5imxDMKJ71dlo=;
+        b=D0D6KLpnz5JbFMKe/RzvsrF4TGSdRgGEpD0Jaq1smQ4qZqRMPB0xmE8+HAMMvdSNfz
+         au0Ro0Flk0YNdBeLTJatKHYWFh3Q9QXE0Xm5thPAVgIzcVB8NOMHln45zKoY7kCdVPVh
+         6ZvIc9o3LR3B80TbSJ+J4m6JNmTCm+1xYBODl/yQbHG22klkJWyshGlLE6c+MFMoP5po
+         jwEX8+sjIzLI76AQQJh/hv3sJalyzXpuGkpuRlGZ2NV2m1RucTD0ys9/kOBbOr3f845R
+         +tLQ56NHvyZM02Dj1EEgEPdLUwxJlLPzjV/Q3Y9P5WzYvIfTT6Op1xQt57oS15xZFAPL
+         A2BQ==
+X-Gm-Message-State: ANoB5pmye7/gMHoobcXE22nNyrkfnOlSX2vR7m3ESBpTrb84sv9btSOc
+        VeKNxsLWQpeAkRGINncFE2EaPa+AAwd7LBMM6T8=
+X-Google-Smtp-Source: AA0mqf7n2CDq5Ie5YQ+2JbPpECxCTytBO9lIvmf9GaxTMi4jVKlPmt+qCGrFC+y10OS3TwchGjfCY1bxgaaZ8SbxtoI=
+X-Received: by 2002:a05:6102:1009:b0:3aa:13b1:86e6 with SMTP id
+ q9-20020a056102100900b003aa13b186e6mr4890436vsp.36.1668787363519; Fri, 18 Nov
+ 2022 08:02:43 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Mailer: b4 0.11.0-dev-8af31
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:ab0:596c:0:b0:411:35ed:4747 with HTTP; Fri, 18 Nov 2022
+ 08:02:43 -0800 (PST)
+Reply-To: wijh555@gmail.com
+From:   Woo Nam <woonam115@gmail.com>
+Date:   Fri, 18 Nov 2022 08:02:43 -0800
+Message-ID: <CAGdtzSb9uKjZDXRfSvyz9-VyShPZmmOi0ttgYBesN2YWR1cc=g@mail.gmail.com>
+Subject: Very Urgent,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=5.0 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:e44 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5008]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [woonam115[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [woonam115[at]gmail.com]
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [wijh555[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  2.9 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 16 Nov 2022 17:49:30 +0100, Marc Kleine-Budde wrote:
-> The SPI framework checks for each transfer (with the struct
-> spi_controller::can_dma callback) whether the driver wants to use DMA
-> for the transfer. If the driver returns true, the SPI framework will
-> map the transfer's data to the device, start the actual transfer and
-> map the data back.
-> 
-> In commit 07e759387788 ("spi: spi-imx: add PIO polling support") the
-> spi-imx driver's spi_imx_transfer_one() function was extended. If the
-> estimated duration of a transfer does not exceed a configurable
-> duration, a polling transfer function is used. This check happens
-> before checking if the driver decided earlier for a DMA transfer.
-> 
-> [...]
-
-Applied to
-
-   broonie/spi.git for-next
-
-Thanks!
-
-[1/1] spi: spi-imx: spi_imx_transfer_one(): check for DMA transfer first
-      commit: e85e9e0d8cb759013d6474011c227f92e442d746
-
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
+-- 
+Hello,,
+We are privileged and delighted to reach you via email" And we are
+urgently waiting to hear from you. and again your number is not
+connecting.
 
 Thanks,
-Mark
+Woo Nam
