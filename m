@@ -2,171 +2,242 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 969F562F1F0
-	for <lists+stable@lfdr.de>; Fri, 18 Nov 2022 10:55:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8262862F208
+	for <lists+stable@lfdr.de>; Fri, 18 Nov 2022 11:00:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240778AbiKRJzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 04:55:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34450 "EHLO
+        id S235210AbiKRKA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 05:00:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235099AbiKRJzw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 04:55:52 -0500
-Received: from aposti.net (aposti.net [89.234.176.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6BE78E0AA;
-        Fri, 18 Nov 2022 01:55:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1668765350; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6XNQnzVk9riDdeXq+9UMc2lKBE5CylsUGgRXuU/IvoA=;
-        b=lP8PARIJ1MGPuSFRXoZdjDQldeDX9gaAL8k6+ck7PFoPEr/pfVYxjDVHYtpLT9/6oltISw
-        axe4KwYExIC3fbuX3Vdw5FQcDGfcZA+AoBUTXzpwPyVmEacl1F7QisvJtCY7T79sG17bb5
-        b4/03lyP69aMqj4L9x1xBzMC6qdib+c=
-Date:   Fri, 18 Nov 2022 09:55:40 +0000
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH 1/5] pwm: jz4740: Fix pin level of disabled TCU2 channels,
- part 1
-To:     Uwe =?iso-8859-1?q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     Thierry Reding <thierry.reding@gmail.com>, od@opendingux.net,
-        linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, stable@vger.kernel.org
-Message-Id: <SKFJLR.07UMT1VWJOD52@crapouillou.net>
-In-Reply-To: <20221117132927.mom5klfd4eww5amk@pengutronix.de>
-References: <20221024205213.327001-1-paul@crapouillou.net>
-        <20221024205213.327001-2-paul@crapouillou.net>
-        <20221025062129.drzltbavg6hrhv7r@pengutronix.de>
-        <CVZAKR.06MA7BGA170W3@crapouillou.net>
-        <20221117132927.mom5klfd4eww5amk@pengutronix.de>
+        with ESMTP id S241066AbiKRKAY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 05:00:24 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5936A253
+        for <stable@vger.kernel.org>; Fri, 18 Nov 2022 02:00:22 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id o7so4086306pjj.1
+        for <stable@vger.kernel.org>; Fri, 18 Nov 2022 02:00:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=w4Tv0F1uItwO4IHFiNDZHG9aEzkG+Q+HP5zfgRRlg7Q=;
+        b=lseM9UHtQiSZ5wY8hPbQUGoaPEPzQ2N4x5yTzW3cVgV1oqQ7kONRnY3bNQ7o5TurHT
+         ZJHvXvXxNrWZENrgIr3MoKP4IIAsCK5xsrneVz2kCe3EAzcLKMzuXYnuCmp774nlmizR
+         V6Xist7V8Qc5qrBOsrgRug0vCgLJhrfi/2/5ufqo5k05Kpwlkhq/EG95pTLNwKkarURn
+         XIrfDCuPPnCPwOpICKjcmJcezfJeWTERGRTbqlacXzig465HsZpXK+MzmeG8KYIKFajR
+         ixdRkOzWla7EwqxCFBc/iMor6RvoKGaFSRU4R86r/fI0b5bdSWm40+WL5zSh15pSxXTR
+         CSZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=w4Tv0F1uItwO4IHFiNDZHG9aEzkG+Q+HP5zfgRRlg7Q=;
+        b=bGCBsQ6H5NG+AeKjN0jDbEV3UzR1VeJY4AQV+E1G3ogIvpS5KWVmAYhx/2llI9ZlXz
+         v6d3alwW5BAXQxG0KYiYRpi1M0x99JJY6WiiPsMN4k6ruk4BmHv5R67P4Q3Fe6SjTqUw
+         Iq/KEdveZm0GvMKDIlkBNjXlEaZD3HG6wzDna3OyI9RZ7DSh8qQcR/CqRodLS1alEVSo
+         DGZJdUTlXUlXS/ER2bp6ywPUGRCiDP1a4tipCOMT91UfBHnG8xIFmF7RCd47F7dHY4a4
+         owjWrZXaKgwGjSB+bhs1C3QFxCYQKA0M1Azyd69m8XxFcWDzNv7L4v3OtwZjWwgJPx/A
+         1YhA==
+X-Gm-Message-State: ANoB5pmT/UqbNon9kwC/3iDh674VTz4HvvvXSABZrnrlQAhpa6rj/NVF
+        uBrOqVRWgT99G1dBbkyJ7hVk+A==
+X-Google-Smtp-Source: AA0mqf60nRcs2G+x9aqMKPfPjzEgHr1qUsJJdKgfHIYXSiZgm1tHigXAMjpI42JSWc02ylMk4JDARA==
+X-Received: by 2002:a17:90b:4390:b0:218:4d16:e0c7 with SMTP id in16-20020a17090b439000b002184d16e0c7mr7118201pjb.105.1668765621883;
+        Fri, 18 Nov 2022 02:00:21 -0800 (PST)
+Received: from C02DW0BEMD6R.bytedance.net ([2404:9dc0:cd01::24])
+        by smtp.gmail.com with ESMTPSA id n10-20020a6563ca000000b0043a18cef977sm2439463pgv.13.2022.11.18.02.00.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Nov 2022 02:00:21 -0800 (PST)
+From:   Qi Zheng <zhengqi.arch@bytedance.com>
+To:     akpm@linux-foundation.org
+Cc:     akinobu.mita@gmail.com, dvyukov@google.com, jgg@nvidia.com,
+        willy@infradead.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-fsdevel@vger.kernel.org,
+        stable@vger.kernel.org, Qi Zheng <zhengqi.arch@bytedance.com>
+Subject: [PATCH v3] mm: fix unexpected changes to {failslab|fail_page_alloc}.attr
+Date:   Fri, 18 Nov 2022 18:00:11 +0800
+Message-Id: <20221118100011.2634-1-zhengqi.arch@bytedance.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Uwe,
+When we specify __GFP_NOWARN, we only expect that no warnings
+will be issued for current caller. But in the __should_failslab()
+and __should_fail_alloc_page(), the local GFP flags alter the
+global {failslab|fail_page_alloc}.attr, which is persistent and
+shared by all tasks. This is not what we expected, let's fix it.
 
-Le jeu. 17 nov. 2022 =E0 14:29:27 +0100, Uwe Kleine-K=F6nig=20
-<u.kleine-koenig@pengutronix.de> a =E9crit :
-> Hello Paul,
->=20
-> On Tue, Oct 25, 2022 at 11:02:00AM +0100, Paul Cercueil wrote:
->>  Le mar. 25 oct. 2022 =E0 08:21:29 +0200, Uwe Kleine-K=F6nig
->>  <u.kleine-koenig@pengutronix.de> a =E9crit :
->>  > Hello,
->>  >
->>  > On Mon, Oct 24, 2022 at 09:52:09PM +0100, Paul Cercueil wrote:
->>  > >  The "duty > cycle" trick to force the pin level of a disabled=20
->> TCU2
->>  > >  channel would only work when the channel had been enabled
->>  > > previously.
->>  > >
->>  > >  Address this issue by enabling the PWM mode in=20
->> jz4740_pwm_disable
->>  > >  (I know, right) so that the "duty > cycle" trick works before
->>  > > disabling
->>  > >  the PWM channel right after.
->>  > >
->>  > >  This issue went unnoticed, as the PWM pins on the majority of=20
->> the
->>  > > boards
->>  > >  tested would default to the inactive level once the=20
->> corresponding
->>  > > TCU
->>  > >  clock was enabled, so the first call to jz4740_pwm_disable()=20
->> would
->>  > > not
->>  > >  actually change the pin levels.
->>  > >
->>  > >  On the GCW Zero however, the PWM pin for the backlight (PWM1,=20
->> which
->>  > > is
->>  > >  a TCU2 channel) goes active as soon as the timer1 clock is=20
->> enabled.
->>  > >  Since the jz4740_pwm_disable() function did not work on=20
->> channels not
->>  > >  previously enabled, the backlight would shine at full=20
->> brightness
->>  > > from
->>  > >  the moment the backlight driver would probe, until the=20
->> backlight
->>  > > driver
->>  > >  tried to *enable* the PWM output.
->>  > >
->>  > >  With this fix, the PWM pins will be forced inactive as soon as
->>  > >  jz4740_pwm_apply() is called (and might be reconfigured to=20
->> active if
->>  > >  dictated by the pwm_state). This means that there is still a=20
->> tiny
->>  > > time
->>  > >  frame between the .request() and .apply() callbacks where the=20
->> PWM
->>  > > pin
->>  > >  might be active. Sadly, there is no way to fix this issue: it=20
->> is
->>  > >  impossible to write a PWM channel's registers if the=20
->> corresponding
->>  > > clock
->>  > >  is not enabled, and enabling the clock is what causes the PWM=20
->> pin
->>  > > to go
->>  > >  active.
->>  > >
->>  > >  There is a workaround, though, which complements this fix:=20
->> simply
->>  > >  starting the backlight driver (or any PWM client driver) with a
->>  > > "init"
->>  > >  pinctrl state that sets the pin as an inactive GPIO. Once the
->>  > > driver is
->>  > >  probed and the pinctrl state switches to "default", the=20
->> regular PWM
->>  > > pin
->>  > >  configuration can be used as it will be properly driven.
->>  > >
->>  > >  Fixes: c2693514a0a1 ("pwm: jz4740: Obtain regmap from parent=20
->> node")
->>  > >  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->>  > >  Cc: stable@vger.kernel.org
->>  >
->>  > OK, understood the issue. I think there is another similar issue:=20
->> The
->>  > clk is get and enabled only in the .request() callback. The=20
->> result is (I
->>  > think---depends on a few further conditions) that if you have the
->>  > backlight driver as a module and the bootloader enables the=20
->> backlight to
->>  > show a splash screen, the backlight goes off because of the
->>  > clk_disable_unused initcall.
->>=20
->>  I will have to verify, but I'm pretty sure disabling the clock=20
->> doesn't
->>  change the pin level back to inactive.
->=20
-> Given that you set the clk's rate depending on the period to apply,=20
-> I'd
-> claim that you need to keep the clk on. Maybe it doesn't hurt, because
-> another component of the system keeps the clk running, but it's wrong
-> anyhow. Assumptions like these tend to break on new chip revisions.
+Cc: stable@vger.kernel.org
+Fixes: 3f913fc5f974 ("mm: fix missing handler for __GFP_NOWARN")
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
+Reviewed-by: Akinobu Mita <akinobu.mita@gmail.com>
+---
+ v1: https://lore.kernel.org/lkml/20221107033109.59709-1-zhengqi.arch@bytedance.com/
+ v2: https://lore.kernel.org/lkml/20221108035232.87180-1-zhengqi.arch@bytedance.com/
 
-If the backlight driver is a module then it will probe before the=20
-clk_disable_unused initcall, unless something is really wrong. So the=20
-backlight would stay ON if it was enabled by the bootloader, unless the=20
-DTB decides it doesn't have to be.
+ Changelog in v2 -> v3:
+ - collect Reviewed-by
+ - rebase onto the next-20221118
 
-Anyway, I can try your suggestion, and move the trick to force-disable=20
-PWM pins in the probe(). After that, the clocks can be safely disabled,=20
-so I can disable them (for the disabled PWMs) at the end of the probe=20
-and re-enable them again in their respective .request() callback.
+ Changelog in v1 -> v2:
+  - add comment for __should_failslab() and __should_fail_alloc_page()
+    (suggested by Jason)
 
-Cheers,
--Paul
+ include/linux/fault-inject.h |  7 +++++--
+ lib/fault-inject.c           | 14 +++++++++-----
+ mm/failslab.c                | 12 ++++++++++--
+ mm/page_alloc.c              |  7 +++++--
+ 4 files changed, 29 insertions(+), 11 deletions(-)
 
+diff --git a/include/linux/fault-inject.h b/include/linux/fault-inject.h
+index 9f6e25467844..444236dadcf0 100644
+--- a/include/linux/fault-inject.h
++++ b/include/linux/fault-inject.h
+@@ -20,7 +20,6 @@ struct fault_attr {
+ 	atomic_t space;
+ 	unsigned long verbose;
+ 	bool task_filter;
+-	bool no_warn;
+ 	unsigned long stacktrace_depth;
+ 	unsigned long require_start;
+ 	unsigned long require_end;
+@@ -32,6 +31,10 @@ struct fault_attr {
+ 	struct dentry *dname;
+ };
+ 
++enum fault_flags {
++	FAULT_NOWARN =	1 << 0,
++};
++
+ #define FAULT_ATTR_INITIALIZER {					\
+ 		.interval = 1,						\
+ 		.times = ATOMIC_INIT(1),				\
+@@ -40,11 +43,11 @@ struct fault_attr {
+ 		.ratelimit_state = RATELIMIT_STATE_INIT_DISABLED,	\
+ 		.verbose = 2,						\
+ 		.dname = NULL,						\
+-		.no_warn = false,					\
+ 	}
+ 
+ #define DECLARE_FAULT_ATTR(name) struct fault_attr name = FAULT_ATTR_INITIALIZER
+ int setup_fault_attr(struct fault_attr *attr, char *str);
++bool should_fail_ex(struct fault_attr *attr, ssize_t size, int flags);
+ bool should_fail(struct fault_attr *attr, ssize_t size);
+ 
+ #ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
+diff --git a/lib/fault-inject.c b/lib/fault-inject.c
+index 4b8fafce415c..5971f7c3e49e 100644
+--- a/lib/fault-inject.c
++++ b/lib/fault-inject.c
+@@ -41,9 +41,6 @@ EXPORT_SYMBOL_GPL(setup_fault_attr);
+ 
+ static void fail_dump(struct fault_attr *attr)
+ {
+-	if (attr->no_warn)
+-		return;
+-
+ 	if (attr->verbose > 0 && __ratelimit(&attr->ratelimit_state)) {
+ 		printk(KERN_NOTICE "FAULT_INJECTION: forcing a failure.\n"
+ 		       "name %pd, interval %lu, probability %lu, "
+@@ -103,7 +100,7 @@ static inline bool fail_stacktrace(struct fault_attr *attr)
+  * http://www.nongnu.org/failmalloc/
+  */
+ 
+-bool should_fail(struct fault_attr *attr, ssize_t size)
++bool should_fail_ex(struct fault_attr *attr, ssize_t size, int flags)
+ {
+ 	bool stack_checked = false;
+ 
+@@ -152,13 +149,20 @@ bool should_fail(struct fault_attr *attr, ssize_t size)
+ 		return false;
+ 
+ fail:
+-	fail_dump(attr);
++	if (!(flags & FAULT_NOWARN))
++		fail_dump(attr);
+ 
+ 	if (atomic_read(&attr->times) != -1)
+ 		atomic_dec_not_zero(&attr->times);
+ 
+ 	return true;
+ }
++EXPORT_SYMBOL_GPL(should_fail_ex);
++
++bool should_fail(struct fault_attr *attr, ssize_t size)
++{
++	return should_fail_ex(attr, size, 0);
++}
+ EXPORT_SYMBOL_GPL(should_fail);
+ 
+ #ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
+diff --git a/mm/failslab.c b/mm/failslab.c
+index 58df9789f1d2..ffc420c0e767 100644
+--- a/mm/failslab.c
++++ b/mm/failslab.c
+@@ -16,6 +16,8 @@ static struct {
+ 
+ bool __should_failslab(struct kmem_cache *s, gfp_t gfpflags)
+ {
++	int flags = 0;
++
+ 	/* No fault-injection for bootstrap cache */
+ 	if (unlikely(s == kmem_cache))
+ 		return false;
+@@ -30,10 +32,16 @@ bool __should_failslab(struct kmem_cache *s, gfp_t gfpflags)
+ 	if (failslab.cache_filter && !(s->flags & SLAB_FAILSLAB))
+ 		return false;
+ 
++	/*
++	 * In some cases, it expects to specify __GFP_NOWARN
++	 * to avoid printing any information(not just a warning),
++	 * thus avoiding deadlocks. See commit 6b9dbedbe349 for
++	 * details.
++	 */
+ 	if (gfpflags & __GFP_NOWARN)
+-		failslab.attr.no_warn = true;
++		flags |= FAULT_NOWARN;
+ 
+-	return should_fail(&failslab.attr, s->object_size);
++	return should_fail_ex(&failslab.attr, s->object_size, flags);
+ }
+ 
+ static int __init setup_failslab(char *str)
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index f7a63684e6c4..baf97166172c 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -3909,6 +3909,8 @@ __setup("fail_page_alloc=", setup_fail_page_alloc);
+ 
+ static bool __should_fail_alloc_page(gfp_t gfp_mask, unsigned int order)
+ {
++	int flags = 0;
++
+ 	if (order < fail_page_alloc.min_order)
+ 		return false;
+ 	if (gfp_mask & __GFP_NOFAIL)
+@@ -3919,10 +3921,11 @@ static bool __should_fail_alloc_page(gfp_t gfp_mask, unsigned int order)
+ 			(gfp_mask & __GFP_DIRECT_RECLAIM))
+ 		return false;
+ 
++	/* See comment in __should_failslab() */
+ 	if (gfp_mask & __GFP_NOWARN)
+-		fail_page_alloc.attr.no_warn = true;
++		flags |= FAULT_NOWARN;
+ 
+-	return should_fail(&fail_page_alloc.attr, 1 << order);
++	return should_fail_ex(&fail_page_alloc.attr, 1 << order, flags);
+ }
+ 
+ #ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
+-- 
+2.20.1
 
