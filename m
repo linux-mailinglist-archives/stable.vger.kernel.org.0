@@ -2,108 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D6DF62F66B
-	for <lists+stable@lfdr.de>; Fri, 18 Nov 2022 14:39:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3305662F6AC
+	for <lists+stable@lfdr.de>; Fri, 18 Nov 2022 14:57:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242131AbiKRNjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 08:39:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58912 "EHLO
+        id S241772AbiKRN5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 08:57:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242155AbiKRNj3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 08:39:29 -0500
-Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A0C791C17
-        for <stable@vger.kernel.org>; Fri, 18 Nov 2022 05:39:02 -0800 (PST)
-Received: by mail-yb1-xb2b.google.com with SMTP id k84so5669936ybk.3
-        for <stable@vger.kernel.org>; Fri, 18 Nov 2022 05:39:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=bIY3TPZTVnWea00k4Qcne3TRu4UILnkul61ceLO7Q90=;
-        b=nkVxlm1YlQcNNUfhHA47p9c/F9PbS5LwejtXdyCDeEmQnOocxjDsU1GhMb5fBlC+pc
-         jlbdxf/h0kOxtljzQi6wilT2zBvTwnScf1O31wOjF5H9QkjtIJZA8jt3I9wOxDFgKRIX
-         kA6wEi/KIrXQ/+gt2qeYGpfaw5+O5PRZbVcVbWLnpnnzmMygwfj021i1/orXmbIIx7XR
-         p2Mr59uwSCUjmvEMyKODpH86ShElEAi4TsIKNg7L2cEUDVNEF6O52w0RWPtN9p920pvN
-         jsUapXyzUi7kBSbE17dOiywTDKAucplYemzvRn8DMhzbEYY5ZpHdsl8z5Wx5YFTyAJj6
-         IJ8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=bIY3TPZTVnWea00k4Qcne3TRu4UILnkul61ceLO7Q90=;
-        b=2mCmzAtvUEwFf/lrUmEKeqms1PsuM56gbK2HMzENeNdJpzroKzjM0GaBSmSKA4IWbt
-         G3b2aIUlniEBeCzzkoejOBzpKaCGahDZeW2UKgAM8wUesOaZCXP1kSAsttnsYhjCx1jp
-         XNViSDyAJYDA+9gqA+A0P/4yVvlQLrdDc/fSSO9FSvBvVp9uU8j3FE0J6vCzRcqNuv30
-         YZW7oLgqlZ6jILTWkPZqgdNS3pyu4ww5NCMQ862xLXze1m6pKjmIGS6iF79OJs+yKahe
-         Uu95DjZKi1N4XciPKZ67u0Hdgn7dtHEnU5AGpezQ4QVxzmhwn1xcn8Bxy95Wic1gf35D
-         wXFQ==
-X-Gm-Message-State: ANoB5pk3ZTEgIEmS3WaC5eVNiVecAirHuD9RqLcXedwBGiPGecwJM21Q
-        kVrcK1mFgoexBmAUIZBywdPQzpMvlsVP9pZvaQ==
-X-Google-Smtp-Source: AA0mqf6hctJd0z6WSY5g/l+c6jJxt2jfDlQDTnCORUJ/I0Dkj2SMJJ6PYnJW8CuqAC5b9iZAc0tuKMWQyi731e0pKXA=
-X-Received: by 2002:a5b:b:0:b0:6d1:e501:396c with SMTP id a11-20020a5b000b000000b006d1e501396cmr6700713ybp.318.1668778741174;
- Fri, 18 Nov 2022 05:39:01 -0800 (PST)
+        with ESMTP id S241808AbiKRN5u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 08:57:50 -0500
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF1D8CFFB
+        for <stable@vger.kernel.org>; Fri, 18 Nov 2022 05:57:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1668779869; x=1700315869;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=Mkj4TgvRycwlvMe5TQW0lIuT4Fg+StCZNFTIHSyS/zE=;
+  b=cNBQaKlXtd/w+m9Lrvmh8aPOAPFOJfn07e5yD9GHGU7D3wgDtg6pqfQl
+   NGwhFT8mncZgRBOMwD8XgFq8ANSuBinVIRsX62r/qg8kks4JQ+yGIhuEL
+   R2KSGM6bL4Cr3BwdBYhd7fl/F0IhLZbrCEnQFlGgj1H40vUPP9rTK6oxC
+   0epeYlc5p+TTQ0om4l2+xgHYWyja/KR4br9PxImX6f0V1fu1mS+nNLpa7
+   t+oGUPXgiQ+e42y0BPrU840RJLCU9i/g+6Zobpx8OYsgZ5voDyTrkBOQK
+   12ivENBD2D4M0E3qKfStmHZm/kFRPUssTb8H2sE2trwti2uykeHwhezSv
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10535"; a="311841917"
+X-IronPort-AV: E=Sophos;i="5.96,174,1665471600"; 
+   d="scan'208";a="311841917"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2022 05:57:49 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10535"; a="746012372"
+X-IronPort-AV: E=Sophos;i="5.96,174,1665471600"; 
+   d="scan'208";a="746012372"
+Received: from bbaker-mobl.ger.corp.intel.com (HELO mwauld-desk1.intel.com) ([10.252.1.50])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2022 05:57:47 -0800
+From:   Matthew Auld <matthew.auld@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris.p.wilson@intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Nirmoy Das <nirmoy.das@intel.com>, stable@vger.kernel.org
+Subject: [PATCH v2 1/2] drm/i915/migrate: Account for the reserved_space
+Date:   Fri, 18 Nov 2022 13:57:22 +0000
+Message-Id: <20221118135723.621653-1-matthew.auld@intel.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-Received: by 2002:a05:7000:a00d:b0:3de:70b3:6b92 with HTTP; Fri, 18 Nov 2022
- 05:39:00 -0800 (PST)
-Reply-To: tn0056454@gmail.com
-From:   BELARBI MALIK <louisemoses98@gmail.com>
-Date:   Fri, 18 Nov 2022 13:39:00 +0000
-Message-ID: <CACVZsqqfA5dSmDc-63vH3fuNVsWi6cqujNNeU7PhV+bz-31hFQ@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=5.0 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:b2b listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [louisemoses98[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [louisemoses98[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [tn0056454[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  2.9 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Sch=C3=B6nen Tag
+From: Chris Wilson <chris.p.wilson@intel.com>
 
-Mein Name ist Belarbi Malik. Ich bin von Beruf Rechtsanwalt. Nachdem
-das Ecowas-Gericht die Kisten/Erbverm=C3=B6gen unserer verstorbenen
-Mandanten freigegeben hat, m=C3=BCssen Sie diese Kisten erhalten. Ihr
-Cousin, mein verstorbener Klient, hat hier in meinem Land an der
-Goldk=C3=BCste nicht abgeholte Kisten zur=C3=BCckgelassen. Ich erwarte Ihre
-Antwort bez=C3=BCglich des Verfahrens und Kopien der Dokumente werden Ihnen
-zugesandt.
+If the ring is nearly full when calling into emit_pte(), we might
+incorrectly trample the reserved_space when constructing the packet to
+emit the PTEs. This then triggers the GEM_BUG_ON(rq->reserved_space >
+ring->space) when later submitting the request, since the request itself
+doesn't have enough space left in the ring to emit things like
+workarounds, breadcrumbs etc.
 
-Belarbi Malik
-+22897822988
+Testcase: igt@i915_selftests@live_emit_pte_full_ring
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7535
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6889
+Fixes: cf586021642d ("drm/i915/gt: Pipelined page migration")
+Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Andrzej Hajda <andrzej.hajda@intel.com>
+Cc: Nirmoy Das <nirmoy.das@intel.com>
+Cc: <stable@vger.kernel.org> # v5.15+
+---
+ drivers/gpu/drm/i915/gt/intel_migrate.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_migrate.c b/drivers/gpu/drm/i915/gt/intel_migrate.c
+index b405a04135ca..48c3b5168558 100644
+--- a/drivers/gpu/drm/i915/gt/intel_migrate.c
++++ b/drivers/gpu/drm/i915/gt/intel_migrate.c
+@@ -342,6 +342,16 @@ static int emit_no_arbitration(struct i915_request *rq)
+ 	return 0;
+ }
+ 
++static int max_pte_pkt_size(struct i915_request *rq, int pkt)
++{
++       struct intel_ring *ring = rq->ring;
++
++       pkt = min_t(int, pkt, (ring->space - rq->reserved_space) / sizeof(u32) + 5);
++       pkt = min_t(int, pkt, (ring->size - ring->emit) / sizeof(u32) + 5);
++
++       return pkt;
++}
++
+ static int emit_pte(struct i915_request *rq,
+ 		    struct sgt_dma *it,
+ 		    enum i915_cache_level cache_level,
+@@ -388,8 +398,7 @@ static int emit_pte(struct i915_request *rq,
+ 		return PTR_ERR(cs);
+ 
+ 	/* Pack as many PTE updates as possible into a single MI command */
+-	pkt = min_t(int, dword_length, ring->space / sizeof(u32) + 5);
+-	pkt = min_t(int, pkt, (ring->size - ring->emit) / sizeof(u32) + 5);
++	pkt = max_pte_pkt_size(rq, dword_length);
+ 
+ 	hdr = cs;
+ 	*cs++ = MI_STORE_DATA_IMM | REG_BIT(21); /* as qword elements */
+@@ -422,8 +431,7 @@ static int emit_pte(struct i915_request *rq,
+ 				}
+ 			}
+ 
+-			pkt = min_t(int, dword_rem, ring->space / sizeof(u32) + 5);
+-			pkt = min_t(int, pkt, (ring->size - ring->emit) / sizeof(u32) + 5);
++			pkt = max_pte_pkt_size(rq, dword_rem);
+ 
+ 			hdr = cs;
+ 			*cs++ = MI_STORE_DATA_IMM | REG_BIT(21);
+-- 
+2.38.1
+
