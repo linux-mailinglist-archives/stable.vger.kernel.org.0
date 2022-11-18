@@ -2,108 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6FFA62EFC2
-	for <lists+stable@lfdr.de>; Fri, 18 Nov 2022 09:40:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 969F562F1F0
+	for <lists+stable@lfdr.de>; Fri, 18 Nov 2022 10:55:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240846AbiKRIk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 03:40:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60412 "EHLO
+        id S240778AbiKRJzx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 04:55:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241227AbiKRIkH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 03:40:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9102AE0F7;
-        Fri, 18 Nov 2022 00:39:54 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D46C6238C;
-        Fri, 18 Nov 2022 08:39:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D200C433D7;
-        Fri, 18 Nov 2022 08:39:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668760793;
-        bh=0ho9HeENCwTxJiNWvhHjQkHcio/HQKeJG5c6zaF4b7o=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=HtsSVVxEs9gUort0xR+4mCc2gQq+L+p18ivRxMcIJIFMQP3E+KcQ8J6LqsdOEN3jZ
-         i3xpYD3eUjauYrDuiVtgOs1MNGpRxe7WbYh20SU/C4ZBMnmz2WeX7on1Z33SOGRbQb
-         qAkdPRXTsZiPOK3zxn8dPmeVluh0zTTjZ5vmOcfn06lfpq0bSlWYz8fDVJn6GyRtAQ
-         mcsZ92CYyCS49O9q1lsWBvfrM3NYMvLA0cEElLHtTMj7OKndzQfbJECUDkmKttGO9n
-         gE9IzSoIEc1ugQnSU7I/B4AQ8sUF1kE3Fx1LXHLbziyvvqVRwPO9e9721NdqKud0lD
-         WLQupgVuOncFQ==
-Received: by mail-ej1-f52.google.com with SMTP id ft34so11223026ejc.12;
-        Fri, 18 Nov 2022 00:39:53 -0800 (PST)
-X-Gm-Message-State: ANoB5pllqy0yBQaJvBPztxlLCL763zun/cachqYK3uaO3BRP9aHZFkEI
-        PTRrkm4iOJfEbmPEUDTRqMo6HLjZtKpxHShKZMA=
-X-Google-Smtp-Source: AA0mqf5sHRaE85vQdNRNsYQf0I8Pa3DUcGnsBj6zsfcQQbTJCxCIhzNYrqerG4UB/xQ/pdqBwSRH93ilA3Ks4sWGDrU=
-X-Received: by 2002:a17:906:8994:b0:7ae:ea4:583c with SMTP id
- gg20-20020a170906899400b007ae0ea4583cmr5048018ejc.587.1668760791747; Fri, 18
- Nov 2022 00:39:51 -0800 (PST)
+        with ESMTP id S235099AbiKRJzw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 04:55:52 -0500
+Received: from aposti.net (aposti.net [89.234.176.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6BE78E0AA;
+        Fri, 18 Nov 2022 01:55:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1668765350; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=6XNQnzVk9riDdeXq+9UMc2lKBE5CylsUGgRXuU/IvoA=;
+        b=lP8PARIJ1MGPuSFRXoZdjDQldeDX9gaAL8k6+ck7PFoPEr/pfVYxjDVHYtpLT9/6oltISw
+        axe4KwYExIC3fbuX3Vdw5FQcDGfcZA+AoBUTXzpwPyVmEacl1F7QisvJtCY7T79sG17bb5
+        b4/03lyP69aMqj4L9x1xBzMC6qdib+c=
+Date:   Fri, 18 Nov 2022 09:55:40 +0000
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH 1/5] pwm: jz4740: Fix pin level of disabled TCU2 channels,
+ part 1
+To:     Uwe =?iso-8859-1?q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     Thierry Reding <thierry.reding@gmail.com>, od@opendingux.net,
+        linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, stable@vger.kernel.org
+Message-Id: <SKFJLR.07UMT1VWJOD52@crapouillou.net>
+In-Reply-To: <20221117132927.mom5klfd4eww5amk@pengutronix.de>
+References: <20221024205213.327001-1-paul@crapouillou.net>
+        <20221024205213.327001-2-paul@crapouillou.net>
+        <20221025062129.drzltbavg6hrhv7r@pengutronix.de>
+        <CVZAKR.06MA7BGA170W3@crapouillou.net>
+        <20221117132927.mom5klfd4eww5amk@pengutronix.de>
 MIME-Version: 1.0
-References: <Y3WA2BU0vtsOu6pJ@zx2c4.com> <20221117003915.2092851-1-Jason@zx2c4.com>
-In-Reply-To: <20221117003915.2092851-1-Jason@zx2c4.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Fri, 18 Nov 2022 09:39:39 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXHpOFOu9AywZJXVk-pL_Er7RbB1V2bV2t1dt7oB+iU3=g@mail.gmail.com>
-Message-ID: <CAMj1kXHpOFOu9AywZJXVk-pL_Er7RbB1V2bV2t1dt7oB+iU3=g@mail.gmail.com>
-Subject: Re: [PATCH v2] efi: random: zero out secret after use and do not take minimum
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     linux-efi@vger.kernel.org, stable@vger.kernel.org,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 17 Nov 2022 at 01:39, Jason A. Donenfeld <Jason@zx2c4.com> wrote:
->
-> Taking the minimum is wrong, if the bootloader or EFI stub is actually
-> passing on a bunch of bytes that it expects the kernel to hash itself.
-> Ideally, a bootloader will hash it for us, but STUB won't do that, so we
-> should map all the bytes. Also, all those bytes must be zeroed out after
-> use to preserve forward secrecy.
->
-> Fixes: 161a438d730d ("efi: random: reduce seed size to 32 bytes")
-> Cc: stable@vger.kernel.org # v4.14+
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Cc: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> ---
-> Changes v1->v2:
-> - Cap size to 1k.
->  drivers/firmware/efi/efi.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
+Hi Uwe,
 
-Thanks. I'll just incorporate this into the patch that does the
-concatenation of seeds in the stub, which is queued up for v6.2
+Le jeu. 17 nov. 2022 =E0 14:29:27 +0100, Uwe Kleine-K=F6nig=20
+<u.kleine-koenig@pengutronix.de> a =E9crit :
+> Hello Paul,
+>=20
+> On Tue, Oct 25, 2022 at 11:02:00AM +0100, Paul Cercueil wrote:
+>>  Le mar. 25 oct. 2022 =E0 08:21:29 +0200, Uwe Kleine-K=F6nig
+>>  <u.kleine-koenig@pengutronix.de> a =E9crit :
+>>  > Hello,
+>>  >
+>>  > On Mon, Oct 24, 2022 at 09:52:09PM +0100, Paul Cercueil wrote:
+>>  > >  The "duty > cycle" trick to force the pin level of a disabled=20
+>> TCU2
+>>  > >  channel would only work when the channel had been enabled
+>>  > > previously.
+>>  > >
+>>  > >  Address this issue by enabling the PWM mode in=20
+>> jz4740_pwm_disable
+>>  > >  (I know, right) so that the "duty > cycle" trick works before
+>>  > > disabling
+>>  > >  the PWM channel right after.
+>>  > >
+>>  > >  This issue went unnoticed, as the PWM pins on the majority of=20
+>> the
+>>  > > boards
+>>  > >  tested would default to the inactive level once the=20
+>> corresponding
+>>  > > TCU
+>>  > >  clock was enabled, so the first call to jz4740_pwm_disable()=20
+>> would
+>>  > > not
+>>  > >  actually change the pin levels.
+>>  > >
+>>  > >  On the GCW Zero however, the PWM pin for the backlight (PWM1,=20
+>> which
+>>  > > is
+>>  > >  a TCU2 channel) goes active as soon as the timer1 clock is=20
+>> enabled.
+>>  > >  Since the jz4740_pwm_disable() function did not work on=20
+>> channels not
+>>  > >  previously enabled, the backlight would shine at full=20
+>> brightness
+>>  > > from
+>>  > >  the moment the backlight driver would probe, until the=20
+>> backlight
+>>  > > driver
+>>  > >  tried to *enable* the PWM output.
+>>  > >
+>>  > >  With this fix, the PWM pins will be forced inactive as soon as
+>>  > >  jz4740_pwm_apply() is called (and might be reconfigured to=20
+>> active if
+>>  > >  dictated by the pwm_state). This means that there is still a=20
+>> tiny
+>>  > > time
+>>  > >  frame between the .request() and .apply() callbacks where the=20
+>> PWM
+>>  > > pin
+>>  > >  might be active. Sadly, there is no way to fix this issue: it=20
+>> is
+>>  > >  impossible to write a PWM channel's registers if the=20
+>> corresponding
+>>  > > clock
+>>  > >  is not enabled, and enabling the clock is what causes the PWM=20
+>> pin
+>>  > > to go
+>>  > >  active.
+>>  > >
+>>  > >  There is a workaround, though, which complements this fix:=20
+>> simply
+>>  > >  starting the backlight driver (or any PWM client driver) with a
+>>  > > "init"
+>>  > >  pinctrl state that sets the pin as an inactive GPIO. Once the
+>>  > > driver is
+>>  > >  probed and the pinctrl state switches to "default", the=20
+>> regular PWM
+>>  > > pin
+>>  > >  configuration can be used as it will be properly driven.
+>>  > >
+>>  > >  Fixes: c2693514a0a1 ("pwm: jz4740: Obtain regmap from parent=20
+>> node")
+>>  > >  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>>  > >  Cc: stable@vger.kernel.org
+>>  >
+>>  > OK, understood the issue. I think there is another similar issue:=20
+>> The
+>>  > clk is get and enabled only in the .request() callback. The=20
+>> result is (I
+>>  > think---depends on a few further conditions) that if you have the
+>>  > backlight driver as a module and the bootloader enables the=20
+>> backlight to
+>>  > show a splash screen, the backlight goes off because of the
+>>  > clk_disable_unused initcall.
+>>=20
+>>  I will have to verify, but I'm pretty sure disabling the clock=20
+>> doesn't
+>>  change the pin level back to inactive.
+>=20
+> Given that you set the clk's rate depending on the period to apply,=20
+> I'd
+> claim that you need to keep the clk on. Maybe it doesn't hurt, because
+> another component of the system keeps the clk running, but it's wrong
+> anyhow. Assumptions like these tend to break on new chip revisions.
 
-> diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-> index a46df5d1d094..c7c7178902c2 100644
-> --- a/drivers/firmware/efi/efi.c
-> +++ b/drivers/firmware/efi/efi.c
-> @@ -611,7 +611,7 @@ int __init efi_config_parse_tables(const efi_config_table_t *config_tables,
->
->                 seed = early_memremap(efi_rng_seed, sizeof(*seed));
->                 if (seed != NULL) {
-> -                       size = min(seed->size, EFI_RANDOM_SEED_SIZE);
-> +                       size = min_t(u32, SZ_1K, seed->size);
->                         early_memunmap(seed, sizeof(*seed));
->                 } else {
->                         pr_err("Could not map UEFI random seed!\n");
-> @@ -622,6 +622,7 @@ int __init efi_config_parse_tables(const efi_config_table_t *config_tables,
->                         if (seed != NULL) {
->                                 pr_notice("seeding entropy pool\n");
->                                 add_bootloader_randomness(seed->bits, size);
-> +                               memzero_explicit(seed->bits, size);
->                                 early_memunmap(seed, sizeof(*seed) + size);
->                         } else {
->                                 pr_err("Could not map UEFI random seed!\n");
-> --
-> 2.38.1
->
+If the backlight driver is a module then it will probe before the=20
+clk_disable_unused initcall, unless something is really wrong. So the=20
+backlight would stay ON if it was enabled by the bootloader, unless the=20
+DTB decides it doesn't have to be.
+
+Anyway, I can try your suggestion, and move the trick to force-disable=20
+PWM pins in the probe(). After that, the clocks can be safely disabled,=20
+so I can disable them (for the disabled PWMs) at the end of the probe=20
+and re-enable them again in their respective .request() callback.
+
+Cheers,
+-Paul
+
+
