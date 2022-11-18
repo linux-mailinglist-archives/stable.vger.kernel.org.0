@@ -2,74 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A076F62E720
-	for <lists+stable@lfdr.de>; Thu, 17 Nov 2022 22:41:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A39B62EBAD
+	for <lists+stable@lfdr.de>; Fri, 18 Nov 2022 03:08:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234602AbiKQVlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Nov 2022 16:41:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55332 "EHLO
+        id S240874AbiKRCH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Nov 2022 21:07:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234418AbiKQVlF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 16:41:05 -0500
-Received: from mail-oa1-x35.google.com (mail-oa1-x35.google.com [IPv6:2001:4860:4864:20::35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1156828F;
-        Thu, 17 Nov 2022 13:41:04 -0800 (PST)
-Received: by mail-oa1-x35.google.com with SMTP id 586e51a60fabf-1322d768ba7so3783157fac.5;
-        Thu, 17 Nov 2022 13:41:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Nc+c1ZgyaRHbiRmnbtBUUwq9SlkKMk4TXjmG53a3qPI=;
-        b=nVvdu7JjyqkMcVh0WyCRhREoZFkY9TCHEnNLzr+ogGqNGJR+sFmPKas4PS6VZx3R+F
-         B5I57zIftnK/XsEP9bHGsyDaZZyyyYzIH7nVzWhpzXoc8dt0liEKqxA3wpLInzrJFraK
-         uTps7bxurQEC6N71TBxEzdZhL+ATw3nhc1GGhjb9KqdVO+5AKaR24AH5zfeg81Mk7rgd
-         F0rYnPRiVhXSfIU5l7eupBixu3JTRrI0A9EfldNo55GTD9ZpHI2iid7gzeKb2pAfxu9r
-         nIfd/ULkmoTQ/SnGsb2JYm4onWueWg7QS8F6xOGKJ4J/DIRkyRvSj230OefIYh1v0tAq
-         Nf5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Nc+c1ZgyaRHbiRmnbtBUUwq9SlkKMk4TXjmG53a3qPI=;
-        b=RBh4Z4vKAi4qEHyIhbRvZ0RcEuaUNOYkqCUbEgxdf5lUmFKty1G+Xztwg8+o8Da56H
-         4tp8RnbG68wWoSaUND7PKwsiqaV8FefpJuabf9plH5e5/CLCM5OdsBAj8TuNur/G9id2
-         uVFIje1GqPYV8GaJRQQBVS2ArBcg+ZkO8kmqS/k1YOkh8huHYbIZ4J4HBIX1E5W4Hngd
-         I16L+05jWtIF2sDggkQzYrqr2Q2cmGHm4r36WtiUfOh/cWZ0kns3oxn85ZuAXoEx2/vG
-         xlDxo13XHaVCfE1GFzUIzZJgrubwpOObweDJFLaj1b2wGXhiO7iJ5zatkryPCK4/QR2J
-         XxCA==
-X-Gm-Message-State: ANoB5pmVun5UosbJh46Nb5WuZeaA5AtdpWvP0VT/L5HZYSjdqUZIDmOs
-        yb8YSeDhPwDwyH67S62TiI045XhrUaQ5REQ5SSQ=
-X-Google-Smtp-Source: AA0mqf4kfKVTGi28Jg/pTNx2eiR1aNW14wXxeGvdl18I0KBg/P9rdGDpIevTBJ7ln+4qdyUStAa7R+2g/qBCXeQbqPs=
-X-Received: by 2002:a05:6870:b07:b0:13b:d07f:f29d with SMTP id
- lh7-20020a0568700b0700b0013bd07ff29dmr2479858oab.96.1668721263887; Thu, 17
- Nov 2022 13:41:03 -0800 (PST)
+        with ESMTP id S240896AbiKRCHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 21:07:54 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA8D898C8
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 18:06:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1668737217;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=E50ouKsSOSWKlmi2VnrMWYeqEQ0C3pYJnQUUUioyHwY=;
+        b=Fqnik3bt0Eb/8ogup0cwR8HajBJTRPQYiXc+lsOTo5YZOjG0jHAabJrVLs3gafue6SI8lG
+        0u/AHxV92rEVGSJV95eqBIb/C2L3GmPJ3eaQzQgHVbjbrrdpq5CtlEt1fCb/HLhSZoO198
+        YymKXQEQud/95o+usAaWa7e4VxaYgUY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-85-6ZsLk-XWP5GCXGHwuIlnHA-1; Thu, 17 Nov 2022 21:06:54 -0500
+X-MC-Unique: 6ZsLk-XWP5GCXGHwuIlnHA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6A51F101A54E;
+        Fri, 18 Nov 2022 02:06:53 +0000 (UTC)
+Received: from lxbceph1.gsslab.pek2.redhat.com (unknown [10.72.47.117])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9B18FC158CF;
+        Fri, 18 Nov 2022 02:06:49 +0000 (UTC)
+From:   xiubli@redhat.com
+To:     ceph-devel@vger.kernel.org, jlayton@kernel.org, idryomov@gmail.com
+Cc:     lhenriques@suse.de, mchangir@redhat.com, viro@zeniv.linux.org.uk,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Xiubo Li <xiubli@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH 1/2 v3] ceph: switch to vfs_inode_has_locks() to fix file lock bug
+Date:   Fri, 18 Nov 2022 10:06:41 +0800
+Message-Id: <20221118020642.472484-2-xiubli@redhat.com>
+In-Reply-To: <20221118020642.472484-1-xiubli@redhat.com>
+References: <20221118020642.472484-1-xiubli@redhat.com>
 MIME-Version: 1.0
-References: <20221114222046.386560-1-lyude@redhat.com>
-In-Reply-To: <20221114222046.386560-1-lyude@redhat.com>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Thu, 17 Nov 2022 16:40:52 -0500
-Message-ID: <CADnq5_PrarJPZQu6uRwDdCqhZr7Hvbtxo_HuhiQ7H1DYRgSyqQ@mail.gmail.com>
-Subject: Re: [PATCH] drm/amd/dc/dce120: Fix audio register mapping, stop
- triggering KASAN
-To:     Lyude Paul <lyude@redhat.com>,
-        "Wentland, Harry" <Harry.Wentland@amd.com>
-Cc:     amd-gfx@lists.freedesktop.org, Alan Liu <HaoPing.Liu@amd.com>,
-        Leo Li <sunpeng.li@amd.com>, David Airlie <airlied@gmail.com>,
-        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        "open list:DRM DRIVERS" <dri-devel@lists.freedesktop.org>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,54 +60,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 14, 2022 at 5:21 PM Lyude Paul <lyude@redhat.com> wrote:
->
-> There's been a very long running bug that seems to have been neglected for
-> a while, where amdgpu consistently triggers a KASAN error at start:
->
->   BUG: KASAN: global-out-of-bounds in read_indirect_azalia_reg+0x1d4/0x2a0 [amdgpu]
->   Read of size 4 at addr ffffffffc2274b28 by task modprobe/1889
->
-> After digging through amd's rather creative method for accessing registers,
-> I eventually discovered the problem likely has to do with the fact that on
-> my dce120 GPU there are supposedly 7 sets of audio registers. But we only
-> define a register mapping for 6 sets.
->
-> So, fix this and fix the KASAN warning finally.
->
-> Signed-off-by: Lyude Paul <lyude@redhat.com>
-> Cc: stable@vger.kernel.org
+From: Xiubo Li <xiubli@redhat.com>
 
-This is the correct fix for asics having 7 audio instances.  It looks
-correct to me, assuming DCE12 actually has 7 audio instances.
-@Wentland, Harry Do you know off hand?  If you can confirm that, the
-patch is:
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+For the POSIX locks they are using the same owner, which is the
+thread id. And multiple POSIX locks could be merged into single one,
+so when checking whether the 'file' has locks may fail.
 
+For a file where some openers use locking and others don't is a
+really odd usage pattern though. Locks are like stoplights -- they
+only work if everyone pays attention to them.
 
-> ---
-> Sending this one separately from the rest of my fixes since:
->
-> * It's definitely completely unrelated to the Gitlab 2171 issue
-> * I'm not sure if this is the correct fix since it's in DC
->
->  drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c b/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
-> index 1b70b78e2fa15..af631085e88c5 100644
-> --- a/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
-> +++ b/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
-> @@ -359,7 +359,8 @@ static const struct dce_audio_registers audio_regs[] = {
->         audio_regs(2),
->         audio_regs(3),
->         audio_regs(4),
-> -       audio_regs(5)
-> +       audio_regs(5),
-> +       audio_regs(6),
->  };
->
->  #define DCE120_AUD_COMMON_MASK_SH_LIST(mask_sh)\
-> --
-> 2.37.3
->
+Just switch ceph_get_caps() to check whether any locks are set on
+the inode. If there are POSIX/OFD/FLOCK locks on the file at the
+time, we should set CHECK_FILELOCK, regardless of what fd was used
+to set the lock.
+
+Cc: stable@vger.kernel.org
+Cc: Jeff Layton <jlayton@kernel.org>
+Fixes: ff5d913dfc71 ("ceph: return -EIO if read/write against filp that lost file locks")
+URL: https://tracker.ceph.com/issues/57986
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+---
+ fs/ceph/caps.c  | 2 +-
+ fs/ceph/locks.c | 4 ----
+ fs/ceph/super.h | 1 -
+ 3 files changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index 065e9311b607..948136f81fc8 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -2964,7 +2964,7 @@ int ceph_get_caps(struct file *filp, int need, int want, loff_t endoff, int *got
+ 
+ 	while (true) {
+ 		flags &= CEPH_FILE_MODE_MASK;
+-		if (atomic_read(&fi->num_locks))
++		if (vfs_inode_has_locks(inode))
+ 			flags |= CHECK_FILELOCK;
+ 		_got = 0;
+ 		ret = try_get_cap_refs(inode, need, want, endoff,
+diff --git a/fs/ceph/locks.c b/fs/ceph/locks.c
+index 3e2843e86e27..b191426bf880 100644
+--- a/fs/ceph/locks.c
++++ b/fs/ceph/locks.c
+@@ -32,18 +32,14 @@ void __init ceph_flock_init(void)
+ 
+ static void ceph_fl_copy_lock(struct file_lock *dst, struct file_lock *src)
+ {
+-	struct ceph_file_info *fi = dst->fl_file->private_data;
+ 	struct inode *inode = file_inode(dst->fl_file);
+ 	atomic_inc(&ceph_inode(inode)->i_filelock_ref);
+-	atomic_inc(&fi->num_locks);
+ }
+ 
+ static void ceph_fl_release_lock(struct file_lock *fl)
+ {
+-	struct ceph_file_info *fi = fl->fl_file->private_data;
+ 	struct inode *inode = file_inode(fl->fl_file);
+ 	struct ceph_inode_info *ci = ceph_inode(inode);
+-	atomic_dec(&fi->num_locks);
+ 	if (atomic_dec_and_test(&ci->i_filelock_ref)) {
+ 		/* clear error when all locks are released */
+ 		spin_lock(&ci->i_ceph_lock);
+diff --git a/fs/ceph/super.h b/fs/ceph/super.h
+index 7b75a84ba48d..87dc55c866e9 100644
+--- a/fs/ceph/super.h
++++ b/fs/ceph/super.h
+@@ -803,7 +803,6 @@ struct ceph_file_info {
+ 	struct list_head rw_contexts;
+ 
+ 	u32 filp_gen;
+-	atomic_t num_locks;
+ };
+ 
+ struct ceph_dir_file_info {
+-- 
+2.31.1
+
