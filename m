@@ -2,136 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33DAB62ECFB
-	for <lists+stable@lfdr.de>; Fri, 18 Nov 2022 05:59:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B103662EDEB
+	for <lists+stable@lfdr.de>; Fri, 18 Nov 2022 07:52:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231814AbiKRE7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Nov 2022 23:59:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42816 "EHLO
+        id S241225AbiKRGwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 01:52:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229451AbiKRE7V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Nov 2022 23:59:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E0EB5BD4E;
-        Thu, 17 Nov 2022 20:59:19 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 173DC62318;
-        Fri, 18 Nov 2022 04:59:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01DD2C433C1;
-        Fri, 18 Nov 2022 04:59:15 +0000 (UTC)
-From:   Huacai Chen <chenhuacai@loongson.cn>
-To:     Huacai Chen <chenhuacai@kernel.org>
-Cc:     loongarch@lists.linux.dev, Xuefeng Li <lixuefeng@loongson.cn>,
-        Guo Ren <guoren@kernel.org>, Xuerui Wang <kernel@xen0n.name>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-kernel@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
-        stable@vger.kernel.org, Qi Hu <huqi@loongson.cn>
-Subject: [PATCH] LoongArch: Clear FPU/SIMD thread info flags for kernel thread
-Date:   Fri, 18 Nov 2022 12:56:47 +0800
-Message-Id: <20221118045647.1991409-1-chenhuacai@loongson.cn>
-X-Mailer: git-send-email 2.31.1
+        with ESMTP id S240852AbiKRGwn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 01:52:43 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E08720BCD
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 22:52:42 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id a14so7839141wru.5
+        for <stable@vger.kernel.org>; Thu, 17 Nov 2022 22:52:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PY6KhYAUR5ucFJNuLPM9f1H+df/2M9xIYSbpdtp87Ek=;
+        b=u19VxxE41bJu7vss7eTcPTQobv6F7nMKdzL47mu2Xo8FQHZSrCJoaWzspf8e6QUjZf
+         02+eJSSrMdRXUI8/x+KRAKfnPUMPWfeJDPOblB1e0SGRLwPJDboqEdbltlETvsbdv1ax
+         FGA5uOcfuwwdZlJbGLMxkCECW7V98bsVf4Xb3tB6aJUUwd6jgP/ftEIdyGgqt0LecO9r
+         riCZerC/sgwjJBleTzqtwEQsfVnPhlnVLgk1CwPAb5IRtrUMa3PektXb3nwSL+3KwI98
+         Bv2qDAWGkKaIK/PNUElcYDAoVz5r5QtubkXd233Kt5rNc3Fc6y3EXmc4MlGwDdPQS9Dl
+         fCag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PY6KhYAUR5ucFJNuLPM9f1H+df/2M9xIYSbpdtp87Ek=;
+        b=jzazdF4WkBASyo7WjxtJL/8Jh5Clk4jXUnO+gtMNbxvdmSvsvGYcTnMUx9EGgYEml1
+         ZLDpzNvmdInzwPf3iAA9hc81elKmjWndttSqbFKARhJKx1978B3MBaDgCZkLef4GFWab
+         XEjRGSPWTwRVO1vdJ+D0AutAFyRg/xp7F7jc2Wpy336dtGnCb3mf+j3D+QHfXSygnQDu
+         WnHQiPMDKdVwaMgFZ8ytCFk4F322XFMQhxZS1RiCZ7XYMsy2+uCPwfLZVGC6jnQULt75
+         74jYXGcMwSr4buCrgt6S1iD3cktrbHDkYuZ2Jjiqc9QR2uhEuyxtzheKCJhL8Ip+bhlr
+         z2xg==
+X-Gm-Message-State: ANoB5pm6WowZOwq0In2SI8SG9jPiBGLSvYA2gALMrUJWa6WVZiO/sPtl
+        EGaI9SUXrCzG7fWZBRX+XiBWTA==
+X-Google-Smtp-Source: AA0mqf7XskUTyolLVpF9es7OHwU1yYs5u+AkZ1hYqh0p8EPqTVe6aDY7tEDtcouxkuu2drHAgej/Yg==
+X-Received: by 2002:a5d:408b:0:b0:236:53d2:1668 with SMTP id o11-20020a5d408b000000b0023653d21668mr3409646wrp.694.1668754360904;
+        Thu, 17 Nov 2022 22:52:40 -0800 (PST)
+Received: from localhost.localdomain ([167.98.215.174])
+        by smtp.gmail.com with ESMTPSA id q14-20020a05600c46ce00b003c5571c27a1sm4400165wmo.32.2022.11.17.22.52.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Nov 2022 22:52:40 -0800 (PST)
+From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+To:     gregkh@linuxfoundation.org
+Cc:     linux-kernel@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 2/2] slimbus: stream: correct presence rate frequencies
+Date:   Fri, 18 Nov 2022 06:52:28 +0000
+Message-Id: <20221118065228.6773-3-srinivas.kandagatla@linaro.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221118065228.6773-1-srinivas.kandagatla@linaro.org>
+References: <20221118065228.6773-1-srinivas.kandagatla@linaro.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.6 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,LOTS_OF_MONEY,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If a kernel thread is created by a user thread, it may carry FPU/SIMD
-thread info flags (TIF_USEDFPU, TIF_USEDSIMD, etc.). Then it will be
-considered as a fpu owner and kernel try to save its FPU/SIMD context
-and cause such errors:
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[   41.518931] do_fpu invoked from kernel context![#1]:
-[   41.523933] CPU: 1 PID: 395 Comm: iou-wrk-394 Not tainted 6.1.0-rc5+ #217
-[   41.530757] Hardware name: Loongson Loongson-3A5000-7A1000-1w-CRB/Loongson-LS3A5000-7A1000-1w-CRB, BIOS vUDK2018-LoongArch-V2.0.pre-beta8 08/18/2022                      
-[   41.544064] $ 0   : 0000000000000000 90000000011e9468 9000000106c7c000 9000000106c7fcf0                                                                                   
-[   41.552101] $ 4   : 9000000106305d40 9000000106689800 9000000106c7fd08 0000000003995818                                                                                   
-[   41.560138] $ 8   : 0000000000000001 90000000009a72e4 0000000000000020 fffffffffffffffc                                                                                   
-[   41.568174] $12   : 0000000000000000 0000000000000000 0000000000000020 00000009aab7e130                                                                                   
-[   41.576211] $16   : 00000000000001ff 0000000000000407 0000000000000001 0000000000000000                                                                                   
-[   41.584247] $20   : 0000000000000000 0000000000000001 9000000106c7fd70 90000001002f0400                                                                                   
-[   41.592284] $24   : 0000000000000000 900000000178f740 90000000011e9834 90000001063057c0                                                                                   
-[   41.600320] $28   : 0000000000000000 0000000000000001 9000000006826b40 9000000106305140
-[   41.608356] era   : 9000000000228848 _save_fp+0x0/0xd8
-[   41.613542] ra    : 90000000011e9468 __schedule+0x568/0x8d0
-[   41.619160] CSR crmd: 000000b0
-[   41.619163] CSR prmd: 00000000
-[   41.622359] CSR euen: 00000000
-[   41.625558] CSR ecfg: 00071c1c
-[   41.628756] CSR estat: 000f0000
-[   41.635239] ExcCode : f (SubCode 0)
-[   41.638783] PrId  : 0014c010 (Loongson-64bit)
-[   41.643191] Modules linked in: acpi_ipmi vfat fat ipmi_si ipmi_devintf cfg80211 ipmi_msghandler rfkill fuse efivarfs
-[   41.653734] Process iou-wrk-394 (pid: 395, threadinfo=0000000004ebe913, task=00000000636fa1be)
-[   41.662375] Stack : 00000000ffff0875 9000000006800ec0 9000000006800ec0 90000000002d57e0
-[   41.670412]         0000000000000001 0000000000000000 9000000106535880 0000000000000001
-[   41.678450]         9000000105291800 0000000000000000 9000000105291838 900000000178e000
-[   41.686487]         9000000106c7fd90 9000000106305140 0000000000000001 90000000011e9834
-[   41.694523]         00000000ffff0875 90000000011f034c 9000000105291838 9000000105291830
-[   41.702561]         0000000000000000 9000000006801440 00000000ffff0875 90000000002d48c0
-[   41.710597]         9000000128800001 9000000106305140 9000000105291838 9000000105291838
-[   41.718634]         9000000105291830 9000000107811740 9000000105291848 90000000009bf1e0
-[   41.726672]         9000000105291830 9000000107811748 2d6b72772d756f69 0000000000343933
-[   41.734708]         0000000000000000 0000000000000000 0000000000000000 0000000000000000
-[   41.742745]         ...
-[   41.745252] Call Trace:
-[   42.197868] [<9000000000228848>] _save_fp+0x0/0xd8
-[   42.205214] [<90000000011ed468>] __schedule+0x568/0x8d0
-[   42.210485] [<90000000011ed834>] schedule+0x64/0xd4
-[   42.215411] [<90000000011f434c>] schedule_timeout+0x88/0x188
-[   42.221115] [<90000000009c36d0>] io_wqe_worker+0x184/0x350
-[   42.226645] [<9000000000221cf0>] ret_from_kernel_thread+0xc/0x9c
+Correct few frequencies in presence rate table - multiplied by 10
+(110250 instead of 11025 Hz).
 
-This can be easily triggered by ltp testcase syscalls/io_uring02 and it
-can also be easily fixed by clearing the FPU/SIMD thread info flags for
-kernel threads in copy_thread().
-
-Cc: stable@vger.kernel.org
-Reported-by: Qi Hu <huqi@loongson.cn>
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Fixes: abb9c9b8b51b ("slimbus: stream: add stream support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 ---
- arch/loongarch/kernel/process.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/slimbus/stream.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/loongarch/kernel/process.c b/arch/loongarch/kernel/process.c
-index f57c7050fce6..d983dfce7371 100644
---- a/arch/loongarch/kernel/process.c
-+++ b/arch/loongarch/kernel/process.c
-@@ -158,7 +158,7 @@ int copy_thread(struct task_struct *p, const struct kernel_clone_args *args)
- 		childregs->csr_crmd = p->thread.csr_crmd;
- 		childregs->csr_prmd = p->thread.csr_prmd;
- 		childregs->csr_ecfg = p->thread.csr_ecfg;
--		return 0;
-+		goto out;
- 	}
- 
- 	/* user thread */
-@@ -177,14 +177,15 @@ int copy_thread(struct task_struct *p, const struct kernel_clone_args *args)
- 	 */
- 	childregs->csr_euen = 0;
- 
-+	if (clone_flags & CLONE_SETTLS)
-+		childregs->regs[2] = tls;
-+
-+out:
- 	clear_tsk_thread_flag(p, TIF_USEDFPU);
- 	clear_tsk_thread_flag(p, TIF_USEDSIMD);
- 	clear_tsk_thread_flag(p, TIF_LSX_CTX_LIVE);
- 	clear_tsk_thread_flag(p, TIF_LASX_CTX_LIVE);
- 
--	if (clone_flags & CLONE_SETTLS)
--		childregs->regs[2] = tls;
--
- 	return 0;
- }
- 
+diff --git a/drivers/slimbus/stream.c b/drivers/slimbus/stream.c
+index 75f87b3d8b95..73a2aa362957 100644
+--- a/drivers/slimbus/stream.c
++++ b/drivers/slimbus/stream.c
+@@ -67,10 +67,10 @@ static const int slim_presence_rate_table[] = {
+ 	384000,
+ 	768000,
+ 	0, /* Reserved */
+-	110250,
+-	220500,
+-	441000,
+-	882000,
++	11025,
++	22050,
++	44100,
++	88200,
+ 	176400,
+ 	352800,
+ 	705600,
 -- 
-2.31.1
+2.25.1
 
