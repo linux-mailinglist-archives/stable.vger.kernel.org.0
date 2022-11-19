@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B92F063096E
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:13:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BE4C63097A
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232880AbiKSCNb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:13:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45444 "EHLO
+        id S233369AbiKSCNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:13:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232869AbiKSCMg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:12:36 -0500
+        with ESMTP id S234001AbiKSCMh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:12:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0603232BB2;
-        Fri, 18 Nov 2022 18:12:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24A445215D;
+        Fri, 18 Nov 2022 18:12:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93AF9B82670;
-        Sat, 19 Nov 2022 02:12:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64043C433C1;
-        Sat, 19 Nov 2022 02:12:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC05AB82678;
+        Sat, 19 Nov 2022 02:12:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBC16C433D7;
+        Sat, 19 Nov 2022 02:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668823924;
-        bh=tRv5WwdaxG97eI2KuLkHEG9zd4M/A14LtI9mB7OzuRg=;
+        s=k20201202; t=1668823925;
+        bh=Gm8JFboUmsArV9djczJYkmbVr/Q96kRmgCLB4KV9uVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aActzYwjbUDUWiQixdjgZIChy/s6wBSRzOE61hY2hAOXYNSQgUI76vHw28ttwGdvx
-         X0kQ3k+Bavlf00fA2UgUfj8bIcQSWfOdtsfj1BjShxvZ5nh6ePb+EgcCfxAw3Z7jk6
-         JVsA7H+iAFjyAGs1aIqtQYNJohfX9uQ8TnYl7MAGJlYdNWFIJWZ9AfLQRKuY484kKh
-         aqmqG1tWtwMAvxTSJM11wGHPyxlYna4GkyDR1RoZc9fItiEeiJ5EtW5JEaW/9fp+fK
-         SOp85AXU/xNim3VBvIrQpvA2RE5N0B4eJMXo45Y2LvmpoHYzO04YF0ns9RmUzws4lM
-         Rjp1S2S3cjpow==
+        b=c0JqSA22cblK0jpSyDpPvx4I+6Bw8pgvY/xHMGTwzLp6Jf6G1kuZyQYnFua5NLcqg
+         Bp/gmQPWjSMdMGSyMlAjS0icIFhZqvnIhqcTyQLBVEcoHcFtAfMOGgqla2BldIlpVk
+         K5euuLfSk/dywi8D3e7lpdodOMhp0TUw8VcrS9K2ijlO5xJU7b6ERkuuGSWHrBu3Qf
+         iHCKgsA8UEIwTDB0DHC07sHNHfodIbJrFoPUKgPaldQq7xRL06FFlQ6xrom4Ufd7mX
+         RI1sqb4LJ6JOq1MhQSJMHixnJINgGqSLS0wJnWB6A9hWGrJd1NKFiyUxQOgveC/jhw
+         kCxVdXO3xIcFw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manyi Li <limanyi@uniontech.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, ike.pan@canonical.com,
-        markgross@kernel.org, platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 19/44] platform/x86: ideapad-laptop: Disable touchpad_switch
-Date:   Fri, 18 Nov 2022 21:10:59 -0500
-Message-Id: <20221119021124.1773699-19-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
+        linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 20/44] platform/x86: touchscreen_dmi: Add info for the RCA Cambio W101 v2 2-in-1
+Date:   Fri, 18 Nov 2022 21:11:00 -0500
+Message-Id: <20221119021124.1773699-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021124.1773699-1-sashal@kernel.org>
 References: <20221119021124.1773699-1-sashal@kernel.org>
@@ -56,68 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manyi Li <limanyi@uniontech.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit a231224a601c1924b9df620281ad04472900d75f ]
+[ Upstream commit 0df044b34bf33e7e35c32b3bf6747fde6279c162 ]
 
-Ideapads for "Lenovo Yoga 3 Pro 1370" and "ZhaoYang K4e-IML" do not
-use EC to switch touchpad.
+Add touchscreen info for the RCA Cambio W101 v2 2-in-1.
 
-Reading VPCCMD_R_TOUCHPAD will return zero thus touchpad may be blocked
-unexpectedly.
-
-Signed-off-by: Manyi Li <limanyi@uniontech.com>
-Link: https://lore.kernel.org/r/20221018095323.14591-1-limanyi@uniontech.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://github.com/onitake/gsl-firmware/discussions/193
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20221025141131.509211-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/ideapad-laptop.c | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ drivers/platform/x86/touchscreen_dmi.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
-index abd0c81d62c4..33b3dfdd1b08 100644
---- a/drivers/platform/x86/ideapad-laptop.c
-+++ b/drivers/platform/x86/ideapad-laptop.c
-@@ -1533,6 +1533,24 @@ static const struct dmi_system_id hw_rfkill_list[] = {
- 	{}
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index bc97bfa8e8a6..baae3120efd0 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -770,6 +770,22 @@ static const struct ts_dmi_data predia_basic_data = {
+ 	.properties	= predia_basic_props,
  };
  
-+static const struct dmi_system_id no_touchpad_switch_list[] = {
-+	{
-+	.ident = "Lenovo Yoga 3 Pro 1370",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+		DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo YOGA 3"),
-+		},
-+	},
-+	{
-+	.ident = "ZhaoYang K4e-IML",
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+		DMI_MATCH(DMI_PRODUCT_VERSION, "ZhaoYang K4e-IML"),
-+		},
-+	},
-+	{}
++static const struct property_entry rca_cambio_w101_v2_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 20),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1644),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 874),
++	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-rca-cambio-w101-v2.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	{ }
 +};
 +
- static void ideapad_check_features(struct ideapad_private *priv)
- {
- 	acpi_handle handle = priv->adev->handle;
-@@ -1541,7 +1559,12 @@ static void ideapad_check_features(struct ideapad_private *priv)
- 	priv->features.hw_rfkill_switch = dmi_check_system(hw_rfkill_list);
- 
- 	/* Most ideapads with ELAN0634 touchpad don't use EC touchpad switch */
--	priv->features.touchpad_ctrl_via_ec = !acpi_dev_present("ELAN0634", NULL, -1);
-+	if (acpi_dev_present("ELAN0634", NULL, -1))
-+		priv->features.touchpad_ctrl_via_ec = 0;
-+	else if (dmi_check_system(no_touchpad_switch_list))
-+		priv->features.touchpad_ctrl_via_ec = 0;
-+	else
-+		priv->features.touchpad_ctrl_via_ec = 1;
- 
- 	if (!read_ec_data(handle, VPCCMD_R_FAN, &val))
- 		priv->features.fan_mode = true;
++static const struct ts_dmi_data rca_cambio_w101_v2_data = {
++	.acpi_name = "MSSL1680:00",
++	.properties = rca_cambio_w101_v2_props,
++};
++
+ static const struct property_entry rwc_nanote_p8_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 46),
+ 	PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
+@@ -1409,6 +1425,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_EXACT_MATCH(DMI_BOARD_NAME, "0E57"),
+ 		},
+ 	},
++	{
++		/* RCA Cambio W101 v2 */
++		/* https://github.com/onitake/gsl-firmware/discussions/193 */
++		.driver_data = (void *)&rca_cambio_w101_v2_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "RCA"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "W101SA23T1"),
++		},
++	},
+ 	{
+ 		/* RWC NANOTE P8 */
+ 		.driver_data = (void *)&rwc_nanote_p8_data,
 -- 
 2.35.1
 
