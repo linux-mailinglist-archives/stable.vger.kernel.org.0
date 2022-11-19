@@ -2,56 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AF55630BAA
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 05:08:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8628D630C14
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 06:20:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229743AbiKSEIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 23:08:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59008 "EHLO
+        id S231872AbiKSFU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Nov 2022 00:20:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229470AbiKSEH7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 23:07:59 -0500
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D3F8FB10;
-        Fri, 18 Nov 2022 20:07:58 -0800 (PST)
-Received: by mail-lj1-x241.google.com with SMTP id z24so9075373ljn.4;
-        Fri, 18 Nov 2022 20:07:58 -0800 (PST)
+        with ESMTP id S231842AbiKSFU1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Nov 2022 00:20:27 -0500
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E34788E097;
+        Fri, 18 Nov 2022 21:20:25 -0800 (PST)
+Received: by mail-ej1-x62b.google.com with SMTP id me22so1084324ejb.8;
+        Fri, 18 Nov 2022 21:20:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=dtRW27/VFkKfRExNy2R07fG81X6WC5yaz70q9JRBAiU=;
-        b=TtXIVPnDZ2ShtyoirzVFHNKPh8oO5RxHmR1Jln/WpZ2R0mz/omA64Nc4xWIcdeB5KS
-         EG/6ZdqTJ6+dzZnj4B1/ba0XEB+3LnlGUarb0AProNgXWuIkINRtF1oKz2sd/XUTZ2wf
-         WSXRATcVyhcRzZ0Zy7r7KwlOfrdcCG3GHRylR1qxE9M3m6nq+s0ypORbYGRxhGHP8ktz
-         kcqToSSYSeBQ3fgd+yysQis00CStwh08l95BpK7x3sbSIdAixGyMcdDiDcfNCNJG4qLF
-         jwXBF+9GTdUV6bTVsYdfcloCX9DEHY+i3LkH2jF6IOcbDAccSmg3q9WQXn7wdKR0NbYM
-         GTYw==
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=7Y4bxw1JD63M5XllY6npHcIrHCuFCtkIt2jLzNAtGRU=;
+        b=exLzb3poQrwX0fkXQzG5mAxcKfcogKJp9nov8VgFXIyCExcSGg76o3gfk3lxW4TGq/
+         5xNTWZqM33mWjFXrUkLSC6soMu7mSI8TX+/lMiKkDzXvt+BcnmFgvp6+6HUzQTJzMQJl
+         R/LpBJNoKtKYYDvKcuSYG4Np++PnyHl7ixI3U3G7Ksm9Ep4dvMeY2WURxEsaA5JQgICU
+         MOTfGU8w21ifwZUnzi73y76Wa8x5WHQJIbsFq+NMyaCcAGoptPLXnjLzenS8UDCS2pVA
+         KSNMHLP8IRfTL5bgWTaCNPl64ZUuRl+X9vKzXjd1YEc1E/L3UPEJXw5l+O/19kFQhGG9
+         Hyyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=dtRW27/VFkKfRExNy2R07fG81X6WC5yaz70q9JRBAiU=;
-        b=29Vo+NKzMhMEu3uy8flqd3KicER8SonayyJpoV9XG8U+DW7LXqbeVaw6rwnbgPgTXQ
-         vzTRsHSIpldch7V4oyig+RCrH8heFax3bxiXRaIG9y+H305bhqjkLXDwMhwL+wWsRRG0
-         h5HzrAKsSBR0c8m99Rmx4hTKZY+8i82rULfTcuOGYjJbH4MSis8rr71FuDzS31n+ig0X
-         X7pds3HPIPDwJQTcNmWsZRz+AaOjuoDsh/PJiPscv0gQjSrgcDyEwXeJ9JZXTuzJqw4o
-         VVXg+v6oPb3EzPbk+IMX7rp3CRCmx4TcWLM6yPHI/ZSE8Ljd7GpNgJcIE4Pxq82/7ZDH
-         /2iQ==
-X-Gm-Message-State: ANoB5pn97QtlLu5fYuD6sH+oMr1Zv46mr0Njo+4avoXS1TcORILguuXD
-        WsMT+Hk2f1AMLofgjTfWupiDbXlkXuA9dAYHCs0=
-X-Google-Smtp-Source: AA0mqf6TtkhSfRQWsSRKkFVrN1K2vpE+3E7DbjrBZGD1HMn4Be7sA4L0VCgEG63L5y4r/HHwk2Mwiv1G7ZioFSoo96Q=
-X-Received: by 2002:a05:651c:198f:b0:277:6a5:109b with SMTP id
- bx15-20020a05651c198f00b0027706a5109bmr3472454ljb.42.1668830876279; Fri, 18
- Nov 2022 20:07:56 -0800 (PST)
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=7Y4bxw1JD63M5XllY6npHcIrHCuFCtkIt2jLzNAtGRU=;
+        b=ExwWaWkV2TtEIXQQDUD+HIF8Cc1LuKUUhw9I6FI4sRTHLaNpytnxbV2QzAvjuwhtwl
+         HjGfMPtSEADXQw3wed8FdCJpNJpuKyY9uxrGFHhLnX8EF0gcIelRzsqvFaqHANXiBeIb
+         2btdAjpX/0CYEKyNNdCE9jUxKcIYmHrtwWIQioS+obhmrzYpPzla+Q8AlSs4GAuO5Lce
+         QyPRg9f2pg4BM6N6TLsOBW42Dfv8ZpJbtn+5APrpJv0/i09RCgf7iv/GqGpdiTyhzGC9
+         qtiKcC6LR8ncIo3dqGTx2/tik9C6TzKLrwoifcPaNIptY6lvawNXg8ILFwuarTXcCFIp
+         WALg==
+X-Gm-Message-State: ANoB5pk66W0VKJ+gVo90CRmmCbk5zsJ/1tFISuKKd+3ktR/i/qaTe9AQ
+        0YxwONDg6svprG0RU/U9MUpNstmPyQ70jPiRvOWLsMPWRLK8JMg47QI=
+X-Google-Smtp-Source: AA0mqf6QeRRX0IlcllwtANP/CEQ4uvjC6o1p5svY601MJVeWZ30wxil0NldfeqRcJRaIQZIb3Z49UrIGJN0yANUpc7w=
+X-Received: by 2002:a17:906:560e:b0:7a2:335e:90e2 with SMTP id
+ f14-20020a170906560e00b007a2335e90e2mr8281399ejq.712.1668835224347; Fri, 18
+ Nov 2022 21:20:24 -0800 (PST)
 MIME-Version: 1.0
-From:   Jorropo <jorropo.pgm@gmail.com>
-Date:   Sat, 19 Nov 2022 05:07:45 +0100
-Message-ID: <CAHWihb_EYWKXOqdN0iDBDygk+EGbhaxWHTKVRhtpm_TihbCjtw@mail.gmail.com>
-Subject: [REGRESSION] XArray commit prevents booting with 6.0-rc1 or later
-To:     willy@infradead.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, nborisov@suse.com,
-        regressions@lists.linux.dev, stable@vger.kernel.org
+References: <20220819200928.401416-1-kherbst@redhat.com>
+In-Reply-To: <20220819200928.401416-1-kherbst@redhat.com>
+From:   Computer Enthusiastic <computer.enthusiastic@gmail.com>
+Date:   Sat, 19 Nov 2022 06:20:10 +0100
+Message-ID: <CAHSpYy182u=3g2dH+DRuoUSEBYYr8E571oHeN4y=wB1gCqbGEw@mail.gmail.com>
+Subject: Re: [Nouveau] [PATCH] nouveau: explicitly wait on the fence in nouveau_bo_move_m2mf
+To:     Karol Herbst <kherbst@redhat.com>, stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, nouveau@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, Ben Skeggs <bskeggs@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
@@ -63,33 +66,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-#regzbot introduced v5.19-rc6..1dd685c414a7b9fdb3d23aca3aedae84f0b998ae
+Hello,
 
-Hi, I recently tried to upgrade to linux v6.0.x but when trying to
-boot it fails with "error: out of memory" when or after loading
-initramfs (which then kpanics because the vfs root is missing).
-The latest releases I tested are v6.0.9 and v6.1-rc5 and it's broken there too.
+Il giorno ven 19 ago 2022 alle ore 22:09 Karol Herbst
+<kherbst@redhat.com> ha scritto:
+>
+> It is a bit unlcear to us why that's helping, but it does and unbreaks
+> suspend/resume on a lot of GPUs without any known drawbacks.
+>
+> Cc: stable@vger.kernel.org # v5.15+
+> Closes: https://gitlab.freedesktop.org/drm/nouveau/-/issues/156
+> Signed-off-by: Karol Herbst <kherbst@redhat.com>
+> ---
+>  drivers/gpu/drm/nouveau/nouveau_bo.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+>
+> diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
+> index 35bb0bb3fe61..126b3c6e12f9 100644
+> --- a/drivers/gpu/drm/nouveau/nouveau_bo.c
+> +++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
+> @@ -822,6 +822,15 @@ nouveau_bo_move_m2mf(struct ttm_buffer_object *bo, int evict,
+>                 if (ret == 0) {
+>                         ret = nouveau_fence_new(chan, false, &fence);
+>                         if (ret == 0) {
+> +                               /* TODO: figure out a better solution here
+> +                                *
+> +                                * wait on the fence here explicitly as going through
+> +                                * ttm_bo_move_accel_cleanup somehow doesn't seem to do it.
+> +                                *
+> +                                * Without this the operation can timeout and we'll fallback to a
+> +                                * software copy, which might take several minutes to finish.
+> +                                */
+> +                               nouveau_fence_wait(fence, false, false);
+>                                 ret = ttm_bo_move_accel_cleanup(bo,
+>                                                                 &fence->base,
+>                                                                 evict, false,
+> --
+> 2.37.1
+>
 
-I bisected the error to this patch:
-1dd685c414a7b9fdb3d23aca3aedae84f0b998ae "XArray: Add calls to
-might_alloc()" is the first bad commit.
-I've confirmed this is not a side effect of a poor bitsect because
-1dd685c414a7b9fdb3d23aca3aedae84f0b998ae~1 (v5.19-rc6) works.
-I've tried reverting the failing commit on top of v6.0.9 and it didn't fixed it.
+Could it be possible to make land the aforementioned patch to the
+5.10.x kernel version ? It is currently for >= 5.15.x kernel version
+only.
 
-My system is:
-CPU: Ryzen 3600
-Motherboard: B550 AORUS ELITE V2
-Ram: 48GB (16+32) of unmatched DDR4
-GPU: AMD rx580
-Various ssds, hdds and network cards plugged with various buses.
-
-You can find a folder with my .config, bisect logs and screenshots of
-the error messages there:
-https://jorropo.net/ipfs/QmaWH84UPEen4E9n69KZiLjPDaTi2aJvizv3JYiL7Gfmnr/
-https://ipfs.io/ipfs/QmaWH84UPEen4E9n69KZiLjPDaTi2aJvizv3JYiL7Gfmnr/
-
-I'll be happy to assist you if you need help reproducing this issue
-and or testing fixes.
-
-Thx, Jorropo
+Thanks.
