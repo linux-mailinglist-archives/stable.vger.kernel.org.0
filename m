@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2195663094B
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:12:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D89AD63094A
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:12:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234147AbiKSCMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:12:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44678 "EHLO
+        id S233606AbiKSCMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:12:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231656AbiKSCMK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:12:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 064566DFF3;
-        Fri, 18 Nov 2022 18:11:51 -0800 (PST)
+        with ESMTP id S233729AbiKSCMJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:12:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA50E6DFD9;
+        Fri, 18 Nov 2022 18:11:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6977B82675;
-        Sat, 19 Nov 2022 02:11:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 218F9C433D6;
-        Sat, 19 Nov 2022 02:11:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67ACE62837;
+        Sat, 19 Nov 2022 02:11:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB214C433C1;
+        Sat, 19 Nov 2022 02:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668823908;
-        bh=MlbvOiMIzJGCXboIDtutu175+4WxBuENiY1GhJnkDZ8=;
+        s=k20201202; t=1668823909;
+        bh=HPphypBY4uY1rIxKcDmNvQVVeBl6fF5vcgXCR0pBTHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wh2MdlZHjiBMPeR/gIIUiIJ4FZuwq2WGLD/ngAk4vb7E12EWPKEDvLjlvF+bkQLyX
-         cqrQfZM90kjWpNI16b68VVgkTTKSsjigVBiJ18qZy0R2YfSFY4NyKS7FyozNf+hhEM
-         e2zsgDMcklKVT0oJK2aamjTUL1rjDR7JsOTpv36l6UvNx7Gb2aAdgTIKwASmHAQkxX
-         q/8xCy9K2iVVyGDim038YMMJrN3pwIVCwTrxv3pq6q0FZZJfv866wzHn56UOqet+dF
-         +4tOAhFJJ7rXilkyfMKQzJWl4MZiwQEJdlO0W1yvxKnGlHQUaWmCSgqd9BpxKARi0S
-         ckByuHzek6dww==
+        b=VUnuLJb74izBogHC2QClyVmxVdlNnfLAdVFAhEOjQrI/BMa+/+RDQPaoTOf9gMR8d
+         VxD4ug8gC0zgZEQmiRapFSJl0claTaKukJHq9dE5zGU9aJaLE9KOsBbhNFgOCTJ3Pz
+         qGVcLckk3SRYFQs4XtWIcqy7dMxIhke9q25sy184bh/l8/VQKg/hA1qE8bKS0lTxqC
+         8ILDnDoMYHjsCRcTwh6SNgyrfrkfaVGFF3+iSiRyUL/sPMXrNr2RCkBaci/ImR/q2a
+         eceQ9/dW7YM/GWHplKuh0/1Sw5AM78aADsR/Vd9/s8lMS2h856K1XZZlHYTuZ6aWIX
+         JDmF4CF/R4gMA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Tyler J. Stachecki" <stachecki.tyler@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, ath11k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 10/44] wifi: ath11k: Fix QCN9074 firmware boot on x86
-Date:   Fri, 18 Nov 2022 21:10:50 -0500
-Message-Id: <20221119021124.1773699-10-sashal@kernel.org>
+Cc:     Harald Freudenberger <freude@linux.ibm.com>,
+        =?UTF-8?q?J=C3=BCrgen=20Christ?= <jchrist@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, hca@linux.ibm.com,
+        agordeev@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 11/44] s390/zcrypt: fix warning about field-spanning write
+Date:   Fri, 18 Nov 2022 21:10:51 -0500
+Message-Id: <20221119021124.1773699-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021124.1773699-1-sashal@kernel.org>
 References: <20221119021124.1773699-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,48 +58,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Tyler J. Stachecki" <stachecki.tyler@gmail.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-[ Upstream commit 3a89b6dec9920026eaa90fe8457f4348d3388a98 ]
+[ Upstream commit b43088f30db1a7bff61c8486238c195c77788d6d ]
 
-The 2.7.0 series of QCN9074's firmware requests 5 segments
-of memory instead of 3 (as in the 2.5.0 series).
+This patch fixes the warning
 
-The first segment (11M) is too large to be kalloc'd in one
-go on x86 and requires piecemeal 1MB allocations, as was
-the case with the prior public firmware (2.5.0, 15M).
+memcpy: detected field-spanning write (size 60) of single field "to" at drivers/s390/crypto/zcrypt_api.h:173 (size 2)
+WARNING: CPU: 1 PID: 2114 at drivers/s390/crypto/zcrypt_api.h:173 prep_ep11_ap_msg+0x2c6/0x2e0 [zcrypt]
 
-Since f6f92968e1e5, ath11k will break the memory requests,
-but only if there were fewer than 3 segments requested by
-the firmware. It seems that 5 segments works fine and
-allows QCN9074 to boot on x86 with firmware 2.7.0, so
-change things accordingly.
+The code has been rewritten to use a union in combination
+with a flex array to clearly state which part of the buffer
+the payload is to be copied in via z_copy_from_user
+function (which may call memcpy() in case of in-kernel calls).
 
-Tested-on: QCN9074 hw1.0 PCI WLAN.HK.2.7.0.1-01744-QCAHKSWPL_SILICONZ-1
-Tested-on: QCN9074 hw1.0 PCI WLAN.HK.2.5.0.1-01208-QCAHKSWPL_SILICONZ-1
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3.6510.16
-
-Signed-off-by: Tyler J. Stachecki <stachecki.tyler@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20221022042728.43015-1-stachecki.tyler@gmail.com
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Suggested-by: Jürgen Christ <jchrist@linux.ibm.com>
+Reviewed-by: Jürgen Christ <jchrist@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/qmi.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/crypto/zcrypt_msgtype6.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/qmi.h b/drivers/net/wireless/ath/ath11k/qmi.h
-index 2ec56a34fa81..0909d53cefeb 100644
---- a/drivers/net/wireless/ath/ath11k/qmi.h
-+++ b/drivers/net/wireless/ath/ath11k/qmi.h
-@@ -27,7 +27,7 @@
- #define ATH11K_QMI_WLANFW_MAX_NUM_MEM_SEG_V01	52
- #define ATH11K_QMI_CALDB_SIZE			0x480000
- #define ATH11K_QMI_BDF_EXT_STR_LENGTH		0x20
--#define ATH11K_QMI_FW_MEM_REQ_SEGMENT_CNT	3
-+#define ATH11K_QMI_FW_MEM_REQ_SEGMENT_CNT	5
+diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
+index 8fb34b8eeb18..5ad251477593 100644
+--- a/drivers/s390/crypto/zcrypt_msgtype6.c
++++ b/drivers/s390/crypto/zcrypt_msgtype6.c
+@@ -342,7 +342,10 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace, struct ap_message *ap_msg,
+ 	};
+ 	struct {
+ 		struct type6_hdr hdr;
+-		struct CPRBX cprbx;
++		union {
++			struct CPRBX cprbx;
++			DECLARE_FLEX_ARRAY(u8, userdata);
++		};
+ 	} __packed * msg = ap_msg->msg;
  
- #define QMI_WLFW_REQUEST_MEM_IND_V01		0x0035
- #define QMI_WLFW_FW_MEM_READY_IND_V01		0x0037
+ 	int rcblen = CEIL4(xcrb->request_control_blk_length);
+@@ -403,7 +406,8 @@ static int xcrb_msg_to_type6cprb_msgx(bool userspace, struct ap_message *ap_msg,
+ 	msg->hdr.fromcardlen2 = xcrb->reply_data_length;
+ 
+ 	/* prepare CPRB */
+-	if (z_copy_from_user(userspace, &msg->cprbx, xcrb->request_control_blk_addr,
++	if (z_copy_from_user(userspace, msg->userdata,
++			     xcrb->request_control_blk_addr,
+ 			     xcrb->request_control_blk_length))
+ 		return -EFAULT;
+ 	if (msg->cprbx.cprb_len + sizeof(msg->hdr.function_code) >
+@@ -469,9 +473,14 @@ static int xcrb_msg_to_type6_ep11cprb_msgx(bool userspace, struct ap_message *ap
+ 
+ 	struct {
+ 		struct type6_hdr hdr;
+-		struct ep11_cprb cprbx;
+-		unsigned char	pld_tag;	/* fixed value 0x30 */
+-		unsigned char	pld_lenfmt;	/* payload length format */
++		union {
++			struct {
++				struct ep11_cprb cprbx;
++				unsigned char pld_tag;    /* fixed value 0x30 */
++				unsigned char pld_lenfmt; /* length format */
++			} __packed;
++			DECLARE_FLEX_ARRAY(u8, userdata);
++		};
+ 	} __packed * msg = ap_msg->msg;
+ 
+ 	struct pld_hdr {
+@@ -500,7 +509,7 @@ static int xcrb_msg_to_type6_ep11cprb_msgx(bool userspace, struct ap_message *ap
+ 	msg->hdr.fromcardlen1 = xcrb->resp_len;
+ 
+ 	/* Import CPRB data from the ioctl input parameter */
+-	if (z_copy_from_user(userspace, &msg->cprbx.cprb_len,
++	if (z_copy_from_user(userspace, msg->userdata,
+ 			     (char __force __user *)xcrb->req, xcrb->req_len)) {
+ 		return -EFAULT;
+ 	}
 -- 
 2.35.1
 
