@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA7DC630A1A
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:23:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72B52630A1E
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:23:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235594AbiKSCXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:23:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39284 "EHLO
+        id S235563AbiKSCXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:23:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235806AbiKSCWO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:22:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25E7AC697A;
-        Fri, 18 Nov 2022 18:15:03 -0800 (PST)
+        with ESMTP id S235792AbiKSCWN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:22:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B1AC6953;
+        Fri, 18 Nov 2022 18:15:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B29A62836;
-        Sat, 19 Nov 2022 02:14:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 787F2C433C1;
-        Sat, 19 Nov 2022 02:14:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36F25B82675;
+        Sat, 19 Nov 2022 02:14:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF1F7C433B5;
+        Sat, 19 Nov 2022 02:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824067;
-        bh=OvQ1e3jmtfV4wEihgDgauKDzIR3WutwV7g39nsP/k1o=;
+        s=k20201202; t=1668824068;
+        bh=otqBMMBi+3yxvzIhnD8SsOx6axwdDOdDorPrTcd2uEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LhxdTLeeQ4/0f3XZb5CcjmzpIy0+LUwl2BBcvKdKn3o4CsmdLDaq0bY0q3GlYZicL
-         xoHrUp9X5YCppbrE85yNYoLRs7QtgRGRiKhxqgv8TcgFIyyobzysuSpWwLm3zjY4qD
-         nCmoMpZrO+Rr5ksJH5eivQprvRkchOR+i3GIg2Xuohbd3c+lsVMaQtwPbFsHKdwm6F
-         S8JOv6C/cI8aY3Qp4e0hwigy39Cjcf2LMvaRbTFSMHv1zAP0oArlmKv9IMcEd4N+Vq
-         MCgQtHw/1KvMkxz0UmckCHrnfsjShNcrcMJLcXI2WhYOCXISz6w9RFvdFMRWpELeJy
-         iDqX41PsLEKFA==
+        b=kZiMN76rpHfUIjkO3Ib0oTFaEO4TO65Sbolt5Y9vS77wbsWzx9WvLcNBIGIu1HLmK
+         ASeacR2RC96AM0929BYUL3P1yW7F4x/lzZnk5bjmvW1TzVW1bMlOyPTtIZGZdxB/tv
+         KTh1o4sL3OSYM379j59Bm72tCTl+8A7O8bJ8UzRH8GEhfw+d4qBn8hkaMcwV5+KGTZ
+         qGltew1fEk4VVqxg9I7qNOR0zOhbrpM4IGLQ/hp892yMft9sTTtXiAv7x9oAbuP+94
+         JhbzdZbfUlAkLoQn/aWMU1kARt7UaoL9CklntKaatCUf0N4/C2NqZxyp6cnX6q8e5q
+         /2IuvPaoZgG+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian King <brking@linux.vnet.ibm.com>,
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, tyreld@linux.ibm.com,
-        mpe@ellerman.id.au, jejb@linux.ibm.com, linux-scsi@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.15 18/27] scsi: ibmvfc: Avoid path failures during live migration
-Date:   Fri, 18 Nov 2022 21:13:43 -0500
-Message-Id: <20221119021352.1774592-18-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 19/27] scsi: scsi_debug: Make the READ CAPACITY response compliant with ZBC
+Date:   Fri, 18 Nov 2022 21:13:44 -0500
+Message-Id: <20221119021352.1774592-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021352.1774592-1-sashal@kernel.org>
 References: <20221119021352.1774592-1-sashal@kernel.org>
@@ -57,63 +58,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian King <brking@linux.vnet.ibm.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 62fa3ce05d5d73c5eccc40b2db493f55fecfc446 ]
+[ Upstream commit ecb8c2580d37dbb641451049376d80c8afaa387f ]
 
-Fix an issue reported when performing a live migration when multipath is
-configured with a short fast fail timeout of 5 seconds and also to have
-no_path_retry set to fail. In this scenario, all paths would go into the
-devloss state while the ibmvfc driver went through discovery to log back
-in. On a loaded system, the discovery might take longer than 5 seconds,
-which was resulting in all paths being marked failed, which then resulted
-in a read only filesystem.
+From ZBC-1:
 
-This patch changes the migration code in ibmvfc to avoid deleting rports at
-all in this scenario, so we avoid losing all paths.
+ - RC BASIS = 0: The RETURNED LOGICAL BLOCK ADDRESS field indicates the
+   highest LBA of a contiguous range of zones that are not sequential write
+   required zones starting with the first zone.
 
-Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
-Link: https://lore.kernel.org/r/20221026181356.148517-1-brking@linux.vnet.ibm.com
+ - RC BASIS = 1: The RETURNED LOGICAL BLOCK ADDRESS field indicates the LBA
+   of the last logical block on the logical unit.
+
+The current scsi_debug READ CAPACITY response does not comply with the
+above if there are one or more sequential write required zones. SCSI
+initiators need a way to retrieve the largest valid LBA from SCSI
+devices. Reporting the largest valid LBA if there are one or more
+sequential zones requires to set the RC BASIS field in the READ CAPACITY
+response to one. Hence this patch.
+
+Cc: Douglas Gilbert <dgilbert@interlog.com>
+Cc: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Suggested-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/20221102193248.3177608-1-bvanassche@acm.org
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvfc.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/scsi/scsi_debug.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index b3531065a438..45ef78f388dc 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -708,8 +708,13 @@ static void ibmvfc_init_host(struct ibmvfc_host *vhost)
- 		memset(vhost->async_crq.msgs.async, 0, PAGE_SIZE);
- 		vhost->async_crq.cur = 0;
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 747e1cbb7ec9..105a4babb3e4 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -1879,6 +1879,13 @@ static int resp_readcap16(struct scsi_cmnd *scp,
+ 			arr[14] |= 0x40;
+ 	}
  
--		list_for_each_entry(tgt, &vhost->targets, queue)
--			ibmvfc_del_tgt(tgt);
-+		list_for_each_entry(tgt, &vhost->targets, queue) {
-+			if (vhost->client_migrated)
-+				tgt->need_login = 1;
-+			else
-+				ibmvfc_del_tgt(tgt);
-+		}
++	/*
++	 * Since the scsi_debug READ CAPACITY implementation always reports the
++	 * total disk capacity, set RC BASIS = 1 for host-managed ZBC devices.
++	 */
++	if (devip->zmodel == BLK_ZONED_HM)
++		arr[12] |= 1 << 4;
 +
- 		scsi_block_requests(vhost->host);
- 		ibmvfc_set_host_action(vhost, IBMVFC_HOST_ACTION_INIT);
- 		vhost->job_step = ibmvfc_npiv_login;
-@@ -3235,9 +3240,12 @@ static void ibmvfc_handle_crq(struct ibmvfc_crq *crq, struct ibmvfc_host *vhost,
- 			/* We need to re-setup the interpartition connection */
- 			dev_info(vhost->dev, "Partition migrated, Re-enabling adapter\n");
- 			vhost->client_migrated = 1;
-+
-+			scsi_block_requests(vhost->host);
- 			ibmvfc_purge_requests(vhost, DID_REQUEUE);
--			ibmvfc_link_down(vhost, IBMVFC_LINK_DOWN);
-+			ibmvfc_set_host_state(vhost, IBMVFC_LINK_DOWN);
- 			ibmvfc_set_host_action(vhost, IBMVFC_HOST_ACTION_REENABLE);
-+			wake_up(&vhost->work_wait_q);
- 		} else if (crq->format == IBMVFC_PARTNER_FAILED || crq->format == IBMVFC_PARTNER_DEREGISTER) {
- 			dev_err(vhost->dev, "Host partner adapter deregistered or failed (rc=%d)\n", crq->format);
- 			ibmvfc_purge_requests(vhost, DID_ERROR);
+ 	arr[15] = sdebug_lowest_aligned & 0xff;
+ 
+ 	if (have_dif_prot) {
 -- 
 2.35.1
 
