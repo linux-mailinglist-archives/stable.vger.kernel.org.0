@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 240F16309C1
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:18:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFAEA6309C3
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:18:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235353AbiKSCR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:17:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59160 "EHLO
+        id S235011AbiKSCSX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:18:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235398AbiKSCRd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:17:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AE7C7210D;
-        Fri, 18 Nov 2022 18:13:43 -0800 (PST)
+        with ESMTP id S235040AbiKSCRm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:17:42 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF413A7C38;
+        Fri, 18 Nov 2022 18:13:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 553ADB82676;
-        Sat, 19 Nov 2022 02:13:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84D25C433D7;
-        Sat, 19 Nov 2022 02:13:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 413B0CE222D;
+        Sat, 19 Nov 2022 02:13:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B51C4347C;
+        Sat, 19 Nov 2022 02:13:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824021;
-        bh=KyXczEDabcTqMLkfqC1Xh0fqivha5/W/FizAj42ixyM=;
+        s=k20201202; t=1668824025;
+        bh=7oI6x6dGUAcNjzV/lbzUit+ElYgYzejNqrXIADa4U4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+JeHWwHC8AEIjqMZaZDKKhKHjxvUmJFP33cq5O2UfOOWEBxkugpCAiV6OnuGJ6Ie
-         GOLpOPibSKuPBsIp0OnnW2EL+4328wzvGTOCXJGDMFzPVBSlXkqksfqS3YAiSaiMnH
-         /TDTFj5dhdxxT0VEogsqtJZ4DHAkRzS6FdfxVix1R6slnj+EGNediyi+TFJI9Rite1
-         S9XszbBC+i62DSNGXsc0Ns5ahMbNEIktuNLmrxCqIoegaUiXwfEwgzDNxcAjgjTDRD
-         BXavcbYM/WgwOAngaAYA5G6lCbV3zHJatbkHtLyDz9iuvocBYz2Kx6WPaHxwV31yoc
-         J4WsmQGAnwcOw==
+        b=GBMBNR3eR+cVnln/DzH+kvtIXDs5FtZcYD1KZVO3w78dj+AVRTVmFhM40BxWs4TkZ
+         A1ly/msQusBWOCx/AONjcDEIV6IogGMDklBHxmG2MH+Pviz6FB7rKLAOsX8QS7Onaa
+         +eCtsWu5f6/V79CjXqtI2bPLhhslU0y2YKp9/9GM6aSJFKPsybRMpmQpNgUgGczq49
+         RiBmBDRvEyNUoTFOrOQN4rptdq5uyri3xA8yvltTByJDVSiGiJ47KIFmAlMLT9M1G8
+         jc/TMxsJqcrlHKcGkVL/6+v1Q/cBGCgu5yz192Jv9Nt84ED03wv4E9wJqyxsuYRkvP
+         ogFO5UThTwRzA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ai Chao <aichao@kylinos.cn>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
-        tiwai@suse.com, ubizjak@gmail.com, wanjiabing@vivo.com,
-        sdoregor@sdore.me, connerknoxpublic@gmail.com, cyrozap@gmail.com,
-        jussi@sonarnerd.net, john-linux@pelago.org.uk, bp@suse.de,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.0 41/44] ALSA: usb-audio: add quirk to fix Hamedal C20 disconnect issue
-Date:   Fri, 18 Nov 2022 21:11:21 -0500
-Message-Id: <20221119021124.1773699-41-sashal@kernel.org>
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>, paul.walmsley@sifive.com,
+        palmer@dabbelt.com, aou@eecs.berkeley.edu, jszhang@kernel.org,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.0 42/44] RISC-V: vdso: Do not add missing symbols to version section in linker script
+Date:   Fri, 18 Nov 2022 21:11:22 -0500
+Message-Id: <20221119021124.1773699-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021124.1773699-1-sashal@kernel.org>
 References: <20221119021124.1773699-1-sashal@kernel.org>
@@ -58,72 +58,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ai Chao <aichao@kylinos.cn>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit bf990c10231937c0f51e5da5558e08cf5adc6a78 ]
+[ Upstream commit fcae44fd36d052e956e69a64642fc03820968d78 ]
 
-For Hamedal C20, the current rate is different from the runtime rate,
-snd_usb_endpoint stop and close endpoint to resetting rate.
-if snd_usb_endpoint close the endpoint, sometimes usb will
-disconnect the device.
+Recently, ld.lld moved from '--undefined-version' to
+'--no-undefined-version' as the default, which breaks the compat vDSO
+build:
 
-Signed-off-by: Ai Chao <aichao@kylinos.cn>
-Link: https://lore.kernel.org/r/20221110063452.295110-1-aichao@kylinos.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  ld.lld: error: version script assignment of 'LINUX_4.15' to symbol '__vdso_gettimeofday' failed: symbol not defined
+  ld.lld: error: version script assignment of 'LINUX_4.15' to symbol '__vdso_clock_gettime' failed: symbol not defined
+  ld.lld: error: version script assignment of 'LINUX_4.15' to symbol '__vdso_clock_getres' failed: symbol not defined
+
+These symbols are not present in the compat vDSO or the regular vDSO for
+32-bit but they are unconditionally included in the version section of
+the linker script, which is prohibited with '--no-undefined-version'.
+
+Fix this issue by only including the symbols that are actually exported
+in the version section of the linker script.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1756
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Tested-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20221108171324.3377226-1-nathan@kernel.org/
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/endpoint.c | 3 ++-
- sound/usb/quirks.c   | 2 ++
- sound/usb/usbaudio.h | 3 +++
- 3 files changed, 7 insertions(+), 1 deletion(-)
+ arch/riscv/kernel/vdso/Makefile   | 3 +++
+ arch/riscv/kernel/vdso/vdso.lds.S | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
-index 2420dc994632..4c9ea13f72d4 100644
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -923,7 +923,8 @@ void snd_usb_endpoint_close(struct snd_usb_audio *chip,
- 	usb_audio_dbg(chip, "Closing EP 0x%x (count %d)\n",
- 		      ep->ep_num, ep->opened);
+diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+index f2e065671e4d..82416ebf4cca 100644
+--- a/arch/riscv/kernel/vdso/Makefile
++++ b/arch/riscv/kernel/vdso/Makefile
+@@ -28,6 +28,9 @@ obj-vdso := $(addprefix $(obj)/, $(obj-vdso))
  
--	if (!--ep->iface_ref->opened)
-+	if (!--ep->iface_ref->opened &&
-+		!(chip->quirk_flags & QUIRK_FLAG_IFACE_SKIP_CLOSE))
- 		endpoint_set_interface(chip, ep, false);
+ obj-y += vdso.o
+ CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
++ifneq ($(filter vgettimeofday, $(vdso-syms)),)
++CPPFLAGS_vdso.lds += -DHAS_VGETTIMEOFDAY
++endif
  
- 	if (!--ep->opened) {
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index eadac586bcc8..a50e15be1229 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -2185,6 +2185,8 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
- 		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x2b53, 0x0031, /* Fiero SC-01 (firmware v1.1.0) */
- 		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
-+	DEVICE_FLG(0x0525, 0xa4ad, /* Hamedal C20 usb camero */
-+		   QUIRK_FLAG_IFACE_SKIP_CLOSE),
- 
- 	/* Vendor matches */
- 	VENDOR_FLG(0x045e, /* MS Lifecam */
-diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
-index 2c6575029b1c..e97141ef730a 100644
---- a/sound/usb/usbaudio.h
-+++ b/sound/usb/usbaudio.h
-@@ -170,6 +170,8 @@ extern bool snd_usb_skip_validation;
-  *  Apply the generic implicit feedback sync mode (same as implicit_fb=1 option)
-  * QUIRK_FLAG_SKIP_IMPLICIT_FB
-  *  Don't apply implicit feedback sync mode
-+ * QUIRK_FLAG_IFACE_SKIP_CLOSE
-+ *  Don't closed interface during setting sample rate
-  */
- 
- #define QUIRK_FLAG_GET_SAMPLE_RATE	(1U << 0)
-@@ -191,5 +193,6 @@ extern bool snd_usb_skip_validation;
- #define QUIRK_FLAG_SET_IFACE_FIRST	(1U << 16)
- #define QUIRK_FLAG_GENERIC_IMPLICIT_FB	(1U << 17)
- #define QUIRK_FLAG_SKIP_IMPLICIT_FB	(1U << 18)
-+#define QUIRK_FLAG_IFACE_SKIP_CLOSE	(1U << 19)
- 
- #endif /* __USBAUDIO_H */
+ # Disable -pg to prevent insert call site
+ CFLAGS_REMOVE_vgettimeofday.o = $(CC_FLAGS_FTRACE) -Os
+diff --git a/arch/riscv/kernel/vdso/vdso.lds.S b/arch/riscv/kernel/vdso/vdso.lds.S
+index 01d94aae5bf5..150b1a572e61 100644
+--- a/arch/riscv/kernel/vdso/vdso.lds.S
++++ b/arch/riscv/kernel/vdso/vdso.lds.S
+@@ -68,9 +68,11 @@ VERSION
+ 	LINUX_4.15 {
+ 	global:
+ 		__vdso_rt_sigreturn;
++#ifdef HAS_VGETTIMEOFDAY
+ 		__vdso_gettimeofday;
+ 		__vdso_clock_gettime;
+ 		__vdso_clock_getres;
++#endif
+ 		__vdso_getcpu;
+ 		__vdso_flush_icache;
+ 	local: *;
 -- 
 2.35.1
 
