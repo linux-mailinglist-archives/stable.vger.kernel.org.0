@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03E01630AA1
+	by mail.lfdr.de (Postfix) with ESMTP id 4FB94630AA2
 	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:29:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235930AbiKSC3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232662AbiKSC3f (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 18 Nov 2022 21:29:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56610 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235127AbiKSC2g (ORCPT
+        with ESMTP id S235958AbiKSC2g (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:28:36 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31A16C8448;
-        Fri, 18 Nov 2022 18:16:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3940CC844B;
+        Fri, 18 Nov 2022 18:16:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C64F2B82670;
-        Sat, 19 Nov 2022 02:16:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BAB3C433C1;
-        Sat, 19 Nov 2022 02:16:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DBEFFB82676;
+        Sat, 19 Nov 2022 02:16:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2FE8C4347C;
+        Sat, 19 Nov 2022 02:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824193;
-        bh=cjTrgrVFzgMJe4GU+Tpzl4DHiEKRkV7BwTp/DWRcKYw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=s17+C8Wcg5p1H8RUb6wv367GaafP9b2M/kHjWdf5RpOeeqMvpnO/YTfsSINkWooxX
-         SRuXZZDxiv0MYY+HYcGjuAQH8bNpi0AE+f926znQAO2NrC2fV8/zbgBrGJzWOa2IDF
-         jegevbwLXH85ols6/GGTy57f8US0AJJiDcLQUF8NwYTA9XxzLolb0UxfVFP8Sb4BOZ
-         yKfmYO7V4LwWNCcmosVvQo/0zQvWF4fxGRUiaCASXDQUyL8WelKapQHhfMRQZoQG8q
-         Ddq4B7rlabSlcHMWJFEs4FVTG4mQEVm/6T845woZc1A0RI0HbliZ5xuswbkcx0EcUG
-         DoTNxJS4FE17g==
+        s=k20201202; t=1668824194;
+        bh=y4NQjqFGXCzcE7ZhSNE0wI3/9STxSnMU/G8+3Qh99y8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=q/6PbeckxilAUgJRfyzTY2peIeg5Ce7rkamF4l7fB1rWvaMUHsvpybBzyd8GbU4xH
+         8Nj+WvVxlsGXrQgmwCDppeCVD9W9wZzF6lDnFHb4YxxhUbYk8lPtYr8Nrl74x7FKMx
+         zH2M/BM8CTeFV/nDliekEZnQKfpsrBQdZBJyzTxnMat5e6skMyUx+sSMuiRcI1TtEu
+         1Vru0QNx9y0xz3Jkjn99bMd6y3RsKG3L04MmLKxQt8kR/gbHEyJ+o3DUJQQTEfo/jR
+         3k57coUbahx+/uRsPTJWeuzhrqL+ut3y6UbnkqvZNfFs8gUvTQppfA5Cg8TtR6u4Ft
+         gb0+xkVCrWJtQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonas Jelonek <jelonek.jonas@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
-        kvalo@kernel.org, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 1/6] wifi: mac80211_hwsim: fix debugfs attribute ps with rc table support
-Date:   Fri, 18 Nov 2022 21:16:25 -0500
-Message-Id: <20221119021630.1775586-1-sashal@kernel.org>
+Cc:     Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>, eparis@redhat.com,
+        linux-audit@redhat.com
+Subject: [PATCH AUTOSEL 4.14 2/6] audit: fix undefined behavior in bit shift for AUDIT_BIT
+Date:   Fri, 18 Nov 2022 21:16:26 -0500
+Message-Id: <20221119021630.1775586-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221119021630.1775586-1-sashal@kernel.org>
+References: <20221119021630.1775586-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,55 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Jelonek <jelonek.jonas@gmail.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 69188df5f6e4cecc6b76b958979ba363cd5240e8 ]
+[ Upstream commit 986d93f55bdeab1cac858d1e47b41fac10b2d7f6 ]
 
-Fixes a warning that occurs when rc table support is enabled
-(IEEE80211_HW_SUPPORTS_RC_TABLE) in mac80211_hwsim and the PS mode
-is changed via the exported debugfs attribute.
+Shifting signed 32-bit value by 31 bits is undefined, so changing
+significant bit to unsigned. The UBSAN warning calltrace like below:
 
-When the PS mode is changed, a packet is broadcasted via
-hwsim_send_nullfunc by creating and transmitting a plain skb with only
-header initialized. The ieee80211 rate array in the control buffer is
-zero-initialized. When ratetbl support is enabled, ieee80211_get_tx_rates
-is called for the skb with sta parameter set to NULL and thus no
-ratetbl can be used. The final rate array then looks like
-[-1,0; 0,0; 0,0; 0,0] which causes the warning in ieee80211_get_tx_rate.
+UBSAN: shift-out-of-bounds in kernel/auditfilter.c:179:23
+left shift of 1 by 31 places cannot be represented in type 'int'
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x7d/0xa5
+ dump_stack+0x15/0x1b
+ ubsan_epilogue+0xe/0x4e
+ __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
+ audit_register_class+0x9d/0x137
+ audit_classes_init+0x4d/0xb8
+ do_one_initcall+0x76/0x430
+ kernel_init_freeable+0x3b3/0x422
+ kernel_init+0x24/0x1e0
+ ret_from_fork+0x1f/0x30
+ </TASK>
 
-The issue is fixed by setting the count of the first rate with idx '0'
-to 1 and hence ieee80211_get_tx_rates won't overwrite it with idx '-1'.
-
-Signed-off-by: Jonas Jelonek <jelonek.jonas@gmail.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+[PM: remove bad 'Fixes' tag as issue predates git, added in v2.6.6-rc1]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ include/uapi/linux/audit.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index 55cca2ffa392..d3905e70b1e9 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -670,6 +670,7 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
- 	struct hwsim_vif_priv *vp = (void *)vif->drv_priv;
- 	struct sk_buff *skb;
- 	struct ieee80211_hdr *hdr;
-+	struct ieee80211_tx_info *cb;
+diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
+index 7668582db6ba..68847af5e16d 100644
+--- a/include/uapi/linux/audit.h
++++ b/include/uapi/linux/audit.h
+@@ -172,7 +172,7 @@
+ #define AUDIT_MAX_KEY_LEN  256
+ #define AUDIT_BITMASK_SIZE 64
+ #define AUDIT_WORD(nr) ((__u32)((nr)/32))
+-#define AUDIT_BIT(nr)  (1 << ((nr) - AUDIT_WORD(nr)*32))
++#define AUDIT_BIT(nr)  (1U << ((nr) - AUDIT_WORD(nr)*32))
  
- 	if (!vp->assoc)
- 		return;
-@@ -690,6 +691,10 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
- 	memcpy(hdr->addr2, mac, ETH_ALEN);
- 	memcpy(hdr->addr3, vp->bssid, ETH_ALEN);
- 
-+	cb = IEEE80211_SKB_CB(skb);
-+	cb->control.rates[0].count = 1;
-+	cb->control.rates[1].idx = -1;
-+
- 	rcu_read_lock();
- 	mac80211_hwsim_tx_frame(data->hw, skb,
- 				rcu_dereference(vif->chanctx_conf)->def.chan);
+ #define AUDIT_SYSCALL_CLASSES 16
+ #define AUDIT_CLASS_DIR_WRITE 0
 -- 
 2.35.1
 
