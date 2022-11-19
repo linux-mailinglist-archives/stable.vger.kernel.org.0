@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8C963095C
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:13:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1C3D630960
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:13:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232251AbiKSCNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:13:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45408 "EHLO
+        id S232849AbiKSCNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:13:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232415AbiKSCMQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:12:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D16CD74624;
-        Fri, 18 Nov 2022 18:11:57 -0800 (PST)
+        with ESMTP id S233768AbiKSCMR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:12:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67B6729351;
+        Fri, 18 Nov 2022 18:11:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C90CB8267A;
-        Sat, 19 Nov 2022 02:11:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A44F7C43145;
-        Sat, 19 Nov 2022 02:11:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0352762834;
+        Sat, 19 Nov 2022 02:11:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21B3DC433D6;
+        Sat, 19 Nov 2022 02:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668823915;
-        bh=89NZ+b2pH+skYaseszJKoCWnVZFggVGno7do8/hEutQ=;
+        s=k20201202; t=1668823918;
+        bh=9R0JbHAvD38epuePZiEZF2RHNzgdp3cY3eNxiVcQ89w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SCPzTOoDvp2ep+p3fdKl7nvdsSWZ07Vh4Ajh+pHqSR+eB0R/tV8KzpS1Qikoly6EC
-         g0oedY6BSjWSC8NnmAtHVpgVEHmLWP4Fl3fqd2s3dMMg6iglb01aNdtzV1EhaAuhev
-         OYiW/lP7bv8VLJ9VQKaOO7iNh9Kl1udLumWOTExa+aHVebPxW3r77f8CyDJHxuH0cc
-         No0rBQ3MS3JwZDKeyhqsPpXoi5WphTOJYIOme6a2LxQ0gK/0bjzUe7XY9TMJWZ9P3U
-         WyLZ6bSbiXygOJ+RpemmuzafQsMTPM50QpGFNdEbC7ulikws0S6zI4z0ehOvN1lx2l
-         UxPMk47I3VvmQ==
+        b=Gs4rAuf0T7Fp6RTg+9ebOCDHSP0BU9wpVBSU0uYS5b2qu0bVUkGa9sF4mAVFh9+WJ
+         prRu/em7z1OqwOV3Y2K/tLWyri+VPo5XeUhVhqvhykqvMVBk6uelalx9HM6OuBGxNY
+         V86S/hNTfNAEFzo+iaF17eZVEcDTMQHRUSe1xOeMpJGYjdu1DF+04Kx8bDmelAdA/e
+         aO/BknF+uJTiExLqi/KXnqSqYI/UGKQVbCjwOgx/sTdMLkwMox3cCNPpzJaOewyNGM
+         xqfKMZh7lDg0FL0g3ATEjBt/851nPuDjVuhzEF7SY3D1WRDRs/+gX5EY++9DPg5KJr
+         tmrQxBJERBRyg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anirudh Rayabharam <anrayabh@linux.microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kys@microsoft.com, haiyangz@microsoft.com, decui@microsoft.com,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org,
-        linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 14/44] x86/hyperv: fix invalid writes to MSRs during root partition kexec
-Date:   Fri, 18 Nov 2022 21:10:54 -0500
-Message-Id: <20221119021124.1773699-14-sashal@kernel.org>
+Cc:     Youlin Li <liulin063@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, andrii@kernel.org,
+        ast@kernel.org, shuah@kernel.org, memxor@gmail.com,
+        roberto.sassu@huawei.com, mykolal@fb.com, bpf@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 15/44] selftests/bpf: Add verifier test for release_reference()
+Date:   Fri, 18 Nov 2022 21:10:55 -0500
+Message-Id: <20221119021124.1773699-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021124.1773699-1-sashal@kernel.org>
 References: <20221119021124.1773699-1-sashal@kernel.org>
@@ -59,58 +58,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <anrayabh@linux.microsoft.com>
+From: Youlin Li <liulin063@gmail.com>
 
-[ Upstream commit 2982635a0b3d08d6fee2ff05632206286df0e703 ]
+[ Upstream commit 475244f5e06beeda7b557d9dde46a5f439bf3379 ]
 
-hyperv_cleanup resets the hypercall page by setting the MSR to 0. However,
-the root partition is not allowed to write to the GPA bits of the MSR.
-Instead, it uses the hypercall page provided by the MSR. Similar is the
-case with the reference TSC MSR.
+Add a test case to ensure that released pointer registers will not be
+leaked into the map.
 
-Clear only the enable bit instead of zeroing the entire MSR to make
-the code valid for root partition too.
+Before fix:
 
-Signed-off-by: Anirudh Rayabharam <anrayabh@linux.microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20221027095729.1676394-3-anrayabh@linux.microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+  ./test_verifier 984
+    984/u reference tracking: try to leak released ptr reg FAIL
+    Unexpected success to load!
+    verification time 67 usec
+    stack depth 4
+    processed 23 insns (limit 1000000) max_states_per_insn 0 total_states 2
+    peak_states 2 mark_read 1
+    984/p reference tracking: try to leak released ptr reg OK
+    Summary: 1 PASSED, 0 SKIPPED, 1 FAILED
+
+After fix:
+
+  ./test_verifier 984
+    984/u reference tracking: try to leak released ptr reg OK
+    984/p reference tracking: try to leak released ptr reg OK
+    Summary: 2 PASSED, 0 SKIPPED, 0 FAILED
+
+Signed-off-by: Youlin Li <liulin063@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20221103093440.3161-2-liulin063@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/hyperv/hv_init.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ .../selftests/bpf/verifier/ref_tracking.c     | 36 +++++++++++++++++++
+ 1 file changed, 36 insertions(+)
 
-diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-index 3de6d8b53367..10186bd6d67e 100644
---- a/arch/x86/hyperv/hv_init.c
-+++ b/arch/x86/hyperv/hv_init.c
-@@ -537,6 +537,7 @@ void __init hyperv_init(void)
- void hyperv_cleanup(void)
- {
- 	union hv_x64_msr_hypercall_contents hypercall_msr;
-+	union hv_reference_tsc_msr tsc_msr;
- 
- 	unregister_syscore_ops(&hv_syscore_ops);
- 
-@@ -552,12 +553,14 @@ void hyperv_cleanup(void)
- 	hv_hypercall_pg = NULL;
- 
- 	/* Reset the hypercall page */
--	hypercall_msr.as_uint64 = 0;
--	wrmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
-+	hypercall_msr.as_uint64 = hv_get_register(HV_X64_MSR_HYPERCALL);
-+	hypercall_msr.enable = 0;
-+	hv_set_register(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
- 
- 	/* Reset the TSC page */
--	hypercall_msr.as_uint64 = 0;
--	wrmsrl(HV_X64_MSR_REFERENCE_TSC, hypercall_msr.as_uint64);
-+	tsc_msr.as_uint64 = hv_get_register(HV_X64_MSR_REFERENCE_TSC);
-+	tsc_msr.enable = 0;
-+	hv_set_register(HV_X64_MSR_REFERENCE_TSC, tsc_msr.as_uint64);
- }
- 
- void hyperv_report_panic(struct pt_regs *regs, long err, bool in_die)
+diff --git a/tools/testing/selftests/bpf/verifier/ref_tracking.c b/tools/testing/selftests/bpf/verifier/ref_tracking.c
+index 57a83d763ec1..6dc65b2501ed 100644
+--- a/tools/testing/selftests/bpf/verifier/ref_tracking.c
++++ b/tools/testing/selftests/bpf/verifier/ref_tracking.c
+@@ -905,3 +905,39 @@
+ 	.result_unpriv = REJECT,
+ 	.errstr_unpriv = "unknown func",
+ },
++{
++	"reference tracking: try to leak released ptr reg",
++	.insns = {
++		BPF_MOV64_IMM(BPF_REG_0, 0),
++		BPF_STX_MEM(BPF_W, BPF_REG_10, BPF_REG_0, -4),
++		BPF_MOV64_REG(BPF_REG_2, BPF_REG_10),
++		BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, -4),
++		BPF_LD_MAP_FD(BPF_REG_1, 0),
++		BPF_EMIT_CALL(BPF_FUNC_map_lookup_elem),
++		BPF_JMP_IMM(BPF_JNE, BPF_REG_0, 0, 1),
++		BPF_EXIT_INSN(),
++		BPF_MOV64_REG(BPF_REG_9, BPF_REG_0),
++
++		BPF_MOV64_IMM(BPF_REG_0, 0),
++		BPF_LD_MAP_FD(BPF_REG_1, 0),
++		BPF_MOV64_IMM(BPF_REG_2, 8),
++		BPF_MOV64_IMM(BPF_REG_3, 0),
++		BPF_EMIT_CALL(BPF_FUNC_ringbuf_reserve),
++		BPF_JMP_IMM(BPF_JNE, BPF_REG_0, 0, 1),
++		BPF_EXIT_INSN(),
++		BPF_MOV64_REG(BPF_REG_8, BPF_REG_0),
++
++		BPF_MOV64_REG(BPF_REG_1, BPF_REG_8),
++		BPF_MOV64_IMM(BPF_REG_2, 0),
++		BPF_EMIT_CALL(BPF_FUNC_ringbuf_discard),
++		BPF_MOV64_IMM(BPF_REG_0, 0),
++
++		BPF_STX_MEM(BPF_DW, BPF_REG_9, BPF_REG_8, 0),
++		BPF_EXIT_INSN()
++	},
++	.fixup_map_array_48b = { 4 },
++	.fixup_map_ringbuf = { 11 },
++	.result = ACCEPT,
++	.result_unpriv = REJECT,
++	.errstr_unpriv = "R8 !read_ok"
++},
 -- 
 2.35.1
 
