@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A59C0630A38
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:24:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECA83630A45
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:24:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235912AbiKSCYV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:24:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59524 "EHLO
+        id S229596AbiKSCYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:24:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236136AbiKSCWu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:22:50 -0500
+        with ESMTP id S232923AbiKSCWw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:22:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD421C72C0;
-        Fri, 18 Nov 2022 18:15:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B29CAC72D0;
+        Fri, 18 Nov 2022 18:15:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4EEA6280C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53DBE62841;
+        Sat, 19 Nov 2022 02:15:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D09EC43141;
         Sat, 19 Nov 2022 02:15:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE2EFC433C1;
-        Sat, 19 Nov 2022 02:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824119;
-        bh=0Vv/bjt0ASgKc1aA94qBlEONoRr983LHAYKbEloUFU4=;
+        s=k20201202; t=1668824120;
+        bh=1UBLBsTenWnHkOJqx3f6bdHXzK3ohnLPjO9Q/7P4CC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JWHTyN1M4qxt4nqraA1KUNAfPU6XIuzrkuTRyzg//Fk3mwSWBHliLnwXOvuU/XTI0
-         vsg1w44aFCZRfHnFDufUUbntkSAC5rhZmnY+arIsfeO5OUoRvreHoRMHS8/G+c4b5W
-         brPQgE3OBJAjRIUwDZrKuqe1zI6XEWBiVeRRRNCfHFlfycVuq4ZeyZZwIru8xrvpSX
-         LPDL/IARVDL+NYpU7cYBq8CqPrT9r2Uvtf8TXYRMwEazho58DfghYNJAoBSNBo2r7y
-         byF7ZuBTLKw2siEAplDXlnKjp1SYi/4Le41q6c0S2+q7GNagsHb7a67cVuaDuaDEgp
-         f5T65bidm4ZAA==
+        b=UaMLMpL+F+vws8I5st+YAdQBBwxm5WzSw0kWVktVPUbI4ODYqvrbyVNPjjKA9Eatv
+         u8q2/tFtwL97fYB6ZYr5qhJHb0lgEVKkFh8MgEZ5V06D0kFMMlHRjqK18aI4/LxUaM
+         6EFMDc7DxxG/SjCgef7Iwrg3MwPADOL5J6EuntQRx47dLR52PccHQ5j8cRKZ3/jmi9
+         Cm6lGgsRtLy/erLkfKKG8bGs+hH+TPWZ6b3S58RnFMyeaHM2vdi3XEMzew/75ZLqR9
+         RAyfrrPETNHTUnCfddtR2/PyHLk+9V0cxteuFm3fplefl19cYbUmzP6YY6A01c0uKw
+         NbF2IaISREiaQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Youlin Li <liulin063@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>, andrii@kernel.org,
-        ast@kernel.org, shuah@kernel.org, memxor@gmail.com,
-        roberto.sassu@huawei.com, mykolal@fb.com, bpf@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 08/18] selftests/bpf: Add verifier test for release_reference()
-Date:   Fri, 18 Nov 2022 21:14:49 -0500
-Message-Id: <20221119021459.1775052-8-sashal@kernel.org>
+Cc:     Sabrina Dubroca <sd@queasysnail.net>,
+        Antoine Tenart <atenart@kernel.org>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 09/18] Revert "net: macsec: report real_dev features when HW offloading is enabled"
+Date:   Fri, 18 Nov 2022 21:14:50 -0500
+Message-Id: <20221119021459.1775052-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021459.1775052-1-sashal@kernel.org>
 References: <20221119021459.1775052-1-sashal@kernel.org>
@@ -58,84 +58,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Youlin Li <liulin063@gmail.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 475244f5e06beeda7b557d9dde46a5f439bf3379 ]
+[ Upstream commit 8bcd560ae8784da57c610d857118c5d6576b1a8f ]
 
-Add a test case to ensure that released pointer registers will not be
-leaked into the map.
+This reverts commit c850240b6c4132574a00f2da439277ab94265b66.
 
-Before fix:
+That commit tried to improve the performance of macsec offload by
+taking advantage of some of the NIC's features, but in doing so, broke
+macsec offload when the lower device supports both macsec and ipsec
+offload, as the ipsec offload feature flags (mainly NETIF_F_HW_ESP)
+were copied from the real device. Since the macsec device doesn't
+provide xdo_* ops, the XFRM core rejects the registration of the new
+macsec device in xfrm_api_check.
 
-  ./test_verifier 984
-    984/u reference tracking: try to leak released ptr reg FAIL
-    Unexpected success to load!
-    verification time 67 usec
-    stack depth 4
-    processed 23 insns (limit 1000000) max_states_per_insn 0 total_states 2
-    peak_states 2 mark_read 1
-    984/p reference tracking: try to leak released ptr reg OK
-    Summary: 1 PASSED, 0 SKIPPED, 1 FAILED
+Example perf trace when running
+  ip link add link eni1np1 type macsec port 4 offload mac
 
-After fix:
+    ip   737 [003]   795.477676: probe:xfrm_dev_event__REGISTER      name="macsec0" features=0x1c000080014869
+              xfrm_dev_event+0x3a
+              notifier_call_chain+0x47
+              register_netdevice+0x846
+              macsec_newlink+0x25a
 
-  ./test_verifier 984
-    984/u reference tracking: try to leak released ptr reg OK
-    984/p reference tracking: try to leak released ptr reg OK
-    Summary: 2 PASSED, 0 SKIPPED, 0 FAILED
+    ip   737 [003]   795.477687:   probe:xfrm_dev_event__return      ret=0x8002 (NOTIFY_BAD)
+             notifier_call_chain+0x47
+             register_netdevice+0x846
+             macsec_newlink+0x25a
 
-Signed-off-by: Youlin Li <liulin063@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20221103093440.3161-2-liulin063@gmail.com
+dev->features includes NETIF_F_HW_ESP (0x04000000000000), so
+xfrm_api_check returns NOTIFY_BAD because we don't have
+dev->xfrmdev_ops on the macsec device.
+
+We could probably propagate GSO and a few other features from the
+lower device, similar to macvlan. This will be done in a future patch.
+
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Reviewed-by: Antoine Tenart <atenart@kernel.org>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/verifier/ref_tracking.c     | 36 +++++++++++++++++++
- 1 file changed, 36 insertions(+)
+ drivers/net/macsec.c | 27 ++++-----------------------
+ 1 file changed, 4 insertions(+), 23 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/verifier/ref_tracking.c b/tools/testing/selftests/bpf/verifier/ref_tracking.c
-index 006b5bd99c08..525d810b10b8 100644
---- a/tools/testing/selftests/bpf/verifier/ref_tracking.c
-+++ b/tools/testing/selftests/bpf/verifier/ref_tracking.c
-@@ -901,3 +901,39 @@
- 	.result_unpriv = REJECT,
- 	.errstr_unpriv = "unknown func",
- },
-+{
-+	"reference tracking: try to leak released ptr reg",
-+	.insns = {
-+		BPF_MOV64_IMM(BPF_REG_0, 0),
-+		BPF_STX_MEM(BPF_W, BPF_REG_10, BPF_REG_0, -4),
-+		BPF_MOV64_REG(BPF_REG_2, BPF_REG_10),
-+		BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, -4),
-+		BPF_LD_MAP_FD(BPF_REG_1, 0),
-+		BPF_EMIT_CALL(BPF_FUNC_map_lookup_elem),
-+		BPF_JMP_IMM(BPF_JNE, BPF_REG_0, 0, 1),
-+		BPF_EXIT_INSN(),
-+		BPF_MOV64_REG(BPF_REG_9, BPF_REG_0),
-+
-+		BPF_MOV64_IMM(BPF_REG_0, 0),
-+		BPF_LD_MAP_FD(BPF_REG_1, 0),
-+		BPF_MOV64_IMM(BPF_REG_2, 8),
-+		BPF_MOV64_IMM(BPF_REG_3, 0),
-+		BPF_EMIT_CALL(BPF_FUNC_ringbuf_reserve),
-+		BPF_JMP_IMM(BPF_JNE, BPF_REG_0, 0, 1),
-+		BPF_EXIT_INSN(),
-+		BPF_MOV64_REG(BPF_REG_8, BPF_REG_0),
-+
-+		BPF_MOV64_REG(BPF_REG_1, BPF_REG_8),
-+		BPF_MOV64_IMM(BPF_REG_2, 0),
-+		BPF_EMIT_CALL(BPF_FUNC_ringbuf_discard),
-+		BPF_MOV64_IMM(BPF_REG_0, 0),
-+
-+		BPF_STX_MEM(BPF_DW, BPF_REG_9, BPF_REG_8, 0),
-+		BPF_EXIT_INSN()
-+	},
-+	.fixup_map_array_48b = { 4 },
-+	.fixup_map_ringbuf = { 11 },
-+	.result = ACCEPT,
-+	.result_unpriv = REJECT,
-+	.errstr_unpriv = "R8 !read_ok"
-+},
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index f84e3cc0d3ec..c20ebf44acfe 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -2648,11 +2648,6 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
+ 	if (ret)
+ 		goto rollback;
+ 
+-	/* Force features update, since they are different for SW MACSec and
+-	 * HW offloading cases.
+-	 */
+-	netdev_update_features(dev);
+-
+ 	rtnl_unlock();
+ 	return 0;
+ 
+@@ -3420,16 +3415,9 @@ static netdev_tx_t macsec_start_xmit(struct sk_buff *skb,
+ 	return ret;
+ }
+ 
+-#define SW_MACSEC_FEATURES \
++#define MACSEC_FEATURES \
+ 	(NETIF_F_SG | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST)
+ 
+-/* If h/w offloading is enabled, use real device features save for
+- *   VLAN_FEATURES - they require additional ops
+- *   HW_MACSEC - no reason to report it
+- */
+-#define REAL_DEV_FEATURES(dev) \
+-	((dev)->features & ~(NETIF_F_VLAN_FEATURES | NETIF_F_HW_MACSEC))
+-
+ static int macsec_dev_init(struct net_device *dev)
+ {
+ 	struct macsec_dev *macsec = macsec_priv(dev);
+@@ -3446,12 +3434,8 @@ static int macsec_dev_init(struct net_device *dev)
+ 		return err;
+ 	}
+ 
+-	if (macsec_is_offloaded(macsec)) {
+-		dev->features = REAL_DEV_FEATURES(real_dev);
+-	} else {
+-		dev->features = real_dev->features & SW_MACSEC_FEATURES;
+-		dev->features |= NETIF_F_LLTX | NETIF_F_GSO_SOFTWARE;
+-	}
++	dev->features = real_dev->features & MACSEC_FEATURES;
++	dev->features |= NETIF_F_LLTX | NETIF_F_GSO_SOFTWARE;
+ 
+ 	dev->needed_headroom = real_dev->needed_headroom +
+ 			       MACSEC_NEEDED_HEADROOM;
+@@ -3480,10 +3464,7 @@ static netdev_features_t macsec_fix_features(struct net_device *dev,
+ 	struct macsec_dev *macsec = macsec_priv(dev);
+ 	struct net_device *real_dev = macsec->real_dev;
+ 
+-	if (macsec_is_offloaded(macsec))
+-		return REAL_DEV_FEATURES(real_dev);
+-
+-	features &= (real_dev->features & SW_MACSEC_FEATURES) |
++	features &= (real_dev->features & MACSEC_FEATURES) |
+ 		    NETIF_F_GSO_SOFTWARE | NETIF_F_SOFT_FEATURES;
+ 	features |= NETIF_F_LLTX;
+ 
 -- 
 2.35.1
 
