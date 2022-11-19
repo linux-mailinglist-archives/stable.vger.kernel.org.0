@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13A076309BF
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:17:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 240F16309C1
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:18:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234798AbiKSCRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:17:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58384 "EHLO
+        id S235353AbiKSCR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:17:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234868AbiKSCRK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:17:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C9B74611;
-        Fri, 18 Nov 2022 18:13:36 -0800 (PST)
+        with ESMTP id S235398AbiKSCRd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:17:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AE7C7210D;
+        Fri, 18 Nov 2022 18:13:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C0D7B82679;
-        Sat, 19 Nov 2022 02:13:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B91E7C433B5;
-        Sat, 19 Nov 2022 02:13:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 553ADB82676;
+        Sat, 19 Nov 2022 02:13:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84D25C433D7;
+        Sat, 19 Nov 2022 02:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824013;
-        bh=NiKLtqhaTw1063gZHnyeVIvxhhTA/uGYOR5TfGK61Es=;
+        s=k20201202; t=1668824021;
+        bh=KyXczEDabcTqMLkfqC1Xh0fqivha5/W/FizAj42ixyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P7h0EQzLq2SeT5O7Xgq7p3OmnmrzFaNy/Xf+yiy1F0soaqEbbwejLzwPuxg9kY5uk
-         8+FzObKaEhp+9gqPyl5sfeRyCA57iYWkfF4yB821u+8L/6JeHorhNq6q/vWjtcHiFg
-         Z3jyIJp745sukZCZSm/IO/IJ6GFXLPMo1F7PpynxbPrA+AzNTGRPn1nGDAdhypuuBk
-         agEK3ee98PBoEjb8XSq+pQW596CkO6cO0xEl6elxZ2RIhqHShZS00d1ng71T3cBIh9
-         LpLHtvKWAOM+IVfi86qpXIjYuM+2Vq3rOhG9A9AduwC0vdPHjh79bClyzKSsH3xHoS
-         rQsWJUCbqs66A==
+        b=i+JeHWwHC8AEIjqMZaZDKKhKHjxvUmJFP33cq5O2UfOOWEBxkugpCAiV6OnuGJ6Ie
+         GOLpOPibSKuPBsIp0OnnW2EL+4328wzvGTOCXJGDMFzPVBSlXkqksfqS3YAiSaiMnH
+         /TDTFj5dhdxxT0VEogsqtJZ4DHAkRzS6FdfxVix1R6slnj+EGNediyi+TFJI9Rite1
+         S9XszbBC+i62DSNGXsc0Ns5ahMbNEIktuNLmrxCqIoegaUiXwfEwgzDNxcAjgjTDRD
+         BXavcbYM/WgwOAngaAYA5G6lCbV3zHJatbkHtLyDz9iuvocBYz2Kx6WPaHxwV31yoc
+         J4WsmQGAnwcOw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hamza Mahfooz <hamza.mahfooz@amd.com>, Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        Rodrigo.Siqueira@amd.com, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        nicholas.kazlauskas@amd.com, aurabindo.pillai@amd.com,
-        roman.li@amd.com, Jerry.Zuo@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 40/44] drm/amd/display: only fill dirty rectangles when PSR is enabled
-Date:   Fri, 18 Nov 2022 21:11:20 -0500
-Message-Id: <20221119021124.1773699-40-sashal@kernel.org>
+Cc:     Ai Chao <aichao@kylinos.cn>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
+        tiwai@suse.com, ubizjak@gmail.com, wanjiabing@vivo.com,
+        sdoregor@sdore.me, connerknoxpublic@gmail.com, cyrozap@gmail.com,
+        jussi@sonarnerd.net, john-linux@pelago.org.uk, bp@suse.de,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.0 41/44] ALSA: usb-audio: add quirk to fix Hamedal C20 disconnect issue
+Date:   Fri, 18 Nov 2022 21:11:21 -0500
+Message-Id: <20221119021124.1773699-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021124.1773699-1-sashal@kernel.org>
 References: <20221119021124.1773699-1-sashal@kernel.org>
@@ -60,43 +58,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hamza Mahfooz <hamza.mahfooz@amd.com>
+From: Ai Chao <aichao@kylinos.cn>
 
-[ Upstream commit 675d84621a24490e1de3d59a4992a17fa9ff92b5 ]
+[ Upstream commit bf990c10231937c0f51e5da5558e08cf5adc6a78 ]
 
-Currently, we are calling fill_dc_dirty_rects() even if PSR isn't
-supported by the relevant link in amdgpu_dm_commit_planes(), this is
-undesirable especially because when drm.debug is enabled we are printing
-messages in fill_dc_dirty_rects() that are only useful for debugging PSR
-(and confusing otherwise). So, we can instead limit the filling of dirty
-rectangles to only when PSR is enabled.
+For Hamedal C20, the current rate is different from the runtime rate,
+snd_usb_endpoint stop and close endpoint to resetting rate.
+if snd_usb_endpoint close the endpoint, sometimes usb will
+disconnect the device.
 
-Reviewed-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Ai Chao <aichao@kylinos.cn>
+Link: https://lore.kernel.org/r/20221110063452.295110-1-aichao@kylinos.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/usb/endpoint.c | 3 ++-
+ sound/usb/quirks.c   | 2 ++
+ sound/usb/usbaudio.h | 3 +++
+ 3 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 3be70848b202..aaf7e4b22ed0 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -7639,9 +7639,10 @@ static void amdgpu_dm_commit_planes(struct drm_atomic_state *state,
- 		bundle->surface_updates[planes_count].plane_info =
- 			&bundle->plane_infos[planes_count];
+diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
+index 2420dc994632..4c9ea13f72d4 100644
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -923,7 +923,8 @@ void snd_usb_endpoint_close(struct snd_usb_audio *chip,
+ 	usb_audio_dbg(chip, "Closing EP 0x%x (count %d)\n",
+ 		      ep->ep_num, ep->opened);
  
--		fill_dc_dirty_rects(plane, old_plane_state, new_plane_state,
--				    new_crtc_state,
--				    &bundle->flip_addrs[planes_count]);
-+		if (acrtc_state->stream->link->psr_settings.psr_feature_enabled)
-+			fill_dc_dirty_rects(plane, old_plane_state,
-+					    new_plane_state, new_crtc_state,
-+					    &bundle->flip_addrs[planes_count]);
+-	if (!--ep->iface_ref->opened)
++	if (!--ep->iface_ref->opened &&
++		!(chip->quirk_flags & QUIRK_FLAG_IFACE_SKIP_CLOSE))
+ 		endpoint_set_interface(chip, ep, false);
  
- 		/*
- 		 * Only allow immediate flips for fast updates that don't
+ 	if (!--ep->opened) {
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index eadac586bcc8..a50e15be1229 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -2185,6 +2185,8 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
+ 		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
+ 	DEVICE_FLG(0x2b53, 0x0031, /* Fiero SC-01 (firmware v1.1.0) */
+ 		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
++	DEVICE_FLG(0x0525, 0xa4ad, /* Hamedal C20 usb camero */
++		   QUIRK_FLAG_IFACE_SKIP_CLOSE),
+ 
+ 	/* Vendor matches */
+ 	VENDOR_FLG(0x045e, /* MS Lifecam */
+diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
+index 2c6575029b1c..e97141ef730a 100644
+--- a/sound/usb/usbaudio.h
++++ b/sound/usb/usbaudio.h
+@@ -170,6 +170,8 @@ extern bool snd_usb_skip_validation;
+  *  Apply the generic implicit feedback sync mode (same as implicit_fb=1 option)
+  * QUIRK_FLAG_SKIP_IMPLICIT_FB
+  *  Don't apply implicit feedback sync mode
++ * QUIRK_FLAG_IFACE_SKIP_CLOSE
++ *  Don't closed interface during setting sample rate
+  */
+ 
+ #define QUIRK_FLAG_GET_SAMPLE_RATE	(1U << 0)
+@@ -191,5 +193,6 @@ extern bool snd_usb_skip_validation;
+ #define QUIRK_FLAG_SET_IFACE_FIRST	(1U << 16)
+ #define QUIRK_FLAG_GENERIC_IMPLICIT_FB	(1U << 17)
+ #define QUIRK_FLAG_SKIP_IMPLICIT_FB	(1U << 18)
++#define QUIRK_FLAG_IFACE_SKIP_CLOSE	(1U << 19)
+ 
+ #endif /* __USBAUDIO_H */
 -- 
 2.35.1
 
