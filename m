@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3373E6309B0
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:16:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8263B6309B4
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:16:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235127AbiKSCQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:16:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45286 "EHLO
+        id S233909AbiKSCQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:16:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235159AbiKSCPx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:15:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 156046DFD5;
-        Fri, 18 Nov 2022 18:12:56 -0800 (PST)
+        with ESMTP id S235147AbiKSCQS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:16:18 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBDE48B87F;
+        Fri, 18 Nov 2022 18:13:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8528FB82676;
-        Sat, 19 Nov 2022 02:12:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06514C433C1;
-        Sat, 19 Nov 2022 02:12:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3D75ACE222D;
+        Sat, 19 Nov 2022 02:13:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99E4AC433B5;
+        Sat, 19 Nov 2022 02:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668823974;
-        bh=6/ZcM18fIGlzYOv/MUHM9W2R6Q5LbIMHQh70HdVGb9w=;
+        s=k20201202; t=1668823986;
+        bh=lr5xJGzUjP8NLAV/SJAWmf1Bjx0GqUsuY3JFGcUnmbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eSPddijIcbn7Qz+Y2F8tWf8NAMdRzx20mXzDg3v2nn86/MgtAOvTlP9SUsdM4mZoj
-         +RbmpulQ4vRNA4kdOofMLLau0sT6B/yD1mNtmyPDxsoQZUy5AR5U/RwGtD34YFmurA
-         AA/VoW2qXGgkTGU7IodT7GsTt5uRuVJsGJRcUw+pUTksp2NhtlL/sqCS52YyJw+O4f
-         IgNRFanKJh1fQ7/LWyvWxgL5wcB5E2rjGJjAX7zwajyYc787ITcjXjRxYByN+H3DeH
-         6BMXOYh5oAHsiAzhSknj2HLzTlaPcAWW+NGK/UMA2jbCZem7hWsYajrMAZwksGlYFW
-         VgyXH+1bJv0NQ==
+        b=dW87T4iicceihr3GFAuTtZkuLP9/C36OTERdOjHknJtGekchVsCtvOq3ZRgYJlwPf
+         JutxgRLWBophT18+V2Q0KNAWBlSWkvfQc/jRw8sV7ovIrZwi1y1extOABDl1Frm7Jk
+         Pdd0NtL6C8FeW5RJ95Ge138pV+Xf0tN06ghy4rI7sZeKBrMQejd2qi1SR0WyWUzjuu
+         Y5sxT+GmNeYUq5hFXYEgx5wViWFC+D6HEjrMPUNjs0aG90jTf3IEltc2QKnn4tv0BY
+         PfSkhMUbIZ/gx03DgxfsZl79MNYtd6FkX8xpVcxQqpYiWpdALrxxqZkKJSiTh2P7Gl
+         na1q9uI/EGqoQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chaitanya Dhere <chaitanya.dhere@amd.com>,
-        Aurabindo Pillai <Aurabindo.Pillai@amd.com>,
-        Jun Lei <Jun.Lei@amd.com>, Alan Liu <HaoPing.Liu@amd.com>,
+Cc:     Steve Su <steve.su@amd.com>, Alvin Lee <Alvin.Lee2@amd.com>,
+        Alan Liu <HaoPing.Liu@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
         sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
         christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, nathan@kernel.org, yang.lee@linux.alibaba.com,
-        jun.lei@amd.com, george.shen@amd.com, aurabindo.pillai@amd.com,
-        chris.park@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.0 35/44] drm/amd/display: Fix FCLK deviation and tool compile issues
-Date:   Fri, 18 Nov 2022 21:11:15 -0500
-Message-Id: <20221119021124.1773699-35-sashal@kernel.org>
+        daniel@ffwll.ch, aurabindo.pillai@amd.com, qingqing.zhuo@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.0 36/44] drm/amd/display: Fix gpio port mapping issue
+Date:   Fri, 18 Nov 2022 21:11:16 -0500
+Message-Id: <20221119021124.1773699-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021124.1773699-1-sashal@kernel.org>
 References: <20221119021124.1773699-1-sashal@kernel.org>
@@ -64,62 +61,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Dhere <chaitanya.dhere@amd.com>
+From: Steve Su <steve.su@amd.com>
 
-[ Upstream commit 0d5c5c210a4d4e655feb93b379647f0b179cdafe ]
+[ Upstream commit c0b2753f5db281b07013899c79b5f06a614055f9 ]
 
 [Why]
-Recent backports from open source do not have header inclusion pattern
-that is consistent with inclusion style in the rest of the file. This
-breaks the internal tool builds as well. A recent commit erronously
-modified the original DML formula for calculating
-ActiveClockChangeLatencyHidingY. This resulted in a FCLK deviation
-from the golden values.
+1. Port of gpio has different mapping.
 
 [How]
-Change the way in which display_mode_vba.h is included so that it is
-consistent with the inclusion style in rest of the file which also fixes
-the tool build. Restore the DML formula to its original state to fix the
-FCLK deviation.
+1. Add a dummy entry in mapping table.
+2. Fix incorrect mask bit field access.
 
-Reviewed-by: Aurabindo Pillai <Aurabindo.Pillai@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
 Acked-by: Alan Liu <HaoPing.Liu@amd.com>
-Signed-off-by: Chaitanya Dhere <chaitanya.dhere@amd.com>
+Signed-off-by: Steve Su <steve.su@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c | 2 +-
- .../gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ .../amd/display/dc/gpio/dcn32/hw_factory_dcn32.c   | 14 ++++++++++++++
+ drivers/gpu/drm/amd/display/dc/gpio/hw_ddc.c       |  9 ++++++---
+ 2 files changed, 20 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c
-index 365d290bba99..d0f3f2414fb8 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c
-@@ -4396,7 +4396,7 @@ void dml32_CalculateWatermarksMALLUseAndDRAMSpeedChangeSupport(
- 
- 		if (v->NumberOfActiveSurfaces > 1) {
- 			ActiveClockChangeLatencyHidingY = ActiveClockChangeLatencyHidingY
--					- (1 - 1 / v->NumberOfActiveSurfaces) * SwathHeightY[k] * v->HTotal[k]
-+					- (1.0 - 1.0 / v->NumberOfActiveSurfaces) * SwathHeightY[k] * v->HTotal[k]
- 							/ v->PixelClock[k] / v->VRatio[k];
- 		}
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.h b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.h
-index 0b427d89b3c5..f174f5c5ff92 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.h
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.h
-@@ -30,7 +30,7 @@
- #include "os_types.h"
- #include "../dc_features.h"
- #include "../display_mode_structs.h"
--#include "dml/display_mode_vba.h"
-+#include "../display_mode_vba.h"
- 
- unsigned int dml32_dscceComputeDelay(
- 		unsigned int bpc,
+diff --git a/drivers/gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c b/drivers/gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c
+index d635b73af46f..0ea52ba5ac82 100644
+--- a/drivers/gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c
++++ b/drivers/gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c
+@@ -107,6 +107,13 @@ static const struct ddc_registers ddc_data_regs_dcn[] = {
+ 	ddc_data_regs_dcn2(3),
+ 	ddc_data_regs_dcn2(4),
+ 	ddc_data_regs_dcn2(5),
++	{
++		// add a dummy entry for cases no such port
++		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
++		.ddc_setup = 0,
++		.phy_aux_cntl = 0,
++		.dc_gpio_aux_ctrl_5 = 0
++	},
+ 	{
+ 			DDC_GPIO_VGA_REG_LIST(DATA),
+ 			.ddc_setup = 0,
+@@ -121,6 +128,13 @@ static const struct ddc_registers ddc_clk_regs_dcn[] = {
+ 	ddc_clk_regs_dcn2(3),
+ 	ddc_clk_regs_dcn2(4),
+ 	ddc_clk_regs_dcn2(5),
++	{
++		// add a dummy entry for cases no such port
++		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
++		.ddc_setup = 0,
++		.phy_aux_cntl = 0,
++		.dc_gpio_aux_ctrl_5 = 0
++	},
+ 	{
+ 			DDC_GPIO_VGA_REG_LIST(CLK),
+ 			.ddc_setup = 0,
+diff --git a/drivers/gpu/drm/amd/display/dc/gpio/hw_ddc.c b/drivers/gpu/drm/amd/display/dc/gpio/hw_ddc.c
+index 6fd38cdd68c0..525bc8881950 100644
+--- a/drivers/gpu/drm/amd/display/dc/gpio/hw_ddc.c
++++ b/drivers/gpu/drm/amd/display/dc/gpio/hw_ddc.c
+@@ -94,11 +94,14 @@ static enum gpio_result set_config(
+ 		 * is required for detection of AUX mode */
+ 		if (hw_gpio->base.en != GPIO_DDC_LINE_VIP_PAD) {
+ 			if (!ddc_data_pd_en || !ddc_clk_pd_en) {
+-
+-				REG_SET_2(gpio.MASK_reg, regval,
++				if (hw_gpio->base.en == GPIO_DDC_LINE_DDC_VGA) {
++					// bit 4 of mask has different usage in some cases
++					REG_SET(gpio.MASK_reg, regval, DC_GPIO_DDC1DATA_PD_EN, 1);
++				} else {
++					REG_SET_2(gpio.MASK_reg, regval,
+ 						DC_GPIO_DDC1DATA_PD_EN, 1,
+ 						DC_GPIO_DDC1CLK_PD_EN, 1);
+-
++				}
+ 				if (config_data->type ==
+ 						GPIO_CONFIG_TYPE_I2C_AUX_DUAL_MODE)
+ 					msleep(3);
 -- 
 2.35.1
 
