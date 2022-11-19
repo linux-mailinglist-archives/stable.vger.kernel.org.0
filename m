@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C7F630A12
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:23:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00C6D630A05
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:22:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235532AbiKSCXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:23:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39038 "EHLO
+        id S232568AbiKSCWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:22:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235688AbiKSCV7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:21:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44BB1C68A4;
-        Fri, 18 Nov 2022 18:14:55 -0800 (PST)
+        with ESMTP id S235404AbiKSCVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:21:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FA92BDEC2;
+        Fri, 18 Nov 2022 18:14:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 731846283B;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3B3D6280C;
+        Sat, 19 Nov 2022 02:14:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4659AC4347C;
         Sat, 19 Nov 2022 02:14:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5E01C433D6;
-        Sat, 19 Nov 2022 02:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824074;
-        bh=G02EEvcYH5gnTW8yQ8yQBaC17QixYgFD0fZ0pWxC4Qg=;
+        s=k20201202; t=1668824076;
+        bh=aRsMMGmvgD/lbdqaN0JidPGzRj14aJPQ1+YlVjXftfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qQwqjagVFQm1uDJsoTlaqZ91zeCgfJWHZnWgeSGVaDOK2hcEC9PkC+HwMvm9D63as
-         g2N7TV6dZXkAzEktzvv04bsL7AwFlDVfKSlBqDpiPbSun7vRvPMtYvhFmEa3JafaRF
-         LilvX9W8m2POR/ysliHCG75aFnsA1YCa7Mu3rW7S/X+RTQ9bFnDjlY2JzHa7azRHdL
-         8/qxSWUqadzRQrEDHlh3m3gPK7J4EguHPRy/jXMNCuIZfa15cmbI9+p4cOqmYt8iFM
-         9+4QiCLKFTTDsKLRNSXLQiyIaj9UP3RCEhDQItI563xdIKpDClV/0EMuaa71XKQcF9
-         bkRQj8q/DRftw==
+        b=phQmmRo463SqSVptHZYhn9/eQCNXTTDYXDRXblqf6qdOkgm4Anp2zO5/OL8Cs7jyy
+         ckm8zSFLKFkNBKhrs8JGJTSy0o5j05ggXWQGYVVeMj1ON/5o6w9wYUnu+auD3+CvH5
+         vkcYI0W/zrXZIiKZg8vGnLah9z9brmmdV7T4vOiXkSKCAoV2ALT+jXrAignL400h3l
+         v9RIIKMNx/sk5JbLiWbBvTkWdXh5oUSQRDuNOHQ6va9x21/ogkcKUg64Z9GdWxbORT
+         9BDtOxlFewfqShoIGhFF2Dmf2OH+LFIwzxMYpmBdlMwojPHfq5ayR1/qCih10QRM4/
+         VSNu/hQ9QsujA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>, will@kernel.org,
-        linux-arm-kernel@lists.infradead.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 22/27] arm64/syscall: Include asm/ptrace.h in syscall_wrapper header.
-Date:   Fri, 18 Nov 2022 21:13:47 -0500
-Message-Id: <20221119021352.1774592-22-sashal@kernel.org>
+Cc:     Aleksandr Miloserdov <a.miloserdov@yadro.com>,
+        Konstantin Shelekhin <k.shelekhin@yadro.com>,
+        Dmitriy Bogdanov <d.bogdanov@yadro.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, kch@nvidia.com,
+        linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 23/27] nvmet: fix memory leak in nvmet_subsys_attr_model_store_locked
+Date:   Fri, 18 Nov 2022 21:13:48 -0500
+Message-Id: <20221119021352.1774592-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021352.1774592-1-sashal@kernel.org>
 References: <20221119021352.1774592-1-sashal@kernel.org>
@@ -57,49 +59,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Aleksandr Miloserdov <a.miloserdov@yadro.com>
 
-[ Upstream commit acfc35cfcee5df419391671ef1a631f43feee4e3 ]
+[ Upstream commit becc4cac309dc867571f0080fde4426a6c2222e0 ]
 
-Add the same change for ARM64 as done in the commit 9440c4294160
-("x86/syscall: Include asm/ptrace.h in syscall_wrapper header") to
-make sure all syscalls see 'struct pt_regs' definition and resulted
-BTF for '__arm64_sys_*(struct pt_regs *regs)' functions point to
-actual struct.
+Since model_number is allocated before it needs to be freed before
+kmemdump_nul.
 
-Without this patch, the BPF verifier refuses to load a tracing prog
-which accesses pt_regs.
-
-  bpf(BPF_PROG_LOAD, {prog_type=0x1a, ...}, 128) = -1 EACCES
-
-With this patch, we can see the correct error, which saves us time
-in debugging the prog.
-
-  bpf(BPF_PROG_LOAD, {prog_type=0x1a, ...}, 128) = 4
-  bpf(BPF_RAW_TRACEPOINT_OPEN, {raw_tracepoint={name=NULL, prog_fd=4}}, 128) = -1 ENOTSUPP
-
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/r/20221031215728.50389-1-kuniyu@amazon.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Reviewed-by: Konstantin Shelekhin <k.shelekhin@yadro.com>
+Reviewed-by: Dmitriy Bogdanov <d.bogdanov@yadro.com>
+Signed-off-by: Aleksandr Miloserdov <a.miloserdov@yadro.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/syscall_wrapper.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/target/configfs.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/include/asm/syscall_wrapper.h b/arch/arm64/include/asm/syscall_wrapper.h
-index b383b4802a7b..d30217c21eff 100644
---- a/arch/arm64/include/asm/syscall_wrapper.h
-+++ b/arch/arm64/include/asm/syscall_wrapper.h
-@@ -8,7 +8,7 @@
- #ifndef __ASM_SYSCALL_WRAPPER_H
- #define __ASM_SYSCALL_WRAPPER_H
+diff --git a/drivers/nvme/target/configfs.c b/drivers/nvme/target/configfs.c
+index cea30e4f5053..625038057a76 100644
+--- a/drivers/nvme/target/configfs.c
++++ b/drivers/nvme/target/configfs.c
+@@ -1189,6 +1189,7 @@ static ssize_t nvmet_subsys_attr_model_store_locked(struct nvmet_subsys *subsys,
+ 		const char *page, size_t count)
+ {
+ 	int pos = 0, len;
++	char *val;
  
--struct pt_regs;
-+#include <asm/ptrace.h>
+ 	if (subsys->subsys_discovered) {
+ 		pr_err("Can't set model number. %s is already assigned\n",
+@@ -1211,9 +1212,11 @@ static ssize_t nvmet_subsys_attr_model_store_locked(struct nvmet_subsys *subsys,
+ 			return -EINVAL;
+ 	}
  
- #define SC_ARM64_REGS_TO_ARGS(x, ...)				\
- 	__MAP(x,__SC_ARGS					\
+-	subsys->model_number = kmemdup_nul(page, len, GFP_KERNEL);
+-	if (!subsys->model_number)
++	val = kmemdup_nul(page, len, GFP_KERNEL);
++	if (!val)
+ 		return -ENOMEM;
++	kfree(subsys->model_number);
++	subsys->model_number = val;
+ 	return count;
+ }
+ 
 -- 
 2.35.1
 
