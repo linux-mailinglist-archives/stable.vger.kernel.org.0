@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 144A2630A87
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1202C630A8A
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229500AbiKSC1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:27:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39430 "EHLO
+        id S235698AbiKSC1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:27:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236007AbiKSC0l (ORCPT
+        with ESMTP id S235937AbiKSC0l (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:26:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C085629C95;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD8338483E;
         Fri, 18 Nov 2022 18:16:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6958DB82672;
-        Sat, 19 Nov 2022 02:16:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E2ABC4347C;
-        Sat, 19 Nov 2022 02:16:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AC126280C;
+        Sat, 19 Nov 2022 02:16:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF01C433D7;
+        Sat, 19 Nov 2022 02:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824174;
-        bh=mba1F/j+7n5C0gfxfn5N40P/edJxLx43upNjOueW8XM=;
+        s=k20201202; t=1668824175;
+        bh=+erf4JSvlN1dv6enXI2Pe9KxqxehNWpH2vefNq7EfqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7T1F5BFR4X2Yse013gdLEnSmKBC0qNkbzfflAhRdT9bb9tZ5z3LQqf98E5a0bhbE
-         dtAyuxrqQ+5yIzNpn0NZGLnTsZGbaCnK6zBb50xFjt/9PtP75itgKA6VW8WA3Fjoeg
-         22ljVRqWOi16PmkgSuq5aG5FmD3CXv3LNhXxmGL5TGdwerlSLwIa9yZ5ZtTQPK9I8j
-         ZnBNw21a9zIivmM+PTTORp5PAqb6EMse+uRD2VRNkv7JhIwqPYySDlA1JOA3EqMH1Z
-         PZ3fy1kxz6/QqT9JearL15u3aeyh+6JY6q+RwQhxK/zORslSY5/ymNtmlFAhcE5+zh
-         li8PcxwFiLuQg==
+        b=iMax/wr35D/71+nQJm2OpOfW3tpQRLI/LNOuT/ajAM3HIlY+3f7FQMq9s1LwgIxml
+         vc3tHe6GcabcnAvxE4AZwxMsfHkNoDU6lrat0XHMiJBk7RTqExhlEHygImS/PXK70v
+         S8qM9ABlYH2A1HKiC/x9EMBuiRZWTxQ0ON97to+WenIcDDHL9tsfPywMku64oUazah
+         u4u8lz9Pq9fSEoZw3TqlglHO57QJQNIsVe6Ua1Ajo2nEc6TkZK9WAtnt0RN25/9irG
+         Oy2ZmRGRMr/KQD41qFtFeTPLAWjV2RoUOP0s/S4VhNqA91A9X2X9wN9J/Sgw73UCLL
+         qgKNCfAwjLtAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, eparis@redhat.com,
-        linux-audit@redhat.com
-Subject: [PATCH AUTOSEL 4.19 2/8] audit: fix undefined behavior in bit shift for AUDIT_BIT
-Date:   Fri, 18 Nov 2022 21:16:03 -0500
-Message-Id: <20221119021610.1775469-2-sashal@kernel.org>
+Cc:     Nicolas Cavallari <nicolas.cavallari@green-communications.fr>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 3/8] wifi: mac80211: Fix ack frame idr leak when mesh has no route
+Date:   Fri, 18 Nov 2022 21:16:04 -0500
+Message-Id: <20221119021610.1775469-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021610.1775469-1-sashal@kernel.org>
 References: <20221119021610.1775469-1-sashal@kernel.org>
@@ -56,50 +58,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
 
-[ Upstream commit 986d93f55bdeab1cac858d1e47b41fac10b2d7f6 ]
+[ Upstream commit 39e7b5de9853bd92ddbfa4b14165babacd7da0ba ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+When trying to transmit an data frame with tx_status to a destination
+that have no route in the mesh, then it is dropped without recrediting
+the ack_status_frames idr.
 
-UBSAN: shift-out-of-bounds in kernel/auditfilter.c:179:23
-left shift of 1 by 31 places cannot be represented in type 'int'
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7d/0xa5
- dump_stack+0x15/0x1b
- ubsan_epilogue+0xe/0x4e
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
- audit_register_class+0x9d/0x137
- audit_classes_init+0x4d/0xb8
- do_one_initcall+0x76/0x430
- kernel_init_freeable+0x3b3/0x422
- kernel_init+0x24/0x1e0
- ret_from_fork+0x1f/0x30
- </TASK>
+Once it is exhausted, wpa_supplicant starts failing to do SAE with
+NL80211_CMD_FRAME and logs "nl80211: Frame command failed".
 
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-[PM: remove bad 'Fixes' tag as issue predates git, added in v2.6.6-rc1]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Use ieee80211_free_txskb() instead of kfree_skb() to fix it.
+
+Signed-off-by: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
+Link: https://lore.kernel.org/r/20221027140133.1504-1-nicolas.cavallari@green-communications.fr
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/audit.h | 2 +-
+ net/mac80211/mesh_pathtbl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
-index 818ae690ab79..b163911b1d39 100644
---- a/include/uapi/linux/audit.h
-+++ b/include/uapi/linux/audit.h
-@@ -177,7 +177,7 @@
- #define AUDIT_MAX_KEY_LEN  256
- #define AUDIT_BITMASK_SIZE 64
- #define AUDIT_WORD(nr) ((__u32)((nr)/32))
--#define AUDIT_BIT(nr)  (1 << ((nr) - AUDIT_WORD(nr)*32))
-+#define AUDIT_BIT(nr)  (1U << ((nr) - AUDIT_WORD(nr)*32))
+diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
+index 06b44c3c831a..71ebdc85755c 100644
+--- a/net/mac80211/mesh_pathtbl.c
++++ b/net/mac80211/mesh_pathtbl.c
+@@ -731,7 +731,7 @@ int mesh_path_send_to_gates(struct mesh_path *mpath)
+ void mesh_path_discard_frame(struct ieee80211_sub_if_data *sdata,
+ 			     struct sk_buff *skb)
+ {
+-	kfree_skb(skb);
++	ieee80211_free_txskb(&sdata->local->hw, skb);
+ 	sdata->u.mesh.mshstats.dropped_frames_no_route++;
+ }
  
- #define AUDIT_SYSCALL_CLASSES 16
- #define AUDIT_CLASS_DIR_WRITE 0
 -- 
 2.35.1
 
