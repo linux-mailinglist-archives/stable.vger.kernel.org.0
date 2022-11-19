@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1202C630A8A
+	by mail.lfdr.de (Postfix) with ESMTP id 5F29B630A8B
 	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235698AbiKSC1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:27:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39414 "EHLO
+        id S235710AbiKSC1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:27:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235937AbiKSC0l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:26:41 -0500
+        with ESMTP id S229935AbiKSC0n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:26:43 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD8338483E;
-        Fri, 18 Nov 2022 18:16:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 247516DFF1;
+        Fri, 18 Nov 2022 18:16:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AC126280C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5577624B7;
+        Sat, 19 Nov 2022 02:16:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D82CC433B5;
         Sat, 19 Nov 2022 02:16:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF01C433D7;
-        Sat, 19 Nov 2022 02:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824175;
-        bh=+erf4JSvlN1dv6enXI2Pe9KxqxehNWpH2vefNq7EfqQ=;
+        s=k20201202; t=1668824177;
+        bh=w9KGRntzBkhBwrHXOH/VZK9iq0Ck1XmrFUPD30d801w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iMax/wr35D/71+nQJm2OpOfW3tpQRLI/LNOuT/ajAM3HIlY+3f7FQMq9s1LwgIxml
-         vc3tHe6GcabcnAvxE4AZwxMsfHkNoDU6lrat0XHMiJBk7RTqExhlEHygImS/PXK70v
-         S8qM9ABlYH2A1HKiC/x9EMBuiRZWTxQ0ON97to+WenIcDDHL9tsfPywMku64oUazah
-         u4u8lz9Pq9fSEoZw3TqlglHO57QJQNIsVe6Ua1Ajo2nEc6TkZK9WAtnt0RN25/9irG
-         Oy2ZmRGRMr/KQD41qFtFeTPLAWjV2RoUOP0s/S4VhNqA91A9X2X9wN9J/Sgw73UCLL
-         qgKNCfAwjLtAQ==
+        b=UlDbsQgoPjxDtGH7IEM89y6b3eFg7jGGg9/bwajLww3CtgT/6zfKSt/WlqXAWhOCZ
+         dH7/JBWjS5sZCuxzML9ZWbnHUPEc5r6I0pyixJu45uUdJcw1huyVnFxjo8W4v1E85L
+         11+UUdfh/qiwLbQRHGy97tbfo0ebjU4qxtDfVADyeKIO2D/8wPC9oZTV8uP5vjMfYr
+         1GAmAqKHpJBskWa9URejgX5kJ/oYPaD4OIj/5XdiUmJE1BHL2+QtPDRyzlNNoB/fOT
+         xymIHvSIsz+p9DQrE5tPdkezUDjIKkfGt2kdbdWKffUZ8WxIMPkAnCJurVw5yWO6jF
+         zRsKL4c461UfA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Cavallari <nicolas.cavallari@green-communications.fr>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 3/8] wifi: mac80211: Fix ack frame idr leak when mesh has no route
-Date:   Fri, 18 Nov 2022 21:16:04 -0500
-Message-Id: <20221119021610.1775469-3-sashal@kernel.org>
+Cc:     Sean Nyekjaer <sean@geanix.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alain.volmat@foss.st.com,
+        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
+        linux-spi@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 4/8] spi: stm32: fix stm32_spi_prepare_mbr() that halves spi clk for every run
+Date:   Fri, 18 Nov 2022 21:16:05 -0500
+Message-Id: <20221119021610.1775469-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021610.1775469-1-sashal@kernel.org>
 References: <20221119021610.1775469-1-sashal@kernel.org>
@@ -58,40 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
+From: Sean Nyekjaer <sean@geanix.com>
 
-[ Upstream commit 39e7b5de9853bd92ddbfa4b14165babacd7da0ba ]
+[ Upstream commit 62aa1a344b0904549f6de7af958e8a1136fd5228 ]
 
-When trying to transmit an data frame with tx_status to a destination
-that have no route in the mesh, then it is dropped without recrediting
-the ack_status_frames idr.
+When this driver is used with a driver that uses preallocated spi_transfer
+structs. The speed_hz is halved by every run. This results in:
 
-Once it is exhausted, wpa_supplicant starts failing to do SAE with
-NL80211_CMD_FRAME and logs "nl80211: Frame command failed".
+spi_stm32 44004000.spi: SPI transfer setup failed
+ads7846 spi0.0: SPI transfer failed: -22
 
-Use ieee80211_free_txskb() instead of kfree_skb() to fix it.
+Example when running with DIV_ROUND_UP():
+- First run; speed_hz = 1000000, spi->clk_rate 125000000
+  div 125 -> mbrdiv = 7, cur_speed = 976562
+- Second run; speed_hz = 976562
+  div 128,00007 (roundup to 129) -> mbrdiv = 8, cur_speed = 488281
+- Third run; speed_hz = 488281
+  div 256,000131072067109 (roundup to 257) and then -EINVAL is returned.
 
-Signed-off-by: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
-Link: https://lore.kernel.org/r/20221027140133.1504-1-nicolas.cavallari@green-communications.fr
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Use DIV_ROUND_CLOSEST to allow to round down and allow us to keep the
+set speed.
+
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Link: https://lore.kernel.org/r/20221103080043.3033414-1-sean@geanix.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_pathtbl.c | 2 +-
+ drivers/spi/spi-stm32.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
-index 06b44c3c831a..71ebdc85755c 100644
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -731,7 +731,7 @@ int mesh_path_send_to_gates(struct mesh_path *mpath)
- void mesh_path_discard_frame(struct ieee80211_sub_if_data *sdata,
- 			     struct sk_buff *skb)
- {
--	kfree_skb(skb);
-+	ieee80211_free_txskb(&sdata->local->hw, skb);
- 	sdata->u.mesh.mshstats.dropped_frames_no_route++;
- }
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index 8d692f16d90a..b8565da54a72 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -255,7 +255,7 @@ static int stm32_spi_prepare_mbr(struct stm32_spi *spi, u32 speed_hz)
+ 	u32 div, mbrdiv;
  
+ 	/* Ensure spi->clk_rate is even */
+-	div = DIV_ROUND_UP(spi->clk_rate & ~0x1, speed_hz);
++	div = DIV_ROUND_CLOSEST(spi->clk_rate & ~0x1, speed_hz);
+ 
+ 	/*
+ 	 * SPI framework set xfer->speed_hz to master->max_speed_hz if
 -- 
 2.35.1
 
