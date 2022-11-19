@@ -2,80 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F169630DAC
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 10:06:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBA10630DD6
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 10:37:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230424AbiKSJGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Nov 2022 04:06:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37126 "EHLO
+        id S231717AbiKSJhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Nov 2022 04:37:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229470AbiKSJGx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 19 Nov 2022 04:06:53 -0500
-Received: from mail.8bytes.org (mail.8bytes.org [IPv6:2a01:238:42d9:3f00:e505:6202:4f0c:f051])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C90A8A13F1;
-        Sat, 19 Nov 2022 01:06:52 -0800 (PST)
-Received: from 8bytes.org (p200300c27724780086ad4f9d2505dd0d.dip0.t-ipconnect.de [IPv6:2003:c2:7724:7800:86ad:4f9d:2505:dd0d])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.8bytes.org (Postfix) with ESMTPSA id E05922A00C5;
-        Sat, 19 Nov 2022 10:06:49 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
-        s=default; t=1668848810;
-        bh=8Rdt2HShuG8lhLt39g9NwaRNTqvHUGiX0XYjBE5YexU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Wnpbnpp9p8e9cBLzOx41TOESAD0w0muFtbORrZFhxOCSLbkxEijkEvZwXFqzEnaeD
-         0d9JHqT9cVo1SbxztcFqIOVeuUzc0aR2hZ74I4DIwNXGr+bc84lD0SLRQ6zX7HjaEr
-         Mx9vcG5axG3XelhHBzb4Mb/ED6fSmADFRJV9nPszCwIw/uzUmm8Jt2ZCFX4k3lLzF5
-         VnMC9jCY6m1pTPfTh2ZQujUmQwsh0fJi4PULh3pzcDlvA165HbnVfJFkD8Mao3Tgqc
-         32RO1yCyUDV8d/wXsbRCT0bzCNS2cElrCHUBsrKSju7KS8H91+x4hjubWMb0Fblm9y
-         a9YGtO7W7IcHw==
-Date:   Sat, 19 Nov 2022 10:06:48 +0100
-From:   Joerg Roedel <joro@8bytes.org>
-To:     Kim Phillips <kim.phillips@amd.com>
-Cc:     iommu@lists.linux.dev, robin.murphy@arm.com,
-        suravee.suthikulpanit@amd.com, vasant.hegde@amd.com,
-        Mike Day <michael.day@amd.com>, linux-acpi@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] iommu/amd: Fix ill-formed ivrs_ioapic, ivrs_hpet
- and ivrs_acpihid options
-Message-ID: <Y3icqMJ6Oaut6uBC@8bytes.org>
-References: <20220919155638.391481-1-kim.phillips@amd.com>
- <20220919155638.391481-2-kim.phillips@amd.com>
+        with ESMTP id S233867AbiKSJhf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Nov 2022 04:37:35 -0500
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83A01A65A2;
+        Sat, 19 Nov 2022 01:37:34 -0800 (PST)
+Received: from dggpemm500020.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4NDpTF3dS3zmVhY;
+        Sat, 19 Nov 2022 17:37:05 +0800 (CST)
+Received: from dggpemm500013.china.huawei.com (7.185.36.172) by
+ dggpemm500020.china.huawei.com (7.185.36.49) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Sat, 19 Nov 2022 17:37:31 +0800
+Received: from ubuntu1804.huawei.com (10.67.175.36) by
+ dggpemm500013.china.huawei.com (7.185.36.172) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Sat, 19 Nov 2022 17:37:31 +0800
+From:   Chen Zhongjin <chenzhongjin@huawei.com>
+To:     <linux-nilfs@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+CC:     <chenzhongjin@huawei.com>, <konishi.ryusuke@gmail.com>,
+        <akpm@linux-foundation.org>
+Subject: [PATCH v2] nilfs2: Fix nilfs_sufile_mark_dirty() not set segment usage as dirty
+Date:   Sat, 19 Nov 2022 17:34:24 +0800
+Message-ID: <20221119093424.193145-1-chenzhongjin@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220919155638.391481-2-kim.phillips@amd.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Originating-IP: [10.67.175.36]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpemm500013.china.huawei.com (7.185.36.172)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 19, 2022 at 10:56:38AM -0500, Kim Phillips wrote:
-> Currently, these options cause the following libkmod error:
-> 
-> libkmod: ERROR ../libkmod/libkmod-config.c:489 kcmdline_parse_result: \
-> 	Ignoring bad option on kernel command line while parsing module \
-> 	name: 'ivrs_xxxx[XX:XX'
-> 
-> Fix by introducing a new parameter format for these options and
-> throw a warning for the deprecated format.
-> 
-> Users are still allowed to omit the PCI Segment if zero.
-> 
-> Adding a Link: to the reason why we're modding the syntax parsing
-> in the driver and not in libkmod.
-> 
-> Fixes: ca3bf5d47cec ("iommu/amd: Introduces ivrs_acpihid kernel parameter")
-> Cc: stable@vger.kernel.org
-> Link: https://lore.kernel.org/linux-modules/20200310082308.14318-2-lucas.demarchi@intel.com/
-> Reported-by: Kim Phillips <kim.phillips@amd.com>
-> Co-developed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-> Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-> Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+In nilfs_sufile_mark_dirty(), the buffer and inode are set dirty, but
+nilfs_segment_usage is not set dirty, which makes it can be found by
+nilfs_sufile_alloc() because it checks nilfs_segment_usage_clean(su).
 
-Applied, thanks.
+This will cause the problem reported by syzkaller:
+https://syzkaller.appspot.com/bug?id=c7c4748e11ffcc367cef04f76e02e931833cbd24
+
+It's because the case starts with segbuf1.segnum = 3, nextnum = 4, and
+nilfs_sufile_alloc() not called to allocate a new segment.
+
+The first time nilfs_segctor_extend_segments() allocated segment
+segbuf2.segnum = segbuf1.nextnum = 4, then nilfs_sufile_alloc() found
+nextnextnum = 4 segment because its su is not set dirty.
+So segbuf2.nextnum = 4, which causes next segbuf3.segnum = 4.
+
+sb_getblk() will get same bh for segbuf2 and segbuf3, and this bh is
+added to both buffer lists of two segbuf.
+It makes the list head of second list linked to the first one. When
+iterating the first one, it will access and deref the head of second,
+which causes NULL pointer dereference.
+
+Fix this by setting usage as dirty in nilfs_sufile_mark_dirty(),
+and add lock in it to protect the usage modification.
+
+Fixes: 9ff05123e3bf ("nilfs2: segment constructor")
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+77e4f005cb899d4268d1@syzkaller.appspotmail.com
+Reported-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Acked-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+---
+v1 -> v2:
+1) Add lock protection as Ryusuke suggested and slightly fix commit
+message.
+2) Fix and add tags.
+---
+ fs/nilfs2/sufile.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/fs/nilfs2/sufile.c b/fs/nilfs2/sufile.c
+index 77ff8e95421f..dc359b56fdfa 100644
+--- a/fs/nilfs2/sufile.c
++++ b/fs/nilfs2/sufile.c
+@@ -495,14 +495,22 @@ void nilfs_sufile_do_free(struct inode *sufile, __u64 segnum,
+ int nilfs_sufile_mark_dirty(struct inode *sufile, __u64 segnum)
+ {
+ 	struct buffer_head *bh;
++	void *kaddr;
++	struct nilfs_segment_usage *su;
+ 	int ret;
+ 
++	down_write(&NILFS_MDT(sufile)->mi_sem);
+ 	ret = nilfs_sufile_get_segment_usage_block(sufile, segnum, 0, &bh);
+ 	if (!ret) {
+ 		mark_buffer_dirty(bh);
+ 		nilfs_mdt_mark_dirty(sufile);
++		kaddr = kmap_atomic(bh->b_page);
++		su = nilfs_sufile_block_get_segment_usage(sufile, segnum, bh, kaddr);
++		nilfs_segment_usage_set_dirty(su);
++		kunmap_atomic(kaddr);
+ 		brelse(bh);
+ 	}
++	up_write(&NILFS_MDT(sufile)->mi_sem);
+ 	return ret;
+ }
+ 
+-- 
+2.17.1
+
