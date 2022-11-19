@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3323630A8F
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:27:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C387630A90
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:27:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230333AbiKSC1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232480AbiKSC1l (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 18 Nov 2022 21:27:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39524 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236054AbiKSC0q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:26:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20EA0C75BC;
+        with ESMTP id S236052AbiKSC0p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:26:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 015B06AEF3;
         Fri, 18 Nov 2022 18:16:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6EEBB82675;
-        Sat, 19 Nov 2022 02:16:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4F8EC433D6;
-        Sat, 19 Nov 2022 02:16:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 945836281D;
+        Sat, 19 Nov 2022 02:16:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E63DAC433B5;
+        Sat, 19 Nov 2022 02:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824178;
-        bh=bCH7MYI1GijblJTXTLzY7Hpp6MFxcSy81VjOAhyox6g=;
+        s=k20201202; t=1668824180;
+        bh=/6xSMD6UHdU98GX4NucIayPDS4nBVFCfSm/TkkM5y+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LThOVI/J2e6GUSmVhmm1G1PBLiO9Zww3zrkbIwtUT2YTfzJWa9Ouo6f5cnCkXR9Ex
-         39pEUBL94X+H2/QwxS3Lh4CbRzA4m6rdfdP30An/cn8mbyGBYJjLYm6G090YSaff+O
-         eicMpx7wemZ+uZwrJ9j9fJIQRc78RRNu/aWuTiWwgaHByUxUiINFlLCHQ4aPoVE1pY
-         O84NlSKdI4MV0kfZDXdZO6SV+YYD2zNvMzi/zAfNUtqmZAXMkYQOmB27q8AcNAEE2L
-         QgvGgeFWGYx22bK6gnW2xxZuTkt9J5yXM9IoHH6omMgQYZngZtb8k9Vc1hSFErdEso
-         YBMK+bITWkh9Q==
+        b=h9G5jV138EgQvM+VIlFwJ20e3i/8MaLwLBwrScLuhRFcPGV6XTCt7b6eKXKpoSKuo
+         fuWfkW31t6cpOXpSvksd2XxIckSgXJKGMAKyGPWLSP4I4UW4Tax48PGbiJ2n27fID/
+         mbMhavGNb6y+Vci37NNPpf5VoLjzLynzdGFLQK/bbJYiZ3VJ8WvOafaTHl1hBDuBuW
+         HI0ozrGxYVCGzuVp7ctQlEUbEzR5hSWnmMX7Ivk8y5sxVuNm7nrmMta+rxcbyM+v8L
+         HoOeymyffofHTU814+jozbRth2vrcoQu1SW6iR2cWkiWvnynQhUbacljzGl53kcxb+
+         3xrkGPEHb/Xpw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Iris <pawel.js@protonmail.com>, Daniel Dadap <ddadap@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 5/8] ACPI: video: Add backlight=native DMI quirk for Dell G15 5515
-Date:   Fri, 18 Nov 2022 21:16:06 -0500
-Message-Id: <20221119021610.1775469-5-sashal@kernel.org>
+        Rudolf Polzer <rpolzer@google.com>,
+        Simon Ser <contact@emersion.fr>,
+        Sasha Levin <sashal@kernel.org>,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, airlied@gmail.com, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 6/8] drm: panel-orientation-quirks: Add quirk for Acer Switch V 10 (SW5-017)
+Date:   Fri, 18 Nov 2022 21:16:07 -0500
+Message-Id: <20221119021610.1775469-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021610.1775469-1-sashal@kernel.org>
 References: <20221119021610.1775469-1-sashal@kernel.org>
@@ -58,52 +61,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f46acc1efd4b5846de9fa05f966e504f328f34a6 ]
+[ Upstream commit 653f2d94fcda200b02bd79cea2e0307b26c1b747 ]
 
-The Dell G15 5515 has the WMI interface (and WMI call returns) expected
-by the nvidia-wmi-ec-backlight interface. But the backlight class device
-registered by the nvidia-wmi-ec-backlight driver does not actually work.
+Like the Acer Switch One 10 S1003, for which there already is a quirk,
+the Acer Switch V 10 (SW5-017) has a 800x1280 portrait screen mounted
+in the tablet part of a landscape oriented 2-in-1. Add a quirk for this.
 
-The amdgpu_bl0 native GPU backlight class device does actually work,
-add a backlight=native DMI quirk for this.
-
-Reported-by: Iris <pawel.js@protonmail.com>
-Reviewed-by: Daniel Dadap <ddadap@nvidia.com>
+Cc: Rudolf Polzer <rpolzer@google.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Changes in v2:
-- Add a comment that this needs to be revisited when dynamic-mux
-  support gets added (suggested by: Daniel Dadap)
+Acked-by: Simon Ser <contact@emersion.fr>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221106215052.66995-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/video_detect.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
-index 0ec74ab2a399..2008bba48b06 100644
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -511,6 +511,20 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
- 		DMI_MATCH(DMI_BOARD_NAME, "GMxRGxx"),
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index bea1d3e7e964..7a2a148b8ec6 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -95,6 +95,12 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "One S1003"),
  		},
- 	},
-+	/*
-+	 * Models which have nvidia-ec-wmi support, but should not use it.
-+	 * Note this indicates a likely firmware bug on these models and should
-+	 * be revisited if/when Linux gets support for dynamic mux mode.
-+	 */
-+	{
-+	 .callback = video_detect_force_native,
-+	 /* Dell G15 5515 */
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "Dell G15 5515"),
+ 		.driver_data = (void *)&lcd800x1280_rightside_up,
++	}, {	/* Acer Switch V 10 (SW5-017) */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SW5-017"),
 +		},
-+	},
-+
- 	/*
- 	 * Desktops which falsely report a backlight and which our heuristics
- 	 * for this do not catch.
++		.driver_data = (void *)&lcd800x1280_rightside_up,
+ 	}, {	/* Anbernic Win600 */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Anbernic"),
 -- 
 2.35.1
 
