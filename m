@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00C6D630A05
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:22:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC8A0630A0D
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:22:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232568AbiKSCWw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:22:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58478 "EHLO
+        id S235344AbiKSCWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:22:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235404AbiKSCVQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:21:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FA92BDEC2;
-        Fri, 18 Nov 2022 18:14:43 -0800 (PST)
+        with ESMTP id S235600AbiKSCV3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:21:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2530C6547;
+        Fri, 18 Nov 2022 18:14:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3B3D6280C;
-        Sat, 19 Nov 2022 02:14:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4659AC4347C;
-        Sat, 19 Nov 2022 02:14:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39B10B82672;
+        Sat, 19 Nov 2022 02:14:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82E92C433D7;
+        Sat, 19 Nov 2022 02:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824076;
-        bh=aRsMMGmvgD/lbdqaN0JidPGzRj14aJPQ1+YlVjXftfk=;
+        s=k20201202; t=1668824079;
+        bh=gGLteT8K6TxzFC9zMhFubn3DVHcCYF7LsJcYHZfDbXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=phQmmRo463SqSVptHZYhn9/eQCNXTTDYXDRXblqf6qdOkgm4Anp2zO5/OL8Cs7jyy
-         ckm8zSFLKFkNBKhrs8JGJTSy0o5j05ggXWQGYVVeMj1ON/5o6w9wYUnu+auD3+CvH5
-         vkcYI0W/zrXZIiKZg8vGnLah9z9brmmdV7T4vOiXkSKCAoV2ALT+jXrAignL400h3l
-         v9RIIKMNx/sk5JbLiWbBvTkWdXh5oUSQRDuNOHQ6va9x21/ogkcKUg64Z9GdWxbORT
-         9BDtOxlFewfqShoIGhFF2Dmf2OH+LFIwzxMYpmBdlMwojPHfq5ayR1/qCih10QRM4/
-         VSNu/hQ9QsujA==
+        b=i5GnVJJ2rrpc8ucgFRBIs8bpFLHBOic371niLl6zYAXQ2SLukSmJxbdvdjpdoWPYT
+         iyel7ahj7i6804IUwLLmlI8t8WtoVjEgr9XTsOmUQBwsQXcya321ws982Oah7eEz9o
+         h3Lx+v1cwn3UDT4c9ivZwMpET3CyYEpeI7TTztCi3+jGxV72FkHi8DXgFIAYbDeaUX
+         TcLaOiXfHPsdn41HXAkBXT8qab/bqZPHMTUEw+Q00mNTnjzpM32h6566gf3o2FczSr
+         pBgNjPbpodAfpMvRjZ8oG3MH4w7hXd1nV5OXfc7XgTVLQEkAFVtW/AVy5Iwg69O4iw
+         H1fwV/pzaIJKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aleksandr Miloserdov <a.miloserdov@yadro.com>,
-        Konstantin Shelekhin <k.shelekhin@yadro.com>,
-        Dmitriy Bogdanov <d.bogdanov@yadro.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, kch@nvidia.com,
-        linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 23/27] nvmet: fix memory leak in nvmet_subsys_attr_model_store_locked
-Date:   Fri, 18 Nov 2022 21:13:48 -0500
-Message-Id: <20221119021352.1774592-23-sashal@kernel.org>
+Cc:     Asher Song <Asher.Song@amd.com>, Guchun Chen <guchun.chen@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, evan.quan@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, stalkerg@gmail.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 24/27] Revert "drm/amdgpu: Revert "drm/amdgpu: getting fan speed pwm for vega10 properly""
+Date:   Fri, 18 Nov 2022 21:13:49 -0500
+Message-Id: <20221119021352.1774592-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021352.1774592-1-sashal@kernel.org>
 References: <20221119021352.1774592-1-sashal@kernel.org>
@@ -59,49 +58,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksandr Miloserdov <a.miloserdov@yadro.com>
+From: Asher Song <Asher.Song@amd.com>
 
-[ Upstream commit becc4cac309dc867571f0080fde4426a6c2222e0 ]
+[ Upstream commit 30b8e7b8ee3be003e0df85c857c5cd0e0bd58b82 ]
 
-Since model_number is allocated before it needs to be freed before
-kmemdump_nul.
+This reverts commit 4545ae2ed3f2f7c3f615a53399c9c8460ee5bca7.
 
-Reviewed-by: Konstantin Shelekhin <k.shelekhin@yadro.com>
-Reviewed-by: Dmitriy Bogdanov <d.bogdanov@yadro.com>
-Signed-off-by: Aleksandr Miloserdov <a.miloserdov@yadro.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+The origin patch "drm/amdgpu: getting fan speed pwm for vega10 properly" works fine.
+Test failure is caused by test case self.
+
+Signed-off-by: Asher Song <Asher.Song@amd.com>
+Reviewed-by: Guchun Chen <guchun.chen@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/configfs.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ .../amd/pm/powerplay/hwmgr/vega10_thermal.c   | 25 +++++++++----------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/nvme/target/configfs.c b/drivers/nvme/target/configfs.c
-index cea30e4f5053..625038057a76 100644
---- a/drivers/nvme/target/configfs.c
-+++ b/drivers/nvme/target/configfs.c
-@@ -1189,6 +1189,7 @@ static ssize_t nvmet_subsys_attr_model_store_locked(struct nvmet_subsys *subsys,
- 		const char *page, size_t count)
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_thermal.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_thermal.c
+index dad3e3741a4e..190af79f3236 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_thermal.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_thermal.c
+@@ -67,22 +67,21 @@ int vega10_fan_ctrl_get_fan_speed_info(struct pp_hwmgr *hwmgr,
+ int vega10_fan_ctrl_get_fan_speed_pwm(struct pp_hwmgr *hwmgr,
+ 		uint32_t *speed)
  {
- 	int pos = 0, len;
-+	char *val;
+-	uint32_t current_rpm;
+-	uint32_t percent = 0;
+-
+-	if (hwmgr->thermal_controller.fanInfo.bNoFan)
+-		return 0;
++	struct amdgpu_device *adev = hwmgr->adev;
++	uint32_t duty100, duty;
++	uint64_t tmp64;
  
- 	if (subsys->subsys_discovered) {
- 		pr_err("Can't set model number. %s is already assigned\n",
-@@ -1211,9 +1212,11 @@ static ssize_t nvmet_subsys_attr_model_store_locked(struct nvmet_subsys *subsys,
- 			return -EINVAL;
- 	}
+-	if (vega10_get_current_rpm(hwmgr, &current_rpm))
+-		return -1;
++	duty100 = REG_GET_FIELD(RREG32_SOC15(THM, 0, mmCG_FDO_CTRL1),
++				CG_FDO_CTRL1, FMAX_DUTY100);
++	duty = REG_GET_FIELD(RREG32_SOC15(THM, 0, mmCG_THERMAL_STATUS),
++				CG_THERMAL_STATUS, FDO_PWM_DUTY);
  
--	subsys->model_number = kmemdup_nul(page, len, GFP_KERNEL);
--	if (!subsys->model_number)
-+	val = kmemdup_nul(page, len, GFP_KERNEL);
-+	if (!val)
- 		return -ENOMEM;
-+	kfree(subsys->model_number);
-+	subsys->model_number = val;
- 	return count;
+-	if (hwmgr->thermal_controller.
+-			advanceFanControlParameters.usMaxFanRPM != 0)
+-		percent = current_rpm * 255 /
+-			hwmgr->thermal_controller.
+-			advanceFanControlParameters.usMaxFanRPM;
++	if (!duty100)
++		return -EINVAL;
+ 
+-	*speed = MIN(percent, 255);
++	tmp64 = (uint64_t)duty * 255;
++	do_div(tmp64, duty100);
++	*speed = MIN((uint32_t)tmp64, 255);
+ 
+ 	return 0;
  }
- 
 -- 
 2.35.1
 
