@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1427A630AB1
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:30:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5571630AB3
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:30:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235382AbiKSCag (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:30:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54972 "EHLO
+        id S236159AbiKSCai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:30:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235482AbiKSC3d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:29:33 -0500
+        with ESMTP id S235669AbiKSC3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:29:34 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 359B4C80FB;
-        Fri, 18 Nov 2022 18:16:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE79FC8465;
+        Fri, 18 Nov 2022 18:16:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0228B82672;
-        Sat, 19 Nov 2022 02:16:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2639C433C1;
-        Sat, 19 Nov 2022 02:16:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69B86B825B6;
+        Sat, 19 Nov 2022 02:16:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D14E6C433C1;
+        Sat, 19 Nov 2022 02:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824204;
-        bh=I84bOwHkVnsTvDgkw2gb+kyVJZQH1oBuSUisAlazIdY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBDTnL+tjTp2QVV2mjZawH2iUo0BWNVIqA0H1FV0r6AB+fNA8IHetU8bGsRcKosY4
-         wzhmLH/Etkr1W0zJswNi3lOCM6NZy/OpwqKbD5ASEOgYTLqmQn/r2NDYdoS0x1f7xB
-         x/0QxySkN/ybJ5Y0cd7f/CNN4Xm6sobXxx08AotyTQ1CbiVarkxqYSvyse+sIm5M+j
-         +i7uBV5iEQBrC9aDxcxEPzbUSP1JreP8UezwwkDuBQ3pIko8G/WDhLJ28ttF/tkm38
-         BvjR55QYdQOoiWiQ1TnupDXzeTtOefuTz30Iz83jLLE3ntVs2dY9F0wlTJBXr6OCL9
-         9NUjp0hvbylkg==
+        s=k20201202; t=1668824208;
+        bh=fqeGAc5+fS401bCbDjWqaUnh7yp2mdmv6cuNy0iLfNU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=oTHLucqyGXiWEMyWDUNL1ZN0NQKzVogStm0YI+GvoDu3163sgMipnyNZk+cf1BR0u
+         BAjtFj9HD3B5P54LSOX3g8fFkBB9NaOUS96GOWbYf9ijOawxda4Lp+8tm4vElkZeCE
+         q5NU2VVFuBUStYLgZEKK4S4pbnQuLaXimbWXHW1i3FCVffuvmR2Dm0KiYJBuKBwyEk
+         Gu25+fQ3OfNshnhB7g1uIcJKBF6Fk8ihqmsXcVezIa2q8XTr2hxN7hbTPQfJgKTYOw
+         hZlwioooA4DysPLW7rGvPf5ihmuVqzYDeU8ey1F8RrMaQOJBAxe5q6WZFae6Eg9FW/
+         13XC7GCa6GHWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, yangtiezhu@loongson.cn,
-        windhl@126.com, wsa+renesas@sang-engineering.com,
-        linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 6/6] MIPS: pic32: treat port as signed integer
-Date:   Fri, 18 Nov 2022 21:16:30 -0500
-Message-Id: <20221119021630.1775586-6-sashal@kernel.org>
+Cc:     Jonas Jelonek <jelonek.jonas@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
+        kvalo@kernel.org, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 1/4] wifi: mac80211_hwsim: fix debugfs attribute ps with rc table support
+Date:   Fri, 18 Nov 2022 21:16:42 -0500
+Message-Id: <20221119021645.1775682-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221119021630.1775586-1-sashal@kernel.org>
-References: <20221119021630.1775586-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,103 +56,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Jonas Jelonek <jelonek.jonas@gmail.com>
 
-[ Upstream commit 648060902aa302331b5d6e4f26d8ee0761d239ab ]
+[ Upstream commit 69188df5f6e4cecc6b76b958979ba363cd5240e8 ]
 
-get_port_from_cmdline() returns an int, yet is assigned to a char, which
-is wrong in its own right, but also, with char becoming unsigned, this
-poses problems, because -1 is used as an error value. Further
-complicating things, fw_init_early_console() is only ever called with a
--1 argument. Fix this up by removing the unused argument from
-fw_init_early_console() and treating port as a proper signed integer.
+Fixes a warning that occurs when rc table support is enabled
+(IEEE80211_HW_SUPPORTS_RC_TABLE) in mac80211_hwsim and the PS mode
+is changed via the exported debugfs attribute.
 
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+When the PS mode is changed, a packet is broadcasted via
+hwsim_send_nullfunc by creating and transmitting a plain skb with only
+header initialized. The ieee80211 rate array in the control buffer is
+zero-initialized. When ratetbl support is enabled, ieee80211_get_tx_rates
+is called for the skb with sta parameter set to NULL and thus no
+ratetbl can be used. The final rate array then looks like
+[-1,0; 0,0; 0,0; 0,0] which causes the warning in ieee80211_get_tx_rate.
+
+The issue is fixed by setting the count of the first rate with idx '0'
+to 1 and hence ieee80211_get_tx_rates won't overwrite it with idx '-1'.
+
+Signed-off-by: Jonas Jelonek <jelonek.jonas@gmail.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/fw/fw.h             |  2 +-
- arch/mips/pic32/pic32mzda/early_console.c | 13 ++++++-------
- arch/mips/pic32/pic32mzda/init.c          |  2 +-
- 3 files changed, 8 insertions(+), 9 deletions(-)
+ drivers/net/wireless/mac80211_hwsim.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/mips/include/asm/fw/fw.h b/arch/mips/include/asm/fw/fw.h
-index d0ef8b4892bb..d0494ce4b337 100644
---- a/arch/mips/include/asm/fw/fw.h
-+++ b/arch/mips/include/asm/fw/fw.h
-@@ -26,6 +26,6 @@ extern char *fw_getcmdline(void);
- extern void fw_meminit(void);
- extern char *fw_getenv(char *name);
- extern unsigned long fw_getenvl(char *name);
--extern void fw_init_early_console(char port);
-+extern void fw_init_early_console(void);
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index 70251c703c9e..53e0fec274a4 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -671,6 +671,7 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
+ 	struct hwsim_vif_priv *vp = (void *)vif->drv_priv;
+ 	struct sk_buff *skb;
+ 	struct ieee80211_hdr *hdr;
++	struct ieee80211_tx_info *cb;
  
- #endif /* __ASM_FW_H_ */
-diff --git a/arch/mips/pic32/pic32mzda/early_console.c b/arch/mips/pic32/pic32mzda/early_console.c
-index d7b783463fac..4933c5337059 100644
---- a/arch/mips/pic32/pic32mzda/early_console.c
-+++ b/arch/mips/pic32/pic32mzda/early_console.c
-@@ -34,7 +34,7 @@
- #define U_BRG(x)	(UART_BASE(x) + 0x40)
- 
- static void __iomem *uart_base;
--static char console_port = -1;
-+static int console_port = -1;
- 
- static int __init configure_uart_pins(int port)
- {
-@@ -54,7 +54,7 @@ static int __init configure_uart_pins(int port)
- 	return 0;
- }
- 
--static void __init configure_uart(char port, int baud)
-+static void __init configure_uart(int port, int baud)
- {
- 	u32 pbclk;
- 
-@@ -67,7 +67,7 @@ static void __init configure_uart(char port, int baud)
- 		     uart_base + PIC32_SET(U_STA(port)));
- }
- 
--static void __init setup_early_console(char port, int baud)
-+static void __init setup_early_console(int port, int baud)
- {
- 	if (configure_uart_pins(port))
+ 	if (!vp->assoc)
  		return;
-@@ -137,16 +137,15 @@ static int __init get_baud_from_cmdline(char *arch_cmdline)
- 	return baud;
- }
+@@ -691,6 +692,10 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
+ 	memcpy(hdr->addr2, mac, ETH_ALEN);
+ 	memcpy(hdr->addr3, vp->bssid, ETH_ALEN);
  
--void __init fw_init_early_console(char port)
-+void __init fw_init_early_console(void)
- {
- 	char *arch_cmdline = pic32_getcmdline();
--	int baud = -1;
-+	int baud, port;
- 
- 	uart_base = ioremap_nocache(PIC32_BASE_UART, 0xc00);
- 
- 	baud = get_baud_from_cmdline(arch_cmdline);
--	if (port == -1)
--		port = get_port_from_cmdline(arch_cmdline);
-+	port = get_port_from_cmdline(arch_cmdline);
- 
- 	if (port == -1)
- 		port = EARLY_CONSOLE_PORT;
-diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
-index 406c6c5cec29..cf2625551b45 100644
---- a/arch/mips/pic32/pic32mzda/init.c
-+++ b/arch/mips/pic32/pic32mzda/init.c
-@@ -68,7 +68,7 @@ void __init plat_mem_setup(void)
- 		strlcpy(arcs_cmdline, boot_command_line, COMMAND_LINE_SIZE);
- 
- #ifdef CONFIG_EARLY_PRINTK
--	fw_init_early_console(-1);
-+	fw_init_early_console();
- #endif
- 	pic32_config_init();
- }
++	cb = IEEE80211_SKB_CB(skb);
++	cb->control.rates[0].count = 1;
++	cb->control.rates[1].idx = -1;
++
+ 	rcu_read_lock();
+ 	mac80211_hwsim_tx_frame(data->hw, skb,
+ 				rcu_dereference(vif->chanctx_conf)->def.chan);
 -- 
 2.35.1
 
