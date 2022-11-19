@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA83630A45
+	by mail.lfdr.de (Postfix) with ESMTP id A03BE630A44
 	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:24:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229596AbiKSCYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:24:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59542 "EHLO
+        id S233861AbiKSCY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:24:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232923AbiKSCWw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:22:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B29CAC72D0;
-        Fri, 18 Nov 2022 18:15:23 -0800 (PST)
+        with ESMTP id S234739AbiKSCWx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:22:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA93C72C5;
+        Fri, 18 Nov 2022 18:15:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53DBE62841;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49950B82678;
+        Sat, 19 Nov 2022 02:15:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 331F6C43146;
         Sat, 19 Nov 2022 02:15:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D09EC43141;
-        Sat, 19 Nov 2022 02:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824120;
-        bh=1UBLBsTenWnHkOJqx3f6bdHXzK3ohnLPjO9Q/7P4CC0=;
+        s=k20201202; t=1668824122;
+        bh=CoPjKinLd5zi2JDuYqAsz42tE0yq+RlZEeZtnxDFjFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UaMLMpL+F+vws8I5st+YAdQBBwxm5WzSw0kWVktVPUbI4ODYqvrbyVNPjjKA9Eatv
-         u8q2/tFtwL97fYB6ZYr5qhJHb0lgEVKkFh8MgEZ5V06D0kFMMlHRjqK18aI4/LxUaM
-         6EFMDc7DxxG/SjCgef7Iwrg3MwPADOL5J6EuntQRx47dLR52PccHQ5j8cRKZ3/jmi9
-         Cm6lGgsRtLy/erLkfKKG8bGs+hH+TPWZ6b3S58RnFMyeaHM2vdi3XEMzew/75ZLqR9
-         RAyfrrPETNHTUnCfddtR2/PyHLk+9V0cxteuFm3fplefl19cYbUmzP6YY6A01c0uKw
-         NbF2IaISREiaQ==
+        b=n1Q82oma9Iq7R2qk2CUAd/VgpXkouPuIbpb1xgCXpUDb9VEudMjYqcL8f3SwH3Qpm
+         qgUQyYuSRn4rW7HQzdzCwp4YCIzUahriri69QEKTxsuYjcbzQ8pFNECN3w5zOErc16
+         Wa3tRkiQ2Qd88jTdJzVSfkMBV3f56053dhMRBnGlBMmOIv1s4aSe9othoMkbjVFfd+
+         q/zZHHRSbYLIV3a/LyIjzkZCIHvF+xVFPh+lm94P8Op/bEBfpQyDktT6dL6QRBGyAu
+         ysLvrxlb+hUsM3lNyKwh53k0+30ploFlrnbUMqk75V3p2PrTx9V7x6ezZ4bOpkRsS1
+         860+D1nfVnehg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sabrina Dubroca <sd@queasysnail.net>,
-        Antoine Tenart <atenart@kernel.org>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 09/18] Revert "net: macsec: report real_dev features when HW offloading is enabled"
-Date:   Fri, 18 Nov 2022 21:14:50 -0500
-Message-Id: <20221119021459.1775052-9-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Iris <pawel.js@protonmail.com>, Daniel Dadap <ddadap@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 10/18] ACPI: video: Add backlight=native DMI quirk for Dell G15 5515
+Date:   Fri, 18 Nov 2022 21:14:51 -0500
+Message-Id: <20221119021459.1775052-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021459.1775052-1-sashal@kernel.org>
 References: <20221119021459.1775052-1-sashal@kernel.org>
@@ -58,111 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 8bcd560ae8784da57c610d857118c5d6576b1a8f ]
+[ Upstream commit f46acc1efd4b5846de9fa05f966e504f328f34a6 ]
 
-This reverts commit c850240b6c4132574a00f2da439277ab94265b66.
+The Dell G15 5515 has the WMI interface (and WMI call returns) expected
+by the nvidia-wmi-ec-backlight interface. But the backlight class device
+registered by the nvidia-wmi-ec-backlight driver does not actually work.
 
-That commit tried to improve the performance of macsec offload by
-taking advantage of some of the NIC's features, but in doing so, broke
-macsec offload when the lower device supports both macsec and ipsec
-offload, as the ipsec offload feature flags (mainly NETIF_F_HW_ESP)
-were copied from the real device. Since the macsec device doesn't
-provide xdo_* ops, the XFRM core rejects the registration of the new
-macsec device in xfrm_api_check.
+The amdgpu_bl0 native GPU backlight class device does actually work,
+add a backlight=native DMI quirk for this.
 
-Example perf trace when running
-  ip link add link eni1np1 type macsec port 4 offload mac
-
-    ip   737 [003]   795.477676: probe:xfrm_dev_event__REGISTER      name="macsec0" features=0x1c000080014869
-              xfrm_dev_event+0x3a
-              notifier_call_chain+0x47
-              register_netdevice+0x846
-              macsec_newlink+0x25a
-
-    ip   737 [003]   795.477687:   probe:xfrm_dev_event__return      ret=0x8002 (NOTIFY_BAD)
-             notifier_call_chain+0x47
-             register_netdevice+0x846
-             macsec_newlink+0x25a
-
-dev->features includes NETIF_F_HW_ESP (0x04000000000000), so
-xfrm_api_check returns NOTIFY_BAD because we don't have
-dev->xfrmdev_ops on the macsec device.
-
-We could probably propagate GSO and a few other features from the
-lower device, similar to macvlan. This will be done in a future patch.
-
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Reviewed-by: Antoine Tenart <atenart@kernel.org>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Iris <pawel.js@protonmail.com>
+Reviewed-by: Daniel Dadap <ddadap@nvidia.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+- Add a comment that this needs to be revisited when dynamic-mux
+  support gets added (suggested by: Daniel Dadap)
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 27 ++++-----------------------
- 1 file changed, 4 insertions(+), 23 deletions(-)
+ drivers/acpi/video_detect.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index f84e3cc0d3ec..c20ebf44acfe 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -2648,11 +2648,6 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
- 	if (ret)
- 		goto rollback;
- 
--	/* Force features update, since they are different for SW MACSec and
--	 * HW offloading cases.
--	 */
--	netdev_update_features(dev);
--
- 	rtnl_unlock();
- 	return 0;
- 
-@@ -3420,16 +3415,9 @@ static netdev_tx_t macsec_start_xmit(struct sk_buff *skb,
- 	return ret;
- }
- 
--#define SW_MACSEC_FEATURES \
-+#define MACSEC_FEATURES \
- 	(NETIF_F_SG | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST)
- 
--/* If h/w offloading is enabled, use real device features save for
-- *   VLAN_FEATURES - they require additional ops
-- *   HW_MACSEC - no reason to report it
-- */
--#define REAL_DEV_FEATURES(dev) \
--	((dev)->features & ~(NETIF_F_VLAN_FEATURES | NETIF_F_HW_MACSEC))
--
- static int macsec_dev_init(struct net_device *dev)
- {
- 	struct macsec_dev *macsec = macsec_priv(dev);
-@@ -3446,12 +3434,8 @@ static int macsec_dev_init(struct net_device *dev)
- 		return err;
- 	}
- 
--	if (macsec_is_offloaded(macsec)) {
--		dev->features = REAL_DEV_FEATURES(real_dev);
--	} else {
--		dev->features = real_dev->features & SW_MACSEC_FEATURES;
--		dev->features |= NETIF_F_LLTX | NETIF_F_GSO_SOFTWARE;
--	}
-+	dev->features = real_dev->features & MACSEC_FEATURES;
-+	dev->features |= NETIF_F_LLTX | NETIF_F_GSO_SOFTWARE;
- 
- 	dev->needed_headroom = real_dev->needed_headroom +
- 			       MACSEC_NEEDED_HEADROOM;
-@@ -3480,10 +3464,7 @@ static netdev_features_t macsec_fix_features(struct net_device *dev,
- 	struct macsec_dev *macsec = macsec_priv(dev);
- 	struct net_device *real_dev = macsec->real_dev;
- 
--	if (macsec_is_offloaded(macsec))
--		return REAL_DEV_FEATURES(real_dev);
--
--	features &= (real_dev->features & SW_MACSEC_FEATURES) |
-+	features &= (real_dev->features & MACSEC_FEATURES) |
- 		    NETIF_F_GSO_SOFTWARE | NETIF_F_SOFT_FEATURES;
- 	features |= NETIF_F_LLTX;
- 
+diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
+index b13713199ad9..8dfcb6b44936 100644
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -564,6 +564,20 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 		DMI_MATCH(DMI_BOARD_NAME, "GMxRGxx"),
+ 		},
+ 	},
++	/*
++	 * Models which have nvidia-ec-wmi support, but should not use it.
++	 * Note this indicates a likely firmware bug on these models and should
++	 * be revisited if/when Linux gets support for dynamic mux mode.
++	 */
++	{
++	 .callback = video_detect_force_native,
++	 /* Dell G15 5515 */
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++		DMI_MATCH(DMI_PRODUCT_NAME, "Dell G15 5515"),
++		},
++	},
++
+ 	/*
+ 	 * Desktops which falsely report a backlight and which our heuristics
+ 	 * for this do not catch.
 -- 
 2.35.1
 
