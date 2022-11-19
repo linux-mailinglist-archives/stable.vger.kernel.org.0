@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8A4C630A47
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:24:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C40B630A4C
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:24:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235801AbiKSCYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:24:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39288 "EHLO
+        id S235952AbiKSCYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:24:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235382AbiKSCW6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:22:58 -0500
+        with ESMTP id S235462AbiKSCW7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:22:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A735C6223;
-        Fri, 18 Nov 2022 18:15:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B330663D6;
+        Fri, 18 Nov 2022 18:15:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1EC162832;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 318F56283A;
+        Sat, 19 Nov 2022 02:15:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5F86C43141;
         Sat, 19 Nov 2022 02:15:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76919C43470;
-        Sat, 19 Nov 2022 02:15:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824123;
-        bh=SqsKySvKD3lBPFNaijXqMwh/KmrYMvYdDYfzg8IAPfY=;
+        s=k20201202; t=1668824124;
+        bh=bzgxtzJg6SklpSstnlHnMYOaH1qdiZgItrc+nr3lWgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqOt/IhEJR6waemzmz5nGt7NJwj+VaLlkQP00pJTYcGh6jxS4Fg94ikQvpcqjnpQ9
-         mpFChYoav8IB7T90gF+4QSK++D69NxUpKmQX5LPzHpfEibr1OeVWZdcu6uL41xSqAW
-         MX903McyQVaqFgLn914LNxB4KPzc7oV04DHrpSwX53oP/kp+RMSSCV3GON5GpKoFGw
-         axEoO5xQRmlmqqsCxZMEC7bUxlyhvuJn0iu7VXk0+xMVs2bixdDhjIvl6vPeUeCGI/
-         LPR2DiwUHjhudojr3ALknaQ4U0V/q+6Cw7uqYCkWqm9wu8iC4jfTEWXehDuEaYqBy5
-         g/S7rQ1uUZmoQ==
+        b=EOEgoer/cGCBxqAxu71RDMzG5X42WDwrouLjpLHy1e0UgUfscVxDxWXS5Pc4HBaNV
+         zENTI8+lJXA0aeOrSnJXJy+++KTUaOmSCx9ob89247tsHR3m3zurAFETge3tMLN5HK
+         OQ+8Gi1go03xE1B0hdIKCM7rYwkiHBjhEvWdtLnuDdmpBQjAOu1XGw56cHZmwaSrrR
+         kxaSUphhJhn1ynwIwO6FobFUYBu8ilrpOuQa7Aw1YLx3WWPrnk9TE6FhksCb8eVaCz
+         18GUbuh6bP/3ZCKC42vbcudSNw1huMT0IQ4CPTp9IzXmL3uu9qil9DdQwIhGlTxLdk
+         36hbEhb1gC1BQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
-        linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 11/18] platform/x86: touchscreen_dmi: Add info for the RCA Cambio W101 v2 2-in-1
-Date:   Fri, 18 Nov 2022 21:14:52 -0500
-Message-Id: <20221119021459.1775052-11-sashal@kernel.org>
+Cc:     Brian King <brking@linux.vnet.ibm.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, tyreld@linux.ibm.com,
+        mpe@ellerman.id.au, jejb@linux.ibm.com, linux-scsi@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.10 12/18] scsi: ibmvfc: Avoid path failures during live migration
+Date:   Fri, 18 Nov 2022 21:14:53 -0500
+Message-Id: <20221119021459.1775052-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021459.1775052-1-sashal@kernel.org>
 References: <20221119021459.1775052-1-sashal@kernel.org>
@@ -55,63 +57,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Brian King <brking@linux.vnet.ibm.com>
 
-[ Upstream commit 0df044b34bf33e7e35c32b3bf6747fde6279c162 ]
+[ Upstream commit 62fa3ce05d5d73c5eccc40b2db493f55fecfc446 ]
 
-Add touchscreen info for the RCA Cambio W101 v2 2-in-1.
+Fix an issue reported when performing a live migration when multipath is
+configured with a short fast fail timeout of 5 seconds and also to have
+no_path_retry set to fail. In this scenario, all paths would go into the
+devloss state while the ibmvfc driver went through discovery to log back
+in. On a loaded system, the discovery might take longer than 5 seconds,
+which was resulting in all paths being marked failed, which then resulted
+in a read only filesystem.
 
-Link: https://github.com/onitake/gsl-firmware/discussions/193
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20221025141131.509211-1-hdegoede@redhat.com
+This patch changes the migration code in ibmvfc to avoid deleting rports at
+all in this scenario, so we avoid losing all paths.
+
+Signed-off-by: Brian King <brking@linux.vnet.ibm.com>
+Link: https://lore.kernel.org/r/20221026181356.148517-1-brking@linux.vnet.ibm.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/scsi/ibmvscsi/ibmvfc.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index ab6a9369649d..110ff1e6ef81 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -756,6 +756,22 @@ static const struct ts_dmi_data predia_basic_data = {
- 	.properties	= predia_basic_props,
- };
+diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
+index f6d6539c657f..b793e342ab7c 100644
+--- a/drivers/scsi/ibmvscsi/ibmvfc.c
++++ b/drivers/scsi/ibmvscsi/ibmvfc.c
+@@ -635,8 +635,13 @@ static void ibmvfc_init_host(struct ibmvfc_host *vhost)
+ 		memset(vhost->async_crq.msgs, 0, PAGE_SIZE);
+ 		vhost->async_crq.cur = 0;
  
-+static const struct property_entry rca_cambio_w101_v2_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
-+	PROPERTY_ENTRY_U32("touchscreen-min-y", 20),
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1644),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 874),
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-rca-cambio-w101-v2.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	{ }
-+};
+-		list_for_each_entry(tgt, &vhost->targets, queue)
+-			ibmvfc_del_tgt(tgt);
++		list_for_each_entry(tgt, &vhost->targets, queue) {
++			if (vhost->client_migrated)
++				tgt->need_login = 1;
++			else
++				ibmvfc_del_tgt(tgt);
++		}
 +
-+static const struct ts_dmi_data rca_cambio_w101_v2_data = {
-+	.acpi_name = "MSSL1680:00",
-+	.properties = rca_cambio_w101_v2_props,
-+};
+ 		scsi_block_requests(vhost->host);
+ 		ibmvfc_set_host_action(vhost, IBMVFC_HOST_ACTION_INIT);
+ 		vhost->job_step = ibmvfc_npiv_login;
+@@ -2822,9 +2827,12 @@ static void ibmvfc_handle_crq(struct ibmvfc_crq *crq, struct ibmvfc_host *vhost)
+ 			/* We need to re-setup the interpartition connection */
+ 			dev_info(vhost->dev, "Partition migrated, Re-enabling adapter\n");
+ 			vhost->client_migrated = 1;
 +
- static const struct property_entry rwc_nanote_p8_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-min-y", 46),
- 	PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
-@@ -1341,6 +1357,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_EXACT_MATCH(DMI_BOARD_NAME, "0E57"),
- 		},
- 	},
-+	{
-+		/* RCA Cambio W101 v2 */
-+		/* https://github.com/onitake/gsl-firmware/discussions/193 */
-+		.driver_data = (void *)&rca_cambio_w101_v2_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "RCA"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "W101SA23T1"),
-+		},
-+	},
- 	{
- 		/* RWC NANOTE P8 */
- 		.driver_data = (void *)&rwc_nanote_p8_data,
++			scsi_block_requests(vhost->host);
+ 			ibmvfc_purge_requests(vhost, DID_REQUEUE);
+-			ibmvfc_link_down(vhost, IBMVFC_LINK_DOWN);
++			ibmvfc_set_host_state(vhost, IBMVFC_LINK_DOWN);
+ 			ibmvfc_set_host_action(vhost, IBMVFC_HOST_ACTION_REENABLE);
++			wake_up(&vhost->work_wait_q);
+ 		} else if (crq->format == IBMVFC_PARTNER_FAILED || crq->format == IBMVFC_PARTNER_DEREGISTER) {
+ 			dev_err(vhost->dev, "Host partner adapter deregistered or failed (rc=%d)\n", crq->format);
+ 			ibmvfc_purge_requests(vhost, DID_ERROR);
 -- 
 2.35.1
 
