@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F6E96309F7
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:21:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72D75630A06
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:22:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235544AbiKSCVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:21:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58570 "EHLO
+        id S234743AbiKSCWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:22:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235537AbiKSCUZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:20:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21270C2876;
-        Fri, 18 Nov 2022 18:14:37 -0800 (PST)
+        with ESMTP id S235378AbiKSCVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:21:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1727A5724;
+        Fri, 18 Nov 2022 18:14:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F63A62831;
-        Sat, 19 Nov 2022 02:14:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 594B2C433D6;
-        Sat, 19 Nov 2022 02:14:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53E1DB82679;
+        Sat, 19 Nov 2022 02:14:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E93F6C433D7;
+        Sat, 19 Nov 2022 02:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824070;
-        bh=7YUEQNDGA0vOxlITCjEjDaauczgHKcdjWHCvmreHK6o=;
+        s=k20201202; t=1668824072;
+        bh=KOH7+RQT+uGmHeZ6pATcxN1+BPy/mxwR9/qr3fBh9Yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QoWjqLVJbBBEvp+mS1+GfyfkCqJLFbSuP/QxhOKfbPe96v3aBAXRSdy2gtWU4o5b5
-         ZLui0OMYmwxc7yt52UMPdCCDHTTmnjPIc7pWpNrweLjUa/DRaJwaBvA/eyoe3SPm3F
-         h/F5/YXXhbEJZBQcut22dyJutEOjqdRlsivvqKjRdyRbTLlKewSjzMNRvLmUU74TbA
-         OrHoSyfCV26eG9Qj7UFuqdo1RWlY4GPq9+SwWM5zAISI7U0X3zPmWqCEaP+sGsG6tS
-         vH/w4NWReuDxyMKl0LsTbn1hdiuAg9XDiwEr4290mmKVr37Y0jpt/40jkW5bXRITus
-         W+e+0a49RpH4Q==
+        b=jkJcHdXf6sNIFvDy5Aed7/m7SJiIO7Ys2LgBVc7q6D2LVa0WApgVEj9D6Hw0MPXWo
+         08xtkCy0ulIhaALU2yIi0oYSY60742COg9WbL1ajmxBb/BgahwXc+1rsier9cjS9da
+         sV2KV8k8HRcpFC/Xp+ocH5Ma8mfx4KgS2zFHzrcwsgHuUhDZzxYwudS3P12rmeDKGU
+         3qvJnMkp40sLCOLtFZpIJxgg4NENMghX3HLi18E/VagsjFbLYxqlkTBiZBL/bCXK2Q
+         1mrsycecluZnHXoqXiyBpKCTBcSbdaH8ozAOprar2ddKniJ3FY2Nbin9CQW6iqqyLA
+         m0vxg8HenAuDA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Rudolf Polzer <rpolzer@google.com>,
-        Simon Ser <contact@emersion.fr>,
-        Sasha Levin <sashal@kernel.org>,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, airlied@gmail.com, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 20/27] drm: panel-orientation-quirks: Add quirk for Acer Switch V 10 (SW5-017)
-Date:   Fri, 18 Nov 2022 21:13:45 -0500
-Message-Id: <20221119021352.1774592-20-sashal@kernel.org>
+Cc:     Yu Kuai <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        paolo.valente@linaro.org, tj@kernel.org, josef@toxicpanda.com,
+        linux-block@vger.kernel.org, cgroups@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 21/27] block, bfq: fix null pointer dereference in bfq_bio_bfqg()
+Date:   Fri, 18 Nov 2022 21:13:46 -0500
+Message-Id: <20221119021352.1774592-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021352.1774592-1-sashal@kernel.org>
 References: <20221119021352.1774592-1-sashal@kernel.org>
@@ -59,40 +56,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 653f2d94fcda200b02bd79cea2e0307b26c1b747 ]
+[ Upstream commit f02be9002c480cd3ec0fcf184ad27cf531bd6ece ]
 
-Like the Acer Switch One 10 S1003, for which there already is a quirk,
-the Acer Switch V 10 (SW5-017) has a 800x1280 portrait screen mounted
-in the tablet part of a landscape oriented 2-in-1. Add a quirk for this.
+Out test found a following problem in kernel 5.10, and the same problem
+should exist in mainline:
 
-Cc: Rudolf Polzer <rpolzer@google.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Simon Ser <contact@emersion.fr>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221106215052.66995-1-hdegoede@redhat.com
+BUG: kernel NULL pointer dereference, address: 0000000000000094
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP
+CPU: 7 PID: 155 Comm: kworker/7:1 Not tainted 5.10.0-01932-g19e0ace2ca1d-dirty 4
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-b4
+Workqueue: kthrotld blk_throtl_dispatch_work_fn
+RIP: 0010:bfq_bio_bfqg+0x52/0xc0
+Code: 94 00 00 00 00 75 2e 48 8b 40 30 48 83 05 35 06 c8 0b 01 48 85 c0 74 3d 4b
+RSP: 0018:ffffc90001a1fba0 EFLAGS: 00010002
+RAX: ffff888100d60400 RBX: ffff8881132e7000 RCX: 0000000000000000
+RDX: 0000000000000017 RSI: ffff888103580a18 RDI: ffff888103580a18
+RBP: ffff8881132e7000 R08: 0000000000000000 R09: ffffc90001a1fe10
+R10: 0000000000000a20 R11: 0000000000034320 R12: 0000000000000000
+R13: ffff888103580a18 R14: ffff888114447000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff88881fdc0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000094 CR3: 0000000100cdb000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ bfq_bic_update_cgroup+0x3c/0x350
+ ? ioc_create_icq+0x42/0x270
+ bfq_init_rq+0xfd/0x1060
+ bfq_insert_requests+0x20f/0x1cc0
+ ? ioc_create_icq+0x122/0x270
+ blk_mq_sched_insert_requests+0x86/0x1d0
+ blk_mq_flush_plug_list+0x193/0x2a0
+ blk_flush_plug_list+0x127/0x170
+ blk_finish_plug+0x31/0x50
+ blk_throtl_dispatch_work_fn+0x151/0x190
+ process_one_work+0x27c/0x5f0
+ worker_thread+0x28b/0x6b0
+ ? rescuer_thread+0x590/0x590
+ kthread+0x153/0x1b0
+ ? kthread_flush_work+0x170/0x170
+ ret_from_fork+0x1f/0x30
+Modules linked in:
+CR2: 0000000000000094
+---[ end trace e2e59ac014314547 ]---
+RIP: 0010:bfq_bio_bfqg+0x52/0xc0
+Code: 94 00 00 00 00 75 2e 48 8b 40 30 48 83 05 35 06 c8 0b 01 48 85 c0 74 3d 4b
+RSP: 0018:ffffc90001a1fba0 EFLAGS: 00010002
+RAX: ffff888100d60400 RBX: ffff8881132e7000 RCX: 0000000000000000
+RDX: 0000000000000017 RSI: ffff888103580a18 RDI: ffff888103580a18
+RBP: ffff8881132e7000 R08: 0000000000000000 R09: ffffc90001a1fe10
+R10: 0000000000000a20 R11: 0000000000034320 R12: 0000000000000000
+R13: ffff888103580a18 R14: ffff888114447000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff88881fdc0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000094 CR3: 0000000100cdb000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+Root cause is quite complex:
+
+1) use bfq elevator for the test device.
+2) create a cgroup CG
+3) config blk throtl in CG
+
+   blkg_conf_prep
+    blkg_create
+
+4) create a thread T1 and issue async io in CG:
+
+   bio_init
+    bio_associate_blkg
+   ...
+   submit_bio
+    submit_bio_noacct
+     blk_throtl_bio -> io is throttled
+     // io submit is done
+
+5) switch elevator:
+
+   bfq_exit_queue
+    blkcg_deactivate_policy
+     list_for_each_entry(blkg, &q->blkg_list, q_node)
+      blkg->pd[] = NULL
+      // bfq policy is removed
+
+5) thread t1 exist, then remove the cgroup CG:
+
+   blkcg_unpin_online
+    blkcg_destroy_blkgs
+     blkg_destroy
+      list_del_init(&blkg->q_node)
+      // blkg is removed from queue list
+
+6) switch elevator back to bfq
+
+ bfq_init_queue
+  bfq_create_group_hierarchy
+   blkcg_activate_policy
+    list_for_each_entry_reverse(blkg, &q->blkg_list)
+     // blkg is removed from list, hence bfq policy is still NULL
+
+7) throttled io is dispatched to bfq:
+
+ bfq_insert_requests
+  bfq_init_rq
+   bfq_bic_update_cgroup
+    bfq_bio_bfqg
+     bfqg = blkg_to_bfqg(blkg)
+     // bfqg is NULL because bfq policy is NULL
+
+The problem is only possible in bfq because only bfq can be deactivated and
+activated while queue is online, while others can only be deactivated while
+the device is removed.
+
+Fix the problem in bfq by checking if blkg is online before calling
+blkg_to_bfqg().
+
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221108103434.2853269-1-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ block/bfq-cgroup.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 083273736c83..ca0fefeaab20 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -128,6 +128,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "One S1003"),
- 		},
- 		.driver_data = (void *)&lcd800x1280_rightside_up,
-+	}, {	/* Acer Switch V 10 (SW5-017) */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Acer"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SW5-017"),
-+		},
-+		.driver_data = (void *)&lcd800x1280_rightside_up,
- 	}, {	/* Anbernic Win600 */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Anbernic"),
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index e2e765a54fe9..a8d0b4c71b05 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -613,6 +613,10 @@ struct bfq_group *bfq_bio_bfqg(struct bfq_data *bfqd, struct bio *bio)
+ 	struct bfq_group *bfqg;
+ 
+ 	while (blkg) {
++		if (!blkg->online) {
++			blkg = blkg->parent;
++			continue;
++		}
+ 		bfqg = blkg_to_bfqg(blkg);
+ 		if (bfqg->online) {
+ 			bio_associate_blkg_from_css(bio, &blkg->blkcg->css);
 -- 
 2.35.1
 
