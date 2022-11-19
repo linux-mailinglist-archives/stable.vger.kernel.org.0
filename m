@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A71A5630A71
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:27:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17126630A7B
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:27:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232544AbiKSC1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:27:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39454 "EHLO
+        id S235159AbiKSC13 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:27:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235704AbiKSCZU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:25:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22AB964A14;
-        Fri, 18 Nov 2022 18:15:53 -0800 (PST)
+        with ESMTP id S235718AbiKSCZX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:25:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E29EB80997;
+        Fri, 18 Nov 2022 18:15:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B267462838;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E7E9B82676;
+        Sat, 19 Nov 2022 02:15:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85749C433D7;
         Sat, 19 Nov 2022 02:15:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19765C43145;
-        Sat, 19 Nov 2022 02:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824152;
-        bh=KKZE68KWHee8+OShQEOaOk3x+Brbc0jldkMl21qHXUs=;
+        s=k20201202; t=1668824153;
+        bh=/UNhONuEPMfoFhB7C+3F3s8jtVtjM7CFczWkPwqlbr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q0R0T43hKwyf7HztqEQQdcmfK84kqWH2h79xkxJxLH9aQ8a4Puc11nDZlSi07ict5
-         VQcOR2N9ZaTNe4G1qkd2DFf9bETez4A6Z3ke89p0ojwo0afQ5dD8t9LfuUDY4Et4aB
-         jN8u8i3WZp5ct8tInfvHyt/YVdwkC/Ge2nS3LnvIq+5qoZNXvaV7XZTUAahE4B76ti
-         zT64D1Guh2xe9PZw0Hnb22kpZeVOQ7xRMoCU1vOjVE9n2T7osEMb6p5GUFIvnW0Tp3
-         oSnOzemq3zvuOH12YrE8Cpl3MYJoLqcjdwEFa6RINHDFHPVfo4YMWzbMYTrZ1Zn9I4
-         6XrulVCvujgcg==
+        b=GRGhOh+IeNemx2yvsOT/LAfM1m6RsP4bI5oU3PC+KOff7LBAqiKlc0spIa5E17nZ+
+         ggzXr/L64PcsI6Y2PCbg5KFsjLoMJJo+7PDw0MTE2t8qqTvKw2PRhsBW63iYWmtZ6F
+         VqTgCrnbjRuXXo4Hff09l4Z+AEPbSXR4sw+rQGMmBeN4z5WVHKXnnJsUdAS2Xl2yEI
+         UyoFATpOG3fOq8iG5cw9uXFdwdT2yIoACK95l/DPlkE8h95VqLy/CdM1tugBJq/Xxh
+         mrgo/UKep4NQ8Kju9vmcPpRkLUtOcMRcE6pwA1tvHTUxQN6z11lbzRiJYLHRKlKxJm
+         oa4s5YqY0qZmQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Nyekjaer <sean@geanix.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alain.volmat@foss.st.com,
-        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
-        linux-spi@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 05/11] spi: stm32: fix stm32_spi_prepare_mbr() that halves spi clk for every run
-Date:   Fri, 18 Nov 2022 21:15:37 -0500
-Message-Id: <20221119021543.1775315-5-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Iris <pawel.js@protonmail.com>, Daniel Dadap <ddadap@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 06/11] ACPI: video: Add backlight=native DMI quirk for Dell G15 5515
+Date:   Fri, 18 Nov 2022 21:15:38 -0500
+Message-Id: <20221119021543.1775315-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021543.1775315-1-sashal@kernel.org>
 References: <20221119021543.1775315-1-sashal@kernel.org>
@@ -58,48 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Nyekjaer <sean@geanix.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 62aa1a344b0904549f6de7af958e8a1136fd5228 ]
+[ Upstream commit f46acc1efd4b5846de9fa05f966e504f328f34a6 ]
 
-When this driver is used with a driver that uses preallocated spi_transfer
-structs. The speed_hz is halved by every run. This results in:
+The Dell G15 5515 has the WMI interface (and WMI call returns) expected
+by the nvidia-wmi-ec-backlight interface. But the backlight class device
+registered by the nvidia-wmi-ec-backlight driver does not actually work.
 
-spi_stm32 44004000.spi: SPI transfer setup failed
-ads7846 spi0.0: SPI transfer failed: -22
+The amdgpu_bl0 native GPU backlight class device does actually work,
+add a backlight=native DMI quirk for this.
 
-Example when running with DIV_ROUND_UP():
-- First run; speed_hz = 1000000, spi->clk_rate 125000000
-  div 125 -> mbrdiv = 7, cur_speed = 976562
-- Second run; speed_hz = 976562
-  div 128,00007 (roundup to 129) -> mbrdiv = 8, cur_speed = 488281
-- Third run; speed_hz = 488281
-  div 256,000131072067109 (roundup to 257) and then -EINVAL is returned.
-
-Use DIV_ROUND_CLOSEST to allow to round down and allow us to keep the
-set speed.
-
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Link: https://lore.kernel.org/r/20221103080043.3033414-1-sean@geanix.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Iris <pawel.js@protonmail.com>
+Reviewed-by: Daniel Dadap <ddadap@nvidia.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+- Add a comment that this needs to be revisited when dynamic-mux
+  support gets added (suggested by: Daniel Dadap)
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/video_detect.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index 9ae16092206d..5c0bc332eca7 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -444,7 +444,7 @@ static int stm32_spi_prepare_mbr(struct stm32_spi *spi, u32 speed_hz,
- 	u32 div, mbrdiv;
- 
- 	/* Ensure spi->clk_rate is even */
--	div = DIV_ROUND_UP(spi->clk_rate & ~0x1, speed_hz);
-+	div = DIV_ROUND_CLOSEST(spi->clk_rate & ~0x1, speed_hz);
- 
+diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
+index e5518b88f710..f514b16a5c23 100644
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -527,6 +527,20 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 		DMI_MATCH(DMI_BOARD_NAME, "GMxRGxx"),
+ 		},
+ 	},
++	/*
++	 * Models which have nvidia-ec-wmi support, but should not use it.
++	 * Note this indicates a likely firmware bug on these models and should
++	 * be revisited if/when Linux gets support for dynamic mux mode.
++	 */
++	{
++	 .callback = video_detect_force_native,
++	 /* Dell G15 5515 */
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++		DMI_MATCH(DMI_PRODUCT_NAME, "Dell G15 5515"),
++		},
++	},
++
  	/*
- 	 * SPI framework set xfer->speed_hz to master->max_speed_hz if
+ 	 * Desktops which falsely report a backlight and which our heuristics
+ 	 * for this do not catch.
 -- 
 2.35.1
 
