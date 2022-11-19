@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94FE66309C8
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:18:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C40196309CB
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:19:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234462AbiKSCSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:18:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58250 "EHLO
+        id S235125AbiKSCTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:19:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234787AbiKSCSL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:18:11 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9198EB3886;
-        Fri, 18 Nov 2022 18:13:59 -0800 (PST)
+        with ESMTP id S235147AbiKSCSe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:18:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E068C0523;
+        Fri, 18 Nov 2022 18:14:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EE30ECE2104;
-        Sat, 19 Nov 2022 02:13:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1998C43141;
-        Sat, 19 Nov 2022 02:13:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2055CB82672;
+        Sat, 19 Nov 2022 02:13:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99FFAC433C1;
+        Sat, 19 Nov 2022 02:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824032;
-        bh=Fu6DzExXhRgqLhgG4YGKf6SpJ0oVOOjKmdZ+iEn3Rjc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wig7QjyQ71m3Y32KcvRQgzQ3Eaq4Rvn0C91S7ub02WmkR2nTeX9dG8KMEqxVuUiXz
-         832lcovCKo6pjhZw6s7s9/3gia4J/HDJdZQFUSEcYxEQjPqV72XRHnfKN805v0V4cp
-         ctlaFvV7Flqq5BIC5m3wM4gVBNb1PQvsBDy2n1002ezRpoir20RD8KdNfKAFwddE4p
-         5xduK1PHrnI0Ka+BmP3l6SeRXvZw0K2+PkD1eUfydEBYSJcf+9OegDRPGCcYkgPfFN
-         nZYie8iNL6u07ARXHiwpHUVSOIidi1Y2pY72b4H+fe11hJWGn8VNnbt+eXf/WCejTF
-         R+EObOiSpxSLg==
+        s=k20201202; t=1668824035;
+        bh=EOEbAUBC9oY0+jjwQpj5atG/TX43ekcl7mzK0U0e+H0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=P7V+5W+XY6zPzgbSIQOc6ZM10Xln8okOGKPDLm0Gy8hnbwfApe3OWjf5e4Wbo2Md4
+         tXEQBmF/PDnkQynxYmiU/gb6/UbT0FVau3E9rqMZxCJOK9CvfKZIJrtMVBLGJ6u+fw
+         moZ3DUonpjt2DPoPdKHpFHzWBm/npMpEnb35hqNpWaU6cZu2M6RGT6SnVQPUfN9h+1
+         nTenARpFL7lH6MiOiuSQ4UGSDCEFu0oY1EXdULbdtDzXGZIAknaf1XUN8HM2PVryoo
+         bVOPX9g03nAGe3JN3SsQ/crWI9eKjzHtluyodUwA8FcbM/FcBxB36UIdgI+F9WHZI4
+         W/j6CLDVFLgow==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 44/44] io_uring/poll: lockdep annote io_poll_req_insert_locked
-Date:   Fri, 18 Nov 2022 21:11:24 -0500
-Message-Id: <20221119021124.1773699-44-sashal@kernel.org>
+Cc:     taozhang <taozhang@bestechnic.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 01/27] wifi: mac80211: fix memory free error when registering wiphy fail
+Date:   Fri, 18 Nov 2022 21:13:26 -0500
+Message-Id: <20221119021352.1774592-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221119021124.1773699-1-sashal@kernel.org>
-References: <20221119021124.1773699-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,33 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: taozhang <taozhang@bestechnic.com>
 
-[ Upstream commit 5576035f15dfcc6cb1cec236db40c2c0733b0ba4 ]
+[ Upstream commit 50b2e8711462409cd368c41067405aa446dfa2af ]
 
-Add a lockdep annotation in io_poll_req_insert_locked().
+ieee80211_register_hw free the allocated cipher suites when
+registering wiphy fail, and ieee80211_free_hw will re-free it.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/8115d8e702733754d0aea119e9b5bb63d1eb8b24.1668184658.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+set wiphy_ciphers_allocated to false after freeing allocated
+cipher suites.
+
+Signed-off-by: taozhang <taozhang@bestechnic.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/poll.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/mac80211/main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/io_uring/poll.c b/io_uring/poll.c
-index 0d9f49c575e0..810425ec2736 100644
---- a/io_uring/poll.c
-+++ b/io_uring/poll.c
-@@ -116,6 +116,8 @@ static void io_poll_req_insert_locked(struct io_kiocb *req)
- 	struct io_hash_table *table = &req->ctx->cancel_table_locked;
- 	u32 index = hash_long(req->cqe.user_data, table->hash_bits);
- 
-+	lockdep_assert_held(&req->ctx->uring_lock);
-+
- 	hlist_add_head(&req->hash_node, &table->hbs[index].list);
+diff --git a/net/mac80211/main.c b/net/mac80211/main.c
+index 5311c3cd3050..9617ff8e2714 100644
+--- a/net/mac80211/main.c
++++ b/net/mac80211/main.c
+@@ -1357,8 +1357,10 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
+ 	ieee80211_led_exit(local);
+ 	destroy_workqueue(local->workqueue);
+  fail_workqueue:
+-	if (local->wiphy_ciphers_allocated)
++	if (local->wiphy_ciphers_allocated) {
+ 		kfree(local->hw.wiphy->cipher_suites);
++		local->wiphy_ciphers_allocated = false;
++	}
+ 	kfree(local->int_scan_req);
+ 	return result;
  }
+@@ -1426,8 +1428,10 @@ void ieee80211_free_hw(struct ieee80211_hw *hw)
+ 	mutex_destroy(&local->iflist_mtx);
+ 	mutex_destroy(&local->mtx);
  
+-	if (local->wiphy_ciphers_allocated)
++	if (local->wiphy_ciphers_allocated) {
+ 		kfree(local->hw.wiphy->cipher_suites);
++		local->wiphy_ciphers_allocated = false;
++	}
+ 
+ 	idr_for_each(&local->ack_status_frames,
+ 		     ieee80211_free_ack_frame, NULL);
 -- 
 2.35.1
 
