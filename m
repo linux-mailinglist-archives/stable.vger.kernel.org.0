@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85972630ABA
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:30:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EB6B630ABC
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:30:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236167AbiKSCaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:30:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53246 "EHLO
+        id S235958AbiKSCao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:30:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235870AbiKSC3e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:29:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1C9CC846B;
-        Fri, 18 Nov 2022 18:16:51 -0800 (PST)
+        with ESMTP id S232177AbiKSC36 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:29:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0870C42F5C;
+        Fri, 18 Nov 2022 18:16:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F6276281D;
-        Sat, 19 Nov 2022 02:16:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA232C433D6;
-        Sat, 19 Nov 2022 02:16:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA584B82670;
+        Sat, 19 Nov 2022 02:16:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8427FC433C1;
+        Sat, 19 Nov 2022 02:16:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824210;
-        bh=2529DVPoIVbu5ClHjkKmG0Cv3rWy7zn2UNULc+K9M48=;
+        s=k20201202; t=1668824216;
+        bh=I84bOwHkVnsTvDgkw2gb+kyVJZQH1oBuSUisAlazIdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6NjL0rpViLaHoj432jDPyzGfCy+iyTKvFc2a62Z3uK5G1p+nkNd/FSTmsYWvY1KT
-         bla1IQzDnqP+6bA8m5KNJOc1vfcz0Iabb/afzNBCAIpbT/1TnsO1kewwDJ3ynu3WI/
-         d9MwzGc2qIsNrv9HV+dt4gnFaLI5YRVnUDokzgAdfAByDJaPxPa+vW0ZhXTf9+Eq4J
-         cjdFVBUmxuJN2LmPB6Cc80SJRgq0r+q70/C1hZR44m+lps0dIIZdXJqxGEZ41AcpV+
-         UBw3Zil77r+0tz8qzBWlYRI82gnHms+lUbKzkcRYdK6yLyGwkAy0LxnX4eHnlW42QV
-         dbulRwRng0XqA==
+        b=s64VOFLlS8Nt6kBbZmH7P5lHCvpuLj7YsQijdBzkZPrJ3+YJgWlFHmTRXEJByLU8g
+         B1pH0cgRSQLt4sRd0sczR4bmA4mSniWMpuusUlVmEjvIA8Fgyogqltk2GKBuX9i/+N
+         wZWPwUvobAwwgDZtzY9UopxLze+84bALNnLq9+xAkdsx3Dnh3uCxwlneZGWbZHfisw
+         JhnR1/T2LU8midoizWxsi4HJsZaYO6H2ggZwpjjnedWuEOPZrY1Mz/tYPeUUzRh2PC
+         mP+MSGLWThOtWy/D6nJDQdLzSrkisQRe8ufExefDJPG4kuN7KYNfYUIOEp1JQdLU27
+         GAdBKpCSuGmzA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Cavallari <nicolas.cavallari@green-communications.fr>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 3/4] wifi: mac80211: Fix ack frame idr leak when mesh has no route
-Date:   Fri, 18 Nov 2022 21:16:44 -0500
-Message-Id: <20221119021645.1775682-3-sashal@kernel.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, yangtiezhu@loongson.cn,
+        windhl@126.com, wsa+renesas@sang-engineering.com,
+        linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 4/4] MIPS: pic32: treat port as signed integer
+Date:   Fri, 18 Nov 2022 21:16:45 -0500
+Message-Id: <20221119021645.1775682-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021645.1775682-1-sashal@kernel.org>
 References: <20221119021645.1775682-1-sashal@kernel.org>
@@ -58,40 +57,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 39e7b5de9853bd92ddbfa4b14165babacd7da0ba ]
+[ Upstream commit 648060902aa302331b5d6e4f26d8ee0761d239ab ]
 
-When trying to transmit an data frame with tx_status to a destination
-that have no route in the mesh, then it is dropped without recrediting
-the ack_status_frames idr.
+get_port_from_cmdline() returns an int, yet is assigned to a char, which
+is wrong in its own right, but also, with char becoming unsigned, this
+poses problems, because -1 is used as an error value. Further
+complicating things, fw_init_early_console() is only ever called with a
+-1 argument. Fix this up by removing the unused argument from
+fw_init_early_console() and treating port as a proper signed integer.
 
-Once it is exhausted, wpa_supplicant starts failing to do SAE with
-NL80211_CMD_FRAME and logs "nl80211: Frame command failed".
-
-Use ieee80211_free_txskb() instead of kfree_skb() to fix it.
-
-Signed-off-by: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
-Link: https://lore.kernel.org/r/20221027140133.1504-1-nicolas.cavallari@green-communications.fr
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_pathtbl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/include/asm/fw/fw.h             |  2 +-
+ arch/mips/pic32/pic32mzda/early_console.c | 13 ++++++-------
+ arch/mips/pic32/pic32mzda/init.c          |  2 +-
+ 3 files changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
-index 30a95a2ff196..78945dc9dcd7 100644
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -794,7 +794,7 @@ int mesh_path_send_to_gates(struct mesh_path *mpath)
- void mesh_path_discard_frame(struct ieee80211_sub_if_data *sdata,
- 			     struct sk_buff *skb)
+diff --git a/arch/mips/include/asm/fw/fw.h b/arch/mips/include/asm/fw/fw.h
+index d0ef8b4892bb..d0494ce4b337 100644
+--- a/arch/mips/include/asm/fw/fw.h
++++ b/arch/mips/include/asm/fw/fw.h
+@@ -26,6 +26,6 @@ extern char *fw_getcmdline(void);
+ extern void fw_meminit(void);
+ extern char *fw_getenv(char *name);
+ extern unsigned long fw_getenvl(char *name);
+-extern void fw_init_early_console(char port);
++extern void fw_init_early_console(void);
+ 
+ #endif /* __ASM_FW_H_ */
+diff --git a/arch/mips/pic32/pic32mzda/early_console.c b/arch/mips/pic32/pic32mzda/early_console.c
+index d7b783463fac..4933c5337059 100644
+--- a/arch/mips/pic32/pic32mzda/early_console.c
++++ b/arch/mips/pic32/pic32mzda/early_console.c
+@@ -34,7 +34,7 @@
+ #define U_BRG(x)	(UART_BASE(x) + 0x40)
+ 
+ static void __iomem *uart_base;
+-static char console_port = -1;
++static int console_port = -1;
+ 
+ static int __init configure_uart_pins(int port)
  {
--	kfree_skb(skb);
-+	ieee80211_free_txskb(&sdata->local->hw, skb);
- 	sdata->u.mesh.mshstats.dropped_frames_no_route++;
+@@ -54,7 +54,7 @@ static int __init configure_uart_pins(int port)
+ 	return 0;
  }
  
+-static void __init configure_uart(char port, int baud)
++static void __init configure_uart(int port, int baud)
+ {
+ 	u32 pbclk;
+ 
+@@ -67,7 +67,7 @@ static void __init configure_uart(char port, int baud)
+ 		     uart_base + PIC32_SET(U_STA(port)));
+ }
+ 
+-static void __init setup_early_console(char port, int baud)
++static void __init setup_early_console(int port, int baud)
+ {
+ 	if (configure_uart_pins(port))
+ 		return;
+@@ -137,16 +137,15 @@ static int __init get_baud_from_cmdline(char *arch_cmdline)
+ 	return baud;
+ }
+ 
+-void __init fw_init_early_console(char port)
++void __init fw_init_early_console(void)
+ {
+ 	char *arch_cmdline = pic32_getcmdline();
+-	int baud = -1;
++	int baud, port;
+ 
+ 	uart_base = ioremap_nocache(PIC32_BASE_UART, 0xc00);
+ 
+ 	baud = get_baud_from_cmdline(arch_cmdline);
+-	if (port == -1)
+-		port = get_port_from_cmdline(arch_cmdline);
++	port = get_port_from_cmdline(arch_cmdline);
+ 
+ 	if (port == -1)
+ 		port = EARLY_CONSOLE_PORT;
+diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
+index 406c6c5cec29..cf2625551b45 100644
+--- a/arch/mips/pic32/pic32mzda/init.c
++++ b/arch/mips/pic32/pic32mzda/init.c
+@@ -68,7 +68,7 @@ void __init plat_mem_setup(void)
+ 		strlcpy(arcs_cmdline, boot_command_line, COMMAND_LINE_SIZE);
+ 
+ #ifdef CONFIG_EARLY_PRINTK
+-	fw_init_early_console(-1);
++	fw_init_early_console();
+ #endif
+ 	pic32_config_init();
+ }
 -- 
 2.35.1
 
