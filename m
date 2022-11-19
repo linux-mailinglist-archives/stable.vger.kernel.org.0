@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C246630A25
+	by mail.lfdr.de (Postfix) with ESMTP id 614F9630A26
 	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:23:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235630AbiKSCXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:23:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60164 "EHLO
+        id S235637AbiKSCXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:23:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235906AbiKSCWY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:22:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F00D6C6D17;
-        Fri, 18 Nov 2022 18:15:09 -0800 (PST)
+        with ESMTP id S235990AbiKSCWc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:22:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43682A6A18;
+        Fri, 18 Nov 2022 18:15:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D43B62832;
-        Sat, 19 Nov 2022 02:14:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E554C433D7;
-        Sat, 19 Nov 2022 02:14:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6855BB82670;
+        Sat, 19 Nov 2022 02:15:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 077FEC433D6;
+        Sat, 19 Nov 2022 02:15:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824098;
-        bh=akzyXA6taxIIlj4f4t66EKRkG+JncKRTxevLEUPUAs0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nKXhTwgy60LnPekilNJqXmwj8fqnC52jK/2yfSZ8ywX8Zeg/t1qDO+dlSykpjNiX2
-         cSzXLwym68ItTzymrK2aIMTap8VGdDZz+zIPXdSFXXsbxMzrRV8cnlVlu9qr7AhtxQ
-         IKw3wzHV8O3aP5PbIfDoQMfBSl8PD+LYxN9GKchKpxlkdzukTy7lxGu6XNAS2Y/DWa
-         PIQo7ngnrABMuBSHI8cC9f5cQRZGjbNa4+sgbYXNzzQCo8wtDZRxDKeOhb+20iXs57
-         bzcQdiMiBSq696gRqM/CychkyMBBIvNOzGaJEqI2AbWCu9MFMdGKZPOKJeAnQ3JOiV
-         ErDJG9IvvgOYg==
+        s=k20201202; t=1668824102;
+        bh=lOjJ92ySfAV9G+uygflEoFdCaYxc2VJLfKHKYksRM5M=;
+        h=From:To:Cc:Subject:Date:From;
+        b=bQqXLRSdZD3GV+sc8R40gK3BNdVXSwEasf3178dL0GnWOWy6Z7ekn89SrbQwHHCUX
+         lXsFDw61Rms95tRgqhhp7mdWO7NaSdwl1vB4oY35OQ0wsxIiHJJ9E9FTsr4COKUDag
+         +cYo0KFsQg0iEfeiWBFa+p5rMpX7Iw2u9zKjHjvnuhqwBLFBoww+90TCRqmx9+eQf+
+         oHjdoSbsJskKpve0xm3MgodfvfZYmviOkcNk2IxfTJgyChD3s8dlihZkZQ8ws1FZwv
+         96BXG+mXlqbui6iCII6YKMcr0cFnLRdieHScyJcXpxhRcHaFBxkM05kE3RoY73empT
+         B6mnenIB8gFWw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, yangtiezhu@loongson.cn,
-        wsa+renesas@sang-engineering.com, windhl@126.com,
-        linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 27/27] MIPS: pic32: treat port as signed integer
-Date:   Fri, 18 Nov 2022 21:13:52 -0500
-Message-Id: <20221119021352.1774592-27-sashal@kernel.org>
+Cc:     taozhang <taozhang@bestechnic.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 01/18] wifi: mac80211: fix memory free error when registering wiphy fail
+Date:   Fri, 18 Nov 2022 21:14:42 -0500
+Message-Id: <20221119021459.1775052-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221119021352.1774592-1-sashal@kernel.org>
-References: <20221119021352.1774592-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,103 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: taozhang <taozhang@bestechnic.com>
 
-[ Upstream commit 648060902aa302331b5d6e4f26d8ee0761d239ab ]
+[ Upstream commit 50b2e8711462409cd368c41067405aa446dfa2af ]
 
-get_port_from_cmdline() returns an int, yet is assigned to a char, which
-is wrong in its own right, but also, with char becoming unsigned, this
-poses problems, because -1 is used as an error value. Further
-complicating things, fw_init_early_console() is only ever called with a
--1 argument. Fix this up by removing the unused argument from
-fw_init_early_console() and treating port as a proper signed integer.
+ieee80211_register_hw free the allocated cipher suites when
+registering wiphy fail, and ieee80211_free_hw will re-free it.
 
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+set wiphy_ciphers_allocated to false after freeing allocated
+cipher suites.
+
+Signed-off-by: taozhang <taozhang@bestechnic.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/fw/fw.h             |  2 +-
- arch/mips/pic32/pic32mzda/early_console.c | 13 ++++++-------
- arch/mips/pic32/pic32mzda/init.c          |  2 +-
- 3 files changed, 8 insertions(+), 9 deletions(-)
+ net/mac80211/main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/include/asm/fw/fw.h b/arch/mips/include/asm/fw/fw.h
-index d0ef8b4892bb..d0494ce4b337 100644
---- a/arch/mips/include/asm/fw/fw.h
-+++ b/arch/mips/include/asm/fw/fw.h
-@@ -26,6 +26,6 @@ extern char *fw_getcmdline(void);
- extern void fw_meminit(void);
- extern char *fw_getenv(char *name);
- extern unsigned long fw_getenvl(char *name);
--extern void fw_init_early_console(char port);
-+extern void fw_init_early_console(void);
- 
- #endif /* __ASM_FW_H_ */
-diff --git a/arch/mips/pic32/pic32mzda/early_console.c b/arch/mips/pic32/pic32mzda/early_console.c
-index 25372e62783b..3cd1b408fa1c 100644
---- a/arch/mips/pic32/pic32mzda/early_console.c
-+++ b/arch/mips/pic32/pic32mzda/early_console.c
-@@ -27,7 +27,7 @@
- #define U_BRG(x)	(UART_BASE(x) + 0x40)
- 
- static void __iomem *uart_base;
--static char console_port = -1;
-+static int console_port = -1;
- 
- static int __init configure_uart_pins(int port)
- {
-@@ -47,7 +47,7 @@ static int __init configure_uart_pins(int port)
- 	return 0;
+diff --git a/net/mac80211/main.c b/net/mac80211/main.c
+index 73893025922f..ae90ac3be59a 100644
+--- a/net/mac80211/main.c
++++ b/net/mac80211/main.c
+@@ -1349,8 +1349,10 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
+ 	ieee80211_led_exit(local);
+ 	destroy_workqueue(local->workqueue);
+  fail_workqueue:
+-	if (local->wiphy_ciphers_allocated)
++	if (local->wiphy_ciphers_allocated) {
+ 		kfree(local->hw.wiphy->cipher_suites);
++		local->wiphy_ciphers_allocated = false;
++	}
+ 	kfree(local->int_scan_req);
+ 	return result;
  }
+@@ -1420,8 +1422,10 @@ void ieee80211_free_hw(struct ieee80211_hw *hw)
+ 	mutex_destroy(&local->iflist_mtx);
+ 	mutex_destroy(&local->mtx);
  
--static void __init configure_uart(char port, int baud)
-+static void __init configure_uart(int port, int baud)
- {
- 	u32 pbclk;
+-	if (local->wiphy_ciphers_allocated)
++	if (local->wiphy_ciphers_allocated) {
+ 		kfree(local->hw.wiphy->cipher_suites);
++		local->wiphy_ciphers_allocated = false;
++	}
  
-@@ -60,7 +60,7 @@ static void __init configure_uart(char port, int baud)
- 		     uart_base + PIC32_SET(U_STA(port)));
- }
- 
--static void __init setup_early_console(char port, int baud)
-+static void __init setup_early_console(int port, int baud)
- {
- 	if (configure_uart_pins(port))
- 		return;
-@@ -130,16 +130,15 @@ static int __init get_baud_from_cmdline(char *arch_cmdline)
- 	return baud;
- }
- 
--void __init fw_init_early_console(char port)
-+void __init fw_init_early_console(void)
- {
- 	char *arch_cmdline = pic32_getcmdline();
--	int baud = -1;
-+	int baud, port;
- 
- 	uart_base = ioremap(PIC32_BASE_UART, 0xc00);
- 
- 	baud = get_baud_from_cmdline(arch_cmdline);
--	if (port == -1)
--		port = get_port_from_cmdline(arch_cmdline);
-+	port = get_port_from_cmdline(arch_cmdline);
- 
- 	if (port == -1)
- 		port = EARLY_CONSOLE_PORT;
-diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
-index 764f2d022fae..429830afff54 100644
---- a/arch/mips/pic32/pic32mzda/init.c
-+++ b/arch/mips/pic32/pic32mzda/init.c
-@@ -47,7 +47,7 @@ void __init plat_mem_setup(void)
- 		strlcpy(arcs_cmdline, boot_command_line, COMMAND_LINE_SIZE);
- 
- #ifdef CONFIG_EARLY_PRINTK
--	fw_init_early_console(-1);
-+	fw_init_early_console();
- #endif
- 	pic32_config_init();
- }
+ 	idr_for_each(&local->ack_status_frames,
+ 		     ieee80211_free_ack_frame, NULL);
 -- 
 2.35.1
 
