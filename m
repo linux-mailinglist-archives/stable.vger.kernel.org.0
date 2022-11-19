@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A03A16309C5
-	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:18:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94FE66309C8
+	for <lists+stable@lfdr.de>; Sat, 19 Nov 2022 03:18:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235443AbiKSCSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Nov 2022 21:18:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57984 "EHLO
+        id S234462AbiKSCSs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Nov 2022 21:18:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235175AbiKSCRw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:17:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7864C9E965;
-        Fri, 18 Nov 2022 18:13:55 -0800 (PST)
+        with ESMTP id S234787AbiKSCSL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Nov 2022 21:18:11 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9198EB3886;
+        Fri, 18 Nov 2022 18:13:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C978462834;
+        by sin.source.kernel.org (Postfix) with ESMTPS id EE30ECE2104;
+        Sat, 19 Nov 2022 02:13:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1998C43141;
         Sat, 19 Nov 2022 02:13:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD41C433C1;
-        Sat, 19 Nov 2022 02:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1668824031;
-        bh=Dk71J1TivFdywWgI0fJZHHgJT+AmdlthmXStXT4KjPc=;
+        s=k20201202; t=1668824032;
+        bh=Fu6DzExXhRgqLhgG4YGKf6SpJ0oVOOjKmdZ+iEn3Rjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sCUprYYyuPMeJlEegE4RE2EW4J7wMRab1zmxosK+2xxWTe44vDUfp6a6s+alTR/wQ
-         nBWHui2D0kL8YxotGJYioa8XdagilOdROe1vK2VvK74JrtW3iVj4FdVqYZFBLOZJTQ
-         GZzyMnW/Qh8BzkcvBPdBXCN2KVv7oulFRMFxbvmXggTvvc6SSt38uiRPbFPdChJnqU
-         y7O8WaYnQgvMCGFIJH9WbvOCZ8bg8T7/8kQU0AfKrfzmo0kE329J0h/7chVsWkIBpS
-         CWjI4J5h+kZXc2hqZaIDrmjSp6B7i5IMkbQnMUM8uFAX0mS+WPL7+8ORt+jCL03KyA
-         ga53aeTUJR/dA==
+        b=Wig7QjyQ71m3Y32KcvRQgzQ3Eaq4Rvn0C91S7ub02WmkR2nTeX9dG8KMEqxVuUiXz
+         832lcovCKo6pjhZw6s7s9/3gia4J/HDJdZQFUSEcYxEQjPqV72XRHnfKN805v0V4cp
+         ctlaFvV7Flqq5BIC5m3wM4gVBNb1PQvsBDy2n1002ezRpoir20RD8KdNfKAFwddE4p
+         5xduK1PHrnI0Ka+BmP3l6SeRXvZw0K2+PkD1eUfydEBYSJcf+9OegDRPGCcYkgPfFN
+         nZYie8iNL6u07ARXHiwpHUVSOIidi1Y2pY72b4H+fe11hJWGn8VNnbt+eXf/WCejTF
+         R+EObOiSpxSLg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, yangtiezhu@loongson.cn,
-        windhl@126.com, wsa+renesas@sang-engineering.com,
-        linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 43/44] MIPS: pic32: treat port as signed integer
-Date:   Fri, 18 Nov 2022 21:11:23 -0500
-Message-Id: <20221119021124.1773699-43-sashal@kernel.org>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.0 44/44] io_uring/poll: lockdep annote io_poll_req_insert_locked
+Date:   Fri, 18 Nov 2022 21:11:24 -0500
+Message-Id: <20221119021124.1773699-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221119021124.1773699-1-sashal@kernel.org>
 References: <20221119021124.1773699-1-sashal@kernel.org>
@@ -57,103 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 648060902aa302331b5d6e4f26d8ee0761d239ab ]
+[ Upstream commit 5576035f15dfcc6cb1cec236db40c2c0733b0ba4 ]
 
-get_port_from_cmdline() returns an int, yet is assigned to a char, which
-is wrong in its own right, but also, with char becoming unsigned, this
-poses problems, because -1 is used as an error value. Further
-complicating things, fw_init_early_console() is only ever called with a
--1 argument. Fix this up by removing the unused argument from
-fw_init_early_console() and treating port as a proper signed integer.
+Add a lockdep annotation in io_poll_req_insert_locked().
 
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/8115d8e702733754d0aea119e9b5bb63d1eb8b24.1668184658.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/fw/fw.h             |  2 +-
- arch/mips/pic32/pic32mzda/early_console.c | 13 ++++++-------
- arch/mips/pic32/pic32mzda/init.c          |  2 +-
- 3 files changed, 8 insertions(+), 9 deletions(-)
+ io_uring/poll.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/include/asm/fw/fw.h b/arch/mips/include/asm/fw/fw.h
-index d0ef8b4892bb..d0494ce4b337 100644
---- a/arch/mips/include/asm/fw/fw.h
-+++ b/arch/mips/include/asm/fw/fw.h
-@@ -26,6 +26,6 @@ extern char *fw_getcmdline(void);
- extern void fw_meminit(void);
- extern char *fw_getenv(char *name);
- extern unsigned long fw_getenvl(char *name);
--extern void fw_init_early_console(char port);
-+extern void fw_init_early_console(void);
+diff --git a/io_uring/poll.c b/io_uring/poll.c
+index 0d9f49c575e0..810425ec2736 100644
+--- a/io_uring/poll.c
++++ b/io_uring/poll.c
+@@ -116,6 +116,8 @@ static void io_poll_req_insert_locked(struct io_kiocb *req)
+ 	struct io_hash_table *table = &req->ctx->cancel_table_locked;
+ 	u32 index = hash_long(req->cqe.user_data, table->hash_bits);
  
- #endif /* __ASM_FW_H_ */
-diff --git a/arch/mips/pic32/pic32mzda/early_console.c b/arch/mips/pic32/pic32mzda/early_console.c
-index 25372e62783b..3cd1b408fa1c 100644
---- a/arch/mips/pic32/pic32mzda/early_console.c
-+++ b/arch/mips/pic32/pic32mzda/early_console.c
-@@ -27,7 +27,7 @@
- #define U_BRG(x)	(UART_BASE(x) + 0x40)
- 
- static void __iomem *uart_base;
--static char console_port = -1;
-+static int console_port = -1;
- 
- static int __init configure_uart_pins(int port)
- {
-@@ -47,7 +47,7 @@ static int __init configure_uart_pins(int port)
- 	return 0;
++	lockdep_assert_held(&req->ctx->uring_lock);
++
+ 	hlist_add_head(&req->hash_node, &table->hbs[index].list);
  }
  
--static void __init configure_uart(char port, int baud)
-+static void __init configure_uart(int port, int baud)
- {
- 	u32 pbclk;
- 
-@@ -60,7 +60,7 @@ static void __init configure_uart(char port, int baud)
- 		     uart_base + PIC32_SET(U_STA(port)));
- }
- 
--static void __init setup_early_console(char port, int baud)
-+static void __init setup_early_console(int port, int baud)
- {
- 	if (configure_uart_pins(port))
- 		return;
-@@ -130,16 +130,15 @@ static int __init get_baud_from_cmdline(char *arch_cmdline)
- 	return baud;
- }
- 
--void __init fw_init_early_console(char port)
-+void __init fw_init_early_console(void)
- {
- 	char *arch_cmdline = pic32_getcmdline();
--	int baud = -1;
-+	int baud, port;
- 
- 	uart_base = ioremap(PIC32_BASE_UART, 0xc00);
- 
- 	baud = get_baud_from_cmdline(arch_cmdline);
--	if (port == -1)
--		port = get_port_from_cmdline(arch_cmdline);
-+	port = get_port_from_cmdline(arch_cmdline);
- 
- 	if (port == -1)
- 		port = EARLY_CONSOLE_PORT;
-diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
-index d9c8c4e46aff..58d8ca730df7 100644
---- a/arch/mips/pic32/pic32mzda/init.c
-+++ b/arch/mips/pic32/pic32mzda/init.c
-@@ -47,7 +47,7 @@ void __init plat_mem_setup(void)
- 		strlcpy(arcs_cmdline, boot_command_line, COMMAND_LINE_SIZE);
- 
- #ifdef CONFIG_EARLY_PRINTK
--	fw_init_early_console(-1);
-+	fw_init_early_console();
- #endif
- 	pic32_config_init();
- }
 -- 
 2.35.1
 
