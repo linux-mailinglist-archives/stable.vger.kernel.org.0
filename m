@@ -2,74 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 008DA6313C0
-	for <lists+stable@lfdr.de>; Sun, 20 Nov 2022 12:50:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5096314AB
+	for <lists+stable@lfdr.de>; Sun, 20 Nov 2022 15:28:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229721AbiKTLuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Nov 2022 06:50:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54268 "EHLO
+        id S229708AbiKTO2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Nov 2022 09:28:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229612AbiKTLuw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Nov 2022 06:50:52 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 511A232BA0;
-        Sun, 20 Nov 2022 03:50:50 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id k5so8199892pjo.5;
-        Sun, 20 Nov 2022 03:50:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=w+40jj36T96DtJh5DmGZMsh8qwcyv1b5eoW/IqfAE8M=;
-        b=Ln6v20dGZDl/B17fLeuofYj7zGcP8E/JFma7aYnYn69HdA1TIO1MP+7b5j4BxlDvMB
-         nujdVr6mwRYNvhqRaBzYBoTWQCIAAf48yMcw31vcziHTF+HoSQ9dBH8mA3/oGUo2WQb7
-         X9es13xRChMYoko/zPrt3CISH0Br3wAr91jcPlyEZbEBisTXBc1uzAzYHVTIBSxkl97O
-         sp0mClXHrt0M2YrZfdmXe6DTexoIEtqG2/sKxobByv6n2bw/11BSCLW5z35hRVIsOsAJ
-         SsOv43cYSnPejzuWfVPY4oPS9Yd5fTMwqbyYoEowTB+e9UTapi/bLe/zVDbbJS2HzAXi
-         2qpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=w+40jj36T96DtJh5DmGZMsh8qwcyv1b5eoW/IqfAE8M=;
-        b=WC5LEUo4wnqtl2Be9G7SShfDCoDGztgiknWd0Q6kp42HfCDhDN05n/pbplMKqJpWt4
-         8ZLoL1ADDmXeGaS5oZEAVesooWv2z4FcAlQidRWnoxlMd03euhzirNPB8BYJSYSQs/xy
-         22tEzWPue3G0Op7ViwV3x/ZKJH8Fz+B3v9gPlRxr4xFQf695Cqp+BkjLzBr8XmUHokQq
-         zOdefKb8Gbc5cNjZaWUrFeVTVlH/5N7Sby23QwZ4Jzx+1fcOAcMDC//c2uCdaj41g8ub
-         +a2s1CMvsxZIKITRhpAWpVNBiR6/rhNqShMeMDcYMaWM+ocQ31C36JTJeQyT598PUTIk
-         26tw==
-X-Gm-Message-State: ANoB5pmEPMGcSuVIU7AzkM8aH+mIVMOlEDpzgpk2r6+vrA6cu/dZB/rC
-        bnhI2mJeJx7Rc1d1SUEfXLA=
-X-Google-Smtp-Source: AA0mqf5wuyjQuzy0tygjF5lFeT9bCDUKiC/2Om9GQQ85mimyAYcdgNszdQYs4AVn4uFnbitUsOQwHQ==
-X-Received: by 2002:a17:90a:3d41:b0:213:d34:a80b with SMTP id o1-20020a17090a3d4100b002130d34a80bmr16090030pjf.74.1668945049692;
-        Sun, 20 Nov 2022 03:50:49 -0800 (PST)
-Received: from [172.30.1.1] ([14.32.163.5])
-        by smtp.gmail.com with ESMTPSA id t5-20020a625f05000000b00562f6df42f1sm6483214pfb.152.2022.11.20.03.50.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 20 Nov 2022 03:50:48 -0800 (PST)
-Message-ID: <400b9db5-e831-1c60-f47c-905173dd1537@gmail.com>
-Date:   Sun, 20 Nov 2022 20:50:44 +0900
+        with ESMTP id S229645AbiKTO2Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 20 Nov 2022 09:28:24 -0500
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3A413DE4;
+        Sun, 20 Nov 2022 06:28:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
+        t=1668954490; bh=FFLjOZn0sVHKOreaEmKwpRdWPja50G8UcNn6gnxIzrY=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=ncSXXE3CeosOJ1S0V0vpONVMqGIFacon2JAF5mvmrhqfFuDfJkYgEN2H2rDg0dH2B
+         wS2X4g2u4e/Fzo8CJ3EDfNi6csfNJJWip/UmTKs9FpxYT+CazJiWjPMIKpq3stQKAG
+         oYrgAVoDXeVeCx1r2Spgqu7KGOHlvhNfj5SC0cKtXp/ErF2PAcPPYIwfB8jHV9WSUA
+         6xG3M9L7xWd3d3VF53VznP/K+qBTm67WK7grh6vLOQgNhK67e8pFp4oywyvFhGcQ0z
+         OrCONTLmWjSYODPGvvQ41bOrc++B3tUp/ygZxkGUjv3YGeEa4uzDOBWRfJrfyfN20E
+         5TWTmMC48izbQ==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from Venus.speedport.ip ([84.162.7.17]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MGQjH-1oigGV2ei5-00Gma9; Sun, 20
+ Nov 2022 15:28:10 +0100
+From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
+To:     airlied@gmail.com, daniel@ffwll.ch, eric@anholt.net
+Cc:     emma@anholt.net, mripard@kernel.org,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        l.sanfilippo@kunbus.com, LinoSanfilippo@gmx.de, lukas@wunner.de,
+        p.rosenberger@kunbus.com, stable@vger.kernel.org
+Subject: [PATCH] drm/vc4: Fix NULL pointer access in vc4_platform_drm_probe()
+Date:   Sun, 20 Nov 2022 15:27:37 +0100
+Message-Id: <20221120142737.17519-1-LinoSanfilippo@gmx.de>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH v4] PM/devfreq: governor: Add a private governor_data for
- governor
-To:     Kant Fan <kant@allwinnertech.com>, myungjoo.ham@samsung.com,
-        kyungmin.park@samsung.com, cw00.choi@samsung.com,
-        mturquette@ti.com, rjw@rjwysocki.net, khilman@ti.com
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20221025072109.64025-1-kant@allwinnertech.com>
-From:   Chanwoo Choi <cwchoi00@gmail.com>
-Content-Language: en-US
-In-Reply-To: <20221025072109.64025-1-kant@allwinnertech.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+Content-Transfer-Encoding: base64
+X-Provags-ID: V03:K1:qQu1bYLAxugZ7PmynALkLG5dBwB5an5uvZob0l76RManhYz9egy
+ i91IPntzWX8eo5d57MDDd0bGH+LZfUEM8O2uaszoDE96RuiKy4EagpjPe5o7A3QvRAnRGw0
+ 1rcKhaOjxUReLTR+oDvu8DaD0pc1+pSq7blXlZdoiGF+WHtGHrY3W4sn8nXg1PouZpkVZjN
+ 4j+QyUNXc1t+cNoSiZWkw==
+UI-OutboundReport: notjunk:1;M01:P0:MYmmDVCTXIs=;FL4fdtuLC8o8EL6abdYXsfyRxa8
+ AT9Xhze3bZaar+LDJTIAKJrqq3u8vXundam1cS8jfFFvbv8iKhGKUHjfptQ+p8BWNqiURW1cg
+ NcDVkCB3Y8kYvEdnNJQYpyW5mRc1H+PC4tz6TxHACtJadjMSI315I6EV7Qd6LqWIeTM3VkgN7
+ ehA4xbr4l0/CxSV8HTqy/sJCq1aC/2PMnvw3j1zyQYWFX0qhmDdLOxc477lUPjZg3SIWfXOmo
+ qnPo/Mv++/x50L325Gu41Xis6OIQWZkXh2xcnzkpnKzHyZzRHWz938khidR3T8RU++/kOg1+i
+ vcq2a2hZe4Ns/wAf7JmtA0seFpetshFhwIFVUdelxlYrbZHX2Pdjjt9EPr29IOjw8AQ317vbm
+ 529uRdNEsxN8cr+tuFfbpg3kkSJuG51oIZl5O4JbvIl6Y3OdYhGi4T/Xq5fo5XNjwDlprNG/x
+ M4HVeAGU6A/Bb1eLMIRpJ8WZt41b45cjd4BvC39uB5lWp+Mvvih98MAmA/O1yBgkCoPsb88Yb
+ Kxe+DrGzWzcLvGrLLzQgpviBVfP1VNmxsJCUaELzsy1RvllJidHzZdDL8w0Pja5zka+Hu+ccx
+ OpkqwotbkKSU83Ht6tL2X9HLCVuZIN9YlN/L8TXwCUnD/ZVJKn7HoqeeTjNj+1mV4ADrNAfgB
+ JVs36RWBneGsv5CxLNK2/Ong2Wr1EPrw7hEgyPFLfncCBVwZibggtjNaL4J1Usw9wklYnXdl5
+ GyFeFenCXEcX25ryv3jc9/DNF75WCli0ju5KN3J9xLHezCn0ZbtCgEUIl2y6FiGmqYV/URICR
+ i5q7/alaOi4COBLMf3O3alWzb8m3UJNo3svmgh1eJqUcpym2HjdMWAg03fK4uj9yBbWaZP/eG
+ FEFFrcvqqlGFUvzt4HI1m/43nIrfQmhCqmrn8oALy+OpzJIUH68XnYDXHClTO81RpHDhUN2cP
+ k+YJxQ==
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,MIME_BASE64_TEXT,
+        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,54 +68,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 22. 10. 25. 16:21, Kant Fan wrote:
-> The member void *data in the structure devfreq can be overwrite
-> by governor_userspace. For example:
-> 1. The device driver assigned the devfreq governor to simple_ondemand
-> by the function devfreq_add_device() and init the devfreq member
-> void *data to a pointer of a static structure devfreq_simple_ondemand_data
-> by the function devfreq_add_device().
-> 2. The user changed the devfreq governor to userspace by the command
-> "echo userspace > /sys/class/devfreq/.../governor".
-> 3. The governor userspace alloced a dynamic memory for the struct
-> userspace_data and assigend the member void *data of devfreq to
-> this memory by the function userspace_init().
-> 4. The user changed the devfreq governor back to simple_ondemand
-> by the command "echo simple_ondemand > /sys/class/devfreq/.../governor".
-> 5. The governor userspace exited and assigned the member void *data
-> in the structure devfreq to NULL by the function userspace_exit().
-> 6. The governor simple_ondemand fetched the static information of
-> devfreq_simple_ondemand_data in the function
-> devfreq_simple_ondemand_func() but the member void *data of devfreq was
-> assigned to NULL by the function userspace_exit().
-> 7. The information of upthreshold and downdifferential is lost
-> and the governor simple_ondemand can't work correctly.
-> 
-> The member void *data in the structure devfreq is designed for
-> a static pointer used in a governor and inited by the function
-> devfreq_add_device(). This patch add an element named governor_data
-> in the devfreq structure which can be used by a governor(E.g userspace)
-> who want to assign a private data to do some private things.
-> 
-> Fixes: ce26c5bb9569 ("PM / devfreq: Add basic governors")
-> Cc: stable@vger.kernel.org # 5.10+
-> Reviewed-by: Chanwoo Choi <cwchoi00@gmail.com>
-> Acked-by: MyungJoo Ham <myungjoo.ham@samsung.com>
-> Signed-off-by: Kant Fan <kant@allwinnertech.com>
-> ---
->  drivers/devfreq/devfreq.c            |  6 ++----
->  drivers/devfreq/governor_userspace.c | 12 ++++++------
->  include/linux/devfreq.h              |  7 ++++---
->  3 files changed, 12 insertions(+), 13 deletions(-)
-> 
-
-
-(snip)
-
-Applied it. Thanks.
-
--- 
-Best Regards,
-Samsung Electronics
-Chanwoo Choi
-
+RnJvbTogTGlubyBTYW5maWxpcHBvIDxsLnNhbmZpbGlwcG9Aa3VuYnVzLmNvbT4KCkluIHZjNF9w
+bGF0Zm9ybV9kcm1fcHJvYmUoKSBmdW5jdGlvbiB2YzRfbWF0Y2hfYWRkX2RyaXZlcnMoKSBpcyBj
+YWxsZWQgdG8KZmluZCBjb21wb25lbnQgbWF0Y2hlcyBmb3IgdGhlIGNvbXBvbmVudCBkcml2ZXJz
+LiBJZiBubyBzdWNoIG1hdGNoIGlzIGZvdW5kCnRoZSBwYXNzZWQgdmFyaWFibGUgIm1hdGNoIiBp
+cyBzdGlsbCBOVUxMIGFmdGVyIHRoZSBmdW5jdGlvbiByZXR1cm5zLgoKRG8gbm90IHBhc3MgIm1h
+dGNoIiB0byBjb21wb25lbnRfbWFzdGVyX2FkZF93aXRoX21hdGNoKCkgaW4gdGhpcyBjYXNlIHNp
+bmNlCnRoaXMgcmVzdWx0cyBpbiBhIE5VTEwgcG9pbnRlciBhY2Nlc3MgYXMgc29vbiBhcyBtYXRj
+aC0+bnVtIGlzIHVzZWQgdG8KYWxsb2NhdGUgYSBjb21wb25lbnRfbWF0Y2ggYXJyYXkuIEluc3Rl
+YWQgcmV0dXJuIHdpdGggLUVOT0RFViBmcm9tIHRoZQpkcml2ZXJzIHByb2JlIGZ1bmN0aW9uLgoK
+Rml4ZXM6IGM4Yjc1YmNhOTJjYiAoImRybS92YzQ6IEFkZCBLTVMgc3VwcG9ydCBmb3IgUmFzcGJl
+cnJ5IFBpLiIpCkNjOiBzdGFibGVAdmdlci5rZXJuZWwub3JnClNpZ25lZC1vZmYtYnk6IExpbm8g
+U2FuZmlsaXBwbyA8bC5zYW5maWxpcHBvQGt1bmJ1cy5jb20+Ci0tLQogZHJpdmVycy9ncHUvZHJt
+L3ZjNC92YzRfZHJ2LmMgfCAzICsrKwogMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKQoK
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92YzQvdmM0X2Rydi5jIGIvZHJpdmVycy9ncHUv
+ZHJtL3ZjNC92YzRfZHJ2LmMKaW5kZXggMjAyNzA2M2ZkYzMwLi4yZTUzZDdmOGFkNDQgMTAwNjQ0
+Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS92YzQvdmM0X2Rydi5jCisrKyBiL2RyaXZlcnMvZ3B1L2Ry
+bS92YzQvdmM0X2Rydi5jCkBAIC00MzcsNiArNDM3LDkgQEAgc3RhdGljIGludCB2YzRfcGxhdGZv
+cm1fZHJtX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCiAJdmM0X21hdGNoX2Fk
+ZF9kcml2ZXJzKGRldiwgJm1hdGNoLAogCQkJICAgICAgY29tcG9uZW50X2RyaXZlcnMsIEFSUkFZ
+X1NJWkUoY29tcG9uZW50X2RyaXZlcnMpKTsKIAorCWlmICghbWF0Y2gpCisJCXJldHVybiAtRU5P
+REVWOworCiAJcmV0dXJuIGNvbXBvbmVudF9tYXN0ZXJfYWRkX3dpdGhfbWF0Y2goZGV2LCAmdmM0
+X2RybV9vcHMsIG1hdGNoKTsKIH0KIAoKYmFzZS1jb21taXQ6IDMwYTBiOTViMTMzNWUxMmVmZWY4
+OWRkNzg1MThlZDNlNGE3MWE3NjMKLS0gCjIuMzYuMQoK
