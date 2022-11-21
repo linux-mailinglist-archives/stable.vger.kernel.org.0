@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C8B963219E
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:10:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 717286321A1
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:10:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229505AbiKUMKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 07:10:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37130 "EHLO
+        id S230103AbiKUMK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 07:10:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229502AbiKUMKE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:10:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B27B1FCFD
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:10:03 -0800 (PST)
+        with ESMTP id S229379AbiKUMKx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:10:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A2F73412
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:10:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36FF761139
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:10:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0711EC433D6;
-        Mon, 21 Nov 2022 12:10:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2A30B80ED5
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:10:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23101C433C1;
+        Mon, 21 Nov 2022 12:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669032602;
-        bh=xoW7XIdCH77+DadKYL7jG1UNWdxD7XZo616OArOHbU0=;
+        s=korg; t=1669032650;
+        bh=wImyoB+2TmoVjO/ipgY0TvoxZsfxozqcD7iEJHkE/W8=;
         h=Subject:To:Cc:From:Date:From;
-        b=Hv0wnF0uzpD/UyezjQ+GVskn1h7zM/SmJSHGpDbo1BcVrJPABcDE2GA7ktpbPHV78
-         RW9CuFFYtOVruu8pIpKecdzuXJgpZw9ggNCB9C0RmtuWHCjkIwSRyjCC36ui0EHnZS
-         RSPftuGCUsC4+mo9TO7i1oA3w0HK/maBxl37Pr3Q=
-Subject: FAILED: patch "[PATCH] firmware: coreboot: Register bus in module init" failed to apply to 5.4-stable tree
-To:     briannorris@chromium.org, gregkh@linuxfoundation.org,
-        linux@roeck-us.net, stable@vger.kernel.org, swboyd@chromium.org
+        b=1YgKAzh6xyjLSsIstJApaHSI2iRq0wjll7XQhykiZTbrKMKuoEfucvywo1O5VASW5
+         6XXJZg8//9/dwfMWmAzlXhHdr4HZWqnXQVIMWGYQCxpVPSbn50ujWvgUIfE0fqkyC4
+         8bf3jaX2AS4245EYnAfpSGpgwtdGlN2bdBOzomPU=
+Subject: FAILED: patch "[PATCH] mmc: sdhci-pci: Fix possible memory leak caused by missing" failed to apply to 4.9-stable tree
+To:     wangxiongfeng2@huawei.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Nov 2022 13:09:59 +0100
-Message-ID: <166903259987193@kroah.com>
+Date:   Mon, 21 Nov 2022 13:10:47 +0100
+Message-ID: <166903264711327@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,15 +47,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-65946690ed8d ("firmware: coreboot: Register bus in module init")
-cae0970ee9c4 ("firmware: google: Release devices before unregistering the bus")
+222cfa0118aa ("mmc: sdhci-pci: Fix possible memory leak caused by missing pci_dev_put()")
+c31165d7400b ("mmc: sdhci-pci: Add support for HS200 tuning mode on AMD, eMMC-4.5.1")
 
 thanks,
 
@@ -64,126 +63,35 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 65946690ed8d972fdb91a74ee75ac0f0f0d68321 Mon Sep 17 00:00:00 2001
-From: Brian Norris <briannorris@chromium.org>
-Date: Wed, 19 Oct 2022 18:10:53 -0700
-Subject: [PATCH] firmware: coreboot: Register bus in module init
+From 222cfa0118aa68687ace74aab8fdf77ce8fbd7e6 Mon Sep 17 00:00:00 2001
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Date: Mon, 14 Nov 2022 16:31:00 +0800
+Subject: [PATCH] mmc: sdhci-pci: Fix possible memory leak caused by missing
+ pci_dev_put()
 
-The coreboot_table driver registers a coreboot bus while probing a
-"coreboot_table" device representing the coreboot table memory region.
-Probing this device (i.e., registering the bus) is a dependency for the
-module_init() functions of any driver for this bus (e.g.,
-memconsole-coreboot.c / memconsole_driver_init()).
+pci_get_device() will increase the reference count for the returned
+pci_dev. We need to use pci_dev_put() to decrease the reference count
+before amd_probe() returns. There is no problem for the 'smbus_dev ==
+NULL' branch because pci_dev_put() can also handle the NULL input
+parameter case.
 
-With synchronous probe, this dependency works OK, as the link order in
-the Makefile ensures coreboot_table_driver_init() (and thus,
-coreboot_table_probe()) completes before a coreboot device driver tries
-to add itself to the bus.
+Fixes: 659c9bc114a8 ("mmc: sdhci-pci: Build o2micro support in the same module")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221114083100.149200-1-wangxiongfeng2@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-With asynchronous probe, however, coreboot_table_probe() may race with
-memconsole_driver_init(), and so we're liable to hit one of these two:
-
-1. coreboot_driver_register() eventually hits "[...] the bus was not
-   initialized.", and the memconsole driver fails to register; or
-2. coreboot_driver_register() gets past #1, but still races with
-   bus_register() and hits some other undefined/crashing behavior (e.g.,
-   in driver_find() [1])
-
-We can resolve this by registering the bus in our initcall, and only
-deferring "device" work (scanning the coreboot memory region and
-creating sub-devices) to probe().
-
-[1] Example failure, using 'driver_async_probe=*' kernel command line:
-
-[    0.114217] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
-...
-[    0.114307] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.1.0-rc1 #63
-[    0.114316] Hardware name: Google Scarlet (DT)
-...
-[    0.114488] Call trace:
-[    0.114494]  _raw_spin_lock+0x34/0x60
-[    0.114502]  kset_find_obj+0x28/0x84
-[    0.114511]  driver_find+0x30/0x50
-[    0.114520]  driver_register+0x64/0x10c
-[    0.114528]  coreboot_driver_register+0x30/0x3c
-[    0.114540]  memconsole_driver_init+0x24/0x30
-[    0.114550]  do_one_initcall+0x154/0x2e0
-[    0.114560]  do_initcall_level+0x134/0x160
-[    0.114571]  do_initcalls+0x60/0xa0
-[    0.114579]  do_basic_setup+0x28/0x34
-[    0.114588]  kernel_init_freeable+0xf8/0x150
-[    0.114596]  kernel_init+0x2c/0x12c
-[    0.114607]  ret_from_fork+0x10/0x20
-[    0.114624] Code: 5280002b 1100054a b900092a f9800011 (885ffc01)
-[    0.114631] ---[ end trace 0000000000000000 ]---
-
-Fixes: b81e3140e412 ("firmware: coreboot: Make bus registration symmetric")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20221019180934.1.If29e167d8a4771b0bf4a39c89c6946ed764817b9@changeid
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/firmware/google/coreboot_table.c b/drivers/firmware/google/coreboot_table.c
-index c52bcaa9def6..9ca21feb9d45 100644
---- a/drivers/firmware/google/coreboot_table.c
-+++ b/drivers/firmware/google/coreboot_table.c
-@@ -149,12 +149,8 @@ static int coreboot_table_probe(struct platform_device *pdev)
- 	if (!ptr)
- 		return -ENOMEM;
+diff --git a/drivers/mmc/host/sdhci-pci-core.c b/drivers/mmc/host/sdhci-pci-core.c
+index 34ea1acbb3cc..28dc65023fa9 100644
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -1749,6 +1749,8 @@ static int amd_probe(struct sdhci_pci_chip *chip)
+ 		}
+ 	}
  
--	ret = bus_register(&coreboot_bus_type);
--	if (!ret) {
--		ret = coreboot_table_populate(dev, ptr);
--		if (ret)
--			bus_unregister(&coreboot_bus_type);
--	}
-+	ret = coreboot_table_populate(dev, ptr);
++	pci_dev_put(smbus_dev);
 +
- 	memunmap(ptr);
+ 	if (gen == AMD_CHIPSET_BEFORE_ML || gen == AMD_CHIPSET_CZ)
+ 		chip->quirks2 |= SDHCI_QUIRK2_CLEAR_TRANSFERMODE_REG_BEFORE_CMD;
  
- 	return ret;
-@@ -169,7 +165,6 @@ static int __cb_dev_unregister(struct device *dev, void *dummy)
- static int coreboot_table_remove(struct platform_device *pdev)
- {
- 	bus_for_each_dev(&coreboot_bus_type, NULL, NULL, __cb_dev_unregister);
--	bus_unregister(&coreboot_bus_type);
- 	return 0;
- }
- 
-@@ -199,6 +194,32 @@ static struct platform_driver coreboot_table_driver = {
- 		.of_match_table = of_match_ptr(coreboot_of_match),
- 	},
- };
--module_platform_driver(coreboot_table_driver);
-+
-+static int __init coreboot_table_driver_init(void)
-+{
-+	int ret;
-+
-+	ret = bus_register(&coreboot_bus_type);
-+	if (ret)
-+		return ret;
-+
-+	ret = platform_driver_register(&coreboot_table_driver);
-+	if (ret) {
-+		bus_unregister(&coreboot_bus_type);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static void __exit coreboot_table_driver_exit(void)
-+{
-+	platform_driver_unregister(&coreboot_table_driver);
-+	bus_unregister(&coreboot_bus_type);
-+}
-+
-+module_init(coreboot_table_driver_init);
-+module_exit(coreboot_table_driver_exit);
-+
- MODULE_AUTHOR("Google, Inc.");
- MODULE_LICENSE("GPL");
 
