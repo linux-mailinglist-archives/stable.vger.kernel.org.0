@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A47632286
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:44:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0CAF6322B4
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:45:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229436AbiKUMoD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 07:44:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35758 "EHLO
+        id S231179AbiKUMpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 07:45:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229941AbiKUMoC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:44:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B14D0BF815
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:44:01 -0800 (PST)
+        with ESMTP id S231383AbiKUMo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:44:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B52FBFF5E
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:44:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F0BF6119C
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:44:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46B2BC433C1;
-        Mon, 21 Nov 2022 12:44:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D335B80D7F
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:44:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A905C433D6;
+        Mon, 21 Nov 2022 12:44:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669034640;
-        bh=UXHUmThJwObSpNYFI8+euoshzfpfi/QIlM6ao6Mz9e4=;
+        s=korg; t=1669034684;
+        bh=O5etzNARcIoGYIBmtBpA8p388Hm1Ts+fjnCCY6nKNes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K2S+GS/D9Bs9mTl9pyqHIH3/41bTtJomWUjC4ZYsA/buMxyiMnFj12wjdeiEsdZQb
-         DbfYbszVWaOzie+hTLAHWeLz25tBCh66mQ1qZHHEujQFrzKLLQ53DbMdMR/z9WkkTW
-         HFfwRwbyfemm8xGw1Hx17YFmIV1TJ9Hpc5lPahXc=
+        b=GnNbC+bsiPRqDYqQLiY896dIQmhqy9n5bXsLWidPQaq9p+QZAilYY38kxb+w4GM7M
+         bBsihDO42HpQH1LzpN3/rO8L1VcB1iBqvNiXHOlPk3Bsv0Vqb+np/u5f6VBCnguMJG
+         DBbHPTTQU/aUtFDEB2kGdrh81c/PFkJV8dwiqviM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
         Suleiman Souhlal <suleiman@google.com>
-Subject: [PATCH 4.19 01/34] Revert "x86/speculation: Add RSB VM Exit protections"
-Date:   Mon, 21 Nov 2022 13:43:23 +0100
-Message-Id: <20221121124150.932772783@linuxfoundation.org>
+Subject: [PATCH 4.19 02/34] Revert "x86/cpu: Add a steppings field to struct x86_cpu_id"
+Date:   Mon, 21 Nov 2022 13:43:24 +0100
+Message-Id: <20221121124150.971506489@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221121124150.886779344@linuxfoundation.org>
 References: <20221121124150.886779344@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,263 +55,106 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Suleiman Souhlal <suleiman@google.com>
 
-This reverts commit b6c5011934a15762cd694e36fe74f2f2f93eac9b.
+This reverts commit 6f2f28e71e6af993761b7a70bd2402a8d2096acf.
 
-In order to apply IBRS mitigation for Retbleed, PBRSB mitigations must be
-reverted and the reapplied, so the backports can look sane.
+This is commit e9d7144597b10ff13ff2264c059f7d4a7fbc89ac upstream. Reverting this
+commit makes the following patches apply cleanly. This patch is then reapplied.
 
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Suleiman Souhlal <suleiman@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/hw-vuln/spectre.rst |    8 ---
- arch/x86/include/asm/cpufeatures.h            |    2 
- arch/x86/include/asm/msr-index.h              |    4 -
- arch/x86/include/asm/nospec-branch.h          |   15 ------
- arch/x86/kernel/cpu/bugs.c                    |   61 --------------------------
- arch/x86/kernel/cpu/common.c                  |   14 +----
- arch/x86/kvm/vmx.c                            |    6 +-
- 7 files changed, 7 insertions(+), 103 deletions(-)
+ arch/x86/include/asm/cpu_device_id.h |   27 ---------------------------
+ arch/x86/kernel/cpu/match.c          |    7 +------
+ include/linux/mod_devicetable.h      |    6 ------
+ 3 files changed, 1 insertion(+), 39 deletions(-)
 
---- a/Documentation/admin-guide/hw-vuln/spectre.rst
-+++ b/Documentation/admin-guide/hw-vuln/spectre.rst
-@@ -422,14 +422,6 @@ The possible values in this file are:
-   'RSB filling'   Protection of RSB on context switch enabled
-   =============   ===========================================
+--- a/arch/x86/include/asm/cpu_device_id.h
++++ b/arch/x86/include/asm/cpu_device_id.h
+@@ -9,33 +9,6 @@
  
--  - EIBRS Post-barrier Return Stack Buffer (PBRSB) protection status:
+ #include <linux/mod_devicetable.h>
+ 
+-#define X86_STEPPINGS(mins, maxs)    GENMASK(maxs, mins)
 -
--  ===========================  =======================================================
--  'PBRSB-eIBRS: SW sequence'   CPU is affected and protection of RSB on VMEXIT enabled
--  'PBRSB-eIBRS: Vulnerable'    CPU is vulnerable
--  'PBRSB-eIBRS: Not affected'  CPU is not affected by PBRSB
--  ===========================  =======================================================
+-/**
+- * X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE - Base macro for CPU matching
+- * @_vendor:	The vendor name, e.g. INTEL, AMD, HYGON, ..., ANY
+- *		The name is expanded to X86_VENDOR_@_vendor
+- * @_family:	The family number or X86_FAMILY_ANY
+- * @_model:	The model number, model constant or X86_MODEL_ANY
+- * @_steppings:	Bitmask for steppings, stepping constant or X86_STEPPING_ANY
+- * @_feature:	A X86_FEATURE bit or X86_FEATURE_ANY
+- * @_data:	Driver specific data or NULL. The internal storage
+- *		format is unsigned long. The supplied value, pointer
+- *		etc. is casted to unsigned long internally.
+- *
+- * Backport version to keep the SRBDS pile consistant. No shorter variants
+- * required for this.
+- */
+-#define X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE(_vendor, _family, _model, \
+-						    _steppings, _feature, _data) { \
+-	.vendor		= X86_VENDOR_##_vendor,				\
+-	.family		= _family,					\
+-	.model		= _model,					\
+-	.steppings	= _steppings,					\
+-	.feature	= _feature,					\
+-	.driver_data	= (unsigned long) _data				\
+-}
 -
- Full mitigation might require a microcode update from the CPU
- vendor. When the necessary microcode is not available, the kernel will
- report vulnerability.
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -283,7 +283,6 @@
- #define X86_FEATURE_CQM_MBM_LOCAL	(11*32+ 3) /* LLC Local MBM monitoring */
- #define X86_FEATURE_FENCE_SWAPGS_USER	(11*32+ 4) /* "" LFENCE in user entry SWAPGS path */
- #define X86_FEATURE_FENCE_SWAPGS_KERNEL	(11*32+ 5) /* "" LFENCE in kernel entry SWAPGS path */
--#define X86_FEATURE_RSB_VMEXIT_LITE	(11*32+ 6) /* "" Fill RSB on VM exit when EIBRS is enabled */
+ extern const struct x86_cpu_id *x86_match_cpu(const struct x86_cpu_id *match);
  
- /* AMD-defined CPU features, CPUID level 0x80000008 (EBX), word 13 */
- #define X86_FEATURE_CLZERO		(13*32+ 0) /* CLZERO instruction */
-@@ -397,6 +396,5 @@
- #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
- #define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
- #define X86_BUG_MMIO_UNKNOWN		X86_BUG(26) /* CPU is too old and its MMIO Stale Data status is unknown */
--#define X86_BUG_EIBRS_PBRSB		X86_BUG(27) /* EIBRS is vulnerable to Post Barrier RSB Predictions */
- 
- #endif /* _ASM_X86_CPUFEATURES_H */
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -120,10 +120,6 @@
- 						 * bit available to control VERW
- 						 * behavior.
- 						 */
--#define ARCH_CAP_PBRSB_NO		BIT(24)	/*
--						 * Not susceptible to Post-Barrier
--						 * Return Stack Buffer Predictions.
--						 */
- 
- #define MSR_IA32_FLUSH_CMD		0x0000010b
- #define L1D_FLUSH			BIT(0)	/*
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -70,14 +70,6 @@
- 	add	$(BITS_PER_LONG/8) * nr, sp;
  #endif
+--- a/arch/x86/kernel/cpu/match.c
++++ b/arch/x86/kernel/cpu/match.c
+@@ -34,18 +34,13 @@ const struct x86_cpu_id *x86_match_cpu(c
+ 	const struct x86_cpu_id *m;
+ 	struct cpuinfo_x86 *c = &boot_cpu_data;
  
--/* Sequence to mitigate PBRSB on eIBRS CPUs */
--#define __ISSUE_UNBALANCED_RET_GUARD(sp)	\
--	call	881f;				\
--	int3;					\
--881:						\
--	add	$(BITS_PER_LONG/8), sp;		\
--	lfence;
--
- #ifdef __ASSEMBLY__
+-	for (m = match;
+-	     m->vendor | m->family | m->model | m->steppings | m->feature;
+-	     m++) {
++	for (m = match; m->vendor | m->family | m->model | m->feature; m++) {
+ 		if (m->vendor != X86_VENDOR_ANY && c->x86_vendor != m->vendor)
+ 			continue;
+ 		if (m->family != X86_FAMILY_ANY && c->x86 != m->family)
+ 			continue;
+ 		if (m->model != X86_MODEL_ANY && c->x86_model != m->model)
+ 			continue;
+-		if (m->steppings != X86_STEPPING_ANY &&
+-		    !(BIT(c->x86_stepping) & m->steppings))
+-			continue;
+ 		if (m->feature != X86_FEATURE_ANY && !cpu_has(c, m->feature))
+ 			continue;
+ 		return m;
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -621,10 +621,6 @@ struct mips_cdmm_device_id {
+ /*
+  * MODULE_DEVICE_TABLE expects this struct to be called x86cpu_device_id.
+  * Although gcc seems to ignore this error, clang fails without this define.
+- *
+- * Note: The ordering of the struct is different from upstream because the
+- * static initializers in kernels < 5.7 still use C89 style while upstream
+- * has been converted to proper C99 initializers.
+  */
+ #define x86cpu_device_id x86_cpu_id
+ struct x86_cpu_id {
+@@ -633,7 +629,6 @@ struct x86_cpu_id {
+ 	__u16 model;
+ 	__u16 feature;	/* bit index */
+ 	kernel_ulong_t driver_data;
+-	__u16 steppings;
+ };
+ 
+ #define X86_FEATURE_MATCH(x) \
+@@ -642,7 +637,6 @@ struct x86_cpu_id {
+ #define X86_VENDOR_ANY 0xffff
+ #define X86_FAMILY_ANY 0
+ #define X86_MODEL_ANY  0
+-#define X86_STEPPING_ANY 0
+ #define X86_FEATURE_ANY 0	/* Same as FPU, you can't test for that */
  
  /*
-@@ -293,13 +285,6 @@ static inline void vmexit_fill_RSB(void)
- 		      : "=r" (loops), ASM_CALL_CONSTRAINT
- 		      : : "memory" );
- #endif
--	asm volatile (ANNOTATE_NOSPEC_ALTERNATIVE
--		      ALTERNATIVE("jmp 920f",
--				  __stringify(__ISSUE_UNBALANCED_RET_GUARD(%0)),
--				  X86_FEATURE_RSB_VMEXIT_LITE)
--		      "920:"
--		      : ASM_CALL_CONSTRAINT
--		      : : "memory" );
- }
- 
- static __always_inline
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1046,49 +1046,6 @@ static enum spectre_v2_mitigation __init
- 	return SPECTRE_V2_RETPOLINE;
- }
- 
--static void __init spectre_v2_determine_rsb_fill_type_at_vmexit(enum spectre_v2_mitigation mode)
--{
--	/*
--	 * Similar to context switches, there are two types of RSB attacks
--	 * after VM exit:
--	 *
--	 * 1) RSB underflow
--	 *
--	 * 2) Poisoned RSB entry
--	 *
--	 * When retpoline is enabled, both are mitigated by filling/clearing
--	 * the RSB.
--	 *
--	 * When IBRS is enabled, while #1 would be mitigated by the IBRS branch
--	 * prediction isolation protections, RSB still needs to be cleared
--	 * because of #2.  Note that SMEP provides no protection here, unlike
--	 * user-space-poisoned RSB entries.
--	 *
--	 * eIBRS should protect against RSB poisoning, but if the EIBRS_PBRSB
--	 * bug is present then a LITE version of RSB protection is required,
--	 * just a single call needs to retire before a RET is executed.
--	 */
--	switch (mode) {
--	case SPECTRE_V2_NONE:
--	/* These modes already fill RSB at vmexit */
--	case SPECTRE_V2_LFENCE:
--	case SPECTRE_V2_RETPOLINE:
--	case SPECTRE_V2_EIBRS_RETPOLINE:
--		return;
--
--	case SPECTRE_V2_EIBRS_LFENCE:
--	case SPECTRE_V2_EIBRS:
--		if (boot_cpu_has_bug(X86_BUG_EIBRS_PBRSB)) {
--			setup_force_cpu_cap(X86_FEATURE_RSB_VMEXIT_LITE);
--			pr_info("Spectre v2 / PBRSB-eIBRS: Retire a single CALL on VMEXIT\n");
--		}
--		return;
--	}
--
--	pr_warn_once("Unknown Spectre v2 mode, disabling RSB mitigation at VM exit");
--	dump_stack();
--}
--
- static void __init spectre_v2_select_mitigation(void)
- {
- 	enum spectre_v2_mitigation_cmd cmd = spectre_v2_parse_cmdline();
-@@ -1181,8 +1138,6 @@ static void __init spectre_v2_select_mit
- 	setup_force_cpu_cap(X86_FEATURE_RSB_CTXSW);
- 	pr_info("Spectre v2 / SpectreRSB mitigation: Filling RSB on context switch\n");
- 
--	spectre_v2_determine_rsb_fill_type_at_vmexit(mode);
--
- 	/*
- 	 * Retpoline means the kernel is safe because it has no indirect
- 	 * branches. Enhanced IBRS protects firmware too, so, enable restricted
-@@ -1918,19 +1873,6 @@ static char *ibpb_state(void)
- 	return "";
- }
- 
--static char *pbrsb_eibrs_state(void)
--{
--	if (boot_cpu_has_bug(X86_BUG_EIBRS_PBRSB)) {
--		if (boot_cpu_has(X86_FEATURE_RSB_VMEXIT_LITE) ||
--		    boot_cpu_has(X86_FEATURE_RETPOLINE))
--			return ", PBRSB-eIBRS: SW sequence";
--		else
--			return ", PBRSB-eIBRS: Vulnerable";
--	} else {
--		return ", PBRSB-eIBRS: Not affected";
--	}
--}
--
- static ssize_t spectre_v2_show_state(char *buf)
- {
- 	if (spectre_v2_enabled == SPECTRE_V2_LFENCE)
-@@ -1943,13 +1885,12 @@ static ssize_t spectre_v2_show_state(cha
- 	    spectre_v2_enabled == SPECTRE_V2_EIBRS_LFENCE)
- 		return sprintf(buf, "Vulnerable: eIBRS+LFENCE with unprivileged eBPF and SMT\n");
- 
--	return sprintf(buf, "%s%s%s%s%s%s%s\n",
-+	return sprintf(buf, "%s%s%s%s%s%s\n",
- 		       spectre_v2_strings[spectre_v2_enabled],
- 		       ibpb_state(),
- 		       boot_cpu_has(X86_FEATURE_USE_IBRS_FW) ? ", IBRS_FW" : "",
- 		       stibp_state(),
- 		       boot_cpu_has(X86_FEATURE_RSB_CTXSW) ? ", RSB filling" : "",
--		       pbrsb_eibrs_state(),
- 		       spectre_v2_module_string());
- }
- 
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -954,8 +954,7 @@ static void identify_cpu_without_cpuid(s
- #define MSBDS_ONLY		BIT(5)
- #define NO_SWAPGS		BIT(6)
- #define NO_ITLB_MULTIHIT	BIT(7)
--#define NO_EIBRS_PBRSB		BIT(8)
--#define NO_MMIO			BIT(9)
-+#define NO_MMIO			BIT(8)
- 
- #define VULNWL(_vendor, _family, _model, _whitelist)	\
- 	{ X86_VENDOR_##_vendor, _family, _model, X86_FEATURE_ANY, _whitelist }
-@@ -997,7 +996,7 @@ static const __initconst struct x86_cpu_
- 
- 	VULNWL_INTEL(ATOM_GOLDMONT,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
- 	VULNWL_INTEL(ATOM_GOLDMONT_X,		NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
--	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO | NO_EIBRS_PBRSB),
-+	VULNWL_INTEL(ATOM_GOLDMONT_PLUS,	NO_MDS | NO_L1TF | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
- 
- 	/*
- 	 * Technically, swapgs isn't serializing on AMD (despite it previously
-@@ -1007,9 +1006,7 @@ static const __initconst struct x86_cpu_
- 	 * good enough for our purposes.
- 	 */
- 
--	VULNWL_INTEL(ATOM_TREMONT,		NO_EIBRS_PBRSB),
--	VULNWL_INTEL(ATOM_TREMONT_L,		NO_EIBRS_PBRSB),
--	VULNWL_INTEL(ATOM_TREMONT_X,		NO_ITLB_MULTIHIT | NO_EIBRS_PBRSB),
-+	VULNWL_INTEL(ATOM_TREMONT_X,		NO_ITLB_MULTIHIT),
- 
- 	/* AMD Family 0xf - 0x12 */
- 	VULNWL_AMD(0x0f,	NO_MELTDOWN | NO_SSB | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT | NO_MMIO),
-@@ -1169,11 +1166,6 @@ static void __init cpu_set_bug_bits(stru
- 			setup_force_cpu_bug(X86_BUG_MMIO_UNKNOWN);
- 	}
- 
--	if (cpu_has(c, X86_FEATURE_IBRS_ENHANCED) &&
--	    !cpu_matches(cpu_vuln_whitelist, NO_EIBRS_PBRSB) &&
--	    !(ia32_cap & ARCH_CAP_PBRSB_NO))
--		setup_force_cpu_bug(X86_BUG_EIBRS_PBRSB);
--
- 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
- 		return;
- 
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -10988,9 +10988,6 @@ static void __noclone vmx_vcpu_run(struc
- #endif
- 	      );
- 
--	/* Eliminate branch target predictions from guest mode */
--	vmexit_fill_RSB();
--
- 	vmx_enable_fb_clear(vmx);
- 
- 	/*
-@@ -11013,6 +11010,9 @@ static void __noclone vmx_vcpu_run(struc
- 
- 	x86_spec_ctrl_restore_host(vmx->spec_ctrl, 0);
- 
-+	/* Eliminate branch target predictions from guest mode */
-+	vmexit_fill_RSB();
-+
- 	/* All fields are clean at this point */
- 	if (static_branch_unlikely(&enable_evmcs))
- 		current_evmcs->hv_clean_fields |=
 
 
