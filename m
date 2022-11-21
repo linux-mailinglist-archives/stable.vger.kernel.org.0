@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 414A3632132
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:49:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F699632133
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:49:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231453AbiKULt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 06:49:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49602 "EHLO
+        id S231403AbiKULtb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 06:49:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231458AbiKULtX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 06:49:23 -0500
+        with ESMTP id S231442AbiKULt0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 06:49:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4E25220D7
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 03:49:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B48B1286E2
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 03:49:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 504EBB80ED0
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 11:49:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E723EC433C1;
-        Mon, 21 Nov 2022 11:49:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A302B80ED1
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 11:49:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59051C433C1;
+        Mon, 21 Nov 2022 11:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669031356;
-        bh=cHQhzfIjVUvpXozOMIS1ltLeb8Cr+kFWrJpyhXcVX6E=;
+        s=korg; t=1669031359;
+        bh=dQv10tRM8jGAQYnQZBgtwbMSR7RuqXjCYR+i31Rvuuo=;
         h=Subject:To:Cc:From:Date:From;
-        b=SKaOD8qoepBa6ZNg4cd3Sae2VNY0pGEYC7slDcj1VnYs0q6OLVslP1IwUFI2KoVfH
-         FE7V3fWFX7nxczgsMiHWKV7zA+Ur/hqkUokk1bGy6/tpakn5Pp4nD8N7U4Vstk3OlK
-         CrR5mjHeBDrJg/nHlxR6ixUtmvvMdVPektoxmr9Q=
-Subject: FAILED: patch "[PATCH] serial: 8250: Flush DMA Rx on RLSI" failed to apply to 4.14-stable tree
+        b=ghe/5Zti7tTorvjuK33eW4aU5rBr5gStFoV+05cLpM92mstwri7mDPgTUoaEyKHOm
+         hJBqU+KCZDh3QureC0MYXRm9sjapOhm6PYDTwSpCYJEiGF2e8on73jQi3UDPlVs1lx
+         LmpHsSx/sZqX6cj2RkARs9pLyDXvuL1vm8ed/Kic=
+Subject: FAILED: patch "[PATCH] serial: 8250: Flush DMA Rx on RLSI" failed to apply to 4.9-stable tree
 To:     ilpo.jarvinen@linux.intel.com, andriy.shevchenko@linux.intel.com,
         gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Nov 2022 12:49:00 +0100
-Message-ID: <166903134021525@kroah.com>
+Date:   Mon, 21 Nov 2022 12:49:01 +0100
+Message-ID: <166903134118432@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
