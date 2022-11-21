@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 340C2632192
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:07:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9491163219D
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:09:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230218AbiKUMG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 07:06:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35052 "EHLO
+        id S229501AbiKUMJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 07:09:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230129AbiKUMGz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:06:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 238A51EC6E
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:06:55 -0800 (PST)
+        with ESMTP id S229379AbiKUMJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:09:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F751FCFD
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:09:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B38926113C
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:06:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA54DC433C1;
-        Mon, 21 Nov 2022 12:06:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90B40B80ED5
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:09:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3049CC433C1;
+        Mon, 21 Nov 2022 12:09:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669032414;
-        bh=p2goEZw2fN6qPhCAS5w+uPdCaLao3Vc8HE6JQ9YehJk=;
+        s=korg; t=1669032580;
+        bh=amAlRXOojG5f+ZGaf4nsx5jj1pZnuzLMjahZnRKnEys=;
         h=Subject:To:Cc:From:Date:From;
-        b=2pQJTDzPKnLoSqnZ9lI93Eglm/9pdp26JDTpkOAGd8kKdgVOFUpDrKlcuVmvGEn10
-         IeRF8SqaXJhd4D8N4BinDE4taSlZXRa0hgLtzNo1yqRI2hsuC5HbZ9Ixd4G3yRrsJn
-         kTLLSrPCflyqw12MH25SJAwR0aD6gUOLroz/D3pg=
-Subject: FAILED: patch "[PATCH] io_uring: fix tw losing poll events" failed to apply to 5.15-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk
+        b=Hiz8xhlZtMyAoC9mc9inl58NR40qR/gHMjI1226pwmeUtJRfxWrqWWVXnPmUNW60L
+         d5piIAXV3TqLg/NPvaajHL1ae/s7NbD2fUJAlzhaj9HYErmRZaN/laJKzxWeWgOt+9
+         83pCa+g9EEuULvWDK7SXq9NkUOVQUhIyenQ1UGyI=
+Subject: FAILED: patch "[PATCH] iommu/vt-d: Set SRE bit only when hardware has SRS cap" failed to apply to 5.4-stable tree
+To:     tina.zhang@intel.com, baolu.lu@linux.intel.com, jroedel@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Nov 2022 13:04:06 +0100
-Message-ID: <1669032246212254@kroah.com>
+Date:   Mon, 21 Nov 2022 13:09:35 +0100
+Message-ID: <1669032575216142@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-539bcb57da2f ("io_uring: fix tw losing poll events")
-329061d3e2f9 ("io_uring: move poll handling into its own file")
-cfd22e6b3319 ("io_uring: add opcode name to io_op_defs")
-c9f06aa7de15 ("io_uring: move io_uring_task (tctx) helpers into its own file")
-a4ad4f748ea9 ("io_uring: move fdinfo helpers to its own file")
-e5550a1447bf ("io_uring: use io_is_uring_fops() consistently")
-17437f311490 ("io_uring: move SQPOLL related handling into its own file")
-59915143e89f ("io_uring: move timeout opcodes and handling into its own file")
-e418bbc97bff ("io_uring: move our reference counting into a header")
-36404b09aa60 ("io_uring: move msg_ring into its own file")
-f9ead18c1058 ("io_uring: split network related opcodes into its own file")
-e0da14def1ee ("io_uring: move statx handling to its own file")
-a9c210cebe13 ("io_uring: move epoll handler to its own file")
-4cf90495281b ("io_uring: add a dummy -EOPNOTSUPP prep handler")
-99f15d8d6136 ("io_uring: move uring_cmd handling to its own file")
-cd40cae29ef8 ("io_uring: split out open/close operations")
-453b329be5ea ("io_uring: separate out file table handling code")
-f4c163dd7d4b ("io_uring: split out fadvise/madvise operations")
-0d5847274037 ("io_uring: split out fs related sync/fallocate functions")
-531113bbd5bf ("io_uring: split out splice related operations")
+7fc961cf7ffc ("iommu/vt-d: Set SRE bit only when hardware has SRS cap")
+54c80d907400 ("iommu/vt-d: Use user privilege for RID2PASID translation")
+672cf6df9b8a ("iommu/vt-d: Move Intel IOMMU driver into subdirectory")
+3b50142d8528 ("MAINTAINERS: sort field names for all entries")
+4400b7d68f6e ("MAINTAINERS: sort entries by entry name")
+b032227c6293 ("Merge tag 'nios2-v5.7-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/lftan/nios2")
 
 thanks,
 
@@ -81,37 +67,55 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 539bcb57da2f58886d7d5c17134236b0ec9cd15d Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Thu, 17 Nov 2022 18:40:15 +0000
-Subject: [PATCH] io_uring: fix tw losing poll events
+From 7fc961cf7ffcb130c4e93ee9a5628134f9de700a Mon Sep 17 00:00:00 2001
+From: Tina Zhang <tina.zhang@intel.com>
+Date: Wed, 16 Nov 2022 13:15:44 +0800
+Subject: [PATCH] iommu/vt-d: Set SRE bit only when hardware has SRS cap
 
-We may never try to process a poll wake and its mask if there was
-multiple wake ups racing for queueing up a tw. Force
-io_poll_check_events() to update the mask by vfs_poll().
+SRS cap is the hardware cap telling if the hardware IOMMU can support
+requests seeking supervisor privilege or not. SRE bit in scalable-mode
+PASID table entry is treated as Reserved(0) for implementation not
+supporting SRS cap.
 
+Checking SRS cap before setting SRE bit can avoid the non-recoverable
+fault of "Non-zero reserved field set in PASID Table Entry" caused by
+setting SRE bit while there is no SRS cap support. The fault messages
+look like below:
+
+ DMAR: DRHD: handling fault status reg 2
+ DMAR: [DMA Read NO_PASID] Request device [00:0d.0] fault addr 0x1154e1000
+       [fault reason 0x5a]
+       SM: Non-zero reserved field set in PASID Table Entry
+
+Fixes: 6f7db75e1c46 ("iommu/vt-d: Add second level page table interface")
 Cc: stable@vger.kernel.org
-Fixes: aa43477b04025 ("io_uring: poll rework")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/00344d60f8b18907171178d7cf598de71d127b0b.1668710222.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Tina Zhang <tina.zhang@intel.com>
+Link: https://lore.kernel.org/r/20221115070346.1112273-1-tina.zhang@intel.com
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20221116051544.26540-3-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 
-diff --git a/io_uring/poll.c b/io_uring/poll.c
-index 90920abf91ff..c34019b18211 100644
---- a/io_uring/poll.c
-+++ b/io_uring/poll.c
-@@ -228,6 +228,13 @@ static int io_poll_check_events(struct io_kiocb *req, bool *locked)
- 			return IOU_POLL_DONE;
- 		if (v & IO_POLL_CANCEL_FLAG)
- 			return -ECANCELED;
-+		/*
-+		 * cqe.res contains only events of the first wake up
-+		 * and all others are be lost. Redo vfs_poll() to get
-+		 * up to date state.
-+		 */
-+		if ((v & IO_POLL_REF_MASK) != 1)
-+			req->cqe.res = 0;
+diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
+index c30ddac40ee5..e13d7e5273e1 100644
+--- a/drivers/iommu/intel/pasid.c
++++ b/drivers/iommu/intel/pasid.c
+@@ -642,7 +642,7 @@ int intel_pasid_setup_second_level(struct intel_iommu *iommu,
+ 	 * Since it is a second level only translation setup, we should
+ 	 * set SRE bit as well (addresses are expected to be GPAs).
+ 	 */
+-	if (pasid != PASID_RID2PASID)
++	if (pasid != PASID_RID2PASID && ecap_srs(iommu->ecap))
+ 		pasid_set_sre(pte);
+ 	pasid_set_present(pte);
+ 	spin_unlock(&iommu->lock);
+@@ -685,7 +685,8 @@ int intel_pasid_setup_pass_through(struct intel_iommu *iommu,
+ 	 * We should set SRE bit as well since the addresses are expected
+ 	 * to be GPAs.
+ 	 */
+-	pasid_set_sre(pte);
++	if (ecap_srs(iommu->ecap))
++		pasid_set_sre(pte);
+ 	pasid_set_present(pte);
+ 	spin_unlock(&iommu->lock);
  
- 		/* the mask was stashed in __io_poll_execute */
- 		if (!req->cqe.res) {
 
