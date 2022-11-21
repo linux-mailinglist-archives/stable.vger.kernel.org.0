@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E85B6322BF
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:45:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 911F9632289
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:44:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229558AbiKUMpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 07:45:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37292 "EHLO
+        id S229595AbiKUMoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 07:44:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229794AbiKUMpU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:45:20 -0500
+        with ESMTP id S230301AbiKUMoL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:44:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E779BF826
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:45:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64090BF815
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:44:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FA746119B
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:45:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8215CC433C1;
-        Mon, 21 Nov 2022 12:45:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00C1C6119C
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:44:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB81AC433D6;
+        Mon, 21 Nov 2022 12:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669034719;
-        bh=Mj5VzIoVO/iymBANyAw1FRJmY5WKjwcBteI0AfwFkCY=;
+        s=korg; t=1669034648;
+        bh=mz8P3mfrGRmQX28uCpJCC41d04xg8zJmamd3zPbYZdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KhuGPcaUjoYKk1E0qgcnAcMcGECxxIJ2l48lrCAmcZWOsI5k6/3K0MnqXVuqJ6cII
-         GGko+8F6kfX7tWmq7lZg8N9c54PXV0dSnCh54DpT/dJZ092okBfBOuwZ5Zy7TPmyml
-         3ep+11e4G+bkE8Srmen8nK/mDTUQSyduLdYeFpSo=
+        b=J/i2AWOT1po8MFFnAvKLSz1oTsQjk/TogA6/CA7kJ9CH37Vd0+uB2NgVA5qqPViaP
+         h3JxfzpglVdIXDtk3HcDfPkOmHzaBpeFJGdO5M5dLEHv3XTHlRz0reE+BxbP5JmmL5
+         NXS7i9NVW0WuqkBcf3i+emd/vLl2lXdpAGDhV6wE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kim Phillips <kim.phillips@amd.com>,
+        patches@lists.linux.dev,
         Alexandre Chartre <alexandre.chartre@oracle.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Borislav Petkov <bp@suse.de>,
         Josh Poimboeuf <jpoimboe@kernel.org>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
         Suleiman Souhlal <suleiman@google.com>
-Subject: [PATCH 4.19 09/34] x86/bugs: Report AMD retbleed vulnerability
-Date:   Mon, 21 Nov 2022 13:43:31 +0100
-Message-Id: <20221121124151.202269426@linuxfoundation.org>
+Subject: [PATCH 4.19 10/34] x86/bugs: Add AMD retbleed= boot parameter
+Date:   Mon, 21 Nov 2022 13:43:32 +0100
+Message-Id: <20221121124151.244311372@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221121124150.886779344@linuxfoundation.org>
 References: <20221121124150.886779344@linuxfoundation.org>
@@ -59,166 +59,159 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexandre Chartre <alexandre.chartre@oracle.com>
 
-commit 6b80b59b3555706508008f1f127b5412c89c7fd8 upstream.
+commit 7fbf47c7ce50b38a64576b150e7011ae73d54669 upstream.
 
-Report that AMD x86 CPUs are vulnerable to the RETBleed (Arbitrary
-Speculative Code Execution with Return Instructions) attack.
+Add the "retbleed=<value>" boot parameter to select a mitigation for
+RETBleed. Possible values are "off", "auto" and "unret"
+(JMP2RET mitigation). The default value is "auto".
 
-  [peterz: add hygon]
-  [kim: invert parity; fam15h]
+Currently, "retbleed=auto" will select the unret mitigation on
+AMD and Hygon and no mitigation on Intel (JMP2RET is not effective on
+Intel).
 
-Co-developed-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+  [peterz: rebase; add hygon]
+  [jpoimboe: cleanups]
+
 Signed-off-by: Alexandre Chartre <alexandre.chartre@oracle.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-[cascardo: adjusted BUG numbers to match upstream]
+[cascardo: this effectively remove the UNRET mitigation as an option, so it
+ has to be complemented by a later pick of the same commit later. This is
+ done in order to pick retbleed_select_mitigation]
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-[suleiman: Remove hygon]
 Signed-off-by: Suleiman Souhlal <suleiman@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/cpufeatures.h |    1 +
- arch/x86/kernel/cpu/bugs.c         |   13 +++++++++++++
- arch/x86/kernel/cpu/common.c       |   15 +++++++++++++++
- drivers/base/cpu.c                 |    8 ++++++++
- include/linux/cpu.h                |    2 ++
- 5 files changed, 39 insertions(+)
+ Documentation/admin-guide/kernel-parameters.txt |   12 +++
+ arch/x86/kernel/cpu/bugs.c                      |   74 +++++++++++++++++++++++-
+ 2 files changed, 85 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -404,5 +404,6 @@
- #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
- #define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
- #define X86_BUG_MMIO_UNKNOWN		X86_BUG(26) /* CPU is too old and its MMIO Stale Data status is unknown */
-+#define X86_BUG_RETBLEED		X86_BUG(27) /* CPU is affected by RETBleed */
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -4132,6 +4132,18 @@
  
- #endif /* _ASM_X86_CPUFEATURES_H */
+ 	retain_initrd	[RAM] Keep initrd memory after extraction
+ 
++	retbleed=	[X86] Control mitigation of RETBleed (Arbitrary
++			Speculative Code Execution with Return Instructions)
++			vulnerability.
++
++			off         - unconditionally disable
++			auto        - automatically select a migitation
++
++			Selecting 'auto' will choose a mitigation method at run
++			time according to the CPU.
++
++			Not specifying this option is equivalent to retbleed=auto.
++
+ 	rfkill.default_state=
+ 		0	"airplane mode".  All wifi, bluetooth, wimax, gps, fm,
+ 			etc. communication is blocked by default.
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1899,6 +1899,11 @@ static ssize_t srbds_show_state(char *bu
- 	return sprintf(buf, "%s\n", srbds_strings[srbds_mitigation]);
- }
+@@ -36,6 +36,7 @@
+ #include "cpu.h"
  
-+static ssize_t retbleed_show_state(char *buf)
+ static void __init spectre_v1_select_mitigation(void);
++static void __init retbleed_select_mitigation(void);
+ static void __init spectre_v2_select_mitigation(void);
+ static void __init ssb_select_mitigation(void);
+ static void __init l1tf_select_mitigation(void);
+@@ -111,6 +112,12 @@ void __init check_bugs(void)
+ 
+ 	/* Select the proper CPU mitigations before patching alternatives: */
+ 	spectre_v1_select_mitigation();
++	retbleed_select_mitigation();
++	/*
++	 * spectre_v2_select_mitigation() relies on the state set by
++	 * retbleed_select_mitigation(); specifically the STIBP selection is
++	 * forced for UNRET.
++	 */
+ 	spectre_v2_select_mitigation();
+ 	ssb_select_mitigation();
+ 	l1tf_select_mitigation();
+@@ -706,6 +713,71 @@ static int __init nospectre_v1_cmdline(c
+ early_param("nospectre_v1", nospectre_v1_cmdline);
+ 
+ #undef pr_fmt
++#define pr_fmt(fmt)     "RETBleed: " fmt
++
++enum retbleed_mitigation {
++	RETBLEED_MITIGATION_NONE,
++};
++
++enum retbleed_mitigation_cmd {
++	RETBLEED_CMD_OFF,
++	RETBLEED_CMD_AUTO,
++};
++
++const char * const retbleed_strings[] = {
++	[RETBLEED_MITIGATION_NONE]	= "Vulnerable",
++};
++
++static enum retbleed_mitigation retbleed_mitigation __ro_after_init =
++	RETBLEED_MITIGATION_NONE;
++static enum retbleed_mitigation_cmd retbleed_cmd __ro_after_init =
++	RETBLEED_CMD_AUTO;
++
++static int __init retbleed_parse_cmdline(char *str)
 +{
-+	return sprintf(buf, "Vulnerable\n");
++	if (!str)
++		return -EINVAL;
++
++	if (!strcmp(str, "off"))
++		retbleed_cmd = RETBLEED_CMD_OFF;
++	else if (!strcmp(str, "auto"))
++		retbleed_cmd = RETBLEED_CMD_AUTO;
++	else
++		pr_err("Unknown retbleed option (%s). Defaulting to 'auto'\n", str);
++
++	return 0;
++}
++early_param("retbleed", retbleed_parse_cmdline);
++
++#define RETBLEED_UNTRAIN_MSG "WARNING: BTB untrained return thunk mitigation is only effective on AMD/Hygon!\n"
++#define RETBLEED_COMPILER_MSG "WARNING: kernel not compiled with RETPOLINE or -mfunction-return capable compiler!\n"
++
++static void __init retbleed_select_mitigation(void)
++{
++	if (!boot_cpu_has_bug(X86_BUG_RETBLEED) || cpu_mitigations_off())
++		return;
++
++	switch (retbleed_cmd) {
++	case RETBLEED_CMD_OFF:
++		return;
++
++	case RETBLEED_CMD_AUTO:
++	default:
++		if (!boot_cpu_has_bug(X86_BUG_RETBLEED))
++			break;
++
++		break;
++	}
++
++	switch (retbleed_mitigation) {
++	default:
++		break;
++	}
++
++	pr_info("%s\n", retbleed_strings[retbleed_mitigation]);
 +}
 +
- static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr,
- 			       char *buf, unsigned int bug)
++#undef pr_fmt
+ #define pr_fmt(fmt)     "Spectre V2 : " fmt
+ 
+ static enum spectre_v2_mitigation spectre_v2_enabled __ro_after_init =
+@@ -1901,7 +1973,7 @@ static ssize_t srbds_show_state(char *bu
+ 
+ static ssize_t retbleed_show_state(char *buf)
  {
-@@ -1945,6 +1950,9 @@ static ssize_t cpu_show_common(struct de
- 	case X86_BUG_MMIO_UNKNOWN:
- 		return mmio_stale_data_show_state(buf);
- 
-+	case X86_BUG_RETBLEED:
-+		return retbleed_show_state(buf);
-+
- 	default:
- 		break;
- 	}
-@@ -2004,4 +2012,9 @@ ssize_t cpu_show_mmio_stale_data(struct
- 	else
- 		return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
- }
-+
-+ssize_t cpu_show_retbleed(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	return cpu_show_common(dev, attr, buf, X86_BUG_RETBLEED);
-+}
- #endif
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1019,16 +1019,24 @@ static const __initconst struct x86_cpu_
- 	{}
- };
- 
-+#define VULNBL(vendor, family, model, blacklist)	\
-+	X86_MATCH_VENDOR_FAM_MODEL(vendor, family, model, blacklist)
-+
- #define VULNBL_INTEL_STEPPINGS(model, steppings, issues)		   \
- 	X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE(INTEL, 6,		   \
- 					    INTEL_FAM6_##model, steppings, \
- 					    X86_FEATURE_ANY, issues)
- 
-+#define VULNBL_AMD(family, blacklist)		\
-+	VULNBL(AMD, family, X86_MODEL_ANY, blacklist)
-+
- #define SRBDS		BIT(0)
- /* CPU is affected by X86_BUG_MMIO_STALE_DATA */
- #define MMIO		BIT(1)
- /* CPU is affected by Shared Buffers Data Sampling (SBDS), a variant of X86_BUG_MMIO_STALE_DATA */
- #define MMIO_SBDS	BIT(2)
-+/* CPU is affected by RETbleed, speculating where you would not expect it */
-+#define RETBLEED	BIT(3)
- 
- static const struct x86_cpu_id cpu_vuln_blacklist[] __initconst = {
- 	VULNBL_INTEL_STEPPINGS(IVYBRIDGE,	X86_STEPPING_ANY,		SRBDS),
-@@ -1061,6 +1069,10 @@ static const struct x86_cpu_id cpu_vuln_
- 	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT,	X86_STEPPINGS(0x1, 0x1),	MMIO | MMIO_SBDS),
- 	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_X,	X86_STEPPING_ANY,		MMIO),
- 	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_L,	X86_STEPPINGS(0x0, 0x0),	MMIO | MMIO_SBDS),
-+
-+	VULNBL_AMD(0x15, RETBLEED),
-+	VULNBL_AMD(0x16, RETBLEED),
-+	VULNBL_AMD(0x17, RETBLEED),
- 	{}
- };
- 
-@@ -1166,6 +1178,9 @@ static void __init cpu_set_bug_bits(stru
- 			setup_force_cpu_bug(X86_BUG_MMIO_UNKNOWN);
- 	}
- 
-+	if (cpu_matches(cpu_vuln_blacklist, RETBLEED))
-+		setup_force_cpu_bug(X86_BUG_RETBLEED);
-+
- 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
- 		return;
- 
---- a/drivers/base/cpu.c
-+++ b/drivers/base/cpu.c
-@@ -577,6 +577,12 @@ ssize_t __weak cpu_show_mmio_stale_data(
- 	return sysfs_emit(buf, "Not affected\n");
+-	return sprintf(buf, "Vulnerable\n");
++	return sprintf(buf, "%s\n", retbleed_strings[retbleed_mitigation]);
  }
  
-+ssize_t __weak cpu_show_retbleed(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "Not affected\n");
-+}
-+
- static DEVICE_ATTR(meltdown, 0444, cpu_show_meltdown, NULL);
- static DEVICE_ATTR(spectre_v1, 0444, cpu_show_spectre_v1, NULL);
- static DEVICE_ATTR(spectre_v2, 0444, cpu_show_spectre_v2, NULL);
-@@ -587,6 +593,7 @@ static DEVICE_ATTR(tsx_async_abort, 0444
- static DEVICE_ATTR(itlb_multihit, 0444, cpu_show_itlb_multihit, NULL);
- static DEVICE_ATTR(srbds, 0444, cpu_show_srbds, NULL);
- static DEVICE_ATTR(mmio_stale_data, 0444, cpu_show_mmio_stale_data, NULL);
-+static DEVICE_ATTR(retbleed, 0444, cpu_show_retbleed, NULL);
- 
- static struct attribute *cpu_root_vulnerabilities_attrs[] = {
- 	&dev_attr_meltdown.attr,
-@@ -599,6 +606,7 @@ static struct attribute *cpu_root_vulner
- 	&dev_attr_itlb_multihit.attr,
- 	&dev_attr_srbds.attr,
- 	&dev_attr_mmio_stale_data.attr,
-+	&dev_attr_retbleed.attr,
- 	NULL
- };
- 
---- a/include/linux/cpu.h
-+++ b/include/linux/cpu.h
-@@ -68,6 +68,8 @@ extern ssize_t cpu_show_srbds(struct dev
- extern ssize_t cpu_show_mmio_stale_data(struct device *dev,
- 					struct device_attribute *attr,
- 					char *buf);
-+extern ssize_t cpu_show_retbleed(struct device *dev,
-+				 struct device_attribute *attr, char *buf);
- 
- extern __printf(4, 5)
- struct device *cpu_device_create(struct device *parent, void *drvdata,
+ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr,
 
 
