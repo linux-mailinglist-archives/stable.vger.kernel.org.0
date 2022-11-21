@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 988D6632171
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:58:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE72632179
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:58:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230432AbiKUL6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 06:58:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57034 "EHLO
+        id S230215AbiKUL6e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 06:58:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231241AbiKUL6H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 06:58:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 667C4630B
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 03:57:48 -0800 (PST)
+        with ESMTP id S231320AbiKUL62 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 06:58:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDFA717E2C
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 03:58:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 132E8B80EE2
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 11:57:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26771C433C1;
-        Mon, 21 Nov 2022 11:57:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E0F361057
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 11:58:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A4D6C433D6;
+        Mon, 21 Nov 2022 11:58:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669031865;
-        bh=TptEqf6Gm6sVGB5hqdg3B0rYch7rNd7itMW3rz999rs=;
+        s=korg; t=1669031902;
+        bh=WaBnj+tvrpii6fqCUcJda7NBeISB1xmMQW/282q+bHY=;
         h=Subject:To:Cc:From:Date:From;
-        b=ndYPpuRnjZ+Z4r0KBGJKk32uB7lX/r0U3ERikKVW190OLy6NcqJwIYsPB5pMCP53A
-         cqPU/IVc5zFHq46oe2VWutSU45YAj5hjdBwu2k0xf1g66598FHMOnMOcSZskIF1QuE
-         6ZifZNnFFt9cRFoVQipgBuARjb5bvY4ORaE3Tknw=
-Subject: FAILED: patch "[PATCH] USB: bcma: Make GPIO explicitly optional" failed to apply to 4.14-stable tree
+        b=pBYgxa/CmMQJIgoDpulS8JHmdMNkNhMk1s5QgBXp/5FOXCX2R57bFulJf6kGOdLek
+         67QMvarLGT4D/9G/2l1DwPZLuLpOX1xMdB3JN9SurxZm/L+NTUHRMbYYZueIIm8Mur
+         cKfh4JdZ9MAn7Ya2jw23KJI6pkRwGpB4QubT/rqg=
+Subject: FAILED: patch "[PATCH] USB: bcma: Make GPIO explicitly optional" failed to apply to 4.19-stable tree
 To:     linus.walleij@linaro.org, gregkh@linuxfoundation.org,
         hslester96@gmail.com, rafal@milecki.pl, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Nov 2022 12:57:41 +0100
-Message-ID: <1669031861156116@kroah.com>
+Date:   Mon, 21 Nov 2022 12:58:19 +0100
+Message-ID: <166903189911777@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
