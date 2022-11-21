@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 303C3632170
+	by mail.lfdr.de (Postfix) with ESMTP id 988D6632171
 	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:58:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231173AbiKUL6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 06:58:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57342 "EHLO
+        id S230432AbiKUL6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 06:58:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231217AbiKUL6F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 06:58:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39A8262E5
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 03:57:42 -0800 (PST)
+        with ESMTP id S231241AbiKUL6H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 06:58:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 667C4630B
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 03:57:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B1E161036
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 11:57:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1853CC433D6;
-        Mon, 21 Nov 2022 11:57:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 132E8B80EE2
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 11:57:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26771C433C1;
+        Mon, 21 Nov 2022 11:57:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669031861;
-        bh=fD3sI0hrz1OJFnwLL049ZNH9j0DypZAQn5wGKXj56B0=;
+        s=korg; t=1669031865;
+        bh=TptEqf6Gm6sVGB5hqdg3B0rYch7rNd7itMW3rz999rs=;
         h=Subject:To:Cc:From:Date:From;
-        b=ooXpisMZuKUuXkDL7E3Z89GZ1TqlN2Tp9dZmuKbBu+tqirHKR2Qfr67Pm3pXgWunh
-         mSObhGDWr2FnqBLNIsFsjdIFaAwKkpY70bNncz9NjH2kdTeSGkPcPP128mWqt/57MK
-         PQYP/rKULuWVId3Edof5FaCwgeZkiglEgByUSCrY=
-Subject: FAILED: patch "[PATCH] USB: bcma: Make GPIO explicitly optional" failed to apply to 4.9-stable tree
+        b=ndYPpuRnjZ+Z4r0KBGJKk32uB7lX/r0U3ERikKVW190OLy6NcqJwIYsPB5pMCP53A
+         cqPU/IVc5zFHq46oe2VWutSU45YAj5hjdBwu2k0xf1g66598FHMOnMOcSZskIF1QuE
+         6ZifZNnFFt9cRFoVQipgBuARjb5bvY4ORaE3Tknw=
+Subject: FAILED: patch "[PATCH] USB: bcma: Make GPIO explicitly optional" failed to apply to 4.14-stable tree
 To:     linus.walleij@linaro.org, gregkh@linuxfoundation.org,
         hslester96@gmail.com, rafal@milecki.pl, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Nov 2022 12:57:06 +0100
-Message-ID: <166903182644148@kroah.com>
+Date:   Mon, 21 Nov 2022 12:57:41 +0100
+Message-ID: <1669031861156116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
