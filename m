@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00ED9632116
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:46:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 605CC632120
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:47:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229996AbiKULqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 06:46:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45982 "EHLO
+        id S231374AbiKULrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 06:47:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230220AbiKULqT (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 21 Nov 2022 06:46:19 -0500
+        with ESMTP id S231297AbiKULrb (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 21 Nov 2022 06:47:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5453B874
-        for <Stable@vger.kernel.org>; Mon, 21 Nov 2022 03:46:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F315218F
+        for <Stable@vger.kernel.org>; Mon, 21 Nov 2022 03:47:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FD98610A5
-        for <Stable@vger.kernel.org>; Mon, 21 Nov 2022 11:46:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19BE3C433C1;
-        Mon, 21 Nov 2022 11:46:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0711F61119
+        for <Stable@vger.kernel.org>; Mon, 21 Nov 2022 11:47:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE4DAC433D6;
+        Mon, 21 Nov 2022 11:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669031177;
-        bh=8dAFLrzQyMkCoCMi5wIy4T+vB9VM74DiHkFcrZLpn/Q=;
+        s=korg; t=1669031247;
+        bh=bqhKK15bTELX5ZOtrV14RQ1Mcn1xX/e5tMVAZ6YqhxE=;
         h=Subject:To:Cc:From:Date:From;
-        b=EkWjbCEQUKQTIshpSWRcxtgQre33vamG3dOIKVfJ4qrbyiNqtMRtjB9kLZRA/amhj
-         gXTcuONj/fK/TNUReQpHzxqNsz2K9N0g7KqMx3KpcTdY8YUzYUvM/Wl/TyTKkUeSSA
-         niMmiadpPfFzVekc9k55ZSX5yEyu3sDKywRBXXLc=
-Subject: FAILED: patch "[PATCH] iio: accel: bma400: Ensure VDDIO is enable defore reading the" failed to apply to 5.15-stable tree
-To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        dan@dlrobertson.com
+        b=JtHT9iXSzbEVSBMKmaZLhoUq8yiWLJ5siYvwx8DLCOSZiGhgJkZSzpK2ddQmMrvda
+         XqbIxj6XLqSkN+mV86vMegnmaTgv+vxDFEvJ0v1aQH5xLZIvSlUyg2smk4dR/E1Qvp
+         dkOe50CR4kY9vIvEOHGgZuLScr1KQdZ3En7A9wiE=
+Subject: FAILED: patch "[PATCH] iio: pressure: ms5611: fixed value compensation bug" failed to apply to 5.15-stable tree
+To:     mitja@lxnav.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Nov 2022 12:46:14 +0100
-Message-ID: <166903117434192@kroah.com>
+Date:   Mon, 21 Nov 2022 12:47:24 +0100
+Message-ID: <1669031244205125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -55,9 +55,8 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-57572cacd36e ("iio: accel: bma400: Ensure VDDIO is enable defore reading the chip ID.")
-12c99f859fd3 ("iio: accel: bma400: conversion to device-managed function")
-02e2af20f4f9 ("Merge tag 'char-misc-5.18-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc")
+17f442e7e475 ("iio: pressure: ms5611: fixed value compensation bug")
+dc19fa63ad80 ("iio: ms5611: Simplify IO callback parameters")
 
 thanks,
 
@@ -65,64 +64,165 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 57572cacd36e6d4be7722d7770d23f4430219827 Mon Sep 17 00:00:00 2001
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Sun, 2 Oct 2022 15:41:33 +0100
-Subject: [PATCH] iio: accel: bma400: Ensure VDDIO is enable defore reading the
- chip ID.
+From 17f442e7e47579d3881fc4d47354eaef09302e6f Mon Sep 17 00:00:00 2001
+From: Mitja Spes <mitja@lxnav.com>
+Date: Fri, 21 Oct 2022 15:58:20 +0200
+Subject: [PATCH] iio: pressure: ms5611: fixed value compensation bug
 
-The regulator enables were after the check on the chip variant, which was
-very unlikely to return a correct value when not powered.
-Presumably all the device anyone is testing on have a regulator that
-is already powered up when this code runs for reasons beyond the scope
-of this driver. Move the read call down a few lines.
+When using multiple instances of this driver the compensation PROM was
+overwritten by the last initialized sensor. Now each sensor has own PROM
+storage.
 
-Fixes: 3cf7ded15e40 ("iio: accel: bma400: basic regulator support")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Dan Robertson <dan@dlrobertson.com>
+Signed-off-by: Mitja Spes <mitja@lxnav.com>
+Fixes: 9690d81a02dc ("iio: pressure: ms5611: add support for MS5607 temperature and pressure sensor")
+Link: https://lore.kernel.org/r/20221021135827.1444793-2-mitja@lxnav.com
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221002144133.3771029-1-jic23@kernel.org
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-diff --git a/drivers/iio/accel/bma400_core.c b/drivers/iio/accel/bma400_core.c
-index ad8fce3e08cd..490c342ef72a 100644
---- a/drivers/iio/accel/bma400_core.c
-+++ b/drivers/iio/accel/bma400_core.c
-@@ -869,18 +869,6 @@ static int bma400_init(struct bma400_data *data)
- 	unsigned int val;
- 	int ret;
+diff --git a/drivers/iio/pressure/ms5611.h b/drivers/iio/pressure/ms5611.h
+index cbc9349c342a..550b75b7186f 100644
+--- a/drivers/iio/pressure/ms5611.h
++++ b/drivers/iio/pressure/ms5611.h
+@@ -25,13 +25,6 @@ enum {
+ 	MS5607,
+ };
  
--	/* Try to read chip_id register. It must return 0x90. */
--	ret = regmap_read(data->regmap, BMA400_CHIP_ID_REG, &val);
--	if (ret) {
--		dev_err(data->dev, "Failed to read chip id register\n");
--		return ret;
--	}
+-struct ms5611_chip_info {
+-	u16 prom[MS5611_PROM_WORDS_NB];
 -
--	if (val != BMA400_ID_REG_VAL) {
--		dev_err(data->dev, "Chip ID mismatch\n");
--		return -ENODEV;
--	}
+-	int (*temp_and_pressure_compensate)(struct ms5611_chip_info *chip_info,
+-					    s32 *temp, s32 *pressure);
+-};
 -
- 	data->regulators[BMA400_VDD_REGULATOR].supply = "vdd";
- 	data->regulators[BMA400_VDDIO_REGULATOR].supply = "vddio";
- 	ret = devm_regulator_bulk_get(data->dev,
-@@ -906,6 +894,18 @@ static int bma400_init(struct bma400_data *data)
- 	if (ret)
+ /*
+  * OverSampling Rate descriptor.
+  * Warning: cmd MUST be kept aligned on a word boundary (see
+@@ -50,12 +43,15 @@ struct ms5611_state {
+ 	const struct ms5611_osr *pressure_osr;
+ 	const struct ms5611_osr *temp_osr;
+ 
++	u16 prom[MS5611_PROM_WORDS_NB];
++
+ 	int (*reset)(struct ms5611_state *st);
+ 	int (*read_prom_word)(struct ms5611_state *st, int index, u16 *word);
+ 	int (*read_adc_temp_and_pressure)(struct ms5611_state *st,
+ 					  s32 *temp, s32 *pressure);
+ 
+-	struct ms5611_chip_info *chip_info;
++	int (*compensate_temp_and_pressure)(struct ms5611_state *st, s32 *temp,
++					  s32 *pressure);
+ 	struct regulator *vdd;
+ };
+ 
+diff --git a/drivers/iio/pressure/ms5611_core.c b/drivers/iio/pressure/ms5611_core.c
+index 717521de66c4..c564a1d6cafe 100644
+--- a/drivers/iio/pressure/ms5611_core.c
++++ b/drivers/iio/pressure/ms5611_core.c
+@@ -85,7 +85,7 @@ static int ms5611_read_prom(struct iio_dev *indio_dev)
+ 	struct ms5611_state *st = iio_priv(indio_dev);
+ 
+ 	for (i = 0; i < MS5611_PROM_WORDS_NB; i++) {
+-		ret = st->read_prom_word(st, i, &st->chip_info->prom[i]);
++		ret = st->read_prom_word(st, i, &st->prom[i]);
+ 		if (ret < 0) {
+ 			dev_err(&indio_dev->dev,
+ 				"failed to read prom at %d\n", i);
+@@ -93,7 +93,7 @@ static int ms5611_read_prom(struct iio_dev *indio_dev)
+ 		}
+ 	}
+ 
+-	if (!ms5611_prom_is_valid(st->chip_info->prom, MS5611_PROM_WORDS_NB)) {
++	if (!ms5611_prom_is_valid(st->prom, MS5611_PROM_WORDS_NB)) {
+ 		dev_err(&indio_dev->dev, "PROM integrity check failed\n");
+ 		return -ENODEV;
+ 	}
+@@ -114,21 +114,20 @@ static int ms5611_read_temp_and_pressure(struct iio_dev *indio_dev,
  		return ret;
+ 	}
  
-+	/* Try to read chip_id register. It must return 0x90. */
-+	ret = regmap_read(data->regmap, BMA400_CHIP_ID_REG, &val);
-+	if (ret) {
-+		dev_err(data->dev, "Failed to read chip id register\n");
-+		return ret;
+-	return st->chip_info->temp_and_pressure_compensate(st->chip_info,
+-							   temp, pressure);
++	return st->compensate_temp_and_pressure(st, temp, pressure);
+ }
+ 
+-static int ms5611_temp_and_pressure_compensate(struct ms5611_chip_info *chip_info,
++static int ms5611_temp_and_pressure_compensate(struct ms5611_state *st,
+ 					       s32 *temp, s32 *pressure)
+ {
+ 	s32 t = *temp, p = *pressure;
+ 	s64 off, sens, dt;
+ 
+-	dt = t - (chip_info->prom[5] << 8);
+-	off = ((s64)chip_info->prom[2] << 16) + ((chip_info->prom[4] * dt) >> 7);
+-	sens = ((s64)chip_info->prom[1] << 15) + ((chip_info->prom[3] * dt) >> 8);
++	dt = t - (st->prom[5] << 8);
++	off = ((s64)st->prom[2] << 16) + ((st->prom[4] * dt) >> 7);
++	sens = ((s64)st->prom[1] << 15) + ((st->prom[3] * dt) >> 8);
+ 
+-	t = 2000 + ((chip_info->prom[6] * dt) >> 23);
++	t = 2000 + ((st->prom[6] * dt) >> 23);
+ 	if (t < 2000) {
+ 		s64 off2, sens2, t2;
+ 
+@@ -154,17 +153,17 @@ static int ms5611_temp_and_pressure_compensate(struct ms5611_chip_info *chip_inf
+ 	return 0;
+ }
+ 
+-static int ms5607_temp_and_pressure_compensate(struct ms5611_chip_info *chip_info,
++static int ms5607_temp_and_pressure_compensate(struct ms5611_state *st,
+ 					       s32 *temp, s32 *pressure)
+ {
+ 	s32 t = *temp, p = *pressure;
+ 	s64 off, sens, dt;
+ 
+-	dt = t - (chip_info->prom[5] << 8);
+-	off = ((s64)chip_info->prom[2] << 17) + ((chip_info->prom[4] * dt) >> 6);
+-	sens = ((s64)chip_info->prom[1] << 16) + ((chip_info->prom[3] * dt) >> 7);
++	dt = t - (st->prom[5] << 8);
++	off = ((s64)st->prom[2] << 17) + ((st->prom[4] * dt) >> 6);
++	sens = ((s64)st->prom[1] << 16) + ((st->prom[3] * dt) >> 7);
+ 
+-	t = 2000 + ((chip_info->prom[6] * dt) >> 23);
++	t = 2000 + ((st->prom[6] * dt) >> 23);
+ 	if (t < 2000) {
+ 		s64 off2, sens2, t2, tmp;
+ 
+@@ -342,15 +341,6 @@ static int ms5611_write_raw(struct iio_dev *indio_dev,
+ 
+ static const unsigned long ms5611_scan_masks[] = {0x3, 0};
+ 
+-static struct ms5611_chip_info chip_info_tbl[] = {
+-	[MS5611] = {
+-		.temp_and_pressure_compensate = ms5611_temp_and_pressure_compensate,
+-	},
+-	[MS5607] = {
+-		.temp_and_pressure_compensate = ms5607_temp_and_pressure_compensate,
+-	}
+-};
+-
+ static const struct iio_chan_spec ms5611_channels[] = {
+ 	{
+ 		.type = IIO_PRESSURE,
+@@ -433,7 +423,20 @@ int ms5611_probe(struct iio_dev *indio_dev, struct device *dev,
+ 	struct ms5611_state *st = iio_priv(indio_dev);
+ 
+ 	mutex_init(&st->lock);
+-	st->chip_info = &chip_info_tbl[type];
++
++	switch (type) {
++	case MS5611:
++		st->compensate_temp_and_pressure =
++			ms5611_temp_and_pressure_compensate;
++		break;
++	case MS5607:
++		st->compensate_temp_and_pressure =
++			ms5607_temp_and_pressure_compensate;
++		break;
++	default:
++		return -EINVAL;
 +	}
 +
-+	if (val != BMA400_ID_REG_VAL) {
-+		dev_err(data->dev, "Chip ID mismatch\n");
-+		return -ENODEV;
-+	}
-+
- 	ret = bma400_get_power_mode(data);
- 	if (ret) {
- 		dev_err(data->dev, "Failed to get the initial power-mode\n");
+ 	st->temp_osr =
+ 		&ms5611_avail_temp_osr[ARRAY_SIZE(ms5611_avail_temp_osr) - 1];
+ 	st->pressure_osr =
 
