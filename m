@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B011C63214D
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:52:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C50C363214F
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:52:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230212AbiKULwt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 06:52:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52912 "EHLO
+        id S230063AbiKULwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 06:52:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231219AbiKULwn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 06:52:43 -0500
+        with ESMTP id S230283AbiKULwu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 06:52:50 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F84FF12
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 03:52:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A21CE8
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 03:52:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1EC460EC9
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 11:52:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0297C433C1;
-        Mon, 21 Nov 2022 11:52:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E7DA6112D
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 11:52:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9DB1C433C1;
+        Mon, 21 Nov 2022 11:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669031561;
-        bh=XkABH3p9IxQ9BdNXOdCZisoSWUVRMwSJTu0TQqn4vIc=;
+        s=korg; t=1669031568;
+        bh=eNuiFJsOi9BCGvyTRek88kavA2Bo30BALJBE4/dLs1I=;
         h=Subject:To:Cc:From:Date:From;
-        b=qt63UXt5VzdlblKWBj+0vLbu9v6pcGsGFRmwjFrQpTiZw9n1umxIfqZOFOnlFJWJL
-         GF/9yMCqpb2+RGvZE7+IfUBfZVSaIXcEuz2Mbu9XyJF9K+vMz2xx6y9xzWoSVVAjzJ
-         5+mHjoVFqH5PJ8WDUm2JJiZHug4ctc44v2jI9NB0=
-Subject: FAILED: patch "[PATCH] ceph: fix NULL pointer dereference for req->r_session" failed to apply to 5.10-stable tree
+        b=utGwr5MxWtZHbuzU+70ryhswYppskqqZYzUY4aGtUDVg1NSF2PTA40aIjAH7JjTY5
+         iuxlWXgt86A8iQWRS5QpyFFeiM165+YwEkt7M4ViyvRKUGso3PUtAiOPiCkrs+7g1P
+         yD1vasXRhNTfg/sNEbji1q6DjT/EEDI8hd9Q7zns=
+Subject: FAILED: patch "[PATCH] ceph: fix NULL pointer dereference for req->r_session" failed to apply to 5.4-stable tree
 To:     xiubli@redhat.com, idryomov@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Nov 2022 12:52:32 +0100
-Message-ID: <166903155217595@kroah.com>
+Date:   Mon, 21 Nov 2022 12:52:33 +0100
+Message-ID: <166903155373213@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
