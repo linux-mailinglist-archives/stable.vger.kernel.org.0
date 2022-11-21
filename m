@@ -2,110 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8DB06321C8
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:20:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B2C86321EB
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:27:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229564AbiKUMUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 07:20:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42254 "EHLO
+        id S230444AbiKUM1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 07:27:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbiKUMUb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:20:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E0F42C136
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:20:30 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE3DDB80EFC
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:20:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7F7AC433C1;
-        Mon, 21 Nov 2022 12:20:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669033227;
-        bh=k+Yg3xWd9pgabHG5Pq5vVWYlmLMWlT6lh8nKkV9HLQo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zEpb8sHDoT6d4V5TkynZEZihkeN7ihAleyP9KpgLS0SLmuRZhGwInpaliKTs1ZJDY
-         Duytp6jz/3AI3pvZxUcFuGiVmoC1Q6mu1xDUkhNPAQiHjrglfxrLXAfVl60tGaU6Gt
-         3Y9mqfhykSUiHdGiTyKZW85QqhbykRv7OwSHpyoQ=
-Date:   Mon, 21 Nov 2022 13:19:27 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc:     stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 4.14] nilfs2: fix use-after-free bug of ns_writer on
- remount
-Message-ID: <Y3tszyyAAClwJPOO@kroah.com>
-References: <20221120155131.23814-1-konishi.ryusuke@gmail.com>
+        with ESMTP id S230254AbiKUM1m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:27:42 -0500
+Received: from new3-smtp.messagingengine.com (new3-smtp.messagingengine.com [66.111.4.229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00859B1D0;
+        Mon, 21 Nov 2022 04:27:38 -0800 (PST)
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 2EBE5580362;
+        Mon, 21 Nov 2022 07:27:34 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 21 Nov 2022 07:27:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1669033654; x=1669040854; bh=pzZVroo9kC
+        ULUynpvnhsv4sPpCFIbmKL5clPSiXkhnA=; b=UXbdLjpHs6z9sbZPniHn6npcxr
+        Fam/LfQQG8m1Ay3aVdCr2i1azAJpE+ErW+nQsuxLcPoL4LX77droh89JGM+3lY3Z
+        5ftiCvLdASY5939dT5WQ7/9ZPAjGGTuNNg+8xUhwwiSIHphl/I9vsdnz46BLvXE8
+        AQF5vHpeVBIqCcPvy+C3KZh5jocJ5LFeZ2WLC2zjOHAkqBOwlP4Xk1HsXkEgRq5T
+        l369T5MF32e76BFu+B1itbctUY4g1jp+MencST2TJ3mOQuEGIt50Yh61hA/eHpGl
+        Km9E6TySLEqpZ9SB2Tr1d5y652gjSLJ/guHMbVjpBygyk/yYC4DivmacQ4Ag==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; t=1669033654; x=1669040854; bh=pzZVroo9kCULUynpvnhsv4sPpCFI
+        bmKL5clPSiXkhnA=; b=Z6PxC3s5tt+JSv2lKV810BUcfvpnxil/bxpsGLpFxNzO
+        rtxd3pR//q5o/QpNK7k5pQHDlIN8cwfmF5NPC52wtz7U62If7bJ81pSbcxPOUvGt
+        yCuNAMzjW74MSE3rfCCobzCdRuOa56LdGbMOp/o+BvmPKuf+zethA48x/6hVfp5A
+        VellZZciPoOwrIJCGIXs6SzPEDhMgP5ovyyW6nnkE8GgvRDtUzVJLDYdTwfQZwTw
+        MgIR2F/PUeK/5/NOXcxtEtHl54cWSLRPj0C2CBqAfChOR3qgfdBvspC0hGHthBVO
+        l+q1vnheKdfHy2GkFdyVpZ4nAzEP67wjYev9uPLShg==
+X-ME-Sender: <xms:tW57Y7TKAKegDJ1UYbWF2fBRZizCIGfqkEhlxQBhkKwAMbK3Jf1E1Q>
+    <xme:tW57Y8wiWg_CKwKK6MWVGKBdHghIIRfXHBXstJPzDJ2GHmgJuKe4HZzbuGFfOpPQz
+    ZKdDlY380FEdA>
+X-ME-Received: <xmr:tW57Yw1xFHhmuZWcaP1qJts5qhMfz9UchbKNWCweAEx3xaDysaUDLOf8DG4A67avNzKVkLWrUEuXL4-u0INasefraDIytWMl>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrheeigdeflecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeehgedvve
+    dvleejuefgtdduudfhkeeltdeihfevjeekjeeuhfdtueefhffgheekteenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:tW57Y7A8JUGboemCFo57NP2R02Nw2IKx08deL-cCRdLly20h6XH-wQ>
+    <xmx:tW57Y0i75P_UUoflh1-8C_FJDBuYnP-ydVV7D6w4PvHOouhzAsWx9w>
+    <xmx:tW57Y_oJ7Qvx0h2gD4_Q6qYBZb48KXK13Sr0KEfPIwyUJusQPLNRbw>
+    <xmx:tm57Y_gCrxcjkVghOLGR0hZpWWmQYjqDXb5NCCROV9ghAUIFQ6ZHCA>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 21 Nov 2022 07:27:33 -0500 (EST)
+Date:   Mon, 21 Nov 2022 13:26:23 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Suleiman Souhlal <suleiman@google.com>
+Cc:     stable@vger.kernel.org, x86@kernel.org, kvm@vger.kernel.org,
+        bp@alien8.de, pbonzini@redhat.com, peterz@infradead.org,
+        jpoimboe@kernel.org, cascardo@canonical.com, surajjs@amazon.com,
+        ssouhlal@freebsd.org
+Subject: Re: [PATCH 4.19 00/34] Intel RETBleed mitigations for 4.19.
+Message-ID: <Y3tub/ldt7gwLczO@kroah.com>
+References: <20221117091952.1940850-1-suleiman@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221120155131.23814-1-konishi.ryusuke@gmail.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20221117091952.1940850-1-suleiman@google.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 21, 2022 at 12:51:31AM +0900, Ryusuke Konishi wrote:
-> commit 8cccf05fe857a18ee26e20d11a8455a73ffd4efd upstream.
+On Thu, Nov 17, 2022 at 06:19:18PM +0900, Suleiman Souhlal wrote:
+> This series backports the mitigations for RETBleed for Intel CPUs to
+> the 4.19 kernel.
 > 
-> If a nilfs2 filesystem is downgraded to read-only due to metadata
-> corruption on disk and is remounted read/write, or if emergency read-only
-> remount is performed, detaching a log writer and synchronizing the
-> filesystem can be done at the same time.
+> It's based on the 5.4 [1] and 4.14 [2] backports.
 > 
-> In these cases, use-after-free of the log writer (hereinafter
-> nilfs->ns_writer) can happen as shown in the scenario below:
-> 
->  Task1                               Task2
->  --------------------------------    ------------------------------
->  nilfs_construct_segment
->    nilfs_segctor_sync
->      init_wait
->      init_waitqueue_entry
->      add_wait_queue
->      schedule
->                                      nilfs_remount (R/W remount case)
-> 				       nilfs_attach_log_writer
->                                          nilfs_detach_log_writer
->                                            nilfs_segctor_destroy
->                                              kfree
->      finish_wait
->        _raw_spin_lock_irqsave
->          __raw_spin_lock_irqsave
->            do_raw_spin_lock
->              debug_spin_lock_before  <-- use-after-free
-> 
-> While Task1 is sleeping, nilfs->ns_writer is freed by Task2.  After Task1
-> waked up, Task1 accesses nilfs->ns_writer which is already freed.  This
-> scenario diagram is based on the Shigeru Yoshida's post [1].
-> 
-> This patch fixes the issue by not detaching nilfs->ns_writer on remount so
-> that this UAF race doesn't happen.  Along with this change, this patch
-> also inserts a few necessary read-only checks with superblock instance
-> where only the ns_writer pointer was used to check if the filesystem is
-> read-only.
-> 
-> Link: https://syzkaller.appspot.com/bug?id=79a4c002e960419ca173d55e863bd09e8112df8b
-> Link: https://lkml.kernel.org/r/20221103141759.1836312-1-syoshida@redhat.com [1]
-> Link: https://lkml.kernel.org/r/20221104142959.28296-1-konishi.ryusuke@gmail.com
-> Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-> Reported-by: syzbot+f816fa82f8783f7a02bb@syzkaller.appspotmail.com
-> Reported-by: Shigeru Yoshida <syoshida@redhat.com>
-> Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> ---
-> Please apply this patch to stable-4.14 instead of the patch that could
-> not be applied to it last time.
-> 
-> A rejected hunk has been manually resolved without noticeable change,
-> and testing against that stable tree was fine.
-> 
+> Tested on Skylake Chromebook.
 
-Now queued up, thanks.
+Very nice, thank you!
+
+All now queued up.
 
 greg k-h
