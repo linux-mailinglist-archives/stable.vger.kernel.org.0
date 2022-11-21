@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B09B66321AB
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:13:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2CD76321B1
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:16:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229436AbiKUMNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 07:13:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38646 "EHLO
+        id S229642AbiKUMQa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 07:16:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229379AbiKUMNf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:13:35 -0500
+        with ESMTP id S229617AbiKUMQ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:16:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D6551115
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:13:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAB5B29802
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:16:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A354160ECD
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:13:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69996C433D6;
-        Mon, 21 Nov 2022 12:13:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4ACB76114A
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:16:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50B12C43144;
+        Mon, 21 Nov 2022 12:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669032813;
-        bh=r+5jppuPJHj/WJK3fte41zmjnVvChsLbRHtBeOrZOiQ=;
-        h=Subject:To:Cc:From:Date:From;
-        b=ouQzSY5GatSoiu75XBiW0lcfBaOCFLHWQj6+xp7rDeCTT0udyifjBjHS1KiB0wW7S
-         ILKNnruP6XCZsOJmiDgXRy8W/qpJ6g2JDVzp69KlyY1SrDSCM4SHu29a1JpZ6fsJm2
-         qAnQZVdvstfSmAt1NmUMhsmdTPFWc+xb0fwW2tts=
-Subject: FAILED: patch "[PATCH] x86/sgx: Add overflow check in sgx_validate_offset_length()" failed to apply to 5.15-stable tree
-To:     borysp@invisiblethingslab.com, bp@suse.de, jarkko@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Nov 2022 13:13:29 +0100
-Message-ID: <1669032809147157@kroah.com>
+        s=korg; t=1669032984;
+        bh=g4hxLkaOuahe5hUbWnuSvTa2AKnnHU2REW1Cnh9gHgg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Bgkdk9etm4bZUuKlD4Nr9HA1Y7Q1n8381a4/lew/XyZgTpVzsUMmY+hGDpWmItVNg
+         YIeupnuUCpgtgS56y+zHTcd9gEfHzRF+ez8kDkYe9PEIxzqf3nsveU472tdLuDUN6i
+         VB6uSHSrYwZx0TkyWN7bbp98I8qbDd/JYbsbKgqQ=
+Date:   Mon, 21 Nov 2022 13:16:21 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+Cc:     jthoughton@google.com, akpm@linux-foundation.org,
+        axelrasmussen@google.com, linmiaohe@huawei.com,
+        naoya.horiguchi@nec.com, shy828301@gmail.com,
+        songmuchun@bytedance.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] hugetlbfs: don't delete error page from
+ pagecache" failed to apply to 6.0-stable tree
+Message-ID: <Y3tsFTUw9NpdYA4h@kroah.com>
+References: <166842203040114@kroah.com>
+ <Y3f8spPtwzNCFyte@monkey>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y3f8spPtwzNCFyte@monkey>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -46,54 +53,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Nov 18, 2022 at 01:44:18PM -0800, Mike Kravetz wrote:
+> On 11/14/22 11:33, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 6.0-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> 
+> Below is backport for 6.0-stable.  Only minor conflicts in code that is being
+> removed by this patch.  Tested with simple program to access hugetlb pagecache
+> page after poisoning.
+> 
+> >From 5dcd97ae1a0848c1b9a1ec5f4ab623b1ab478892 Mon Sep 17 00:00:00 2001
+> From: James Houghton <jthoughton@google.com>
+> Date: Tue, 18 Oct 2022 20:01:25 +0000
+> Subject: [PATCH] hugetlbfs: don't delete error page from pagecache
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-Possible dependencies:
-
-f0861f49bd94 ("x86/sgx: Add overflow check in sgx_validate_offset_length()")
-dda03e2c331b ("x86/sgx: Create utility to validate user provided offset and length")
-
-thanks,
+Looks like Sasha already picked this up, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From f0861f49bd946ff94fce4f82509c45e167f63690 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Borys=20Pop=C5=82awski?= <borysp@invisiblethingslab.com>
-Date: Wed, 5 Oct 2022 00:59:03 +0200
-Subject: [PATCH] x86/sgx: Add overflow check in sgx_validate_offset_length()
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-sgx_validate_offset_length() function verifies "offset" and "length"
-arguments provided by userspace, but was missing an overflow check on
-their addition. Add it.
-
-Fixes: c6d26d370767 ("x86/sgx: Add SGX_IOC_ENCLAVE_ADD_PAGES")
-Signed-off-by: Borys Popławski <borysp@invisiblethingslab.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: stable@vger.kernel.org # v5.11+
-Link: https://lore.kernel.org/r/0d91ac79-6d84-abed-5821-4dbe59fa1a38@invisiblethingslab.com
-
-diff --git a/arch/x86/kernel/cpu/sgx/ioctl.c b/arch/x86/kernel/cpu/sgx/ioctl.c
-index ebe79d60619f..da8b8ea6b063 100644
---- a/arch/x86/kernel/cpu/sgx/ioctl.c
-+++ b/arch/x86/kernel/cpu/sgx/ioctl.c
-@@ -356,6 +356,9 @@ static int sgx_validate_offset_length(struct sgx_encl *encl,
- 	if (!length || !IS_ALIGNED(length, PAGE_SIZE))
- 		return -EINVAL;
- 
-+	if (offset + length < offset)
-+		return -EINVAL;
-+
- 	if (offset + length - PAGE_SIZE >= encl->size)
- 		return -EINVAL;
- 
-
