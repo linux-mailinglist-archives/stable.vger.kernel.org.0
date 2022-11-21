@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F1A7631C4E
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 10:05:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5F59631C4F
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 10:05:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229379AbiKUJFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 04:05:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53306 "EHLO
+        id S229601AbiKUJFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 04:05:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229601AbiKUJFO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 04:05:14 -0500
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D84BC6D97E
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 01:05:10 -0800 (PST)
-Received: by mail-ej1-x634.google.com with SMTP id gv23so26959005ejb.3
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 01:05:10 -0800 (PST)
+        with ESMTP id S229576AbiKUJFe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 04:05:34 -0500
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 779056D97F
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 01:05:33 -0800 (PST)
+Received: by mail-ed1-x52e.google.com with SMTP id e13so15287987edj.7
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 01:05:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=cloudflare.com; s=google;
         h=mime-version:message-id:in-reply-to:date:subject:cc:to:from
          :user-agent:references:from:to:cc:subject:date:message-id:reply-to;
-        bh=3p3GFNmhQsAPA9cGyLZ3iyZwy0qWhUSbc1TXCe3CJlM=;
-        b=x0UuC7UeCm+BfKYf4R+4jcpMbO+J26wevOwxT2gqlVt7IbQosN9PmTU8ibxIBPil/J
-         qms/yqtkZg6YXxBFSyC5fMcIlBVJDSM/6OPxe/rdrNE52J3FYwwm1SaJuTiSmMl8NlqB
-         nKHi0yxH37WensrlAu2ikKOh13kuneJxWgXsc=
+        bh=qDWeL7jc4/35AF+ADfDh02dTLU1sO6uodzAuMYhWMM0=;
+        b=tZYS1uoowwqd/tcDS4Cu94X4NYh83kkFml9Nk283kAvFeqign+M9RK4ubB/77t89dM
+         NpdJzv2BRmia4wdbUC54tgOLSEuZ5wJbTizXgeLsxjsHLeKn3VHWJSxmO8IrX84CAImP
+         2EmVljgh+dIG2vnLj4YpK1RHfmZFu/G/RYUdU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=mime-version:message-id:in-reply-to:date:subject:cc:to:from
          :user-agent:references:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=3p3GFNmhQsAPA9cGyLZ3iyZwy0qWhUSbc1TXCe3CJlM=;
-        b=58NRER+qGYgtmRDk1DL50VKC/RLb3Y//O5yqdrgt+1VrQnV3pZDU92MeuJxof4U1+z
-         PIUSyoqcwgdivufBsvG2/Scg04T9MZEVJpFQXRdqVRwpCmevfo70XGXPLAwwSrNwI82t
-         AZbpj1XrdarZ9RCqbQW/rW3hHt2YBKs7O1iUjxGV2Q72VwrBIsLq6KihYAaMUHpthZyO
-         DDVLTum9gmAiwbBrvRYeF6t6UrtzhiNtx8buGb0cJBRJbQL8AXzYJYb/fFvblteldfNO
-         BM36VpZZRjiLfRtjdEIcMH7dGayxcJaStIaG2wFsoRgdwygmqepd6tdISYnSfcJ+61sE
-         f4Dg==
-X-Gm-Message-State: ANoB5pk8aul8y2Tw8J29+Kq/K2phSils0iEJRXcZ72snY36YJ4bwCpIj
-        yF/5/8QEgaybCT7sGgD69tSNfnsmYQfoLQ==
-X-Google-Smtp-Source: AA0mqf6t3nvuNWM/3pRSBGo5bH1T+dPXdHDnKg+LwbeLlB5Mjmq5Lk9YlKDrxhpia9xosUedzAjU1g==
-X-Received: by 2002:a17:906:a2da:b0:7ad:84d1:5b56 with SMTP id by26-20020a170906a2da00b007ad84d15b56mr15054268ejb.205.1669021509160;
-        Mon, 21 Nov 2022 01:05:09 -0800 (PST)
+        bh=qDWeL7jc4/35AF+ADfDh02dTLU1sO6uodzAuMYhWMM0=;
+        b=D0rlc093QqEy+ePxBjhDaJtlJ5YXK3sX2/DoXWD90EUEeJ9b6aU7Co8Xe3i41f+q5P
+         Od/B/AewE/NCR+HQ0raRMy7qTsXn5S6oJpJz9QfJT8eNP6CsKENv9ZS1hg4HuEc2vxe0
+         fssjP1L9Y6G9RNwMxMM3Odwu8JO2tPCL3EYiCgpSeaH3LAsvFPXKMdpBHql+fcO+up5l
+         yk1X587SG4eeP/ZdoOsxEg8O3OJGtkSAl4CeXWYVs9b2uZ9vV+u2VGUoaRHuGdbRNPlE
+         WsCAPemqXmepavEfxPJGdbhcGTCy/fiyB3YijiNGMSU7hcNDdzFxmGZ6JbklPU6udVlX
+         hFOg==
+X-Gm-Message-State: ANoB5pnHp7hedcHbSS37tFi1jJockCFztF5725KX3O7bl7BVeB/7+1CV
+        XRmYZEkorRTyom6/rnCw2sOFTxhX1dzxww==
+X-Google-Smtp-Source: AA0mqf5tT6eoM5NnB65gCAL422Zjgx0CdkDQ/Zc4pGEFr5pbxgWrNq83MtEElgQVsudM1Yv9l/3rfA==
+X-Received: by 2002:a05:6402:12d5:b0:469:885b:fcfd with SMTP id k21-20020a05640212d500b00469885bfcfdmr678550edx.177.1669021531800;
+        Mon, 21 Nov 2022 01:05:31 -0800 (PST)
 Received: from cloudflare.com (79.184.204.15.ipv4.supernova.orange.pl. [79.184.204.15])
-        by smtp.gmail.com with ESMTPSA id q2-20020a17090676c200b007b43ef7c0basm2761043ejn.134.2022.11.21.01.05.08
+        by smtp.gmail.com with ESMTPSA id v10-20020a170906292a00b007ad96726c42sm4835441ejd.91.2022.11.21.01.05.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Nov 2022 01:05:08 -0800 (PST)
-References: <20221121051216.2603260-1-sashal@kernel.org>
+        Mon, 21 Nov 2022 01:05:31 -0800 (PST)
+References: <20221121050850.2600439-1-sashal@kernel.org>
 User-agent: mu4e 1.6.10; emacs 27.2
 From:   Jakub Sitnicki <jakub@cloudflare.com>
 To:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
@@ -55,33 +55,33 @@ Cc:     stable-commits@vger.kernel.org,
         Jakub Kicinski <kuba@kernel.org>,
         Paolo Abeni <pabeni@redhat.com>
 Subject: Re: Patch "l2tp: Serialize access to sk_user_data with
- sk_callback_lock" has been added to the 5.15-stable tree
-Date:   Mon, 21 Nov 2022 10:03:55 +0100
-In-reply-to: <20221121051216.2603260-1-sashal@kernel.org>
-Message-ID: <87sfic7k58.fsf@cloudflare.com>
+ sk_callback_lock" has been added to the 6.0-stable tree
+Date:   Mon, 21 Nov 2022 10:05:11 +0100
+In-reply-to: <20221121050850.2600439-1-sashal@kernel.org>
+Message-ID: <87o7t07k4l.fsf@cloudflare.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 21, 2022 at 12:12 AM -05, Sasha Levin wrote:
+
+On Mon, Nov 21, 2022 at 12:08 AM -05, Sasha Levin wrote:
 > This is a note to let you know that I've just added the patch titled
 >
 >     l2tp: Serialize access to sk_user_data with sk_callback_lock
 >
-> to the 5.15-stable tree which can be found at:
+> to the 6.0-stable tree which can be found at:
 >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 >
 > The filename of the patch is:
 >      l2tp-serialize-access-to-sk_user_data-with-sk_callba.patch
-> and it can be found in the queue-5.15 subdirectory.
+> and it can be found in the queue-6.0 subdirectory.
 >
 > If you, or anyone else, feels it should not be added to the stable tree,
 > please let <stable@vger.kernel.org> know about it.
@@ -91,7 +91,7 @@ We have a fix-up for it under review:
 
 https://lore.kernel.org/netdev/20221121085426.21315-1-jakub@cloudflare.com/
 
-> commit 92aa1132edc6e6e912efd056c698cd6e52b83c6f
+> commit 87a828cfa5ce4b2075d26660756c07751648d13f
 > Author: Jakub Sitnicki <jakub@cloudflare.com>
 > Date:   Mon Nov 14 20:16:19 2022 +0100
 >
@@ -128,10 +128,10 @@ https://lore.kernel.org/netdev/20221121085426.21315-1-jakub@cloudflare.com/
 >     Signed-off-by: Sasha Levin <sashal@kernel.org>
 >
 > diff --git a/include/net/sock.h b/include/net/sock.h
-> index e1a303e4f0f7..3e9db5146765 100644
+> index f6e6838c82df..03a4ebe3ccc8 100644
 > --- a/include/net/sock.h
 > +++ b/include/net/sock.h
-> @@ -323,7 +323,7 @@ struct bpf_local_storage;
+> @@ -323,7 +323,7 @@ struct sk_filter;
 >    *	@sk_tskey: counter to disambiguate concurrent tstamp requests
 >    *	@sk_zckey: counter to order MSG_ZEROCOPY notifications
 >    *	@sk_socket: Identd and reporting IO signals
@@ -141,7 +141,7 @@ https://lore.kernel.org/netdev/20221121085426.21315-1-jakub@cloudflare.com/
 >    *	@sk_peek_off: current peek_offset value
 >    *	@sk_send_head: front of stuff to transmit
 > diff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c
-> index 93271a2632b8..c77032638a06 100644
+> index 7499c51b1850..754fdda8a5f5 100644
 > --- a/net/l2tp/l2tp_core.c
 > +++ b/net/l2tp/l2tp_core.c
 > @@ -1150,8 +1150,10 @@ static void l2tp_tunnel_destruct(struct sock *sk)
@@ -155,7 +155,7 @@ https://lore.kernel.org/netdev/20221121085426.21315-1-jakub@cloudflare.com/
 >  
 >  	/* Call the original destructor */
 >  	if (sk->sk_destruct)
-> @@ -1471,16 +1473,18 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+> @@ -1469,16 +1471,18 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
 >  		sock = sockfd_lookup(tunnel->fd, &ret);
 >  		if (!sock)
 >  			goto err;
@@ -179,7 +179,7 @@ https://lore.kernel.org/netdev/20221121085426.21315-1-jakub@cloudflare.com/
 >  	sock_hold(sk);
 >  	tunnel->sock = sk;
 >  
-> @@ -1506,7 +1510,7 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+> @@ -1504,7 +1508,7 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
 >  
 >  		setup_udp_tunnel_sock(net, sock, &udp_cfg);
 >  	} else {
@@ -188,7 +188,7 @@ https://lore.kernel.org/netdev/20221121085426.21315-1-jakub@cloudflare.com/
 >  	}
 >  
 >  	tunnel->old_sk_destruct = sk->sk_destruct;
-> @@ -1520,6 +1524,7 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+> @@ -1518,6 +1522,7 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
 >  	if (tunnel->fd >= 0)
 >  		sockfd_put(sock);
 >  
@@ -196,7 +196,7 @@ https://lore.kernel.org/netdev/20221121085426.21315-1-jakub@cloudflare.com/
 >  	return 0;
 >  
 >  err_sock:
-> @@ -1527,6 +1532,8 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+> @@ -1525,6 +1530,8 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
 >  		sock_release(sock);
 >  	else
 >  		sockfd_put(sock);
