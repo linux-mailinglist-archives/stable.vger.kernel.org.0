@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9491163219D
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:09:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C8B963219E
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:10:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229501AbiKUMJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 07:09:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37084 "EHLO
+        id S229505AbiKUMKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 07:10:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229379AbiKUMJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:09:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F751FCFD
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:09:42 -0800 (PST)
+        with ESMTP id S229502AbiKUMKE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:10:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B27B1FCFD
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:10:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90B40B80ED5
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3049CC433C1;
-        Mon, 21 Nov 2022 12:09:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36FF761139
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:10:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0711EC433D6;
+        Mon, 21 Nov 2022 12:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669032580;
-        bh=amAlRXOojG5f+ZGaf4nsx5jj1pZnuzLMjahZnRKnEys=;
+        s=korg; t=1669032602;
+        bh=xoW7XIdCH77+DadKYL7jG1UNWdxD7XZo616OArOHbU0=;
         h=Subject:To:Cc:From:Date:From;
-        b=Hiz8xhlZtMyAoC9mc9inl58NR40qR/gHMjI1226pwmeUtJRfxWrqWWVXnPmUNW60L
-         d5piIAXV3TqLg/NPvaajHL1ae/s7NbD2fUJAlzhaj9HYErmRZaN/laJKzxWeWgOt+9
-         83pCa+g9EEuULvWDK7SXq9NkUOVQUhIyenQ1UGyI=
-Subject: FAILED: patch "[PATCH] iommu/vt-d: Set SRE bit only when hardware has SRS cap" failed to apply to 5.4-stable tree
-To:     tina.zhang@intel.com, baolu.lu@linux.intel.com, jroedel@suse.de
+        b=Hv0wnF0uzpD/UyezjQ+GVskn1h7zM/SmJSHGpDbo1BcVrJPABcDE2GA7ktpbPHV78
+         RW9CuFFYtOVruu8pIpKecdzuXJgpZw9ggNCB9C0RmtuWHCjkIwSRyjCC36ui0EHnZS
+         RSPftuGCUsC4+mo9TO7i1oA3w0HK/maBxl37Pr3Q=
+Subject: FAILED: patch "[PATCH] firmware: coreboot: Register bus in module init" failed to apply to 5.4-stable tree
+To:     briannorris@chromium.org, gregkh@linuxfoundation.org,
+        linux@roeck-us.net, stable@vger.kernel.org, swboyd@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Nov 2022 13:09:35 +0100
-Message-ID: <1669032575216142@kroah.com>
+Date:   Mon, 21 Nov 2022 13:09:59 +0100
+Message-ID: <166903259987193@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -54,12 +55,8 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-7fc961cf7ffc ("iommu/vt-d: Set SRE bit only when hardware has SRS cap")
-54c80d907400 ("iommu/vt-d: Use user privilege for RID2PASID translation")
-672cf6df9b8a ("iommu/vt-d: Move Intel IOMMU driver into subdirectory")
-3b50142d8528 ("MAINTAINERS: sort field names for all entries")
-4400b7d68f6e ("MAINTAINERS: sort entries by entry name")
-b032227c6293 ("Merge tag 'nios2-v5.7-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/lftan/nios2")
+65946690ed8d ("firmware: coreboot: Register bus in module init")
+cae0970ee9c4 ("firmware: google: Release devices before unregistering the bus")
 
 thanks,
 
@@ -67,55 +64,126 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7fc961cf7ffcb130c4e93ee9a5628134f9de700a Mon Sep 17 00:00:00 2001
-From: Tina Zhang <tina.zhang@intel.com>
-Date: Wed, 16 Nov 2022 13:15:44 +0800
-Subject: [PATCH] iommu/vt-d: Set SRE bit only when hardware has SRS cap
+From 65946690ed8d972fdb91a74ee75ac0f0f0d68321 Mon Sep 17 00:00:00 2001
+From: Brian Norris <briannorris@chromium.org>
+Date: Wed, 19 Oct 2022 18:10:53 -0700
+Subject: [PATCH] firmware: coreboot: Register bus in module init
 
-SRS cap is the hardware cap telling if the hardware IOMMU can support
-requests seeking supervisor privilege or not. SRE bit in scalable-mode
-PASID table entry is treated as Reserved(0) for implementation not
-supporting SRS cap.
+The coreboot_table driver registers a coreboot bus while probing a
+"coreboot_table" device representing the coreboot table memory region.
+Probing this device (i.e., registering the bus) is a dependency for the
+module_init() functions of any driver for this bus (e.g.,
+memconsole-coreboot.c / memconsole_driver_init()).
 
-Checking SRS cap before setting SRE bit can avoid the non-recoverable
-fault of "Non-zero reserved field set in PASID Table Entry" caused by
-setting SRE bit while there is no SRS cap support. The fault messages
-look like below:
+With synchronous probe, this dependency works OK, as the link order in
+the Makefile ensures coreboot_table_driver_init() (and thus,
+coreboot_table_probe()) completes before a coreboot device driver tries
+to add itself to the bus.
 
- DMAR: DRHD: handling fault status reg 2
- DMAR: [DMA Read NO_PASID] Request device [00:0d.0] fault addr 0x1154e1000
-       [fault reason 0x5a]
-       SM: Non-zero reserved field set in PASID Table Entry
+With asynchronous probe, however, coreboot_table_probe() may race with
+memconsole_driver_init(), and so we're liable to hit one of these two:
 
-Fixes: 6f7db75e1c46 ("iommu/vt-d: Add second level page table interface")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tina Zhang <tina.zhang@intel.com>
-Link: https://lore.kernel.org/r/20221115070346.1112273-1-tina.zhang@intel.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20221116051544.26540-3-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+1. coreboot_driver_register() eventually hits "[...] the bus was not
+   initialized.", and the memconsole driver fails to register; or
+2. coreboot_driver_register() gets past #1, but still races with
+   bus_register() and hits some other undefined/crashing behavior (e.g.,
+   in driver_find() [1])
 
-diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
-index c30ddac40ee5..e13d7e5273e1 100644
---- a/drivers/iommu/intel/pasid.c
-+++ b/drivers/iommu/intel/pasid.c
-@@ -642,7 +642,7 @@ int intel_pasid_setup_second_level(struct intel_iommu *iommu,
- 	 * Since it is a second level only translation setup, we should
- 	 * set SRE bit as well (addresses are expected to be GPAs).
- 	 */
--	if (pasid != PASID_RID2PASID)
-+	if (pasid != PASID_RID2PASID && ecap_srs(iommu->ecap))
- 		pasid_set_sre(pte);
- 	pasid_set_present(pte);
- 	spin_unlock(&iommu->lock);
-@@ -685,7 +685,8 @@ int intel_pasid_setup_pass_through(struct intel_iommu *iommu,
- 	 * We should set SRE bit as well since the addresses are expected
- 	 * to be GPAs.
- 	 */
--	pasid_set_sre(pte);
-+	if (ecap_srs(iommu->ecap))
-+		pasid_set_sre(pte);
- 	pasid_set_present(pte);
- 	spin_unlock(&iommu->lock);
+We can resolve this by registering the bus in our initcall, and only
+deferring "device" work (scanning the coreboot memory region and
+creating sub-devices) to probe().
+
+[1] Example failure, using 'driver_async_probe=*' kernel command line:
+
+[    0.114217] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
+...
+[    0.114307] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.1.0-rc1 #63
+[    0.114316] Hardware name: Google Scarlet (DT)
+...
+[    0.114488] Call trace:
+[    0.114494]  _raw_spin_lock+0x34/0x60
+[    0.114502]  kset_find_obj+0x28/0x84
+[    0.114511]  driver_find+0x30/0x50
+[    0.114520]  driver_register+0x64/0x10c
+[    0.114528]  coreboot_driver_register+0x30/0x3c
+[    0.114540]  memconsole_driver_init+0x24/0x30
+[    0.114550]  do_one_initcall+0x154/0x2e0
+[    0.114560]  do_initcall_level+0x134/0x160
+[    0.114571]  do_initcalls+0x60/0xa0
+[    0.114579]  do_basic_setup+0x28/0x34
+[    0.114588]  kernel_init_freeable+0xf8/0x150
+[    0.114596]  kernel_init+0x2c/0x12c
+[    0.114607]  ret_from_fork+0x10/0x20
+[    0.114624] Code: 5280002b 1100054a b900092a f9800011 (885ffc01)
+[    0.114631] ---[ end trace 0000000000000000 ]---
+
+Fixes: b81e3140e412 ("firmware: coreboot: Make bus registration symmetric")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20221019180934.1.If29e167d8a4771b0bf4a39c89c6946ed764817b9@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/firmware/google/coreboot_table.c b/drivers/firmware/google/coreboot_table.c
+index c52bcaa9def6..9ca21feb9d45 100644
+--- a/drivers/firmware/google/coreboot_table.c
++++ b/drivers/firmware/google/coreboot_table.c
+@@ -149,12 +149,8 @@ static int coreboot_table_probe(struct platform_device *pdev)
+ 	if (!ptr)
+ 		return -ENOMEM;
  
+-	ret = bus_register(&coreboot_bus_type);
+-	if (!ret) {
+-		ret = coreboot_table_populate(dev, ptr);
+-		if (ret)
+-			bus_unregister(&coreboot_bus_type);
+-	}
++	ret = coreboot_table_populate(dev, ptr);
++
+ 	memunmap(ptr);
+ 
+ 	return ret;
+@@ -169,7 +165,6 @@ static int __cb_dev_unregister(struct device *dev, void *dummy)
+ static int coreboot_table_remove(struct platform_device *pdev)
+ {
+ 	bus_for_each_dev(&coreboot_bus_type, NULL, NULL, __cb_dev_unregister);
+-	bus_unregister(&coreboot_bus_type);
+ 	return 0;
+ }
+ 
+@@ -199,6 +194,32 @@ static struct platform_driver coreboot_table_driver = {
+ 		.of_match_table = of_match_ptr(coreboot_of_match),
+ 	},
+ };
+-module_platform_driver(coreboot_table_driver);
++
++static int __init coreboot_table_driver_init(void)
++{
++	int ret;
++
++	ret = bus_register(&coreboot_bus_type);
++	if (ret)
++		return ret;
++
++	ret = platform_driver_register(&coreboot_table_driver);
++	if (ret) {
++		bus_unregister(&coreboot_bus_type);
++		return ret;
++	}
++
++	return 0;
++}
++
++static void __exit coreboot_table_driver_exit(void)
++{
++	platform_driver_unregister(&coreboot_table_driver);
++	bus_unregister(&coreboot_bus_type);
++}
++
++module_init(coreboot_table_driver_init);
++module_exit(coreboot_table_driver_exit);
++
+ MODULE_AUTHOR("Google, Inc.");
+ MODULE_LICENSE("GPL");
 
