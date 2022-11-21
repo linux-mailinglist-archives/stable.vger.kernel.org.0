@@ -2,117 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6D21631D90
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 10:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9AA3631DA0
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 11:02:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231200AbiKUJ6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 04:58:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39034 "EHLO
+        id S230250AbiKUKCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 05:02:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231240AbiKUJ6H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 04:58:07 -0500
-Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [IPv6:2001:67c:2050:0:465::101])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E21D2CE1D;
-        Mon, 21 Nov 2022 01:58:01 -0800 (PST)
-Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4NG2rK4SWLz9sTV;
-        Mon, 21 Nov 2022 10:57:53 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-        t=1669024673;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=iKWoYQiC0VAkiUCGzxBqoBdAdK+x56nxwPF3bP38f5U=;
-        b=oNEvH4skY4TBp/Ebbs17fzLDKLt1MO3gpxbnmrfFp/zJjTgU4pjE7N3OiqekH5FeIqyj14
-        Vibdkb7NEiCkA0c8x/bAEq61vtdDZjV5fBgPHwwB0/53H4ssd4oM1NDsDM7627fRISwR08
-        QQhKSCJaD2rLD5ZBlplgNtABFnAHvKT+LzWfmKLa5UDIk45bk7BVdUtqdQLSZRGhWrbKMx
-        UkSreraXxBo7Yee9MP52QLJcvR0kxljqM0aGHasWFZUwRlqChBTSWJiHrepV1Vf+s9lMQM
-        b6+GdB5MumediOvZHBudK+QTJpn1zlLGMg2SjK3gHQ/EW56BazjA2UxiMMYdFw==
-Message-ID: <e08c0d60-45d1-85a6-9c55-38c8e87b56c3@mailbox.org>
-Date:   Mon, 21 Nov 2022 10:57:51 +0100
+        with ESMTP id S229678AbiKUKCl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 05:02:41 -0500
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com [209.85.166.198])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46177EA2
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 02:02:33 -0800 (PST)
+Received: by mail-il1-f198.google.com with SMTP id s1-20020a056e021a0100b003026adad6a9so8359755ild.18
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 02:02:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=sVvRetvU66viZg03zt42J481swUWQOVgkFgrLPfYY/8=;
+        b=Rl4fQyALLipsZv+ZuCJbnBirkaIr6ggRyk1yjTj3fEuwY3gn3Z8DIksdwrM1g+bvYG
+         lhU+SdYfJjVmFSlRu8J2X8chK3D2jqpawD01avbL7R4iz0TXWa6m+kQhXZK9s0PfaAZ7
+         iNyXc7UZx1x/spJyRVU0dJhMY7+oEGcNFfPXwmUjT+BcM5XNrgzZWexIIF36dlXWAMq9
+         IZ0tnVQ2HADCLHgtQnZ4xcxJkCQ+rMJgSGe0qx+VT4vroDXMpcgP1gkH7D1fDc5rVfdn
+         Sr/jMm8JuXBeOw+5lYaHMRihLLnygdnqaSDfnFCk+0qecr1HHf/dOxNvqaXdxyvVskwE
+         q1Jg==
+X-Gm-Message-State: ANoB5pkbHTXGPhTeTdsR14Q2scll3mPIwfYTGpT61n9p+zrp5hBk4fMb
+        7xrnmjahwGhr9/ywUmMfZDa6by6HTnlke0MnYa2I2qpNPxrY
+X-Google-Smtp-Source: AA0mqf4DXRUTk1M2JEFw1hVVO6Pm/Mk0WsH+TOGiQM6G5JfdjVdUgYVOruJip3nXvQmtYRnvb9aGnLOqzpzDUaSvI0ItIaKgDNYY
 MIME-Version: 1.0
-Subject: Re: [PATCH AUTOSEL 6.0 38/44] drm/amdgpu: Unlock bo_list_mutex after
- error handling
-Content-Language: en-CA
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Philip Yang <Philip.Yang@amd.com>, Xinhui.Pan@amd.com,
-        amd-gfx@lists.freedesktop.org, luben.tuikov@amd.com,
-        dri-devel@lists.freedesktop.org, daniel@ffwll.ch,
-        Alex Deucher <alexander.deucher@amd.com>, airlied@gmail.com,
-        =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-References: <20221119021124.1773699-1-sashal@kernel.org>
- <20221119021124.1773699-38-sashal@kernel.org>
-From:   =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel.daenzer@mailbox.org>
-In-Reply-To: <20221119021124.1773699-38-sashal@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-MBO-RS-META: f8ftg7acuaueygqxyku7kzfg6jpuxt7h
-X-MBO-RS-ID: ffdceb14de5baed1f1c
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Received: by 2002:a92:dd0e:0:b0:300:b9c4:8c1 with SMTP id
+ n14-20020a92dd0e000000b00300b9c408c1mr1764432ilm.124.1669024953189; Mon, 21
+ Nov 2022 02:02:33 -0800 (PST)
+Date:   Mon, 21 Nov 2022 02:02:33 -0800
+In-Reply-To: <000000000000b960c00594598949@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <00000000000074cd1505edf82717@google.com>
+Subject: Re: KASAN: use-after-free Read in tc_chain_fill_node
+From:   syzbot <syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com>
+To:     davem@davemloft.net, gregkh@linuxfoundation.org, jiri@mellanox.com,
+        lee.jones@linaro.org, linux-kernel@vger.kernel.org,
+        stable-commits@vger.kernel.org, stable@vger.kernel.org,
+        syzkaller-lts-bugs@googlegroups.com, vladbu@mellanox.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/19/22 03:11, Sasha Levin wrote:
-> From: Philip Yang <Philip.Yang@amd.com>
-> 
-> [ Upstream commit 64f65135c41a75f933d3bca236417ad8e9eb75de ]
-> 
-> Get below kernel WARNING backtrace when pressing ctrl-C to kill kfdtest
-> application.
-> 
-> If amdgpu_cs_parser_bos returns error after taking bo_list_mutex, as
-> caller amdgpu_cs_ioctl will not unlock bo_list_mutex, this generates the
-> kernel WARNING.
-> 
-> Add unlock bo_list_mutex after amdgpu_cs_parser_bos error handling to
-> cleanup bo_list userptr bo.
-> 
->  WARNING: kfdtest/2930 still has locks held!
->  1 lock held by kfdtest/2930:
->   (&list->bo_list_mutex){+.+.}-{3:3}, at: amdgpu_cs_ioctl+0xce5/0x1f10 [amdgpu]
->   stack backtrace:
->    dump_stack_lvl+0x44/0x57
->    get_signal+0x79f/0xd00
->    arch_do_signal_or_restart+0x36/0x7b0
->    exit_to_user_mode_prepare+0xfd/0x1b0
->    syscall_exit_to_user_mode+0x19/0x40
->    do_syscall_64+0x40/0x80
-> 
-> Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-> Reviewed-by: Christian König <christian.koenig@amd.com>
-> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
-> index b7bae833c804..9d59f83c8faa 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
-> @@ -655,6 +655,7 @@ static int amdgpu_cs_parser_bos(struct amdgpu_cs_parser *p,
->  		}
->  		mutex_unlock(&p->bo_list->bo_list_mutex);
->  	}
-> +	mutex_unlock(&p->bo_list->bo_list_mutex);
->  	return r;
->  }
->  
-
-Looks doubtful that this is a correct backport — there's an identical mutex_unlock call just above.
-
-
--- 
-Earthling Michel Dänzer            |                  https://redhat.com
-Libre software enthusiast          |         Mesa and Xwayland developer
-
+This bug is marked as fixed by commit:
+net: core: netlink: add helper refcount dec and lock function
+net: sched: add helper function to take reference to Qdisc
+net: sched: extend Qdisc with rcu
+net: sched: rename qdisc_destroy() to qdisc_put()
+net: sched: use Qdisc rcu API instead of relying on rtnl lock
+But I can't find it in any tested tree for more than 90 days.
+Is it a correct commit? Please update it by replying:
+#syz fix: exact-commit-title
+Until then the bug is still considered open and
+new crashes with the same signature are ignored.
