@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D7F6322B7
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:45:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C406322CF
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:46:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230268AbiKUMpN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 07:45:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37110 "EHLO
+        id S230101AbiKUMqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 07:46:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231416AbiKUMpA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:45:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03BEEC0520
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:44:57 -0800 (PST)
+        with ESMTP id S231206AbiKUMqD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:46:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3FAFBFF5F
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:46:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70B95B80F9F
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:44:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3D3AC433D6;
-        Mon, 21 Nov 2022 12:44:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6355461191
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:46:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5845FC433C1;
+        Mon, 21 Nov 2022 12:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669034695;
-        bh=JpfcBeUisSYa36MfwmHN5vbhw/yExsJG03jGFITkwuc=;
+        s=korg; t=1669034761;
+        bh=IRnb6U/Hv7emtNJQDqeo2ttwK4Yc0J7lHL8BnUjNKyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tW0Lr4u4YsuetaQdzKuoNjExh1JPQu6y4e3z/2aT0t2rwLguX0HrZh29f0uOsW+xU
-         xXBCf3PNoNBEJJ4u7szfy/qSoL3pcx8tjAKH8YAqf6qEuOdqtc6yONEL932C6TSr1F
-         5WuGNAvPmN4WOiX0SIKyHl9QpQ2156gB09HJJiqQ=
+        b=sUyoouNdLi1fMizEq+OcWypLjGUB8OVc6hKQF+wqP1TLu6wQOMRCPWyi1HiVcwVtT
+         j5b4cDQPz0IdvTJHg0Qru8dJO8iPdqceOxg6UDL+FvMZiKPUdRcfhna6Eq/RWaJKi0
+         7HooDG+vlep5IPzV7m9acXwb1NBZMIwiumfNSekg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Borislav Petkov <bp@suse.de>,
         Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
         Suleiman Souhlal <suleiman@google.com>
-Subject: [PATCH 4.19 22/34] x86/speculation: Fix SPEC_CTRL write on SMT state change
-Date:   Mon, 21 Nov 2022 13:43:44 +0100
-Message-Id: <20221121124151.696744192@linuxfoundation.org>
+Subject: [PATCH 4.19 23/34] x86/speculation: Use cached host SPEC_CTRL value for guest entry/exit
+Date:   Mon, 21 Nov 2022 13:43:45 +0100
+Message-Id: <20221121124151.735011961@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221121124150.886779344@linuxfoundation.org>
 References: <20221121124150.886779344@linuxfoundation.org>
@@ -57,10 +57,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josh Poimboeuf <jpoimboe@kernel.org>
 
-commit 56aa4d221f1ee2c3a49b45b800778ec6e0ab73c5 upstream.
+commit bbb69e8bee1bd882784947095ffb2bfe0f7c9470 upstream.
 
-If the SMT state changes, SSBD might get accidentally disabled.  Fix
-that.
+There's no need to recalculate the host value for every entry/exit.
+Just use the cached value in spec_ctrl_current().
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
@@ -69,20 +69,43 @@ Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Suleiman Souhlal <suleiman@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/bugs.c |   12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1335,7 +1335,8 @@ static void __init spectre_v2_select_mit
- 
- static void update_stibp_msr(void * __unused)
+@@ -198,7 +198,7 @@ void __init check_bugs(void)
+ void
+ x86_virt_spec_ctrl(u64 guest_spec_ctrl, u64 guest_virt_spec_ctrl, bool setguest)
  {
--	write_spec_ctrl_current(x86_spec_ctrl_base, true);
-+	u64 val = spec_ctrl_current() | (x86_spec_ctrl_base & SPEC_CTRL_STIBP);
-+	write_spec_ctrl_current(val, true);
- }
+-	u64 msrval, guestval, hostval = x86_spec_ctrl_base;
++	u64 msrval, guestval, hostval = spec_ctrl_current();
+ 	struct thread_info *ti = current_thread_info();
  
- /* Update x86_spec_ctrl_base in case SMT state changed. */
+ 	/* Is MSR_SPEC_CTRL implemented ? */
+@@ -211,15 +211,6 @@ x86_virt_spec_ctrl(u64 guest_spec_ctrl,
+ 		guestval = hostval & ~x86_spec_ctrl_mask;
+ 		guestval |= guest_spec_ctrl & x86_spec_ctrl_mask;
+ 
+-		/* SSBD controlled in MSR_SPEC_CTRL */
+-		if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
+-		    static_cpu_has(X86_FEATURE_AMD_SSBD))
+-			hostval |= ssbd_tif_to_spec_ctrl(ti->flags);
+-
+-		/* Conditional STIBP enabled? */
+-		if (static_branch_unlikely(&switch_to_cond_stibp))
+-			hostval |= stibp_tif_to_spec_ctrl(ti->flags);
+-
+ 		if (hostval != guestval) {
+ 			msrval = setguest ? guestval : hostval;
+ 			wrmsrl(MSR_IA32_SPEC_CTRL, msrval);
+@@ -1274,7 +1265,6 @@ static void __init spectre_v2_select_mit
+ 		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
+ 
+ 	if (spectre_v2_in_ibrs_mode(mode)) {
+-		/* Force it so VMEXIT will restore correctly */
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+ 		write_spec_ctrl_current(x86_spec_ctrl_base, true);
+ 	}
 
 
