@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78A01632135
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:49:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1821632146
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:52:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229583AbiKULtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 06:49:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49740 "EHLO
+        id S229642AbiKULwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 06:52:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230391AbiKULti (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 06:49:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5842201A5
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 03:49:36 -0800 (PST)
+        with ESMTP id S231448AbiKULwE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 06:52:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B654829375
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 03:52:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D12C961057
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 11:49:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFB04C433D6;
-        Mon, 21 Nov 2022 11:49:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 750ADB80ED0
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 11:52:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88397C433D6;
+        Mon, 21 Nov 2022 11:51:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669031375;
-        bh=XMTI3B0eGZbYz+C02VXbd+siYgkRjC5T9HJcZeeS4PM=;
+        s=korg; t=1669031520;
+        bh=cl09z0IgKthlEkWpns64M10YDhVp3HThA/Xlmk9gG1w=;
         h=Subject:To:Cc:From:Date:From;
-        b=dfnHzLuMLITRVQoOGLvV2+gCOgH1fAaSqFozep1vROq5fD/NiwBbqMA6761nK7F+u
-         wKBg51lGHWBPwIx7X4qZESTQiVzJF+cbefCfCq3GCq/kfWSZWZyvRzeTqfc4PapBWF
-         9Hpy9lY2Lyzbn2dpayUExSk4XLhBMElbOUz9v11s=
-Subject: FAILED: patch "[PATCH] serial: 8250_lpss: Use 16B DMA burst with Elkhart Lake" failed to apply to 5.15-stable tree
-To:     ilpo.jarvinen@linux.intel.com, andriy.shevchenko@linux.intel.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        wentong.wu@intel.com
+        b=I5rhl2ehBrYPrzRGiTnQraPw2kJwJw3oR6bRrsMJriGc/v5I2qOXiDGyQ/B9+PF3t
+         nF10bytHG2TLPtzCVG2PmJfrXHNpkiv6ALchx/3IQ1YJEGXkNNTJTFe/xUQ/LLqgAT
+         RvxnsQF5TbjMqEXD/qTUsRw1dzxc0jMhUn8oQf0M=
+Subject: FAILED: patch "[PATCH] io_uring: disallow self-propelled ring polling" failed to apply to 5.15-stable tree
+To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Nov 2022 12:49:32 +0100
-Message-ID: <166903137218779@kroah.com>
+Date:   Mon, 21 Nov 2022 12:51:56 +0100
+Message-ID: <166903151616523@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -56,8 +54,26 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-7090abd6ad06 ("serial: 8250_lpss: Use 16B DMA burst with Elkhart Lake")
-2cb3315107b5 ("serial: 8250_lpss: Enable PSE UART Auto Flow Control")
+7fdbc5f014c3 ("io_uring: disallow self-propelled ring polling")
+2ba69707d915 ("io_uring: clean up io_poll_check_events return values")
+d245bca6375b ("io_uring: don't expose io_fill_cqe_aux()")
+f3b44f92e59a ("io_uring: move read/write related opcodes to its own file")
+c98817e6cd44 ("io_uring: move remaining file table manipulation to filetable.c")
+735729844819 ("io_uring: move rsrc related data, core, and commands")
+3b77495a9723 ("io_uring: split provided buffers handling into its own file")
+7aaff708a768 ("io_uring: move cancelation into its own file")
+329061d3e2f9 ("io_uring: move poll handling into its own file")
+cfd22e6b3319 ("io_uring: add opcode name to io_op_defs")
+92ac8beaea1f ("io_uring: include and forward-declaration sanitation")
+c9f06aa7de15 ("io_uring: move io_uring_task (tctx) helpers into its own file")
+a4ad4f748ea9 ("io_uring: move fdinfo helpers to its own file")
+e5550a1447bf ("io_uring: use io_is_uring_fops() consistently")
+17437f311490 ("io_uring: move SQPOLL related handling into its own file")
+59915143e89f ("io_uring: move timeout opcodes and handling into its own file")
+e418bbc97bff ("io_uring: move our reference counting into a header")
+36404b09aa60 ("io_uring: move msg_ring into its own file")
+f9ead18c1058 ("io_uring: split network related opcodes into its own file")
+e0da14def1ee ("io_uring: move statx handling to its own file")
 
 thanks,
 
@@ -65,41 +81,38 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7090abd6ad0610a144523ce4ffcb8560909bf2a8 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Tue, 8 Nov 2022 14:19:51 +0200
-Subject: [PATCH] serial: 8250_lpss: Use 16B DMA burst with Elkhart Lake
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 7fdbc5f014c3f71bc44673a2d6c5bb2d12d45f25 Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Fri, 18 Nov 2022 15:41:41 +0000
+Subject: [PATCH] io_uring: disallow self-propelled ring polling
 
-Configure DMA to use 16B burst size with Elkhart Lake. This makes the
-bus use more efficient and works around an issue which occurs with the
-previously used 1B.
+When we post a CQE we wake all ring pollers as it normally should be.
+However, if a CQE was generated by a multishot poll request targeting
+its own ring, it'll wake that request up, which will make it to post
+a new CQE, which will wake the request and so on until it exhausts all
+CQ entries.
 
-The fix was initially developed by Srikanth Thokala and Aman Kumar.
-This together with the previous config change is the cleaned up version
-of the original fix.
+Don't allow multishot polling io_uring files but downgrade them to
+oneshots, which was always stated as a correct behaviour that the
+userspace should check for.
 
-Fixes: 0a9410b981e9 ("serial: 8250_lpss: Enable DMA on Intel Elkhart Lake")
-Cc: <stable@vger.kernel.org> # serial: 8250_lpss: Configure DMA also w/o DMA filter
-Reported-by: Wentong Wu <wentong.wu@intel.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221108121952.5497-4-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Fixes: aa43477b04025 ("io_uring: poll rework")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/3124038c0e7474d427538c2d915335ec28c92d21.1668785722.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/drivers/tty/serial/8250/8250_lpss.c b/drivers/tty/serial/8250/8250_lpss.c
-index 7d9cddbfef40..0e43bdfb7459 100644
---- a/drivers/tty/serial/8250/8250_lpss.c
-+++ b/drivers/tty/serial/8250/8250_lpss.c
-@@ -174,6 +174,8 @@ static int ehl_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
- 	 */
- 	up->dma = dma;
+diff --git a/io_uring/poll.c b/io_uring/poll.c
+index c34019b18211..055632e9092a 100644
+--- a/io_uring/poll.c
++++ b/io_uring/poll.c
+@@ -246,6 +246,8 @@ static int io_poll_check_events(struct io_kiocb *req, bool *locked)
+ 			continue;
+ 		if (req->apoll_events & EPOLLONESHOT)
+ 			return IOU_POLL_DONE;
++		if (io_is_uring_fops(req->file))
++			return IOU_POLL_DONE;
  
-+	lpss->dma_maxburst = 16;
-+
- 	port->set_termios = dw8250_do_set_termios;
- 
- 	return 0;
+ 		/* multishot, just fill a CQE and proceed */
+ 		if (!(req->flags & REQ_F_APOLL_MULTISHOT)) {
 
