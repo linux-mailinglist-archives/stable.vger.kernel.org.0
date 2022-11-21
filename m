@@ -2,105 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57A41632256
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:37:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 298F4632287
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:44:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230105AbiKUMhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 07:37:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56500 "EHLO
+        id S229941AbiKUMoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 07:44:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231585AbiKUMhN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:37:13 -0500
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A4D72BEC
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:37:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1669034232; x=1700570232;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   content-id;
-  bh=kyoVWlpE6jnMJfeDf88xAskKFJ1AJbkWl0qX3adVQL8=;
-  b=J2XIMz/OpR7GTVT+8G/v1X/7HhzfeY8gNTPAbR3EaNRAjwgvez6Steqo
-   zGY3wm2994rGJmnlkdRcWAqtlHbrg0L12clJkGhfM5Yy35jEtp63sTm4p
-   c6ZuhQWDG9m7RRJH/aZZXSKMhkcWOB7S77G4RbwUn89ZPr5UBNi7S8xPn
-   BGIcDt3B8odkKn1Nyt6hx970/Wj7DLxqnBPyT98hZNVrcoNtGwcd4XWJc
-   U0hBVkAZUUDXiatWZOlOlJVv7LzqeCZb44QsGASEPLoBxu71WeKIFAqlv
-   yEo9PhpK7C72oYxVOR8Gp+cAoUHRrYUcaXoMNQqqx0ZLMiwigo303W6zG
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10537"; a="314694447"
-X-IronPort-AV: E=Sophos;i="5.96,181,1665471600"; 
-   d="scan'208";a="314694447"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Nov 2022 04:37:12 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10537"; a="673959349"
-X-IronPort-AV: E=Sophos;i="5.96,181,1665471600"; 
-   d="scan'208";a="673959349"
-Received: from ebarboza-mobl1.amr.corp.intel.com ([10.251.209.16])
-  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Nov 2022 04:37:10 -0800
-Date:   Mon, 21 Nov 2022 14:37:03 +0200 (EET)
-From:   =?ISO-8859-15?Q?Ilpo_J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        stable@vger.kernel.org, wentong.wu@intel.com
-Subject: [PATCH backport to 5.15 1/1] serial: 8250_lpss: Use 16B DMA burst
- with Elkhart Lake
-Message-ID: <38cd338-61e5-5cbc-d3f6-9dc326f38743@linux.intel.com>
+        with ESMTP id S230127AbiKUMoI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:44:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B18FFBF82F;
+        Mon, 21 Nov 2022 04:44:05 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 510BA6119E;
+        Mon, 21 Nov 2022 12:44:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC98BC433C1;
+        Mon, 21 Nov 2022 12:44:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1669034644;
+        bh=JmPZDDOEqXd3HGUxwDMvUefeqoTTPEPAsQzOjTDrXr0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=T48dQc167kphJOdUDMLXmFAr5jK6cMYYzdg6xkyrgDrInjq8qo+HycCjSR59M4FWk
+         kLmXh5KCUTJ4r0myTiHi1WNcZQuoKjkp81YHkTI3W6UIImPUMGShdiGzRAgiWH51VO
+         aDJHE89EgVDApcfYNnqDeQ+7MBXNumJx98/xXjz8=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: [PATCH 4.19 00/34] 4.19.266-rc1 review
+Date:   Mon, 21 Nov 2022 13:43:22 +0100
+Message-Id: <20221121124150.886779344@linuxfoundation.org>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="8323329-6729518-1669034138=:1681"
-Content-ID: <759f8cad-ac5f-e5d-4541-c9183866db5e@linux.intel.com>
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.266-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.266-rc1
+X-KernelTest-Deadline: 2022-11-23T12:41+00:00
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+This is the start of the stable review cycle for the 4.19.266 release.
+There are 34 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
---8323329-6729518-1669034138=:1681
-Content-Type: text/plain; CHARSET=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-Content-ID: <5962a1a8-1f82-d6c7-fcdd-d1fe4a72cabf@linux.intel.com>
+Responses should be made by Wed, 23 Nov 2022 12:41:40 +0000.
+Anything received after that time might be too late.
 
-commit 7090abd6ad0610a144523ce4ffcb8560909bf2a8 upstream.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.266-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-Configure DMA to use 16B burst size with Elkhart Lake. This makes the
-bus use more efficient and works around an issue which occurs with the
-previously used 1B.
+thanks,
 
-The fix was initially developed by Srikanth Thokala and Aman Kumar.
-This together with the previous config change is the cleaned up version
-of the original fix.
+greg k-h
 
-Fixes: 0a9410b981e9 ("serial: 8250_lpss: Enable DMA on Intel Elkhart Lake")
-Cc: <stable@vger.kernel.org> # serial: 8250_lpss: Configure DMA also w/o DMA filter
-Reported-by: Wentong Wu <wentong.wu@intel.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221108121952.5497-4-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/8250/8250_lpss.c | 3 +++
- 1 file changed, 3 insertions(+)
+-------------
+Pseudo-Shortlog of commits:
 
-diff --git a/drivers/tty/serial/8250/8250_lpss.c b/drivers/tty/serial/8250/8250_lpss.c
-index 49ae73f4d3a0..078f12f856f6 100644
---- a/drivers/tty/serial/8250/8250_lpss.c
-+++ b/drivers/tty/serial/8250/8250_lpss.c
-@@ -177,6 +177,9 @@ static int ehl_serial_setup(struct lpss8250 *lpss, struct uart_port *port)
- 	 * matching with the registered General Purpose DMA controllers.
- 	 */
- 	up->dma = dma;
-+
-+	lpss->dma_maxburst = 16;
-+
- 	return 0;
- }
- 
--- 
-2.30.2
---8323329-6729518-1669034138=:1681--
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.266-rc1
+
+Daniel Sneddon <daniel.sneddon@linux.intel.com>
+    x86/speculation: Add RSB VM Exit protections
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/bugs: Warn when "ibrs" mitigation is selected on Enhanced IBRS parts
+
+Nathan Chancellor <nathan@kernel.org>
+    x86/speculation: Use DECLARE_PER_CPU for x86_spec_ctrl_current
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/speculation: Disable RRSBA behavior
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/bugs: Add Cannon lake to RETBleed affected CPU list
+
+Andrew Cooper <andrew.cooper3@citrix.com>
+    x86/cpu/amd: Enumerate BTC_NO
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/common: Stamp out the stepping madness
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation: Fill RSB on vmexit for IBRS
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    KVM: VMX: Fix IBRS handling after vmexit
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    KVM: VMX: Prevent guest RSB poisoning attacks with eIBRS
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation: Remove x86_spec_ctrl_mask
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation: Use cached host SPEC_CTRL value for guest entry/exit
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation: Fix SPEC_CTRL write on SMT state change
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation: Fix firmware entry SPEC_CTRL handling
+
+Josh Poimboeuf <jpoimboe@kernel.org>
+    x86/speculation: Fix RSB filling with CONFIG_RETPOLINE=n
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/speculation: Change FILL_RETURN_BUFFER to work with objtool
+
+Peter Zijlstra <peterz@infradead.org>
+    intel_idle: Disable IBRS during long idle
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/bugs: Report Intel retbleed vulnerability
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/bugs: Split spectre_v2_select_mitigation() and spectre_v2_user_select_mitigation()
+
+Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+    x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/bugs: Optimize SPEC_CTRL MSR writes
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/entry: Add kernel IBRS implementation
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/entry: Remove skip_r11rcx
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/bugs: Keep a per-CPU IA32_SPEC_CTRL value
+
+Alexandre Chartre <alexandre.chartre@oracle.com>
+    x86/bugs: Add AMD retbleed= boot parameter
+
+Alexandre Chartre <alexandre.chartre@oracle.com>
+    x86/bugs: Report AMD retbleed vulnerability
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/cpufeatures: Move RETPOLINE flags to word 11
+
+Mark Gross <mgross@linux.intel.com>
+    x86/cpu: Add a steppings field to struct x86_cpu_id
+
+Thomas Gleixner <tglx@linutronix.de>
+    x86/cpu: Add consistent CPU match macros
+
+Thomas Gleixner <tglx@linutronix.de>
+    x86/devicetable: Move x86 specific macro out of generic code
+
+Ingo Molnar <mingo@kernel.org>
+    x86/cpufeature: Fix various quality problems in the <asm/cpu_device_hd.h> header
+
+Kan Liang <kan.liang@linux.intel.com>
+    x86/cpufeature: Add facility to check for min microcode revisions
+
+Suleiman Souhlal <suleiman@google.com>
+    Revert "x86/cpu: Add a steppings field to struct x86_cpu_id"
+
+Suleiman Souhlal <suleiman@google.com>
+    Revert "x86/speculation: Add RSB VM Exit protections"
+
+
+-------------
+
+Diffstat:
+
+ Documentation/admin-guide/kernel-parameters.txt |  13 +
+ Makefile                                        |   4 +-
+ arch/x86/entry/calling.h                        |  68 ++++-
+ arch/x86/entry/entry_32.S                       |   2 -
+ arch/x86/entry/entry_64.S                       |  34 ++-
+ arch/x86/entry/entry_64_compat.S                |  11 +-
+ arch/x86/include/asm/cpu_device_id.h            | 168 ++++++++++-
+ arch/x86/include/asm/cpufeatures.h              |  18 +-
+ arch/x86/include/asm/intel-family.h             |   6 +
+ arch/x86/include/asm/msr-index.h                |  10 +
+ arch/x86/include/asm/nospec-branch.h            |  53 ++--
+ arch/x86/kernel/cpu/amd.c                       |  21 +-
+ arch/x86/kernel/cpu/bugs.c                      | 368 +++++++++++++++++++-----
+ arch/x86/kernel/cpu/common.c                    |  60 ++--
+ arch/x86/kernel/cpu/match.c                     |  44 ++-
+ arch/x86/kernel/cpu/scattered.c                 |   1 +
+ arch/x86/kernel/process.c                       |   2 +-
+ arch/x86/kvm/svm.c                              |   1 +
+ arch/x86/kvm/vmx.c                              |  53 +++-
+ arch/x86/kvm/x86.c                              |   4 +-
+ drivers/base/cpu.c                              |   8 +
+ drivers/cpufreq/acpi-cpufreq.c                  |   1 +
+ drivers/cpufreq/amd_freq_sensitivity.c          |   1 +
+ drivers/idle/intel_idle.c                       |  43 ++-
+ include/linux/cpu.h                             |   2 +
+ include/linux/kvm_host.h                        |   2 +-
+ include/linux/mod_devicetable.h                 |   4 +-
+ tools/arch/x86/include/asm/cpufeatures.h        |   1 +
+ 28 files changed, 815 insertions(+), 188 deletions(-)
+
+
