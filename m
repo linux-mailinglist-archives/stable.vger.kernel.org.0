@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2CD76321B1
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:16:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8DB06321C8
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 13:20:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229642AbiKUMQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 07:16:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38900 "EHLO
+        id S229564AbiKUMUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 07:20:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229617AbiKUMQ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:16:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAB5B29802
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:16:25 -0800 (PST)
+        with ESMTP id S229541AbiKUMUb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 07:20:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E0F42C136
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 04:20:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4ACB76114A
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:16:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50B12C43144;
-        Mon, 21 Nov 2022 12:16:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE3DDB80EFC
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 12:20:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7F7AC433C1;
+        Mon, 21 Nov 2022 12:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669032984;
-        bh=g4hxLkaOuahe5hUbWnuSvTa2AKnnHU2REW1Cnh9gHgg=;
+        s=korg; t=1669033227;
+        bh=k+Yg3xWd9pgabHG5Pq5vVWYlmLMWlT6lh8nKkV9HLQo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Bgkdk9etm4bZUuKlD4Nr9HA1Y7Q1n8381a4/lew/XyZgTpVzsUMmY+hGDpWmItVNg
-         YIeupnuUCpgtgS56y+zHTcd9gEfHzRF+ez8kDkYe9PEIxzqf3nsveU472tdLuDUN6i
-         VB6uSHSrYwZx0TkyWN7bbp98I8qbDd/JYbsbKgqQ=
-Date:   Mon, 21 Nov 2022 13:16:21 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     jthoughton@google.com, akpm@linux-foundation.org,
-        axelrasmussen@google.com, linmiaohe@huawei.com,
-        naoya.horiguchi@nec.com, shy828301@gmail.com,
-        songmuchun@bytedance.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] hugetlbfs: don't delete error page from
- pagecache" failed to apply to 6.0-stable tree
-Message-ID: <Y3tsFTUw9NpdYA4h@kroah.com>
-References: <166842203040114@kroah.com>
- <Y3f8spPtwzNCFyte@monkey>
+        b=zEpb8sHDoT6d4V5TkynZEZihkeN7ihAleyP9KpgLS0SLmuRZhGwInpaliKTs1ZJDY
+         Duytp6jz/3AI3pvZxUcFuGiVmoC1Q6mu1xDUkhNPAQiHjrglfxrLXAfVl60tGaU6Gt
+         3Y9mqfhykSUiHdGiTyKZW85QqhbykRv7OwSHpyoQ=
+Date:   Mon, 21 Nov 2022 13:19:27 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc:     stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 4.14] nilfs2: fix use-after-free bug of ns_writer on
+ remount
+Message-ID: <Y3tszyyAAClwJPOO@kroah.com>
+References: <20221120155131.23814-1-konishi.ryusuke@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y3f8spPtwzNCFyte@monkey>
+In-Reply-To: <20221120155131.23814-1-konishi.ryusuke@gmail.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -53,23 +49,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 18, 2022 at 01:44:18PM -0800, Mike Kravetz wrote:
-> On 11/14/22 11:33, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 6.0-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
+On Mon, Nov 21, 2022 at 12:51:31AM +0900, Ryusuke Konishi wrote:
+> commit 8cccf05fe857a18ee26e20d11a8455a73ffd4efd upstream.
 > 
-> Below is backport for 6.0-stable.  Only minor conflicts in code that is being
-> removed by this patch.  Tested with simple program to access hugetlb pagecache
-> page after poisoning.
+> If a nilfs2 filesystem is downgraded to read-only due to metadata
+> corruption on disk and is remounted read/write, or if emergency read-only
+> remount is performed, detaching a log writer and synchronizing the
+> filesystem can be done at the same time.
 > 
-> >From 5dcd97ae1a0848c1b9a1ec5f4ab623b1ab478892 Mon Sep 17 00:00:00 2001
-> From: James Houghton <jthoughton@google.com>
-> Date: Tue, 18 Oct 2022 20:01:25 +0000
-> Subject: [PATCH] hugetlbfs: don't delete error page from pagecache
+> In these cases, use-after-free of the log writer (hereinafter
+> nilfs->ns_writer) can happen as shown in the scenario below:
+> 
+>  Task1                               Task2
+>  --------------------------------    ------------------------------
+>  nilfs_construct_segment
+>    nilfs_segctor_sync
+>      init_wait
+>      init_waitqueue_entry
+>      add_wait_queue
+>      schedule
+>                                      nilfs_remount (R/W remount case)
+> 				       nilfs_attach_log_writer
+>                                          nilfs_detach_log_writer
+>                                            nilfs_segctor_destroy
+>                                              kfree
+>      finish_wait
+>        _raw_spin_lock_irqsave
+>          __raw_spin_lock_irqsave
+>            do_raw_spin_lock
+>              debug_spin_lock_before  <-- use-after-free
+> 
+> While Task1 is sleeping, nilfs->ns_writer is freed by Task2.  After Task1
+> waked up, Task1 accesses nilfs->ns_writer which is already freed.  This
+> scenario diagram is based on the Shigeru Yoshida's post [1].
+> 
+> This patch fixes the issue by not detaching nilfs->ns_writer on remount so
+> that this UAF race doesn't happen.  Along with this change, this patch
+> also inserts a few necessary read-only checks with superblock instance
+> where only the ns_writer pointer was used to check if the filesystem is
+> read-only.
+> 
+> Link: https://syzkaller.appspot.com/bug?id=79a4c002e960419ca173d55e863bd09e8112df8b
+> Link: https://lkml.kernel.org/r/20221103141759.1836312-1-syoshida@redhat.com [1]
+> Link: https://lkml.kernel.org/r/20221104142959.28296-1-konishi.ryusuke@gmail.com
+> Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+> Reported-by: syzbot+f816fa82f8783f7a02bb@syzkaller.appspotmail.com
+> Reported-by: Shigeru Yoshida <syoshida@redhat.com>
+> Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> ---
+> Please apply this patch to stable-4.14 instead of the patch that could
+> not be applied to it last time.
+> 
+> A rejected hunk has been manually resolved without noticeable change,
+> and testing against that stable tree was fine.
+> 
 
-Looks like Sasha already picked this up, thanks.
+Now queued up, thanks.
 
 greg k-h
