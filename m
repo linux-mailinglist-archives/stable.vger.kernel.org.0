@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1821632146
-	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:52:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6439063214C
+	for <lists+stable@lfdr.de>; Mon, 21 Nov 2022 12:52:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229642AbiKULwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Nov 2022 06:52:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51990 "EHLO
+        id S230206AbiKULwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Nov 2022 06:52:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231448AbiKULwE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 06:52:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B654829375
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 03:52:02 -0800 (PST)
+        with ESMTP id S231130AbiKULwn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Nov 2022 06:52:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 667E1F04
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 03:52:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 750ADB80ED0
-        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 11:52:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88397C433D6;
-        Mon, 21 Nov 2022 11:51:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0436D6112D
+        for <stable@vger.kernel.org>; Mon, 21 Nov 2022 11:52:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE37C433C1;
+        Mon, 21 Nov 2022 11:52:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669031520;
-        bh=cl09z0IgKthlEkWpns64M10YDhVp3HThA/Xlmk9gG1w=;
+        s=korg; t=1669031554;
+        bh=HnybsgpMLnR0km/ksR2ryPBrGWjQ2kr5omVz4arES7s=;
         h=Subject:To:Cc:From:Date:From;
-        b=I5rhl2ehBrYPrzRGiTnQraPw2kJwJw3oR6bRrsMJriGc/v5I2qOXiDGyQ/B9+PF3t
-         nF10bytHG2TLPtzCVG2PmJfrXHNpkiv6ALchx/3IQ1YJEGXkNNTJTFe/xUQ/LLqgAT
-         RvxnsQF5TbjMqEXD/qTUsRw1dzxc0jMhUn8oQf0M=
-Subject: FAILED: patch "[PATCH] io_uring: disallow self-propelled ring polling" failed to apply to 5.15-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk
+        b=gzZ0B7sOsmr44RkXZ9VjFFImjxVlFfIP6L+Sfqo97B3VzVC3FtgcvNLuWEFUuVZwd
+         RMf0wPno45IMzIZHjHkY0lwgFhMr/8w2f52Ppm4pRg5V6UFtPGnmGIK2CXGx+5xtNN
+         j5rR5gtNhVblpj04ScxdQYrm+xSJ0cHGNGMNLIeo=
+Subject: FAILED: patch "[PATCH] ceph: fix NULL pointer dereference for req->r_session" failed to apply to 6.0-stable tree
+To:     xiubli@redhat.com, idryomov@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Nov 2022 12:51:56 +0100
-Message-ID: <166903151616523@kroah.com>
+Date:   Mon, 21 Nov 2022 12:52:31 +0100
+Message-ID: <16690315514754@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +47,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-7fdbc5f014c3 ("io_uring: disallow self-propelled ring polling")
-2ba69707d915 ("io_uring: clean up io_poll_check_events return values")
-d245bca6375b ("io_uring: don't expose io_fill_cqe_aux()")
-f3b44f92e59a ("io_uring: move read/write related opcodes to its own file")
-c98817e6cd44 ("io_uring: move remaining file table manipulation to filetable.c")
-735729844819 ("io_uring: move rsrc related data, core, and commands")
-3b77495a9723 ("io_uring: split provided buffers handling into its own file")
-7aaff708a768 ("io_uring: move cancelation into its own file")
-329061d3e2f9 ("io_uring: move poll handling into its own file")
-cfd22e6b3319 ("io_uring: add opcode name to io_op_defs")
-92ac8beaea1f ("io_uring: include and forward-declaration sanitation")
-c9f06aa7de15 ("io_uring: move io_uring_task (tctx) helpers into its own file")
-a4ad4f748ea9 ("io_uring: move fdinfo helpers to its own file")
-e5550a1447bf ("io_uring: use io_is_uring_fops() consistently")
-17437f311490 ("io_uring: move SQPOLL related handling into its own file")
-59915143e89f ("io_uring: move timeout opcodes and handling into its own file")
-e418bbc97bff ("io_uring: move our reference counting into a header")
-36404b09aa60 ("io_uring: move msg_ring into its own file")
-f9ead18c1058 ("io_uring: split network related opcodes into its own file")
-e0da14def1ee ("io_uring: move statx handling to its own file")
+5bd76b8de5b7 ("ceph: fix NULL pointer dereference for req->r_session")
+aa1d627207ca ("ceph: Use kcalloc for allocating multiple elements")
 
 thanks,
 
@@ -81,38 +63,118 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7fdbc5f014c3f71bc44673a2d6c5bb2d12d45f25 Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Fri, 18 Nov 2022 15:41:41 +0000
-Subject: [PATCH] io_uring: disallow self-propelled ring polling
+From 5bd76b8de5b74fa941a6eafee87728a0fe072267 Mon Sep 17 00:00:00 2001
+From: Xiubo Li <xiubli@redhat.com>
+Date: Thu, 10 Nov 2022 21:01:59 +0800
+Subject: [PATCH] ceph: fix NULL pointer dereference for req->r_session
 
-When we post a CQE we wake all ring pollers as it normally should be.
-However, if a CQE was generated by a multishot poll request targeting
-its own ring, it'll wake that request up, which will make it to post
-a new CQE, which will wake the request and so on until it exhausts all
-CQ entries.
-
-Don't allow multishot polling io_uring files but downgrade them to
-oneshots, which was always stated as a correct behaviour that the
-userspace should check for.
+The request's r_session maybe changed when it was forwarded or
+resent. Both the forwarding and resending cases the requests will
+be protected by the mdsc->mutex.
 
 Cc: stable@vger.kernel.org
-Fixes: aa43477b04025 ("io_uring: poll rework")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/3124038c0e7474d427538c2d915335ec28c92d21.1668785722.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2137955
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 
-diff --git a/io_uring/poll.c b/io_uring/poll.c
-index c34019b18211..055632e9092a 100644
---- a/io_uring/poll.c
-+++ b/io_uring/poll.c
-@@ -246,6 +246,8 @@ static int io_poll_check_events(struct io_kiocb *req, bool *locked)
- 			continue;
- 		if (req->apoll_events & EPOLLONESHOT)
- 			return IOU_POLL_DONE;
-+		if (io_is_uring_fops(req->file))
-+			return IOU_POLL_DONE;
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index fb023f9fafcb..e54814d0c2f7 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -2248,7 +2248,6 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+ 	struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
+ 	struct ceph_inode_info *ci = ceph_inode(inode);
+ 	struct ceph_mds_request *req1 = NULL, *req2 = NULL;
+-	unsigned int max_sessions;
+ 	int ret, err = 0;
  
- 		/* multishot, just fill a CQE and proceed */
- 		if (!(req->flags & REQ_F_APOLL_MULTISHOT)) {
+ 	spin_lock(&ci->i_unsafe_lock);
+@@ -2266,28 +2265,24 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+ 	}
+ 	spin_unlock(&ci->i_unsafe_lock);
+ 
+-	/*
+-	 * The mdsc->max_sessions is unlikely to be changed
+-	 * mostly, here we will retry it by reallocating the
+-	 * sessions array memory to get rid of the mdsc->mutex
+-	 * lock.
+-	 */
+-retry:
+-	max_sessions = mdsc->max_sessions;
+-
+ 	/*
+ 	 * Trigger to flush the journal logs in all the relevant MDSes
+ 	 * manually, or in the worst case we must wait at most 5 seconds
+ 	 * to wait the journal logs to be flushed by the MDSes periodically.
+ 	 */
+-	if ((req1 || req2) && likely(max_sessions)) {
+-		struct ceph_mds_session **sessions = NULL;
+-		struct ceph_mds_session *s;
++	if (req1 || req2) {
+ 		struct ceph_mds_request *req;
++		struct ceph_mds_session **sessions;
++		struct ceph_mds_session *s;
++		unsigned int max_sessions;
+ 		int i;
+ 
++		mutex_lock(&mdsc->mutex);
++		max_sessions = mdsc->max_sessions;
++
+ 		sessions = kcalloc(max_sessions, sizeof(s), GFP_KERNEL);
+ 		if (!sessions) {
++			mutex_unlock(&mdsc->mutex);
+ 			err = -ENOMEM;
+ 			goto out;
+ 		}
+@@ -2299,16 +2294,6 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+ 				s = req->r_session;
+ 				if (!s)
+ 					continue;
+-				if (unlikely(s->s_mds >= max_sessions)) {
+-					spin_unlock(&ci->i_unsafe_lock);
+-					for (i = 0; i < max_sessions; i++) {
+-						s = sessions[i];
+-						if (s)
+-							ceph_put_mds_session(s);
+-					}
+-					kfree(sessions);
+-					goto retry;
+-				}
+ 				if (!sessions[s->s_mds]) {
+ 					s = ceph_get_mds_session(s);
+ 					sessions[s->s_mds] = s;
+@@ -2321,16 +2306,6 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+ 				s = req->r_session;
+ 				if (!s)
+ 					continue;
+-				if (unlikely(s->s_mds >= max_sessions)) {
+-					spin_unlock(&ci->i_unsafe_lock);
+-					for (i = 0; i < max_sessions; i++) {
+-						s = sessions[i];
+-						if (s)
+-							ceph_put_mds_session(s);
+-					}
+-					kfree(sessions);
+-					goto retry;
+-				}
+ 				if (!sessions[s->s_mds]) {
+ 					s = ceph_get_mds_session(s);
+ 					sessions[s->s_mds] = s;
+@@ -2342,11 +2317,12 @@ static int flush_mdlog_and_wait_inode_unsafe_requests(struct inode *inode)
+ 		/* the auth MDS */
+ 		spin_lock(&ci->i_ceph_lock);
+ 		if (ci->i_auth_cap) {
+-		      s = ci->i_auth_cap->session;
+-		      if (!sessions[s->s_mds])
+-			      sessions[s->s_mds] = ceph_get_mds_session(s);
++			s = ci->i_auth_cap->session;
++			if (!sessions[s->s_mds])
++				sessions[s->s_mds] = ceph_get_mds_session(s);
+ 		}
+ 		spin_unlock(&ci->i_ceph_lock);
++		mutex_unlock(&mdsc->mutex);
+ 
+ 		/* send flush mdlog request to MDSes */
+ 		for (i = 0; i < max_sessions; i++) {
 
