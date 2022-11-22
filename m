@@ -2,265 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB70C6338F1
-	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 10:48:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EEB6633A08
+	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 11:26:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232755AbiKVJsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Nov 2022 04:48:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48220 "EHLO
+        id S233627AbiKVK0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Nov 2022 05:26:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233083AbiKVJsI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 04:48:08 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19E48633D;
-        Tue, 22 Nov 2022 01:48:07 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AM7SX5l005059;
-        Tue, 22 Nov 2022 09:47:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : subject :
- to : cc : references : in-reply-to : mime-version : message-id :
- content-type : content-transfer-encoding; s=pp1;
- bh=NFAyZLaovr/F9jGI1O5jH8acNqLSRKi2iVgWNogMCMM=;
- b=MKDf1CqY+5vgoitedVZG9koxje4nuV7gN1eeMfSI8QOgtzX5gBzbpvY2H9MrERoUZZh4
- ZIRnZe1oW6qQ54JH3d+Q8lV4M+2uPz7DlMx384fQO4UP+fXFCpzle9arZEtyqpZVL/Yp
- a/lev6uXl8t1h95j9rpmtlBj2UV18mTRB0xtbPS8Vff053Py7t9+LceEVOd1jx3s35ar
- 3MvApEg5ip8J38zrEEEQtpc3hnqjouk31sb6cS9dwS1Vh2hatK0kqkw8b6OxbhAom4Ne
- J0vFm7IRz3Ky1OUx/q5LP/wriPJB4hdjPVpaZpRoBlh0tdPZCkWw5lXSTWaWdtDQcPq3 qQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0t2mu2vb-1
+        with ESMTP id S233208AbiKVK0A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 05:26:00 -0500
+Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AACAE59845
+        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 02:23:25 -0800 (PST)
+Received: from pps.filterd (m0250812.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AMAMrJE012379;
+        Tue, 22 Nov 2022 10:23:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
+ subject : date : message-id : content-transfer-encoding : content-type :
+ mime-version; s=PPS06212021;
+ bh=gTLzA3LXLQ9+I0yCh8nPLXFbUSLs6nTY/IZBWvnaQ28=;
+ b=YnJMUmG14msDguPmlViOiWpJIpd95AAgEkirbcYcVkNJd3U6bPR40fKOxZPKMvopPonB
+ JDfpv+QqwLrkFkFk8co0BMtHJeTww/3YnfIk5TmdPR8A2sokMBTjtdsXWy5DT8PPl9EQ
+ kOOxFxTdYYJx1UUxnT8rhcM6Vmf21ouQN335NHhSL/1EYB6zN1FHyH0sVGMnVoFotrbm
+ Xowuu7C7ChQEUIEZZgDQaa5qGjEERcB4LRyiowJEA5AhhgISm0uqohQiet7+uS1mBSaE
+ 5HL3Wc6e1g8nqawxhtosSOCMrJOQUbzhmAexYzlYsxjZ4gxfzR1YZu4NRKSWiQXdJd/n PA== 
+Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2168.outbound.protection.outlook.com [104.47.58.168])
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3kxp48je4n-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Nov 2022 09:47:34 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AM9Zn6R013339;
-        Tue, 22 Nov 2022 09:47:33 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0t2mu2um-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Nov 2022 09:47:33 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AM9atqp003789;
-        Tue, 22 Nov 2022 09:47:30 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3kxps8uwke-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Nov 2022 09:47:30 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AM9m9Zp36569348
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 22 Nov 2022 09:48:09 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 57E4A11C050;
-        Tue, 22 Nov 2022 09:47:28 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BDD3111C04C;
-        Tue, 22 Nov 2022 09:47:27 +0000 (GMT)
-Received: from localhost (unknown [9.43.65.119])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 22 Nov 2022 09:47:27 +0000 (GMT)
-Date:   Tue, 22 Nov 2022 15:17:26 +0530
-From:   "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
-Subject: Re: [PATCH] powerpc/bpf/32: Fix Oops on tail call tests
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>
-Cc:     Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Hao Luo <haoluo@google.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jiri Olsa <jolsa@kernel.org>, KP Singh <kpsingh@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Stanislav Fomichev <sdf@google.com>,
-        Song Liu <song@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Yonghong Song <yhs@fb.com>
-References: <8a0b9f7e4fe208a8b518c0c4310472f99d9fdb55.1668876211.git.christophe.leroy@csgroup.eu>
-        <1669101940.sfs1m92svc.naveen@linux.ibm.com>
-        <f333e28c-a4ff-62eb-4b75-ee301e5ea53f@csgroup.eu>
-In-Reply-To: <f333e28c-a4ff-62eb-4b75-ee301e5ea53f@csgroup.eu>
+        Tue, 22 Nov 2022 10:23:14 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=DPgP3aZumSL/be1AXIQ8YkWXM4Wv3pUjCJrSY2XvlXZ/rhEbuBJkyNZ45Z4nWCteF5S9M3t9ReqULfzKQyGzhVxZpj/Bokf2lLj9K1vVKncEqRGpZ3HRClRjswlMSGSaJ9Gbf7l57ov2VUrLoSnq2hmhq1+XFcbJDnaRLKojxbkksG+9WnW2muinxhv2/+IXHRicszlxxJbfpECv1ZOvnXN4Ygu4QBmHWTxGRk8gwzdERfYad/ch6IgKCSv6jZQZRQkOwOf+yONFRVYSe/qxtg4F9UBpncFzz8WHrvmcVuZAIooWO4vPEdVLsOMg5Z3kXoYwtwE1K74HG0P+UKKg6A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=gTLzA3LXLQ9+I0yCh8nPLXFbUSLs6nTY/IZBWvnaQ28=;
+ b=a9m7OqPCL6Y8YjfyrepkVh89NBV9kwQJPRG4DL8nTQX6leXatULj5CjHpzAnK8PfXb2SAYDrwGxRYvL+k/QMkhWvZ9ZAwwDWtSmVxnBo1foTGPXOibC8owDSgq/R5CLQayUhus96lMbTeWJ3VkaCy0am69Yy2Dv4wBTwQshruyvOuvV2LN4lqYQ9SD43USS5zsJBvi8xjBJ5NfBR859dMzG3CRKHZ9bZFR2shws6UOvTVzflUgIM+hFbVN/1XhHiFVxD6trpLY+sxDbF0yEo/alSyFPMk8bOdb4LpOyT5nx+43GmoF5ErG7nHNfPfhHK/t/lNWS5xfD/a2s1eeYiRA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=windriver.com; dmarc=pass action=none
+ header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
+Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
+ by SA3PR11MB7464.namprd11.prod.outlook.com (2603:10b6:806:31b::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5834.15; Tue, 22 Nov
+ 2022 10:23:11 +0000
+Received: from DM4PR11MB5327.namprd11.prod.outlook.com
+ ([fe80::da82:93c2:307:df99]) by DM4PR11MB5327.namprd11.prod.outlook.com
+ ([fe80::da82:93c2:307:df99%8]) with mapi id 15.20.5834.015; Tue, 22 Nov 2022
+ 10:23:11 +0000
+From:   Ovidiu Panait <ovidiu.panait@windriver.com>
+To:     stable@vger.kernel.org
+Cc:     Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.10 1/2] nvme: restrict management ioctls to admin
+Date:   Tue, 22 Nov 2022 12:22:44 +0200
+Message-Id: <20221122102245.3397604-1-ovidiu.panait@windriver.com>
+X-Mailer: git-send-email 2.38.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: VI1P195CA0005.EURP195.PROD.OUTLOOK.COM
+ (2603:10a6:800:d0::15) To DM4PR11MB5327.namprd11.prod.outlook.com
+ (2603:10b6:5:392::22)
 MIME-Version: 1.0
-User-Agent: astroid/4d6b06ad (https://github.com/astroidmail/astroid)
-Message-Id: <1669108894.f58czzpqdm.naveen@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: jHemxqz0CGp1WxzXj0t_JLVmJmXGJ5QV
-X-Proofpoint-GUID: udMV-6y-Z86dG3q5UpnvMUfvpzVDnbiN
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM4PR11MB5327:EE_|SA3PR11MB7464:EE_
+X-MS-Office365-Filtering-Correlation-Id: 10d2e587-027e-4e2e-3c17-08dacc738e93
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: aIWvRRZ+L29FbUwxxvSwvB3SdfSTKwZFTXDkzXUqmLe/+LEEVDMkJTL2dye08Q2cGWW3O/pqbud/Huq9jUk0B60l1WmpnbwqLwWq4Tj28ujRb+qLHk7JDZGHTG2Sa6aGqyAoEXXVhHSJaq1Pm8Ih4jiszolOeCIYmUAY8kSLPfYHGOeXQQyNiu2NN1c1tVTpePbMAyz7Cp8DtpCf3PKBAUiyQZdvlU74WkQsS8Vrr0SG9h+STZaizE8z9O+4Nf4GWaHCJNDL0voBnH8HxiZe/JmtkmheiAgzF9u9OxVSty5+5EY7tSK2bCg+XgDAmIQPPIBt/fGC1eX6GBK1Y7DxOIbJWioFZWmFazJLZmHVHp8aFYq682KWR3pSFnmcc8hATlsa0dUgEX//BdiSl/mXbicNT3yRSJ88/MkQjZCg6ss9DNm4vlStK/n4u2hcpL1tGU5S0ujptLmRFJHFxe5rfDhP8iRyKGjnDNCdPEIOxX8hLqI7Eq9Z31Rh4opI2NukhWCkSdIqO84BEFEJ1WpYFmQF7kCIfKtFQW8QlhxClXn306FQQMaT3owFem5Ieifg/ZzGq71OJf8moyU2rVbJwJkaikAYR89bxC97/oyFCuCYyJawl2tLGT3W8ogTSI1bPv4BZK79wSOBD5ecztqZ9DkiYljanQDVEYkkMmr+ldbZxrymtLwMZXQ59GA3RQ2I
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(396003)(39850400004)(366004)(346002)(136003)(376002)(451199015)(2616005)(2906002)(1076003)(186003)(4326008)(478600001)(6666004)(66556008)(26005)(66946007)(6512007)(6506007)(5660300002)(316002)(66476007)(38100700002)(107886003)(8676002)(6916009)(36756003)(52116002)(8936002)(83380400001)(44832011)(6486002)(38350700002)(86362001)(41300700001)(54906003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?zx9HNijoddG6BF+uyKG+bFpx3ITwF9sTN9IDF0CVtyDCul4n7qYIlNNamaiD?=
+ =?us-ascii?Q?ncKV/JBnIWj8xSnYfm9fUQjW8B4CfYwuxP3JYqzy26/qcDSffYWffsuDf0Xq?=
+ =?us-ascii?Q?auTf4t7Arc8k/q5YsYpsmYXfDvuALxNnwrF3beDRb9Tset6gvBqxqFXNzx+Y?=
+ =?us-ascii?Q?bv4kvbXJLqL8O9wOd0TGNnXAnrTZoSpmTsPZSiISdQUe1J35B/4vi/1JnNtR?=
+ =?us-ascii?Q?YNGdcPIioM4v7U9xPPW3RHNxYMz2pSDfJinuIuWF6aZoR/mtLY6F/3VckGOT?=
+ =?us-ascii?Q?CCw2nE8U2/1lqMLjBRoGTEzZuXcO4RCYRaC7rHGYTnV2R+pr/0hEMeahZRSu?=
+ =?us-ascii?Q?Oh8GWIaR1KaJuFtk7QO8Y3QqN+rry65XoHR/JP4hird+i7q7EkgN168k7+DK?=
+ =?us-ascii?Q?RheQ2T43KroGeCk9sG6/SKMkBZA8fZEOtPfyqxFn1kWx5peHXAgeoEneLSYu?=
+ =?us-ascii?Q?i+t8d9k9R8JxWWcMHG8OY3mal2+dch7uy5l2AvlGedap79rnCKtSbZBl0NMw?=
+ =?us-ascii?Q?iQq8tD+hhSxcHhO1NPdTBjvhNT7iuqhCOu0hmagH6o0twCFebxPowunNva6h?=
+ =?us-ascii?Q?WeRJjCljb7xtN2BkNHfD1VkO396C6yF1muMvRSFqr8hqSYKzCRBj93E5w53w?=
+ =?us-ascii?Q?oP7/8zgSYFTF4s+n26EhlrISTTYpea3lw3TvxaivxjuRPZ7kdiw0IqBPL7Mj?=
+ =?us-ascii?Q?T4hP7J93Kr0evHgW6Qa093GR4NwooKdwy06FsYHJf5f1Uu6fkJgyc2mTAc94?=
+ =?us-ascii?Q?s6DuscVCJPTmWgHmiGQW4Q8ekgDP7h6KzfVdXBY2cEfHM9vwTOCpPjLWHFBA?=
+ =?us-ascii?Q?mc1lo97kbVrNScx+lPlibbJsRKJ4HhJ4XiMSkESH9426TtVUuIV0nmLS+c7j?=
+ =?us-ascii?Q?Np8CHNnpePK0jsm4bst+RlM/IsaKh96hDO8WRmPmNJAdYKtKAwGry8PD1x/2?=
+ =?us-ascii?Q?JRMHuECLeSVeIESxJJvj7VdXVp1+LZtKep709cDfXd3L3G0XWaZmXGWTTYpn?=
+ =?us-ascii?Q?X3GKZm/3b+Uh52DL+MxW+viaruyjIfjk/KQIFJKK1pcZwp1M24wvR5HA1Q/S?=
+ =?us-ascii?Q?bnubZmpwW0f3nc/t49zQCqYDhL5eFyUCaZY4pJbGdx+6mK1GVaSkYW+aF8KR?=
+ =?us-ascii?Q?gnZVyVaOOBnVzDIkV6uv9UDuiGN7UWjYKhIQDA1tsF1mqXKNiWM4mzRvQE1W?=
+ =?us-ascii?Q?73+mCPT3Rs57EEh8XZgZj4L5cp/urD8srODPEUCi+iorgyrtNDrlK6SMV89L?=
+ =?us-ascii?Q?cF0jX5y/mXYsyMZ3S8fXP4i/BGc+eatVZdGH0v2yBVdBAp8nNo213SsecZHe?=
+ =?us-ascii?Q?sYt9qUXjQFIWLf8vajiQFQvaxYTEHBRUcbmSHFR2NizPjkq5fbeaq8qEk+Rx?=
+ =?us-ascii?Q?81KSUIsgYyHvWZ9hQ5l5nGGbTpkVbSfGGh6XVqPqsMvflXLfD0wbAe8qp9mI?=
+ =?us-ascii?Q?c3JVVyJpS1umj7D3qCltJiWLbd8kQDWpx5ershJgO2UgxILH9qa6lAI8x5Fw?=
+ =?us-ascii?Q?rxG0a94w1V6Cm9mNc6/mzOlpNl06Th0sr/kzj2vEzQpm91OnX4RltqPXVT9J?=
+ =?us-ascii?Q?ELKov0Dg7fCoyicqZMGGG+ErUEuVsT3VUPw3/1wQFAInNt+P+IPaTbkvHVl1?=
+ =?us-ascii?Q?cw=3D=3D?=
+X-OriginatorOrg: windriver.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 10d2e587-027e-4e2e-3c17-08dacc738e93
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Nov 2022 10:23:11.4960
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: cSB2FLZ6FWg4FKzEyL+PRUTf8cvqp0yiQS//LH66zMayPW6lxEjWWTAXCzAf9+AJGGsmAxWigYouvV29irbisQIxod/wCss8dC9DF1FWRR4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR11MB7464
+X-Proofpoint-GUID: c4lfGjgUuuOkom1c6RV0zkbS_nCzBM3m
+X-Proofpoint-ORIG-GUID: c4lfGjgUuuOkom1c6RV0zkbS_nCzBM3m
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-22_04,2022-11-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
- impostorscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1015
- suspectscore=0 phishscore=0 bulkscore=0 mlxlogscore=999 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211220070
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ lowpriorityscore=0 spamscore=0 mlxscore=0 impostorscore=0 clxscore=1011
+ priorityscore=1501 suspectscore=0 adultscore=0 bulkscore=0 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211220075
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Christophe Leroy wrote:
->=20
->=20
-> Le 22/11/2022 =C3=A0 08:33, Naveen N. Rao a =C3=A9crit=C2=A0:
->> Christophe Leroy wrote:
->>>
->>> This is a tentative to write above the stack. The problem is encoutered
->>> with tests added by commit 38608ee7b690 ("bpf, tests: Add load store
->>> test case for tail call")
->>>
->>> This happens because tail call is done to a BPF prog with a different
->>> stack_depth. At the time being, the stack is kept as is when the caller
->>> tail calls its callee. But at exit, the callee restores the stack based
->>> on its own properties. Therefore here, at each run, r1 is erroneously
->>> increased by 32 - 16 =3D 16 bytes.
->>>
->>> This was done that way in order to pass the tail call count from caller
->>> to callee through the stack. As powerpc32 doesn't have a red zone in
->>> the stack, it was necessary the maintain the stack as is for the tail
->>> call. But it was not anticipated that the BPF frame size could be
->>> different.
->>>
->>> Let's take a new approach. Use register r0 to carry the tail call count
->>> during the tail call, and save it into the stack at function entry if
->>> required. That's a deviation from the ppc32 ABI, but after all the way
->>> tail calls are implemented is already not in accordance with the ABI.
->>=20
->> Can we pass the tail call count in r4 instead?
->=20
-> It's a bit tricky.
->=20
-> When entering the function through the normal entry point, the input=20
-> parameter is a 32 bits pointer and is in r3.
-> But at the begining of the function it gets moved to r4 and r3 is=20
-> cleared because it becomes a 64 bits parameter.
->=20
-> When using the tailcall entry point, it is already in r4, and until now=20
-> r3 was containing garbage, with this patch r3 gets cleared as well.
->=20
-> We could move the input pointer back into r3 for the tailcall as well,=20
-> but it would mean unnecessary register move.
->=20
-> Or we can use r3 for the tailcall counter.
+From: Keith Busch <kbusch@kernel.org>
 
-Regarding zero'ing out r5, you're right -- we don't use the second=20
-parameter for a tail call, so that should be fine.
+commit 23e085b2dead13b51fe86d27069895b740f749c0 upstream.
 
-Using r3 will be difficult since it is used when you come in first.
-My suggestion was something like the below (untested). Using r5 might be=20
-fine too.
+The passthrough commands already have this restriction, but the other
+operations do not. Require the same capabilities for all users as all of
+these operations, which include resets and rescans, can be disruptive.
 
-- Naveen
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+---
+These backports are for CVE-2022-3169.
 
---
-diff --git a/arch/powerpc/net/bpf_jit_comp32.c b/arch/powerpc/net/bpf_jit_c=
-omp32.c
-index 43f1c76d48cea9..6319283ce4ef01 100644
---- a/arch/powerpc/net/bpf_jit_comp32.c
-+++ b/arch/powerpc/net/bpf_jit_comp32.c
-@@ -113,24 +113,19 @@ void bpf_jit_build_prologue(u32 *image, struct codege=
-n_context *ctx)
- {
- 	int i;
-=20
-+	/* Initialize tail_call_cnt, to be skipped if we do tail calls. */
-+	EMIT(PPC_RAW_LI(_R4, 0));
-+
-+#define BPF_TAILCALL_PROLOGUE_SIZE	4
-+
-+	if (ctx->seen & SEEN_TAILCALL)
-+		EMIT(PPC_RAW_STW(_R4, _R1, bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
-+
- 	/* First arg comes in as a 32 bits pointer. */
- 	EMIT(PPC_RAW_MR(bpf_to_ppc(BPF_REG_1), _R3));
- 	EMIT(PPC_RAW_LI(bpf_to_ppc(BPF_REG_1) - 1, 0));
- 	EMIT(PPC_RAW_STWU(_R1, _R1, -BPF_PPC_STACKFRAME(ctx)));
-=20
--	/*
--	 * Initialize tail_call_cnt in stack frame if we do tail calls.
--	 * Otherwise, put in NOPs so that it can be skipped when we are
--	 * invoked through a tail call.
--	 */
--	if (ctx->seen & SEEN_TAILCALL)
--		EMIT(PPC_RAW_STW(bpf_to_ppc(BPF_REG_1) - 1, _R1,
--				 bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
--	else
--		EMIT(PPC_RAW_NOP());
--
--#define BPF_TAILCALL_PROLOGUE_SIZE	16
--
- 	/*
- 	 * We need a stack frame, but we don't necessarily need to
- 	 * save/restore LR unless we call other functions
-@@ -170,24 +165,24 @@ static void bpf_jit_emit_common_epilogue(u32 *image, =
-struct codegen_context *ctx
- 	for (i =3D BPF_PPC_NVR_MIN; i <=3D 31; i++)
- 		if (bpf_is_seen_register(ctx, i))
- 			EMIT(PPC_RAW_LWZ(i, _R1, bpf_jit_stack_offsetof(ctx, i)));
--}
--
--void bpf_jit_build_epilogue(u32 *image, struct codegen_context *ctx)
--{
--	EMIT(PPC_RAW_MR(_R3, bpf_to_ppc(BPF_REG_0)));
--
--	bpf_jit_emit_common_epilogue(image, ctx);
--
--	/* Tear down our stack frame */
-=20
- 	if (ctx->seen & SEEN_FUNC)
- 		EMIT(PPC_RAW_LWZ(_R0, _R1, BPF_PPC_STACKFRAME(ctx) + PPC_LR_STKOFF));
-=20
-+	/* Tear down our stack frame */
- 	EMIT(PPC_RAW_ADDI(_R1, _R1, BPF_PPC_STACKFRAME(ctx)));
-=20
- 	if (ctx->seen & SEEN_FUNC)
- 		EMIT(PPC_RAW_MTLR(_R0));
-=20
-+}
-+
-+void bpf_jit_build_epilogue(u32 *image, struct codegen_context *ctx)
-+{
-+	EMIT(PPC_RAW_MR(_R3, bpf_to_ppc(BPF_REG_0)));
-+
-+	bpf_jit_emit_common_epilogue(image, ctx);
-+
- 	EMIT(PPC_RAW_BLR());
- }
-=20
-@@ -244,7 +239,6 @@ static int bpf_jit_emit_tail_call(u32 *image, struct co=
-degen_context *ctx, u32 o
- 	EMIT(PPC_RAW_RLWINM(_R3, b2p_index, 2, 0, 29));
- 	EMIT(PPC_RAW_ADD(_R3, _R3, b2p_bpf_array));
- 	EMIT(PPC_RAW_LWZ(_R3, _R3, offsetof(struct bpf_array, ptrs)));
--	EMIT(PPC_RAW_STW(_R0, _R1, bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
-=20
- 	/*
- 	 * if (prog =3D=3D NULL)
-@@ -255,18 +249,11 @@ static int bpf_jit_emit_tail_call(u32 *image, struct =
-codegen_context *ctx, u32 o
-=20
- 	/* goto *(prog->bpf_func + prologue_size); */
- 	EMIT(PPC_RAW_LWZ(_R3, _R3, offsetof(struct bpf_prog, bpf_func)));
--
--	if (ctx->seen & SEEN_FUNC)
--		EMIT(PPC_RAW_LWZ(_R0, _R1, BPF_PPC_STACKFRAME(ctx) + PPC_LR_STKOFF));
--
- 	EMIT(PPC_RAW_ADDIC(_R3, _R3, BPF_TAILCALL_PROLOGUE_SIZE));
--
--	if (ctx->seen & SEEN_FUNC)
--		EMIT(PPC_RAW_MTLR(_R0));
--
- 	EMIT(PPC_RAW_MTCTR(_R3));
-=20
- 	EMIT(PPC_RAW_MR(_R3, bpf_to_ppc(BPF_REG_1)));
-+	EMIT(PPC_RAW_MR(_R4, _R0));
-=20
- 	/* tear restore NVRs, ... */
- 	bpf_jit_emit_common_epilogue(image, ctx);
+ drivers/nvme/host/core.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 3f106771d15b..d9c78fe85cb3 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3330,11 +3330,17 @@ static long nvme_dev_ioctl(struct file *file, unsigned int cmd,
+ 	case NVME_IOCTL_IO_CMD:
+ 		return nvme_dev_user_cmd(ctrl, argp);
+ 	case NVME_IOCTL_RESET:
++		if (!capable(CAP_SYS_ADMIN))
++			return -EACCES;
+ 		dev_warn(ctrl->device, "resetting controller\n");
+ 		return nvme_reset_ctrl_sync(ctrl);
+ 	case NVME_IOCTL_SUBSYS_RESET:
++		if (!capable(CAP_SYS_ADMIN))
++			return -EACCES;
+ 		return nvme_reset_subsystem(ctrl);
+ 	case NVME_IOCTL_RESCAN:
++		if (!capable(CAP_SYS_ADMIN))
++			return -EACCES;
+ 		nvme_queue_scan(ctrl);
+ 		return 0;
+ 	default:
+-- 
+2.38.1
+
