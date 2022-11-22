@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95D87634095
-	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 16:52:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE70C634096
+	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 16:52:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229449AbiKVPwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Nov 2022 10:52:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57430 "EHLO
+        id S231766AbiKVPwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Nov 2022 10:52:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229497AbiKVPwg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 10:52:36 -0500
+        with ESMTP id S229497AbiKVPwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 10:52:38 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89B775FD2
-        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 07:52:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 577415FD2
+        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 07:52:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91EFBB81BF7
-        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 15:52:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7569C433D7;
-        Tue, 22 Nov 2022 15:52:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B80EB81BF8
+        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 15:52:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61651C433D6;
+        Tue, 22 Nov 2022 15:52:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669132351;
-        bh=2OMw8YuS5yGTvGtiAq+EWYmKpcyflIK3A26etRQoHpU=;
+        s=korg; t=1669132354;
+        bh=uMbQK5ECFQZPuXX6lKPGLC+LRNZMG+UD35Oj2xV1WSY=;
         h=Subject:To:From:Date:From;
-        b=0OEc4MvmOfq/O96JfN8jZS3bDvAW5O9gC7TuVkeJY5+8ES1HtwloQ9z24YAX5OJDl
-         noKxT2n923lOpZAprxOnDc0+7dneWu5agW6g2MKdlASJCZXHysRFunRK3oaQkJkVb2
-         0MXeYOiJbg4+yvrHpNfYQqoVSTLGYlMor7AkDJaQ=
-Subject: patch "usb: cdnsp: Fix issue with Clear Feature Halt Endpoint" added to usb-linus
+        b=hI5REeHSr+swn38mBtRgg0DlLYE+KpYjdWNttd5dj6knSy5NS+chRNQq4izAWPV+C
+         CA1kxibR5rEzFogjzM78VXJXbX68E+CXG3GFTl/Ml55XY/2b0mDlN6UsYUn5XbUoOT
+         jKxB9up7ZYfDkfHx14HwlK3vCn6y3HGnX27CP93E=
+Subject: patch "usb: cdnsp: fix issue with ZLP - added TD_SIZE = 1" added to usb-linus
 To:     pawell@cadence.com, gregkh@linuxfoundation.org,
         peter.chen@kernel.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 22 Nov 2022 16:52:14 +0100
-Message-ID: <16691323342819@kroah.com>
+Date:   Tue, 22 Nov 2022 16:52:15 +0100
+Message-ID: <1669132335583@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: cdnsp: Fix issue with Clear Feature Halt Endpoint
+    usb: cdnsp: fix issue with ZLP - added TD_SIZE = 1
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -64,72 +64,74 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From b25264f22b498dff3fa5c70c9bea840e83fff0d1 Mon Sep 17 00:00:00 2001
+From 7a21b27aafa3edead79ed97e6f22236be6b9f447 Mon Sep 17 00:00:00 2001
 From: Pawel Laszczak <pawell@cadence.com>
-Date: Thu, 10 Nov 2022 01:30:05 -0500
-Subject: usb: cdnsp: Fix issue with Clear Feature Halt Endpoint
+Date: Tue, 15 Nov 2022 04:22:18 -0500
+Subject: usb: cdnsp: fix issue with ZLP - added TD_SIZE = 1
 
-During handling Clear Halt Endpoint Feature request, driver invokes
-Reset Endpoint command. Because this command has some issue with
-transition endpoint from Running to Idle state the driver must
-stop the endpoint by using Stop Endpoint command.
+Patch modifies the TD_SIZE in TRB before ZLP TRB.
+The TD_SIZE in TRB before ZLP TRB must be set to 1 to force
+processing ZLP TRB by controller.
 
 cc: <stable@vger.kernel.org>
 Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
 Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20221110063005.370656-1-pawell@cadence.com
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Link: https://lore.kernel.org/r/20221115092218.421267-1-pawell@cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdnsp-gadget.c | 12 ++++--------
- drivers/usb/cdns3/cdnsp-ring.c   |  3 ++-
- 2 files changed, 6 insertions(+), 9 deletions(-)
+ drivers/usb/cdns3/cdnsp-ring.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/cdns3/cdnsp-gadget.c b/drivers/usb/cdns3/cdnsp-gadget.c
-index c67715f6f756..f9aa50ff14d4 100644
---- a/drivers/usb/cdns3/cdnsp-gadget.c
-+++ b/drivers/usb/cdns3/cdnsp-gadget.c
-@@ -600,11 +600,11 @@ int cdnsp_halt_endpoint(struct cdnsp_device *pdev,
- 
- 	trace_cdnsp_ep_halt(value ? "Set" : "Clear");
- 
--	if (value) {
--		ret = cdnsp_cmd_stop_ep(pdev, pep);
--		if (ret)
--			return ret;
-+	ret = cdnsp_cmd_stop_ep(pdev, pep);
-+	if (ret)
-+		return ret;
- 
-+	if (value) {
- 		if (GET_EP_CTX_STATE(pep->out_ctx) == EP_STATE_STOPPED) {
- 			cdnsp_queue_halt_endpoint(pdev, pep->idx);
- 			cdnsp_ring_cmd_db(pdev);
-@@ -613,10 +613,6 @@ int cdnsp_halt_endpoint(struct cdnsp_device *pdev,
- 
- 		pep->ep_state |= EP_HALTED;
- 	} else {
--		/*
--		 * In device mode driver can call reset endpoint command
--		 * from any endpoint state.
--		 */
- 		cdnsp_queue_reset_ep(pdev, pep->idx);
- 		cdnsp_ring_cmd_db(pdev);
- 		ret = cdnsp_wait_for_cmd_compl(pdev);
 diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c
-index 794e413800ae..04dfcaa08dc4 100644
+index 04dfcaa08dc4..2f29431f612e 100644
 --- a/drivers/usb/cdns3/cdnsp-ring.c
 +++ b/drivers/usb/cdns3/cdnsp-ring.c
-@@ -2076,7 +2076,8 @@ int cdnsp_cmd_stop_ep(struct cdnsp_device *pdev, struct cdnsp_ep *pep)
- 	u32 ep_state = GET_EP_CTX_STATE(pep->out_ctx);
- 	int ret = 0;
+@@ -1763,10 +1763,15 @@ static u32 cdnsp_td_remainder(struct cdnsp_device *pdev,
+ 			      int trb_buff_len,
+ 			      unsigned int td_total_len,
+ 			      struct cdnsp_request *preq,
+-			      bool more_trbs_coming)
++			      bool more_trbs_coming,
++			      bool zlp)
+ {
+ 	u32 maxp, total_packet_count;
  
--	if (ep_state == EP_STATE_STOPPED || ep_state == EP_STATE_DISABLED) {
-+	if (ep_state == EP_STATE_STOPPED || ep_state == EP_STATE_DISABLED ||
-+	    ep_state == EP_STATE_HALTED) {
- 		trace_cdnsp_ep_stopped_or_disabled(pep->out_ctx);
- 		goto ep_stopped;
- 	}
++	/* Before ZLP driver needs set TD_SIZE = 1. */
++	if (zlp)
++		return 1;
++
+ 	/* One TRB with a zero-length data packet. */
+ 	if (!more_trbs_coming || (transferred == 0 && trb_buff_len == 0) ||
+ 	    trb_buff_len == td_total_len)
+@@ -1960,7 +1965,8 @@ int cdnsp_queue_bulk_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq)
+ 		/* Set the TRB length, TD size, and interrupter fields. */
+ 		remainder = cdnsp_td_remainder(pdev, enqd_len, trb_buff_len,
+ 					       full_len, preq,
+-					       more_trbs_coming);
++					       more_trbs_coming,
++					       zero_len_trb);
+ 
+ 		length_field = TRB_LEN(trb_buff_len) | TRB_TD_SIZE(remainder) |
+ 			TRB_INTR_TARGET(0);
+@@ -2025,7 +2031,7 @@ int cdnsp_queue_ctrl_tx(struct cdnsp_device *pdev, struct cdnsp_request *preq)
+ 
+ 	if (preq->request.length > 0) {
+ 		remainder = cdnsp_td_remainder(pdev, 0, preq->request.length,
+-					       preq->request.length, preq, 1);
++					       preq->request.length, preq, 1, 0);
+ 
+ 		length_field = TRB_LEN(preq->request.length) |
+ 				TRB_TD_SIZE(remainder) | TRB_INTR_TARGET(0);
+@@ -2226,7 +2232,7 @@ static int cdnsp_queue_isoc_tx(struct cdnsp_device *pdev,
+ 		/* Set the TRB length, TD size, & interrupter fields. */
+ 		remainder = cdnsp_td_remainder(pdev, running_total,
+ 					       trb_buff_len, td_len, preq,
+-					       more_trbs_coming);
++					       more_trbs_coming, 0);
+ 
+ 		length_field = TRB_LEN(trb_buff_len) | TRB_INTR_TARGET(0);
+ 
 -- 
 2.38.1
 
