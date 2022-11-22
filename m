@@ -2,147 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E28B633BA3
-	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 12:43:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3741633BC6
+	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 12:50:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233446AbiKVLnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Nov 2022 06:43:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57494 "EHLO
+        id S232904AbiKVLuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Nov 2022 06:50:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229516AbiKVLmr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 06:42:47 -0500
-Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E29CD1096;
-        Tue, 22 Nov 2022 03:41:03 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xueshuai@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0VVSKSda_1669117258;
-Received: from 30.221.150.59(mailfrom:xueshuai@linux.alibaba.com fp:SMTPD_---0VVSKSda_1669117258)
-          by smtp.aliyun-inc.com;
-          Tue, 22 Nov 2022 19:41:00 +0800
-Message-ID: <c407cfb5-ccec-adca-47dd-437846f2f2f8@linux.alibaba.com>
-Date:   Tue, 22 Nov 2022 19:40:58 +0800
+        with ESMTP id S233069AbiKVLuc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 06:50:32 -0500
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAE6726130;
+        Tue, 22 Nov 2022 03:50:29 -0800 (PST)
+Received: from localhost.localdomain (unknown [39.45.241.105])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: usama.anjum)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id AB5516602AD8;
+        Tue, 22 Nov 2022 11:50:25 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1669117828;
+        bh=u3h8sO+dj4QZ9RGvdJiydoYM2ps78IAv/+HQGYXP/5A=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XJensu8BWSPD1vRHzW+fu3abtZIDrOqa2RwLq+uZbtFY5+JOVit49UouoYycp2iuS
+         l2oJzKgs3Q2Sd83TCS3knOSU9EqZdG6GMikI//LRw6CtImSCyoBClNA5NpbP8i2qLc
+         dG16XQH1yctTwxgCxMe2U/FtV7LSnn45byMOyYZFOs9I37Zu41/a/FAr5aoY7NMa62
+         9JiqqKyNADeVLjxvhRblG2GkuUhPUr97kMGmCRnSlf+4+50faMQuRD/1SnM3n813IL
+         sUgI2tuj4QpclGFA2SDmCZPueIeJwJUyz1SWY/GLptXGITvdWPlu+2AOSfgUPBTEgG
+         xN7cQZFkSyFIw==
+From:   Muhammad Usama Anjum <usama.anjum@collabora.com>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Cyrill Gorcunov <gorcunov@gmail.com>
+Cc:     Mel Gorman <mgorman@suse.de>, Peter Xu <peterx@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        kernel@collabora.com, stable@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2] mm: set the vma flags dirty before testing if it is mergeable
+Date:   Tue, 22 Nov 2022 16:50:07 +0500
+Message-Id: <20221122115007.2787017-1-usama.anjum@collabora.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.13.1
-Subject: Re: [PATCH] ACPI: APEI: set memory failure flags as
- MF_ACTION_REQUIRED on action required events
-Content-Language: en-US
-From:   Shuai Xue <xueshuai@linux.alibaba.com>
-To:     "Luck, Tony" <tony.luck@intel.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     "lenb@kernel.org" <lenb@kernel.org>,
-        "james.morse@arm.com" <james.morse@arm.com>,
-        "bp@alien8.de" <bp@alien8.de>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "jarkko@kernel.org" <jarkko@kernel.org>,
-        "naoya.horiguchi@nec.com" <naoya.horiguchi@nec.com>,
-        "linmiaohe@huawei.com" <linmiaohe@huawei.com>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "cuibixuan@linux.alibaba.com" <cuibixuan@linux.alibaba.com>,
-        "baolin.wang@linux.alibaba.com" <baolin.wang@linux.alibaba.com>,
-        "zhuo.song@linux.alibaba.com" <zhuo.song@linux.alibaba.com>
-References: <20221027042445.60108-1-xueshuai@linux.alibaba.com>
- <CAJZ5v0hdgxsDiXqOmeqBQoZUQJ1RssM=3jpYpWt3qzy0n2eyaA@mail.gmail.com>
- <SJ1PR11MB60839264AEF656759C8C56D1FC329@SJ1PR11MB6083.namprd11.prod.outlook.com>
- <6eb3c5f4-2198-d501-7320-ea6209a63465@linux.alibaba.com>
-In-Reply-To: <6eb3c5f4-2198-d501-7320-ea6209a63465@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-9.9 required=5.0 tests=BAYES_00,
-        ENV_AND_HDR_SPF_MATCH,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-        USER_IN_DEF_SPF_WL autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The VM_SOFTDIRTY should be set in the vma flags to be tested if new
+allocation should be merged in previous vma or not. With this patch,
+the new allocations are merged in the previous VMAs.
 
+I've tested it by reverting the commit 34228d473efe ("mm: ignore
+VM_SOFTDIRTY on VMA merging") and after adding this following patch,
+I'm seeing that all the new allocations done through mmap() are merged
+in the previous VMAs. The number of VMAs doesn't increase drastically
+which had contributed to the crash of gimp. If I run the same test after
+reverting and not including this patch, the number of VMAs keep on
+increasing with every mmap() syscall which proves this patch.
 
-在 2022/11/2 PM7:53, Shuai Xue 写道:
-> 
-> 
-> 在 2022/10/29 AM1:25, Luck, Tony 写道:
->>>> cper_sec_mem_err::error_type identifies the type of error that occurred
->>>> if CPER_MEM_VALID_ERROR_TYPE is set. So, set memory failure flags as 0
->>>> for Scrub Uncorrected Error (type 14). Otherwise, set memory failure
->>>> flags as MF_ACTION_REQUIRED.
->>
->> On x86 the "action required" cases are signaled by a synchronous machine check
->> that is delivered before the instruction that is attempting to consume the uncorrected
->> data retires. I.e., it is guaranteed that the uncorrected error has not been propagated
->> because it is not visible in any architectural state.
-> 
-> On arm, if a 2-bit (uncorrectable) error is detected, and the memory access has been
-> architecturally executed, that error is considered “consumed”. The CPU will take a
-> synchronous error exception, signaled as synchronous external abort (SEA), which is
-> analogously to MCE.
-> 
->>
->> APEI signaled errors don't fall into that category on x86 ... the uncorrected data
->> could have been consumed and propagated long before the signaling used for
->> APEI can alert the OS.
->>
->> Does ARM deliver APEI signals synchronously?
->>
->> If not, then this patch might deliver a false sense of security to applications
->> about the state of uncorrected data in the system.
->>
-> 
-> Well, it does not always. There are many APEI notification, such as SCI, GSIV, GPIO,
-> SDEI, SEA, etc. Not all APEI notifications are synchronously and it depends on
-> hardware signal. As far as I know, if a UE is detected and consumed, synchronous external
-> abort is signaled to firmware and firmware then performs a first-level triage and
-> synchronously notify OS by SDEI or SEA notification. On the other hand, if CE is
-> detected, a asynchronous interrupt will be signaled and firmware could notify OS
-> by GPIO or GSIV.
-> 
-> Best Regards,
-> Shuai
-> 
-> 
+The commit 34228d473efe ("mm: ignore VM_SOFTDIRTY on VMA merging")
+seems like a workaround. But it lets the soft-dirty and non-soft-dirty
+VMA to get merged. It helps in avoiding the creation of too many VMAs.
+But it creates the problem while adding the feature of clearing the
+soft-dirty status of only a part of the memory region.
 
+Cc: <stable@vger.kernel.org>
+Fixes: d9104d1ca966 ("mm: track vma changes with VM_SOFTDIRTY bit")
+Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+---
+We need more testing of this patch.
 
-Hi, Tony,
+While implementing clear soft-dirty bit for a range of address space, I'm
+facing an issue. The non-soft dirty VMA gets merged sometimes with the soft
+dirty VMA. Thus the non-soft dirty VMA become dirty which is undesirable.
+When discussed with the some other developers they consider it the
+regression. Why the non-soft dirty page should appear as soft dirty when it
+isn't soft dirty in reality? I agree with them. Should we revert
+34228d473efe or find a workaround in the IOCTL?
 
-Prefetch data with UE error triggers async interrupt on both X86 and Arm64 platform
-(CMCI in X86 and SPI in arm64). It does not belongs to scrub UEs. I have to admit that
-cper_sec_mem_err::error_type is not an appropriate basis to distinguish
-"action required" cases.
+* Revert may cause the VMAs to expand in uncontrollable situation where the
+soft dirty bit of a lot of memory regions or the whole address space is
+being cleared again and again. AFAIK normal process must either be only
+clearing a few memory regions. So the applications should be okay. There is
+still chance of regressions if some applications are already using the
+soft-dirty bit. I'm not sure how to test it.
 
+* Add a flag in the IOCTL to ignore the dirtiness of VMA. The user will
+surely lose the functionality to detect reused memory regions. But the
+extraneous soft-dirty pages would not appear. I'm trying to do this in the
+patch series [1]. Some discussion is going on that this fails with some
+mprotect use case [2]. I still need to have a look at the mprotect selftest
+to see how and why this fails. I think this can be implemented after some
+more work probably in mprotect side.
 
+[1] https://lore.kernel.org/all/20221109102303.851281-1-usama.anjum@collabora.com/
+[2] https://lore.kernel.org/all/bfcae708-db21-04b4-0bbe-712badd03071@redhat.com/
 
-acpi_hest_generic_data::flags (UEFI spec section N.2.2) could be used to indicate
-Action Optional (Scrub/Prefetch).
+Changes in v2:
+- Rebase on top of next-20221122
+---
+ mm/mmap.c | 23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
-	Bit 5 – Latent error: If set this flag indicates that action has been
-	taken to ensure error containment (such a poisoning data), but
-	the error has not been fully corrected and the data has not been
-	consumed. System software may choose to take further
-	corrective action before the data is consumed.
-
-Our hardware team has submitted a proposal to UEFI community to add a new bit:
-
-	Bit 8 – sync flag; if set this flag indicates that
-	this event record is synchronous(e.g. cpu
-	core consumes poison data, then cause
-	instruction/data abort); if not set, this event
-	record is asynchronous.
-
-With bit 8, we will know it is "Action Required".
-
-
-I will send a new patch set to rework GHES error handling after the proposal is accept.
-
-
-Thank you.
-
-Best Regards
-Shuai
-
-
-
+diff --git a/mm/mmap.c b/mm/mmap.c
+index f4e2989be5ff..031d23bc43c4 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2552,6 +2552,15 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
+ 		vm_flags |= VM_ACCOUNT;
+ 	}
+ 
++	/*
++	 * New (or expanded) vma always get soft dirty status.
++	 * Otherwise user-space soft-dirty page tracker won't
++	 * be able to distinguish situation when vma area unmapped,
++	 * then new mapped in-place (which must be aimed as
++	 * a completely new data area).
++	 */
++	vm_flags |= VM_SOFTDIRTY;
++
+ 	next = mas_next(&mas, ULONG_MAX);
+ 	prev = mas_prev(&mas, 0);
+ 	if (vm_flags & VM_SPECIAL)
+@@ -2724,15 +2733,6 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
+ 	if (file)
+ 		uprobe_mmap(vma);
+ 
+-	/*
+-	 * New (or expanded) vma always get soft dirty status.
+-	 * Otherwise user-space soft-dirty page tracker won't
+-	 * be able to distinguish situation when vma area unmapped,
+-	 * then new mapped in-place (which must be aimed as
+-	 * a completely new data area).
+-	 */
+-	vma->vm_flags |= VM_SOFTDIRTY;
+-
+ 	vma_set_page_prot(vma);
+ 
+ 	validate_mm(mm);
+@@ -2974,7 +2974,7 @@ static int do_brk_flags(struct ma_state *mas, struct vm_area_struct *vma,
+ 	vma->vm_start = addr;
+ 	vma->vm_end = addr + len;
+ 	vma->vm_pgoff = addr >> PAGE_SHIFT;
+-	vma->vm_flags = flags;
++	vma->vm_flags = flags | VM_SOFTDIRTY;
+ 	vma->vm_page_prot = vm_get_page_prot(flags);
+ 	mas_set_range(mas, vma->vm_start, addr + len - 1);
+ 	if (mas_store_gfp(mas, vma, GFP_KERNEL))
+@@ -2987,7 +2987,6 @@ static int do_brk_flags(struct ma_state *mas, struct vm_area_struct *vma,
+ 	mm->data_vm += len >> PAGE_SHIFT;
+ 	if (flags & VM_LOCKED)
+ 		mm->locked_vm += (len >> PAGE_SHIFT);
+-	vma->vm_flags |= VM_SOFTDIRTY;
+ 	validate_mm(mm);
+ 	return 0;
+ 
+@@ -3021,6 +3020,8 @@ int vm_brk_flags(unsigned long addr, unsigned long request, unsigned long flags)
+ 	if ((flags & (~VM_EXEC)) != 0)
+ 		return -EINVAL;
+ 
++	flags |= VM_SOFTDIRTY;
++
+ 	ret = check_brk_limits(addr, len);
+ 	if (ret)
+ 		goto limits_failed;
+-- 
+2.30.2
 
