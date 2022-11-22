@@ -2,169 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 007B463378F
-	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 09:54:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB70C6338F1
+	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 10:48:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229750AbiKVIyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Nov 2022 03:54:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54926 "EHLO
+        id S232755AbiKVJsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Nov 2022 04:48:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232885AbiKVIyC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 03:54:02 -0500
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3F3E2DD4;
-        Tue, 22 Nov 2022 00:54:00 -0800 (PST)
-Received: from [192.168.10.9] (unknown [39.45.241.105])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (No client certificate requested)
-        (Authenticated sender: usama.anjum)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id AE3616602A89;
-        Tue, 22 Nov 2022 08:53:56 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1669107239;
-        bh=8ZEvrn+4mbqku0WNRgI9tdJCkGeYKUqf7aXJXCGXOEc=;
-        h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
-        b=H/LSoreWTskXcbuNcSY+biZE1CZrnl06I5k9aU13bMl3fHDzbhrGsyrbmPWABc3o0
-         OLC6tUMM9GqwP6qic+HevPlAXgNLCVtDICcvIEw8NZLrfDcg5uISB7/LrHoerMRM9o
-         NMjmLIcbpk6Bm3nU+6qRwtukRbsFGsjaiQ/hdJg1OKuYkqTUllSf4Iiac8R0akBWjW
-         RIpgIQTSRH9T5P/2JxX44I2R9U3NjzWOcYn611fjRk4Yv5Q3B1UEWnWC48WtLXpkie
-         o5GdgFLi/pNApb2n3B0cSq62GewRdHIEf+8ZHJMlh8pGMlGG8pVNLvDk8fPja36uNZ
-         KgMRUUXnYr0aA==
-Message-ID: <e6523c46-df2e-6f73-1f69-c53e4f86ad50@collabora.com>
-Date:   Tue, 22 Nov 2022 13:53:52 +0500
+        with ESMTP id S233083AbiKVJsI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 04:48:08 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19E48633D;
+        Tue, 22 Nov 2022 01:48:07 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AM7SX5l005059;
+        Tue, 22 Nov 2022 09:47:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : subject :
+ to : cc : references : in-reply-to : mime-version : message-id :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=NFAyZLaovr/F9jGI1O5jH8acNqLSRKi2iVgWNogMCMM=;
+ b=MKDf1CqY+5vgoitedVZG9koxje4nuV7gN1eeMfSI8QOgtzX5gBzbpvY2H9MrERoUZZh4
+ ZIRnZe1oW6qQ54JH3d+Q8lV4M+2uPz7DlMx384fQO4UP+fXFCpzle9arZEtyqpZVL/Yp
+ a/lev6uXl8t1h95j9rpmtlBj2UV18mTRB0xtbPS8Vff053Py7t9+LceEVOd1jx3s35ar
+ 3MvApEg5ip8J38zrEEEQtpc3hnqjouk31sb6cS9dwS1Vh2hatK0kqkw8b6OxbhAom4Ne
+ J0vFm7IRz3Ky1OUx/q5LP/wriPJB4hdjPVpaZpRoBlh0tdPZCkWw5lXSTWaWdtDQcPq3 qQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0t2mu2vb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Nov 2022 09:47:34 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AM9Zn6R013339;
+        Tue, 22 Nov 2022 09:47:33 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0t2mu2um-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Nov 2022 09:47:33 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AM9atqp003789;
+        Tue, 22 Nov 2022 09:47:30 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3kxps8uwke-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Nov 2022 09:47:30 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AM9m9Zp36569348
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 22 Nov 2022 09:48:09 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 57E4A11C050;
+        Tue, 22 Nov 2022 09:47:28 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BDD3111C04C;
+        Tue, 22 Nov 2022 09:47:27 +0000 (GMT)
+Received: from localhost (unknown [9.43.65.119])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 22 Nov 2022 09:47:27 +0000 (GMT)
+Date:   Tue, 22 Nov 2022 15:17:26 +0530
+From:   "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+Subject: Re: [PATCH] powerpc/bpf/32: Fix Oops on tail call tests
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>
+Cc:     Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Hao Luo <haoluo@google.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jiri Olsa <jolsa@kernel.org>, KP Singh <kpsingh@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Stanislav Fomichev <sdf@google.com>,
+        Song Liu <song@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Yonghong Song <yhs@fb.com>
+References: <8a0b9f7e4fe208a8b518c0c4310472f99d9fdb55.1668876211.git.christophe.leroy@csgroup.eu>
+        <1669101940.sfs1m92svc.naveen@linux.ibm.com>
+        <f333e28c-a4ff-62eb-4b75-ee301e5ea53f@csgroup.eu>
+In-Reply-To: <f333e28c-a4ff-62eb-4b75-ee301e5ea53f@csgroup.eu>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Cc:     Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Mel Gorman <mgorman@suse.de>, Peter Xu <peterx@redhat.com>,
-        Andrei Vagin <avagin@gmail.com>, kernel@collabora.com,
-        stable@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: set the vma flags dirty before testing if it is
- mergeable
-Content-Language: en-US
-To:     David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Cyrill Gorcunov <gorcunov@gmail.com>
-References: <20221122082442.1938606-1-usama.anjum@collabora.com>
- <b1bc82e2-a789-85f4-d428-c5f1b451f4b7@redhat.com>
- <4ebdbc0f-6352-5020-3f74-94e6c3743a1d@collabora.com>
-From:   Muhammad Usama Anjum <usama.anjum@collabora.com>
-In-Reply-To: <4ebdbc0f-6352-5020-3f74-94e6c3743a1d@collabora.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: astroid/4d6b06ad (https://github.com/astroidmail/astroid)
+Message-Id: <1669108894.f58czzpqdm.naveen@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: jHemxqz0CGp1WxzXj0t_JLVmJmXGJ5QV
+X-Proofpoint-GUID: udMV-6y-Z86dG3q5UpnvMUfvpzVDnbiN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-22_04,2022-11-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
+ impostorscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1015
+ suspectscore=0 phishscore=0 bulkscore=0 mlxlogscore=999 spamscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211220070
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/22/22 1:49 PM, Muhammad Usama Anjum wrote:
-> On 11/22/22 1:36 PM, David Hildenbrand wrote:
->> On 22.11.22 09:24, Muhammad Usama Anjum wrote:
->>> The VM_SOFTDIRTY should be set in the vma flags to be tested if new
->>> allocation should be merged in previous vma or not. With this patch,
->>> the new allocations are merged in the previous VMAs.
+Christophe Leroy wrote:
+>=20
+>=20
+> Le 22/11/2022 =C3=A0 08:33, Naveen N. Rao a =C3=A9crit=C2=A0:
+>> Christophe Leroy wrote:
 >>>
->>> I've tested it by reverting the commit 34228d473efe ("mm: ignore
->>> VM_SOFTDIRTY on VMA merging") and after adding this following patch,
->>> I'm seeing that all the new allocations done through mmap() are merged
->>> in the previous VMAs. The number of VMAs doesn't increase drastically
->>> which had contributed to the crash of gimp. If I run the same test after
->>> reverting and not including this patch, the number of VMAs keep on
->>> increasing with every mmap() syscall which proves this patch.
+>>> This is a tentative to write above the stack. The problem is encoutered
+>>> with tests added by commit 38608ee7b690 ("bpf, tests: Add load store
+>>> test case for tail call")
 >>>
->>> The commit 34228d473efe ("mm: ignore VM_SOFTDIRTY on VMA merging")
->>> seems like a workaround. But it lets the soft-dirty and non-soft-dirty
->>> VMA to get merged. It helps in avoiding the creation of too many VMAs.
->>> But it creates the problem while adding the feature of clearing the
->>> soft-dirty status of only a part of the memory region.
+>>> This happens because tail call is done to a BPF prog with a different
+>>> stack_depth. At the time being, the stack is kept as is when the caller
+>>> tail calls its callee. But at exit, the callee restores the stack based
+>>> on its own properties. Therefore here, at each run, r1 is erroneously
+>>> increased by 32 - 16 =3D 16 bytes.
 >>>
->>> Cc: <stable@vger.kernel.org>
->>> Fixes: d9104d1ca966 ("mm: track vma changes with VM_SOFTDIRTY bit")
->>> Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
->>> ---
->>> We need more testing of this patch.
+>>> This was done that way in order to pass the tail call count from caller
+>>> to callee through the stack. As powerpc32 doesn't have a red zone in
+>>> the stack, it was necessary the maintain the stack as is for the tail
+>>> call. But it was not anticipated that the BPF frame size could be
+>>> different.
 >>>
->>> While implementing clear soft-dirty bit for a range of address space, I'm
->>> facing an issue. The non-soft dirty VMA gets merged sometimes with the soft
->>> dirty VMA. Thus the non-soft dirty VMA become dirty which is undesirable.
->>> When discussed with the some other developers they consider it the
->>> regression. Why the non-soft dirty page should appear as soft dirty when it
->>> isn't soft dirty in reality? I agree with them. Should we revert
->>> 34228d473efe or find a workaround in the IOCTL?
->>>
->>> * Revert may cause the VMAs to expand in uncontrollable situation where the
->>> soft dirty bit of a lot of memory regions or the whole address space is
->>> being cleared again and again. AFAIK normal process must either be only
->>> clearing a few memory regions. So the applications should be okay. There is
->>> still chance of regressions if some applications are already using the
->>> soft-dirty bit. I'm not sure how to test it.
->>>
->>> * Add a flag in the IOCTL to ignore the dirtiness of VMA. The user will
->>> surely lose the functionality to detect reused memory regions. But the
->>> extraneous soft-dirty pages would not appear. I'm trying to do this in the
->>> patch series [1]. Some discussion is going on that this fails with some
->>> mprotect use case [2]. I still need to have a look at the mprotect selftest
->>> to see how and why this fails. I think this can be implemented after some
->>> more work probably in mprotect side.
->>>
->>> [1]
->>> https://lore.kernel.org/all/20221109102303.851281-1-usama.anjum@collabora.com/
->>> [2]
->>> https://lore.kernel.org/all/bfcae708-db21-04b4-0bbe-712badd03071@redhat.com/
->>> ---
->>>   mm/mmap.c | 21 +++++++++++----------
->>>   1 file changed, 11 insertions(+), 10 deletions(-)
->>>
->>> diff --git a/mm/mmap.c b/mm/mmap.c
->>> index f9b96b387a6f..6934b8f61fdc 100644
->>> --- a/mm/mmap.c
->>> +++ b/mm/mmap.c
->>> @@ -1708,6 +1708,15 @@ unsigned long mmap_region(struct file *file,
->>> unsigned long addr,
->>>           vm_flags |= VM_ACCOUNT;
->>>       }
->>>   +    /*
->>> +     * New (or expanded) vma always get soft dirty status.
->>> +     * Otherwise user-space soft-dirty page tracker won't
->>> +     * be able to distinguish situation when vma area unmapped,
->>> +     * then new mapped in-place (which must be aimed as
->>> +     * a completely new data area).
->>> +     */
->>> +    vm_flags |= VM_SOFTDIRTY;
->>> +
->>>       /*
->>>        * Can we just expand an old mapping?
->>>        */
->>> @@ -1823,15 +1832,6 @@ unsigned long mmap_region(struct file *file,
->>> unsigned long addr,
->>>       if (file)
->>>           uprobe_mmap(vma);
->>>   -    /*
->>> -     * New (or expanded) vma always get soft dirty status.
->>> -     * Otherwise user-space soft-dirty page tracker won't
->>> -     * be able to distinguish situation when vma area unmapped,
->>> -     * then new mapped in-place (which must be aimed as
->>> -     * a completely new data area).
->>> -     */
->>> -    vma->vm_flags |= VM_SOFTDIRTY;
->>> -
->>>       vma_set_page_prot(vma);
->>
->> vma_set_page_prot(vma) has to be called after adjusting vma->vm_flags.
->>
->> Did not look into the details here, but that jumped at me.
-> vma_set_page_prot() also needs to be removed from here as it was being
-> called after updating the vm_flags. I'll remove it. vma_set_page_prot() was
-> added in a separate commit 64e455079e1b. I'll send a v2 in a while.
-Just had another look. vm_flags is being modified just above
-vma_set_page_prot(). So we don't need to remove it.
+>>> Let's take a new approach. Use register r0 to carry the tail call count
+>>> during the tail call, and save it into the stack at function entry if
+>>> required. That's a deviation from the ppc32 ABI, but after all the way
+>>> tail calls are implemented is already not in accordance with the ABI.
+>>=20
+>> Can we pass the tail call count in r4 instead?
+>=20
+> It's a bit tricky.
+>=20
+> When entering the function through the normal entry point, the input=20
+> parameter is a 32 bits pointer and is in r3.
+> But at the begining of the function it gets moved to r4 and r3 is=20
+> cleared because it becomes a 64 bits parameter.
+>=20
+> When using the tailcall entry point, it is already in r4, and until now=20
+> r3 was containing garbage, with this patch r3 gets cleared as well.
+>=20
+> We could move the input pointer back into r3 for the tailcall as well,=20
+> but it would mean unnecessary register move.
+>=20
+> Or we can use r3 for the tailcall counter.
 
--- 
-BR,
-Muhammad Usama Anjum
+Regarding zero'ing out r5, you're right -- we don't use the second=20
+parameter for a tail call, so that should be fine.
+
+Using r3 will be difficult since it is used when you come in first.
+My suggestion was something like the below (untested). Using r5 might be=20
+fine too.
+
+- Naveen
+
+--
+diff --git a/arch/powerpc/net/bpf_jit_comp32.c b/arch/powerpc/net/bpf_jit_c=
+omp32.c
+index 43f1c76d48cea9..6319283ce4ef01 100644
+--- a/arch/powerpc/net/bpf_jit_comp32.c
++++ b/arch/powerpc/net/bpf_jit_comp32.c
+@@ -113,24 +113,19 @@ void bpf_jit_build_prologue(u32 *image, struct codege=
+n_context *ctx)
+ {
+ 	int i;
+=20
++	/* Initialize tail_call_cnt, to be skipped if we do tail calls. */
++	EMIT(PPC_RAW_LI(_R4, 0));
++
++#define BPF_TAILCALL_PROLOGUE_SIZE	4
++
++	if (ctx->seen & SEEN_TAILCALL)
++		EMIT(PPC_RAW_STW(_R4, _R1, bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
++
+ 	/* First arg comes in as a 32 bits pointer. */
+ 	EMIT(PPC_RAW_MR(bpf_to_ppc(BPF_REG_1), _R3));
+ 	EMIT(PPC_RAW_LI(bpf_to_ppc(BPF_REG_1) - 1, 0));
+ 	EMIT(PPC_RAW_STWU(_R1, _R1, -BPF_PPC_STACKFRAME(ctx)));
+=20
+-	/*
+-	 * Initialize tail_call_cnt in stack frame if we do tail calls.
+-	 * Otherwise, put in NOPs so that it can be skipped when we are
+-	 * invoked through a tail call.
+-	 */
+-	if (ctx->seen & SEEN_TAILCALL)
+-		EMIT(PPC_RAW_STW(bpf_to_ppc(BPF_REG_1) - 1, _R1,
+-				 bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
+-	else
+-		EMIT(PPC_RAW_NOP());
+-
+-#define BPF_TAILCALL_PROLOGUE_SIZE	16
+-
+ 	/*
+ 	 * We need a stack frame, but we don't necessarily need to
+ 	 * save/restore LR unless we call other functions
+@@ -170,24 +165,24 @@ static void bpf_jit_emit_common_epilogue(u32 *image, =
+struct codegen_context *ctx
+ 	for (i =3D BPF_PPC_NVR_MIN; i <=3D 31; i++)
+ 		if (bpf_is_seen_register(ctx, i))
+ 			EMIT(PPC_RAW_LWZ(i, _R1, bpf_jit_stack_offsetof(ctx, i)));
+-}
+-
+-void bpf_jit_build_epilogue(u32 *image, struct codegen_context *ctx)
+-{
+-	EMIT(PPC_RAW_MR(_R3, bpf_to_ppc(BPF_REG_0)));
+-
+-	bpf_jit_emit_common_epilogue(image, ctx);
+-
+-	/* Tear down our stack frame */
+=20
+ 	if (ctx->seen & SEEN_FUNC)
+ 		EMIT(PPC_RAW_LWZ(_R0, _R1, BPF_PPC_STACKFRAME(ctx) + PPC_LR_STKOFF));
+=20
++	/* Tear down our stack frame */
+ 	EMIT(PPC_RAW_ADDI(_R1, _R1, BPF_PPC_STACKFRAME(ctx)));
+=20
+ 	if (ctx->seen & SEEN_FUNC)
+ 		EMIT(PPC_RAW_MTLR(_R0));
+=20
++}
++
++void bpf_jit_build_epilogue(u32 *image, struct codegen_context *ctx)
++{
++	EMIT(PPC_RAW_MR(_R3, bpf_to_ppc(BPF_REG_0)));
++
++	bpf_jit_emit_common_epilogue(image, ctx);
++
+ 	EMIT(PPC_RAW_BLR());
+ }
+=20
+@@ -244,7 +239,6 @@ static int bpf_jit_emit_tail_call(u32 *image, struct co=
+degen_context *ctx, u32 o
+ 	EMIT(PPC_RAW_RLWINM(_R3, b2p_index, 2, 0, 29));
+ 	EMIT(PPC_RAW_ADD(_R3, _R3, b2p_bpf_array));
+ 	EMIT(PPC_RAW_LWZ(_R3, _R3, offsetof(struct bpf_array, ptrs)));
+-	EMIT(PPC_RAW_STW(_R0, _R1, bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
+=20
+ 	/*
+ 	 * if (prog =3D=3D NULL)
+@@ -255,18 +249,11 @@ static int bpf_jit_emit_tail_call(u32 *image, struct =
+codegen_context *ctx, u32 o
+=20
+ 	/* goto *(prog->bpf_func + prologue_size); */
+ 	EMIT(PPC_RAW_LWZ(_R3, _R3, offsetof(struct bpf_prog, bpf_func)));
+-
+-	if (ctx->seen & SEEN_FUNC)
+-		EMIT(PPC_RAW_LWZ(_R0, _R1, BPF_PPC_STACKFRAME(ctx) + PPC_LR_STKOFF));
+-
+ 	EMIT(PPC_RAW_ADDIC(_R3, _R3, BPF_TAILCALL_PROLOGUE_SIZE));
+-
+-	if (ctx->seen & SEEN_FUNC)
+-		EMIT(PPC_RAW_MTLR(_R0));
+-
+ 	EMIT(PPC_RAW_MTCTR(_R3));
+=20
+ 	EMIT(PPC_RAW_MR(_R3, bpf_to_ppc(BPF_REG_1)));
++	EMIT(PPC_RAW_MR(_R4, _R0));
+=20
+ 	/* tear restore NVRs, ... */
+ 	bpf_jit_emit_common_epilogue(image, ctx);
