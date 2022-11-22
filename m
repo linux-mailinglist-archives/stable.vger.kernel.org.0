@@ -2,173 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EECC66336C4
-	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 09:12:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A9C06336F4
+	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 09:25:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232671AbiKVIMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Nov 2022 03:12:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48496 "EHLO
+        id S232782AbiKVIZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Nov 2022 03:25:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232361AbiKVIMg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 03:12:36 -0500
-Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D00DEE0;
-        Tue, 22 Nov 2022 00:12:31 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.229])
-        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4NGcJL3Bkwz9v7Gp;
-        Tue, 22 Nov 2022 16:05:38 +0800 (CST)
-Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
-        by APP2 (Coremail) with SMTP id GxC2BwDnGPVLhHxj44iEAA--.29174S2;
-        Tue, 22 Nov 2022 09:12:07 +0100 (CET)
-Message-ID: <aa51b845dca6021282b5b2ae260020a3a5cfb5c6.camel@huaweicloud.com>
-Subject: Re: [PATCH v4 1/5] reiserfs: Add missing calls to
- reiserfs_security_free()
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, casey@schaufler-ca.com,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        stable@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Date:   Tue, 22 Nov 2022 09:11:50 +0100
-In-Reply-To: <CAHC9VhQ9WftDrF1R--ZYJXOv-YbVU-Pr1Ob_deDwEWm8OcQ-TA@mail.gmail.com>
-References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
-         <20221110094639.3086409-2-roberto.sassu@huaweicloud.com>
-         <CAHC9VhQ9WftDrF1R--ZYJXOv-YbVU-Pr1Ob_deDwEWm8OcQ-TA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        with ESMTP id S232744AbiKVIZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 03:25:16 -0500
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1CF740441;
+        Tue, 22 Nov 2022 00:25:07 -0800 (PST)
+Received: from localhost.localdomain (unknown [39.45.241.105])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: usama.anjum)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id D200E6602A89;
+        Tue, 22 Nov 2022 08:25:02 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1669105505;
+        bh=8UqUmiJ6AjGUWkeqighSLul+GOLZRjtMltLqZjflXsc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=AsNLV8YX3qAXSS0anyE4EqPtYVtZzdg8B+5EvcSjIJyBeJxXyDfx6bIDhxT3SBBlW
+         khbaUPmxJ1+bESaslS4c54pcP3Dh61CcUxZCciyv56J0QzV+KEDg1Q+EvDSmujyIQj
+         f8Nwg5Wlo27fKaeSBoGbT0x6aTwTFVtcbB8m81S3VW60ydTsix5W7QckVWiAuBnCx1
+         jPqzn8Luqok8D3HgH0fRkKBX+ZoIGX7dtPJk/zqrCSu49ikeDVB4xITbjULePLBc6r
+         HiyViM5abEa6zA9V6AJ/ZaV2B7JSqUCd9MO6V0r8hmg4jz8+nkx7u7PeBx/QAOqeCk
+         C9y1I4Ah28YRg==
+From:   Muhammad Usama Anjum <usama.anjum@collabora.com>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Cyrill Gorcunov <gorcunov@gmail.com>
+Cc:     Mel Gorman <mgorman@suse.de>, Peter Xu <peterx@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        kernel@collabora.com, stable@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] mm: set the vma flags dirty before testing if it is mergeable
+Date:   Tue, 22 Nov 2022 13:24:41 +0500
+Message-Id: <20221122082442.1938606-1-usama.anjum@collabora.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: GxC2BwDnGPVLhHxj44iEAA--.29174S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxCw48Zr1xAF4kJFW5GFW8Crg_yoW5KF1fpF
-        WxK3WUKr1DJF1kur1Fvanxua1Iq3yag3y7GrsxKryqya9xZw1kKF4Ikay3u397KrWDGr4I
-        qa1xGw43uw45J3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAEBF1jj4GyWwAAsb
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2022-11-21 at 18:41 -0500, Paul Moore wrote:
-> On Thu, Nov 10, 2022 at 4:47 AM Roberto Sassu
-> <roberto.sassu@huaweicloud.com> wrote:
-> > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > 
-> > Commit 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes
-> > during inode creation") defined reiserfs_security_free() to free the name
-> > and value of a security xattr allocated by the active LSM through
-> > security_old_inode_init_security(). However, this function is not called
-> > in the reiserfs code.
-> > 
-> > Thus, add a call to reiserfs_security_free() whenever
-> > reiserfs_security_init() is called, and initialize value to NULL, to avoid
-> > to call kfree() on an uninitialized pointer.
-> > 
-> > Finally, remove the kfree() for the xattr name, as it is not allocated
-> > anymore.
-> > 
-> > Fixes: 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes during inode creation")
-> > Cc: stable@vger.kernel.org
-> > Cc: Jeff Mahoney <jeffm@suse.com>
-> > Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-> > Reported-by: Mimi Zohar <zohar@linux.ibm.com>
-> > Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > ---
-> >  fs/reiserfs/namei.c          | 4 ++++
-> >  fs/reiserfs/xattr_security.c | 2 +-
-> >  2 files changed, 5 insertions(+), 1 deletion(-)
-> 
-> If I'm understanding this patch correctly, this is a standalone
-> bugfix, right?  Any reason this shouldn't be merged now, independent
-> of the rest of patches in this patchset?
+The VM_SOFTDIRTY should be set in the vma flags to be tested if new
+allocation should be merged in previous vma or not. With this patch,
+the new allocations are merged in the previous VMAs.
 
-Yes. It would be fine for me to pick this sooner.
+I've tested it by reverting the commit 34228d473efe ("mm: ignore
+VM_SOFTDIRTY on VMA merging") and after adding this following patch,
+I'm seeing that all the new allocations done through mmap() are merged
+in the previous VMAs. The number of VMAs doesn't increase drastically
+which had contributed to the crash of gimp. If I run the same test after
+reverting and not including this patch, the number of VMAs keep on
+increasing with every mmap() syscall which proves this patch.
 
-Thanks
+The commit 34228d473efe ("mm: ignore VM_SOFTDIRTY on VMA merging")
+seems like a workaround. But it lets the soft-dirty and non-soft-dirty
+VMA to get merged. It helps in avoiding the creation of too many VMAs.
+But it creates the problem while adding the feature of clearing the
+soft-dirty status of only a part of the memory region.
 
-Roberto
+Cc: <stable@vger.kernel.org>
+Fixes: d9104d1ca966 ("mm: track vma changes with VM_SOFTDIRTY bit")
+Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+---
+We need more testing of this patch.
 
-> > diff --git a/fs/reiserfs/namei.c b/fs/reiserfs/namei.c
-> > index 3d7a35d6a18b..b916859992ec 100644
-> > --- a/fs/reiserfs/namei.c
-> > +++ b/fs/reiserfs/namei.c
-> > @@ -696,6 +696,7 @@ static int reiserfs_create(struct user_namespace *mnt_userns, struct inode *dir,
-> > 
-> >  out_failed:
-> >         reiserfs_write_unlock(dir->i_sb);
-> > +       reiserfs_security_free(&security);
-> >         return retval;
-> >  }
-> > 
-> > @@ -779,6 +780,7 @@ static int reiserfs_mknod(struct user_namespace *mnt_userns, struct inode *dir,
-> > 
-> >  out_failed:
-> >         reiserfs_write_unlock(dir->i_sb);
-> > +       reiserfs_security_free(&security);
-> >         return retval;
-> >  }
-> > 
-> > @@ -878,6 +880,7 @@ static int reiserfs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
-> >         retval = journal_end(&th);
-> >  out_failed:
-> >         reiserfs_write_unlock(dir->i_sb);
-> > +       reiserfs_security_free(&security);
-> >         return retval;
-> >  }
-> > 
-> > @@ -1194,6 +1197,7 @@ static int reiserfs_symlink(struct user_namespace *mnt_userns,
-> >         retval = journal_end(&th);
-> >  out_failed:
-> >         reiserfs_write_unlock(parent_dir->i_sb);
-> > +       reiserfs_security_free(&security);
-> >         return retval;
-> >  }
-> > 
-> > diff --git a/fs/reiserfs/xattr_security.c b/fs/reiserfs/xattr_security.c
-> > index 8965c8e5e172..857a65b05726 100644
-> > --- a/fs/reiserfs/xattr_security.c
-> > +++ b/fs/reiserfs/xattr_security.c
-> > @@ -50,6 +50,7 @@ int reiserfs_security_init(struct inode *dir, struct inode *inode,
-> >         int error;
-> > 
-> >         sec->name = NULL;
-> > +       sec->value = NULL;
-> > 
-> >         /* Don't add selinux attributes on xattrs - they'll never get used */
-> >         if (IS_PRIVATE(dir))
-> > @@ -95,7 +96,6 @@ int reiserfs_security_write(struct reiserfs_transaction_handle *th,
-> > 
-> >  void reiserfs_security_free(struct reiserfs_security_handle *sec)
-> >  {
-> > -       kfree(sec->name);
-> >         kfree(sec->value);
-> >         sec->name = NULL;
-> >         sec->value = NULL;
-> > --
-> > 2.25.1
-> > 
-> 
-> 
+While implementing clear soft-dirty bit for a range of address space, I'm
+facing an issue. The non-soft dirty VMA gets merged sometimes with the soft
+dirty VMA. Thus the non-soft dirty VMA become dirty which is undesirable.
+When discussed with the some other developers they consider it the
+regression. Why the non-soft dirty page should appear as soft dirty when it
+isn't soft dirty in reality? I agree with them. Should we revert
+34228d473efe or find a workaround in the IOCTL?
+
+* Revert may cause the VMAs to expand in uncontrollable situation where the
+soft dirty bit of a lot of memory regions or the whole address space is
+being cleared again and again. AFAIK normal process must either be only
+clearing a few memory regions. So the applications should be okay. There is
+still chance of regressions if some applications are already using the
+soft-dirty bit. I'm not sure how to test it.
+
+* Add a flag in the IOCTL to ignore the dirtiness of VMA. The user will
+surely lose the functionality to detect reused memory regions. But the
+extraneous soft-dirty pages would not appear. I'm trying to do this in the
+patch series [1]. Some discussion is going on that this fails with some
+mprotect use case [2]. I still need to have a look at the mprotect selftest
+to see how and why this fails. I think this can be implemented after some
+more work probably in mprotect side.
+
+[1] https://lore.kernel.org/all/20221109102303.851281-1-usama.anjum@collabora.com/
+[2] https://lore.kernel.org/all/bfcae708-db21-04b4-0bbe-712badd03071@redhat.com/
+---
+ mm/mmap.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
+
+diff --git a/mm/mmap.c b/mm/mmap.c
+index f9b96b387a6f..6934b8f61fdc 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1708,6 +1708,15 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
+ 		vm_flags |= VM_ACCOUNT;
+ 	}
+ 
++	/*
++	 * New (or expanded) vma always get soft dirty status.
++	 * Otherwise user-space soft-dirty page tracker won't
++	 * be able to distinguish situation when vma area unmapped,
++	 * then new mapped in-place (which must be aimed as
++	 * a completely new data area).
++	 */
++	vm_flags |= VM_SOFTDIRTY;
++
+ 	/*
+ 	 * Can we just expand an old mapping?
+ 	 */
+@@ -1823,15 +1832,6 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
+ 	if (file)
+ 		uprobe_mmap(vma);
+ 
+-	/*
+-	 * New (or expanded) vma always get soft dirty status.
+-	 * Otherwise user-space soft-dirty page tracker won't
+-	 * be able to distinguish situation when vma area unmapped,
+-	 * then new mapped in-place (which must be aimed as
+-	 * a completely new data area).
+-	 */
+-	vma->vm_flags |= VM_SOFTDIRTY;
+-
+ 	vma_set_page_prot(vma);
+ 
+ 	return addr;
+@@ -2998,6 +2998,8 @@ static int do_brk_flags(unsigned long addr, unsigned long len, unsigned long fla
+ 	if (security_vm_enough_memory_mm(mm, len >> PAGE_SHIFT))
+ 		return -ENOMEM;
+ 
++	flags |= VM_SOFTDIRTY;
++
+ 	/* Can we just expand an old private anonymous mapping? */
+ 	vma = vma_merge(mm, prev, addr, addr + len, flags,
+ 			NULL, NULL, pgoff, NULL, NULL_VM_UFFD_CTX, NULL);
+@@ -3026,7 +3028,6 @@ static int do_brk_flags(unsigned long addr, unsigned long len, unsigned long fla
+ 	mm->data_vm += len >> PAGE_SHIFT;
+ 	if (flags & VM_LOCKED)
+ 		mm->locked_vm += (len >> PAGE_SHIFT);
+-	vma->vm_flags |= VM_SOFTDIRTY;
+ 	return 0;
+ }
+ 
+-- 
+2.30.2
 
