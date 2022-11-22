@@ -2,111 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F7F36336B6
-	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 09:11:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EECC66336C4
+	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 09:12:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232408AbiKVILX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Nov 2022 03:11:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47102 "EHLO
+        id S232671AbiKVIMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Nov 2022 03:12:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231934AbiKVILW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 03:11:22 -0500
-Received: from smtp1-g21.free.fr (smtp1-g21.free.fr [IPv6:2a01:e0c:1:1599::10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8782622504;
-        Tue, 22 Nov 2022 00:11:21 -0800 (PST)
-Received: from [192.168.10.46] (unknown [130.180.211.218])
-        (Authenticated sender: daniel.lezcano@free.fr)
-        by smtp1-g21.free.fr (Postfix) with ESMTPA id F0F71B00593;
-        Tue, 22 Nov 2022 09:11:13 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
-        s=smtp-20201208; t=1669104680;
-        bh=TISIpjZ7FC95oehxTvBSrsbcUOCPBMkAO4i/5N4DvUc=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=VW/dpyUQ8QFT3hzwNvPsqIeixeoH0hxJ45EAbxBGbvn7LABFC9YvKCjnITEAzwc/d
-         pVx+GxLVZi+crhPzyDE0HXHq5zGmz55mn0O3wF+iSbA1s5UcbnnPTrFZ/6bB81vqWq
-         KYPydpJ3sRCL3XQAdCgvtHAE02DoK0OwnAbJu4ldtWJw7oZW1xYBhAxUZ4+kbyGhe6
-         0rULxrVyk/3gQZfIvToQWq3B3GgVk+6j5QWm+xmNsnrzlUCTd00QCsDva8Hy34XLzm
-         SICzbU59uO1I7ZXR5BJFRR1P6qLQJEDHnE4HxSR0bWSev2ggHAIdAo1Xthd8tL2Zwi
-         +g6tzwCopIEiA==
-Message-ID: <973694d5-9a97-2239-be69-8f380d6e7130@free.fr>
-Date:   Tue, 22 Nov 2022 09:11:13 +0100
+        with ESMTP id S232361AbiKVIMg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 03:12:36 -0500
+Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D00DEE0;
+        Tue, 22 Nov 2022 00:12:31 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.229])
+        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4NGcJL3Bkwz9v7Gp;
+        Tue, 22 Nov 2022 16:05:38 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP2 (Coremail) with SMTP id GxC2BwDnGPVLhHxj44iEAA--.29174S2;
+        Tue, 22 Nov 2022 09:12:07 +0100 (CET)
+Message-ID: <aa51b845dca6021282b5b2ae260020a3a5cfb5c6.camel@huaweicloud.com>
+Subject: Re: [PATCH v4 1/5] reiserfs: Add missing calls to
+ reiserfs_security_free()
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Date:   Tue, 22 Nov 2022 09:11:50 +0100
+In-Reply-To: <CAHC9VhQ9WftDrF1R--ZYJXOv-YbVU-Pr1Ob_deDwEWm8OcQ-TA@mail.gmail.com>
+References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
+         <20221110094639.3086409-2-roberto.sassu@huaweicloud.com>
+         <CAHC9VhQ9WftDrF1R--ZYJXOv-YbVU-Pr1Ob_deDwEWm8OcQ-TA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH] clocksource/drivers/arm_arch_timer: Fix XGene-1 TVAL
- register math error
-Content-Language: en-US
-To:     Marc Zyngier <maz@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Joe Korty <joe.korty@concurrent-rt.com>, stable@vger.kernel.org
-References: <20221121145343.896018-1-maz@kernel.org>
-From:   Daniel Lezcano <daniel.lezcano@free.fr>
-In-Reply-To: <20221121145343.896018-1-maz@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-CM-TRANSID: GxC2BwDnGPVLhHxj44iEAA--.29174S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxCw48Zr1xAF4kJFW5GFW8Crg_yoW5KF1fpF
+        WxK3WUKr1DJF1kur1Fvanxua1Iq3yag3y7GrsxKryqya9xZw1kKF4Ikay3u397KrWDGr4I
+        qa1xGw43uw45J3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAEBF1jj4GyWwAAsb
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21/11/2022 15:53, Marc Zyngier wrote:
-> From: Joe Korty <joe.korty@concurrent-rt.com>
+On Mon, 2022-11-21 at 18:41 -0500, Paul Moore wrote:
+> On Thu, Nov 10, 2022 at 4:47 AM Roberto Sassu
+> <roberto.sassu@huaweicloud.com> wrote:
+> > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > 
+> > Commit 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes
+> > during inode creation") defined reiserfs_security_free() to free the name
+> > and value of a security xattr allocated by the active LSM through
+> > security_old_inode_init_security(). However, this function is not called
+> > in the reiserfs code.
+> > 
+> > Thus, add a call to reiserfs_security_free() whenever
+> > reiserfs_security_init() is called, and initialize value to NULL, to avoid
+> > to call kfree() on an uninitialized pointer.
+> > 
+> > Finally, remove the kfree() for the xattr name, as it is not allocated
+> > anymore.
+> > 
+> > Fixes: 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes during inode creation")
+> > Cc: stable@vger.kernel.org
+> > Cc: Jeff Mahoney <jeffm@suse.com>
+> > Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> > Reported-by: Mimi Zohar <zohar@linux.ibm.com>
+> > Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > ---
+> >  fs/reiserfs/namei.c          | 4 ++++
+> >  fs/reiserfs/xattr_security.c | 2 +-
+> >  2 files changed, 5 insertions(+), 1 deletion(-)
 > 
-> The TVAL register is 32 bit signed.  Thus only the lower 31 bits are
-> available to specify when an interrupt is to occur at some time in the
-> near future.  Attempting to specify a larger interval with TVAL results
-> in a negative time delta which means the timer fires immediately upon
-> being programmed, rather than firing at that expected future time.
-> 
-> The solution is for Linux to declare that TVAL is a 31 bit register rather
-> than give its true size of 32 bits.  This prevents Linux from programming
-> TVAL with a too-large value.  Note that, prior to 5.16, this little trick
-> was the standard way to handle TVAL in Linux, so there is nothing new
-> happening here on that front.
-> 
-> The softlockup detector hides the issue, because it keeps generating
-> short timer deadlines that are within the scope of the broken timer.
-> 
-> Disable it, and you start using NO_HZ with much longer timer deadlines,
-> which turns into an interrupt flood:
-> 
->   11: 1124855130  949168462  758009394   76417474  104782230   30210281
->           310890 1734323687     GICv2  29 Level     arch_timer
-> 
-> And "much longer" isn't that long: it takes less than 43s to underflow
-> TVAL at 50MHz (the frequency of the counter on XGene-1).
-> 
-> Some comments on the v1 version of this patch by Marc Zyngier:
-> 
->    XGene implements CVAL (a 64bit comparator) in terms of TVAL (a countdown
->    register) instead of the other way around. TVAL being a 32bit register,
->    the width of the counter should equally be 32.  However, TVAL is a
->    *signed* value, and keeps counting down in the negative range once the
->    timer fires.
-> 
->    It means that any TVAL value with bit 31 set will fire immediately,
->    as it cannot be distinguished from an already expired timer. Reducing
->    the timer range back to a paltry 31 bits papers over the issue.
-> 
->    Another problem cannot be fixed though, which is that the timer interrupt
->    *must* be handled within the negative countdown period, or the interrupt
->    will be lost (TVAL will rollover to a positive value, indicative of a
->    new timer deadline).
-> 
-> Cc: stable@vger.kernel.org # 5.16+
-> Fixes: 012f18850452 ("clocksource/drivers/arm_arch_timer: Work around broken CVAL implementations")
-> Signed-off-by: Joe Korty <joe.korty@concurrent-rt.com>
-> Reviewed-by: Marc Zyngier <maz@kernel.org>
-> [maz: revamped the commit message]
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> Link: https://lore.kernel.org/r/20221024165422.GA51107@zipoli.concurrent-rt.com
-> ---
+> If I'm understanding this patch correctly, this is a standalone
+> bugfix, right?  Any reason this shouldn't be merged now, independent
+> of the rest of patches in this patchset?
 
-Applied
+Yes. It would be fine for me to pick this sooner.
+
+Thanks
+
+Roberto
+
+> > diff --git a/fs/reiserfs/namei.c b/fs/reiserfs/namei.c
+> > index 3d7a35d6a18b..b916859992ec 100644
+> > --- a/fs/reiserfs/namei.c
+> > +++ b/fs/reiserfs/namei.c
+> > @@ -696,6 +696,7 @@ static int reiserfs_create(struct user_namespace *mnt_userns, struct inode *dir,
+> > 
+> >  out_failed:
+> >         reiserfs_write_unlock(dir->i_sb);
+> > +       reiserfs_security_free(&security);
+> >         return retval;
+> >  }
+> > 
+> > @@ -779,6 +780,7 @@ static int reiserfs_mknod(struct user_namespace *mnt_userns, struct inode *dir,
+> > 
+> >  out_failed:
+> >         reiserfs_write_unlock(dir->i_sb);
+> > +       reiserfs_security_free(&security);
+> >         return retval;
+> >  }
+> > 
+> > @@ -878,6 +880,7 @@ static int reiserfs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+> >         retval = journal_end(&th);
+> >  out_failed:
+> >         reiserfs_write_unlock(dir->i_sb);
+> > +       reiserfs_security_free(&security);
+> >         return retval;
+> >  }
+> > 
+> > @@ -1194,6 +1197,7 @@ static int reiserfs_symlink(struct user_namespace *mnt_userns,
+> >         retval = journal_end(&th);
+> >  out_failed:
+> >         reiserfs_write_unlock(parent_dir->i_sb);
+> > +       reiserfs_security_free(&security);
+> >         return retval;
+> >  }
+> > 
+> > diff --git a/fs/reiserfs/xattr_security.c b/fs/reiserfs/xattr_security.c
+> > index 8965c8e5e172..857a65b05726 100644
+> > --- a/fs/reiserfs/xattr_security.c
+> > +++ b/fs/reiserfs/xattr_security.c
+> > @@ -50,6 +50,7 @@ int reiserfs_security_init(struct inode *dir, struct inode *inode,
+> >         int error;
+> > 
+> >         sec->name = NULL;
+> > +       sec->value = NULL;
+> > 
+> >         /* Don't add selinux attributes on xattrs - they'll never get used */
+> >         if (IS_PRIVATE(dir))
+> > @@ -95,7 +96,6 @@ int reiserfs_security_write(struct reiserfs_transaction_handle *th,
+> > 
+> >  void reiserfs_security_free(struct reiserfs_security_handle *sec)
+> >  {
+> > -       kfree(sec->name);
+> >         kfree(sec->value);
+> >         sec->name = NULL;
+> >         sec->value = NULL;
+> > --
+> > 2.25.1
+> > 
+> 
+> 
 
