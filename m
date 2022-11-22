@@ -2,148 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1EE06344B9
-	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 20:39:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DE246344D7
+	for <lists+stable@lfdr.de>; Tue, 22 Nov 2022 20:48:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233189AbiKVTjk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Nov 2022 14:39:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59912 "EHLO
+        id S234698AbiKVTsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Nov 2022 14:48:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233356AbiKVTjj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 14:39:39 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE2A56F361;
-        Tue, 22 Nov 2022 11:39:33 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AMJK7WV017593;
-        Tue, 22 Nov 2022 19:39:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=fqhpTDfxPyVsir4ev5LuPPWGRFEF13TzcH6YSeaIS1w=;
- b=G8jWBqLWFXqTpQG4r8K6SdMRQ4noTGA6bfNY+J6/goD0528M16WU1j6TlPKJkKmyT92n
- /6c56pqCLyVysAoIQRp/H4T700K2I+ku8ugUPdm2uKyKwTWN8fdGAYQuzt205sX+cec6
- vZp+XSAI9rU+z+ikPrdt92pyAeVBud/+FCVkhPH/jRISrFlFxLiG5/NGnv9UnkfwKicw
- 4qA9X5ljUADUqDk+Bt4zpJbNsHZz4H+PgUQ0AjdlAPko0NisSaELQ5rVW2fq3pVDscGU
- OhGoxB4w0l7yvWJWl2pQrp70mAbRAT2PRxzgX8kb984NeEPpZx0sAlGwOFED9mI2HkfG PA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0xw7jkej-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Nov 2022 19:39:17 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AMIKP8C015701;
-        Tue, 22 Nov 2022 19:39:17 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0xw7jkeb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Nov 2022 19:39:17 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AMJZgYa022314;
-        Tue, 22 Nov 2022 19:39:16 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma02dal.us.ibm.com with ESMTP id 3kxpsabj2p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Nov 2022 19:39:16 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com ([9.208.128.112])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AMJdF4q5702386
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 22 Nov 2022 19:39:15 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E121058068;
-        Tue, 22 Nov 2022 19:39:14 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3B36E5805C;
-        Tue, 22 Nov 2022 19:39:13 +0000 (GMT)
-Received: from sig-9-65-239-173.ibm.com (unknown [9.65.239.173])
-        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 22 Nov 2022 19:39:13 +0000 (GMT)
-Message-ID: <9ef25f1b8621dab8b3cd4373bf6ce1633daae70e.camel@linux.ibm.com>
-Subject: Re: [PATCH] ima: Make a copy of sig and digest in
- asymmetric_verify()
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
-        serge@hallyn.com
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Roberto Sassu <roberto.sassu@huawei.com>,
+        with ESMTP id S234578AbiKVTso (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Nov 2022 14:48:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94DEA57B78;
+        Tue, 22 Nov 2022 11:48:39 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 007EA61759;
+        Tue, 22 Nov 2022 19:48:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8418C433D6;
+        Tue, 22 Nov 2022 19:48:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1669146518;
+        bh=fELDYP7X7g2hQl01HL1seDQ0enwlGxaSh2Vjv+ZYToU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=d9awUBACiXT6NtF2V4ad/eJjEaQCigkXO/j1aQoYsuFW6RdPlhNvCz352QKphf6uv
+         YeHKeIHQLBktbxEvc0HOp+LzekGhy5IIrfe6vuqQZ0djQb/haE5Rq+vjd2jxYOP3AB
+         bzUfe4vQLX7dcyuwlXhqofokrNoUPDH4XD832fhZ31mJAv3yjMpbSoctQF0+vJNA5a
+         pJLEyOhcaZTvflI94IT8T66up2b/V6KJpR60+xl9uz4atP+qUNuq9fJzOYRWnXvWX5
+         yXFFaeNg50ZldZGB7nOgFqPk1bBpqglkmqfDflyfWghPpY5OZ37nRSKAcdsfSWB67p
+         TOTO1D6eWMa7Q==
+From:   SeongJae Park <sj@kernel.org>
+To:     akpm@linux-foundation.org
+Cc:     damon@lists.linux.dev, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, SeongJae Park <sj@kernel.org>,
         stable@vger.kernel.org
-Date:   Tue, 22 Nov 2022 14:39:12 -0500
-In-Reply-To: <20221104122023.1750333-1-roberto.sassu@huaweicloud.com>
-References: <20221104122023.1750333-1-roberto.sassu@huaweicloud.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: MbnRLYy7-EevjB-8VMKuWNDJgxCXgM9n
-X-Proofpoint-ORIG-GUID: If9WOnpDCGHW3lfXstBPeOmVhSCG9zlM
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-22_11,2022-11-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
- adultscore=0 bulkscore=0 mlxlogscore=999 spamscore=0 impostorscore=0
- priorityscore=1501 mlxscore=0 suspectscore=0 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211220152
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Subject: [PATCH mm-hotfixes-unstable] mm/damon/sysfs: fix wrong empty schemes assumption under online tuning in damon_sysfs_set_schemes()
+Date:   Tue, 22 Nov 2022 19:48:31 +0000
+Message-Id: <20221122194831.3472-1-sj@kernel.org>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Roberto,
+Commit da87878010e5 ("mm/damon/sysfs: support online inputs update")
+made 'damon_sysfs_set_schemes()' to be called for running DAMON context,
+which could have schemes.  In the case, DAMON sysfs interface is
+supposed to update, remove, or add schemes to reflect the sysfs files.
+However, the code is assuming the DAMON context wouldn't have schemes at
+all, and therefore creates and adds new schemes.  As a result, the code
+doesn't work as intended for online schemes tuning and could have more
+than expected memory footprint.   The schemes are all in the DAMON
+context, so it doesn't leak the memory, though.
 
-On Fri, 2022-11-04 at 13:20 +0100, Roberto Sassu wrote:
-> From: Roberto Sassu <roberto.sassu@huawei.com>
-> 
-> Commit ac4e97abce9b8 ("scatterlist: sg_set_buf() argument must be in linear
-> mapping") requires that both the signature and the digest resides in the
-> linear mapping area.
-> 
-> However, more recently commit ba14a194a434c ("fork: Add generic vmalloced
-> stack support"), made it possible to move the stack in the vmalloc area,
-> which could make the requirement of the first commit not satisfied anymore.
-> 
-> If CONFIG_SG=y and CONFIG_VMAP_STACK=y, the following BUG() is triggered:
+Remove the wrong asssumption (the DAMON context wouldn't have schemes)
+in 'damon_sysfs_set_schemes()' to fix the bug.
 
-^CONFIG_DEBUG_SG
+Fixes: da87878010e5 ("mm/damon/sysfs: support online inputs update")
+Cc: <stable@vger.kernel.org> # 5.19.y
+Signed-off-by: SeongJae Park <sj@kernel.org>
+---
+ mm/damon/sysfs.c | 46 ++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 44 insertions(+), 2 deletions(-)
 
-> 
-> [  467.077359] kernel BUG at include/linux/scatterlist.h:163!
-> [  467.077939] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-> 
-> [...]
-> 
-> [  467.095225] Call Trace:
-> [  467.096088]  <TASK>
-> [  467.096928]  ? rcu_read_lock_held_common+0xe/0x50
-> [  467.097569]  ? rcu_read_lock_sched_held+0x13/0x70
-> [  467.098123]  ? trace_hardirqs_on+0x2c/0xd0
-> [  467.098647]  ? public_key_verify_signature+0x470/0x470
-> [  467.099237]  asymmetric_verify+0x14c/0x300
-> [  467.099869]  evm_verify_hmac+0x245/0x360
-> [  467.100391]  evm_inode_setattr+0x43/0x190
-> 
-> The failure happens only for the digest, as the pointer comes from the
-> stack, and not for the signature, which instead was allocated by
-> vfs_getxattr_alloc().
-
-Only after enabling CONFIG_DEBUG_SG does EVM fail.
-
-> 
-> Fix this by making a copy of both in asymmetric_verify(), so that the
-> linear mapping requirement is always satisfied, regardless of the caller.
-
-As only EVM is affected, it would make more sense to limit the change
-to EVM.
-
+diff --git a/mm/damon/sysfs.c b/mm/damon/sysfs.c
+index 5ce403378c20..07e5f1bdf025 100644
+--- a/mm/damon/sysfs.c
++++ b/mm/damon/sysfs.c
+@@ -2283,12 +2283,54 @@ static struct damos *damon_sysfs_mk_scheme(
+ 			&wmarks);
+ }
+ 
++static void damon_sysfs_update_scheme(struct damos *scheme,
++		struct damon_sysfs_scheme *sysfs_scheme)
++{
++	struct damon_sysfs_access_pattern *access_pattern =
++		sysfs_scheme->access_pattern;
++	struct damon_sysfs_quotas *sysfs_quotas = sysfs_scheme->quotas;
++	struct damon_sysfs_weights *sysfs_weights = sysfs_quotas->weights;
++	struct damon_sysfs_watermarks *sysfs_wmarks = sysfs_scheme->watermarks;
++
++	scheme->pattern.min_sz_region = access_pattern->sz->min;
++	scheme->pattern.max_sz_region = access_pattern->sz->max;
++	scheme->pattern.min_nr_accesses = access_pattern->nr_accesses->min;
++	scheme->pattern.max_nr_accesses = access_pattern->nr_accesses->max;
++	scheme->pattern.min_age_region = access_pattern->age->min;
++	scheme->pattern.max_age_region = access_pattern->age->max;
++
++	scheme->action = sysfs_scheme->action;
++
++	scheme->quota.ms = sysfs_quotas->ms;
++	scheme->quota.sz = sysfs_quotas->sz;
++	scheme->quota.reset_interval = sysfs_quotas->reset_interval_ms;
++	scheme->quota.weight_sz = sysfs_weights->sz;
++	scheme->quota.weight_nr_accesses = sysfs_weights->nr_accesses;
++	scheme->quota.weight_age = sysfs_weights->age;
++
++	scheme->wmarks.metric = sysfs_wmarks->metric;
++	scheme->wmarks.interval = sysfs_wmarks->interval_us;
++	scheme->wmarks.high = sysfs_wmarks->high;
++	scheme->wmarks.mid = sysfs_wmarks->mid;
++	scheme->wmarks.low = sysfs_wmarks->low;
++}
++
+ static int damon_sysfs_set_schemes(struct damon_ctx *ctx,
+ 		struct damon_sysfs_schemes *sysfs_schemes)
+ {
+-	int i;
++	struct damos *scheme, *next;
++	int i = 0;
++
++	damon_for_each_scheme_safe(scheme, next, ctx) {
++		if (i < sysfs_schemes->nr)
++			damon_sysfs_update_scheme(scheme,
++					sysfs_schemes->schemes_arr[i]);
++		else
++			damon_destroy_scheme(scheme);
++		i++;
++	}
+ 
+-	for (i = 0; i < sysfs_schemes->nr; i++) {
++	for (; i < sysfs_schemes->nr; i++) {
+ 		struct damos *scheme, *next;
+ 
+ 		scheme = damon_sysfs_mk_scheme(sysfs_schemes->schemes_arr[i]);
 -- 
-thanks,
-
-Mimi
+2.25.1
 
