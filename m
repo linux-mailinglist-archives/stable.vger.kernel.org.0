@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CCBA635D38
+	by mail.lfdr.de (Postfix) with ESMTP id 20624635D37
 	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:42:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235849AbiKWMmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:42:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48000 "EHLO
+        id S236402AbiKWMmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:42:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236846AbiKWMlt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:41:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E588E6B20D;
-        Wed, 23 Nov 2022 04:41:24 -0800 (PST)
+        with ESMTP id S236316AbiKWMlu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:41:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B3BF6B389;
+        Wed, 23 Nov 2022 04:41:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72F9861C3D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE26161C58;
+        Wed, 23 Nov 2022 12:41:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53308C433C1;
         Wed, 23 Nov 2022 12:41:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E1C4C433D6;
-        Wed, 23 Nov 2022 12:41:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207283;
-        bh=o31dvPJDA1lCb0EgEV4isP01gfzZoaAvNCc6o8K5Bas=;
+        s=k20201202; t=1669207285;
+        bh=tPDxb1jYP7VY9MJhkjofizKNkuClR2I2a2heNraH1Qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vn0buG7dYQPK81ujIcBTSwvVoDdKKjl503QjLz5yB3qLHB2vwZLo72U+W3P1idmRw
-         KKLmGxzMAJIqT09+unbw9gOY7zwqoLv/Ycovannto+xPmF4Gh6PupmsxPUbCPyYSo7
-         jZAjIx5i09DQlzDqoBwQ2oosiPA22OWU8jXhcqJgkJ1YEPRph+Vi0EJAqVoK0yW4WJ
-         HFy3Yb82LSx9hQ/LiD/nVSUYFSwlUg0ZBw38iPPWB13pBwDc3ObDNPJFM2sNsGiHEE
-         PUEPXdnyHinI461RplWqaBqaiFbWLj9uQ6z+TiIOU7UWvR/AocTl4KnQBNYXpMMmbr
-         gHilrRqhtu1qA==
+        b=OKQDbzM26wA1OsU+8CA8BxhsmhDFSsUPPT9Tso8CySw8cuNFxA/m/2zBxbYFXizz6
+         wQfMtY6tkleo9LD9pn9TowHadVvnrzHujr2ACtCWs/t4dMeF0Dhwe8mmxZn51O/0XG
+         30+ajQN5mLyPFYOG+QQ0XjwK31QT1+qIRSUB5Q/RXh6v79HgODZ2eJx9d478jLpsiz
+         E8pAJ6AuBnKurQsdcrOeE1CNyY+u6qSSnCN+j85TxTZ/s5FYsyRKSWnxLK4hm1C0yP
+         rVHYd26WCOdoTNYe13r9WL7i6+3c2r2lOVCbE0aj4QW9s7na3HIbSigjh3n0onIEih
+         1PPGZ7Q8eTH9Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lukas Wunner <lukas@wunner.de>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Su Bao Cheng <baocheng.su@siemens.com>,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+Cc:     Fedor Pchelkin <pchelkin@ispras.ru>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Daniel Starke <daniel.starke@siemens.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, jirislaby@kernel.org,
-        ilpo.jarvinen@linux.intel.com, tony@atomide.com,
-        andriy.shevchenko@linux.intel.com, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 09/44] serial: 8250: 8250_omap: Avoid RS485 RTS glitch on ->set_termios()
-Date:   Wed, 23 Nov 2022 07:40:18 -0500
-Message-Id: <20221123124057.264822-9-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jirislaby@kernel.org
+Subject: [PATCH AUTOSEL 6.0 10/44] Revert "tty: n_gsm: avoid call of sleeping functions from atomic context"
+Date:   Wed, 23 Nov 2022 07:40:19 -0500
+Message-Id: <20221123124057.264822-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124057.264822-1-sashal@kernel.org>
 References: <20221123124057.264822-1-sashal@kernel.org>
@@ -60,92 +57,261 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit 038ee49fef18710bedd38b531d173ccd746b2d8d ]
+[ Upstream commit acdab4cb4ba7e5f94d2b422ebd7bf4bf68178fb2 ]
 
-RS485-enabled UART ports on TI Sitara SoCs with active-low polarity
-exhibit a Transmit Enable glitch on ->set_termios():
+This reverts commit 902e02ea9385373ce4b142576eef41c642703955.
 
-omap8250_restore_regs(), which is called from omap_8250_set_termios(),
-sets the TCRTLR bit in the MCR register and clears all other bits,
-including RTS.  If RTS uses active-low polarity, it is now asserted
-for no reason.
+The above commit is reverted as the usage of tx_mutex seems not to solve
+the problem described in 902e02ea9385 ("tty: n_gsm: avoid call of sleeping
+functions from atomic context") and just moves the bug to another place.
 
-The TCRTLR bit is subsequently cleared by writing up->mcr to the MCR
-register.  That variable is always zero, so the RTS bit is still cleared
-(incorrectly so if RTS is active-high).
-
-(up->mcr is not, as one might think, a cache of the MCR register's
-current value.  Rather, it only caches a single bit of that register,
-the AFE bit.  And it only does so if the UART supports the AFE bit,
-which OMAP does not.  For details see serial8250_do_set_termios() and
-serial8250_do_set_mctrl().)
-
-Finally at the end of omap8250_restore_regs(), the MCR register is
-restored (and RTS deasserted) by a call to up->port.ops->set_mctrl()
-(which equals serial8250_set_mctrl()) and serial8250_em485_stop_tx().
-
-So there's an RTS glitch between setting TCRTLR and calling
-serial8250_em485_stop_tx().  Avoid by using a read-modify-write
-when setting TCRTLR.
-
-While at it, drop a redundant initialization of up->mcr.  As explained
-above, the variable isn't used by the driver and it is already
-initialized to zero because it is part of the static struct
-serial8250_ports[] declared in 8250_core.c.  (Static structs are
-initialized to zero per section 6.7.8 nr. 10 of the C99 standard.)
-
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Su Bao Cheng <baocheng.su@siemens.com>
-Tested-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/6554b0241a2c7fd50f32576fdbafed96709e11e8.1664278942.git.lukas@wunner.de
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Reviewed-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20221008110221.13645-2-pchelkin@ispras.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/tty/n_gsm.c | 53 +++++++++++++++++++++++++--------------------
+ 1 file changed, 29 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index 38ee3e42251a..8b30ae553d0a 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -292,6 +292,7 @@ static void omap8250_restore_regs(struct uart_8250_port *up)
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 01c112e2e214..e23225aff5d9 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -248,7 +248,7 @@ struct gsm_mux {
+ 	bool constipated;		/* Asked by remote to shut up */
+ 	bool has_devices;		/* Devices were registered */
+ 
+-	struct mutex tx_mutex;
++	spinlock_t tx_lock;
+ 	unsigned int tx_bytes;		/* TX data outstanding */
+ #define TX_THRESH_HI		8192
+ #define TX_THRESH_LO		2048
+@@ -680,6 +680,7 @@ static int gsm_send(struct gsm_mux *gsm, int addr, int cr, int control)
+ 	struct gsm_msg *msg;
+ 	u8 *dp;
+ 	int ocr;
++	unsigned long flags;
+ 
+ 	msg = gsm_data_alloc(gsm, addr, 0, control);
+ 	if (!msg)
+@@ -701,10 +702,10 @@ static int gsm_send(struct gsm_mux *gsm, int addr, int cr, int control)
+ 
+ 	gsm_print_packet("Q->", addr, cr, control, NULL, 0);
+ 
+-	mutex_lock(&gsm->tx_mutex);
++	spin_lock_irqsave(&gsm->tx_lock, flags);
+ 	list_add_tail(&msg->list, &gsm->tx_ctrl_list);
+ 	gsm->tx_bytes += msg->len;
+-	mutex_unlock(&gsm->tx_mutex);
++	spin_unlock_irqrestore(&gsm->tx_lock, flags);
+ 	gsmld_write_trigger(gsm);
+ 
+ 	return 0;
+@@ -729,7 +730,7 @@ static void gsm_dlci_clear_queues(struct gsm_mux *gsm, struct gsm_dlci *dlci)
+ 	spin_unlock_irqrestore(&dlci->lock, flags);
+ 
+ 	/* Clear data packets in MUX write queue */
+-	mutex_lock(&gsm->tx_mutex);
++	spin_lock_irqsave(&gsm->tx_lock, flags);
+ 	list_for_each_entry_safe(msg, nmsg, &gsm->tx_data_list, list) {
+ 		if (msg->addr != addr)
+ 			continue;
+@@ -737,7 +738,7 @@ static void gsm_dlci_clear_queues(struct gsm_mux *gsm, struct gsm_dlci *dlci)
+ 		list_del(&msg->list);
+ 		kfree(msg);
+ 	}
+-	mutex_unlock(&gsm->tx_mutex);
++	spin_unlock_irqrestore(&gsm->tx_lock, flags);
+ }
+ 
+ /**
+@@ -1023,9 +1024,10 @@ static void __gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
+ 
+ static void gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
  {
- 	struct omap8250_priv *priv = up->port.private_data;
- 	struct uart_8250_dma	*dma = up->dma;
-+	u8 mcr = serial8250_in_MCR(up);
+-	mutex_lock(&dlci->gsm->tx_mutex);
++	unsigned long flags;
++	spin_lock_irqsave(&dlci->gsm->tx_lock, flags);
+ 	__gsm_data_queue(dlci, msg);
+-	mutex_unlock(&dlci->gsm->tx_mutex);
++	spin_unlock_irqrestore(&dlci->gsm->tx_lock, flags);
+ }
  
- 	if (dma && dma->tx_running) {
- 		/*
-@@ -308,7 +309,7 @@ static void omap8250_restore_regs(struct uart_8250_port *up)
- 	serial_out(up, UART_EFR, UART_EFR_ECB);
+ /**
+@@ -1037,7 +1039,7 @@ static void gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
+  *	is data. Keep to the MRU of the mux. This path handles the usual tty
+  *	interface which is a byte stream with optional modem data.
+  *
+- *	Caller must hold the tx_mutex of the mux.
++ *	Caller must hold the tx_lock of the mux.
+  */
  
- 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_A);
--	serial8250_out_MCR(up, UART_MCR_TCRTLR);
-+	serial8250_out_MCR(up, mcr | UART_MCR_TCRTLR);
- 	serial_out(up, UART_FCR, up->fcr);
+ static int gsm_dlci_data_output(struct gsm_mux *gsm, struct gsm_dlci *dlci)
+@@ -1097,7 +1099,7 @@ static int gsm_dlci_data_output(struct gsm_mux *gsm, struct gsm_dlci *dlci)
+  *	is data. Keep to the MRU of the mux. This path handles framed data
+  *	queued as skbuffs to the DLCI.
+  *
+- *	Caller must hold the tx_mutex of the mux.
++ *	Caller must hold the tx_lock of the mux.
+  */
  
- 	omap8250_update_scr(up, priv);
-@@ -324,7 +325,8 @@ static void omap8250_restore_regs(struct uart_8250_port *up)
- 	serial_out(up, UART_LCR, 0);
+ static int gsm_dlci_data_output_framed(struct gsm_mux *gsm,
+@@ -1113,7 +1115,7 @@ static int gsm_dlci_data_output_framed(struct gsm_mux *gsm,
+ 	if (dlci->adaption == 4)
+ 		overhead = 1;
  
- 	/* drop TCR + TLR access, we setup XON/XOFF later */
--	serial8250_out_MCR(up, up->mcr);
-+	serial8250_out_MCR(up, mcr);
-+
- 	serial_out(up, UART_IER, up->ier);
+-	/* dlci->skb is locked by tx_mutex */
++	/* dlci->skb is locked by tx_lock */
+ 	if (dlci->skb == NULL) {
+ 		dlci->skb = skb_dequeue_tail(&dlci->skb_list);
+ 		if (dlci->skb == NULL)
+@@ -1167,7 +1169,7 @@ static int gsm_dlci_data_output_framed(struct gsm_mux *gsm,
+  *	Push an empty frame in to the transmit queue to update the modem status
+  *	bits and to transmit an optional break.
+  *
+- *	Caller must hold the tx_mutex of the mux.
++ *	Caller must hold the tx_lock of the mux.
+  */
  
- 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
-@@ -669,7 +671,6 @@ static int omap_8250_startup(struct uart_port *port)
+ static int gsm_dlci_modem_output(struct gsm_mux *gsm, struct gsm_dlci *dlci,
+@@ -1281,12 +1283,13 @@ static int gsm_dlci_data_sweep(struct gsm_mux *gsm)
  
- 	pm_runtime_get_sync(port->dev);
+ static void gsm_dlci_data_kick(struct gsm_dlci *dlci)
+ {
++	unsigned long flags;
+ 	int sweep;
  
--	up->mcr = 0;
- 	serial_out(up, UART_FCR, UART_FCR_CLEAR_RCVR | UART_FCR_CLEAR_XMIT);
+ 	if (dlci->constipated)
+ 		return;
  
- 	serial_out(up, UART_LCR, UART_LCR_WLEN8);
+-	mutex_lock(&dlci->gsm->tx_mutex);
++	spin_lock_irqsave(&dlci->gsm->tx_lock, flags);
+ 	/* If we have nothing running then we need to fire up */
+ 	sweep = (dlci->gsm->tx_bytes < TX_THRESH_LO);
+ 	if (dlci->gsm->tx_bytes == 0) {
+@@ -1297,7 +1300,7 @@ static void gsm_dlci_data_kick(struct gsm_dlci *dlci)
+ 	}
+ 	if (sweep)
+ 		gsm_dlci_data_sweep(dlci->gsm);
+-	mutex_unlock(&dlci->gsm->tx_mutex);
++	spin_unlock_irqrestore(&dlci->gsm->tx_lock, flags);
+ }
+ 
+ /*
+@@ -1991,13 +1994,14 @@ static void gsm_dlci_command(struct gsm_dlci *dlci, const u8 *data, int len)
+ static void gsm_kick_timeout(struct work_struct *work)
+ {
+ 	struct gsm_mux *gsm = container_of(work, struct gsm_mux, kick_timeout.work);
++	unsigned long flags;
+ 	int sent = 0;
+ 
+-	mutex_lock(&gsm->tx_mutex);
++	spin_lock_irqsave(&gsm->tx_lock, flags);
+ 	/* If we have nothing running then we need to fire up */
+ 	if (gsm->tx_bytes < TX_THRESH_LO)
+ 		sent = gsm_dlci_data_sweep(gsm);
+-	mutex_unlock(&gsm->tx_mutex);
++	spin_unlock_irqrestore(&gsm->tx_lock, flags);
+ 
+ 	if (sent && debug & 4)
+ 		pr_info("%s TX queue stalled\n", __func__);
+@@ -2527,7 +2531,6 @@ static void gsm_free_mux(struct gsm_mux *gsm)
+ 			break;
+ 		}
+ 	}
+-	mutex_destroy(&gsm->tx_mutex);
+ 	mutex_destroy(&gsm->mutex);
+ 	kfree(gsm->txframe);
+ 	kfree(gsm->buf);
+@@ -2599,7 +2602,6 @@ static struct gsm_mux *gsm_alloc_mux(void)
+ 	}
+ 	spin_lock_init(&gsm->lock);
+ 	mutex_init(&gsm->mutex);
+-	mutex_init(&gsm->tx_mutex);
+ 	kref_init(&gsm->ref);
+ 	INIT_LIST_HEAD(&gsm->tx_ctrl_list);
+ 	INIT_LIST_HEAD(&gsm->tx_data_list);
+@@ -2608,6 +2610,7 @@ static struct gsm_mux *gsm_alloc_mux(void)
+ 	INIT_WORK(&gsm->tx_work, gsmld_write_task);
+ 	init_waitqueue_head(&gsm->event);
+ 	spin_lock_init(&gsm->control_lock);
++	spin_lock_init(&gsm->tx_lock);
+ 
+ 	gsm->t1 = T1;
+ 	gsm->t2 = T2;
+@@ -2632,7 +2635,6 @@ static struct gsm_mux *gsm_alloc_mux(void)
+ 	}
+ 	spin_unlock(&gsm_mux_lock);
+ 	if (i == MAX_MUX) {
+-		mutex_destroy(&gsm->tx_mutex);
+ 		mutex_destroy(&gsm->mutex);
+ 		kfree(gsm->txframe);
+ 		kfree(gsm->buf);
+@@ -2788,16 +2790,17 @@ static void gsmld_write_trigger(struct gsm_mux *gsm)
+ static void gsmld_write_task(struct work_struct *work)
+ {
+ 	struct gsm_mux *gsm = container_of(work, struct gsm_mux, tx_work);
++	unsigned long flags;
+ 	int i, ret;
+ 
+ 	/* All outstanding control channel and control messages and one data
+ 	 * frame is sent.
+ 	 */
+ 	ret = -ENODEV;
+-	mutex_lock(&gsm->tx_mutex);
++	spin_lock_irqsave(&gsm->tx_lock, flags);
+ 	if (gsm->tty)
+ 		ret = gsm_data_kick(gsm);
+-	mutex_unlock(&gsm->tx_mutex);
++	spin_unlock_irqrestore(&gsm->tx_lock, flags);
+ 
+ 	if (ret >= 0)
+ 		for (i = 0; i < NUM_DLCI; i++)
+@@ -3005,6 +3008,7 @@ static ssize_t gsmld_write(struct tty_struct *tty, struct file *file,
+ 			   const unsigned char *buf, size_t nr)
+ {
+ 	struct gsm_mux *gsm = tty->disc_data;
++	unsigned long flags;
+ 	int space;
+ 	int ret;
+ 
+@@ -3012,13 +3016,13 @@ static ssize_t gsmld_write(struct tty_struct *tty, struct file *file,
+ 		return -ENODEV;
+ 
+ 	ret = -ENOBUFS;
+-	mutex_lock(&gsm->tx_mutex);
++	spin_lock_irqsave(&gsm->tx_lock, flags);
+ 	space = tty_write_room(tty);
+ 	if (space >= nr)
+ 		ret = tty->ops->write(tty, buf, nr);
+ 	else
+ 		set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
+-	mutex_unlock(&gsm->tx_mutex);
++	spin_unlock_irqrestore(&gsm->tx_lock, flags);
+ 
+ 	return ret;
+ }
+@@ -3315,13 +3319,14 @@ static struct tty_ldisc_ops tty_ldisc_packet = {
+ static void gsm_modem_upd_via_data(struct gsm_dlci *dlci, u8 brk)
+ {
+ 	struct gsm_mux *gsm = dlci->gsm;
++	unsigned long flags;
+ 
+ 	if (dlci->state != DLCI_OPEN || dlci->adaption != 2)
+ 		return;
+ 
+-	mutex_lock(&gsm->tx_mutex);
++	spin_lock_irqsave(&gsm->tx_lock, flags);
+ 	gsm_dlci_modem_output(gsm, dlci, brk);
+-	mutex_unlock(&gsm->tx_mutex);
++	spin_unlock_irqrestore(&gsm->tx_lock, flags);
+ }
+ 
+ /**
 -- 
 2.35.1
 
