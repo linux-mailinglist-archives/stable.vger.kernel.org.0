@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3472463546C
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5536B635470
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237087AbiKWJHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:07:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45460 "EHLO
+        id S237092AbiKWJHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:07:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237201AbiKWJHL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A5011055B0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:50 -0800 (PST)
+        with ESMTP id S237212AbiKWJHN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:13 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F3A1025D3
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A422961B4C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77262C433C1;
-        Wed, 23 Nov 2022 09:06:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4B980CE0FC8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AD59C433D6;
+        Wed, 23 Nov 2022 09:06:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194404;
-        bh=BUm0QnloEu5jTmCS/qr9CvSCsce7s8EsWk/BKN/eiN4=;
+        s=korg; t=1669194407;
+        bh=UTq0Hu0n7OBxAQ1fUXU3wzwOj3Q3B9VTjazl2Omhqf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Txx5hHj6BRrxfOJO1fZQbpvQREgtIHI5474NNCS19OQjWfVqXvcw74NoMHXSGdeX+
-         P6Wvd9lCS2MHVDglrBo2/zQ5T4jky5P/yTpg2frni6u158ZpgKa89Vo2R0+ZRZoFr5
-         r/YS7OUeyZoEw6V1T0CIKQuTN7c32OJaXOuVgIQM=
+        b=ZStC2NJa8038ePIottWQwUnRLX/hyXG3qaRFgRGU/VmvmY96HC52DEjaSkOtVK1b5
+         DrGyTq4rGBMy+SqAJgrrifD0fac71gEnM2ddrVRMHGsxKJ8gY8B2ezIzTUevjQb8dx
+         YyfB3b9Zg4lpBA1f/fSbZAbMozM7DrNJbcqq8YUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 067/114] mISDN: fix misuse of put_device() in mISDN_register_device()
-Date:   Wed, 23 Nov 2022 09:50:54 +0100
-Message-Id: <20221123084554.565233324@linuxfoundation.org>
+Subject: [PATCH 4.19 068/114] net: caif: fix double disconnect client in chnl_net_open()
+Date:   Wed, 23 Nov 2022 09:50:55 +0100
+Message-Id: <20221123084554.596019215@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
 References: <20221123084551.864610302@linuxfoundation.org>
@@ -53,33 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 2d25107e111a85c56f601a5470f1780ec054e6ac ]
+[ Upstream commit 8fbb53c8bfd8c56ecf1f78dc821778b58f505503 ]
 
-We should not release reference by put_device() before calling device_initialize().
+When connecting to client timeout, disconnect client for twice in
+chnl_net_open(). Remove one. Compile tested only.
 
-Fixes: e7d1d4d9ac0d ("mISDN: fix possible memory leak in mISDN_register_device()")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Fixes: 2aa40aef9deb ("caif: Use link layer MTU instead of fixed MTU")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/mISDN/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/caif/chnl_net.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
-index 5cd53b2c47c7..e542439f4950 100644
---- a/drivers/isdn/mISDN/core.c
-+++ b/drivers/isdn/mISDN/core.c
-@@ -231,7 +231,7 @@ mISDN_register_device(struct mISDNdevice *dev,
+diff --git a/net/caif/chnl_net.c b/net/caif/chnl_net.c
+index 8aeece7aa9e9..ece140ad0ac1 100644
+--- a/net/caif/chnl_net.c
++++ b/net/caif/chnl_net.c
+@@ -314,9 +314,6 @@ static int chnl_net_open(struct net_device *dev)
  
- 	err = get_free_devid();
- 	if (err < 0)
--		goto error1;
-+		return err;
- 	dev->id = err;
- 
- 	device_initialize(&dev->dev);
+ 	if (result == 0) {
+ 		pr_debug("connect timeout\n");
+-		caif_disconnect_client(dev_net(dev), &priv->chnl);
+-		priv->state = CAIF_DISCONNECTED;
+-		pr_debug("state disconnected\n");
+ 		result = -ETIMEDOUT;
+ 		goto error;
+ 	}
 -- 
 2.35.1
 
