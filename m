@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 811826354E7
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37ECF635682
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237187AbiKWJMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:12:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52754 "EHLO
+        id S237746AbiKWJbK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:31:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237219AbiKWJMW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:12:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 344155587
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:12:22 -0800 (PST)
+        with ESMTP id S237811AbiKWJav (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:51 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4833924E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:29:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D142EB81EF2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:12:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE26C433C1;
-        Wed, 23 Nov 2022 09:12:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B7120CE20DB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:29:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E67CC433D6;
+        Wed, 23 Nov 2022 09:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194739;
-        bh=GeC7NvKqm718jF98ewFwJhQZ2YZOROyEMwggYRyroFc=;
+        s=korg; t=1669195762;
+        bh=agU2693fQ0geZoZRed5L63YUqgI6tDoXWX99hsy2RKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NjeMuD4/8slHta4xmZn/8XsMF3Pwii+z7txaz4TMrwETdNV5r8U5rfEgflfTcdNt1
-         HrYeuN5D3G5XJMGHxd2x8wEISaMNLbqB9j0Au5W+Bd6GWzT7/xHeiABuKpKBenUNEI
-         osqteviOxLfBEyfkSB5lLHKisA64903I0YHta5b4=
+        b=1O1gIRB0nizIlxKLEi5xMn4M1FbSyCrMwe/OuYCQEadIQpAyJ0DwQd8/7tA/cN9TF
+         5jLfgHAucx0HAdbO2HXN80CfwiETd27jupoYmnKaY+/hvdz4NwJPxPtCvJ1iehVfZX
+         aEJRQIhbKCv3qylBEBfKI2GbtIfrfDNt9jI0ChkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 030/156] net: cpsw: disable napi in cpsw_ndo_open()
-Date:   Wed, 23 Nov 2022 09:49:47 +0100
-Message-Id: <20221123084559.050258138@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Julius Brockmann <mail@juliusbrockmann.com>
+Subject: [PATCH 5.15 025/181] ACPI: x86: Add another system to quirk list for forcing StorageD3Enable
+Date:   Wed, 23 Nov 2022 09:49:48 +0100
+Message-Id: <20221123084603.507115481@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 6d47b53fb3f363a74538a1dbd09954af3d8d4131 ]
+[ Upstream commit 2124becad797245d49252d2d733aee0322233d7e ]
 
-When failed to create xdp rxqs or fill rx channels in cpsw_ndo_open() for
-opening device, napi isn't disabled. When open cpsw device next time, it
-will report a invalid opcode issue. Compiled tested only.
+commit 018d6711c26e4 ("ACPI: x86: Add a quirk for Dell Inspiron 14 2-in-1
+for StorageD3Enable") introduced a quirk to allow a system with ambiguous
+use of _ADR 0 to force StorageD3Enable.
 
-Fixes: d354eb85d618 ("drivers: net: cpsw: dual_emac: simplify napi usage")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221109011537.96975-1-shaozhengchao@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Julius Brockmann reports that Inspiron 16 5625 suffers that same symptoms.
+Add this other system to the list as well.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216440
+Reported-and-tested-by: Julius Brockmann <mail@juliusbrockmann.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/cpsw.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/acpi/x86/utils.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/ti/cpsw.c b/drivers/net/ethernet/ti/cpsw.c
-index 33eca554424a..774a72db7c96 100644
---- a/drivers/net/ethernet/ti/cpsw.c
-+++ b/drivers/net/ethernet/ti/cpsw.c
-@@ -1753,6 +1753,8 @@ static int cpsw_ndo_open(struct net_device *ndev)
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index 3a3f09b6cbfc..222b951ff56a 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -210,6 +210,12 @@ static const struct dmi_system_id force_storage_d3_dmi[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 14 7425 2-in-1"),
+ 		}
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 16 5625"),
++		}
++	},
+ 	{}
+ };
  
- err_cleanup:
- 	if (!cpsw->usage_count) {
-+		napi_disable(&cpsw->napi_rx);
-+		napi_disable(&cpsw->napi_tx);
- 		cpdma_ctlr_stop(cpsw->dma);
- 		cpsw_destroy_xdp_rxqs(cpsw);
- 	}
 -- 
 2.35.1
 
