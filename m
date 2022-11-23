@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9152E635510
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B59576356CE
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237303AbiKWJOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:14:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56074 "EHLO
+        id S237872AbiKWJeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:34:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237274AbiKWJOO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:14:14 -0500
+        with ESMTP id S237873AbiKWJeM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:34:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49C18107E79
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:14:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80720112C45
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:32:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF44CB81EF1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:14:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 472EAC433D6;
-        Wed, 23 Nov 2022 09:14:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3276AB81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:32:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53FBDC433D6;
+        Wed, 23 Nov 2022 09:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194841;
-        bh=81g+KZ2MVQmCits8iZFpT3D2MWr8qIA2KP/zxhVyrx4=;
+        s=korg; t=1669195925;
+        bh=XNr6piV8rUDhJsvcUY05dK3XOn0SRftBcFMhZIEVIeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jTMBv2iE3tXwyo8vQ50CSlzMqJ6cg4D5H1orG4xVuRJyttqtdRyo1wov7+KfgfnEP
-         Vpn5mEbI4+D4AdhU8nwCMEwDRRcYzYUAS0emrOq2IP4dpZy+xm0f2pWnbt4D2TgqTq
-         tgMxtM54QTD7Bx7qvX0OJTSlviXhGhoD9koXzg5w=
+        b=oEJj0cG/JTD6gxKrVk2dDK6O/NG43sWG1E6882ltt2Nl8RregN1UpxqBJxTgW6RcK
+         GjnhIzkF9BOkkbR0nnrgrA5aJcpCyBhIH2IqJY2O0E6glKm54jcCB/+aEX3StWnkzo
+         YLGgPf/gWiUN7zXAe/B0DQ1sddDv1D5JGyv+SDdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gonzalo Siero Humet <gsierohu@redhat.com>,
-        Benjamin Coddington <bcodding@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/156] NFSv4: Retry LOCK on OLD_STATEID during delegation return
-Date:   Wed, 23 Nov 2022 09:50:33 +0100
-Message-Id: <20221123084600.761338028@linuxfoundation.org>
+Subject: [PATCH 5.15 071/181] ata: libata-transport: fix double ata_host_put() in ata_tport_add()
+Date:   Wed, 23 Nov 2022 09:50:34 +0100
+Message-Id: <20221123084605.425167392@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f5ea16137a3fa2858620dc9084466491c128535f ]
+[ Upstream commit 8c76310740807ade5ecdab5888f70ecb6d35732e ]
 
-There's a small window where a LOCK sent during a delegation return can
-race with another OPEN on client, but the open stateid has not yet been
-updated.  In this case, the client doesn't handle the OLD_STATEID error
-from the server and will lose this lock, emitting:
-"NFS: nfs4_handle_delegation_recall_error: unhandled error -10024".
+In the error path in ata_tport_add(), when calling put_device(),
+ata_tport_release() is called, it will put the refcount of 'ap->host'.
 
-Fix this by sending the task through the nfs4 error handling in
-nfs4_lock_done() when we may have to reconcile our stateid with what the
-server believes it to be.  For this case, the result is a retry of the
-LOCK operation with the updated stateid.
+And then ata_host_put() is called again, the refcount is decreased
+to 0, ata_host_release() is called, all ports are freed and set to
+null.
 
-Reported-by: Gonzalo Siero Humet <gsierohu@redhat.com>
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+When unbinding the device after failure, ata_host_stop() is called
+to release the resources, it leads a null-ptr-deref(), because all
+the ports all freed and null.
+
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
+CPU: 7 PID: 18671 Comm: modprobe Kdump: loaded Tainted: G            E      6.1.0-rc3+ #8
+pstate: 80400009 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : ata_host_stop+0x3c/0x84 [libata]
+lr : release_nodes+0x64/0xd0
+Call trace:
+ ata_host_stop+0x3c/0x84 [libata]
+ release_nodes+0x64/0xd0
+ devres_release_all+0xbc/0x1b0
+ device_unbind_cleanup+0x20/0x70
+ really_probe+0x158/0x320
+ __driver_probe_device+0x84/0x120
+ driver_probe_device+0x44/0x120
+ __driver_attach+0xb4/0x220
+ bus_for_each_dev+0x78/0xdc
+ driver_attach+0x2c/0x40
+ bus_add_driver+0x184/0x240
+ driver_register+0x80/0x13c
+ __pci_register_driver+0x4c/0x60
+ ahci_pci_driver_init+0x30/0x1000 [ahci]
+
+Fix this by removing redundant ata_host_put() in the error path.
+
+Fixes: 2623c7a5f279 ("libata: add refcounting to ata_host")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/ata/libata-transport.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 7c5dfed0437f..77c2c88621be 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -6854,6 +6854,7 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
- {
- 	struct nfs4_lockdata *data = calldata;
- 	struct nfs4_lock_state *lsp = data->lsp;
-+	struct nfs_server *server = NFS_SERVER(d_inode(data->ctx->dentry));
+diff --git a/drivers/ata/libata-transport.c b/drivers/ata/libata-transport.c
+index 93d6920cd86c..2b1e3403570c 100644
+--- a/drivers/ata/libata-transport.c
++++ b/drivers/ata/libata-transport.c
+@@ -317,7 +317,6 @@ int ata_tport_add(struct device *parent,
+  tport_err:
+ 	transport_destroy_device(dev);
+ 	put_device(dev);
+-	ata_host_put(ap->host);
+ 	return error;
+ }
  
- 	dprintk("%s: begin!\n", __func__);
- 
-@@ -6863,8 +6864,7 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
- 	data->rpc_status = task->tk_status;
- 	switch (task->tk_status) {
- 	case 0:
--		renew_lease(NFS_SERVER(d_inode(data->ctx->dentry)),
--				data->timestamp);
-+		renew_lease(server, data->timestamp);
- 		if (data->arg.new_lock && !data->cancelled) {
- 			data->fl.fl_flags &= ~(FL_SLEEP | FL_ACCESS);
- 			if (locks_lock_inode_wait(lsp->ls_state->inode, &data->fl) < 0)
-@@ -6885,6 +6885,8 @@ static void nfs4_lock_done(struct rpc_task *task, void *calldata)
- 			if (!nfs4_stateid_match(&data->arg.open_stateid,
- 						&lsp->ls_state->open_stateid))
- 				goto out_restart;
-+			else if (nfs4_async_handle_error(task, server, lsp->ls_state, NULL) == -EAGAIN)
-+				goto out_restart;
- 		} else if (!nfs4_stateid_match(&data->arg.lock_stateid,
- 						&lsp->ls_stateid))
- 				goto out_restart;
 -- 
 2.35.1
 
