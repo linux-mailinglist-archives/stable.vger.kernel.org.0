@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC72635E0A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:56:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 415F7635E7F
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:57:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238195AbiKWMxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:53:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48042 "EHLO
+        id S238115AbiKWMxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:53:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238586AbiKWMxC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:53:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24C128CFDB;
-        Wed, 23 Nov 2022 04:45:06 -0800 (PST)
+        with ESMTP id S238469AbiKWMwk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:52:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF4668C088;
+        Wed, 23 Nov 2022 04:44:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F55EB81F75;
-        Wed, 23 Nov 2022 12:44:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6604C433D7;
-        Wed, 23 Nov 2022 12:44:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 556C8B81F5D;
+        Wed, 23 Nov 2022 12:44:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60333C433C1;
+        Wed, 23 Nov 2022 12:44:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207489;
-        bh=z1WVZvmW+zg4TaRVqKAbPKxtGuMJUElvhk4JbBpnIus=;
+        s=k20201202; t=1669207491;
+        bh=CXq8M54/XjkD0bssnk/2sXsBayYRu1MRXe8SxuzsGwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=itA9fnzpC75U6z2bTu7GO3xyejlVVmSsMqB92J/cRihFEq81P/bg7KYCKcLnLa6GP
-         Kv6O+ExYXLTIZgwmp970wjDmiiNPrIt5Y/RJn1ung5jJ2EppH/yw7P6fM87yvXeb/R
-         u4hIna0uwm/1zowj3GWIbj8WMLdOXyn/pMFECJnlAj74P7Q/n/rx6eglU1YA0gI97S
-         tjORMlkZrVhCb8dPp37yvuaL3RyVbyz31S/DSSt21xDZ4O7KdjIPQcgFGO0oWOQKH9
-         eMwSIVB+FEMtqUkVloemzMfz5kfgbHQeOVectNJTtlv9xiHTEPcXRcjwrT1jYqvVhk
-         YUhRTmxz9o7/A==
+        b=GLUNKa2o4oqOocqkXBRl3Sy46VBvQsO8avtJtFTISkkOD/IF+bGASWyf1MYQwQR+x
+         A1Q6Hqs0y3AvmEH6dx87Hn+jdMkR92Wvc9G7RSomT9Ko/kUglXd427wRk9zAMI5jHC
+         /4/+peXLZrDFgyo1GwIJqFkbvzLNzTVnJqUGRtVUWa81yxpyXwDTMWWmbqHUlDtXiT
+         /pEj8KOW1eRH0eVvswvWE6Auo9E9Bl+3nJnloGEEPonOQO2oX/CID0smOab5pz8aGG
+         +T9+oplh8sCNFOZp9C0qgf4c+/+YvAF1RTFoGGkurWuS/st420WqCXw92os++J5lXh
+         mB6ljCpKrqpCw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gleb Mazovetskiy <glex.spb@gmail.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, yoshfuji@linux-ipv6.org,
-        dsahern@kernel.org, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 10/15] tcp: configurable source port perturb table size
-Date:   Wed, 23 Nov 2022 07:44:20 -0500
-Message-Id: <20221123124427.266286-10-sashal@kernel.org>
+Cc:     Keith Busch <kbusch@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 11/15] block: make blk_set_default_limits() private
+Date:   Wed, 23 Nov 2022 07:44:21 -0500
+Message-Id: <20221123124427.266286-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124427.266286-1-sashal@kernel.org>
 References: <20221123124427.266286-1-sashal@kernel.org>
@@ -58,76 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gleb Mazovetskiy <glex.spb@gmail.com>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit aeac4ec8f46d610a10adbaeff5e2edf6a88ffc62 ]
+[ Upstream commit b3228254bb6e91e57f920227f72a1a7d81925d81 ]
 
-On embedded systems with little memory and no relevant
-security concerns, it is beneficial to reduce the size
-of the table.
+There are no external users of this function.
 
-Reducing the size from 2^16 to 2^8 saves 255 KiB
-of kernel RAM.
-
-Makes the table size configurable as an expert option.
-
-The size was previously increased from 2^8 to 2^16
-in commit 4c2c8f03a5ab ("tcp: increase source port perturb table to
-2^16").
-
-Signed-off-by: Gleb Mazovetskiy <glex.spb@gmail.com>
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20221110184501.2451620-4-kbusch@meta.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/Kconfig           | 10 ++++++++++
- net/ipv4/inet_hashtables.c | 10 +++++-----
- 2 files changed, 15 insertions(+), 5 deletions(-)
+ block/blk-settings.c   | 1 -
+ block/blk.h            | 1 +
+ include/linux/blkdev.h | 1 -
+ 3 files changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/ipv4/Kconfig b/net/ipv4/Kconfig
-index a926de2e42b5..f5af8c6b2f87 100644
---- a/net/ipv4/Kconfig
-+++ b/net/ipv4/Kconfig
-@@ -389,6 +389,16 @@ config INET_IPCOMP
+diff --git a/block/blk-settings.c b/block/blk-settings.c
+index 13be635300a8..eb4a6c01ec22 100644
+--- a/block/blk-settings.c
++++ b/block/blk-settings.c
+@@ -60,7 +60,6 @@ void blk_set_default_limits(struct queue_limits *lim)
+ 	lim->misaligned = 0;
+ 	lim->zoned = BLK_ZONED_NONE;
+ }
+-EXPORT_SYMBOL(blk_set_default_limits);
  
- 	  If unsure, say Y.
+ /**
+  * blk_set_stacking_limits - set default limits for stacking devices
+diff --git a/block/blk.h b/block/blk.h
+index ee3d5664d962..07a6a7c734b5 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -241,6 +241,7 @@ void blk_rq_set_mixed_merge(struct request *rq);
+ bool blk_rq_merge_ok(struct request *rq, struct bio *bio);
+ enum elv_merge blk_try_merge(struct request *rq, struct bio *bio);
  
-+config INET_TABLE_PERTURB_ORDER
-+	int "INET: Source port perturbation table size (as power of 2)" if EXPERT
-+	default 16
-+	help
-+	  Source port perturbation table size (as power of 2) for
-+	  RFC 6056 3.3.4.  Algorithm 4: Double-Hash Port Selection Algorithm.
-+
-+	  The default is almost always what you want.
-+	  Only change this if you know what you are doing.
-+
- config INET_XFRM_TUNNEL
- 	tristate
- 	select INET_TUNNEL
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index bd3d9ad78e56..25334aa3da04 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -675,13 +675,13 @@ EXPORT_SYMBOL_GPL(inet_unhash);
-  * Note that we use 32bit integers (vs RFC 'short integers')
-  * because 2^16 is not a multiple of num_ephemeral and this
-  * property might be used by clever attacker.
-+ *
-  * RFC claims using TABLE_LENGTH=10 buckets gives an improvement, though
-- * attacks were since demonstrated, thus we use 65536 instead to really
-- * give more isolation and privacy, at the expense of 256kB of kernel
-- * memory.
-+ * attacks were since demonstrated, thus we use 65536 by default instead
-+ * to really give more isolation and privacy, at the expense of 256kB
-+ * of kernel memory.
-  */
--#define INET_TABLE_PERTURB_SHIFT 16
--#define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
-+#define INET_TABLE_PERTURB_SIZE (1 << CONFIG_INET_TABLE_PERTURB_ORDER)
- static u32 *table_perturb;
++void blk_set_default_limits(struct queue_limits *lim);
+ int blk_dev_init(void);
  
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ /*
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 308c2d8cdca1..d0ce2489488c 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -1098,7 +1098,6 @@ extern void blk_queue_io_min(struct request_queue *q, unsigned int min);
+ extern void blk_limits_io_opt(struct queue_limits *limits, unsigned int opt);
+ extern void blk_queue_io_opt(struct request_queue *q, unsigned int opt);
+ extern void blk_set_queue_depth(struct request_queue *q, unsigned int depth);
+-extern void blk_set_default_limits(struct queue_limits *lim);
+ extern void blk_set_stacking_limits(struct queue_limits *lim);
+ extern int blk_stack_limits(struct queue_limits *t, struct queue_limits *b,
+ 			    sector_t offset);
 -- 
 2.35.1
 
