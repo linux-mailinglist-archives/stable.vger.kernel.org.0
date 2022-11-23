@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B92A635409
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D044635351
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:54:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236810AbiKWJAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:00:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36366 "EHLO
+        id S236292AbiKWIxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:53:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236850AbiKWJAM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:00:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D2DBEC09D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:00:11 -0800 (PST)
+        with ESMTP id S236142AbiKWIxf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:53:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57151E9338
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:53:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32EC0B81EF3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:00:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C916C433D7;
-        Wed, 23 Nov 2022 09:00:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E638061B46
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:53:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF73FC433C1;
+        Wed, 23 Nov 2022 08:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194009;
-        bh=o1ead+5rBVTZ7mRzhCWAICO6KlZSC0g7GmAHxAPXBbA=;
+        s=korg; t=1669193613;
+        bh=eajCaM8wkk1agCpDXI7qjFENGV8/iUU8UjuoL8MlOlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hL+5clq+iIsMwLzByH1+sNf5qWeZVwuWxRLsxD8keNda2PzfLswr90p6UQjQFUwf0
-         wUiYEULE2dgSvu/YEUAaMy1QavoBkpwVBcjK+YYz5b+4gHD0uNIJ3dZVzLnJIEOJSW
-         DMWAfdM379vUJ/JbGrX+SJNfp6GqkY1FqELNb7xE=
+        b=LBh2gyoV8e98gctjw1DRNkxprIyTeC/8Pk2Nm9o6cRAIYf5EhlQ26PVieZmciEuHF
+         C3QiR/+sFsKQYj70KSUCqoTcvG8nO58cD/ChQZ02Im4/gGLiZGWngKtqaoHFV8/3p9
+         2+ofLaK3hrFXx+3iNwDn3GGJQKFqP6R6kqwwsQsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 18/88] ALSA: hda: fix potential memleak in add_widget_node
+Subject: [PATCH 4.9 16/76] ALSA: hda: fix potential memleak in add_widget_node
 Date:   Wed, 23 Nov 2022 09:50:15 +0100
-Message-Id: <20221123084549.138176666@linuxfoundation.org>
+Message-Id: <20221123084547.262488085@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
+References: <20221123084546.742331901@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -72,7 +71,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/sound/hda/hdac_sysfs.c
 +++ b/sound/hda/hdac_sysfs.c
-@@ -346,8 +346,10 @@ static int add_widget_node(struct kobjec
+@@ -345,8 +345,10 @@ static int add_widget_node(struct kobjec
  		return -ENOMEM;
  	kobject_init(kobj, &widget_ktype);
  	err = kobject_add(kobj, parent, "%02x", nid);
