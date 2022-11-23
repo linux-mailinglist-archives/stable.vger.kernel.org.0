@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 841296357FD
+	by mail.lfdr.de (Postfix) with ESMTP id D4B336357FE
 	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:49:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236673AbiKWJso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:48:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45484 "EHLO
+        id S237865AbiKWJsp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:48:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237865AbiKWJsY (ORCPT
+        with ESMTP id S237953AbiKWJsY (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:48:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 657C42612
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:45:27 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DB571CFEF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:45:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0190B61A02
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:45:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83DD4C433D6;
-        Wed, 23 Nov 2022 09:45:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EEE6CB81E60
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:45:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5155CC433D6;
+        Wed, 23 Nov 2022 09:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196726;
-        bh=pkVczvg9RejoB+HtX+IsQ0zO5+3pd3t6dyX43gRe27Y=;
+        s=korg; t=1669196729;
+        bh=mcaKd90tmCVlq+YVfxa2QfLkDkhaqxFIr+kMw+GCSmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h3xBrlGxEuNXG/Ka8uyIXqTYa1rG/1Bg7WPXfTCZNLwkpgyraVk/VbqlVNuqbxN0w
-         Up9NR8Yi+5zBp8NAZ06kG/fZkrUC2+uvTA0EEnakeWBl47bmS+ZahypQObHQsaL5Y8
-         mu4hG4VougY0oUgeyg/EwyxME5POMgUsDcu/nai0=
+        b=mHcM/8lcqrlkzqrGxGbWkIS0dTE0x0/GSqIW7gtoUpOkoWMyqDtjurPHISvaLOpUm
+         yAN5TTAM+zk6Jx/pWMNRkRwz+r9ytjgWJB2LZwnm5CmJGys+9D5cZIw6QkM9pW6KA7
+         6eAvsPZna/W3tGZAs9R2StiDrBh0en7bP+GU41gI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Douglas Anderson <dianders@chromium.org>,
         Andrew Halaney <ahalaney@redhat.com>,
+        Vinod Koul <vkoul@kernel.org>,
         Konrad Dybcio <konrad.dybcio@somainline.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 076/314] arm64: dts: qcom: sm8250-xperia-edo: Specify which LDO modes are allowed
-Date:   Wed, 23 Nov 2022 09:48:41 +0100
-Message-Id: <20221123084628.919986931@linuxfoundation.org>
+Subject: [PATCH 6.0 077/314] arm64: dts: qcom: sm8350-hdk: Specify which LDO modes are allowed
+Date:   Wed, 23 Nov 2022 09:48:42 +0100
+Message-Id: <20221123084628.967404261@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -57,7 +58,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit b7870d460c05ce31e2311036d91de1e2e0b32cea ]
+[ Upstream commit 1ce8aaf6abdc35cde555924418b3d4516b4ec871 ]
 
 This board uses RPMH, specifies "regulator-allow-set-load" for LDOs,
 but doesn't specify any modes with "regulator-allowed-modes".
@@ -73,23 +74,24 @@ Let's re-enable the old functionality by fixing the dts.
 
 [1] https://lore.kernel.org/r/20220824142229.RFT.v2.2.I6f77860e5cd98bf5c67208fa9edda4a08847c304@changeid
 
-Fixes: 69cdb97ef652 ("arm64: dts: qcom: sm8250: Add support for SONY Xperia 1 II / 5 II (Edo platform)")
+Fixes: 9208c19f2124 ("arm64: dts: qcom: Introduce SM8350 HDK")
 Signed-off-by: Douglas Anderson <dianders@chromium.org>
 Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
 Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20220829094903.v2.5.Ie446d5183d8b1e9ec4e32228ca300e604e3315eb@changeid
+Link: https://lore.kernel.org/r/20220829094903.v2.6.I6799be85cf36d3b494f803cba767a569080624f5@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/boot/dts/qcom/sm8350-hdk.dts | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi b/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi
-index 549e0a2aa9fe..5428aab3058d 100644
---- a/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8250-sony-xperia-edo.dtsi
-@@ -317,6 +317,9 @@ vreg_l6c_2p9: ldo6 {
- 			regulator-max-microvolt = <2960000>;
+diff --git a/arch/arm64/boot/dts/qcom/sm8350-hdk.dts b/arch/arm64/boot/dts/qcom/sm8350-hdk.dts
+index 0fcf5bd88fc7..69ae6503c2f6 100644
+--- a/arch/arm64/boot/dts/qcom/sm8350-hdk.dts
++++ b/arch/arm64/boot/dts/qcom/sm8350-hdk.dts
+@@ -107,6 +107,9 @@ vreg_l5b_0p88: ldo5 {
+ 			regulator-max-microvolt = <888000>;
  			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
  			regulator-allow-set-load;
 +			regulator-allowed-modes =
@@ -97,9 +99,9 @@ index 549e0a2aa9fe..5428aab3058d 100644
 +			     RPMH_REGULATOR_MODE_HPM>;
  		};
  
- 		vreg_l7c_2p85: ldo7 {
-@@ -339,6 +342,9 @@ vreg_l9c_2p9: ldo9 {
- 			regulator-max-microvolt = <2960000>;
+ 		vreg_l6b_1p2: ldo6 {
+@@ -115,6 +118,9 @@ vreg_l6b_1p2: ldo6 {
+ 			regulator-max-microvolt = <1208000>;
  			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
  			regulator-allow-set-load;
 +			regulator-allowed-modes =
@@ -107,7 +109,27 @@ index 549e0a2aa9fe..5428aab3058d 100644
 +			     RPMH_REGULATOR_MODE_HPM>;
  		};
  
- 		vreg_l10c_3p3: ldo10 {
+ 		vreg_l7b_2p96: ldo7 {
+@@ -123,6 +129,9 @@ vreg_l7b_2p96: ldo7 {
+ 			regulator-max-microvolt = <2504000>;
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 			regulator-allow-set-load;
++			regulator-allowed-modes =
++			    <RPMH_REGULATOR_MODE_LPM
++			     RPMH_REGULATOR_MODE_HPM>;
+ 		};
+ 
+ 		vreg_l9b_1p2: ldo9 {
+@@ -131,6 +140,9 @@ vreg_l9b_1p2: ldo9 {
+ 			regulator-max-microvolt = <1200000>;
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 			regulator-allow-set-load;
++			regulator-allowed-modes =
++			    <RPMH_REGULATOR_MODE_LPM
++			     RPMH_REGULATOR_MODE_HPM>;
+ 		};
+ 	};
+ 
 -- 
 2.35.1
 
