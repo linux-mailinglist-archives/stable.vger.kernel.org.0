@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50200635872
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:58:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8ED46356E0
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237105AbiKWJ6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:58:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52484 "EHLO
+        id S237906AbiKWJfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:35:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238297AbiKWJ5P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:57:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69A076DCC4
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:51:51 -0800 (PST)
+        with ESMTP id S237788AbiKWJe4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:34:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2BA812D0B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:32:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0464061A02
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:51:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB9B5C433D6;
-        Wed, 23 Nov 2022 09:51:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E5EB61B66
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:32:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95825C433C1;
+        Wed, 23 Nov 2022 09:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197110;
-        bh=0HQEUKsoekTE+qok1gUWTwFfslP83Sa0uNAbwJwljRU=;
+        s=korg; t=1669195964;
+        bh=eNwbElfpjoYX+eKqbB93aiUjQFdjIuR6s5gPOYje37A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dCefjWaI9UclzhfmMUr8BeQWBx1KNDRQvcFjfs6oXALKcA0WkB357PYW3bdBEbKB4
-         rv5DUP23hDcyLBNIjZmZC5Fwsabcb0UJ/C6ABj3NkxdWcGv4fF4KNZOUmdBCwjIWS7
-         gbQDomSkX5bnOEv3S5voRr4O5iyPQQ6sZBEExteY=
+        b=VJ8bZdHVJdxiH3S9vABIO5OAP7FyKeIUtt3GiWtEOw9oa2RdhBfLAHYowj9Dl/73w
+         wVzTlEWfMzxW/hgKyXrzk5+Zn2blmll5ZQiFzqULiafsOU37RQxCfl1qiIoqKc8p31
+         E+Yv0N3f3GuMVVM2zxh/ZN7bHGpvsLWNq82w0IHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.0 199/314] ring_buffer: Do not deactivate non-existant pages
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 081/181] net: hinic: Fix error handling in hinic_module_init()
 Date:   Wed, 23 Nov 2022 09:50:44 +0100
-Message-Id: <20221123084634.571881575@linuxfoundation.org>
+Message-Id: <20221123084605.835952588@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Yuan Can <yuancan@huawei.com>
 
-commit 56f4ca0a79a9f1af98f26c54b9b89ba1f9bcc6bd upstream.
+[ Upstream commit 8eab9be56cc6b702a445d2b6d0256aa0992316b3 ]
 
-rb_head_page_deactivate() expects cpu_buffer to contain a valid list of
-->pages, so verify that the list is actually present before calling it.
+A problem about hinic create debugfs failed is triggered with the
+following log given:
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
+ [  931.419023] debugfs: Directory 'hinic' with parent '/' already present!
 
-Link: https://lkml.kernel.org/r/20221114143129.3534443-1-d-tatianin@yandex-team.ru
+The reason is that hinic_module_init() returns pci_register_driver()
+directly without checking its return value, if pci_register_driver()
+failed, it returns without destroy the newly created debugfs, resulting
+the debugfs of hinic can never be created later.
 
-Cc: stable@vger.kernel.org
-Fixes: 77ae365eca895 ("ring-buffer: make lockless")
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ hinic_module_init()
+   hinic_dbg_register_debugfs() # create debugfs directory
+   pci_register_driver()
+     driver_register()
+       bus_add_driver()
+         priv = kzalloc(...) # OOM happened
+   # return without destroy debugfs directory
+
+Fix by removing debugfs when pci_register_driver() returns error.
+
+Fixes: 253ac3a97921 ("hinic: add support to query sq info")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20221110021642.80378-1-yuancan@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ring_buffer.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/huawei/hinic/hinic_main.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -1769,9 +1769,9 @@ static void rb_free_cpu_buffer(struct ri
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_main.c b/drivers/net/ethernet/huawei/hinic/hinic_main.c
+index 8c6ec7c25809..92fba9a0c371 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_main.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_main.c
+@@ -1482,8 +1482,15 @@ static struct pci_driver hinic_driver = {
  
- 	free_buffer_page(cpu_buffer->reader_page);
- 
--	rb_head_page_deactivate(cpu_buffer);
--
- 	if (head) {
-+		rb_head_page_deactivate(cpu_buffer);
+ static int __init hinic_module_init(void)
+ {
++	int ret;
 +
- 		list_for_each_entry_safe(bpage, tmp, head, list) {
- 			list_del_init(&bpage->list);
- 			free_buffer_page(bpage);
+ 	hinic_dbg_register_debugfs(HINIC_DRV_NAME);
+-	return pci_register_driver(&hinic_driver);
++
++	ret = pci_register_driver(&hinic_driver);
++	if (ret)
++		hinic_dbg_unregister_debugfs();
++
++	return ret;
+ }
+ 
+ static void __exit hinic_module_exit(void)
+-- 
+2.35.1
+
 
 
