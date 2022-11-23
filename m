@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC754635438
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0317A6356B8
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237022AbiKWJFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:05:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41254 "EHLO
+        id S237806AbiKWJeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:34:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236993AbiKWJFG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:05:06 -0500
+        with ESMTP id S237787AbiKWJdz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:33:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EF731001F1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:05:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4555A1121D8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEBD2B81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:05:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FDA5C4347C;
-        Wed, 23 Nov 2022 09:05:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00122B81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 421ECC433D6;
+        Wed, 23 Nov 2022 09:31:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194302;
-        bh=oNO64aBCJOIWPv5An76/4b06BcQ+bSU0o7fOuMRVxfo=;
+        s=korg; t=1669195908;
+        bh=RLDtlTnrE7cVkKd7rPPy3PkmhBDWls6IPohDCAXxalg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lFy9PxwXCjT1ScYPH3a2S6jH4g7syYXZ3h2hqYtEhkw8RvmPh5nvHLJyBs/GweFQ0
-         01uaI+Ldaa+WclTlB/hpjYY6EnrdhI/rxuvMvwJjaUtyIDdBU9n2S3awhMxF0m2VpX
-         jTqu2+D+s/PRMfiUpOchyVGq7RUs5/IAtMlSvNgo=
+        b=h9tBQdnNoqSf+QuDIH1sNKHZcgsn/dv/wxWlm/IBWfH3SPJ8UM5d0TefRseFP49Nl
+         qOrPPTHfyKi3GO30aVEvazLxNDGqgiuXzFR+E5msLu6MYt0uLJt6JLJay5BumRl2a+
+         JnZ/LbPZMcYFrITIEM7Ba3WrGSU09bS+X1VSlOKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Like Xu <likexu@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 012/114] ipv6: addrlabel: fix infoleak when sending struct ifaddrlblmsg to network
+Subject: [PATCH 5.15 036/181] KVM: x86/pmu: Do not speculatively query Intel GP PMCs that dont exist yet
 Date:   Wed, 23 Nov 2022 09:49:59 +0100
-Message-Id: <20221123084552.337303067@linuxfoundation.org>
+Message-Id: <20221123084603.926483424@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Like Xu <likexu@tencent.com>
 
-[ Upstream commit c23fb2c82267638f9d206cb96bb93e1f93ad7828 ]
+[ Upstream commit 8631ef59b62290c7d88e7209e35dfb47f33f4902 ]
 
-When copying a `struct ifaddrlblmsg` to the network, __ifal_reserved
-remained uninitialized, resulting in a 1-byte infoleak:
+The SDM lists an architectural MSR IA32_CORE_CAPABILITIES (0xCF)
+that limits the theoretical maximum value of the Intel GP PMC MSRs
+allocated at 0xC1 to 14; likewise the Intel April 2022 SDM adds
+IA32_OVERCLOCKING_STATUS at 0x195 which limits the number of event
+selection MSRs to 15 (0x186-0x194).
 
-  BUG: KMSAN: kernel-network-infoleak in __netdev_start_xmit ./include/linux/netdevice.h:4841
-   __netdev_start_xmit ./include/linux/netdevice.h:4841
-   netdev_start_xmit ./include/linux/netdevice.h:4857
-   xmit_one net/core/dev.c:3590
-   dev_hard_start_xmit+0x1dc/0x800 net/core/dev.c:3606
-   __dev_queue_xmit+0x17e8/0x4350 net/core/dev.c:4256
-   dev_queue_xmit ./include/linux/netdevice.h:3009
-   __netlink_deliver_tap_skb net/netlink/af_netlink.c:307
-   __netlink_deliver_tap+0x728/0xad0 net/netlink/af_netlink.c:325
-   netlink_deliver_tap net/netlink/af_netlink.c:338
-   __netlink_sendskb net/netlink/af_netlink.c:1263
-   netlink_sendskb+0x1d9/0x200 net/netlink/af_netlink.c:1272
-   netlink_unicast+0x56d/0xf50 net/netlink/af_netlink.c:1360
-   nlmsg_unicast ./include/net/netlink.h:1061
-   rtnl_unicast+0x5a/0x80 net/core/rtnetlink.c:758
-   ip6addrlbl_get+0xfad/0x10f0 net/ipv6/addrlabel.c:628
-   rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
-  ...
-  Uninit was created at:
-   slab_post_alloc_hook+0x118/0xb00 mm/slab.h:742
-   slab_alloc_node mm/slub.c:3398
-   __kmem_cache_alloc_node+0x4f2/0x930 mm/slub.c:3437
-   __do_kmalloc_node mm/slab_common.c:954
-   __kmalloc_node_track_caller+0x117/0x3d0 mm/slab_common.c:975
-   kmalloc_reserve net/core/skbuff.c:437
-   __alloc_skb+0x27a/0xab0 net/core/skbuff.c:509
-   alloc_skb ./include/linux/skbuff.h:1267
-   nlmsg_new ./include/net/netlink.h:964
-   ip6addrlbl_get+0x490/0x10f0 net/ipv6/addrlabel.c:608
-   rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
-   netlink_rcv_skb+0x299/0x550 net/netlink/af_netlink.c:2540
-   rtnetlink_rcv+0x26/0x30 net/core/rtnetlink.c:6109
-   netlink_unicast_kernel net/netlink/af_netlink.c:1319
-   netlink_unicast+0x9ab/0xf50 net/netlink/af_netlink.c:1345
-   netlink_sendmsg+0xebc/0x10f0 net/netlink/af_netlink.c:1921
-  ...
+Limiting the maximum number of counters to 14 or 18 based on the currently
+allocated MSRs is clearly fragile, and it seems likely that Intel will
+even place PMCs 8-15 at a completely different range of MSR indices.
+So stop at the maximum number of GP PMCs supported today on Intel
+processors.
 
-This patch ensures that the reserved field is always initialized.
+There are some machines, like Intel P4 with non Architectural PMU, that
+may indeed have 18 counters, but those counters are in a completely
+different MSR address range and are not supported by KVM.
 
-Reported-by: syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com
-Fixes: 2a8cc6c89039 ("[IPV6] ADDRCONF: Support RFC3484 configurable address selection policy table.")
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: cf05a67b68b8 ("KVM: x86: omit "impossible" pmu MSRs from MSR list")
+Suggested-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Like Xu <likexu@tencent.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Message-Id: <20220919091008.60695-1-likexu@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/addrlabel.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/x86.c | 14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
-diff --git a/net/ipv6/addrlabel.c b/net/ipv6/addrlabel.c
-index c7dc8b2de6c2..7fdd433b968e 100644
---- a/net/ipv6/addrlabel.c
-+++ b/net/ipv6/addrlabel.c
-@@ -437,6 +437,7 @@ static void ip6addrlbl_putmsg(struct nlmsghdr *nlh,
- {
- 	struct ifaddrlblmsg *ifal = nlmsg_data(nlh);
- 	ifal->ifal_family = AF_INET6;
-+	ifal->__ifal_reserved = 0;
- 	ifal->ifal_prefixlen = prefixlen;
- 	ifal->ifal_flags = 0;
- 	ifal->ifal_index = ifindex;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 7f41e1f9f0b4..c58e23e9b5ec 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1347,20 +1347,10 @@ static const u32 msrs_to_save_all[] = {
+ 	MSR_ARCH_PERFMON_PERFCTR0 + 2, MSR_ARCH_PERFMON_PERFCTR0 + 3,
+ 	MSR_ARCH_PERFMON_PERFCTR0 + 4, MSR_ARCH_PERFMON_PERFCTR0 + 5,
+ 	MSR_ARCH_PERFMON_PERFCTR0 + 6, MSR_ARCH_PERFMON_PERFCTR0 + 7,
+-	MSR_ARCH_PERFMON_PERFCTR0 + 8, MSR_ARCH_PERFMON_PERFCTR0 + 9,
+-	MSR_ARCH_PERFMON_PERFCTR0 + 10, MSR_ARCH_PERFMON_PERFCTR0 + 11,
+-	MSR_ARCH_PERFMON_PERFCTR0 + 12, MSR_ARCH_PERFMON_PERFCTR0 + 13,
+-	MSR_ARCH_PERFMON_PERFCTR0 + 14, MSR_ARCH_PERFMON_PERFCTR0 + 15,
+-	MSR_ARCH_PERFMON_PERFCTR0 + 16, MSR_ARCH_PERFMON_PERFCTR0 + 17,
+ 	MSR_ARCH_PERFMON_EVENTSEL0, MSR_ARCH_PERFMON_EVENTSEL1,
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 2, MSR_ARCH_PERFMON_EVENTSEL0 + 3,
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 4, MSR_ARCH_PERFMON_EVENTSEL0 + 5,
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 6, MSR_ARCH_PERFMON_EVENTSEL0 + 7,
+-	MSR_ARCH_PERFMON_EVENTSEL0 + 8, MSR_ARCH_PERFMON_EVENTSEL0 + 9,
+-	MSR_ARCH_PERFMON_EVENTSEL0 + 10, MSR_ARCH_PERFMON_EVENTSEL0 + 11,
+-	MSR_ARCH_PERFMON_EVENTSEL0 + 12, MSR_ARCH_PERFMON_EVENTSEL0 + 13,
+-	MSR_ARCH_PERFMON_EVENTSEL0 + 14, MSR_ARCH_PERFMON_EVENTSEL0 + 15,
+-	MSR_ARCH_PERFMON_EVENTSEL0 + 16, MSR_ARCH_PERFMON_EVENTSEL0 + 17,
+ 
+ 	MSR_K7_EVNTSEL0, MSR_K7_EVNTSEL1, MSR_K7_EVNTSEL2, MSR_K7_EVNTSEL3,
+ 	MSR_K7_PERFCTR0, MSR_K7_PERFCTR1, MSR_K7_PERFCTR2, MSR_K7_PERFCTR3,
+@@ -6449,12 +6439,12 @@ static void kvm_init_msr_list(void)
+ 				intel_pt_validate_hw_cap(PT_CAP_num_address_ranges) * 2)
+ 				continue;
+ 			break;
+-		case MSR_ARCH_PERFMON_PERFCTR0 ... MSR_ARCH_PERFMON_PERFCTR0 + 17:
++		case MSR_ARCH_PERFMON_PERFCTR0 ... MSR_ARCH_PERFMON_PERFCTR0 + 7:
+ 			if (msrs_to_save_all[i] - MSR_ARCH_PERFMON_PERFCTR0 >=
+ 			    min(INTEL_PMC_MAX_GENERIC, x86_pmu.num_counters_gp))
+ 				continue;
+ 			break;
+-		case MSR_ARCH_PERFMON_EVENTSEL0 ... MSR_ARCH_PERFMON_EVENTSEL0 + 17:
++		case MSR_ARCH_PERFMON_EVENTSEL0 ... MSR_ARCH_PERFMON_EVENTSEL0 + 7:
+ 			if (msrs_to_save_all[i] - MSR_ARCH_PERFMON_EVENTSEL0 >=
+ 			    min(INTEL_PMC_MAX_GENERIC, x86_pmu.num_counters_gp))
+ 				continue;
 -- 
 2.35.1
 
