@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B206357D1
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:47:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6140C6357C6
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:46:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237988AbiKWJog (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:44:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39230 "EHLO
+        id S238127AbiKWJoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:44:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238003AbiKWJoP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:44:15 -0500
+        with ESMTP id S238139AbiKWJoW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:44:22 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B28D1D5A0D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:42:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABBA6DEAEC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:42:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DF5461B7C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:42:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12319C433C1;
-        Wed, 23 Nov 2022 09:42:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D7BB61B56
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:42:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DAE3C433D6;
+        Wed, 23 Nov 2022 09:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196535;
-        bh=Fm12baPjYoNch4H1j/diuKG6XzVUOnv//UMdldRP9EE=;
+        s=korg; t=1669196539;
+        bh=IDovsT+QhP/9OK7dKsXTow+ChFDjK4jPLt6qQPOf2/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yJL1E5lFPpFcS+5fgxMK6EO3Djckf0UVm2LtC3EYu5KvgsZwjgathccAQduWZtCS+
-         mnV9lq3fBeE23jJIc5NwWV8HtO8b4cXNrR9Qf7HwmIaZe0aQlG/zU+spoqlxxURjAI
-         DfKWcZFxjUhLHLIhYWUYFaFKVBv1u1t0kMK3Nwpo=
+        b=OKqEgXVZlNL2MleduRIA2A+zAjeOJb9TW1yu3UUM9iXEnZIcoet3ZjKMJ0/iUXYPU
+         zal8HV+HpBEMjRXLUfE1452KVgjMaD9KuqEwJ2kqrOnOTvBFCZT5b2WtnvaMr256Iz
+         w8Qafbp29a7g4/xCtBepuMLR5H/98H2DLHIFQ9P4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Zhe <yuzhe@nfschina.com>,
-        Dan Williams <dan.j.williams@intel.com>,
+        patches@lists.linux.dev, Tony Luck <tony.luck@intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 058/314] cxl/pmem: Use size_add() against integer overflow
-Date:   Wed, 23 Nov 2022 09:48:23 +0100
-Message-Id: <20221123084628.131829259@linuxfoundation.org>
+Subject: [PATCH 6.0 059/314] x86/cpu: Add several Intel server CPU model numbers
+Date:   Wed, 23 Nov 2022 09:48:24 +0100
+Message-Id: <20221123084628.168614449@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -53,34 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Zhe <yuzhe@nfschina.com>
+From: Tony Luck <tony.luck@intel.com>
 
-[ Upstream commit 4f1aa35f1fb7d51b125487c835982af792697ecb ]
+[ Upstream commit 7beade0dd41d42d797ccb7791b134a77fcebf35b ]
 
-"struct_size() + n" may cause a integer overflow,
-use size_add() to handle it.
+These servers are all on the public versions of the roadmap. The model
+numbers for Grand Ridge, Granite Rapids, and Sierra Forest were included
+in the September 2022 edition of the Instruction Set Extensions document.
 
-Signed-off-by: Yu Zhe <yuzhe@nfschina.com>
-Link: https://lore.kernel.org/r/20220927070247.23148-1-yuzhe@nfschina.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+Link: https://lore.kernel.org/r/20221103203310.5058-1-tony.luck@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cxl/pmem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/intel-family.h | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cxl/pmem.c b/drivers/cxl/pmem.c
-index faade12279f0..e0646097a3d4 100644
---- a/drivers/cxl/pmem.c
-+++ b/drivers/cxl/pmem.c
-@@ -151,7 +151,7 @@ static int cxl_pmem_set_config_data(struct cxl_dev_state *cxlds,
- 		return -EINVAL;
+diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
+index 5d75fe229342..347707d459c6 100644
+--- a/arch/x86/include/asm/intel-family.h
++++ b/arch/x86/include/asm/intel-family.h
+@@ -107,6 +107,11 @@
  
- 	/* 4-byte status follows the input data in the payload */
--	if (struct_size(cmd, in_buf, cmd->in_length) + 4 > buf_len)
-+	if (size_add(struct_size(cmd, in_buf, cmd->in_length), 4) > buf_len)
- 		return -EINVAL;
+ #define INTEL_FAM6_SAPPHIRERAPIDS_X	0x8F	/* Golden Cove */
  
- 	set_lsa =
++#define INTEL_FAM6_EMERALDRAPIDS_X	0xCF
++
++#define INTEL_FAM6_GRANITERAPIDS_X	0xAD
++#define INTEL_FAM6_GRANITERAPIDS_D	0xAE
++
+ #define INTEL_FAM6_ALDERLAKE		0x97	/* Golden Cove / Gracemont */
+ #define INTEL_FAM6_ALDERLAKE_L		0x9A	/* Golden Cove / Gracemont */
+ #define INTEL_FAM6_ALDERLAKE_N		0xBE
+@@ -118,7 +123,7 @@
+ #define INTEL_FAM6_METEORLAKE		0xAC
+ #define INTEL_FAM6_METEORLAKE_L		0xAA
+ 
+-/* "Small Core" Processors (Atom) */
++/* "Small Core" Processors (Atom/E-Core) */
+ 
+ #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
+ #define INTEL_FAM6_ATOM_BONNELL_MID	0x26 /* Silverthorne, Lincroft */
+@@ -145,6 +150,10 @@
+ #define INTEL_FAM6_ATOM_TREMONT		0x96 /* Elkhart Lake */
+ #define INTEL_FAM6_ATOM_TREMONT_L	0x9C /* Jasper Lake */
+ 
++#define INTEL_FAM6_SIERRAFOREST_X	0xAF
++
++#define INTEL_FAM6_GRANDRIDGE		0xB6
++
+ /* Xeon Phi */
+ 
+ #define INTEL_FAM6_XEON_PHI_KNL		0x57 /* Knights Landing */
 -- 
 2.35.1
 
