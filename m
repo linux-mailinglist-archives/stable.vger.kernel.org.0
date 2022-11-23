@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 360E0635444
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C75AE6355C0
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236938AbiKWJD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:03:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40578 "EHLO
+        id S236984AbiKWJVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:21:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237008AbiKWJDS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:03:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D847FCDE8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:03:17 -0800 (PST)
+        with ESMTP id S237418AbiKWJUl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:20:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 702C82BB28
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:20:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1BA6B81ECB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:03:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDA84C433D6;
-        Wed, 23 Nov 2022 09:03:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A8A061A00
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:20:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9467C433D7;
+        Wed, 23 Nov 2022 09:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194194;
-        bh=szS3QkFqpIu8mbDgyz5/uhov/DHdsSLMaYVs/w94Yrg=;
+        s=korg; t=1669195238;
+        bh=8s1SAEAUQi9Iu/CB0Z3srSJkqdB0oJJaPfhfxwFNUpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=op/7MZ5/Y91eoC9vYNtR2PuSA56pIHw16gSQMw/ttcfk/6ic4HYfp0MEjojt+2751
-         uUgipqsTa5rFbyYXFxjAxZd0mhiQLSds5KgrcErIPux0WZ2FpnbaJxMnu9ZgV3GF4F
-         jJeTQyDjXBwjpWltxapbyOUZq0OedWzWNlcZ06tA=
+        b=CcvE5kcvZTlJiUDeFCoGG4ojQYQRfX2XX+N9oyO+UTlrF1aBBGiijj2Rn9olhnBIK
+         7ebizACizatu7VkFATqAMMTWh9mFQy9OU4AA6Mk2dFrSBraKist1VFBZgjR+67vRwC
+         bJqFpZdvMYkOHCAND9wkeFg4ZPa/DGPG2NTEKyyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Mauro Lima <mauro.lima@eclypsium.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 002/114] wifi: cfg80211: fix memory leak in query_regdb_file()
+Subject: [PATCH 5.10 006/149] spi: intel: Fix the offset to get the 64K erase opcode
 Date:   Wed, 23 Nov 2022 09:49:49 +0100
-Message-Id: <20221123084551.955021281@linuxfoundation.org>
+Message-Id: <20221123084558.195125006@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arend van Spriel <arend.vanspriel@broadcom.com>
+From: Mauro Lima <mauro.lima@eclypsium.com>
 
-[ Upstream commit 57b962e627ec0ae53d4d16d7bd1033e27e67677a ]
+[ Upstream commit 6a43cd02ddbc597dc9a1f82c1e433f871a2f6f06 ]
 
-In the function query_regdb_file() the alpha2 parameter is duplicated
-using kmemdup() and subsequently freed in regdb_fw_cb(). However,
-request_firmware_nowait() can fail without calling regdb_fw_cb() and
-thus leak memory.
+According to documentation, the 64K erase opcode is located in VSCC
+range [16:23] instead of [8:15].
+Use the proper value to shift the mask over the correct range.
 
-Fixes: 007f6c5e6eb4 ("cfg80211: support loading regulatory database as firmware file")
-Signed-off-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Mauro Lima <mauro.lima@eclypsium.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Link: https://lore.kernel.org/r/20221012152135.28353-1-mauro.lima@eclypsium.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/mtd/spi-nor/controllers/intel-spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index dd8503a3ef1e..07d053603e3a 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -1050,6 +1050,8 @@ static void regdb_fw_cb(const struct firmware *fw, void *context)
+diff --git a/drivers/mtd/spi-nor/controllers/intel-spi.c b/drivers/mtd/spi-nor/controllers/intel-spi.c
+index b54a56a68100..b4b0affd16c8 100644
+--- a/drivers/mtd/spi-nor/controllers/intel-spi.c
++++ b/drivers/mtd/spi-nor/controllers/intel-spi.c
+@@ -117,7 +117,7 @@
+ #define ERASE_OPCODE_SHIFT		8
+ #define ERASE_OPCODE_MASK		(0xff << ERASE_OPCODE_SHIFT)
+ #define ERASE_64K_OPCODE_SHIFT		16
+-#define ERASE_64K_OPCODE_MASK		(0xff << ERASE_OPCODE_SHIFT)
++#define ERASE_64K_OPCODE_MASK		(0xff << ERASE_64K_OPCODE_SHIFT)
  
- static int query_regdb_file(const char *alpha2)
- {
-+	int err;
-+
- 	ASSERT_RTNL();
- 
- 	if (regdb)
-@@ -1059,9 +1061,13 @@ static int query_regdb_file(const char *alpha2)
- 	if (!alpha2)
- 		return -ENOMEM;
- 
--	return request_firmware_nowait(THIS_MODULE, true, "regulatory.db",
--				       &reg_pdev->dev, GFP_KERNEL,
--				       (void *)alpha2, regdb_fw_cb);
-+	err = request_firmware_nowait(THIS_MODULE, true, "regulatory.db",
-+				      &reg_pdev->dev, GFP_KERNEL,
-+				      (void *)alpha2, regdb_fw_cb);
-+	if (err)
-+		kfree(alpha2);
-+
-+	return err;
- }
- 
- int reg_reload_regdb(void)
+ #define INTEL_SPI_TIMEOUT		5000 /* ms */
+ #define INTEL_SPI_FIFO_SZ		64
 -- 
 2.35.1
 
