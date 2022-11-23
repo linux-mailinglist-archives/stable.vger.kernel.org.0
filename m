@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3039C63571B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2CFF635927
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238060AbiKWJh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:37:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58330 "EHLO
+        id S236571AbiKWKGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:06:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237945AbiKWJh0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 295216164
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:27 -0800 (PST)
+        with ESMTP id S236730AbiKWKFR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:05:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58112122968
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BACCE61B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B06D8C433C1;
-        Wed, 23 Nov 2022 09:35:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51521B81EF0
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A51FC433C1;
+        Wed, 23 Nov 2022 09:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196126;
-        bh=mCmpBwT8Ioz8zoxuf/jc5cRTM5dhY4OjpjcHwzkIS2o=;
+        s=korg; t=1669197365;
+        bh=uq07HycUuh2aczJEPzhjUVLluB6NOHBwxU9ddSm4wSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4V5Zu/V3QgnBNK5NATv8hkrrfVSbF8ESd58lbC7KMRQ8mUcEa4akep6dEX2r5Nbc
-         iq4fVaGAXejx6U/O0C3sIOR44ZyF6opX/Xo4JdfRMGUZy6kHdFh/NYBPX4uhThLgZo
-         77XyU0OByuyyQxEy7o6AgTObTPRgKHEyaOxm4PcA=
+        b=0KKNAn1bB0LJqFwAKIIlzexFHEcfh8OfnP9CGSz12J50MyTiGG62u/ZVtaRGqK7BH
+         fjMKzWOhuSyu1FAtvlZdBxbLo9BN80aP6uaBxBKlVjqd0HKbQW9usSOdJoZAVoOTlu
+         H3ckYyN6jE0fsmKG5/Wq8olZijfmsuryWWyBdHZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Chuhong Yuan <hslester96@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        stable <stable@kernel.org>
-Subject: [PATCH 5.15 125/181] USB: bcma: Make GPIO explicitly optional
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Sven Peter <sven@svenpeter.dev>,
+        Eric Curtin <ecurtin@redhat.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Subject: [PATCH 6.0 243/314] usb: typec: tipd: Prevent uninitialized event{1,2} in IRQ handler
 Date:   Wed, 23 Nov 2022 09:51:28 +0100
-Message-Id: <20221123084607.779061889@linuxfoundation.org>
+Message-Id: <20221123084636.496667105@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Sven Peter <sven@svenpeter.dev>
 
-commit cd136706b4f925aa5d316642543babac90d45910 upstream.
+commit 6d8fc203b28ff8f6115fbe5eaf584de8b824f4fa upstream.
 
-What the code does is to not check the return value from
-devm_gpiod_get() and then avoid using an erroneous GPIO descriptor
-with IS_ERR_OR_NULL().
+If reading TPS_REG_INT_EVENT1/2 fails in the interrupt handler event1
+and event2 may be uninitialized when they are used to determine
+IRQ_HANDLED vs. IRQ_NONE in the error path.
 
-This will miss real errors from the GPIO core that should not be
-ignored, such as probe deferral.
-
-Instead request the GPIO as explicitly optional, which means that
-if it doesn't exist, the descriptor returned will be NULL.
-
-Then we can add error handling and also avoid just doing this on
-the device tree path, and simplify the site where the optional
-GPIO descriptor is used.
-
-There were some problems with cleaning up this GPIO descriptor
-use in the past, but this is the proper way to deal with it.
-
-Cc: Rafał Miłecki <rafal@milecki.pl>
-Cc: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: c7260e29dd20 ("usb: typec: tipd: Add short-circuit for no irqs")
+Fixes: 45188f27b3d0 ("usb: typec: tipd: Add support for Apple CD321X")
 Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20221107090753.1404679-1-linus.walleij@linaro.org
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Reviewed-by: Eric Curtin <ecurtin@redhat.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Guido Günther <agx@sigxcpu.org>
+Link: https://lore.kernel.org/r/20221102161542.30669-1-sven@svenpeter.dev
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/bcma-hcd.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/usb/typec/tipd/core.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/host/bcma-hcd.c
-+++ b/drivers/usb/host/bcma-hcd.c
-@@ -285,7 +285,7 @@ static void bcma_hci_platform_power_gpio
+--- a/drivers/usb/typec/tipd/core.c
++++ b/drivers/usb/typec/tipd/core.c
+@@ -474,7 +474,7 @@ static void tps6598x_handle_plug_event(s
+ static irqreturn_t cd321x_interrupt(int irq, void *data)
  {
- 	struct bcma_hcd_device *usb_dev = bcma_get_drvdata(dev);
+ 	struct tps6598x *tps = data;
+-	u64 event;
++	u64 event = 0;
+ 	u32 status;
+ 	int ret;
  
--	if (IS_ERR_OR_NULL(usb_dev->gpio_desc))
-+	if (!usb_dev->gpio_desc)
- 		return;
+@@ -519,8 +519,8 @@ err_unlock:
+ static irqreturn_t tps6598x_interrupt(int irq, void *data)
+ {
+ 	struct tps6598x *tps = data;
+-	u64 event1;
+-	u64 event2;
++	u64 event1 = 0;
++	u64 event2 = 0;
+ 	u32 status;
+ 	int ret;
  
- 	gpiod_set_value(usb_dev->gpio_desc, val);
-@@ -406,9 +406,11 @@ static int bcma_hcd_probe(struct bcma_de
- 		return -ENOMEM;
- 	usb_dev->core = core;
- 
--	if (core->dev.of_node)
--		usb_dev->gpio_desc = devm_gpiod_get(&core->dev, "vcc",
--						    GPIOD_OUT_HIGH);
-+	usb_dev->gpio_desc = devm_gpiod_get_optional(&core->dev, "vcc",
-+						     GPIOD_OUT_HIGH);
-+	if (IS_ERR(usb_dev->gpio_desc))
-+		return dev_err_probe(&core->dev, PTR_ERR(usb_dev->gpio_desc),
-+				     "error obtaining VCC GPIO");
- 
- 	switch (core->id.id) {
- 	case BCMA_CORE_USB20_HOST:
 
 
