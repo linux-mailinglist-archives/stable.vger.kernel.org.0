@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D363B6353A9
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43D0D6353DB
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236564AbiKWIz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:55:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58762 "EHLO
+        id S236807AbiKWJAF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:00:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236754AbiKWIzW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:55:22 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9CF4FF409
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:55:06 -0800 (PST)
+        with ESMTP id S236547AbiKWI7z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:59:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE80CFFA8A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:59:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 603BBCE20E5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:55:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18392C43145;
-        Wed, 23 Nov 2022 08:55:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99139B81EEF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:59:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA450C433D6;
+        Wed, 23 Nov 2022 08:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193703;
-        bh=+MqoBCHu0QanH+p+pdeXzKJ6GhGyFUGvVeR0YZQAmeE=;
+        s=korg; t=1669193992;
+        bh=kJ54kQwvYYVFdgE1bUWDINk7Vi8pAsHGDMtpQe3PfF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ruF+9w58W4a9ttDoHMLO1yT8AG5lirC0lvq3VrbnG+2Fwsk3cCHuppaeMbIkXdSDD
-         ae0ysgIdHeBvPsZcse3vLeqDCRhJuVvBdWBpkRJD+p4BVOs1zkMB09DVM76eLoCgWv
-         ZVRTGQxxZNj9kQN4TWkByaJkBx9J002LZ9AiVZ78=
+        b=kx1yemuGvn6vKEgwt3aUK4RzrY6pORy1Z8rwsY61IC1hO2hFLCOV1uEtWSqV4313P
+         7WY6ZlDGy80bnOR0q49rhwhaiDTY56A84dYmyUCIAgAHavIYQ+bE5kYrv508V1ChwC
+         CX5b8HvpeVF4dKJpJs9LfaundtCp92YHRutDAlts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 38/76] parport_pc: Avoid FIFO port location truncation
+Subject: [PATCH 4.14 40/88] tty: n_gsm: fix sleep-in-atomic-context bug in gsm_control_send
 Date:   Wed, 23 Nov 2022 09:50:37 +0100
-Message-Id: <20221123084547.982508791@linuxfoundation.org>
+Message-Id: <20221123084549.888167886@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit ab126f51c93a15093df604f661c9480854c005a3 ]
+[ Upstream commit 7b7dfe4833c70a11cdfa51b38705103bd31eddaa ]
 
-Match the data type of a temporary holding a reference to the FIFO port
-with the type of the original reference coming from `struct parport',
-avoiding data truncation with LP64 ports such as SPARC64 that refer to
-PCI port I/O locations via their corresponding MMIO addresses and will
-therefore have non-zero bits in the high 32-bit part of the reference.
-And in any case it is cleaner to have the data types matching here.
+The function gsm_dlci_t1() is a timer handler that runs in an
+atomic context, but it calls "kzalloc(..., GFP_KERNEL)" that
+may sleep. As a result, the sleep-in-atomic-context bug will
+happen. The process is shown below:
 
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Link: https://lore.kernel.org/linux-pci/20220419033752.GA1101844@bhelgaas/
-Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209231912550.29493@angie.orcam.me.uk
+gsm_dlci_t1()
+ gsm_dlci_open()
+  gsm_modem_update()
+   gsm_modem_upd_via_msc()
+    gsm_control_send()
+     kzalloc(sizeof(.., GFP_KERNEL) //may sleep
+
+This patch changes the gfp_t parameter of kzalloc() from GFP_KERNEL to
+GFP_ATOMIC in order to mitigate the bug.
+
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20221002040709.27849-1-duoming@zju.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parport/parport_pc.c | 2 +-
+ drivers/tty/n_gsm.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
-index 02e6485c1ed5..8c72d54d8d16 100644
---- a/drivers/parport/parport_pc.c
-+++ b/drivers/parport/parport_pc.c
-@@ -474,7 +474,7 @@ static size_t parport_pc_fifo_write_block_pio(struct parport *port,
- 	const unsigned char *bufp = buf;
- 	size_t left = length;
- 	unsigned long expire = jiffies + port->physport->cad->timeout;
--	const int fifo = FIFO(port);
-+	const unsigned long fifo = FIFO(port);
- 	int poll_for = 8; /* 80 usecs */
- 	const struct parport_pc_private *priv = port->physport->private_data;
- 	const int fifo_depth = priv->fifo_depth;
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 1d50f3ab4e5a..97f6860c911e 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1425,7 +1425,7 @@ static struct gsm_control *gsm_control_send(struct gsm_mux *gsm,
+ 		unsigned int command, u8 *data, int clen)
+ {
+ 	struct gsm_control *ctrl = kzalloc(sizeof(struct gsm_control),
+-						GFP_KERNEL);
++						GFP_ATOMIC);
+ 	unsigned long flags;
+ 	if (ctrl == NULL)
+ 		return NULL;
 -- 
 2.35.1
 
