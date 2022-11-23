@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D72E663571A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B758F6354BF
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237931AbiKWJh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:37:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58316 "EHLO
+        id S237045AbiKWJJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:09:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237932AbiKWJhZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8811D5F92
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:23 -0800 (PST)
+        with ESMTP id S237047AbiKWJIn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:08:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 422D36334
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:08:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24DE061B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 035B6C433D6;
-        Wed, 23 Nov 2022 09:35:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC0CDB81EEE
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:08:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22233C433C1;
+        Wed, 23 Nov 2022 09:08:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196122;
-        bh=OP3xTZtj9CsnyaQHPQQEnLm1yDzvAH7Qbs7EJ4k81+Q=;
+        s=korg; t=1669194519;
+        bh=zRrtcxO3mtb3gKxu3WPEtvVkdAyfEjPyGaK50ToQ/2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1iwd40Myz5IRzVP6C+spvcv5/S90IpOr7V3jStb22hlmK6v5g8bvl89WWcByD1DgM
-         BZR1qEmjRYSLu7JtexTS7ksuV5ekZbq6bd7/kYlPm67xqXqDmMI/Nzat/svDeYps0j
-         IxEVsZCLbnCeL5P8lqvrv6E52ZqLiUyo6BzbKHJQ=
+        b=eUOj/risffhiANB3mt5thxSvIcfIka+Q4wpidwu92+VbKeK7xGT1B1ftDuYQNKWOH
+         +u0oYQKO9ZlzhA05bGhVQIbmC9aGzkIaxLY83NtAwNdLmnvUAiJr/4EWDETYNAOT4M
+         WfsmBgFG7RrjPvo0myhZYsey5fmN1Ega8NoJQDeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Mushahid Hussain <mushi.shar@gmail.com>,
-        Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: [PATCH 5.15 124/181] speakup: fix a segfault caused by switching consoles
+        patches@lists.linux.dev, Chen Jun <chenjun102@huawei.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 100/114] Input: i8042 - fix leaking of platform device on module removal
 Date:   Wed, 23 Nov 2022 09:51:27 +0100
-Message-Id: <20221123084607.738474193@linuxfoundation.org>
+Message-Id: <20221123084555.745403481@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mushahid Hussain <mushi.shar@gmail.com>
+From: Chen Jun <chenjun102@huawei.com>
 
-commit 0fc801f8018000c8e64a275a20cb1da7c54e46df upstream.
+[ Upstream commit 81cd7e8489278d28794e7b272950c3e00c344e44 ]
 
-This patch fixes a segfault by adding a null check on synth in
-speakup_con_update(). The segfault can be reproduced as follows:
+Avoid resetting the module-wide i8042_platform_device pointer in
+i8042_probe() or i8042_remove(), so that the device can be properly
+destroyed by i8042_exit() on module unload.
 
-	- Login into a text console
-
-	- Load speakup and speakup_soft modules
-
-	- Remove speakup_soft
-
-	- Switch to a graphics console
-
-This is caused by lack of a null check on `synth` in
-speakup_con_update().
-
-Here's the sequence that causes the segfault:
-
-	- When we remove the speakup_soft, synth_release() sets the synth
-	  to null.
-
-	- After that, when we change the virtual console to graphics
-	  console, vt_notifier_call() is fired, which then calls
-	  speakup_con_update().
-
-	- Inside speakup_con_update() there's no null check on synth,
-	  so it calls synth_printf().
-
-	- Inside synth_printf(), synth_buffer_add() and synth_start(),
-	  both access synth, when it is null and causing a segfault.
-
-Therefore adding a null check on synth solves the issue.
-
-Fixes: 2610df41489f ("staging: speakup: Add pause command used on switching to graphical mode")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Mushahid Hussain <mushi.shar@gmail.com>
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Link: https://lore.kernel.org/r/20221010165720.397042-1-mushi.shar@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9222ba68c3f4 ("Input: i8042 - add deferred probe support")
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Link: https://lore.kernel.org/r/20221109034148.23821-1-chenjun102@huawei.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/accessibility/speakup/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/serio/i8042.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/accessibility/speakup/main.c
-+++ b/drivers/accessibility/speakup/main.c
-@@ -1778,7 +1778,7 @@ static void speakup_con_update(struct vc
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index 082afbf088d6..c9b51511b33d 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -1544,8 +1544,6 @@ static int i8042_probe(struct platform_device *dev)
  {
- 	unsigned long flags;
+ 	int error;
  
--	if (!speakup_console[vc->vc_num] || spk_parked)
-+	if (!speakup_console[vc->vc_num] || spk_parked || !synth)
- 		return;
- 	if (!spin_trylock_irqsave(&speakup_info.spinlock, flags))
- 		/* Speakup output, discard */
+-	i8042_platform_device = dev;
+-
+ 	if (i8042_reset == I8042_RESET_ALWAYS) {
+ 		error = i8042_controller_selftest();
+ 		if (error)
+@@ -1583,7 +1581,6 @@ static int i8042_probe(struct platform_device *dev)
+ 	i8042_free_aux_ports();	/* in case KBD failed but AUX not */
+ 	i8042_free_irqs();
+ 	i8042_controller_reset(false);
+-	i8042_platform_device = NULL;
+ 
+ 	return error;
+ }
+@@ -1593,7 +1590,6 @@ static int i8042_remove(struct platform_device *dev)
+ 	i8042_unregister_ports();
+ 	i8042_free_irqs();
+ 	i8042_controller_reset(false);
+-	i8042_platform_device = NULL;
+ 
+ 	return 0;
+ }
+-- 
+2.35.1
+
 
 
