@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B392E6358F2
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:05:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9118635620
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236767AbiKWKFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:05:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60834 "EHLO
+        id S237637AbiKWJ0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:26:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236339AbiKWKEh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:04:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5863C1165BB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:55:59 -0800 (PST)
+        with ESMTP id S237641AbiKWJ0I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:26:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74457C4B4B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:25:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD58661B56
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:55:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE927C433C1;
-        Wed, 23 Nov 2022 09:55:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1202161B40
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:25:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E3CC433C1;
+        Wed, 23 Nov 2022 09:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197358;
-        bh=GquhZ1aoUSoAgJ5W7DU9rAzCTWAhRGnBrpq6R36RTck=;
+        s=korg; t=1669195503;
+        bh=JnJnvlZZy9vjTNKlPvZjDSsxAK8c+iBV6yQeRvO3Kug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EvVNq/C/kMy2y8zShhRNZzD3NYlXS0w2hXl1aFJHTB/6gmTEug89vyWw4sMGoLFUe
-         3+cQrSaf6SFf7bHVTe18sf1y79VwIA44rf67I3QWWROmHeJVb3i8FWNkJH4Igushn+
-         zqlqRcjwKC1kde9rms37jOeHpcVqhCEMOKROUgsk=
+        b=Y8o8aY7WeDwGSG6el5l4wA30DcHE9eM3p5G7rnsbturlmH3VCkfLDFsdXA4g7kLVZ
+         EcFXmMKlzLW/16JBNc+cLwAj4uS50B11HF9SjzMsFh0OM/breI0AaK4X1No8S1s/bW
+         /N+0vXEyn9Ezwb1thzgAEwSyHzqn/W5/ArnEwuuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Jun <jun.li@nxp.com>,
-        Frank Li <Frank.Li@nxp.com>,
-        Peter Chen <peter.chen@kernel.org>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>
-Subject: [PATCH 6.0 241/314] usb: cdns3: host: fix endless superspeed hub port reset
+        patches@lists.linux.dev, Nicolas Dumazet <ndumazet@google.com>
+Subject: [PATCH 5.10 103/149] usb: add NO_LPM quirk for Realforce 87U Keyboard
 Date:   Wed, 23 Nov 2022 09:51:26 +0100
-Message-Id: <20221123084636.401601549@linuxfoundation.org>
+Message-Id: <20221123084601.697642390@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,131 +51,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Nicolas Dumazet <ndumazet@google.com>
 
-commit 9d5333c931347005352d5b8beaa43528c94cfc9c upstream.
+commit 181135bb20dcb184edd89817831b888eb8132741 upstream.
 
-When usb 3.0 hub connect with one USB 2.0 device and NO USB 3.0 device,
-some usb hub reports endless port reset message.
+Before adding this quirk, this (mechanical keyboard) device would not be
+recognized, logging:
 
-[  190.324169] usb 2-1: new SuperSpeed USB device number 88 using xhci-hcd
-[  190.352834] hub 2-1:1.0: USB hub found
-[  190.356995] hub 2-1:1.0: 4 ports detected
-[  190.700056] usb 2-1: USB disconnect, device number 88
-[  192.472139] usb 2-1: new SuperSpeed USB device number 89 using xhci-hcd
-[  192.500820] hub 2-1:1.0: USB hub found
-[  192.504977] hub 2-1:1.0: 4 ports detected
-[  192.852066] usb 2-1: USB disconnect, device number 89
+  new full-speed USB device number 56 using xhci_hcd
+  unable to read config index 0 descriptor/start: -32
+  chopping to 0 config(s)
 
-The reason is the runtime pm state of USB2.0 port is active and
-USB 3.0 port is suspend, so parent device is active state.
+It would take dozens of plugging/unpuggling cycles for the keyboard to
+be recognized. Keyboard seems to simply work after applying this quirk.
 
- cat /sys/bus/platform/devices/5b110000.usb/5b130000.usb/xhci-hcd.1.auto/usb2/power/runtime_status
+This issue had been reported by users in two places already ([1], [2])
+but nobody tried upstreaming a patch yet. After testing I believe their
+suggested fix (DELAY_INIT + NO_LPM + DEVICE_QUALIFIER) was probably a
+little overkill. I assume this particular combination was tested because
+it had been previously suggested in [3], but only NO_LPM seems
+sufficient for this device.
 
- suspended
+[1]: https://qiita.com/float168/items/fed43d540c8e2201b543
+[2]: https://blog.kostic.dev/posts/making-the-realforce-87ub-work-with-usb30-on-Ubuntu/
+[3]: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1678477
 
- cat /sys/bus/platform/devices/5b110000.usb/5b130000.usb/xhci-hcd.1.auto/usb1/power/runtime_status
-
- active
-
- cat /sys/bus/platform/devices/5b110000.usb/5b130000.usb/xhci-hcd.1.auto/power/runtime_status
-
- active
-
- cat /sys/bus/platform/devices/5b110000.usb/5b130000.usb/power/runtime_status
-
- active
-
-So xhci_cdns3_suspend_quirk() have not called. U3 configure is not applied.
-
-move U3 configure into host start. Reinit again in resume function in case
-controller power lost during suspend.
-
-Cc: stable@vger.kernel.org 5.10
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Acked-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Link: https://lore.kernel.org/r/20221026190749.2280367-1-Frank.Li@nxp.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Nicolas Dumazet <ndumazet@google.com>
+Link: https://lore.kernel.org/r/20221109122946.706036-1-ndumazet@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/host.c |   56 +++++++++++++++++++++++------------------------
- 1 file changed, 28 insertions(+), 28 deletions(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/cdns3/host.c
-+++ b/drivers/usb/cdns3/host.c
-@@ -24,11 +24,37 @@
- #define CFG_RXDET_P3_EN		BIT(15)
- #define LPM_2_STB_SWITCH_EN	BIT(25)
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -362,6 +362,9 @@ static const struct usb_device_id usb_qu
+ 	{ USB_DEVICE(0x0781, 0x5583), .driver_info = USB_QUIRK_NO_LPM },
+ 	{ USB_DEVICE(0x0781, 0x5591), .driver_info = USB_QUIRK_NO_LPM },
  
--static int xhci_cdns3_suspend_quirk(struct usb_hcd *hcd);
-+static void xhci_cdns3_plat_start(struct usb_hcd *hcd)
-+{
-+	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
-+	u32 value;
++	/* Realforce 87U Keyboard */
++	{ USB_DEVICE(0x0853, 0x011b), .driver_info = USB_QUIRK_NO_LPM },
 +
-+	/* set usbcmd.EU3S */
-+	value = readl(&xhci->op_regs->command);
-+	value |= CMD_PM_INDEX;
-+	writel(value, &xhci->op_regs->command);
-+
-+	if (hcd->regs) {
-+		value = readl(hcd->regs + XECP_AUX_CTRL_REG1);
-+		value |= CFG_RXDET_P3_EN;
-+		writel(value, hcd->regs + XECP_AUX_CTRL_REG1);
-+
-+		value = readl(hcd->regs + XECP_PORT_CAP_REG);
-+		value |= LPM_2_STB_SWITCH_EN;
-+		writel(value, hcd->regs + XECP_PORT_CAP_REG);
-+	}
-+}
-+
-+static int xhci_cdns3_resume_quirk(struct usb_hcd *hcd)
-+{
-+	xhci_cdns3_plat_start(hcd);
-+	return 0;
-+}
+ 	/* M-Systems Flash Disk Pioneers */
+ 	{ USB_DEVICE(0x08ec, 0x1000), .driver_info = USB_QUIRK_RESET_RESUME },
  
- static const struct xhci_plat_priv xhci_plat_cdns3_xhci = {
- 	.quirks = XHCI_SKIP_PHY_INIT | XHCI_AVOID_BEI,
--	.suspend_quirk = xhci_cdns3_suspend_quirk,
-+	.plat_start = xhci_cdns3_plat_start,
-+	.resume_quirk = xhci_cdns3_resume_quirk,
- };
- 
- static int __cdns_host_init(struct cdns *cdns)
-@@ -90,32 +116,6 @@ err1:
- 	return ret;
- }
- 
--static int xhci_cdns3_suspend_quirk(struct usb_hcd *hcd)
--{
--	struct xhci_hcd	*xhci = hcd_to_xhci(hcd);
--	u32 value;
--
--	if (pm_runtime_status_suspended(hcd->self.controller))
--		return 0;
--
--	/* set usbcmd.EU3S */
--	value = readl(&xhci->op_regs->command);
--	value |= CMD_PM_INDEX;
--	writel(value, &xhci->op_regs->command);
--
--	if (hcd->regs) {
--		value = readl(hcd->regs + XECP_AUX_CTRL_REG1);
--		value |= CFG_RXDET_P3_EN;
--		writel(value, hcd->regs + XECP_AUX_CTRL_REG1);
--
--		value = readl(hcd->regs + XECP_PORT_CAP_REG);
--		value |= LPM_2_STB_SWITCH_EN;
--		writel(value, hcd->regs + XECP_PORT_CAP_REG);
--	}
--
--	return 0;
--}
--
- static void cdns_host_exit(struct cdns *cdns)
- {
- 	kfree(cdns->xhci_plat_data);
 
 
