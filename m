@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B41C26356B1
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE3366355DA
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237814AbiKWJcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:32:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
+        id S237587AbiKWJYS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:24:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237763AbiKWJb0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D81397A93
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:30:54 -0800 (PST)
+        with ESMTP id S237591AbiKWJXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:23:55 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14BA5FD33
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E01D161B66
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:30:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3F9AC433D6;
-        Wed, 23 Nov 2022 09:30:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 93800CE20F3
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 363ACC433D7;
+        Wed, 23 Nov 2022 09:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195853;
-        bh=I0tG2LI/feY8iVTml1aIpolkt/8PLqIhy+IbVZribcU=;
+        s=korg; t=1669195353;
+        bh=l2lnmCp6I/uK53JeOurdsOlutHXBwtdH3QWWgMC808o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hdtuwbxgoL7QckRaxrh+4rL0WS2vTKt1fhcSvgOu9HvT+wYnEzIGozAmi5paN67ed
-         W6puZg44Ta1lnExGCMd+7bNROWB18fRTXbmu1jgMKnvcsWvws5PL3JoiaYsxTo8+S1
-         Ifb7S5drA07APFcr7WnhPVxnidmmMDdAxvaFFPEQ=
+        b=H+mpNRpq6lkBkQKn7Y1nleKMWvKfZquBY3uRh59dgD1OxXL94OpKrnELI2wjQhvJD
+         2uR6N0/I7YZKAP+ungomSs5USv8nSBKPwe6y7YmKk79D87v3QLK1K6BaNhS1o5kcxc
+         4ggJtDegwWiH3QRMfjpK710Ek8ItEx0fKpzZvf7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tony Lindgren <tony@atomide.com>,
+        patches@lists.linux.dev, Guchun Chen <guchun.chen@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 050/181] serial: 8250: omap: Fix unpaired pm_runtime_put_sync() in omap8250_remove()
+Subject: [PATCH 5.10 030/149] drm/amd/pm: disable BACO entry/exit completely on several sienna cichlid cards
 Date:   Wed, 23 Nov 2022 09:50:13 +0100
-Message-Id: <20221123084604.527633420@linuxfoundation.org>
+Message-Id: <20221123084559.090275909@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Guchun Chen <guchun.chen@amd.com>
 
-[ Upstream commit e3f0c638f428fd66b5871154b62706772045f91a ]
+[ Upstream commit 7bb91228291aa95bfee3b9d5710887673711c74c ]
 
-On remove, we get an error for "Runtime PM usage count underflow!". I guess
-this driver is mostly built-in, and this issue has gone unnoticed for a
-while. Somehow I did not catch this issue with my earlier fix done with
-commit 4e0f5cc65098 ("serial: 8250_omap: Fix probe and remove for PM
-runtime").
+To avoid hardware intermittent failures.
 
-Fixes: 4e0f5cc65098 ("serial: 8250_omap: Fix probe and remove for PM runtime")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Depends-on: dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
-Link: https://lore.kernel.org/r/20221028105813.54290-1-tony@atomide.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Stable-dep-of: 0c85c067c9d9 ("drm/amdgpu: disable BACO on special BEIGE_GOBY card")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ .../gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c   | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index 5707d86cac76..f3f54cb0cfca 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -1475,6 +1475,11 @@ static int omap8250_probe(struct platform_device *pdev)
- static int omap8250_remove(struct platform_device *pdev)
- {
- 	struct omap8250_priv *priv = platform_get_drvdata(pdev);
-+	int err;
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+index def32b6897f9..91026d0c1c79 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+@@ -309,6 +309,17 @@ static void sienna_cichlid_check_bxco_support(struct smu_context *smu)
+ 		smu_baco->platform_support =
+ 			(val & RCC_BIF_STRAP0__STRAP_PX_CAPABLE_MASK) ? true :
+ 									false;
 +
-+	err = pm_runtime_resume_and_get(&pdev->dev);
-+	if (err)
-+		return err;
++		/*
++		 * Disable BACO entry/exit completely on below SKUs to
++		 * avoid hardware intermittent failures.
++		 */
++		if (((adev->pdev->device == 0x73A1) &&
++		    (adev->pdev->revision == 0x00)) ||
++		    ((adev->pdev->device == 0x73BF) &&
++		    (adev->pdev->revision == 0xCF)))
++			smu_baco->platform_support = false;
++
+ 	}
+ }
  
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
- 	pm_runtime_put_sync(&pdev->dev);
 -- 
 2.35.1
 
