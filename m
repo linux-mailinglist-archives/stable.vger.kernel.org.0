@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5566463566E
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1BE2635494
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237648AbiKWJ2l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:28:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43826 "EHLO
+        id S236161AbiKWJIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:08:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237673AbiKWJ1y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:27:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B147E1122FA
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:26:32 -0800 (PST)
+        with ESMTP id S237117AbiKWJIO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:08:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36090CE3F
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:08:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C527FB81EF8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:26:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CACBC43153;
-        Wed, 23 Nov 2022 09:26:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4E8461B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:08:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E2CBC433D7;
+        Wed, 23 Nov 2022 09:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195588;
-        bh=mCmpBwT8Ioz8zoxuf/jc5cRTM5dhY4OjpjcHwzkIS2o=;
+        s=korg; t=1669194492;
+        bh=FIaVw+Mc+JRjPSSvjYh3YAo8yh8b47CYLvD8AW9ufD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bOj5u2ztCP6+VSRuyHY89uXNvS4WQi+MkvDH24IzPZwBUVDg/xqb32Ab8jz9Al2a1
-         z/fSz1BC7tiR1DOtEaKia+8ySSzC00DBskhDF46hL4uUbYf89xsv/r9xP4+6d/V3nf
-         NK3dKi3A5D9xT5nHISEllR5x1185/xqgLr3QELGI=
+        b=cpw1acPi1LpHTfiGB8J0E5dtuY9GYtaafDui8tcRJnM65SEz8R4jfXMGShuqyEMz2
+         nLTA8uAtC/gbpO6GOItj3/Z6IaADVwkWw7s4lkD2aGncvuW6pYifVq1BgP98muzdZn
+         rmoR2La8+zi1w+wCShwQC2BwLdO839bUX/sANc/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Chuhong Yuan <hslester96@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        stable <stable@kernel.org>
-Subject: [PATCH 5.10 097/149] USB: bcma: Make GPIO explicitly optional
+        Srikanth Thokala <srikanth.thokala@intel.com>,
+        Aman Kumar <aman.kumar@intel.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.19 093/114] serial: 8250: Fall back to non-DMA Rx if IIR_RDI occurs
 Date:   Wed, 23 Nov 2022 09:51:20 +0100
-Message-Id: <20221123084601.486556062@linuxfoundation.org>
+Message-Id: <20221123084555.529538174@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit cd136706b4f925aa5d316642543babac90d45910 upstream.
+commit a931237cbea256aff13bb403da13a97b2d1605d9 upstream.
 
-What the code does is to not check the return value from
-devm_gpiod_get() and then avoid using an erroneous GPIO descriptor
-with IS_ERR_OR_NULL().
+DW UART sometimes triggers IIR_RDI during DMA Rx when IIR_RX_TIMEOUT
+should have been triggered instead. Since IIR_RDI has higher priority
+than IIR_RX_TIMEOUT, this causes the Rx to hang into interrupt loop.
+The problem seems to occur at least with some combinations of
+small-sized transfers (I've reproduced the problem on Elkhart Lake PSE
+UARTs).
 
-This will miss real errors from the GPIO core that should not be
-ignored, such as probe deferral.
+If there's already an on-going Rx DMA and IIR_RDI triggers, fall
+graciously back to non-DMA Rx. That is, behave as if IIR_RX_TIMEOUT had
+occurred.
 
-Instead request the GPIO as explicitly optional, which means that
-if it doesn't exist, the descriptor returned will be NULL.
+8250_omap already considers IIR_RDI similar to this change so its
+nothing unheard of.
 
-Then we can add error handling and also avoid just doing this on
-the device tree path, and simplify the site where the optional
-GPIO descriptor is used.
-
-There were some problems with cleaning up this GPIO descriptor
-use in the past, but this is the proper way to deal with it.
-
-Cc: Rafał Miłecki <rafal@milecki.pl>
-Cc: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20221107090753.1404679-1-linus.walleij@linaro.org
+Fixes: 75df022b5f89 ("serial: 8250_dma: Fix RX handling")
+Cc: <stable@vger.kernel.org>
+Co-developed-by: Srikanth Thokala <srikanth.thokala@intel.com>
+Signed-off-by: Srikanth Thokala <srikanth.thokala@intel.com>
+Co-developed-by: Aman Kumar <aman.kumar@intel.com>
+Signed-off-by: Aman Kumar <aman.kumar@intel.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221108121952.5497-2-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/bcma-hcd.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/tty/serial/8250/8250_port.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/host/bcma-hcd.c
-+++ b/drivers/usb/host/bcma-hcd.c
-@@ -285,7 +285,7 @@ static void bcma_hci_platform_power_gpio
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1865,6 +1865,10 @@ EXPORT_SYMBOL_GPL(serial8250_modem_statu
+ static bool handle_rx_dma(struct uart_8250_port *up, unsigned int iir)
  {
- 	struct bcma_hcd_device *usb_dev = bcma_get_drvdata(dev);
- 
--	if (IS_ERR_OR_NULL(usb_dev->gpio_desc))
-+	if (!usb_dev->gpio_desc)
- 		return;
- 
- 	gpiod_set_value(usb_dev->gpio_desc, val);
-@@ -406,9 +406,11 @@ static int bcma_hcd_probe(struct bcma_de
- 		return -ENOMEM;
- 	usb_dev->core = core;
- 
--	if (core->dev.of_node)
--		usb_dev->gpio_desc = devm_gpiod_get(&core->dev, "vcc",
--						    GPIOD_OUT_HIGH);
-+	usb_dev->gpio_desc = devm_gpiod_get_optional(&core->dev, "vcc",
-+						     GPIOD_OUT_HIGH);
-+	if (IS_ERR(usb_dev->gpio_desc))
-+		return dev_err_probe(&core->dev, PTR_ERR(usb_dev->gpio_desc),
-+				     "error obtaining VCC GPIO");
- 
- 	switch (core->id.id) {
- 	case BCMA_CORE_USB20_HOST:
+ 	switch (iir & 0x3f) {
++	case UART_IIR_RDI:
++		if (!up->dma->rx_running)
++			break;
++		/* fall-through */
+ 	case UART_IIR_RX_TIMEOUT:
+ 		serial8250_rx_dma_flush(up);
+ 		/* fall-through */
 
 
