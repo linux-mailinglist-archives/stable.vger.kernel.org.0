@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9648463536D
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:57:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B83DD63537F
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236749AbiKWIzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:55:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59124 "EHLO
+        id S236750AbiKWI4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:56:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236747AbiKWIzy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:55:54 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE71EE9315
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:55:53 -0800 (PST)
+        with ESMTP id S236754AbiKWI4B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:56:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBE1FE9315
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:55:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2722ECE20E5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:55:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEF3DC433C1;
-        Wed, 23 Nov 2022 08:55:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93280B81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:55:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6F16C433C1;
+        Wed, 23 Nov 2022 08:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193750;
-        bh=+sZCUYkmz8asjPo7ONv1U8laz1xx2HO0TwdhbupLB4Q=;
+        s=korg; t=1669193757;
+        bh=M1pDf2ryOH64RS4hj7gCVNQb7Z47DgJVBMWguwNNuIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BDvOVbF8IWH05tKv6N16+hGxx9rL8Zy6yTvvqkt/gx3mchoh0LZGeh7d2KKpxG0Hq
-         rucr/Zdb5/VAe7kRpYiX4z01reDvWvA440pmhPp5oP4WMjHxFlQV7RwXL9EtoeInvN
-         CazkNigQJ6Rd1C7DiOVcpP6DjoHKxTNtQfbMAEGc=
+        b=pQjUT08HwqylDwmyFhLkJeAZLK3DKB5dVpVhI9vihc/FfYlZPQRiOrcvsGzBzz60g
+         V0cXkxILyoiulqkYMd54zdIZ0igJawWGZ07+UE/gry/QZ/ZnkvtbDN+6XThoxzaTIu
+         GvQp5/X+Azy8PUg7UL26H8ZFpfFbwtzMd7UADDPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Beno=C3=AEt=20Monin?= <benoit.monin@gmx.fr>,
+        Davide Tronchin <davide.tronchin.94@gmail.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 50/76] USB: serial: option: add Sierra Wireless EM9191
-Date:   Wed, 23 Nov 2022 09:50:49 +0100
-Message-Id: <20221123084548.390557875@linuxfoundation.org>
+Subject: [PATCH 4.9 51/76] USB: serial: option: remove old LARA-R6 PID
+Date:   Wed, 23 Nov 2022 09:50:50 +0100
+Message-Id: <20221123084548.429339889@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
 References: <20221123084546.742331901@linuxfoundation.org>
@@ -53,55 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoît Monin <benoit.monin@gmx.fr>
+From: Davide Tronchin <davide.tronchin.94@gmail.com>
 
-commit df3414b0a245f43476061fddd78cee7d6cff797f upstream.
+commit 2ec106b96afc19698ff934323b633c0729d4c7f8 upstream.
 
-Add support for the AT and diag ports, similar to other qualcomm SDX55
-modems. In QDL mode, the modem uses a different device ID and support
-is provided by qcserial in commit 11c52d250b34 ("USB: serial: qcserial:
-add EM9191 QDL support").
+Remove the UBLOX_PRODUCT_R6XX 0x90fa association since LARA-R6 00B final
+product uses a new USB composition with different PID. 0x90fa PID used
+only by LARA-R6 internal prototypes.
 
-T:  Bus=08 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
-P:  Vendor=1199 ProdID=90d3 Rev=00.06
-S:  Manufacturer=Sierra Wireless, Incorporated
-S:  Product=Sierra Wireless EM9191
-S:  SerialNumber=xxxxxxxxxxxxxxxx
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
+Move 0x90fa PID directly in the option_ids array since used by other
+Qualcomm based modem vendors as pointed out in:
 
-Signed-off-by: Benoît Monin <benoit.monin@gmx.fr>
+  https://lore.kernel.org/all/6572c4e6-d8bc-b8d3-4396-d879e4e76338@gmail.com
+
+Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/serial/option.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -575,6 +575,9 @@ static void option_instat_callback(struc
- #define OPPO_VENDOR_ID				0x22d9
- #define OPPO_PRODUCT_R11			0x276c
+@@ -243,7 +243,6 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_UC15			0x9090
+ /* These u-blox products use Qualcomm's vendor ID */
+ #define UBLOX_PRODUCT_R410M			0x90b2
+-#define UBLOX_PRODUCT_R6XX			0x90fa
+ /* These Yuga products use Qualcomm's vendor ID */
+ #define YUGA_PRODUCT_CLM920_NC5			0x9625
  
-+/* Sierra Wireless products */
-+#define SIERRA_VENDOR_ID			0x1199
-+#define SIERRA_PRODUCT_EM9191			0x90d3
- 
- /* Device flags */
- 
-@@ -2137,6 +2140,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(OPPO_VENDOR_ID, OPPO_PRODUCT_R11, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(SIERRA_VENDOR_ID, SIERRA_PRODUCT_EM9191, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(SIERRA_VENDOR_ID, SIERRA_PRODUCT_EM9191, 0xff, 0, 0) },
- 	{ } /* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, option_ids);
+@@ -1118,7 +1117,7 @@ static const struct usb_device_id option
+ 	/* u-blox products using Qualcomm vendor ID */
+ 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
+ 	  .driver_info = RSVD(1) | RSVD(3) },
+-	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R6XX),
++	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x90fa),
+ 	  .driver_info = RSVD(3) },
+ 	/* Quectel products using Quectel vendor ID */
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21),
 
 
