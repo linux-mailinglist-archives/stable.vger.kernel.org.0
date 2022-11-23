@@ -2,156 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DCF6635F1B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 14:16:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D45AA635FAF
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 14:31:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237379AbiKWNQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 08:16:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53036 "EHLO
+        id S238694AbiKWNbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 08:31:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237394AbiKWNQT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 08:16:19 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F611121DF
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 04:57:00 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id k2-20020a17090a4c8200b002187cce2f92so1934378pjh.2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 04:57:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=2DtrFTGpj9qHPmHLGW+rhncKISUSoBHFvXE+v5lOun8=;
-        b=EYQn9ovBshZ9QmnQJrxhrWsnaQ4Rgtf6xfy4AVY2UyvdFXeVzbboMFZlgmmwbF8QyK
-         5eSweF60461W66nAYC1+2oGUb9LHCgNPjl995AKpw+mYElhXmjaHgxCnWhkSHfJ4KcB1
-         LHjhoZu0yDs7u0uq5lXsNvaLOLVvNzSM6zBuclwzgEPqQ3HM5dm/S6k9bcFgCfe+SKSF
-         az2XXCmY6c7rdc/cBxgx3SlGAGlaM05z0WPk86JeI41W1GKR5cAepPgpMX4GUzcck++R
-         IE75IISo82THkmUFGS95OiDdLRemZVAU0euNvlu1yJcR2XNUojRkqgiPgyQoiZ4djOVo
-         Agtw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=2DtrFTGpj9qHPmHLGW+rhncKISUSoBHFvXE+v5lOun8=;
-        b=wcmAwS17WKOrMrktGYQo+JX12PiKHbs98WSj0O9vkEZCqkYrWqJdJBFIyS6sGzT8Qx
-         k+SOD3UBA0VBGF7/3Zfd+5zxU0I+niOzm56YbjFyUwS0CQ25Z1pNI9Dh8UCSXaZaGqPf
-         /0/zbt18MJxAwYhijS89uNxEWSWS8j856v1XO//FHKNaC0lB3d5OaEk4rHBd4QOVZst1
-         dvCygBNETXpGVYFHl5m7pmXG778mE/g8MjibbtXgDZ8vXNNMZkEhJ/RogwdCoo5GhK1w
-         jzFNO2xGdIwdR2qWUUy/cj8kSp82Ci75B3YqfBp3qG+6DHVQPY0Rjbm+FC1n8sX6O/58
-         JpUg==
-X-Gm-Message-State: ANoB5pnRBo0dBxLzYqwDT9nlHGNpi4skCKTJ2im4F7ElI00zjyxK+jE8
-        ZuD2dhnpJSuEpJg1Bt+5VHWaFXuqNOp4Lrlw
-X-Google-Smtp-Source: AA0mqf6IEIKjWYKMHgT7HaJ7N1mr8HHcS8ByAW56KhUw8C6o1vTw0R/jc50Ac3O3BjfmCwHBVyVlbA==
-X-Received: by 2002:a17:902:cecb:b0:17f:628d:2a8 with SMTP id d11-20020a170902cecb00b0017f628d02a8mr21007116plg.34.1669208207689;
-        Wed, 23 Nov 2022 04:56:47 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n1-20020a170902f60100b00186ac4b21cfsm14179986plg.230.2022.11.23.04.56.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Nov 2022 04:56:46 -0800 (PST)
-Message-ID: <637e188e.170a0220.ba0bc.5b74@mx.google.com>
-Date:   Wed, 23 Nov 2022 04:56:46 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S238234AbiKWNbO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 08:31:14 -0500
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7423931352;
+        Wed, 23 Nov 2022 05:13:06 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 05E0321875;
+        Wed, 23 Nov 2022 13:13:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1669209185; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=iz1HRqkggoLI/S14nTxBDCcxxQV81AgfLfdqBcyXeZY=;
+        b=EjgqBi3fsvzjjAiQ7uHz0ZN8XQAzcmGw/LLZUk+BjcL9eFvUAlxrn21WLO5IkdCcKN+3C4
+        NhTySQGKjWTej7+KKKbaBwoLYz9vPA6RimvtHV87/1Y9w2+rap613OwVDMZqqsfdeB1hS2
+        LPtnZl1udKikg1FmMR5/gLb6iyg1oLU=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id C622813A37;
+        Wed, 23 Nov 2022 13:13:04 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 9+1fL2AcfmN9ewAAMHmgww
+        (envelope-from <petr.pavlu@suse.com>); Wed, 23 Nov 2022 13:13:04 +0000
+From:   Petr Pavlu <petr.pavlu@suse.com>
+To:     mcgrof@kernel.org
+Cc:     pmladek@suse.com, prarit@redhat.com, david@redhat.com,
+        mwilck@suse.com, petr.pavlu@suse.com,
+        linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] module: Don't wait for GOING modules
+Date:   Wed, 23 Nov 2022 14:12:26 +0100
+Message-Id: <20221123131226.24359-1-petr.pavlu@suse.com>
+X-Mailer: git-send-email 2.35.3
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.15.y
-X-Kernelci-Kernel: v5.15.79
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.15.y baseline: 164 runs, 2 regressions (v5.15.79)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.15.y baseline: 164 runs, 2 regressions (v5.15.79)
+During a system boot, it can happen that the kernel receives a burst of
+requests to insert the same module but loading it eventually fails
+during its init call. For instance, udev can make a request to insert
+a frequency module for each individual CPU when another frequency module
+is already loaded which causes the init function of the new module to
+return an error.
 
-Regressions Summary
--------------------
+Since commit 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for
+modules that have finished loading"), the kernel waits for modules in
+MODULE_STATE_GOING state to finish unloading before making another
+attempt to load the same module.
 
-platform    | arch | lab     | compiler | defconfig           | regressions
-------------+------+---------+----------+---------------------+------------
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1          =
+This creates unnecessary work in the described scenario and delays the
+boot. In the worst case, it can prevent udev from loading drivers for
+other devices and might cause timeouts of services waiting on them and
+subsequently a failed boot.
 
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | multi_v7_defconfig  | 1          =
+This patch attempts a different solution for the problem 6e6de3dee51a
+was trying to solve. Rather than waiting for the unloading to complete,
+it returns a different error code (-EBUSY) for modules in the GOING
+state. This should avoid the error situation that was described in
+6e6de3dee51a (user space attempting to load a dependent module because
+the -EEXIST error code would suggest to user space that the first module
+had been loaded successfully), while avoiding the delay situation too.
 
+Fixes: 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for modules that have finished loading")
+Co-developed-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Cc: stable@vger.kernel.org
+---
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
-nel/v5.15.79/plan/baseline/
+Notes:
+    Sending this alternative patch per the discussion in
+    https://lore.kernel.org/linux-modules/20220919123233.8538-1-petr.pavlu@suse.com/.
+    The initial version comes internally from Martin, hence the co-developed tag.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.15.y
-  Describe: v5.15.79
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3df0eeae4d9a547c0f19924952ccb8290582e5d0 =
+ kernel/module/main.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
+diff --git a/kernel/module/main.c b/kernel/module/main.c
+index d02d39c7174e..b7e08d1edc27 100644
+--- a/kernel/module/main.c
++++ b/kernel/module/main.c
+@@ -2386,7 +2386,8 @@ static bool finished_loading(const char *name)
+ 	sched_annotate_sleep();
+ 	mutex_lock(&module_mutex);
+ 	mod = find_module_all(name, strlen(name), true);
+-	ret = !mod || mod->state == MODULE_STATE_LIVE;
++	ret = !mod || mod->state == MODULE_STATE_LIVE
++		|| mod->state == MODULE_STATE_GOING;
+ 	mutex_unlock(&module_mutex);
+ 
+ 	return ret;
+@@ -2566,7 +2567,8 @@ static int add_unformed_module(struct module *mod)
+ 	mutex_lock(&module_mutex);
+ 	old = find_module_all(mod->name, strlen(mod->name), true);
+ 	if (old != NULL) {
+-		if (old->state != MODULE_STATE_LIVE) {
++		if (old->state == MODULE_STATE_COMING
++		    || old->state == MODULE_STATE_UNFORMED) {
+ 			/* Wait in case it fails to load. */
+ 			mutex_unlock(&module_mutex);
+ 			err = wait_event_interruptible(module_wq,
+@@ -2575,7 +2577,7 @@ static int add_unformed_module(struct module *mod)
+ 				goto out_unlocked;
+ 			goto again;
+ 		}
+-		err = -EEXIST;
++		err = old->state != MODULE_STATE_LIVE ? -EBUSY : -EEXIST;
+ 		goto out;
+ 	}
+ 	mod_update_bounds(mod);
+-- 
+2.35.3
 
-
-Test Regressions
----------------- =
-
-
-
-platform    | arch | lab     | compiler | defconfig           | regressions
-------------+------+---------+----------+---------------------+------------
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6374d0e653ac79e76a2abd78
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
-9/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
-9/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221107.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6374d0e653ac79e76a2ab=
-d79
-        failing since 50 days (last pass: v5.15.70, first fail: v5.15.70-14=
-4-g0b09b5df445f9) =
-
- =
-
-
-
-platform    | arch | lab     | compiler | defconfig           | regressions
-------------+------+---------+----------+---------------------+------------
-imx7ulp-evk | arm  | lab-nxp | gcc-10   | multi_v7_defconfig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6374cf7c67bf8daccb2abcfe
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
-9/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.7=
-9/arm/multi_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221107.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6374cf7c67bf8daccb2ab=
-cff
-        failing since 50 days (last pass: v5.15.70, first fail: v5.15.70-14=
-4-g0b09b5df445f9) =
-
- =20
