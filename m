@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDF496357D4
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:47:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE7216357A2
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:46:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238177AbiKWJoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:44:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39158 "EHLO
+        id S238072AbiKWJoP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:44:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237988AbiKWJnx (ORCPT
+        with ESMTP id S238003AbiKWJnx (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:43:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79FD01F9E7
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:41:44 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1012A1C42C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:41:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CCBAB81E5E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:41:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55984C433C1;
-        Wed, 23 Nov 2022 09:41:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A131D61B6C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:41:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ACCAC433D6;
+        Wed, 23 Nov 2022 09:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196501;
-        bh=EuzErssSyHjynzOKeKg6p5l3yLMRR0f+GKAXW2NIwjY=;
+        s=korg; t=1669196506;
+        bh=gISBxv/LWiXRjrU9C/SlDLpioy9jyy9o+asTMKurs3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k8qzsJzZ/b6zheghuBoSXoIeB7XIDl5xe7AElsewl56YZwfYWIvxCYKPy0l+erJEu
-         E8599I+kAcSCJWaNkGk8yveTAz/ZSTDivvq0TqjLb50HU8VC6TbAdRc9H4WoxUWxi3
-         /CMo0xGqOVWdTR58B8v9pn9Mfp2l6mH/8n93nUAc=
+        b=BqeRA4HKkfoP6C2pD+Ceei21HCFVsrxGGUPUU0uqHRBMh+WEdvl/oagCLjj5eeDnX
+         g9wjjOQVX5WcC2u32B1HBHbaHJlkbPjFhuWAE2kkkHJrg3EE/5YPoUkM2hmgaLFSea
+         SPDbOKjGRlRecpqZn+vFQx8bJDAR4InAHwRJntiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Broadworth <mark.broadworth@amd.com>,
-        Martin Leung <Martin.Leung@amd.com>, Jun Lei <Jun.Lei@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alvin Lee <Alvin.Lee2@amd.com>,
+        patches@lists.linux.dev, Yifan Zhang <yifan1.zhang@amd.com>,
+        Guchun Chen <guchun.chen@amd.com>,
+        Tim Huang <Tim.Huang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 050/314] drm/amd/display: Enable timing sync on DCN32
-Date:   Wed, 23 Nov 2022 09:48:15 +0100
-Message-Id: <20221123084627.777704624@linuxfoundation.org>
+Subject: [PATCH 6.0 051/314] drm/amdgpu: set fb_modifiers_not_supported in vkms
+Date:   Wed, 23 Nov 2022 09:48:16 +0100
+Message-Id: <20221123084627.817029244@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -56,36 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvin Lee <Alvin.Lee2@amd.com>
+From: Yifan Zhang <yifan1.zhang@amd.com>
 
-[ Upstream commit c3d3f35b725bf9c93bec6d3c056f6bb7cfd27403 ]
+[ Upstream commit 89b3554782e6b65894f0551e9e0a82ad02dac94d ]
 
-Missed enabling timing sync on DCN32 because DCN32 has a different DML
-param.
+This patch to fix the gdm3 start failure with virual display:
 
-Tested-by: Mark Broadworth <mark.broadworth@amd.com>
-Reviewed-by: Martin Leung <Martin.Leung@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alvin Lee <Alvin.Lee2@amd.com>
+/usr/libexec/gdm-x-session[1711]: (II) AMDGPU(0): Setting screen physical size to 270 x 203
+/usr/libexec/gdm-x-session[1711]: (EE) AMDGPU(0): Failed to make import prime FD as pixmap: 22
+/usr/libexec/gdm-x-session[1711]: (EE) AMDGPU(0): failed to set mode: Invalid argument
+/usr/libexec/gdm-x-session[1711]: (WW) AMDGPU(0): Failed to set mode on CRTC 0
+/usr/libexec/gdm-x-session[1711]: (EE) AMDGPU(0): Failed to enable any CRTC
+gnome-shell[1840]: Running GNOME Shell (using mutter 42.2) as a X11 window and compositing manager
+/usr/libexec/gdm-x-session[1711]: (EE) AMDGPU(0): failed to set mode: Invalid argument
+
+vkms doesn't have modifiers support, set fb_modifiers_not_supported to bring the gdm back.
+
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Acked-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Tim Huang <Tim.Huang@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/dcn20/dcn20_fpu.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vkms.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn20/dcn20_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn20/dcn20_fpu.c
-index d34e0f1314d9..bc4f48ea8d4c 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn20/dcn20_fpu.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn20/dcn20_fpu.c
-@@ -1228,6 +1228,7 @@ int dcn20_populate_dml_pipes_from_context(
- 		pipes[pipe_cnt].pipe.src.dcc = false;
- 		pipes[pipe_cnt].pipe.src.dcc_rate = 1;
- 		pipes[pipe_cnt].pipe.dest.synchronized_vblank_all_planes = synchronized_vblank;
-+		pipes[pipe_cnt].pipe.dest.synchronize_timings = synchronized_vblank;
- 		pipes[pipe_cnt].pipe.dest.hblank_start = timing->h_total - timing->h_front_porch;
- 		pipes[pipe_cnt].pipe.dest.hblank_end = pipes[pipe_cnt].pipe.dest.hblank_start
- 				- timing->h_addressable
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vkms.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vkms.c
+index 576849e95296..f69827aefb57 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vkms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vkms.c
+@@ -500,6 +500,8 @@ static int amdgpu_vkms_sw_init(void *handle)
+ 
+ 	adev_to_drm(adev)->mode_config.fb_base = adev->gmc.aper_base;
+ 
++	adev_to_drm(adev)->mode_config.fb_modifiers_not_supported = true;
++
+ 	r = amdgpu_display_modeset_create_props(adev);
+ 	if (r)
+ 		return r;
 -- 
 2.35.1
 
