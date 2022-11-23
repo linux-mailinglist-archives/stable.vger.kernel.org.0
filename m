@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E883D635428
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B94F763556E
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237011AbiKWJEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:04:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40946 "EHLO
+        id S237403AbiKWJUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:20:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237012AbiKWJD6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:03:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78D83105A9A
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:03:43 -0800 (PST)
+        with ESMTP id S237418AbiKWJTv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:19:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 578AF8F3EB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:19:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10F5661B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:03:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB58AC433C1;
-        Wed, 23 Nov 2022 09:03:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11F01B81EF6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:19:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50293C433D6;
+        Wed, 23 Nov 2022 09:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194222;
-        bh=hlbt6ouOznX7NICAhk8YG+D1h5Ddk8kjB8nU03v5nrk=;
+        s=korg; t=1669195187;
+        bh=i24WV0pbEfwkpExUwAbhM6QFzgtUOGCtGVNBFbIon7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yu+bRiYPBpO/IPe8LVbX2QNoN7MZ2CYyfe1sc74n+JzEe+f8nkLQfQOl7zGtZmSsp
-         j9/iCh52XYWXjzjlNutkEbOm3aiul2hRcEW5sN6N4uaS9JGrffQxY4Jt89OTvNm81W
-         dNFx52Kzv3zaWyerRK8ig6kzA3ESxStA8o/fdsHs=
+        b=FFT1aZ80OH6LrMouMrtbsUkhf+NEHMf+/yGQ7MRqu3rplVogPO1ZLYkZijUtrTbyP
+         Yd1kK75epYm8inVk4a/2cUVJk3X+mbt7vbeaNOSd6nEYj10muDmx+9kuwML3NklFed
+         mSIOaAyRfMGJtJ2bPxLI5hsufqcgL8v+4DdiDu4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 010/114] hamradio: fix issue of dev reference count leakage in bpq_device_event()
+Subject: [PATCH 5.10 014/149] rtc: cmos: fix build on non-ACPI platforms
 Date:   Wed, 23 Nov 2022 09:49:57 +0100
-Message-Id: <20221123084552.254134328@linuxfoundation.org>
+Message-Id: <20221123084558.500129404@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit 85cbaf032d3cd9f595152625eda5d4ecb1d6d78d ]
+[ Upstream commit db4e955ae333567dea02822624106c0b96a2f84f ]
 
-When following tests are performed, it will cause dev reference counting
-leakage.
-a)ip link add bond2 type bond mode balance-rr
-b)ip link set bond2 up
-c)ifenslave -f bond2 rose1
-d)ip link del bond2
+Now that rtc_wake_setup is called outside of cmos_wake_setup, it also need
+to be defined on non-ACPI platforms.
 
-When new bond device is created, the default type of the bond device is
-ether. And the bond device is up, bpq_device_event() receives the message
-and creates a new bpq device. In this case, the reference count value of
-dev is hold once. But after "ifenslave -f bond2 rose1" command is
-executed, the type of the bond device is changed to rose. When the bond
-device is unregistered, bpq_device_event() will not put the dev reference
-count.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20221018203512.2532407-1-alexandre.belloni@bootlin.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/bpqether.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-cmos.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/hamradio/bpqether.c b/drivers/net/hamradio/bpqether.c
-index 777fa59f5e0c..1eeddfea389c 100644
---- a/drivers/net/hamradio/bpqether.c
-+++ b/drivers/net/hamradio/bpqether.c
-@@ -537,7 +537,7 @@ static int bpq_device_event(struct notifier_block *this,
- 	if (!net_eq(dev_net(dev), &init_net))
- 		return NOTIFY_DONE;
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 58c6382a2807..0383f49ee0d8 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1293,6 +1293,9 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
+ {
+ }
  
--	if (!dev_is_ethdev(dev))
-+	if (!dev_is_ethdev(dev) && !bpq_get_ax25_dev(dev))
- 		return NOTIFY_DONE;
++static void rtc_wake_setup(struct device *dev)
++{
++}
+ #endif
  
- 	switch (event) {
+ #ifdef	CONFIG_PNP
 -- 
 2.35.1
 
