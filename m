@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6C0563588D
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:00:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8289635468
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237010AbiKWKAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:00:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57302 "EHLO
+        id S237157AbiKWJID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:08:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237015AbiKWJ7e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:59:34 -0500
+        with ESMTP id S237077AbiKWJH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B932011A70D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DD20105A96
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:07:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5997A61B95
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46EACC433D6;
-        Wed, 23 Nov 2022 09:52:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE62861B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:07:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB9DC433C1;
+        Wed, 23 Nov 2022 09:07:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197162;
-        bh=WO33uot3OR3TvqZxOp92NKrN7EgmYPBU7TzJwPjhVyk=;
+        s=korg; t=1669194432;
+        bh=E/NhUDaHwWPmdJbD7eIzxc1Mw+Qc1TdxA3Mx/EinVfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h8wE1mMDLABN9rXm7A8aC3yrqZcOnNWmvyo+rNsiMnOKl8wnEheh2TcfKyJ07A+zg
-         fLRW7f21lWNWaASg+joa94RPHPhfHukqkRmRu8QNhy7JULlIGRMGXLMzxlRJRxYWk+
-         7btc5yv+d5XMfa9FQ/8TNgPrfZFcMC0lE2cRj+bU=
+        b=kYu91diK9zpkJJYj0klFqYIlSoIC3eXGa8MUzgX8Ye3fPd8tVVH8XOekXkX7tgl4p
+         rIZGAAalGGvocU0lfEUJXySWvxmAWsIgeuQRI4KhIZ+ZylR7KPXguwWBgBAFQadjqw
+         TtkZQhxi3BtjbxKhW9lhjOhbNWg5RxP53I3+Cj4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wayne Lin <Wayne.Lin@amd.com>,
-        Tom Chung <chiahsuan.chung@amd.com>,
-        Stylon Wang <stylon.wang@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 216/314] drm/amd/display: Fix access timeout to DPIA AUX at boot time
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 074/114] net: thunderbolt: Fix error handling in tbnet_init()
 Date:   Wed, 23 Nov 2022 09:51:01 +0100
-Message-Id: <20221123084635.331988949@linuxfoundation.org>
+Message-Id: <20221123084554.841004847@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stylon Wang <stylon.wang@amd.com>
+From: Yuan Can <yuancan@huawei.com>
 
-commit 0d502ef8898b3983eef9e40f50dfe100a0de5d93 upstream.
+[ Upstream commit f524b7289bbb0c8ffaa2ba3c34c146e43da54fb2 ]
 
-[Why]
-Since introduction of patch "Query DPIA HPD status.", link detection at
-boot could be accessing DPIA AUX, which will not succeed until
-DMUB outbox messaging is enabled and results in below dmesg logs:
+A problem about insmod thunderbolt-net failed is triggered with following
+log given while lsmod does not show thunderbolt_net:
 
-[  160.840227] [drm:amdgpu_dm_process_dmub_aux_transfer_sync [amdgpu]] *ERROR* wait_for_completion_timeout timeout!
+ insmod: ERROR: could not insert module thunderbolt-net.ko: File exists
 
-[How]
-Enable DMUB outbox messaging before link detection at boot time.
+The reason is that tbnet_init() returns tb_register_service_driver()
+directly without checking its return value, if tb_register_service_driver()
+failed, it returns without removing property directory, resulting the
+property directory can never be created later.
 
-Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
-Acked-by: Tom Chung <chiahsuan.chung@amd.com>
-Signed-off-by: Stylon Wang <stylon.wang@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.0.x
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ tbnet_init()
+   tb_register_property_dir() # register property directory
+   tb_register_service_driver()
+     driver_register()
+       bus_add_driver()
+         priv = kzalloc(...) # OOM happened
+   # return without remove property directory
+
+Fix by remove property directory when tb_register_service_driver() returns
+error.
+
+Fixes: e69b6c02b4c3 ("net: Add support for networking over Thunderbolt cable")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/thunderbolt.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1645,12 +1645,6 @@ static int amdgpu_dm_init(struct amdgpu_
- 		}
- 	}
+diff --git a/drivers/net/thunderbolt.c b/drivers/net/thunderbolt.c
+index 4b5af2413970..51b5442fbc66 100644
+--- a/drivers/net/thunderbolt.c
++++ b/drivers/net/thunderbolt.c
+@@ -1342,12 +1342,21 @@ static int __init tbnet_init(void)
+ 				  TBNET_MATCH_FRAGS_ID);
  
--	if (amdgpu_dm_initialize_drm_device(adev)) {
--		DRM_ERROR(
--		"amdgpu: failed to initialize sw for display support.\n");
--		goto error;
+ 	ret = tb_register_property_dir("network", tbnet_dir);
+-	if (ret) {
+-		tb_property_free_dir(tbnet_dir);
+-		return ret;
 -	}
--
- 	/* Enable outbox notification only after IRQ handlers are registered and DMUB is alive.
- 	 * It is expected that DMUB will resend any pending notifications at this point, for
- 	 * example HPD from DPIA.
-@@ -1658,6 +1652,12 @@ static int amdgpu_dm_init(struct amdgpu_
- 	if (dc_is_dmub_outbox_supported(adev->dm.dc))
- 		dc_enable_dmub_outbox(adev->dm.dc);
- 
-+	if (amdgpu_dm_initialize_drm_device(adev)) {
-+		DRM_ERROR(
-+		"amdgpu: failed to initialize sw for display support.\n");
-+		goto error;
-+	}
++	if (ret)
++		goto err_free_dir;
 +
- 	/* create fake encoders for MST */
- 	dm_dp_create_fake_mst_encoders(adev);
++	ret = tb_register_service_driver(&tbnet_driver);
++	if (ret)
++		goto err_unregister;
  
+-	return tb_register_service_driver(&tbnet_driver);
++	return 0;
++
++err_unregister:
++	tb_unregister_property_dir("network", tbnet_dir);
++err_free_dir:
++	tb_property_free_dir(tbnet_dir);
++
++	return ret;
+ }
+ module_init(tbnet_init);
+ 
+-- 
+2.35.1
+
 
 
