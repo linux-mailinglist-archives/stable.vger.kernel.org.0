@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BDF56358BF
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:04:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F7F635559
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236189AbiKWKDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:03:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55914 "EHLO
+        id S237268AbiKWJRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:17:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237082AbiKWKBs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:01:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF93CE9CB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:53:51 -0800 (PST)
+        with ESMTP id S237336AbiKWJRG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:17:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C5C4106110
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:16:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 750E5B81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:53:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C117BC433C1;
-        Wed, 23 Nov 2022 09:53:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27748B81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:16:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31317C433C1;
+        Wed, 23 Nov 2022 09:16:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197229;
-        bh=mCmpBwT8Ioz8zoxuf/jc5cRTM5dhY4OjpjcHwzkIS2o=;
+        s=korg; t=1669195008;
+        bh=VXRv0y6xY0jPwHcNM1H07341PsyTBnUYhW9WJTx/3uM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G8XDCaj1CLUAU7QLBzwiOCySJY3qwUhpMfw1C1Fh2Q5cXDBNSDK2bld8gxqEDApQG
-         C/2Dukou9wG+JUefg9lLcOYgn2JkfS/teV3GDJC0CSzYPYLKiRWRVsNGLkO0ouRcJM
-         JIzqEmAboAT2qnuPjZow9edoniteWc5IDGNoxTnU=
+        b=XL0EPxiayOUTJ37pvRR1r/B+M3yFdjNDgbt/5fqLTUcOsgkvn63282eRgDv4mVzhf
+         tkRyNlQ65ZUH0qAPVGUcWZ55QTaO55sTvAz40kxc/PPwOtL8+Y/rcz8mWX0i7k6E8L
+         j5afLTvsWphVR4g2AbzI94mnjxNBgT2VSiCTDidg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Chuhong Yuan <hslester96@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        stable <stable@kernel.org>
-Subject: [PATCH 6.0 233/314] USB: bcma: Make GPIO explicitly optional
+        Davide Tronchin <davide.tronchin.94@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 121/156] USB: serial: option: add u-blox LARA-R6 00B modem
 Date:   Wed, 23 Nov 2022 09:51:18 +0100
-Message-Id: <20221123084636.045448843@linuxfoundation.org>
+Message-Id: <20221123084602.310565950@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Davide Tronchin <davide.tronchin.94@gmail.com>
 
-commit cd136706b4f925aa5d316642543babac90d45910 upstream.
+commit d9e37a5c4d80ea25a7171ab8557a449115554e76 upstream.
 
-What the code does is to not check the return value from
-devm_gpiod_get() and then avoid using an erroneous GPIO descriptor
-with IS_ERR_OR_NULL().
+The official LARA-R6 (00B) modem uses 0x908b PID. LARA-R6 00B does not
+implement a QMI interface on port 4, the reservation (RSVD(4)) has been
+added to meet other companies that implement QMI on that interface.
 
-This will miss real errors from the GPIO core that should not be
-ignored, such as probe deferral.
+LARA-R6 00B USB composition exposes the following interfaces:
+If 0: Diagnostic
+If 1: AT parser
+If 2: AT parser
+If 3: AT parser/alternative functions
 
-Instead request the GPIO as explicitly optional, which means that
-if it doesn't exist, the descriptor returned will be NULL.
-
-Then we can add error handling and also avoid just doing this on
-the device tree path, and simplify the site where the optional
-GPIO descriptor is used.
-
-There were some problems with cleaning up this GPIO descriptor
-use in the past, but this is the proper way to deal with it.
-
-Cc: Rafał Miłecki <rafal@milecki.pl>
-Cc: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20221107090753.1404679-1-linus.walleij@linaro.org
+Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/bcma-hcd.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/host/bcma-hcd.c
-+++ b/drivers/usb/host/bcma-hcd.c
-@@ -285,7 +285,7 @@ static void bcma_hci_platform_power_gpio
- {
- 	struct bcma_hcd_device *usb_dev = bcma_get_drvdata(dev);
- 
--	if (IS_ERR_OR_NULL(usb_dev->gpio_desc))
-+	if (!usb_dev->gpio_desc)
- 		return;
- 
- 	gpiod_set_value(usb_dev->gpio_desc, val);
-@@ -406,9 +406,11 @@ static int bcma_hcd_probe(struct bcma_de
- 		return -ENOMEM;
- 	usb_dev->core = core;
- 
--	if (core->dev.of_node)
--		usb_dev->gpio_desc = devm_gpiod_get(&core->dev, "vcc",
--						    GPIOD_OUT_HIGH);
-+	usb_dev->gpio_desc = devm_gpiod_get_optional(&core->dev, "vcc",
-+						     GPIOD_OUT_HIGH);
-+	if (IS_ERR(usb_dev->gpio_desc))
-+		return dev_err_probe(&core->dev, PTR_ERR(usb_dev->gpio_desc),
-+				     "error obtaining VCC GPIO");
- 
- 	switch (core->id.id) {
- 	case BCMA_CORE_USB20_HOST:
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1126,6 +1126,8 @@ static const struct usb_device_id option
+ 	/* u-blox products using Qualcomm vendor ID */
+ 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
+ 	  .driver_info = RSVD(1) | RSVD(3) },
++	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x908b),	/* u-blox LARA-R6 00B */
++	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x90fa),
+ 	  .driver_info = RSVD(3) },
+ 	/* Quectel products using Quectel vendor ID */
 
 
