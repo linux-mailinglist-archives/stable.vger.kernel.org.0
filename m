@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74D1563582F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:52:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D54B6354CB
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236424AbiKWJwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:52:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43728 "EHLO
+        id S237163AbiKWJLW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:11:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238255AbiKWJv2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:51:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF450E51
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:48:42 -0800 (PST)
+        with ESMTP id S237165AbiKWJLD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:11:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAEDB6A747
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:11:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B685B81E60
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:48:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 165E6C433D6;
-        Wed, 23 Nov 2022 09:48:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 852F8B81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:11:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2202C433C1;
+        Wed, 23 Nov 2022 09:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196920;
-        bh=w56iTo/jUBGuFrD+a93L8B1D32eYpNYQ3kqkI16ijKc=;
+        s=korg; t=1669194660;
+        bh=SNnZhuyALixeET2sgEaHFwnRWay9+0EgT3I2V2RoWho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S/CsW+LiAumykgV54apObfR7tf6ATCAtZ+ysw8PfAvqtaGJZN+vN4a8lwDXdxtxhj
-         G9JgI5vy0EmeYsHQZRpEY1kY8OejcT+lvw1jTRCyd58F8TPayLM+AvO4JdmdygfJqF
-         ya4TJ1X1FOuvzCeyKhhqnEbrHjVjhShM6e1KsTYw=
+        b=OTiIslzJq+SkVQvogfyU9ryT/Wi38DZ1zsiiLUkzSsY+rONxGL8A7JWGTS6has9Yp
+         OGnYeitwXKOErYayqSy5zr8yhf9lI2IEwajo7DhvaVvOlymuuVZYYeFUR/JEm/8lV2
+         ZjqoQME8lTM1unUZ2aGvH2UOiPtoERHjgWK7xjlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 137/314] ata: libata-transport: fix double ata_host_put() in ata_tport_add()
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 025/156] dmaengine: mv_xor_v2: Fix a resource leak in mv_xor_v2_remove()
 Date:   Wed, 23 Nov 2022 09:49:42 +0100
-Message-Id: <20221123084631.750444799@linuxfoundation.org>
+Message-Id: <20221123084558.863556579@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 8c76310740807ade5ecdab5888f70ecb6d35732e ]
+[ Upstream commit 081195d17a0c4c636da2b869bd5809d42e8cbb13 ]
 
-In the error path in ata_tport_add(), when calling put_device(),
-ata_tport_release() is called, it will put the refcount of 'ap->host'.
+A clk_prepare_enable() call in the probe is not balanced by a corresponding
+clk_disable_unprepare() in the remove function.
 
-And then ata_host_put() is called again, the refcount is decreased
-to 0, ata_host_release() is called, all ports are freed and set to
-null.
+Add the missing call.
 
-When unbinding the device after failure, ata_host_stop() is called
-to release the resources, it leads a null-ptr-deref(), because all
-the ports all freed and null.
-
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
-CPU: 7 PID: 18671 Comm: modprobe Kdump: loaded Tainted: G            E      6.1.0-rc3+ #8
-pstate: 80400009 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : ata_host_stop+0x3c/0x84 [libata]
-lr : release_nodes+0x64/0xd0
-Call trace:
- ata_host_stop+0x3c/0x84 [libata]
- release_nodes+0x64/0xd0
- devres_release_all+0xbc/0x1b0
- device_unbind_cleanup+0x20/0x70
- really_probe+0x158/0x320
- __driver_probe_device+0x84/0x120
- driver_probe_device+0x44/0x120
- __driver_attach+0xb4/0x220
- bus_for_each_dev+0x78/0xdc
- driver_attach+0x2c/0x40
- bus_add_driver+0x184/0x240
- driver_register+0x80/0x13c
- __pci_register_driver+0x4c/0x60
- ahci_pci_driver_init+0x30/0x1000 [ahci]
-
-Fix this by removing redundant ata_host_put() in the error path.
-
-Fixes: 2623c7a5f279 ("libata: add refcounting to ata_host")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: 3cd2c313f1d6 ("dmaengine: mv_xor_v2: Fix clock resource by adding a register clock")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/e9e3837a680c9bd2438e4db2b83270c6c052d005.1666640987.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-transport.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/dma/mv_xor_v2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/ata/libata-transport.c b/drivers/ata/libata-transport.c
-index a7e9a75410a3..105da3ec5eaa 100644
---- a/drivers/ata/libata-transport.c
-+++ b/drivers/ata/libata-transport.c
-@@ -317,7 +317,6 @@ int ata_tport_add(struct device *parent,
-  tport_err:
- 	transport_destroy_device(dev);
- 	put_device(dev);
--	ata_host_put(ap->host);
- 	return error;
- }
+diff --git a/drivers/dma/mv_xor_v2.c b/drivers/dma/mv_xor_v2.c
+index 889a94af4c85..3fa884145eb1 100644
+--- a/drivers/dma/mv_xor_v2.c
++++ b/drivers/dma/mv_xor_v2.c
+@@ -895,6 +895,7 @@ static int mv_xor_v2_remove(struct platform_device *pdev)
+ 	tasklet_kill(&xor_dev->irq_tasklet);
  
+ 	clk_disable_unprepare(xor_dev->clk);
++	clk_disable_unprepare(xor_dev->reg_clk);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
