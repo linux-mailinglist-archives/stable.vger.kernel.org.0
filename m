@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88E1D6355A1
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63C4D6356CA
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237464AbiKWJYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:24:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36448 "EHLO
+        id S237785AbiKWJcX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:32:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237463AbiKWJXn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:23:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A52F3D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:30 -0800 (PST)
+        with ESMTP id S237832AbiKWJbZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AA7D903AD
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:30:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CAE9B81EA9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A114C433D6;
-        Wed, 23 Nov 2022 09:22:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AC6C61B66
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:30:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD35AC433D6;
+        Wed, 23 Nov 2022 09:30:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195347;
-        bh=f4dtExZz7IbpZ2d03WEirG3ykgL92dQUBS8IIbgta+E=;
+        s=korg; t=1669195850;
+        bh=3GG9m2dEdISshc0sVh8wFQCDkQfmd2i4pwOG8WhX7k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqSCZJOaPovG+qieQWAkOmK1TMOPJW9VQW6EV/k84OIG01Na8JuAy8DF0SwJJYcG4
-         N9PzSRXCfE9oa05673RckoVRdILyHk62Bz/n/AinaU9Y9v3fJnb2tFXd/x5SIA5+wL
-         oNRaZ2sTwjPrxJDS/quf+iGSsomR3sqOSkH/tKJM=
+        b=Ts4TGz1PWUXaqYadrK0BIckE/ko3ZpVErinOOChbBaKBIY2B/EgZXzORfYxQxTTn6
+         Ie8ONERt5T3m58NDIqioNTEZZ3O1dhM7KOURw++tDPbp9U5alxQ1t/06igP2iUUHeX
+         djP7EfaJbPByM5qOqccD7+/7s6G6ju3cRlZl7P/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
-        Lijo Lazar <lijo.lazar@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/149] drm/amd/pm: support power source switch on Sienna Cichlid
-Date:   Wed, 23 Nov 2022 09:50:11 +0100
-Message-Id: <20221123084559.028326540@linuxfoundation.org>
+Subject: [PATCH 5.15 049/181] serial: 8250_omap: remove wait loop from Errata i202 workaround
+Date:   Wed, 23 Nov 2022 09:50:12 +0100
+Message-Id: <20221123084604.486306078@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-[ Upstream commit 18a4b3de5fc1c63c80e3be0673886431a56e4307 ]
+[ Upstream commit e828e56684d61b17317e0cfdef83791fa61cb76b ]
 
-Enable power source switch on Sienna Cichlid.
+We were occasionally seeing the "Errata i202: timedout" on an AM335x
+board when repeatedly opening and closing a UART connected to an active
+sender. As new input may arrive at any time, it is possible to miss the
+"RX FIFO empty" condition, forcing the loop to wait until it times out.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Stable-dep-of: 0c85c067c9d9 ("drm/amdgpu: disable BACO on special BEIGE_GOBY card")
+Nothing in the i202 Advisory states that such a wait is even necessary;
+other FIFO clear functions like serial8250_clear_fifos() do not wait
+either. For this reason, it seems safe to remove the wait, fixing the
+mentioned issue.
+
+Fixes: 61929cf0169d ("tty: serial: Add 8250-core based omap driver")
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Link: https://lore.kernel.org/r/20221013112339.2540767-1-matthias.schiffer@ew.tq-group.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tty/serial/8250/8250_omap.c | 17 -----------------
+ 1 file changed, 17 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-index 49d7fa1d0842..834ac633281c 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
-@@ -301,6 +301,9 @@ static int sienna_cichlid_check_powerplay_table(struct smu_context *smu)
- 		table_context->power_play_table;
- 	struct smu_baco_context *smu_baco = &smu->smu_baco;
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index e5d71c99c4e7..5707d86cac76 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -211,27 +211,10 @@ static void omap8250_set_mctrl(struct uart_port *port, unsigned int mctrl)
+ static void omap_8250_mdr1_errataset(struct uart_8250_port *up,
+ 				     struct omap8250_priv *priv)
+ {
+-	u8 timeout = 255;
+-
+ 	serial_out(up, UART_OMAP_MDR1, priv->mdr1);
+ 	udelay(2);
+ 	serial_out(up, UART_FCR, up->fcr | UART_FCR_CLEAR_XMIT |
+ 			UART_FCR_CLEAR_RCVR);
+-	/*
+-	 * Wait for FIFO to empty: when empty, RX_FIFO_E bit is 0 and
+-	 * TX_FIFO_E bit is 1.
+-	 */
+-	while (UART_LSR_THRE != (serial_in(up, UART_LSR) &
+-				(UART_LSR_THRE | UART_LSR_DR))) {
+-		timeout--;
+-		if (!timeout) {
+-			/* Should *never* happen. we warn and carry on */
+-			dev_crit(up->port.dev, "Errata i202: timedout %x\n",
+-				 serial_in(up, UART_LSR));
+-			break;
+-		}
+-		udelay(1);
+-	}
+ }
  
-+	if (powerplay_table->platform_caps & SMU_11_0_7_PP_PLATFORM_CAP_HARDWAREDC)
-+		smu->dc_controlled_by_gpio = true;
-+
- 	if (powerplay_table->platform_caps & SMU_11_0_7_PP_PLATFORM_CAP_BACO ||
- 	    powerplay_table->platform_caps & SMU_11_0_7_PP_PLATFORM_CAP_MACO)
- 		smu_baco->platform_support = true;
-@@ -2806,6 +2809,7 @@ static const struct pptable_funcs sienna_cichlid_ppt_funcs = {
- 	.get_dpm_ultimate_freq = sienna_cichlid_get_dpm_ultimate_freq,
- 	.set_soft_freq_limited_range = smu_v11_0_set_soft_freq_limited_range,
- 	.run_btc = sienna_cichlid_run_btc,
-+	.set_power_source = smu_v11_0_set_power_source,
- 	.get_pp_feature_mask = smu_cmn_get_pp_feature_mask,
- 	.set_pp_feature_mask = smu_cmn_set_pp_feature_mask,
- 	.get_gpu_metrics = sienna_cichlid_get_gpu_metrics,
+ static void omap_8250_get_divisor(struct uart_port *port, unsigned int baud,
 -- 
 2.35.1
 
