@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A379263554F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 269936358A4
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:02:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237371AbiKWJRW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:17:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58548 "EHLO
+        id S236360AbiKWKCT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:02:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237420AbiKWJQy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:16:54 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C68A5108937
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:16:23 -0800 (PST)
+        with ESMTP id S236984AbiKWKBH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:01:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DF5DDF81
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:53:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B220CCE20EC
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:16:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F3F9C433C1;
-        Wed, 23 Nov 2022 09:16:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E51A6B81EF6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:53:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F091C433D7;
+        Wed, 23 Nov 2022 09:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194979;
-        bh=YAx0O8hu4W+XO3DC1SvBaGe0aeZ1TmlGsoJNDEZiJNs=;
+        s=korg; t=1669197197;
+        bh=6WXuu1TguYy4wHxQm4CIqH6Wif6rr0iBUDt7RiXs5Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MwdG3pZnPNQNVBo1W+9tJxOM6xD+8aHNqcKqTwa7GsR2e9Z4k8nX9pzalb4kD239I
-         umI+lo1Xz8nvp3Dlq0UTm8sB6QdYffwvfZ4GzIbJWVuSup9UX9yWsCkqEvvvR17DWO
-         CpLrQ96oBQpchLEmfHPFcOcuwRS74N5qdfjz8/g0=
+        b=cYWpV7Nqd/PMi5+cR17eoFB1g3Gw6Ahb4ck9jOKSaoIvI+oIaO3JVu3uYjMWvHgGM
+         Qgw7jdRqnZsRHZASwVO2HosPWSMl6ow3rKfMr/7aVTlq+7q32FgKssOafJJDKIJU0j
+         9ZRLAyobqhYOm4wcQsqZJmuwkngkm/ANoBmD6Fdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 113/156] ftrace: Fix null pointer dereference in ftrace_add_mod()
+        patches@lists.linux.dev, stable@kernel.org,
+        Janne Grunau <j@jannau.net>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Sven Peter <sven@svenpeter.dev>
+Subject: [PATCH 6.0 225/314] usb: dwc3: Do not get extcon device when usb-role-switch is used
 Date:   Wed, 23 Nov 2022 09:51:10 +0100
-Message-Id: <20221123084602.044152049@linuxfoundation.org>
+Message-Id: <20221123084635.721307731@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,55 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Janne Grunau <j@jannau.net>
 
-commit 19ba6c8af9382c4c05dc6a0a79af3013b9a35cd0 upstream.
+commit d68cc25b7c7fb3034c5a5b5f350a0b858c6d5a45 upstream.
 
-The @ftrace_mod is allocated by kzalloc(), so both the members {prev,next}
-of @ftrace_mode->list are NULL, it's not a valid state to call list_del().
-If kstrdup() for @ftrace_mod->{func|module} fails, it goes to @out_free
-tag and calls free_ftrace_mod() to destroy @ftrace_mod, then list_del()
-will write prev->next and next->prev, where null pointer dereference
-happens.
+The change breaks device tree based platforms with PHY device and use
+usb-role-switch instead of an extcon switch. extcon_find_edev_by_node()
+will return EPROBE_DEFER if it can not find a device so probing without
+an extcon device will be deferred indefinitely. Fix this by
+explicitly checking for usb-role-switch.
+At least the out-of-tree USB3 support on Apple silicon based platforms
+using dwc3 with tipd USB Type-C and PD controller is affected by this
+issue.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000008
-Oops: 0002 [#1] PREEMPT SMP NOPTI
-Call Trace:
- <TASK>
- ftrace_mod_callback+0x20d/0x220
- ? do_filp_open+0xd9/0x140
- ftrace_process_regex.isra.51+0xbf/0x130
- ftrace_regex_write.isra.52.part.53+0x6e/0x90
- vfs_write+0xee/0x3a0
- ? __audit_filter_op+0xb1/0x100
- ? auditd_test_task+0x38/0x50
- ksys_write+0xa5/0xe0
- do_syscall_64+0x3a/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-Kernel panic - not syncing: Fatal exception
-
-So call INIT_LIST_HEAD() to initialize the list member to fix this issue.
-
-Link: https://lkml.kernel.org/r/20221116015207.30858-1-xiujianfeng@huawei.com
-
-Cc: stable@vger.kernel.org
-Fixes: 673feb9d76ab ("ftrace: Add :mod: caching infrastructure to trace_array")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: d182c2e1bc92 ("usb: dwc3: Don't switch OTG -> peripheral if extcon is present")
+Cc: stable@kernel.org
+Signed-off-by: Janne Grunau <j@jannau.net>
+Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Reviewed-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20221106214804.2814-1-j@jannau.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ftrace.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/dwc3/core.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -1307,6 +1307,7 @@ static int ftrace_add_mod(struct trace_a
- 	if (!ftrace_mod)
- 		return -ENOMEM;
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1711,6 +1711,16 @@ static struct extcon_dev *dwc3_get_extco
+ 		return extcon_get_extcon_dev(name);
  
-+	INIT_LIST_HEAD(&ftrace_mod->list);
- 	ftrace_mod->func = kstrdup(func, GFP_KERNEL);
- 	ftrace_mod->module = kstrdup(module, GFP_KERNEL);
- 	ftrace_mod->enable = enable;
+ 	/*
++	 * Check explicitly if "usb-role-switch" is used since
++	 * extcon_find_edev_by_node() can not be used to check the absence of
++	 * an extcon device. In the absence of an device it will always return
++	 * EPROBE_DEFER.
++	 */
++	if (IS_ENABLED(CONFIG_USB_ROLE_SWITCH) &&
++	    device_property_read_bool(dev, "usb-role-switch"))
++		return NULL;
++
++	/*
+ 	 * Try to get an extcon device from the USB PHY controller's "port"
+ 	 * node. Check if it has the "port" node first, to avoid printing the
+ 	 * error message from underlying code, as it's a valid case: extcon
 
 
