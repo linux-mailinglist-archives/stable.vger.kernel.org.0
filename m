@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B72886356A6
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AAC863544A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237797AbiKWJeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:34:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51204 "EHLO
+        id S237004AbiKWJDh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:03:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237902AbiKWJdz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:33:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C4061121C9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:53 -0800 (PST)
+        with ESMTP id S237014AbiKWJDV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:03:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65BE2102E4D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:03:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0C2161B49
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91A95C433C1;
-        Wed, 23 Nov 2022 09:31:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F4D5B81ECB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:03:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ABF4C433B5;
+        Wed, 23 Nov 2022 09:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195912;
-        bh=upNkdi5O0O2ZCLZhuIgCzfblffSeZQe7x+ufoQQ0hg8=;
+        s=korg; t=1669194197;
+        bh=Q8GKH6npxOTHbpp9AtDFm9zTce04gQ2PI5lFMHlGQe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FuHRRcFBCSA8owgOaNZYofPVhNbqrnStZkgtRg0ZnTC6bvSrFIY5qmYE/MK3dw2Xf
-         kWxAFMxUJOGzvEdHQhhfAvxViX3WOcn4NgoZNc5rN5m3izq6PNTgqgQM4VdCWCVYNG
-         fkAPTwkQMAdUSS+j1WQgQEtsrfOazEmO/Wdil2Tk=
+        b=DWhnQPZApYYJq2qgmcNi1jQ8680Ptob0Uq4VkajNKtX49n7r/CknwFRzrMtMxPx8V
+         Yz916ux8L/sTEjvBsmCt6kEz0c5zmQquXiotCHrfSQBejH679khCbB7lyvkfeyjZD3
+         ImWEcwEACLPz3xt+iRSR1rJnBwIh2wDJFyR6f0p0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 027/181] i2c: tegra: Allocate DMA memory for DMA engine
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Wei Liu <wei.liu@kernel.org>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 003/114] HID: hyperv: fix possible memory leak in mousevsc_probe()
 Date:   Wed, 23 Nov 2022 09:49:50 +0100
-Message-Id: <20221123084603.585449145@linuxfoundation.org>
+Message-Id: <20221123084551.987334504@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,98 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit cdbf26251d3b35c4ccaea0c3a6de4318f727d3d2 ]
+[ Upstream commit b5bcb94b0954a026bbd671741fdb00e7141f9c91 ]
 
-When the I2C controllers are running in DMA mode, it is the DMA engine
-that performs the memory accesses rather than the I2C controller. Pass
-the DMA engine's struct device pointer to the DMA API to make sure the
-correct DMA operations are used.
+If hid_add_device() returns error, it should call hid_destroy_device()
+to free hid_dev which is allocated in hid_allocate_device().
 
-This fixes an issue where the DMA engine's SMMU stream ID needs to be
-misleadingly set for the I2C controllers in device tree.
-
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 74c4fb058083 ("HID: hv_mouse: Properly add the hid device")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-tegra.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/hid/hid-hyperv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index c883044715f3..444867cef682 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -283,6 +283,7 @@ struct tegra_i2c_dev {
- 	struct dma_chan *tx_dma_chan;
- 	struct dma_chan *rx_dma_chan;
- 	unsigned int dma_buf_size;
-+	struct device *dma_dev;
- 	dma_addr_t dma_phys;
- 	void *dma_buf;
+diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
+index 4d1496f60071..8f2bf70218bf 100644
+--- a/drivers/hid/hid-hyperv.c
++++ b/drivers/hid/hid-hyperv.c
+@@ -500,7 +500,7 @@ static int mousevsc_probe(struct hv_device *device,
  
-@@ -419,7 +420,7 @@ static int tegra_i2c_dma_submit(struct tegra_i2c_dev *i2c_dev, size_t len)
- static void tegra_i2c_release_dma(struct tegra_i2c_dev *i2c_dev)
- {
- 	if (i2c_dev->dma_buf) {
--		dma_free_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
-+		dma_free_coherent(i2c_dev->dma_dev, i2c_dev->dma_buf_size,
- 				  i2c_dev->dma_buf, i2c_dev->dma_phys);
- 		i2c_dev->dma_buf = NULL;
- 	}
-@@ -466,10 +467,13 @@ static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
+ 	ret = hid_add_device(hid_dev);
+ 	if (ret)
+-		goto probe_err1;
++		goto probe_err2;
  
- 	i2c_dev->tx_dma_chan = chan;
  
-+	WARN_ON(i2c_dev->tx_dma_chan->device != i2c_dev->rx_dma_chan->device);
-+	i2c_dev->dma_dev = chan->device->dev;
-+
- 	i2c_dev->dma_buf_size = i2c_dev->hw->quirks->max_write_len +
- 				I2C_PACKET_HEADER_SIZE;
- 
--	dma_buf = dma_alloc_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
-+	dma_buf = dma_alloc_coherent(i2c_dev->dma_dev, i2c_dev->dma_buf_size,
- 				     &dma_phys, GFP_KERNEL | __GFP_NOWARN);
- 	if (!dma_buf) {
- 		dev_err(i2c_dev->dev, "failed to allocate DMA buffer\n");
-@@ -1255,7 +1259,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 
- 	if (i2c_dev->dma_mode) {
- 		if (i2c_dev->msg_read) {
--			dma_sync_single_for_device(i2c_dev->dev,
-+			dma_sync_single_for_device(i2c_dev->dma_dev,
- 						   i2c_dev->dma_phys,
- 						   xfer_size, DMA_FROM_DEVICE);
- 
-@@ -1263,7 +1267,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 			if (err)
- 				return err;
- 		} else {
--			dma_sync_single_for_cpu(i2c_dev->dev,
-+			dma_sync_single_for_cpu(i2c_dev->dma_dev,
- 						i2c_dev->dma_phys,
- 						xfer_size, DMA_TO_DEVICE);
- 		}
-@@ -1276,7 +1280,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 			memcpy(i2c_dev->dma_buf + I2C_PACKET_HEADER_SIZE,
- 			       msg->buf, msg->len);
- 
--			dma_sync_single_for_device(i2c_dev->dev,
-+			dma_sync_single_for_device(i2c_dev->dma_dev,
- 						   i2c_dev->dma_phys,
- 						   xfer_size, DMA_TO_DEVICE);
- 
-@@ -1327,7 +1331,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 		}
- 
- 		if (i2c_dev->msg_read && i2c_dev->msg_err == I2C_ERR_NONE) {
--			dma_sync_single_for_cpu(i2c_dev->dev,
-+			dma_sync_single_for_cpu(i2c_dev->dma_dev,
- 						i2c_dev->dma_phys,
- 						xfer_size, DMA_FROM_DEVICE);
- 
+ 	ret = hid_parse(hid_dev);
 -- 
 2.35.1
 
