@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 854376353AB
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC57D63538A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236700AbiKWIyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:54:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58200 "EHLO
+        id S236545AbiKWIyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:54:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236725AbiKWIyn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:54:43 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D7FDEA126
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:54:42 -0800 (PST)
+        with ESMTP id S236484AbiKWIyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:54:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91669EC0BF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:54:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 62B22CE20F0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:54:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 094CDC433D6;
-        Wed, 23 Nov 2022 08:54:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49D42B81EED
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:54:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99BE8C433D7;
+        Wed, 23 Nov 2022 08:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193678;
-        bh=YHxZlplJYFwobsY6XzCxLP+nTe0K3MkcAJaglIz46QQ=;
+        s=korg; t=1669193682;
+        bh=gIJTAyOHPUI5ysHKZPrNJ7u/FgXcUIj68v3gpahNHQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gtFwfH9yDSGrvmllspZlYYg901g6FGF6JkCKg0pybhTWVeBL7dqANRPtGa+19SRLt
-         1sR75Z49mncbC89d3sax7hKNnvjWJZa0g8BReGrLi+7aCPdGt4AtYAo+Tn1GiGDWmI
-         qFyRfY8XbListRS/3blC/17/bBLWUSmT12dgHbaQ=
+        b=LEyFRKpLm02htprALrS+MlHBLlLEoPMqp2an3/S3DTirL5QGcYjKY4rDl2+HFdKou
+         Ry557trQ2yEdUOi6aYOAb9/nZlUQ+ppv4dtFTo5YGEQsqB28TQrSa4vPl/ONi0c1Jd
+         JVVv5JZV58xuUM4WYV4dCq5fu5NFU/B2cdWAgWV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        llvm@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        patches@lists.linux.dev,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Tedd Ho-Jeong An <tedd.an@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 31/76] drm/imx: imx-tve: Fix return type of imx_tve_connector_mode_valid
-Date:   Wed, 23 Nov 2022 09:50:30 +0100
-Message-Id: <20221123084547.747822954@linuxfoundation.org>
+Subject: [PATCH 4.9 32/76] Bluetooth: L2CAP: Fix l2cap_global_chan_by_psm
+Date:   Wed, 23 Nov 2022 09:50:31 +0100
+Message-Id: <20221123084547.789393351@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
 References: <20221123084546.742331901@linuxfoundation.org>
@@ -56,51 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit fc007fb815ab5395c3962c09b79a1630b0fbed9c ]
+[ Upstream commit f937b758a188d6fd328a81367087eddbb2fce50f ]
 
-The mode_valid field in drm_connector_helper_funcs is expected to be of
-type:
-enum drm_mode_status (* mode_valid) (struct drm_connector *connector,
-                                     struct drm_display_mode *mode);
+l2cap_global_chan_by_psm shall not return fixed channels as they are not
+meant to be connected by (S)PSM.
 
-The mismatched return type breaks forward edge kCFI since the underlying
-function definition does not match the function hook definition.
-
-The return type of imx_tve_connector_mode_valid should be changed from
-int to enum drm_mode_status.
-
-Reported-by: Dan Carpenter <error27@gmail.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1703
-Cc: llvm@lists.linux.dev
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220913205544.155106-1-nhuck@google.com
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Reviewed-by: Tedd Ho-Jeong An <tedd.an@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/imx-tve.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/bluetooth/l2cap_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
-index 9ae515f3171e..372582df6008 100644
---- a/drivers/gpu/drm/imx/imx-tve.c
-+++ b/drivers/gpu/drm/imx/imx-tve.c
-@@ -254,8 +254,9 @@ static int imx_tve_connector_get_modes(struct drm_connector *connector)
- 	return ret;
- }
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 693344984035..c230f89e7238 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -1824,7 +1824,7 @@ static struct l2cap_chan *l2cap_global_chan_by_psm(int state, __le16 psm,
+ 		if (link_type == LE_LINK && c->src_type == BDADDR_BREDR)
+ 			continue;
  
--static int imx_tve_connector_mode_valid(struct drm_connector *connector,
--					struct drm_display_mode *mode)
-+static enum drm_mode_status
-+imx_tve_connector_mode_valid(struct drm_connector *connector,
-+			     struct drm_display_mode *mode)
- {
- 	struct imx_tve *tve = con_to_tve(connector);
- 	unsigned long rate;
+-		if (c->psm == psm) {
++		if (c->chan_type != L2CAP_CHAN_FIXED && c->psm == psm) {
+ 			int src_match, dst_match;
+ 			int src_any, dst_any;
+ 
 -- 
 2.35.1
 
