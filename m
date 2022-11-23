@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D63376353F0
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3944863536F
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:57:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236878AbiKWJA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:00:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36942 "EHLO
+        id S236745AbiKWIzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:55:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236880AbiKWJAw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:00:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6583E72097
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:00:48 -0800 (PST)
+        with ESMTP id S236749AbiKWIzo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:55:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9721CE932B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:55:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F32D16185C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:00:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFDD5C433C1;
-        Wed, 23 Nov 2022 09:00:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3399061B10
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:55:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CE67C433D7;
+        Wed, 23 Nov 2022 08:55:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194047;
-        bh=3ck9Xe5tg1QfdZeBDOx83UjQJzLEsPFRPeEwmuhrhc8=;
+        s=korg; t=1669193742;
+        bh=1RVzD4SAWU/WqbChixPy4VM0dNOktno0GCWcdiWHjZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQiZPa1n/yRQ/YXyJMom7mz4oDqbDx7rqrjiqzUynerCn7VFV0oQ56AKeF0RQHWGD
-         fVdxqpZtuEAEFLArxZIrF9DtM82AdW+TGQBWgnVc3Wuof2yZS/pc0S0YL71IeuoYsq
-         371U/OxgFXwW/252Zp7PWWLmxYpXDM1TQKg61idg=
+        b=PhJlMUhEP/fJmTeGsCy2CI/oExnxG7D428b8gyKXGKW7t+/J8CukHaF6SLIiBWmD7
+         1ZatbhKut/bJrVHvt9VdWtdZUcL0vRvWRYnRS1yt7THovGNr/QYcm1xqgmKjjKkgRD
+         XjbejJFX2l1L5GEbk98XMYRd4kllPDzEQzpp3SHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 49/88] xen/pcpu: fix possible memory leak in register_pcpu()
-Date:   Wed, 23 Nov 2022 09:50:46 +0100
-Message-Id: <20221123084550.225519157@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 48/76] ring_buffer: Do not deactivate non-existant pages
+Date:   Wed, 23 Nov 2022 09:50:47 +0100
+Message-Id: <20221123084548.317910865@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
+References: <20221123084546.742331901@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-[ Upstream commit da36a2a76b01b210ffaa55cdc2c99bc8783697c5 ]
+commit 56f4ca0a79a9f1af98f26c54b9b89ba1f9bcc6bd upstream.
 
-In device_add(), dev_set_name() is called to allocate name, if it returns
-error, the name need be freed. As comment of device_register() says, it
-should use put_device() to give up the reference in the error path. So fix
-this by calling put_device(), then the name can be freed in kobject_cleanup().
+rb_head_page_deactivate() expects cpu_buffer to contain a valid list of
+->pages, so verify that the list is actually present before calling it.
 
-Fixes: f65c9bb3fb72 ("xen/pcpu: Xen physical cpus online/offline sys interface")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221110152441.401630-1-yangyingliang@huawei.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
+
+Link: https://lkml.kernel.org/r/20221114143129.3534443-1-d-tatianin@yandex-team.ru
+
+Cc: stable@vger.kernel.org
+Fixes: 77ae365eca895 ("ring-buffer: make lockless")
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/pcpu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/ring_buffer.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/xen/pcpu.c b/drivers/xen/pcpu.c
-index cdc6daa7a9f6..9cf7085a260b 100644
---- a/drivers/xen/pcpu.c
-+++ b/drivers/xen/pcpu.c
-@@ -228,7 +228,7 @@ static int register_pcpu(struct pcpu *pcpu)
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -1267,9 +1267,9 @@ static void rb_free_cpu_buffer(struct ri
  
- 	err = device_register(dev);
- 	if (err) {
--		pcpu_release(dev);
-+		put_device(dev);
- 		return err;
- 	}
+ 	free_buffer_page(cpu_buffer->reader_page);
  
--- 
-2.35.1
-
+-	rb_head_page_deactivate(cpu_buffer);
+-
+ 	if (head) {
++		rb_head_page_deactivate(cpu_buffer);
++
+ 		list_for_each_entry_safe(bpage, tmp, head, list) {
+ 			list_del_init(&bpage->list);
+ 			free_buffer_page(bpage);
 
 
