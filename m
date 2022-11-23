@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42AB963549B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7CF9635686
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237149AbiKWJKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:10:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50384 "EHLO
+        id S237786AbiKWJbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:31:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237155AbiKWJKH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:10:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2B6823BD5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:10:05 -0800 (PST)
+        with ESMTP id S237785AbiKWJa6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:58 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EEFDE8A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:29:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 780CFB81EEB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:10:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0237C433C1;
-        Wed, 23 Nov 2022 09:10:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DAC7ACE20EC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:29:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA935C433D6;
+        Wed, 23 Nov 2022 09:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194603;
-        bh=XbV1vF7+7G2FYouptQzCOKiq9EkUjPPMdX9AaiRMShg=;
+        s=korg; t=1669195773;
+        bh=0962/nnKhBf2bAmZiiQyeQHRPm1jDKsRvyc8iH052qE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKyFseuWQoBc6GppeHRYRydycinIYh5tSGVSskB4y6U6nOMi0juP/Cd9xarOBLBU7
-         0xUR+yDC4vbtJQaf9Eu1dqpSjxwS2Vc0GjsIbeOsObxYva46e5oPlbjp6HVqdZuJlu
-         /l3hSe1JFNillATm3lRy+wLDVu2Vsig59v1h5uBU=
+        b=evmwj2Myk4gABY2SqiWMZtYbYE8VyChwN1GzSg9O/dTA60QztOl188N3UPF8KjMsZ
+         u8fVyHYvswjG/nwHvkvu0BQVZPi7Mbtr9zYHH6tFVyV+DHAtCkO3jlnZLJLQIz293f
+         dRGiAWhKmVw4RtemDHVvRMmr6JrQSXllSYzXyGgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jakub Sitnicki <jakub@cloudflare.com>,
-        Wang Yufen <wangyufen@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 010/156] bpf, sockmap: Fix the sk->sk_forward_alloc warning of sk_stream_kill_queues
+Subject: [PATCH 5.15 004/181] ASoC: wm5102: Revert "ASoC: wm5102: Fix PM disable depth imbalance in wm5102_probe"
 Date:   Wed, 23 Nov 2022 09:49:27 +0100
-Message-Id: <20221123084558.237636745@linuxfoundation.org>
+Message-Id: <20221123084602.848489788@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,87 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 8ec95b94716a1e4d126edc3fb2bc426a717e2dba ]
+[ Upstream commit de71d7567e358effd06dfc3e2a154b25f1331c10 ]
 
-When running `test_sockmap` selftests, the following warning appears:
+This reverts commit fcbb60820cd3008bb44334a0395e5e57ccb77329.
 
-  WARNING: CPU: 2 PID: 197 at net/core/stream.c:205 sk_stream_kill_queues+0xd3/0xf0
-  Call Trace:
-  <TASK>
-  inet_csk_destroy_sock+0x55/0x110
-  tcp_rcv_state_process+0xd28/0x1380
-  ? tcp_v4_do_rcv+0x77/0x2c0
-  tcp_v4_do_rcv+0x77/0x2c0
-  __release_sock+0x106/0x130
-  __tcp_close+0x1a7/0x4e0
-  tcp_close+0x20/0x70
-  inet_release+0x3c/0x80
-  __sock_release+0x3a/0xb0
-  sock_close+0x14/0x20
-  __fput+0xa3/0x260
-  task_work_run+0x59/0xb0
-  exit_to_user_mode_prepare+0x1b3/0x1c0
-  syscall_exit_to_user_mode+0x19/0x50
-  do_syscall_64+0x48/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+The pm_runtime_disable is redundant when error returns in
+wm5102_probe, we just revert the old patch to fix it.
 
-The root case is in commit 84472b436e76 ("bpf, sockmap: Fix more uncharged
-while msg has more_data"), where I used msg->sg.size to replace the tosend,
-causing breakage:
-
-  if (msg->apply_bytes && msg->apply_bytes < tosend)
-    tosend = psock->apply_bytes;
-
-Fixes: 84472b436e76 ("bpf, sockmap: Fix more uncharged while msg has more_data")
-Reported-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/1667266296-8794-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20221010114852.88127-2-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ sound/soc/codecs/wm5102.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index bcc13368c836..f69dcd3c7797 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -311,7 +311,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- {
- 	bool cork = false, enospc = sk_msg_full(msg);
- 	struct sock *sk_redir;
--	u32 tosend, delta = 0;
-+	u32 tosend, origsize, sent, delta = 0;
- 	u32 eval = __SK_NONE;
- 	int ret;
+diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
+index c8adce8936bc..621598608bf0 100644
+--- a/sound/soc/codecs/wm5102.c
++++ b/sound/soc/codecs/wm5102.c
+@@ -2087,6 +2087,9 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		regmap_update_bits(arizona->regmap, wm5102_digital_vu[i],
+ 				   WM5102_DIG_VU, WM5102_DIG_VU);
  
-@@ -366,10 +366,12 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 			cork = true;
- 			psock->cork = NULL;
- 		}
--		sk_msg_return(sk, msg, msg->sg.size);
-+		sk_msg_return(sk, msg, tosend);
- 		release_sock(sk);
- 
-+		origsize = msg->sg.size;
- 		ret = tcp_bpf_sendmsg_redir(sk_redir, msg, tosend, flags);
-+		sent = origsize - msg->sg.size;
- 
- 		if (eval == __SK_REDIRECT)
- 			sock_put(sk_redir);
-@@ -408,7 +410,7 @@ static int tcp_bpf_send_verdict(struct sock *sk, struct sk_psock *psock,
- 		    msg->sg.data[msg->sg.start].page_link &&
- 		    msg->sg.data[msg->sg.start].length) {
- 			if (eval == __SK_REDIRECT)
--				sk_mem_charge(sk, msg->sg.size);
-+				sk_mem_charge(sk, tosend - sent);
- 			goto more_data;
- 		}
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_idle(&pdev->dev);
++
+ 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
+ 				  "ADSP2 Compressed IRQ", wm5102_adsp2_irq,
+ 				  wm5102);
+@@ -2119,9 +2122,6 @@ static int wm5102_probe(struct platform_device *pdev)
+ 		goto err_spk_irqs;
  	}
+ 
+-	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_idle(&pdev->dev);
+-
+ 	return ret;
+ 
+ err_spk_irqs:
 -- 
 2.35.1
 
