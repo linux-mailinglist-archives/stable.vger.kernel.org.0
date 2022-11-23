@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 483FB635674
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56F1D635814
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:50:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237744AbiKWJao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:30:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48850 "EHLO
+        id S237166AbiKWJuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:50:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237743AbiKWJaZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB1D1122C8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:28:34 -0800 (PST)
+        with ESMTP id S238278AbiKWJtx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B52FB18
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:47:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CC7B61B22
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:28:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB2E7C433D7;
-        Wed, 23 Nov 2022 09:28:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43ABAB81E5E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6432BC433C1;
+        Wed, 23 Nov 2022 09:46:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195713;
-        bh=tcmw91E/VgJ/lrc8DHnLO8OS8xE5koXY1a4vGdg2D/8=;
+        s=korg; t=1669196817;
+        bh=PibUpeYMLBbUQiYCyPbuF/slTeh4Hlr4bhqqK+lE9bs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CxKHvz/oy9rGqY1LEEuf3kmQx5HbkNDFm3/fEJgIyp1wx4UzV7U2oCljPydViZ2xE
-         5J375CyFsOrklS9vUNaM99x3pH9uUkLqHS6I1p+eLpiWPYo/Kxdny3WYSRI+ccBXPv
-         rLse+bHZIpxMd9pVX5M2SxxkRZ3phjMm7/31iXmQ=
+        b=k2FLBLXz3wj7CPjI/WT9U01w7xYelixGF/o5bAkW3anzEbYXpkSCVqH5sS7vBcsQs
+         V0Xi0MxYML7v9mwWZPi/U8IkC6D6Pl6SvOWLNiYQ7cuhdvsny+rhxHgmDD+e9FAwAe
+         fEEaHSlDK70sIYPawi+Yrl9Ey3I99OSJYplIKd8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Siarhei Volkau <lis8215@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 013/181] ASoC: codecs: jz4725b: use right control for Capture Volume
+Subject: [PATCH 6.0 131/314] arm64: dts: imx8mm-tqma8mqml-mba8mx: Fix USB DR
 Date:   Wed, 23 Nov 2022 09:49:36 +0100
-Message-Id: <20221123084603.143017179@linuxfoundation.org>
+Message-Id: <20221123084631.474405706@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siarhei Volkau <lis8215@gmail.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 1538e2c8c9b7e7a656effcc6e4e7cfe8c1b405fd ]
+[ Upstream commit 63fd9437ec81899fc36bb642d558378bc89aa4f9 ]
 
-Line In Bypass control is used as Master Capture at the moment
-this is completely incorrect.
+Using extcon USB host mode works properly on DR interface, e.g.
+enabling/disabling VBUS. But USB device mode is not working.
+Fix this by switching to usb-role-switch instead.
 
-Current control routed to Mixer instead of ADC, thus can't affect
-Capture path. ADC control shall be used instead.
-
-ADC volume control parameters are different, so the patch fixes that
-as well. Manual says (16.6.3.2 Programmable input attenuation amplifier:
-PGATM) that gain varies in range 0dB..22.5dB with 1.5dB step.
-
-Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
-Link: https://lore.kernel.org/r/20221016132648.3011729-4-lis8215@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: dfcd1b6f7620 ("arm64: dts: freescale: add initial device tree for TQMa8MQML with i.MX8MM")
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/jz4725b.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ .../dts/freescale/imx8mm-tqma8mqml-mba8mx.dts | 32 +++++++++++++++----
+ 1 file changed, 26 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
-index 72549ee2e789..4363d898a7d4 100644
---- a/sound/soc/codecs/jz4725b.c
-+++ b/sound/soc/codecs/jz4725b.c
-@@ -136,13 +136,16 @@ enum {
- #define REG_CGR3_GO1L_OFFSET		0
- #define REG_CGR3_GO1L_MASK		(0x1f << REG_CGR3_GO1L_OFFSET)
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts b/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts
+index 7e0aeb2db305..a0aeac619929 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts
+@@ -34,11 +34,25 @@ reg_usdhc2_vmmc: regulator-vmmc {
+ 		off-on-delay-us = <12000>;
+ 	};
  
-+#define REG_CGR10_GIL_OFFSET		0
-+#define REG_CGR10_GIR_OFFSET		4
+-	extcon_usbotg1: extcon-usbotg1 {
+-		compatible = "linux,extcon-usb-gpio";
++	connector {
++		compatible = "gpio-usb-b-connector", "usb-b-connector";
++		type = "micro";
++		label = "X19";
+ 		pinctrl-names = "default";
+-		pinctrl-0 = <&pinctrl_usb1_extcon>;
+-		id-gpio = <&gpio1 10 GPIO_ACTIVE_HIGH>;
++		pinctrl-0 = <&pinctrl_usb1_connector>;
++		id-gpios = <&gpio1 10 GPIO_ACTIVE_HIGH>;
 +
- struct jz_icdc {
- 	struct regmap *regmap;
- 	void __iomem *base;
- 	struct clk *clk;
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			port@0 {
++				reg = <0>;
++				usb_dr_connector: endpoint {
++					remote-endpoint = <&usb1_drd_sw>;
++				};
++			};
++		};
+ 	};
  };
  
--static const SNDRV_CTL_TLVD_DECLARE_DB_LINEAR(jz4725b_line_tlv, -1500, 600);
-+static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_adc_tlv,     0, 150, 0);
- static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_dac_tlv, -2250, 150, 0);
+@@ -105,13 +119,19 @@ &usbotg1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_usbotg1>;
+ 	dr_mode = "otg";
+-	extcon = <&extcon_usbotg1>;
+ 	srp-disable;
+ 	hnp-disable;
+ 	adp-disable;
+ 	power-active-high;
+ 	over-current-active-low;
++	usb-role-switch;
+ 	status = "okay";
++
++	port {
++		usb1_drd_sw: endpoint {
++			remote-endpoint = <&usb_dr_connector>;
++		};
++	};
+ };
  
- static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
-@@ -151,11 +154,11 @@ static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
- 		       REG_CGR1_GODL_OFFSET,
- 		       REG_CGR1_GODR_OFFSET,
- 		       0xf, 1, jz4725b_dac_tlv),
--	SOC_DOUBLE_R_TLV("Master Capture Volume",
--			 JZ4725B_CODEC_REG_CGR3,
--			 JZ4725B_CODEC_REG_CGR2,
--			 REG_CGR2_GO1R_OFFSET,
--			 0x1f, 1, jz4725b_line_tlv),
-+	SOC_DOUBLE_TLV("Master Capture Volume",
-+		       JZ4725B_CODEC_REG_CGR10,
-+		       REG_CGR10_GIL_OFFSET,
-+		       REG_CGR10_GIR_OFFSET,
-+		       0xf, 0, jz4725b_adc_tlv),
+ &usbotg2 {
+@@ -231,7 +251,7 @@ pinctrl_usbotg1: usbotg1grp {
+ 			   <MX8MM_IOMUXC_GPIO1_IO13_USB1_OTG_OC		0x84>;
+ 	};
  
- 	SOC_SINGLE("Master Playback Switch", JZ4725B_CODEC_REG_CR1,
- 		   REG_CR1_DAC_MUTE_OFFSET, 1, 1),
+-	pinctrl_usb1_extcon: usb1-extcongrp {
++	pinctrl_usb1_connector: usb1-connectorgrp {
+ 		fsl,pins = <MX8MM_IOMUXC_GPIO1_IO10_GPIO1_IO10		0x1c0>;
+ 	};
+ 
 -- 
 2.35.1
 
