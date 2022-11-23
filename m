@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EFC563575A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF44B635657
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238083AbiKWJl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:41:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57776 "EHLO
+        id S237686AbiKWJ33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:29:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237975AbiKWJlI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83646E541
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:38:40 -0800 (PST)
+        with ESMTP id S237619AbiKWJ3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:29:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F620D100
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:27:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB130B81EF0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:38:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA166C433C1;
-        Wed, 23 Nov 2022 09:38:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEBE661B40
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:27:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DF30C433D6;
+        Wed, 23 Nov 2022 09:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196318;
-        bh=h+OpAtOgLGyQkYlELTZvqT6dsEhDilPG4dDcccwImL0=;
+        s=korg; t=1669195638;
+        bh=yYhp8Hn/124hrHXNT+nRAm36mEF9eGnbHttfrnpJ3Ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CQaqRp2MlfzP7PxURn7jfljoGvH9VnTVTCFsSOVmu9BpvkOHq7BYTIwxOJ+KA4ym/
-         X/cIxg71y7khszFFZ77zgsTMex+Vi/omjAvvIy72Tjpa1VEcu/uynLQLKVn8yM9QdW
-         DXKt+oPfLSApXktQvBLMgbzNr/FrXLhEMoQHBMkM=
+        b=daVp4CrDMf41Og7Ok+WUia/lO9w0A/RKZROzQmiWsqzbZFcUBZLeCmXOXjCel8NMB
+         XdMWpnY8VK3wJmYSm1kSkS8w58B9LV40biI3w6V3gvNfVFifsJolYvZFnXqEHX0PfE
+         uc8E1PVnl9UkmGon29wmGJj8HPDd+2Qhkym9PWzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Arun Easi <aeasi@marvell.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Aashish Sharma <shraash@google.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 162/181] tracing: Fix warning on variable struct trace_array
+        syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Schspa Shi <schspa@gmail.com>
+Subject: [PATCH 5.10 142/149] 9p: trans_fd/p9_conn_cancel: drop client lock earlier
 Date:   Wed, 23 Nov 2022 09:52:05 +0100
-Message-Id: <20221123084609.346200226@linuxfoundation.org>
+Message-Id: <20221123084603.032987856@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,54 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aashish Sharma <shraash@google.com>
+From: Dominique Martinet <asmadeus@codewreck.org>
 
-[ Upstream commit bedf06833b1f63c2627bd5634602e05592129d7a ]
+commit 52f1c45dde9136f964d63a77d19826c8a74e2c7f upstream.
 
-Move the declaration of 'struct trace_array' out of #ifdef
-CONFIG_TRACING block, to fix the following warning when CONFIG_TRACING
-is not set:
+syzbot reported a double-lock here and we no longer need this
+lock after requests have been moved off to local list:
+just drop the lock earlier.
 
->> include/linux/trace.h:63:45: warning: 'struct trace_array' declared
-inside parameter list will not be visible outside of this definition or
-declaration
-
-Link: https://lkml.kernel.org/r/20221107160556.2139463-1-shraash@google.com
-
-Fixes: 1a77dd1c2bb5 ("scsi: tracing: Fix compile error in trace_array calls when TRACING is disabled")
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Arun Easi <aeasi@marvell.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Aashish Sharma <shraash@google.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220904064028.1305220-1-asmadeus@codewreck.org
+Reported-by: syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Tested-by: Schspa Shi <schspa@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/trace.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/9p/trans_fd.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/trace.h b/include/linux/trace.h
-index b5e16e438448..80ffda871749 100644
---- a/include/linux/trace.h
-+++ b/include/linux/trace.h
-@@ -26,13 +26,13 @@ struct trace_export {
- 	int flags;
- };
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -205,6 +205,8 @@ static void p9_conn_cancel(struct p9_con
+ 		list_move(&req->req_list, &cancel_list);
+ 	}
  
-+struct trace_array;
++	spin_unlock(&m->client->lock);
 +
- #ifdef CONFIG_TRACING
+ 	list_for_each_entry_safe(req, rtmp, &cancel_list, req_list) {
+ 		p9_debug(P9_DEBUG_ERROR, "call back req %p\n", req);
+ 		list_del(&req->req_list);
+@@ -212,7 +214,6 @@ static void p9_conn_cancel(struct p9_con
+ 			req->t_err = err;
+ 		p9_client_cb(m->client, req, REQ_STATUS_ERROR);
+ 	}
+-	spin_unlock(&m->client->lock);
+ }
  
- int register_ftrace_export(struct trace_export *export);
- int unregister_ftrace_export(struct trace_export *export);
- 
--struct trace_array;
--
- void trace_printk_init_buffers(void);
- __printf(3, 4)
- int trace_array_printk(struct trace_array *tr, unsigned long ip,
--- 
-2.35.1
-
+ static __poll_t
 
 
