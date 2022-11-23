@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2CE06355D7
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E83F63570F
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237431AbiKWJXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:23:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36834 "EHLO
+        id S237860AbiKWJhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:37:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237456AbiKWJWS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:22:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5307310CE8F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:21:53 -0800 (PST)
+        with ESMTP id S237953AbiKWJgW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:36:22 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5891D11448B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:33:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1068B81EFB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:21:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ACDEC433C1;
-        Wed, 23 Nov 2022 09:21:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B149FCE20E5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:33:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55D27C433C1;
+        Wed, 23 Nov 2022 09:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195310;
-        bh=Ljhjh+feQ0RsPPmK3j6ciGv+xzursYPd/aPf7TXLlN4=;
+        s=korg; t=1669196023;
+        bh=KERGXUyEMOnZzw2cs7ZQcRWk9qd8WCNG3ftlmc6JV14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXDcgFECSdiEj5rGofdCuc5KUkbUL7rDOhj/3AQd9zbrMThrO/gsIJt9yQRj+ing/
-         U7GyFJBI7xFQZ55AJ8prSBU9TsgpogLS5rN4M4ihmCkZP2nPJNyZsNiPVmPLQBy50Q
-         ZdjjX/RUV7FYX8O14kQMp4flS/8DyoyQsV4991UE=
+        b=oW7L/vqGMNRGJTm4/S4sAL9vvJ8NqVTfHx7gvSBeb+8KjlUiyzdRl+XS2Grn3u8Ow
+         lWg3sfA6jvcK9jjvlAWorWaseJhQwaGa9Ql5n8B7KMAHV7A/YZvYr2lBVpLSepdGSR
+         as9iLawwJnW4weakzkZH6pUKg5/5PL9sCoH4ZtpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>,
-        D Scott Phillips <scott@os.amperecomputing.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 048/149] arm64: Fix bit-shifting UB in the MIDR_CPU_MODEL() macro
+Subject: [PATCH 5.15 068/181] ARM: dts: imx7: Fix NAND controller size-cells
 Date:   Wed, 23 Nov 2022 09:50:31 +0100
-Message-Id: <20221123084559.668031166@linuxfoundation.org>
+Message-Id: <20221123084605.299575181@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D Scott Phillips <scott@os.amperecomputing.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 8ec8490a1950efeccb00967698cf7cb2fcd25ca7 ]
+[ Upstream commit 753395ea1e45c724150070b5785900b6a44bd5fb ]
 
-CONFIG_UBSAN_SHIFT with gcc-5 complains that the shifting of
-ARM_CPU_IMP_AMPERE (0xC0) into bits [31:24] by MIDR_CPU_MODEL() is
-undefined behavior. Well, sort of, it actually spells the error as:
+The NAND controller size-cells should be 0 per DT bindings.
+Fix the following warning produces by DT bindings check:
+"
+nand-controller@33002000: #size-cells:0:0: 0 was expected
+nand-controller@33002000: Unevaluated properties are not allowed ('#address-cells', '#size-cells' were unexpected)
+"
+Fix the missing space in node name too.
 
- arch/arm64/kernel/proton-pack.c: In function 'spectre_bhb_loop_affected':
- arch/arm64/include/asm/cputype.h:44:2: error: initializer element is not constant
-   (((imp)   << MIDR_IMPLEMENTOR_SHIFT) | \
-   ^
-
-This isn't an issue for other Implementor codes, as all the other codes
-have zero in the top bit and so are representable as a signed int.
-
-Cast the implementor code to unsigned in MIDR_CPU_MODEL to remove the
-undefined behavior.
-
-Fixes: 0e5d5ae837c8 ("arm64: Add AMPERE1 to the Spectre-BHB affected list")
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: D Scott Phillips <scott@os.amperecomputing.com>
-Link: https://lore.kernel.org/r/20221102160106.1096948-1-scott@os.amperecomputing.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: e7495a45a76de ("ARM: dts: imx7: add GPMI NAND and APBH DMA")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/cputype.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx7s.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
-index 457b6bb276bb..9cf5d9551e99 100644
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -41,7 +41,7 @@
- 	(((midr) & MIDR_IMPLEMENTOR_MASK) >> MIDR_IMPLEMENTOR_SHIFT)
+diff --git a/arch/arm/boot/dts/imx7s.dtsi b/arch/arm/boot/dts/imx7s.dtsi
+index 95f22513a7c0..c8206c636a01 100644
+--- a/arch/arm/boot/dts/imx7s.dtsi
++++ b/arch/arm/boot/dts/imx7s.dtsi
+@@ -1252,10 +1252,10 @@ dma_apbh: dma-apbh@33000000 {
+ 			clocks = <&clks IMX7D_NAND_USDHC_BUS_RAWNAND_CLK>;
+ 		};
  
- #define MIDR_CPU_MODEL(imp, partnum) \
--	(((imp)			<< MIDR_IMPLEMENTOR_SHIFT) | \
-+	((_AT(u32, imp)		<< MIDR_IMPLEMENTOR_SHIFT) | \
- 	(0xf			<< MIDR_ARCHITECTURE_SHIFT) | \
- 	((partnum)		<< MIDR_PARTNUM_SHIFT))
- 
+-		gpmi: nand-controller@33002000{
++		gpmi: nand-controller@33002000 {
+ 			compatible = "fsl,imx7d-gpmi-nand";
+ 			#address-cells = <1>;
+-			#size-cells = <1>;
++			#size-cells = <0>;
+ 			reg = <0x33002000 0x2000>, <0x33004000 0x4000>;
+ 			reg-names = "gpmi-nand", "bch";
+ 			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
 -- 
 2.35.1
 
