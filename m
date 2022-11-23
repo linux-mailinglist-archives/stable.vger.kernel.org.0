@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D631663553E
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 844E463589F
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:02:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237300AbiKWJQn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:16:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57862 "EHLO
+        id S236669AbiKWKCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:02:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237377AbiKWJQY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:16:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D94B21095BD
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:16:07 -0800 (PST)
+        with ESMTP id S237175AbiKWKAz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:00:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ADC711A703
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:53:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26EB9B81EEB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:16:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F39DC433D6;
-        Wed, 23 Nov 2022 09:16:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6CDE6B81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:53:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0385C433D6;
+        Wed, 23 Nov 2022 09:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194964;
-        bh=UJ1sGY7g+iSRsMuaTL8OjLlq9GGCn0ZfR0MOc+I0c0Q=;
+        s=korg; t=1669197186;
+        bh=M1tiEDPlysW26DS+/MGU5V9FjDiIZ+/hZ8qA/D+R5Vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OPVfr9aAWdLf7je7iF/TfM59fSC+7JbBN9ThcERFTPxnsSCCjWlMmpJ6FSj2uN0KI
-         OaQFtFzhH6+jJ61aOt0b37h0sS6aDyNxpU93rEEFfyUfcwP7ssfE8iz+s5fHKvwKjF
-         zJ57PDtoHcz7ezyYCCxvoIVabpJElb5/0R5DGoi4=
+        b=1l7gwZHjXAQ3qHUD9a4RXMk5/J3IbFPjJRqOQi1hegrTgeLXiaDWOj8snrTX46WiE
+         gcDD1aUfUVT6b55oJfzWU0Ur7zAbIX6CNm3RB2t4ly8nxd8AQyxe5ZMaeo4I4TYKve
+         T1xJrHqZr9Np9r56L+wfpQR0TEWr2zizxw6hQA0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anastasia Belova <abelova@astralinux.ru>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 110/156] cifs: add check for returning value of SMB2_set_info_init
+        patches@lists.linux.dev, Emil Flink <emil.flink@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 6.0 222/314] ALSA: hda/realtek: fix speakers for Samsung Galaxy Book Pro
 Date:   Wed, 23 Nov 2022 09:51:07 +0100
-Message-Id: <20221123084601.944955651@linuxfoundation.org>
+Message-Id: <20221123084635.589427754@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anastasia Belova <abelova@astralinux.ru>
+From: Emil Flink <emil.flink@gmail.com>
 
-[ Upstream commit a51e5d293dd1c2e7bf6f7be788466cd9b5d280fb ]
+commit b18a456330e1c1ca207b57b45872f10336741388 upstream.
 
-If the returning value of SMB2_set_info_init is an error-value,
-exit the function.
+The Samsung Galaxy Book Pro seems to have the same issue as a few
+other Samsung laptops, detailed in kernel bug report 207423. Sound from
+headphone jack works, but not the built-in speakers.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+alsa-info: http://alsa-project.org/db/?f=b40ba609dc6ae28dc84ad404a0d8a4bbcd8bea6d
 
-Fixes: 0967e5457954 ("cifs: use a compound for setting an xattr")
-
-Signed-off-by: Anastasia Belova <abelova@astralinux.ru>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Emil Flink <emil.flink@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221115144500.7782-1-emil.flink@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2ops.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 6039b0cdfe04..d67676545a42 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1216,6 +1216,8 @@ smb2_set_ea(const unsigned int xid, struct cifs_tcon *tcon,
- 				COMPOUND_FID, current->tgid,
- 				FILE_FULL_EA_INFORMATION,
- 				SMB2_O_INFO_FILE, 0, data, size);
-+	if (rc)
-+		goto sea_exit;
- 	smb2_set_next_command(tcon, &rqst[1]);
- 	smb2_set_related(&rqst[1]);
- 
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9446,6 +9446,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x144d, 0xc176, "Samsung Notebook 9 Pro (NP930MBE-K04US)", ALC298_FIXUP_SAMSUNG_AMP),
+ 	SND_PCI_QUIRK(0x144d, 0xc189, "Samsung Galaxy Flex Book (NT950QCG-X716)", ALC298_FIXUP_SAMSUNG_AMP),
+ 	SND_PCI_QUIRK(0x144d, 0xc18a, "Samsung Galaxy Book Ion (NP930XCJ-K01US)", ALC298_FIXUP_SAMSUNG_AMP),
++	SND_PCI_QUIRK(0x144d, 0xc1a3, "Samsung Galaxy Book Pro (NP935XDB-KC1SE)", ALC298_FIXUP_SAMSUNG_AMP),
+ 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
+ 	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_AMP),
+ 	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_AMP),
 
 
