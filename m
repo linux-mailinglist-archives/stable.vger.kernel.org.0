@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2568E635DAA
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:47:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2886635D8A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:46:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236541AbiKWMn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:43:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48886 "EHLO
+        id S236982AbiKWMnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:43:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237001AbiKWMmi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:42:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 281266CA15;
-        Wed, 23 Nov 2022 04:41:45 -0800 (PST)
+        with ESMTP id S237068AbiKWMmm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:42:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D6926D492;
+        Wed, 23 Nov 2022 04:41:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A04E161C99;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 276BFB81F3F;
+        Wed, 23 Nov 2022 12:41:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DD2FC4347C;
         Wed, 23 Nov 2022 12:41:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0905FC433C1;
-        Wed, 23 Nov 2022 12:41:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207304;
-        bh=VwXXeRt6xQyQwBK4ROVGyz1SFb5IlEYz5klkPODi2E8=;
+        s=k20201202; t=1669207305;
+        bh=9eK/YfM8SsXmkglH0WxqzhlfaZd4V7b6t66rSlpQoZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qeKDB2vriV2OCj1D2Zbd0eNOYQlG09TN3yAgUWdRBw/QccFAHAeyRTyqYxbpeB6aD
-         zWAzqSMBkyaw/87LN/wFXCKKZC5riXHYsc7Nw3Qd2PIjqAfTI8G6bgql2bTAdb3LjT
-         hBziyJlSa7t07hSgesIWKYM/eVMDj0GNXQcW6/FPxtJ9kAb7zbQhcHIWJhEM66AzN8
-         UWWXIalD0n0cWKVbO5pu02UBGfERHPpa5ftrUmYpfENlYVCamHAjXFpi7iTRAAknxb
-         CfKmCn6888F7CjIDsinXkfeuluZSZN/ohUFQFBElshl3wLk0lEmaUCqZ6hmPDGQerR
-         ezFwhat9/ZvxA==
+        b=ek8ZpV+pNfmu3anjult1dt3yk4NRgA50qZr2oHN5EFOdr58OJPuSYQKtNBs2gBwUp
+         n5kwNc+9B5hcXmtJGnkwHbGAmgx/DNuamkVV7h97nfbzjovI0zGkt6IXd9x07aAK7A
+         53NBBttYJw6l7wfvP7IAqXjaJku8bvR1Fg9fI/X3pfjZrhYHl2BEg36QgLlMh9U1rM
+         +gsGeGcHKAZw2G5scOou8Se5/xC8wnhFgxswaA99oE8Nlyhh/qDAyNxJ/KgIvSdjV1
+         pG8G1NgnJSYewAFLUwKfBrlX5kA94+lLQyRH3zCPx7VNEr2zYAnxbJ9tUDVfU60RAP
+         yyx59Y/hO53ag==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, hdegoede@redhat.com,
-        wse@tuxedocomputers.com, chenhuacai@kernel.org, samuel@cavoj.net,
-        wsa+renesas@sang-engineering.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 18/44] Input: i8042 - apply probe defer to more ASUS ZenBook models
-Date:   Wed, 23 Nov 2022 07:40:27 -0500
-Message-Id: <20221123124057.264822-18-sashal@kernel.org>
+Cc:     Olivier Moysan <olivier.moysan@foss.st.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, arnaud.pouliquen@foss.st.com,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
+        alsa-devel@alsa-project.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.0 19/44] ASoC: stm32: dfsdm: manage cb buffers cleanup
+Date:   Wed, 23 Nov 2022 07:40:28 -0500
+Message-Id: <20221123124057.264822-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124057.264822-1-sashal@kernel.org>
 References: <20221123124057.264822-1-sashal@kernel.org>
@@ -57,50 +60,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Olivier Moysan <olivier.moysan@foss.st.com>
 
-[ Upstream commit 26c263bf1847d4dadba016a0457c4c5f446407bf ]
+[ Upstream commit 7d945b046be3d2605dbb1806e73095aadd7ae129 ]
 
-There are yet a few more ASUS ZenBook models that require the deferred
-probe.  At least, there are different ZenBook UX325x and UX425x
-models.  Let's extend the DMI matching table entries for adapting
-those missing models.
+Ensure that resources allocated by iio_channel_get_all_cb()
+are released on driver unbind.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20221108142027.28480-1-tiwai@suse.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
+Link: https://lore.kernel.org/r/20221109170849.273719-1-olivier.moysan@foss.st.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/stm/stm32_adfsdm.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 4fbec7bbecca..5043dc7b8fb3 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -114,18 +114,18 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_NEVER)
- 	},
- 	{
--		/* ASUS ZenBook UX425UA */
-+		/* ASUS ZenBook UX425UA/QA */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX425UA"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX425"),
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_PROBE_DEFER | SERIO_QUIRK_RESET_NEVER)
- 	},
- 	{
--		/* ASUS ZenBook UM325UA */
-+		/* ASUS ZenBook UM325UA/QA */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX325UA_UM325UA"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX325"),
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_PROBE_DEFER | SERIO_QUIRK_RESET_NEVER)
- 	},
+diff --git a/sound/soc/stm/stm32_adfsdm.c b/sound/soc/stm/stm32_adfsdm.c
+index 643fc8a17018..837c1848d9bf 100644
+--- a/sound/soc/stm/stm32_adfsdm.c
++++ b/sound/soc/stm/stm32_adfsdm.c
+@@ -304,6 +304,11 @@ static int stm32_adfsdm_dummy_cb(const void *data, void *private)
+ 	return 0;
+ }
+ 
++static void stm32_adfsdm_cleanup(void *data)
++{
++	iio_channel_release_all_cb(data);
++}
++
+ static struct snd_soc_component_driver stm32_adfsdm_soc_platform = {
+ 	.open		= stm32_adfsdm_pcm_open,
+ 	.close		= stm32_adfsdm_pcm_close,
+@@ -350,6 +355,12 @@ static int stm32_adfsdm_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->iio_cb))
+ 		return PTR_ERR(priv->iio_cb);
+ 
++	ret = devm_add_action_or_reset(&pdev->dev, stm32_adfsdm_cleanup, priv->iio_cb);
++	if (ret < 0)  {
++		dev_err(&pdev->dev, "Unable to add action\n");
++		return ret;
++	}
++
+ 	component = devm_kzalloc(&pdev->dev, sizeof(*component), GFP_KERNEL);
+ 	if (!component)
+ 		return -ENOMEM;
 -- 
 2.35.1
 
