@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16A7263548D
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D0263550F
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237081AbiKWJH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:07:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44600 "EHLO
+        id S237257AbiKWJOO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:14:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237072AbiKWJGz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:06:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B60C100B09
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:42 -0800 (PST)
+        with ESMTP id S237255AbiKWJOI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:14:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27839107E5A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:13:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DC6EB81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 498E2C433C1;
-        Wed, 23 Nov 2022 09:06:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B921561B4D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:13:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 944B9C43470;
+        Wed, 23 Nov 2022 09:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194382;
-        bh=QHRQrXPpZWHeA7VZXD1XJX5WTijfRbesQNKV0WQedDM=;
+        s=korg; t=1669194838;
+        bh=AgeBNrJ+55Qc7UTqcitGrc64dU8FWmDYQycQ1ieO4YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XxgXqTP5mq6dZwcpjkLGsjUT2O9OTUN14gZmItI8Qtj25DaWM+67BdL/LS7stPffU
-         gI+S+RMnh042PmruJQzrKD6gxmlSGm8vMw++BoXTPNfNNK8PF+T3vk7pIGukII76D8
-         sLsJJu1RSgvStQndDsmC+2t+wt2yPhCmUuMsgRKY=
+        b=npCSZKsDLo20zY5mhsYX7UOrARLCMOAq6lfD29zheQBWRx16El99NN25RUihYwPT1
+         TGLYZfACk2ikeKq4kKDowsRSogZoBiFcB17nAe33OpJLNx9okT0f9Kn8a+rJW/KyU5
+         NGv9Vgj9qSWUdjNPtOjeSV0Vz+zeLO3WeeUF3/8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 044/114] ASoC: wm5110: Revert "ASoC: wm5110: Fix PM disable depth imbalance in wm5110_probe"
-Date:   Wed, 23 Nov 2022 09:50:31 +0100
-Message-Id: <20221123084553.598673948@linuxfoundation.org>
+Subject: [PATCH 5.4 075/156] rtc: cmos: fix build on non-ACPI platforms
+Date:   Wed, 23 Nov 2022 09:50:32 +0100
+Message-Id: <20221123084600.718736559@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit 7d4e966f4cd73ff69bf06934e8e14a33fb7ef447 ]
+[ Upstream commit db4e955ae333567dea02822624106c0b96a2f84f ]
 
-This reverts commit 86b46bf1feb83898d89a2b4a8d08d21e9ea277a7.
+Now that rtc_wake_setup is called outside of cmos_wake_setup, it also need
+to be defined on non-ACPI platforms.
 
-The pm_runtime_disable is redundant when error returns in
-wm5110_probe, we just revert the old patch to fix it.
-
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20221010114852.88127-3-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20221018203512.2532407-1-alexandre.belloni@bootlin.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm5110.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-cmos.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
-index 43a47312d71b..e510aca55163 100644
---- a/sound/soc/codecs/wm5110.c
-+++ b/sound/soc/codecs/wm5110.c
-@@ -2453,6 +2453,9 @@ static int wm5110_probe(struct platform_device *pdev)
- 		regmap_update_bits(arizona->regmap, wm5110_digital_vu[i],
- 				   WM5110_DIG_VU, WM5110_DIG_VU);
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index c0dc03ffa817..be92919af2f3 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1290,6 +1290,9 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
+ {
+ }
  
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_idle(&pdev->dev);
-+
- 	ret = arizona_request_irq(arizona, ARIZONA_IRQ_DSP_IRQ1,
- 				  "ADSP2 Compressed IRQ", wm5110_adsp2_irq,
- 				  wm5110);
-@@ -2485,9 +2488,6 @@ static int wm5110_probe(struct platform_device *pdev)
- 		goto err_spk_irqs;
- 	}
++static void rtc_wake_setup(struct device *dev)
++{
++}
+ #endif
  
--	pm_runtime_enable(&pdev->dev);
--	pm_runtime_idle(&pdev->dev);
--
- 	return ret;
- 
- err_spk_irqs:
+ #ifdef	CONFIG_PNP
 -- 
 2.35.1
 
