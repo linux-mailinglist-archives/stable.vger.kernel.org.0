@@ -2,121 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24200635704
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD569635515
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237916AbiKWJfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:35:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53720 "EHLO
+        id S237286AbiKWJPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:15:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237865AbiKWJfH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:35:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F39B1CB2C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:32:52 -0800 (PST)
+        with ESMTP id S237265AbiKWJPE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:15:04 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F352107E70
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:15:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD04661A02
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:32:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94955C433D6;
-        Wed, 23 Nov 2022 09:32:50 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E3D52CE20EC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:15:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F52AC433C1;
+        Wed, 23 Nov 2022 09:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195971;
-        bh=6TDrox1pFcyPxL42kEX1fUpLGFpDOc7GVAip7FwfN6o=;
+        s=korg; t=1669194899;
+        bh=YXGoD6gIi1yuReLrYsTUwecL4ERZ83oK5v89Sxry1EM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hlFERx4K5Jp4QbB7Txc32tPjR/4tQvdgESL6xEYR0nAE7rKGYfme0pbFYTzPkCHP9
-         D4Q+Xnj6WRXYeZDtGSygTWjT4JbpfziOai6Z45q2Gh8/DUV4pAnO6TqNB8kajJSi93
-         FEIFg/89BX+ql1A4IwBRzQBSdBKRlZ7OIp8Zo29A=
+        b=cXVcY19tyix0o4D5RrMWoLvDElvHMWKVEMfyrSqa7r0h+306qQEXwUt2HMLIpv/e2
+         yA87ZBTD1xO4G8GoCrlH0rOR/2qKA/qpRTdnD08x2DC6W10DWLwQ/EoJzYjq41DmU8
+         MC0NVjakEgSuI0pQ13Q4bwmkas/GuPObblRQ3R+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiaolei Wang <xiaolei.wang@windriver.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 083/181] soc: imx8m: Enable OCOTP clock before reading the register
-Date:   Wed, 23 Nov 2022 09:50:46 +0100
-Message-Id: <20221123084605.902158314@linuxfoundation.org>
+Subject: [PATCH 5.4 090/156] block: sed-opal: kmalloc the cmd/resp buffers
+Date:   Wed, 23 Nov 2022 09:50:47 +0100
+Message-Id: <20221123084601.238808809@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolei Wang <xiaolei.wang@windriver.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 836fb30949d9edf91d7de696a884ceeae7e426d2 ]
+[ Upstream commit f829230dd51974c1f4478900ed30bb77ba530b40 ]
 
-Commit 7d981405d0fd ("soc: imx8m: change to use platform driver") ever
-removed the dependency on bootloader for enabling OCOTP clock.  It
-helped to fix a kexec kernel hang issue.  But unfortunately it caused
-a regression on CAAM driver and got reverted.
+In accordance with [1] the DMA-able memory buffers must be
+cacheline-aligned otherwise the cache writing-back and invalidation
+performed during the mapping may cause the adjacent data being lost. It's
+specifically required for the DMA-noncoherent platforms [2]. Seeing the
+opal_dev.{cmd,resp} buffers are implicitly used for DMAs in the NVME and
+SCSI/SD drivers in framework of the nvme_sec_submit() and sd_sec_submit()
+methods respectively they must be cacheline-aligned to prevent the denoted
+problem. One of the option to guarantee that is to kmalloc the buffers
+[2]. Let's explicitly allocate them then instead of embedding into the
+opal_dev structure instance.
 
-This is the second try to enable the OCOTP clock by directly calling
-clock API instead of indirectly enabling the clock via nvmem API.
+Note this fix was inspired by the commit c94b7f9bab22 ("nvme-hwmon:
+kmalloc the NVME SMART log buffer").
 
-Fixes: ac34de14ac30 ("Revert "soc: imx8m: change to use platform driver"")
-Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+[1] Documentation/core-api/dma-api.rst
+[2] Documentation/core-api/dma-api-howto.rst
+
+Fixes: 455a7b238cd6 ("block: Add Sed-opal library")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20221107203944.31686-1-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/imx/soc-imx8m.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ block/sed-opal.c | 32 ++++++++++++++++++++++++++++----
+ 1 file changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/soc/imx/soc-imx8m.c b/drivers/soc/imx/soc-imx8m.c
-index cc57a384d74d..28144c699b0c 100644
---- a/drivers/soc/imx/soc-imx8m.c
-+++ b/drivers/soc/imx/soc-imx8m.c
-@@ -11,6 +11,7 @@
- #include <linux/platform_device.h>
- #include <linux/arm-smccc.h>
- #include <linux/of.h>
-+#include <linux/clk.h>
+diff --git a/block/sed-opal.c b/block/sed-opal.c
+index b4c761973ac1..401d33ae0158 100644
+--- a/block/sed-opal.c
++++ b/block/sed-opal.c
+@@ -88,8 +88,8 @@ struct opal_dev {
+ 	u64 lowest_lba;
  
- #define REV_B1				0x21
+ 	size_t pos;
+-	u8 cmd[IO_BUFFER_LENGTH];
+-	u8 resp[IO_BUFFER_LENGTH];
++	u8 *cmd;
++	u8 *resp;
  
-@@ -56,6 +57,7 @@ static u32 __init imx8mq_soc_revision(void)
- 	void __iomem *ocotp_base;
- 	u32 magic;
- 	u32 rev;
-+	struct clk *clk;
+ 	struct parsed_resp parsed;
+ 	size_t prev_d_len;
+@@ -2019,6 +2019,8 @@ void free_opal_dev(struct opal_dev *dev)
+ 		return;
  
- 	np = of_find_compatible_node(NULL, NULL, "fsl,imx8mq-ocotp");
- 	if (!np)
-@@ -63,6 +65,13 @@ static u32 __init imx8mq_soc_revision(void)
+ 	clean_opal_dev(dev);
++	kfree(dev->resp);
++	kfree(dev->cmd);
+ 	kfree(dev);
+ }
+ EXPORT_SYMBOL(free_opal_dev);
+@@ -2031,17 +2033,39 @@ struct opal_dev *init_opal_dev(void *data, sec_send_recv *send_recv)
+ 	if (!dev)
+ 		return NULL;
  
- 	ocotp_base = of_iomap(np, 0);
- 	WARN_ON(!ocotp_base);
-+	clk = of_clk_get_by_name(np, NULL);
-+	if (!clk) {
-+		WARN_ON(!clk);
-+		return 0;
-+	}
++	/*
++	 * Presumably DMA-able buffers must be cache-aligned. Kmalloc makes
++	 * sure the allocated buffer is DMA-safe in that regard.
++	 */
++	dev->cmd = kmalloc(IO_BUFFER_LENGTH, GFP_KERNEL);
++	if (!dev->cmd)
++		goto err_free_dev;
 +
-+	clk_prepare_enable(clk);
++	dev->resp = kmalloc(IO_BUFFER_LENGTH, GFP_KERNEL);
++	if (!dev->resp)
++		goto err_free_cmd;
++
+ 	INIT_LIST_HEAD(&dev->unlk_lst);
+ 	mutex_init(&dev->dev_lock);
+ 	dev->data = data;
+ 	dev->send_recv = send_recv;
+ 	if (check_opal_support(dev) != 0) {
+ 		pr_debug("Opal is not supported on this device\n");
+-		kfree(dev);
+-		return NULL;
++		goto err_free_resp;
+ 	}
  
- 	/*
- 	 * SOC revision on older imx8mq is not available in fuses so query
-@@ -79,6 +88,8 @@ static u32 __init imx8mq_soc_revision(void)
- 	soc_uid <<= 32;
- 	soc_uid |= readl_relaxed(ocotp_base + OCOTP_UID_LOW);
- 
-+	clk_disable_unprepare(clk);
-+	clk_put(clk);
- 	iounmap(ocotp_base);
- 	of_node_put(np);
+ 	return dev;
++
++err_free_resp:
++	kfree(dev->resp);
++
++err_free_cmd:
++	kfree(dev->cmd);
++
++err_free_dev:
++	kfree(dev);
++
++	return NULL;
+ }
+ EXPORT_SYMBOL(init_opal_dev);
  
 -- 
 2.35.1
