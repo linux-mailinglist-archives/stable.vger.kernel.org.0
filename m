@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05A9163541F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 613566355DC
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236991AbiKWJFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:05:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41796 "EHLO
+        id S237483AbiKWJY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:24:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237018AbiKWJEd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:04:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B146105598
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:04:22 -0800 (PST)
+        with ESMTP id S237481AbiKWJYI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:24:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D0B23BD3
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4B32B81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:04:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CFA0C433C1;
-        Wed, 23 Nov 2022 09:04:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28C6BB81EF8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60B54C433C1;
+        Wed, 23 Nov 2022 09:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194259;
-        bh=Ow6bm9sate6P/YdaHpGnT3KY7AexazLac8KcHVBJgW8=;
+        s=korg; t=1669195363;
+        bh=11D0frR9o1KerfcfDxeXEfRTqdAKc6lEFS6JHA74m38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P19I/vPVrcwL8fL5fb8mzOs0EyhBOOVvck+KB7RVyT7r91EzbAsZz54dhkgyitIVY
-         sEyacC+5PG2DuHafjBbTtx5IiwddYaEZ6Bv/sbp6qtfMhX1B0Zjt5uluQdy7kkoul/
-         xIl/xPqJRZA3XaIjoJ3a3q5Xsjyk4jYpoTp9QupU=
+        b=ATY65OLyBWDJNwlv3zfOhLHHHMuVr8M9YaI3L1tCne4anzyhNvgBD56gyh83af+Y3
+         S0XymyIqiZgqY/gOCsfRecWrYe3aTk0HSOjorCgxlbnJJ8qL/29a0irMIY7GaiZYLe
+         VX65LFRxXPBumkNTdUmyjSrvBCoDIKqpIg97hK0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+45d6ce7b7ad7ef455d03@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 028/114] nilfs2: fix deadlock in nilfs_count_free_blocks()
-Date:   Wed, 23 Nov 2022 09:50:15 +0100
-Message-Id: <20221123084552.970307455@linuxfoundation.org>
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 033/149] ASoC: core: Fix use-after-free in snd_soc_exit()
+Date:   Wed, 23 Nov 2022 09:50:16 +0100
+Message-Id: <20221123084559.180006129@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-commit 8ac932a4921a96ca52f61935dbba64ea87bbd5dc upstream.
+[ Upstream commit 6ec27c53886c8963729885bcf2dd996eba2767a7 ]
 
-A semaphore deadlock can occur if nilfs_get_block() detects metadata
-corruption while locating data blocks and a superblock writeback occurs at
-the same time:
+KASAN reports a use-after-free:
 
-task 1                               task 2
-------                               ------
-* A file operation *
-nilfs_truncate()
-  nilfs_get_block()
-    down_read(rwsem A) <--
-    nilfs_bmap_lookup_contig()
-      ...                            generic_shutdown_super()
-                                       nilfs_put_super()
-                                         * Prepare to write superblock *
-                                         down_write(rwsem B) <--
-                                         nilfs_cleanup_super()
-      * Detect b-tree corruption *         nilfs_set_log_cursor()
-      nilfs_bmap_convert_error()             nilfs_count_free_blocks()
-        __nilfs_error()                        down_read(rwsem A) <--
-          nilfs_set_error()
-            down_write(rwsem B) <--
+BUG: KASAN: use-after-free in device_del+0xb5b/0xc60
+Read of size 8 at addr ffff888008655050 by task rmmod/387
+CPU: 2 PID: 387 Comm: rmmod
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+Call Trace:
+<TASK>
+dump_stack_lvl+0x79/0x9a
+print_report+0x17f/0x47b
+kasan_report+0xbb/0xf0
+device_del+0xb5b/0xc60
+platform_device_del.part.0+0x24/0x200
+platform_device_unregister+0x2e/0x40
+snd_soc_exit+0xa/0x22 [snd_soc_core]
+__do_sys_delete_module.constprop.0+0x34f/0x5b0
+do_syscall_64+0x3a/0x90
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+...
+</TASK>
 
-                           *** DEADLOCK ***
+It's bacause in snd_soc_init(), snd_soc_util_init() is possble to fail,
+but its ret is ignored, which makes soc_dummy_dev unregistered twice.
 
-Here, nilfs_get_block() readlocks rwsem A (= NILFS_MDT(dat_inode)->mi_sem)
-and then calls nilfs_bmap_lookup_contig(), but if it fails due to metadata
-corruption, __nilfs_error() is called from nilfs_bmap_convert_error()
-inside the lock section.
+snd_soc_init()
+    snd_soc_util_init()
+        platform_device_register_simple(soc_dummy_dev)
+        platform_driver_register() # fail
+    	platform_device_unregister(soc_dummy_dev)
+    platform_driver_register() # success
+...
+snd_soc_exit()
+    snd_soc_util_exit()
+    # soc_dummy_dev will be unregistered for second time
 
-Since __nilfs_error() calls nilfs_set_error() unless the filesystem is
-read-only and nilfs_set_error() attempts to writelock rwsem B (=
-nilfs->ns_sem) to write back superblock exclusively, hierarchical lock
-acquisition occurs in the order rwsem A -> rwsem B.
+To fix it, handle error and stop snd_soc_init() when util_init() fail.
+Also clean debugfs when util_init() or driver_register() fail.
 
-Now, if another task starts updating the superblock, it may writelock
-rwsem B during the lock sequence above, and can deadlock trying to
-readlock rwsem A in nilfs_count_free_blocks().
-
-However, there is actually no need to take rwsem A in
-nilfs_count_free_blocks() because it, within the lock section, only reads
-a single integer data on a shared struct with
-nilfs_sufile_get_ncleansegs().  This has been the case after commit
-aa474a220180 ("nilfs2: add local variable to cache the number of clean
-segments"), that is, even before this bug was introduced.
-
-So, this resolves the deadlock problem by just not taking the semaphore in
-nilfs_count_free_blocks().
-
-Link: https://lkml.kernel.org/r/20221029044912.9139-1-konishi.ryusuke@gmail.com
-Fixes: e828949e5b42 ("nilfs2: call nilfs_error inside bmap routines")
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+45d6ce7b7ad7ef455d03@syzkaller.appspotmail.com
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>	[2.6.38+
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fb257897bf20 ("ASoC: Work around allmodconfig failure")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221028031603.59416-1-chenzhongjin@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/the_nilfs.c |    2 --
- 1 file changed, 2 deletions(-)
+ sound/soc/soc-core.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/fs/nilfs2/the_nilfs.c
-+++ b/fs/nilfs2/the_nilfs.c
-@@ -695,9 +695,7 @@ int nilfs_count_free_blocks(struct the_n
- {
- 	unsigned long ncleansegs;
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index a6d6d10cd471..e9da95ebccc8 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -3178,10 +3178,23 @@ EXPORT_SYMBOL_GPL(snd_soc_of_get_dai_link_codecs);
  
--	down_read(&NILFS_MDT(nilfs->ns_dat)->mi_sem);
- 	ncleansegs = nilfs_sufile_get_ncleansegs(nilfs->ns_sufile);
--	up_read(&NILFS_MDT(nilfs->ns_dat)->mi_sem);
- 	*nblocks = (sector_t)ncleansegs * nilfs->ns_blocks_per_segment;
- 	return 0;
+ static int __init snd_soc_init(void)
+ {
++	int ret;
++
+ 	snd_soc_debugfs_init();
+-	snd_soc_util_init();
++	ret = snd_soc_util_init();
++	if (ret)
++		goto err_util_init;
+ 
+-	return platform_driver_register(&soc_driver);
++	ret = platform_driver_register(&soc_driver);
++	if (ret)
++		goto err_register;
++	return 0;
++
++err_register:
++	snd_soc_util_exit();
++err_util_init:
++	snd_soc_debugfs_exit();
++	return ret;
  }
+ module_init(snd_soc_init);
+ 
+-- 
+2.35.1
+
 
 
