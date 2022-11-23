@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E0EC63590D
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EFC563575A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236809AbiKWKGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:06:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32952 "EHLO
+        id S238083AbiKWJl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:41:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236812AbiKWKF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:05:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD0B125223
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:22 -0800 (PST)
+        with ESMTP id S237975AbiKWJlI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83646E541
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:38:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8190561B5C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 718D2C433D7;
-        Wed, 23 Nov 2022 09:56:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB130B81EF0
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:38:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA166C433C1;
+        Wed, 23 Nov 2022 09:38:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197381;
-        bh=HCQBRlTV43aYk1oEg4dyH8XLT+W7JINlk/efRehAb7I=;
+        s=korg; t=1669196318;
+        bh=h+OpAtOgLGyQkYlELTZvqT6dsEhDilPG4dDcccwImL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UY0xEWEDdTJAN9kV7ee3BMf/rVR3oSlm6auH74I2G00Ax00OGTqYSnWb5bTLRYU0y
-         wfatEY9oIv+WeuUjklW+PVjPDWOnEq1LxD2+prM75YV7QMaRCCTljCsQDym/xCbBj0
-         wG8O9TCRyl33Uu+cNvVH2FweO0LCUGDXdCcP6NHw=
+        b=CQaqRp2MlfzP7PxURn7jfljoGvH9VnTVTCFsSOVmu9BpvkOHq7BYTIwxOJ+KA4ym/
+         X/cIxg71y7khszFFZ77zgsTMex+Vi/omjAvvIy72Tjpa1VEcu/uynLQLKVn8yM9QdW
+         DXKt+oPfLSApXktQvBLMgbzNr/FrXLhEMoQHBMkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ravi Bangoria <ravi.bangoria@amd.com>,
-        Sandipan Das <sandipan.das@amd.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 6.0 279/314] perf/x86/amd/uncore: Fix memory leak for events array
-Date:   Wed, 23 Nov 2022 09:52:04 +0100
-Message-Id: <20221123084638.179064432@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Aashish Sharma <shraash@google.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 162/181] tracing: Fix warning on variable struct trace_array
+Date:   Wed, 23 Nov 2022 09:52:05 +0100
+Message-Id: <20221123084609.346200226@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,78 +58,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandipan Das <sandipan.das@amd.com>
+From: Aashish Sharma <shraash@google.com>
 
-commit bdfe34597139cfcecd47a2eb97fea44d77157491 upstream.
+[ Upstream commit bedf06833b1f63c2627bd5634602e05592129d7a ]
 
-When a CPU comes online, the per-CPU NB and LLC uncore contexts are
-freed but not the events array within the context structure. This
-causes a memory leak as identified by the kmemleak detector.
+Move the declaration of 'struct trace_array' out of #ifdef
+CONFIG_TRACING block, to fix the following warning when CONFIG_TRACING
+is not set:
 
-  [...]
-  unreferenced object 0xffff8c5944b8e320 (size 32):
-    comm "swapper/0", pid 1, jiffies 4294670387 (age 151.072s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<000000000759fb79>] amd_uncore_cpu_up_prepare+0xaf/0x230
-      [<00000000ddc9e126>] cpuhp_invoke_callback+0x2cf/0x470
-      [<0000000093e727d4>] cpuhp_issue_call+0x14d/0x170
-      [<0000000045464d54>] __cpuhp_setup_state_cpuslocked+0x11e/0x330
-      [<0000000069f67cbd>] __cpuhp_setup_state+0x6b/0x110
-      [<0000000015365e0f>] amd_uncore_init+0x260/0x321
-      [<00000000089152d2>] do_one_initcall+0x3f/0x1f0
-      [<000000002d0bd18d>] kernel_init_freeable+0x1ca/0x212
-      [<0000000030be8dde>] kernel_init+0x11/0x120
-      [<0000000059709e59>] ret_from_fork+0x22/0x30
-  unreferenced object 0xffff8c5944b8dd40 (size 64):
-    comm "swapper/0", pid 1, jiffies 4294670387 (age 151.072s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<00000000306efe8b>] amd_uncore_cpu_up_prepare+0x183/0x230
-      [<00000000ddc9e126>] cpuhp_invoke_callback+0x2cf/0x470
-      [<0000000093e727d4>] cpuhp_issue_call+0x14d/0x170
-      [<0000000045464d54>] __cpuhp_setup_state_cpuslocked+0x11e/0x330
-      [<0000000069f67cbd>] __cpuhp_setup_state+0x6b/0x110
-      [<0000000015365e0f>] amd_uncore_init+0x260/0x321
-      [<00000000089152d2>] do_one_initcall+0x3f/0x1f0
-      [<000000002d0bd18d>] kernel_init_freeable+0x1ca/0x212
-      [<0000000030be8dde>] kernel_init+0x11/0x120
-      [<0000000059709e59>] ret_from_fork+0x22/0x30
-  [...]
+>> include/linux/trace.h:63:45: warning: 'struct trace_array' declared
+inside parameter list will not be visible outside of this definition or
+declaration
 
-Fix the problem by freeing the events array before freeing the uncore
-context.
+Link: https://lkml.kernel.org/r/20221107160556.2139463-1-shraash@google.com
 
-Fixes: 39621c5808f5 ("perf/x86/amd/uncore: Use dynamic events array")
-Reported-by: Ravi Bangoria <ravi.bangoria@amd.com>
-Signed-off-by: Sandipan Das <sandipan.das@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Ravi Bangoria <ravi.bangoria@amd.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/4fa9e5ac6d6e41fa889101e7af7e6ba372cfea52.1662613255.git.sandipan.das@amd.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1a77dd1c2bb5 ("scsi: tracing: Fix compile error in trace_array calls when TRACING is disabled")
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Arun Easi <aeasi@marvell.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Aashish Sharma <shraash@google.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/uncore.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/trace.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
-index d568afc705d2..83f15fe411b3 100644
---- a/arch/x86/events/amd/uncore.c
-+++ b/arch/x86/events/amd/uncore.c
-@@ -553,6 +553,7 @@ static void uncore_clean_online(void)
+diff --git a/include/linux/trace.h b/include/linux/trace.h
+index b5e16e438448..80ffda871749 100644
+--- a/include/linux/trace.h
++++ b/include/linux/trace.h
+@@ -26,13 +26,13 @@ struct trace_export {
+ 	int flags;
+ };
  
- 	hlist_for_each_entry_safe(uncore, n, &uncore_unused_list, node) {
- 		hlist_del(&uncore->node);
-+		kfree(uncore->events);
- 		kfree(uncore);
- 	}
- }
++struct trace_array;
++
+ #ifdef CONFIG_TRACING
+ 
+ int register_ftrace_export(struct trace_export *export);
+ int unregister_ftrace_export(struct trace_export *export);
+ 
+-struct trace_array;
+-
+ void trace_printk_init_buffers(void);
+ __printf(3, 4)
+ int trace_array_printk(struct trace_array *tr, unsigned long ip,
 -- 
-2.38.1
+2.35.1
 
 
 
