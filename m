@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BAF3635514
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E62EA635479
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237259AbiKWJPD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:15:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56882 "EHLO
+        id S237112AbiKWJGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:06:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237295AbiKWJOx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:14:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F419410612F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:14:51 -0800 (PST)
+        with ESMTP id S237081AbiKWJGh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:06:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A37D102E7B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7AF7B81EF1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:14:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F020EC433D6;
-        Wed, 23 Nov 2022 09:14:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9974161B4C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A73A7C433C1;
+        Wed, 23 Nov 2022 09:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194889;
-        bh=bMI6dkkkMc5xKkDcdAp1/uN4HZC3fI9uMyPmQYNVCX4=;
+        s=korg; t=1669194368;
+        bh=aOXWciKJx6zqFrLk41eTRr04Sypz01don+RBeqd0PHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SswBo5x6NXMDMiKfEkxGNCIBagIqCpRkBo4hg3ITbFVvWSctlahztX4NRuFxhepxf
-         k4OXuz8+yzhf1BNDCYAs1Os4icQQ+bqWHhnFH3a9Q/iRMHYzFSlBa2oZ8/MpU1Pmfg
-         3MEtOuMH0dMTDUyMQgybYbtYZ5liMzOcyIoy0CTo=
+        b=wWVqj16Mhy9kArpchxqIoOuyxvLHA99wo8x+pJD3ds1y5dSEhEWo72hsd7o1puGoP
+         SzTrxKE6Y2j61jxuFp2lNrX3Rnyd4v+2s8+5H4/zmAyM4GV9q2rt+UuGl3zkWHIESd
+         li2zhplEIOYGiLzOpFmxNVkLo6ztE2iTAG8kU7UQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 088/156] tty: n_gsm: fix sleep-in-atomic-context bug in gsm_control_send
+Subject: [PATCH 4.19 058/114] tty: n_gsm: fix sleep-in-atomic-context bug in gsm_control_send
 Date:   Wed, 23 Nov 2022 09:50:45 +0100
-Message-Id: <20221123084601.170731238@linuxfoundation.org>
+Message-Id: <20221123084554.204805213@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -82,7 +81,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 22da64453054..98c67ddf2fd9 100644
+index f6d2be13b32e..4a890011eba3 100644
 --- a/drivers/tty/n_gsm.c
 +++ b/drivers/tty/n_gsm.c
 @@ -1413,7 +1413,7 @@ static struct gsm_control *gsm_control_send(struct gsm_mux *gsm,
