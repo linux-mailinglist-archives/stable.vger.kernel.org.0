@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E896E635E7B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:57:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79A9F635E9A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:58:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237559AbiKWMtC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:49:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34112 "EHLO
+        id S237948AbiKWMtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:49:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237626AbiKWMrf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:47:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB89A74CD9;
-        Wed, 23 Nov 2022 04:43:28 -0800 (PST)
+        with ESMTP id S237932AbiKWMsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:48:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D55B729B3;
+        Wed, 23 Nov 2022 04:43:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8700661CAC;
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1D75B81F5D;
+        Wed, 23 Nov 2022 12:43:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 553FFC43144;
         Wed, 23 Nov 2022 12:43:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21D0EC433C1;
-        Wed, 23 Nov 2022 12:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207407;
-        bh=sk00pbKNrgS0I3XKE8gzui0QuOBd7ZDNpkzyJGozIC0=;
+        s=k20201202; t=1669207409;
+        bh=IbwlYfRKx2oPLPSg64B39bC2Nx553yI3ldTK0aVs/ZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XWvt4CfaTGZjxrq4SvYjLk+IVnBoAYJo3jHwhbtxyLyHXV2LVZHUXNpd43+1UNNCt
-         64FkxBQHL6RoQiP+5pZxfqu2A+TS92keaCQwYQFUBbkRXXnGF1KdKKzUAOcPDkM2X3
-         Ht0qoMTOtWfhA1c79PFKinf59OBPP6xEwxyz3IdqxrYouL/tAM6KwAsLHEnu/dVa2E
-         yo1295HeEp9uLfC4NDPOPRB9xOBaJGFrmh1Nxig8PwvLAZNbEFx51sU4eaLxnLPgLM
-         ydAuRcz8S2TNz8+PjHJ8NfoEymrPdWU2c+8h6KN9NqBCpeD/4m+EDBmiWlaTmxaMSd
-         RXqetti5pjL/g==
+        b=SJRd22Ixz1Z+cNqos51h66uH3SkG6MADjRl1QMwsdJDEmbfzAP5TrTAGVOu//TlZ6
+         zdSIniAY81kO1oSlOfe+ylnMWpd4wW1wGwbhcmeUrR9zmdFBgU9kqf99uFwA5tLo23
+         dQj8HIZNqizFbKJRl0gcrwOhkTGZxcRtb6pVSGL9ec6KxIiYtU1aczYTYkoNynfhpQ
+         jRy396+6bhXzdoY7vZupQpiDCv1vfLLWRB1xXMytI62aEZMLdEfabZEKfb1WuSBjq8
+         uSyQS/VBr+Kw1iLg2YADus3jrXrqrnLgVU+oeqmn+j4qHzY8s8cgCiz/6YTHMg/plF
+         Sy6LoSy97rU6g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keith Busch <kbusch@kernel.org>, Mike Snitzer <snitzer@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        agk@redhat.com, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.15 25/31] dm-log-writes: set dma_alignment limit in io_hints
-Date:   Wed, 23 Nov 2022 07:42:26 -0500
-Message-Id: <20221123124234.265396-25-sashal@kernel.org>
+Cc:     Enrico Sau <enrico.sau@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 26/31] net: usb: qmi_wwan: add Telit 0x103a composition
+Date:   Wed, 23 Nov 2022 07:42:27 -0500
+Message-Id: <20221123124234.265396-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124234.265396-1-sashal@kernel.org>
 References: <20221123124234.265396-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -55,35 +59,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Enrico Sau <enrico.sau@gmail.com>
 
-[ Upstream commit 50a893359cd2643ee1afc96eedc9e7084cab49fa ]
+[ Upstream commit e103ba33998d0f25653cc8ebe745b68d1ee10cda ]
 
-This device mapper needs bio vectors to be sized and memory aligned to
-the logical block size. Set the minimum required queue limit
-accordingly.
+Add the following Telit LE910C4-WWX composition:
 
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Mike Snitzer <snitzer@kernel.org>
-Link: https://lore.kernel.org/r/20221110184501.2451620-6-kbusch@meta.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+0x103a: rmnet
+
+Signed-off-by: Enrico Sau <enrico.sau@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20221115105859.14324-1-enrico.sau@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-log-writes.c | 1 +
+ drivers/net/usb/qmi_wwan.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/md/dm-log-writes.c b/drivers/md/dm-log-writes.c
-index d93a4db23512..4f8f73b89512 100644
---- a/drivers/md/dm-log-writes.c
-+++ b/drivers/md/dm-log-writes.c
-@@ -901,6 +901,7 @@ static void log_writes_io_hints(struct dm_target *ti, struct queue_limits *limit
- 	limits->logical_block_size = bdev_logical_block_size(lc->dev->bdev);
- 	limits->physical_block_size = bdev_physical_block_size(lc->dev->bdev);
- 	limits->io_min = limits->physical_block_size;
-+	limits->dma_alignment = limits->logical_block_size - 1;
- }
- 
- #if IS_ENABLED(CONFIG_DAX_DRIVER)
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 6bf5c75f519d..d886f903e428 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1353,6 +1353,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
+ 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1031, 3)}, /* Telit LE910C1-EUX */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x103a, 0)}, /* Telit LE910C4-WWX */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1060, 2)},	/* Telit LN920 */
 -- 
 2.35.1
 
