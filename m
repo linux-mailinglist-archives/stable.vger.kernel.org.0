@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D07DB635634
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2A0E635730
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237526AbiKWJ1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:27:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43806 "EHLO
+        id S238051AbiKWJiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:38:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237636AbiKWJ0t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:26:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5671710B427
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:25:55 -0800 (PST)
+        with ESMTP id S238052AbiKWJhy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F34BB3F047
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01F01B81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:25:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 585CAC433C1;
-        Wed, 23 Nov 2022 09:25:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B77B161B5C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C12C9C433D6;
+        Wed, 23 Nov 2022 09:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195552;
-        bh=D9AwE9MwlcOjNKcKoWPuChCdg7H0zaQ+5h8M/hg2WqY=;
+        s=korg; t=1669196158;
+        bh=DGwmPvq/7nttIOxaZou3QrDBDbsXUks7H3RaWBJXyvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sh5hX6fYNyktEgIrCdqOGYqx2ud2Via+OQGjBDobmV4F3+u+Y4QVRC+puIb29eX/K
-         AcIo8rIdprJXD6agjLWhBymQuQoQmMrjWfIkQKktOfkyHxJEJgBQ+QuYza7i/9Czwj
-         7IXcrgNXQBBDb2iJoF56odGZEOS7ptog//WK+dYM=
+        b=qADWA6N4QZMwjUKCrd08JE/RLbSF7IDFbppXNbwCT8WEgOsiGc9KP2uCjmFNApP+h
+         kgTBnUGST3zkSbKTMl+ifkGOfaXois8E2YhQI2/jNpfjcvumpCtyJGj9x+ZuaaEEGh
+         OsHHW3xapqZrqRkMQvPif5gKFEWt1wBZ6tZPJn+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alban Crequy <albancrequy@linux.microsoft.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Francis Laniel <flaniel@linux.microsoft.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 116/149] maccess: Fix writing offset in case of fault in strncpy_from_kernel_nofault()
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.15 136/181] iio: trigger: sysfs: fix possible memory leak in iio_sysfs_trig_init()
 Date:   Wed, 23 Nov 2022 09:51:39 +0100
-Message-Id: <20221123084602.113456650@linuxfoundation.org>
+Message-Id: <20221123084608.220008598@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alban Crequy <albancrequy@linux.microsoft.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 8678ea06852cd1f819b870c773d43df888d15d46 upstream.
+commit efa17e90e1711bdb084e3954fa44afb6647331c0 upstream.
 
-If a page fault occurs while copying the first byte, this function resets one
-byte before dst.
-As a consequence, an address could be modified and leaded to kernel crashes if
-case the modified address was accessed later.
+dev_set_name() allocates memory for name, it need be freed
+when device_add() fails, call put_device() to give up the
+reference that hold in device_initialize(), so that it can
+be freed in kobject_cleanup() when the refcount hit to 0.
 
-Fixes: b58294ead14c ("maccess: allow architectures to provide kernel probing directly")
-Signed-off-by: Alban Crequy <albancrequy@linux.microsoft.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Tested-by: Francis Laniel <flaniel@linux.microsoft.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: <stable@vger.kernel.org> [5.8]
-Link: https://lore.kernel.org/bpf/20221110085614.111213-2-albancrequy@linux.microsoft.com
+Fault injection test can trigger this:
+
+unreferenced object 0xffff8e8340a7b4c0 (size 32):
+  comm "modprobe", pid 243, jiffies 4294678145 (age 48.845s)
+  hex dump (first 32 bytes):
+    69 69 6f 5f 73 79 73 66 73 5f 74 72 69 67 67 65  iio_sysfs_trigge
+    72 00 a7 40 83 8e ff ff 00 86 13 c4 f6 ee ff ff  r..@............
+  backtrace:
+    [<0000000074999de8>] __kmem_cache_alloc_node+0x1e9/0x360
+    [<00000000497fd30b>] __kmalloc_node_track_caller+0x44/0x1a0
+    [<000000003636c520>] kstrdup+0x2d/0x60
+    [<0000000032f84da2>] kobject_set_name_vargs+0x1e/0x90
+    [<0000000092efe493>] dev_set_name+0x4e/0x70
+
+Fixes: 1f785681a870 ("staging:iio:trigger sysfs userspace trigger rework.")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221022074212.1386424-1-yangyingliang@huawei.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/maccess.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/trigger/iio-trig-sysfs.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/mm/maccess.c
-+++ b/mm/maccess.c
-@@ -83,7 +83,7 @@ long strncpy_from_kernel_nofault(char *d
- 	return src - unsafe_addr;
- Efault:
- 	pagefault_enable();
--	dst[-1] = '\0';
-+	dst[0] = '\0';
- 	return -EFAULT;
+--- a/drivers/iio/trigger/iio-trig-sysfs.c
++++ b/drivers/iio/trigger/iio-trig-sysfs.c
+@@ -208,9 +208,13 @@ static int iio_sysfs_trigger_remove(int
+ 
+ static int __init iio_sysfs_trig_init(void)
+ {
++	int ret;
+ 	device_initialize(&iio_sysfs_trig_dev);
+ 	dev_set_name(&iio_sysfs_trig_dev, "iio_sysfs_trigger");
+-	return device_add(&iio_sysfs_trig_dev);
++	ret = device_add(&iio_sysfs_trig_dev);
++	if (ret)
++		put_device(&iio_sysfs_trig_dev);
++	return ret;
  }
- #else /* HAVE_GET_KERNEL_NOFAULT */
+ module_init(iio_sysfs_trig_init);
+ 
 
 
