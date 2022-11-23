@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D074635595
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D13C6356A8
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237415AbiKWJUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:20:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34806 "EHLO
+        id S237679AbiKWJbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:31:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237401AbiKWJUE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:20:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC23F22B30
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:20:03 -0800 (PST)
+        with ESMTP id S237801AbiKWJbN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E89235BD7E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:30:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59BB561A00
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:20:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E2D4C433D6;
-        Wed, 23 Nov 2022 09:20:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E368B81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:30:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B25CDC433C1;
+        Wed, 23 Nov 2022 09:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195202;
-        bh=vikYmUmEGLCt61NRL0OjSKJkkQODWRiRbFiNOBlKYso=;
+        s=korg; t=1669195806;
+        bh=Xhot2VfNAB4AkgKvs9OLpBqEMJ/DuE/cQX3zOo1+Ab4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O37kbO+A60yHsqXwXJYx7kaTBZ30XI0qUROsWFxCmI2PtexT+uYV81t4X/ITDgVmU
-         gmxyt/c7gm8b6yMDnVecX3hNYX7QTulYRLnXRvVMqNeadKzJFgejFI4Yvbiq9RebFR
-         mWuh6YzTZpbDz1hROjSPfi0QLEAJePhXR1uFRWD4=
+        b=OCKwTniqYXK2zwFPR6pOFysAgqSs2kLkxhQV7QRyWewC0KX43EHsnvbfCKF/RaHFx
+         uMd516Igog+mId7IupeoR05eMDpVoKJiUizHHCTSMkNuynYhOMnCgrnYqL5uSAsYYy
+         LQ3st2v3eLMBHEIGVOjtmvVJGryLiWNzOHHaxido=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 018/149] i2c: tegra: Allocate DMA memory for DMA engine
+        patches@lists.linux.dev, Douglas Anderson <dianders@chromium.org>,
+        Andrew Halaney <ahalaney@redhat.com>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 038/181] arm64: dts: qcom: sa8155p-adp: Specify which LDO modes are allowed
 Date:   Wed, 23 Nov 2022 09:50:01 +0100
-Message-Id: <20221123084558.648437547@linuxfoundation.org>
+Message-Id: <20221123084604.005025185@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,98 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit cdbf26251d3b35c4ccaea0c3a6de4318f727d3d2 ]
+[ Upstream commit bd9f3dcf42d943b53190f99bcdbcfe98a56ac4cd ]
 
-When the I2C controllers are running in DMA mode, it is the DMA engine
-that performs the memory accesses rather than the I2C controller. Pass
-the DMA engine's struct device pointer to the DMA API to make sure the
-correct DMA operations are used.
+This board uses RPMH, specifies "regulator-allow-set-load" for LDOs,
+but doesn't specify any modes with "regulator-allowed-modes".
 
-This fixes an issue where the DMA engine's SMMU stream ID needs to be
-misleadingly set for the I2C controllers in device tree.
+Prior to commit efb0cb50c427 ("regulator: qcom-rpmh: Implement
+get_optimum_mode(), not set_load()") the above meant that we were able
+to set either LPM or HPM mode. After that commit (and fixes [1]) we'll
+be stuck at the initial mode. Discussion of this has resulted in the
+decision that the old dts files were wrong and should be fixed to
+fully restore old functionality.
 
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Let's re-enable the old functionality by fixing the dts.
+
+NOTE: while here, let's also remove the nonsensical
+"regulator-allow-set-load" on the fixed regulator "vreg_s4a_1p8".
+
+[1] https://lore.kernel.org/r/20220824142229.RFT.v2.2.I6f77860e5cd98bf5c67208fa9edda4a08847c304@changeid
+
+Fixes: 5b85e8f2225c ("arm64: dts: qcom: sa8155p-adp: Add base dts file")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Andrew Halaney <ahalaney@redhat.com>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220829094903.v2.1.Id59c32b560c4662d8b3697de2bd494d08d654806@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-tegra.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/qcom/sa8155p-adp.dts | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 8b113ae32dc7..42f1db60ad6f 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -283,6 +283,7 @@ struct tegra_i2c_dev {
- 	struct dma_chan *tx_dma_chan;
- 	struct dma_chan *rx_dma_chan;
- 	unsigned int dma_buf_size;
-+	struct device *dma_dev;
- 	dma_addr_t dma_phys;
- 	void *dma_buf;
+diff --git a/arch/arm64/boot/dts/qcom/sa8155p-adp.dts b/arch/arm64/boot/dts/qcom/sa8155p-adp.dts
+index 5ae2ddc65f7e..56a789a5789e 100644
+--- a/arch/arm64/boot/dts/qcom/sa8155p-adp.dts
++++ b/arch/arm64/boot/dts/qcom/sa8155p-adp.dts
+@@ -43,7 +43,6 @@ vreg_s4a_1p8: smps4 {
  
-@@ -419,7 +420,7 @@ static int tegra_i2c_dma_submit(struct tegra_i2c_dev *i2c_dev, size_t len)
- static void tegra_i2c_release_dma(struct tegra_i2c_dev *i2c_dev)
- {
- 	if (i2c_dev->dma_buf) {
--		dma_free_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
-+		dma_free_coherent(i2c_dev->dma_dev, i2c_dev->dma_buf_size,
- 				  i2c_dev->dma_buf, i2c_dev->dma_phys);
- 		i2c_dev->dma_buf = NULL;
- 	}
-@@ -466,10 +467,13 @@ static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
+ 		regulator-always-on;
+ 		regulator-boot-on;
+-		regulator-allow-set-load;
  
- 	i2c_dev->tx_dma_chan = chan;
+ 		vin-supply = <&vreg_3p3>;
+ 	};
+@@ -114,6 +113,9 @@ vreg_l5a_0p88: ldo5 {
+ 			regulator-max-microvolt = <880000>;
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 			regulator-allow-set-load;
++			regulator-allowed-modes =
++			    <RPMH_REGULATOR_MODE_LPM
++			     RPMH_REGULATOR_MODE_HPM>;
+ 		};
  
-+	WARN_ON(i2c_dev->tx_dma_chan->device != i2c_dev->rx_dma_chan->device);
-+	i2c_dev->dma_dev = chan->device->dev;
-+
- 	i2c_dev->dma_buf_size = i2c_dev->hw->quirks->max_write_len +
- 				I2C_PACKET_HEADER_SIZE;
+ 		vreg_l7a_1p8: ldo7 {
+@@ -129,6 +131,9 @@ vreg_l10a_2p96: ldo10 {
+ 			regulator-max-microvolt = <2960000>;
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 			regulator-allow-set-load;
++			regulator-allowed-modes =
++			    <RPMH_REGULATOR_MODE_LPM
++			     RPMH_REGULATOR_MODE_HPM>;
+ 		};
  
--	dma_buf = dma_alloc_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
-+	dma_buf = dma_alloc_coherent(i2c_dev->dma_dev, i2c_dev->dma_buf_size,
- 				     &dma_phys, GFP_KERNEL | __GFP_NOWARN);
- 	if (!dma_buf) {
- 		dev_err(i2c_dev->dev, "failed to allocate DMA buffer\n");
-@@ -1255,7 +1259,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 		vreg_l11a_0p8: ldo11 {
+@@ -235,6 +240,9 @@ vreg_l5c_1p2: ldo5 {
+ 			regulator-max-microvolt = <1200000>;
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 			regulator-allow-set-load;
++			regulator-allowed-modes =
++			    <RPMH_REGULATOR_MODE_LPM
++			     RPMH_REGULATOR_MODE_HPM>;
+ 		};
  
- 	if (i2c_dev->dma_mode) {
- 		if (i2c_dev->msg_read) {
--			dma_sync_single_for_device(i2c_dev->dev,
-+			dma_sync_single_for_device(i2c_dev->dma_dev,
- 						   i2c_dev->dma_phys,
- 						   xfer_size, DMA_FROM_DEVICE);
+ 		vreg_l7c_1p8: ldo7 {
+@@ -250,6 +258,9 @@ vreg_l8c_1p2: ldo8 {
+ 			regulator-max-microvolt = <1200000>;
+ 			regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
+ 			regulator-allow-set-load;
++			regulator-allowed-modes =
++			    <RPMH_REGULATOR_MODE_LPM
++			     RPMH_REGULATOR_MODE_HPM>;
+ 		};
  
-@@ -1263,7 +1267,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 			if (err)
- 				return err;
- 		} else {
--			dma_sync_single_for_cpu(i2c_dev->dev,
-+			dma_sync_single_for_cpu(i2c_dev->dma_dev,
- 						i2c_dev->dma_phys,
- 						xfer_size, DMA_TO_DEVICE);
- 		}
-@@ -1276,7 +1280,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 			memcpy(i2c_dev->dma_buf + I2C_PACKET_HEADER_SIZE,
- 			       msg->buf, msg->len);
- 
--			dma_sync_single_for_device(i2c_dev->dev,
-+			dma_sync_single_for_device(i2c_dev->dma_dev,
- 						   i2c_dev->dma_phys,
- 						   xfer_size, DMA_TO_DEVICE);
- 
-@@ -1327,7 +1331,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 		}
- 
- 		if (i2c_dev->msg_read && i2c_dev->msg_err == I2C_ERR_NONE) {
--			dma_sync_single_for_cpu(i2c_dev->dev,
-+			dma_sync_single_for_cpu(i2c_dev->dma_dev,
- 						i2c_dev->dma_phys,
- 						xfer_size, DMA_FROM_DEVICE);
- 
+ 		vreg_l10c_3p3: ldo10 {
 -- 
 2.35.1
 
