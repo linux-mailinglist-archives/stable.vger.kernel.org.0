@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B09566354C9
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2EF56358F9
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:06:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237068AbiKWJJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:09:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49884 "EHLO
+        id S236810AbiKWKE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:04:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237091AbiKWJJr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:09:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FCF5F62
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:09:46 -0800 (PST)
+        with ESMTP id S237075AbiKWKDZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:03:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F6311E815
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:55:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DCAC6185C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:09:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1486AC433D6;
-        Wed, 23 Nov 2022 09:09:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EAF1BB81EE6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:55:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54213C433D6;
+        Wed, 23 Nov 2022 09:55:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194585;
-        bh=3xdj0spaW6xu4sr4KhFzEpqtSbeaQfs1fRN6cmp2yPs=;
+        s=korg; t=1669197302;
+        bh=6/XjOQRcFlHAHnS8KUCVvKji9kvAlhv5OOhH9HpYJ7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUHoGRcPpiK/BqlGcmSLRiHe8zNo6+lnpmfiTc3up7TpkR/LkTfUCNH5ly0GoJiUz
-         4xKDaZEqKnOKo6PiU1tG1ddOBZtRV8iZv3/GzWL9cbliIRJJmxh6/GWUEHPdJoCo/6
-         lxI5QMotPX1vRGdIwU0lMT3dQ1nkDCfyYvl4T1ZU=
+        b=nGJgCu680dmZK/K/p5fRBjFPlRhntemkFkaa/FfwHUJVXpRx8iKsM3C7k0meX481n
+         jInBvljw5T1xt37jo0L0crXasoWSY8JhizXm9ZDBTQz33Imlj/DhhchAbwrObMcZar
+         YATDnzX4NjqAcEC5G+BZBNJcJYWP6F6D3G0LCtDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hawkins Jiawei <yin31149@gmail.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        ChenXiaoSong <chenxiaosong2@huawei.com>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 112/114] ntfs: fix use-after-free in ntfs_attr_find()
-Date:   Wed, 23 Nov 2022 09:51:39 +0100
-Message-Id: <20221123084556.141610179@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 6.0 255/314] serial: 8250_lpss: Configure DMA also w/o DMA filter
+Date:   Wed, 23 Nov 2022 09:51:40 +0100
+Message-Id: <20221123084637.073982779@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,124 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit d85a1bec8e8d552ab13163ca1874dcd82f3d1550 upstream.
+commit 1bfcbe5805d0cfc83c3544dcd01e0a282c1f6790 upstream.
 
-Patch series "ntfs: fix bugs about Attribute", v2.
+If the platform doesn't use DMA device filter (as is the case with
+Elkhart Lake), whole lpss8250_dma_setup() setup is skipped. This
+results in skipping also *_maxburst setup which is undesirable.
+Refactor lpss8250_dma_setup() to configure DMA even if filter is not
+setup.
 
-This patchset fixes three bugs relative to Attribute in record:
-
-Patch 1 adds a sanity check to ensure that, attrs_offset field in first
-mft record loading from disk is within bounds.
-
-Patch 2 moves the ATTR_RECORD's bounds checking earlier, to avoid
-dereferencing ATTR_RECORD before checking this ATTR_RECORD is within
-bounds.
-
-Patch 3 adds an overflow checking to avoid possible forever loop in
-ntfs_attr_find().
-
-Without patch 1 and patch 2, the kernel triggersa KASAN use-after-free
-detection as reported by Syzkaller.
-
-Although one of patch 1 or patch 2 can fix this, we still need both of
-them.  Because patch 1 fixes the root cause, and patch 2 not only fixes
-the direct cause, but also fixes the potential out-of-bounds bug.
-
-
-This patch (of 3):
-
-Syzkaller reported use-after-free read as follows:
-==================================================================
-BUG: KASAN: use-after-free in ntfs_attr_find+0xc02/0xce0 fs/ntfs/attrib.c:597
-Read of size 2 at addr ffff88807e352009 by task syz-executor153/3607
-
-[...]
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:317 [inline]
- print_report.cold+0x2ba/0x719 mm/kasan/report.c:433
- kasan_report+0xb1/0x1e0 mm/kasan/report.c:495
- ntfs_attr_find+0xc02/0xce0 fs/ntfs/attrib.c:597
- ntfs_attr_lookup+0x1056/0x2070 fs/ntfs/attrib.c:1193
- ntfs_read_inode_mount+0x89a/0x2580 fs/ntfs/inode.c:1845
- ntfs_fill_super+0x1799/0x9320 fs/ntfs/super.c:2854
- mount_bdev+0x34d/0x410 fs/super.c:1400
- legacy_get_tree+0x105/0x220 fs/fs_context.c:610
- vfs_get_tree+0x89/0x2f0 fs/super.c:1530
- do_new_mount fs/namespace.c:3040 [inline]
- path_mount+0x1326/0x1e20 fs/namespace.c:3370
- do_mount fs/namespace.c:3383 [inline]
- __do_sys_mount fs/namespace.c:3591 [inline]
- __se_sys_mount fs/namespace.c:3568 [inline]
- __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- [...]
- </TASK>
-
-The buggy address belongs to the physical page:
-page:ffffea0001f8d400 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x7e350
-head:ffffea0001f8d400 order:3 compound_mapcount:0 compound_pincount:0
-flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000010200 0000000000000000 dead000000000122 ffff888011842140
-raw: 0000000000000000 0000000000040004 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-Memory state around the buggy address:
- ffff88807e351f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff88807e351f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff88807e352000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                      ^
- ffff88807e352080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88807e352100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-Kernel will loads $MFT/$DATA's first mft record in
-ntfs_read_inode_mount().
-
-Yet the problem is that after loading, kernel doesn't check whether
-attrs_offset field is a valid value.
-
-To be more specific, if attrs_offset field is larger than bytes_allocated
-field, then it may trigger the out-of-bounds read bug(reported as
-use-after-free bug) in ntfs_attr_find(), when kernel tries to access the
-corresponding mft record's attribute.
-
-This patch solves it by adding the sanity check between attrs_offset field
-and bytes_allocated field, after loading the first mft record.
-
-Link: https://lkml.kernel.org/r/20220831160935.3409-1-yin31149@gmail.com
-Link: https://lkml.kernel.org/r/20220831160935.3409-2-yin31149@gmail.com
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Cc: ChenXiaoSong <chenxiaosong2@huawei.com>
-Cc: syzkaller-bugs <syzkaller-bugs@googlegroups.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221108121952.5497-3-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs/inode.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/tty/serial/8250/8250_lpss.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/fs/ntfs/inode.c
-+++ b/fs/ntfs/inode.c
-@@ -1854,6 +1854,13 @@ int ntfs_read_inode_mount(struct inode *
- 		goto err_out;
- 	}
+--- a/drivers/tty/serial/8250/8250_lpss.c
++++ b/drivers/tty/serial/8250/8250_lpss.c
+@@ -277,8 +277,13 @@ static int lpss8250_dma_setup(struct lps
+ 	struct dw_dma_slave *rx_param, *tx_param;
+ 	struct device *dev = port->port.dev;
  
-+	/* Sanity check offset to the first attribute */
-+	if (le16_to_cpu(m->attrs_offset) >= le32_to_cpu(m->bytes_allocated)) {
-+		ntfs_error(sb, "Incorrect mft offset to the first attribute %u in superblock.",
-+			       le16_to_cpu(m->attrs_offset));
-+		goto err_out;
-+	}
+-	if (!lpss->dma_param.dma_dev)
++	if (!lpss->dma_param.dma_dev) {
++		dma = port->dma;
++		if (dma)
++			goto out_configuration_only;
 +
- 	/* Need this to sanity check attribute list references to $MFT. */
- 	vi->i_generation = ni->seq_no = le16_to_cpu(m->sequence_number);
+ 		return 0;
++	}
+ 
+ 	rx_param = devm_kzalloc(dev, sizeof(*rx_param), GFP_KERNEL);
+ 	if (!rx_param)
+@@ -289,16 +294,18 @@ static int lpss8250_dma_setup(struct lps
+ 		return -ENOMEM;
+ 
+ 	*rx_param = lpss->dma_param;
+-	dma->rxconf.src_maxburst = lpss->dma_maxburst;
+-
+ 	*tx_param = lpss->dma_param;
+-	dma->txconf.dst_maxburst = lpss->dma_maxburst;
+ 
+ 	dma->fn = lpss8250_dma_filter;
+ 	dma->rx_param = rx_param;
+ 	dma->tx_param = tx_param;
+ 
+ 	port->dma = dma;
++
++out_configuration_only:
++	dma->rxconf.src_maxburst = lpss->dma_maxburst;
++	dma->txconf.dst_maxburst = lpss->dma_maxburst;
++
+ 	return 0;
+ }
  
 
 
