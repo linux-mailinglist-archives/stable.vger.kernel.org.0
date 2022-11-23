@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E22EC635907
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98717635659
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236394AbiKWKHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:07:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33166 "EHLO
+        id S237740AbiKWJ3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:29:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236251AbiKWKGO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB95E125206
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:36 -0800 (PST)
+        with ESMTP id S237776AbiKWJ3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:29:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0199FDB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:27:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4907361B56
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A8EDC433C1;
-        Wed, 23 Nov 2022 09:56:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED499B81EA9
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:27:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67FECC433C1;
+        Wed, 23 Nov 2022 09:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197395;
-        bh=68AKfwnypnKLgfbG65qF4VPPNMAQjvmyo0dT43Kx61M=;
+        s=korg; t=1669195651;
+        bh=LYkzfSUhowiv26/jruH1qvgYg/sWIfrU+va/2pdjhpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3D0VHysGsbjZ8QQWmWEzKkrCYS/7h5uMsU9RrNq6DU2gvX+YqG4WJ72CSUzqJiGt
-         pxDLEsRvilVOTHL2c4ZwJ/R1jj6IY5TKbpCW4Mre8mLoaev3NBpBpvoUe9cQt8tge2
-         i4komHx1IHuKOViv1rIQIw7sKdl+6obmVBzJEIbQ=
+        b=hby6mEsyHKe2jAv8YovHDvy4DnPy66oVTMuIzIuuv6rBGvQPfQJT1YePoiUZyuHG8
+         GTUKl4nnUh4t5IFtUk1SlONTn0TteKjYNiXXqERrcDQI6bq2JBtMAQrLKkS+5SKGOS
+         BeazHFNCBWY91loExabePhN4E7EzhCPMvX6bJxDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 283/314] ASoC: SOF: topology: No need to assign core ID if token parsing failed
+        syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.10 145/149] 9p/trans_fd: always use O_NONBLOCK read/write
 Date:   Wed, 23 Nov 2022 09:52:08 +0100
-Message-Id: <20221123084638.361619570@linuxfoundation.org>
+Message-Id: <20221123084603.122895771@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 3d59eaef49ca2db581156a7b77c9afc0546eefc0 ]
+commit ef575281b21e9a34dfae544a187c6aac2ae424a9 upstream.
 
-Move the return value check before attempting to assign the core ID to the
-swidget since we are going to fail the sof_widget_ready() and free up
-swidget anyways.
+syzbot is reporting hung task at p9_fd_close() [1], for p9_mux_poll_stop()
+ from p9_conn_destroy() from p9_fd_close() is failing to interrupt already
+started kernel_read() from p9_fd_read() from p9_read_work() and/or
+kernel_write() from p9_fd_write() from p9_write_work() requests.
 
-Fixes: 909dadf21aae ("ASoC: SOF: topology: Make DAI widget parsing IPC agnostic")
+Since p9_socket_open() sets O_NONBLOCK flag, p9_mux_poll_stop() does not
+need to interrupt kernel_read()/kernel_write(). However, since p9_fd_open()
+does not set O_NONBLOCK flag, but pipe blocks unless signal is pending,
+p9_mux_poll_stop() needs to interrupt kernel_read()/kernel_write() when
+the file descriptor refers to a pipe. In other words, pipe file descriptor
+needs to be handled as if socket file descriptor.
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Link: https://lore.kernel.org/r/20221107090433.5146-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We somehow need to interrupt kernel_read()/kernel_write() on pipes.
+
+A minimal change, which this patch is doing, is to set O_NONBLOCK flag
+ from p9_fd_open(), for O_NONBLOCK flag does not affect reading/writing
+of regular files. But this approach changes O_NONBLOCK flag on userspace-
+supplied file descriptors (which might break userspace programs), and
+O_NONBLOCK flag could be changed by userspace. It would be possible to set
+O_NONBLOCK flag every time p9_fd_read()/p9_fd_write() is invoked, but still
+remains small race window for clearing O_NONBLOCK flag.
+
+If we don't want to manipulate O_NONBLOCK flag, we might be able to
+surround kernel_read()/kernel_write() with set_thread_flag(TIF_SIGPENDING)
+and recalc_sigpending(). Since p9_read_work()/p9_write_work() works are
+processed by kernel threads which process global system_wq workqueue,
+signals could not be delivered from remote threads when p9_mux_poll_stop()
+ from p9_conn_destroy() from p9_fd_close() is called. Therefore, calling
+set_thread_flag(TIF_SIGPENDING)/recalc_sigpending() every time would be
+needed if we count on signals for making kernel_read()/kernel_write()
+non-blocking.
+
+Link: https://lkml.kernel.org/r/345de429-a88b-7097-d177-adecf9fed342@I-love.SAKURA.ne.jp
+Link: https://syzkaller.appspot.com/bug?extid=8b41a1365f1106fd0f33 [1]
+Reported-by: syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>
+Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+[Dominique: add comment at Christian's suggestion]
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/topology.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ net/9p/trans_fd.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/sof/topology.c b/sound/soc/sof/topology.c
-index 9273a70fec25..e1b7f07de7fc 100644
---- a/sound/soc/sof/topology.c
-+++ b/sound/soc/sof/topology.c
-@@ -1346,16 +1346,6 @@ static int sof_widget_ready(struct snd_soc_component *scomp, int index,
- 		break;
- 	}
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -821,11 +821,14 @@ static int p9_fd_open(struct p9_client *
+ 		goto out_free_ts;
+ 	if (!(ts->rd->f_mode & FMODE_READ))
+ 		goto out_put_rd;
++	/* prevent workers from hanging on IO when fd is a pipe */
++	ts->rd->f_flags |= O_NONBLOCK;
+ 	ts->wr = fget(wfd);
+ 	if (!ts->wr)
+ 		goto out_put_rd;
+ 	if (!(ts->wr->f_mode & FMODE_WRITE))
+ 		goto out_put_wr;
++	ts->wr->f_flags |= O_NONBLOCK;
  
--	if (sof_debug_check_flag(SOF_DBG_DISABLE_MULTICORE)) {
--		swidget->core = SOF_DSP_PRIMARY_CORE;
--	} else {
--		int core = sof_get_token_value(SOF_TKN_COMP_CORE_ID, swidget->tuples,
--					       swidget->num_tuples);
--
--		if (core >= 0)
--			swidget->core = core;
--	}
--
- 	/* check token parsing reply */
- 	if (ret < 0) {
- 		dev_err(scomp->dev,
-@@ -1367,6 +1357,16 @@ static int sof_widget_ready(struct snd_soc_component *scomp, int index,
- 		return ret;
- 	}
- 
-+	if (sof_debug_check_flag(SOF_DBG_DISABLE_MULTICORE)) {
-+		swidget->core = SOF_DSP_PRIMARY_CORE;
-+	} else {
-+		int core = sof_get_token_value(SOF_TKN_COMP_CORE_ID, swidget->tuples,
-+					       swidget->num_tuples);
-+
-+		if (core >= 0)
-+			swidget->core = core;
-+	}
-+
- 	/* bind widget to external event */
- 	if (tw->event_type) {
- 		if (widget_ops[w->id].bind_event) {
--- 
-2.35.1
-
+ 	client->trans = ts;
+ 	client->status = Connected;
 
 
