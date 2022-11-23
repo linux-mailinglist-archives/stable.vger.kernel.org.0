@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B098635750
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1EB663563B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238026AbiKWJjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:39:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59772 "EHLO
+        id S237708AbiKWJ2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:28:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238033AbiKWJii (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:38:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4562A1121D1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:36:24 -0800 (PST)
+        with ESMTP id S237866AbiKWJ11 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:27:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 367901121DD
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:26:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BF41B81EEB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:36:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA20EC433C1;
-        Wed, 23 Nov 2022 09:36:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13B7E61B40
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:26:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E4D5C433D6;
+        Wed, 23 Nov 2022 09:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196179;
-        bh=vtLOfw1ORakHyh1QAQuJ4HQVVBECxiZcr0Pvh/RNd60=;
+        s=korg; t=1669195575;
+        bh=voZyQ/WNhiiu4Tog3XyfvbVXbVLspACgm7ujhTthIKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wliCxO+7cPD8av8mSuQLoATngkMUrWLtpJI9I9CabotuEmQ3dNnzvWg9XWcxm/8Ey
-         akW/YJUoQjPwjDI7mzyDInxt6wwl+5jN+gqAdKnNT3P3vpOWlUwQRo6WWGarNAiAH6
-         ih9B508lToanqmBS0xLx1v8KJXv/SjHEn9blRewg=
+        b=XcpMjWqYRTOQN0bOW0aPemmtkPPyx+U80F/sR0B0LpJFw/xhbQ3qjyZP+sN23sJAA
+         MSAHrgL8KUpwFwfiRrKY6jVp9dIUaR1O5whQiYUhmo++cZVlgrNJnx75vlRwlr6HPV
+         LNBPtwMcuiLWOMO3Hoh0W9Zfm4PD+UaANq+dxbKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.15 142/181] serial: 8250: Flush DMA Rx on RLSI
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 122/149] mmc: sdhci-pci: Fix possible memory leak caused by missing pci_dev_put()
 Date:   Wed, 23 Nov 2022 09:51:45 +0100
-Message-Id: <20221123084608.477841393@linuxfoundation.org>
+Message-Id: <20221123084602.329077357@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-commit 1980860e0c8299316cddaf0992dd9e1258ec9d88 upstream.
+commit 222cfa0118aa68687ace74aab8fdf77ce8fbd7e6 upstream.
 
-Returning true from handle_rx_dma() without flushing DMA first creates
-a data ordering hazard. If DMA Rx has handled any character at the
-point when RLSI occurs, the non-DMA path handles any pending characters
-jumping them ahead of those characters that are pending under DMA.
+pci_get_device() will increase the reference count for the returned
+pci_dev. We need to use pci_dev_put() to decrease the reference count
+before amd_probe() returns. There is no problem for the 'smbus_dev ==
+NULL' branch because pci_dev_put() can also handle the NULL input
+parameter case.
 
-Fixes: 75df022b5f89 ("serial: 8250_dma: Fix RX handling")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221108121952.5497-5-ilpo.jarvinen@linux.intel.com
+Fixes: 659c9bc114a8 ("mmc: sdhci-pci: Build o2micro support in the same module")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221114083100.149200-1-wangxiongfeng2@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/mmc/host/sdhci-pci-core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1889,10 +1889,9 @@ static bool handle_rx_dma(struct uart_82
- 		if (!up->dma->rx_running)
- 			break;
- 		fallthrough;
-+	case UART_IIR_RLSI:
- 	case UART_IIR_RX_TIMEOUT:
- 		serial8250_rx_dma_flush(up);
--		fallthrough;
--	case UART_IIR_RLSI:
- 		return true;
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -1799,6 +1799,8 @@ static int amd_probe(struct sdhci_pci_ch
+ 		}
  	}
- 	return up->dma->rx_dma(up);
+ 
++	pci_dev_put(smbus_dev);
++
+ 	if (gen == AMD_CHIPSET_BEFORE_ML || gen == AMD_CHIPSET_CZ)
+ 		chip->quirks2 |= SDHCI_QUIRK2_CLEAR_TRANSFERMODE_REG_BEFORE_CMD;
+ 
 
 
