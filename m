@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7C086358C4
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:04:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B4A6635453
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236564AbiKWKD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:03:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55086 "EHLO
+        id S236983AbiKWJCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:02:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237097AbiKWKBu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:01:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CB5711E73C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:53:55 -0800 (PST)
+        with ESMTP id S236990AbiKWJCr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:02:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5591D275D8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:02:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4EF8CB81EF6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:53:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ED56C433D6;
-        Wed, 23 Nov 2022 09:53:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E61E661B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:02:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03FDBC433D6;
+        Wed, 23 Nov 2022 09:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197233;
-        bh=XLhMLZb6XiLLtPgxe/0OyAMI6SvnqSR49NwowbBrBYg=;
+        s=korg; t=1669194163;
+        bh=J63EVeUd588ollkganXA5HrRwvMiTMwb76ZOMPs3eeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DH+ITFYoOB/RLzpleRY/QvXHDr/MoqZ4rHKXodoc1QsBMhpnQwFZ5WylouDuE6L3t
-         7yf/pAQMLJRdmTQ/Otnlp0LaV5cU04c+un8sh9WmUnA6ZsJk9uGclJbDdgn7BnE23V
-         3JAh1ltPTRL5mNADytsP5GJkrj5J1mYYa1ms1CCw=
+        b=WMDoJCxr5TQXtMquLCyDY7ysT+U9sKfegecAcTOnDZgfwRvXW7L+gVFTdXcMv6m8u
+         50u3TMdxRoMudbNcnoHquJtjxbk56gkQq9KSKuMMW8tnrihvX7LNanZBeqKxN5nMdN
+         I8gaKAWawsn/HD7n4mDW0HDNmfN7BfUvgdrXayvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Beno=C3=AEt=20Monin?= <benoit.monin@gmx.fr>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 6.0 234/314] USB: serial: option: add Sierra Wireless EM9191
+        syzbot+dcf33a7aae997956fe06@syzkaller.appspotmail.com,
+        Andrew Price <anprice@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 4.14 82/88] gfs2: Check sb_bsize_shift after reading superblock
 Date:   Wed, 23 Nov 2022 09:51:19 +0100
-Message-Id: <20221123084636.087672250@linuxfoundation.org>
+Message-Id: <20221123084551.520545806@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoît Monin <benoit.monin@gmx.fr>
+From: Andrew Price <anprice@redhat.com>
 
-commit df3414b0a245f43476061fddd78cee7d6cff797f upstream.
+commit 670f8ce56dd0632dc29a0322e188cc73ce3c6b92 upstream.
 
-Add support for the AT and diag ports, similar to other qualcomm SDX55
-modems. In QDL mode, the modem uses a different device ID and support
-is provided by qcserial in commit 11c52d250b34 ("USB: serial: qcserial:
-add EM9191 QDL support").
+Fuzzers like to scribble over sb_bsize_shift but in reality it's very
+unlikely that this field would be corrupted on its own. Nevertheless it
+should be checked to avoid the possibility of messy mount errors due to
+bad calculations. It's always a fixed value based on the block size so
+we can just check that it's the expected value.
 
-T:  Bus=08 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
-P:  Vendor=1199 ProdID=90d3 Rev=00.06
-S:  Manufacturer=Sierra Wireless, Incorporated
-S:  Product=Sierra Wireless EM9191
-S:  SerialNumber=xxxxxxxxxxxxxxxx
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
+Tested with:
 
-Signed-off-by: Benoît Monin <benoit.monin@gmx.fr>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+    mkfs.gfs2 -O -p lock_nolock /dev/vdb
+    for i in 0 -1 64 65 32 33; do
+        gfs2_edit -p sb field sb_bsize_shift $i /dev/vdb
+        mount /dev/vdb /mnt/test && umount /mnt/test
+    done
+
+Before this patch we get a withdraw after
+
+[   76.413681] gfs2: fsid=loop0.0: fatal: invalid metadata block
+[   76.413681]   bh = 19 (type: exp=5, found=4)
+[   76.413681]   function = gfs2_meta_buffer, file = fs/gfs2/meta_io.c, line = 492
+
+and with UBSAN configured we also get complaints like
+
+[   76.373395] UBSAN: shift-out-of-bounds in fs/gfs2/ops_fstype.c:295:19
+[   76.373815] shift exponent 4294967287 is too large for 64-bit type 'long unsigned int'
+
+After the patch, these complaints don't appear, mount fails immediately
+and we get an explanation in dmesg.
+
+Reported-by: syzbot+dcf33a7aae997956fe06@syzkaller.appspotmail.com
+Signed-off-by: Andrew Price <anprice@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/gfs2/ops_fstype.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -581,6 +581,9 @@ static void option_instat_callback(struc
- #define OPPO_VENDOR_ID				0x22d9
- #define OPPO_PRODUCT_R11			0x276c
+--- a/fs/gfs2/ops_fstype.c
++++ b/fs/gfs2/ops_fstype.c
+@@ -172,7 +172,10 @@ static int gfs2_check_sb(struct gfs2_sbd
+ 		pr_warn("Invalid superblock size\n");
+ 		return -EINVAL;
+ 	}
+-
++	if (sb->sb_bsize_shift != ffs(sb->sb_bsize) - 1) {
++		pr_warn("Invalid block size shift\n");
++		return -EINVAL;
++	}
+ 	return 0;
+ }
  
-+/* Sierra Wireless products */
-+#define SIERRA_VENDOR_ID			0x1199
-+#define SIERRA_PRODUCT_EM9191			0x90d3
- 
- /* Device flags */
- 
-@@ -2176,6 +2179,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(OPPO_VENDOR_ID, OPPO_PRODUCT_R11, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(SIERRA_VENDOR_ID, SIERRA_PRODUCT_EM9191, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(SIERRA_VENDOR_ID, SIERRA_PRODUCT_EM9191, 0xff, 0, 0) },
- 	{ } /* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, option_ids);
 
 
