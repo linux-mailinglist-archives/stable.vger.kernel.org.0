@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EBBB635580
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30EDC635509
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237435AbiKWJT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:19:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35392 "EHLO
+        id S237204AbiKWJN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:13:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237366AbiKWJTf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:19:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE1810B77
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:19:33 -0800 (PST)
+        with ESMTP id S237236AbiKWJN1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:13:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE95985160
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:13:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A9E861B44
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:19:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22A75C433C1;
-        Wed, 23 Nov 2022 09:19:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7177FB81EEE
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:13:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC07CC433C1;
+        Wed, 23 Nov 2022 09:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195172;
-        bh=cteLXXsF83r2USnyf9k+VB4O36var5zXb0jrtcODRiw=;
+        s=korg; t=1669194804;
+        bh=JhWGHc5kxOEzNLBMuZ2sJeHwhnDnhab1uDEcnsHFWwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NONa8Fu5w6GPz5B7NQREBoLB5r35fuQpezj/Upug3HnVuI/U9SSF3El/w/2N4KsEk
-         AaCindIW/lfRkIhfwgTpE/0R4iGTsOzmiWY+lcn3GuOC+cQilh/ms31KMkGt6f++tE
-         GXJFzUjZN4xyJMbw0K8hw7A/ytaOukFN56XeyRvc=
+        b=T5tabeitYvkVxcXmMsSniH5aQst+erTkRrE3lng5eib6+/1mpW/+TPvHkluSA9QwR
+         eQtOeQoO4SCTrGEUlaD0y9R9Pd6pJTzPhODvni741YfV4MoxqloxjSA5ubtDH184Jf
+         MN8671Hp959eC8rGjdO74SK4AAfMX0YVH5EngpbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Siarhei Volkau <lis8215@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Chuang Wang <nashuiliang@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 010/149] ASoC: codecs: jz4725b: fix capture selector naming
+Subject: [PATCH 5.4 036/156] net: macvlan: fix memory leaks of macvlan_common_newlink
 Date:   Wed, 23 Nov 2022 09:49:53 +0100
-Message-Id: <20221123084558.348973518@linuxfoundation.org>
+Message-Id: <20221123084559.242441421@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siarhei Volkau <lis8215@gmail.com>
+From: Chuang Wang <nashuiliang@gmail.com>
 
-[ Upstream commit 80852f8268769715db335a22305e81a0c4a38a84 ]
+[ Upstream commit 23569b5652ee8e8e55a12f7835f59af6f3cefc30 ]
 
-At the moment Capture source selector appears on Playback
-tab in the alsamixer and has a senseless name.
+kmemleak reports memory leaks in macvlan_common_newlink, as follows:
 
-Let's fix that.
+ ip link add link eth0 name .. type macvlan mode source macaddr add
+ <MAC-ADDR>
 
-Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
-Link: https://lore.kernel.org/r/20221016132648.3011729-5-lis8215@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+kmemleak reports:
+
+unreferenced object 0xffff8880109bb140 (size 64):
+  comm "ip", pid 284, jiffies 4294986150 (age 430.108s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 b8 aa 5a 12 80 88 ff ff  ..........Z.....
+    80 1b fa 0d 80 88 ff ff 1e ff ac af c7 c1 6b 6b  ..............kk
+  backtrace:
+    [<ffffffff813e06a7>] kmem_cache_alloc_trace+0x1c7/0x300
+    [<ffffffff81b66025>] macvlan_hash_add_source+0x45/0xc0
+    [<ffffffff81b66a67>] macvlan_changelink_sources+0xd7/0x170
+    [<ffffffff81b6775c>] macvlan_common_newlink+0x38c/0x5a0
+    [<ffffffff81b6797e>] macvlan_newlink+0xe/0x20
+    [<ffffffff81d97f8f>] __rtnl_newlink+0x7af/0xa50
+    [<ffffffff81d98278>] rtnl_newlink+0x48/0x70
+    ...
+
+In the scenario where the macvlan mode is configured as 'source',
+macvlan_changelink_sources() will be execured to reconfigure list of
+remote source mac addresses, at the same time, if register_netdevice()
+return an error, the resource generated by macvlan_changelink_sources()
+is not cleaned up.
+
+Using this patch, in the case of an error, it will execute
+macvlan_flush_sources() to ensure that the resource is cleaned up.
+
+Fixes: aa5fd0fb7748 ("driver: macvlan: Destroy new macvlan port if macvlan_common_newlink failed.")
+Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
+Link: https://lore.kernel.org/r/20221109090735.690500-1-nashuiliang@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/jz4725b.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/macvlan.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
-index 9dc8d76bf104..ab744e375367 100644
---- a/sound/soc/codecs/jz4725b.c
-+++ b/sound/soc/codecs/jz4725b.c
-@@ -183,7 +183,7 @@ static SOC_VALUE_ENUM_SINGLE_DECL(jz4725b_codec_adc_src_enum,
- 				  jz4725b_codec_adc_src_texts,
- 				  jz4725b_codec_adc_src_values);
- static const struct snd_kcontrol_new jz4725b_codec_adc_src_ctrl =
--			SOC_DAPM_ENUM("Route", jz4725b_codec_adc_src_enum);
-+	SOC_DAPM_ENUM("ADC Source Capture Route", jz4725b_codec_adc_src_enum);
- 
- static const struct snd_kcontrol_new jz4725b_codec_mixer_controls[] = {
- 	SOC_DAPM_SINGLE("Line In Bypass", JZ4725B_CODEC_REG_CR1,
-@@ -228,7 +228,7 @@ static const struct snd_soc_dapm_widget jz4725b_codec_dapm_widgets[] = {
- 	SND_SOC_DAPM_ADC("ADC", "Capture",
- 			 JZ4725B_CODEC_REG_PMR1, REG_PMR1_SB_ADC_OFFSET, 1),
- 
--	SND_SOC_DAPM_MUX("ADC Source", SND_SOC_NOPM, 0, 0,
-+	SND_SOC_DAPM_MUX("ADC Source Capture Route", SND_SOC_NOPM, 0, 0,
- 			 &jz4725b_codec_adc_src_ctrl),
- 
- 	/* Mixer */
-@@ -287,11 +287,11 @@ static const struct snd_soc_dapm_route jz4725b_codec_dapm_routes[] = {
- 	{"Mixer", NULL, "DAC to Mixer"},
- 
- 	{"Mixer to ADC", NULL, "Mixer"},
--	{"ADC Source", "Mixer", "Mixer to ADC"},
--	{"ADC Source", "Line In", "Line In"},
--	{"ADC Source", "Mic 1", "Mic 1"},
--	{"ADC Source", "Mic 2", "Mic 2"},
--	{"ADC", NULL, "ADC Source"},
-+	{"ADC Source Capture Route", "Mixer", "Mixer to ADC"},
-+	{"ADC Sourc Capture Routee", "Line In", "Line In"},
-+	{"ADC Source Capture Route", "Mic 1", "Mic 1"},
-+	{"ADC Source Capture Route", "Mic 2", "Mic 2"},
-+	{"ADC", NULL, "ADC Source Capture Route"},
- 
- 	{"Out Stage", NULL, "Mixer"},
- 	{"HP Out", NULL, "Out Stage"},
+diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
+index 07622cf8765a..253c0605f6e6 100644
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -1499,8 +1499,10 @@ int macvlan_common_newlink(struct net *src_net, struct net_device *dev,
+ 	/* the macvlan port may be freed by macvlan_uninit when fail to register.
+ 	 * so we destroy the macvlan port only when it's valid.
+ 	 */
+-	if (create && macvlan_port_get_rtnl(lowerdev))
++	if (create && macvlan_port_get_rtnl(lowerdev)) {
++		macvlan_flush_sources(port, vlan);
+ 		macvlan_port_destroy(port->dev);
++	}
+ 	return err;
+ }
+ EXPORT_SYMBOL_GPL(macvlan_common_newlink);
 -- 
 2.35.1
 
