@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E201963536E
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:57:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2859635418
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236774AbiKWI50 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:57:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32974 "EHLO
+        id S236976AbiKWJCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:02:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236776AbiKWI5Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:57:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF11EEC7BF
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:57:23 -0800 (PST)
+        with ESMTP id S236964AbiKWJCP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:02:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C047FF41E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:02:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A74B61B43
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:57:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B8EAC433D7;
-        Wed, 23 Nov 2022 08:57:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7D07B81EEE
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:02:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C60EC433D6;
+        Wed, 23 Nov 2022 09:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193843;
-        bh=qN2kHtrKdNxXqy5f+2fE+D32x9gwI09D/dhNa7yXKrE=;
+        s=korg; t=1669194131;
+        bh=1VU2grw/M9qI9d5Z9IRKB3xEySlIrUHc0YPHtdT/b94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CMmOX5eyz0Q1J5v7WABVA3QTdXviAEzyR3yhcRiEBn3uBmks5bflalTZZ5Hh7B6KY
-         ZTQ7jYoov2VrEqVeW50FjPHOcSZAXyRgjVCXLPrxXlBFMJsbVlB0rACQXPhvsIT+OT
-         rsR+G5o15jZ2OlceZAQWKtKxv0kUAKLbaEROK+y8=
+        b=va6PRdOc65U3xTHTTtCpDaGviRhVZJBROBXbR7okrPfMPipdlZqqa+D79q7mEOIme
+         jIS0p1twiS9hE8Itqj/0FtL1SMSv7zRNr4V7WBsBaStSM8k7gszvULL3asFYa/ickZ
+         s4FjRN/GUv2UmaUmdsmZ3hlu31UTzBp4DSo+S0yY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hawkins Jiawei <yin31149@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        "chenxiaosong (A)" <chenxiaosong2@huawei.com>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.9 76/76] ntfs: check overflow when iterating ATTR_RECORDs
-Date:   Wed, 23 Nov 2022 09:51:15 +0100
-Message-Id: <20221123084549.236780815@linuxfoundation.org>
+        patches@lists.linux.dev, Baisong Zhong <zhongbaisong@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Eric Dumazet <edumazet@google.com>
+Subject: [PATCH 4.14 79/88] bpf, test_run: Fix alignment problem in bpf_prog_test_run_skb()
+Date:   Wed, 23 Nov 2022 09:51:16 +0100
+Message-Id: <20221123084551.413950507@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,52 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Baisong Zhong <zhongbaisong@huawei.com>
 
-commit 63095f4f3af59322bea984a6ae44337439348fe0 upstream.
+commit d3fd203f36d46aa29600a72d57a1b61af80e4a25 upstream.
 
-Kernel iterates over ATTR_RECORDs in mft record in ntfs_attr_find().
-Because the ATTR_RECORDs are next to each other, kernel can get the next
-ATTR_RECORD from end address of current ATTR_RECORD, through current
-ATTR_RECORD length field.
+We got a syzkaller problem because of aarch64 alignment fault
+if KFENCE enabled. When the size from user bpf program is an odd
+number, like 399, 407, etc, it will cause the struct skb_shared_info's
+unaligned access. As seen below:
 
-The problem is that during iteration, when kernel calculates the end
-address of current ATTR_RECORD, kernel may trigger an integer overflow bug
-in executing `a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))`.  This
-may wrap, leading to a forever iteration on 32bit systems.
+  BUG: KFENCE: use-after-free read in __skb_clone+0x23c/0x2a0 net/core/skbuff.c:1032
 
-This patch solves it by adding some checks on calculating end address
-of current ATTR_RECORD during iteration.
+  Use-after-free read at 0xffff6254fffac077 (in kfence-#213):
+   __lse_atomic_add arch/arm64/include/asm/atomic_lse.h:26 [inline]
+   arch_atomic_add arch/arm64/include/asm/atomic.h:28 [inline]
+   arch_atomic_inc include/linux/atomic-arch-fallback.h:270 [inline]
+   atomic_inc include/asm-generic/atomic-instrumented.h:241 [inline]
+   __skb_clone+0x23c/0x2a0 net/core/skbuff.c:1032
+   skb_clone+0xf4/0x214 net/core/skbuff.c:1481
+   ____bpf_clone_redirect net/core/filter.c:2433 [inline]
+   bpf_clone_redirect+0x78/0x1c0 net/core/filter.c:2420
+   bpf_prog_d3839dd9068ceb51+0x80/0x330
+   bpf_dispatcher_nop_func include/linux/bpf.h:728 [inline]
+   bpf_test_run+0x3c0/0x6c0 net/bpf/test_run.c:53
+   bpf_prog_test_run_skb+0x638/0xa7c net/bpf/test_run.c:594
+   bpf_prog_test_run kernel/bpf/syscall.c:3148 [inline]
+   __do_sys_bpf kernel/bpf/syscall.c:4441 [inline]
+   __se_sys_bpf+0xad0/0x1634 kernel/bpf/syscall.c:4381
 
-Link: https://lkml.kernel.org/r/20220831160935.3409-4-yin31149@gmail.com
-Link: https://lore.kernel.org/all/20220827105842.GM2030@kadam/
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Cc: chenxiaosong (A) <chenxiaosong2@huawei.com>
-Cc: syzkaller-bugs <syzkaller-bugs@googlegroups.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+  kfence-#213: 0xffff6254fffac000-0xffff6254fffac196, size=407, cache=kmalloc-512
+
+  allocated by task 15074 on cpu 0 at 1342.585390s:
+   kmalloc include/linux/slab.h:568 [inline]
+   kzalloc include/linux/slab.h:675 [inline]
+   bpf_test_init.isra.0+0xac/0x290 net/bpf/test_run.c:191
+   bpf_prog_test_run_skb+0x11c/0xa7c net/bpf/test_run.c:512
+   bpf_prog_test_run kernel/bpf/syscall.c:3148 [inline]
+   __do_sys_bpf kernel/bpf/syscall.c:4441 [inline]
+   __se_sys_bpf+0xad0/0x1634 kernel/bpf/syscall.c:4381
+   __arm64_sys_bpf+0x50/0x60 kernel/bpf/syscall.c:4381
+
+To fix the problem, we adjust @size so that (@size + @hearoom) is a
+multiple of SMP_CACHE_BYTES. So we make sure the struct skb_shared_info
+is aligned to a cache line.
+
+Fixes: 1cf1cae963c2 ("bpf: introduce BPF_PROG_TEST_RUN command")
+Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/bpf/20221102081620.1465154-1-zhongbaisong@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs/attrib.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/bpf/test_run.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ntfs/attrib.c
-+++ b/fs/ntfs/attrib.c
-@@ -631,6 +631,14 @@ static int ntfs_attr_find(const ATTR_TYP
- 			return -ENOENT;
- 		if (unlikely(!a->length))
- 			break;
-+
-+		/* check whether ATTR_RECORD's length wrap */
-+		if ((u8 *)a + le32_to_cpu(a->length) < (u8 *)a)
-+			break;
-+		/* check whether ATTR_RECORD's length is within bounds */
-+		if ((u8 *)a + le32_to_cpu(a->length) > mrec_end)
-+			break;
-+
- 		if (a->type != type)
- 			continue;
- 		/*
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -78,6 +78,7 @@ static void *bpf_test_init(const union b
+ 	if (size < ETH_HLEN || size > PAGE_SIZE - headroom - tailroom)
+ 		return ERR_PTR(-EINVAL);
+ 
++	size = SKB_DATA_ALIGN(size);
+ 	data = kzalloc(size + headroom + tailroom, GFP_USER);
+ 	if (!data)
+ 		return ERR_PTR(-ENOMEM);
 
 
