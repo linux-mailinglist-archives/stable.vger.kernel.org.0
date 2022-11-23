@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2F46357C5
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:46:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 677466357C3
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:46:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238104AbiKWJqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:46:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38568 "EHLO
+        id S236751AbiKWJqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:46:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238232AbiKWJqO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:46:14 -0500
+        with ESMTP id S238098AbiKWJqR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:46:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 804801157A0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:43:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92AA111578D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:43:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E0A661B3B
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:43:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56483C433B5;
-        Wed, 23 Nov 2022 09:43:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E7C661B74
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:43:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 146C5C433B5;
+        Wed, 23 Nov 2022 09:43:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196607;
-        bh=4KqGL/pJIMIXFHQvmVzGjYzTnB13LiHnPqW7dkr5xQ8=;
+        s=korg; t=1669196611;
+        bh=3BVQFlI9Xv6+9PtX5E+AxRdo9ciUdmLL3GX+MxRYr4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vrYC32BU9WVZDBzi219tX5vMqNUtVHu9Zz+uIdmjdQfru38VcVtc6NS/I9HP1t2Tp
-         4PZe1JvUnVsxlpOG1xYaijG3aTmWTY/kwSxowZrqwlAfzCyCJMjUoa09+epJpPeO9b
-         zwwhrnGfescSB9I+86qWwk2OGn6z/tQSzt2qQ6Bw=
+        b=PSy/1RsTXw3odDXsG6sU1h1FgZgLxWww52xBgZmipicw4BOW4j2S1BfzlmGapcJrT
+         /J8pwU8d5ia0KlGN2H+KWR3hHg133a9mvdvFZnZbbONLo8VFv0GrrJ4RjupmtSzI49
+         Pp9MSS/WlQN4O6iCp5FsClUi+7qeZwG4QKgkb8Zo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Masney <bmasney@redhat.com>,
-        Johan Hovold <johan+linaro@kernel.org>,
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 079/314] arm64: dts: qcom: sc8280xp: correct ref clock for ufs_mem_phy
-Date:   Wed, 23 Nov 2022 09:48:44 +0100
-Message-Id: <20221123084629.053459341@linuxfoundation.org>
+Subject: [PATCH 6.0 080/314] arm64: dts: qcom: sc8280xp: fix USB0 PHY PCS_MISC registers
+Date:   Wed, 23 Nov 2022 09:48:45 +0100
+Message-Id: <20221123084629.096775697@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -54,54 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Masney <bmasney@redhat.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit f3aa975e230e060c07dcfdf3fe92b59809422c13 ]
+[ Upstream commit 31b3b3059791be536e2ec0c6830767b596af340f ]
 
-The first UFS host controller fails to start on the SA8540P automotive
-board (QDrive3) due to the following errors:
+The USB0 SS PHY node had the PCS_MISC register block (0x1200) replaced
+with PCS_USB (0x1700).
 
-    ufshcd-qcom 1d84000.ufs: ufshcd_query_flag: Sending flag query for idn 18 failed, err = 253
-    ufshcd-qcom 1d84000.ufs: ufshcd_query_flag: Sending flag query for idn 18 failed, err = 253
-    ufshcd-qcom 1d84000.ufs: ufshcd_query_flag: Sending flag query for idn 18 failed, err = 253
-    ufshcd-qcom 1d84000.ufs: ufshcd_query_flag_retry: query attribute, opcode 5, idn 18, failed
-        with error 253 after 3 retries
-
-The system eventually fails to boot with the warning:
-
-    gcc_ufs_phy_axi_clk status stuck at 'off'
-
-This issue can be worked around by adding clk_ignore_unused to the
-kernel command line since the system firmware sets up this clock for us.
-
-Let's fix this issue by updating the ref clock on ufs_mem_phy. Note
-that the downstream MSM 5.4 sources list this as ref_clk_parent. With
-this patch, the SA8540P is able to be booted without clk_ignore_unused.
-
-Signed-off-by: Brian Masney <bmasney@redhat.com>
 Fixes: 152d1faf1e2f ("arm64: dts: qcom: add SC8280XP platform")
-Tested-by: Johan Hovold <johan+linaro@kernel.org>
-Reviewed-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221006145529.755521-1-bmasney@redhat.com
+Link: https://lore.kernel.org/r/20220919094454.1574-2-johan+linaro@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  arch/arm64/boot/dts/qcom/sc8280xp.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-index 92cbe84de0e5..cdc395d53c5a 100644
+index cdc395d53c5a..e3e192877a88 100644
 --- a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
 +++ b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-@@ -891,7 +891,7 @@ ufs_mem_phy: phy@1d87000 {
- 			ranges;
- 			clock-names = "ref",
- 				      "ref_aux";
--			clocks = <&rpmhcc RPMH_CXO_CLK>,
-+			clocks = <&gcc GCC_UFS_REF_CLKREF_CLK>,
- 				 <&gcc GCC_UFS_PHY_PHY_AUX_CLK>;
- 
- 			resets = <&ufs_mem_hc 0>;
+@@ -1184,7 +1184,7 @@ usb_0_ssphy: usb3-phy@88eb400 {
+ 				      <0 0x088ec400 0 0x1f0>,
+ 				      <0 0x088eba00 0 0x100>,
+ 				      <0 0x088ebc00 0 0x3ec>,
+-				      <0 0x088ec700 0 0x64>;
++				      <0 0x088ec200 0 0x18>;
+ 				#phy-cells = <0>;
+ 				#clock-cells = <0>;
+ 				clocks = <&gcc GCC_USB3_PRIM_PHY_PIPE_CLK>;
 -- 
 2.35.1
 
