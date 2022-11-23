@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8009C635858
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:55:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 047E06355D2
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237124AbiKWJzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:55:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48928 "EHLO
+        id S237454AbiKWJWO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:22:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237187AbiKWJy3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:54:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8449113732
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:50:28 -0800 (PST)
+        with ESMTP id S237447AbiKWJVi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:21:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3551925D5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:21:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D4ADB81EF1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:50:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F17DEC433C1;
-        Wed, 23 Nov 2022 09:50:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9930B81EF5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:21:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10B10C433C1;
+        Wed, 23 Nov 2022 09:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197026;
-        bh=hcIHoOOr0mQPIoISV17umq8DPr5hm5Z2CXFa3EUYcnM=;
+        s=korg; t=1669195278;
+        bh=LOUHx8T7LvBiF3c+VpYfCislTB8CfhRe6Yf5er8UmxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ycLcsnMj/huEkT9uRriULE3UiXwdcqfXcnb0Ul6ONM0lY50L22NN45VTBXRNMG/X4
-         EAP8WU/P2JMzVJmIsscxk8KzH/QNPlVWBQ/VK84neRQTUrx5E0R9/Q90XDdmTNOfJl
-         gCaQVi1uUdNxc+BK+nGF3uBYZQx/Gp9JmhzYYtcU=
+        b=ZJ/MsSmQHcRT1aO/kVlRNrIZX3gPMJ5nF3iTJg1AGf6b7rDkhYixh3bqGPKKYV1d6
+         lITk5QDCyV0IfmqusGeE7T94RoVx1fhQEHAZSH4xdzvc/H08NQq+2fAXJwBlilAeOj
+         OBk61VpyShwPWqDS2ExYmjNbc4HiBzuc3C6Di8Kw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        "David E. Box" <david.e.box@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 178/314] platform/x86/intel: pmc: Dont unconditionally attach Intel PMC when virtualized
+Subject: [PATCH 5.10 040/149] serial: 8250: omap: Flush PM QOS work on remove
 Date:   Wed, 23 Nov 2022 09:50:23 +0100
-Message-Id: <20221123084633.639157337@linuxfoundation.org>
+Message-Id: <20221123084559.413964043@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monné <roger.pau@citrix.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 2dbfb3f33350e1e868d3d7ed4c176d8777150878 ]
+[ Upstream commit d0b68629bd2fb61e0171a62f2e8da3db322f5cf6 ]
 
-The current logic in the Intel PMC driver will forcefully attach it
-when detecting any CPU on the intel_pmc_core_platform_ids array,
-even if the matching ACPI device is not present.
+Rebinding 8250_omap in a loop will at some point produce a warning for
+kernel/power/qos.c:296 cpu_latency_qos_update_request() with error
+"cpu_latency_qos_update_request called for unknown object". Let's flush
+the possibly pending PM QOS work scheduled from omap8250_runtime_suspend()
+before we disable runtime PM.
 
-There's no checking in pmc_core_probe() to assert that the PMC device
-is present, and hence on virtualized environments the PMC device
-probes successfully, even if the underlying registers are not present.
-Before commit 21ae43570940 ("platform/x86: intel_pmc_core: Substitute PCI
-with CPUID enumeration") the driver would check for the presence of a
-specific PCI device, and that prevented the driver from attaching when
-running virtualized.
-
-Fix by only forcefully attaching the PMC device when not running
-virtualized.  Note that virtualized platforms can still get the device
-to load if the appropriate ACPI device is present on the tables
-provided to the VM.
-
-Make an exception for the Xen initial domain, which does have full
-hardware access, and hence can attach to the PMC if present.
-
-Fixes: 21ae43570940 ("platform/x86: intel_pmc_core: Substitute PCI with CPUID enumeration")
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Acked-by: David E. Box <david.e.box@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221110163145.80374-1-roger.pau@citrix.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 61929cf0169d ("tty: serial: Add 8250-core based omap driver")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20221028110044.54719-1-tony@atomide.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel/pmc/pltdrv.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/tty/serial/8250/8250_omap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/intel/pmc/pltdrv.c b/drivers/platform/x86/intel/pmc/pltdrv.c
-index 15ca8afdd973..ddfba38c2104 100644
---- a/drivers/platform/x86/intel/pmc/pltdrv.c
-+++ b/drivers/platform/x86/intel/pmc/pltdrv.c
-@@ -18,6 +18,8 @@
- #include <asm/cpu_device_id.h>
- #include <asm/intel-family.h>
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index 57524950b8dc..3f7379f16a36 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -1483,6 +1483,7 @@ static int omap8250_remove(struct platform_device *pdev)
  
-+#include <xen/xen.h>
-+
- static void intel_pmc_core_release(struct device *dev)
- {
- 	kfree(dev);
-@@ -53,6 +55,13 @@ static int __init pmc_core_platform_init(void)
- 	if (acpi_dev_present("INT33A1", NULL, -1))
- 		return -ENODEV;
- 
-+	/*
-+	 * Skip forcefully attaching the device for VMs. Make an exception for
-+	 * Xen dom0, which does have full hardware access.
-+	 */
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR) && !xen_initial_domain())
-+		return -ENODEV;
-+
- 	if (!x86_match_cpu(intel_pmc_core_platform_ids))
- 		return -ENODEV;
- 
+ 	pm_runtime_dont_use_autosuspend(&pdev->dev);
+ 	pm_runtime_put_sync(&pdev->dev);
++	flush_work(&priv->qos_work);
+ 	pm_runtime_disable(&pdev->dev);
+ 	serial8250_unregister_port(priv->line);
+ 	cpu_latency_qos_remove_request(&priv->pm_qos_request);
 -- 
 2.35.1
 
