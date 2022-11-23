@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A37EC6355CE
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B500C6356A2
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237480AbiKWJXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:23:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36442 "EHLO
+        id S237776AbiKWJcU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:32:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237490AbiKWJXH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:23:07 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D56B10B426
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:15 -0800 (PST)
+        with ESMTP id S237739AbiKWJbY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 120058E2B8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:30:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DCF80CE20EC
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99F87C433D6;
-        Wed, 23 Nov 2022 09:22:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFDB0B81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:30:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF536C43470;
+        Wed, 23 Nov 2022 09:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195332;
-        bh=VeoP0g8tyA4ZnHPJJjYyta9XXq2o52HhUdVgI9RoFyo=;
+        s=korg; t=1669195842;
+        bh=BwL/lmsgmZ0VIWJ2aV/tfzveO0mqGIsEDhAZ2p/WCN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=quOTqZs9vs5SyWlPYFCJZfgfwQPwint1IF2xyH2DZ5WfLoVY/T+7yBPAtCyB7NAJ8
-         K70XWSSc+Q4DaKfn16qOuQNOXVFDzhl6nwLXFyvLu9abi2S/LBtS5AEB3TfHiGoddV
-         3e55RAVsQmTGvQoSBgZNB7wXY1NeNXywDWZrIV3I=
+        b=FbidBKrTRrVUwfldMaQ4zCXF19Hyzp9dTNXJVTO5a6YwZ4iv2vADd7PpZf5aYyHSf
+         IAJJYgk7JntkmmxHHTsPw427/uPdcp8nigNIXzEXV9SjBQD6RttcZECsKM6lsWMlef
+         +EjUzIXbzxpcgQ3eFIKphbmKDix1UCl++khXR6w0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Haibo Chen <haibo.chen@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 027/149] mmc: sdhci-esdhc-imx: use the correct host caps for MMC_CAP_8_BIT_DATA
+Subject: [PATCH 5.15 047/181] ARM: at91: pm: avoid soft resetting AC DLL
 Date:   Wed, 23 Nov 2022 09:50:10 +0100
-Message-Id: <20221123084558.988282811@linuxfoundation.org>
+Message-Id: <20221123084604.402250668@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit f002f45a00ee14214d96b18b9a555fe2c56afb20 ]
+[ Upstream commit cef8cdc0d0e7c701fe4dcfba4ed3fd25d28a6020 ]
 
-MMC_CAP_8_BIT_DATA belongs to struct mmc_host, not struct sdhci_host.
-So correct it here.
+Do not soft reset AC DLL as controller is buggy and this operation my
+introduce glitches in the controller leading to undefined behavior.
 
-Fixes: 1ed5c3b22fc7 ("mmc: sdhci-esdhc-imx: Propagate ESDHC_FLAG_HS400* only on 8bit bus")
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Cc: stable@vger.kernel.org
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/1667893503-20583-1-git-send-email-haibo.chen@nxp.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: f0bbf17958e8 ("ARM: at91: pm: add self-refresh support for sama7g5")
+Depends-on: a02875c4cbd6 ("ARM: at91: pm: fix self-refresh for sama7g5")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20221026124114.985876-2-claudiu.beznea@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-esdhc-imx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/mach-at91/pm_suspend.S | 7 ++++++-
+ include/soc/at91/sama7-ddr.h    | 5 ++++-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
-index 449562122adc..1f1bdd34dd55 100644
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1621,14 +1621,14 @@ static int sdhci_esdhc_imx_probe(struct platform_device *pdev)
- 	if (imx_data->socdata->flags & ESDHC_FLAG_ERR004536)
- 		host->quirks |= SDHCI_QUIRK_BROKEN_ADMA;
+diff --git a/arch/arm/mach-at91/pm_suspend.S b/arch/arm/mach-at91/pm_suspend.S
+index 65cfcc19a936..2f0a370a1309 100644
+--- a/arch/arm/mach-at91/pm_suspend.S
++++ b/arch/arm/mach-at91/pm_suspend.S
+@@ -169,10 +169,15 @@ sr_ena_2:
+ 	cmp	tmp1, #UDDRC_STAT_SELFREF_TYPE_SW
+ 	bne	sr_ena_2
  
--	if (host->caps & MMC_CAP_8_BIT_DATA &&
-+	if (host->mmc->caps & MMC_CAP_8_BIT_DATA &&
- 	    imx_data->socdata->flags & ESDHC_FLAG_HS400)
- 		host->quirks2 |= SDHCI_QUIRK2_CAPS_BIT63_FOR_HS400;
+-	/* Put DDR PHY's DLL in bypass mode for non-backup modes. */
++	/* Disable DX DLLs for non-backup modes. */
+ 	cmp	r7, #AT91_PM_BACKUP
+ 	beq	sr_ena_3
  
- 	if (imx_data->socdata->flags & ESDHC_FLAG_BROKEN_AUTO_CMD23)
- 		host->quirks2 |= SDHCI_QUIRK2_ACMD23_BROKEN;
++	/* Do not soft reset the AC DLL. */
++	ldr	tmp1, [r3, DDR3PHY_ACDLLCR]
++	bic	tmp1, tmp1, DDR3PHY_ACDLLCR_DLLSRST
++	str	tmp1, [r3, DDR3PHY_ACDLLCR]
++
+ 	/* Disable DX DLLs. */
+ 	ldr	tmp1, [r3, #DDR3PHY_DX0DLLCR]
+ 	orr	tmp1, tmp1, #DDR3PHY_DXDLLCR_DLLDIS
+diff --git a/include/soc/at91/sama7-ddr.h b/include/soc/at91/sama7-ddr.h
+index f203f34dba12..cac3f9cd25f9 100644
+--- a/include/soc/at91/sama7-ddr.h
++++ b/include/soc/at91/sama7-ddr.h
+@@ -26,7 +26,10 @@
+ #define	DDR3PHY_PGSR				(0x0C)		/* DDR3PHY PHY General Status Register */
+ #define		DDR3PHY_PGSR_IDONE		(1 << 0)	/* Initialization Done */
  
--	if (host->caps & MMC_CAP_8_BIT_DATA &&
-+	if (host->mmc->caps & MMC_CAP_8_BIT_DATA &&
- 	    imx_data->socdata->flags & ESDHC_FLAG_HS400_ES) {
- 		host->mmc->caps2 |= MMC_CAP2_HS400_ES;
- 		host->mmc_host_ops.hs400_enhanced_strobe =
+-#define DDR3PHY_ACIOCR				(0x24)		/*  DDR3PHY AC I/O Configuration Register */
++#define	DDR3PHY_ACDLLCR				(0x14)		/* DDR3PHY AC DLL Control Register */
++#define		DDR3PHY_ACDLLCR_DLLSRST		(1 << 30)	/* DLL Soft Reset */
++
++#define DDR3PHY_ACIOCR				(0x24)		/* DDR3PHY AC I/O Configuration Register */
+ #define		DDR3PHY_ACIOCR_CSPDD_CS0	(1 << 18)	/* CS#[0] Power Down Driver */
+ #define		DDR3PHY_ACIOCR_CKPDD_CK0	(1 << 8)	/* CK[0] Power Down Driver */
+ #define		DDR3PHY_ACIORC_ACPDD		(1 << 3)	/* AC Power Down Driver */
 -- 
 2.35.1
 
