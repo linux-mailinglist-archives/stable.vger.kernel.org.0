@@ -2,134 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5804A635057
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 07:19:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F3ED63508E
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 07:38:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235805AbiKWGTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 01:19:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57148 "EHLO
+        id S235951AbiKWGh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 01:37:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235973AbiKWGSw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 01:18:52 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EFCD742D3
-        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 22:18:51 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id a1-20020a17090abe0100b00218a7df7789so1013379pjs.5
-        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 22:18:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=xIGvbsztQxk2Wz7XJfRJpr33ohVi2y2QPwaaL8GcFpo=;
-        b=OybZ4T8ffwgglbzhFust0yu+U0YBZqd+GLf7xtVyP8DMdfW3CPAosDpiLDJSj5NVuX
-         P8FPgCA/Ho7d6+wyEVJr8/J402AQHiaywPyFwByLRS1BKBX8T0ltV6p1lqnrUMRXEBw2
-         MCTWZkJbSYIMXq0iogxdyBFuuPafQFVfSsKptUIpvDdMaMGoUxOk29iEgqVtT6R3TZBv
-         WrnrtWSDuW/RVJ6AG0krphSe384Xpp8w70sSWSwVO0xBcbXMEZKVqy+kaRQVxDy7MVYy
-         5meT/h5Xyb+Wk27fTVmQUX2Vq92g2LDomQwhKyNO2sAmdMZ0ug4aDLgweIUz27swzmue
-         ZAzA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=xIGvbsztQxk2Wz7XJfRJpr33ohVi2y2QPwaaL8GcFpo=;
-        b=Y1NfwuDa4mYlVuhRULgVKYEauhsQO9MZ3HtvPcBH2Awl/3UUUifuiAIyvSGciXB6L8
-         clzD0obKkfKPreQufuTWwGP106cvzcEedQqXuDr5frttISIlnqgxeN4yYqfpcwZ0rYpa
-         S/WTGajgS8NBejvXGUm9ldlwlZCTMnLDOKwqSa98yhlkhGxkWaqekFQpQFQkdHOiBQwK
-         M33f8jWP7/IhWrmA480unhqM/ObsPtLKsxnDNCIaTaOsoYZyJSG1rNgXixDsrFcpy40P
-         qBKTv2p10fXjNAM8yFkH3yoFIy2JVAhlDs653TcxaBB8WTpfV89zR0KBnnUxQGkxrq21
-         Bz0A==
-X-Gm-Message-State: ANoB5pmCE4FDc99eB1NGbOiY1ptkFwH4TMuQ1n3rBAT0kjbnAMrX9B9Y
-        VxDAkrTpFrH9DcZdIzW6N4xeS40svjBx9hLP3kk=
-X-Google-Smtp-Source: AA0mqf6e9rXTeUg4w5KIoPk3o0RDD8UOvEwkA3ZKDu+ogtlAKOc2WLsbemPQt6SYwfshrAYFCvwBJw==
-X-Received: by 2002:a17:902:ab08:b0:189:dc3:ee83 with SMTP id ik8-20020a170902ab0800b001890dc3ee83mr18312976plb.58.1669184330661;
-        Tue, 22 Nov 2022 22:18:50 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j15-20020a170903028f00b001754fa42065sm13125780plr.143.2022.11.22.22.18.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Nov 2022 22:18:50 -0800 (PST)
-Message-ID: <637dbb4a.170a0220.ec2b7.4639@mx.google.com>
-Date:   Tue, 22 Nov 2022 22:18:50 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S236080AbiKWGhx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 01:37:53 -0500
+X-Greylist: delayed 171 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 22 Nov 2022 22:37:49 PST
+Received: from mo6-p01-ob.smtp.rzone.de (mo6-p01-ob.smtp.rzone.de [IPv6:2a01:238:400:200::4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BC4F00C
+        for <stable@vger.kernel.org>; Tue, 22 Nov 2022 22:37:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1669185279;
+    s=strato-dkim-0002; d=fpond.eu;
+    h=Subject:References:In-Reply-To:Message-ID:Cc:To:From:Date:Cc:Date:
+    From:Subject:Sender;
+    bh=Q2ku8PZxGwxrMfipwnTd7Em+iNYROIWJ2cEv4fZ1s8g=;
+    b=QrFR/6+6tniaHA3MPzgHTK9czHuTUdINwEBlEXd5MpEeI4Pvthhz3NiMiBdMQpei5E
+    S7zsEAPs1UahH8XEFnxBOwiXEAwuZaXghAyu1s0lrUZit9/dvYK+fO+RSLx7FL/VRO5x
+    sx3NYu5fELVUAZgcrGRTIE2rxPUWRjGsISR4ZI+N/uD+Q4hXttfDMCUJ0pb5yxboy2fD
+    5y85dlIdA4K/ZwnA7AX6oPBwQzspqLwmHhP4quI5I/gVMKIEmirPfrp1cs8cIqc0TX91
+    Y/7NpOmqlQmXw33IhjTVEly2QU1qtZ/7qRYBAFMlgBPRbPxJdIlU8sx/6kTXAD2601ln
+    Ue4Q==
+Authentication-Results: strato.com;
+    dkim=none
+X-RZG-AUTH: ":OWANVUa4dPFUgKR/3dpvnYP0Np73amq+g13rqGzvv3qxio1R8fCv/x64jlM="
+X-RZG-CLASS-ID: mo00
+Received: from oxapp06-05.back.ox.d0m.de
+    by smtp-ox.front (RZmta 48.2.1 AUTH)
+    with ESMTPSA id y28384yAN6Yd1A0
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
+        (Client did not present a certificate);
+    Wed, 23 Nov 2022 07:34:39 +0100 (CET)
+Date:   Wed, 23 Nov 2022 07:34:39 +0100 (CET)
+From:   Ulrich Hecht <uli@fpond.eu>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Letu Ren <fantasquex@gmail.com>, Helge Deller <deller@gmx.de>,
+        Sasha Levin <sashal@kernel.org>,
+        "pavel@denx.de" <pavel@denx.de>
+Message-ID: <970394644.1257305.1669185279738@webmail.strato.com>
+In-Reply-To: <20220913140342.308723271@linuxfoundation.org>
+References: <20220913140342.228397194@linuxfoundation.org>
+ <20220913140342.308723271@linuxfoundation.org>
+Subject: Re: [PATCH 4.9 01/42] fbdev: fb_pm2fb: Avoid potential divide by
+ zero error
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.155-136-gbe7d64a2c2ab
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 baseline: 139 runs,
- 1 regressions (v5.10.155-136-gbe7d64a2c2ab)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+Importance: Normal
+X-Mailer: Open-Xchange Mailer v7.10.6-Rev30
+X-Originating-Client: open-xchange-appsuite
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 139 runs, 1 regressions (v5.10.155-136-gbe7d=
-64a2c2ab)
 
-Regressions Summary
--------------------
+> On 09/13/2022 4:07 PM CEST Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> 
+>  
+> From: Letu Ren <fantasquex@gmail.com>
+> 
+> commit 19f953e7435644b81332dd632ba1b2d80b1e37af upstream.
+> 
+> In `do_fb_ioctl()` of fbmem.c, if cmd is FBIOPUT_VSCREENINFO, var will be
+> copied from user, then go through `fb_set_var()` and
+> `info->fbops->fb_check_var()` which could may be `pm2fb_check_var()`.
+> Along the path, `var->pixclock` won't be modified. This function checks
+> whether reciprocal of `var->pixclock` is too high. If `var->pixclock` is
+> zero, there will be a divide by zero error. So, it is necessary to check
+> whether denominator is zero to avoid crash. As this bug is found by
+> Syzkaller, logs are listed below.
+> 
+> divide error in pm2fb_check_var
+> Call Trace:
+>  <TASK>
+>  fb_set_var+0x367/0xeb0 drivers/video/fbdev/core/fbmem.c:1015
+>  do_fb_ioctl+0x234/0x670 drivers/video/fbdev/core/fbmem.c:1110
+>  fb_ioctl+0xdd/0x130 drivers/video/fbdev/core/fbmem.c:1189
+> 
+> Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+> Signed-off-by: Letu Ren <fantasquex@gmail.com>
+> Signed-off-by: Helge Deller <deller@gmx.de>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/video/fbdev/pm2fb.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/video/fbdev/pm2fb.c b/drivers/video/fbdev/pm2fb.c
+> index 9b32b9fc44a5c..50b569d047b10 100644
+> --- a/drivers/video/fbdev/pm2fb.c
+> +++ b/drivers/video/fbdev/pm2fb.c
+> @@ -619,6 +619,11 @@ static int pm2fb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+>  		return -EINVAL;
+>  	}
+>  
+> +	if (!var->pixclock) {
+> +		DPRINTK("pixclock is zero\n");
+> +		return -EINVAL;
+> +	}
+> +
+>  	if (PICOS2KHZ(var->pixclock) > PM2_MAX_PIXCLOCK) {
+>  		DPRINTK("pixclock too high (%ldKHz)\n",
+>  			PICOS2KHZ(var->pixclock));
+> -- 
+> 2.35.1
 
-platform             | arch | lab        | compiler | defconfig          | =
-regressions
----------------------+------+------------+----------+--------------------+-=
------------
-sun8i-h3-orangepi-pc | arm  | lab-clabbe | gcc-10   | multi_v7_defconfig | =
-1          =
+This is a duplicate, the same patch has already been applied in 4.9.327 (0f1174f4972ea9fad6becf8881d71adca8e9ca91), so the above snippet of code is now in there twice.
 
+Doesn't make a difference in functionality in this case, I just happened to notice it when reviewing backports from 4.9 for the CIP 4.4-stable tree.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.155-136-gbe7d64a2c2ab/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.155-136-gbe7d64a2c2ab
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      be7d64a2c2abfbef12e79467e85ff10cf01675e7 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab        | compiler | defconfig          | =
-regressions
----------------------+------+------------+----------+--------------------+-=
------------
-sun8i-h3-orangepi-pc | arm  | lab-clabbe | gcc-10   | multi_v7_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/637d89252b1dfe55c72abd6f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.155=
--136-gbe7d64a2c2ab/arm/multi_v7_defconfig/gcc-10/lab-clabbe/baseline-sun8i-=
-h3-orangepi-pc.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.155=
--136-gbe7d64a2c2ab/arm/multi_v7_defconfig/gcc-10/lab-clabbe/baseline-sun8i-=
-h3-orangepi-pc.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221107.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/637d89252b1dfe55c72ab=
-d70
-        new failure (last pass: v5.10.155-137-gb87a9fc4c2e49) =
-
- =20
+CU
+Uli
