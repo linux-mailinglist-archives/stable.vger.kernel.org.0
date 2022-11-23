@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 051C163590E
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4623763543C
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235946AbiKWKGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:06:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60944 "EHLO
+        id S236985AbiKWJDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:03:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235979AbiKWKFq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:05:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD9B125213
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:12 -0800 (PST)
+        with ESMTP id S236994AbiKWJCy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:02:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DDE56CA3E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:02:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F363C61B60
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02FCDC433C1;
-        Wed, 23 Nov 2022 09:56:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C91F8B81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:02:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195FBC433D7;
+        Wed, 23 Nov 2022 09:02:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197371;
-        bh=QFGnn7q7ymSY6xi5+Jbc9Eit6+uYnFqG2uPeexq/A+k=;
+        s=korg; t=1669194170;
+        bh=f+UDXZM143Nq8HB9IFOgHap79D8szZHdFvH9tnI7k0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ss4D3/brTF/U59UAr5tFAPC55dyNG/5D76mcQAp/zPl1jnJ4m6/kBCx76HMzld8mV
-         cF8qK5sks5U3nvnuMe+f5yYMp16LlJ5n3CJdDGD8T5lHlbEu8jJvRBV/XoYOHsqoGm
-         wJxkL6RkbbNTSJTlJ2eEOxk57wjxjQNYK+GAPkh8=
+        b=gz8Lu9NTSOOUOlHG+6sxx4Ct2w3VaCbZ9F12+OdW8SbjFOL9F+KOrm4hZR01LQZPZ
+         I97OrlkN8va57zBiw2g/jgDCPEFXBQ8VywOD2MTMpXhii+FtWHCaiFA2ohJCtzmXoB
+         zlc1XMvi/I/+P/iqsXczmyVKPyCrZqmaTgif6JGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Davide Tronchin <davide.tronchin.94@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 6.0 235/314] USB: serial: option: remove old LARA-R6 PID
-Date:   Wed, 23 Nov 2022 09:51:20 +0100
-Message-Id: <20221123084636.126157978@linuxfoundation.org>
+        syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 4.14 84/88] 9p/trans_fd: always use O_NONBLOCK read/write
+Date:   Wed, 23 Nov 2022 09:51:21 +0100
+Message-Id: <20221123084551.593671952@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Tronchin <davide.tronchin.94@gmail.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 2ec106b96afc19698ff934323b633c0729d4c7f8 upstream.
+commit ef575281b21e9a34dfae544a187c6aac2ae424a9 upstream.
 
-Remove the UBLOX_PRODUCT_R6XX 0x90fa association since LARA-R6 00B final
-product uses a new USB composition with different PID. 0x90fa PID used
-only by LARA-R6 internal prototypes.
+syzbot is reporting hung task at p9_fd_close() [1], for p9_mux_poll_stop()
+ from p9_conn_destroy() from p9_fd_close() is failing to interrupt already
+started kernel_read() from p9_fd_read() from p9_read_work() and/or
+kernel_write() from p9_fd_write() from p9_write_work() requests.
 
-Move 0x90fa PID directly in the option_ids array since used by other
-Qualcomm based modem vendors as pointed out in:
+Since p9_socket_open() sets O_NONBLOCK flag, p9_mux_poll_stop() does not
+need to interrupt kernel_read()/kernel_write(). However, since p9_fd_open()
+does not set O_NONBLOCK flag, but pipe blocks unless signal is pending,
+p9_mux_poll_stop() needs to interrupt kernel_read()/kernel_write() when
+the file descriptor refers to a pipe. In other words, pipe file descriptor
+needs to be handled as if socket file descriptor.
 
-  https://lore.kernel.org/all/6572c4e6-d8bc-b8d3-4396-d879e4e76338@gmail.com
+We somehow need to interrupt kernel_read()/kernel_write() on pipes.
 
-Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+A minimal change, which this patch is doing, is to set O_NONBLOCK flag
+ from p9_fd_open(), for O_NONBLOCK flag does not affect reading/writing
+of regular files. But this approach changes O_NONBLOCK flag on userspace-
+supplied file descriptors (which might break userspace programs), and
+O_NONBLOCK flag could be changed by userspace. It would be possible to set
+O_NONBLOCK flag every time p9_fd_read()/p9_fd_write() is invoked, but still
+remains small race window for clearing O_NONBLOCK flag.
+
+If we don't want to manipulate O_NONBLOCK flag, we might be able to
+surround kernel_read()/kernel_write() with set_thread_flag(TIF_SIGPENDING)
+and recalc_sigpending(). Since p9_read_work()/p9_write_work() works are
+processed by kernel threads which process global system_wq workqueue,
+signals could not be delivered from remote threads when p9_mux_poll_stop()
+ from p9_conn_destroy() from p9_fd_close() is called. Therefore, calling
+set_thread_flag(TIF_SIGPENDING)/recalc_sigpending() every time would be
+needed if we count on signals for making kernel_read()/kernel_write()
+non-blocking.
+
+Link: https://lkml.kernel.org/r/345de429-a88b-7097-d177-adecf9fed342@I-love.SAKURA.ne.jp
+Link: https://syzkaller.appspot.com/bug?extid=8b41a1365f1106fd0f33 [1]
+Reported-by: syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>
+Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+[Dominique: add comment at Christian's suggestion]
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/9p/trans_fd.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -240,7 +240,6 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_UC15			0x9090
- /* These u-blox products use Qualcomm's vendor ID */
- #define UBLOX_PRODUCT_R410M			0x90b2
--#define UBLOX_PRODUCT_R6XX			0x90fa
- /* These Yuga products use Qualcomm's vendor ID */
- #define YUGA_PRODUCT_CLM920_NC5			0x9625
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -834,11 +834,14 @@ static int p9_fd_open(struct p9_client *
+ 		goto out_free_ts;
+ 	if (!(ts->rd->f_mode & FMODE_READ))
+ 		goto out_put_rd;
++	/* prevent workers from hanging on IO when fd is a pipe */
++	ts->rd->f_flags |= O_NONBLOCK;
+ 	ts->wr = fget(wfd);
+ 	if (!ts->wr)
+ 		goto out_put_rd;
+ 	if (!(ts->wr->f_mode & FMODE_WRITE))
+ 		goto out_put_wr;
++	ts->wr->f_flags |= O_NONBLOCK;
  
-@@ -1127,7 +1126,7 @@ static const struct usb_device_id option
- 	/* u-blox products using Qualcomm vendor ID */
- 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
- 	  .driver_info = RSVD(1) | RSVD(3) },
--	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R6XX),
-+	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x90fa),
- 	  .driver_info = RSVD(3) },
- 	/* Quectel products using Quectel vendor ID */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0xff, 0xff),
+ 	client->trans = ts;
+ 	client->status = Connected;
 
 
