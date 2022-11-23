@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B26E26358CE
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:04:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D30363574C
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237193AbiKWKDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:03:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57268 "EHLO
+        id S237857AbiKWJiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:38:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237444AbiKWKCN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:02:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27BCA11E808
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:54:25 -0800 (PST)
+        with ESMTP id S237846AbiKWJhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:51 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 984E829374
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7A4D61B5F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:54:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CBE8C433C1;
-        Wed, 23 Nov 2022 09:54:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 898E4CE20E5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FD43C433C1;
+        Wed, 23 Nov 2022 09:35:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197264;
-        bh=/3MmBgNPkEOeL6Rxo23TuvoJCvk1cr0WYMXS4xHgAPE=;
+        s=korg; t=1669196154;
+        bh=QFGnn7q7ymSY6xi5+Jbc9Eit6+uYnFqG2uPeexq/A+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wFs3NWDAAXgitSHe2JLtEaQLfmMx/nl18cYxk/BSelBRBF5ZqgcKj8RSARK41gYYS
-         ves53A8vuJtwF0LUoZj9hA9Kk0BMqxRyMNwiRlSClRTSEYG+zbzO+wf65p9X4C5tzr
-         lTVTwrhYy5qgVvuA7lCW9CIxFygPM7hbgcV4nZ/8=
+        b=zWbkdSIAT0uDSFUjKfUAxbReSDtgGccPBFQpiz5XXbEGBtgDPB6YQ5JXcWMJ7tbAM
+         oXMnMUhbRcdCrdqMm3n8i7WWiPz+JXEjvDfjciGRgzbuclkFJIIbnaahJ57UO/mg3/
+         El7v0Eb9lfgg2qphQV3zwspMSu6dwXXMSYjZ6E28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.0 245/314] iio: adc: at91_adc: fix possible memory leak in at91_adc_allocate_trigger()
+        patches@lists.linux.dev,
+        Davide Tronchin <davide.tronchin.94@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 127/181] USB: serial: option: remove old LARA-R6 PID
 Date:   Wed, 23 Nov 2022 09:51:30 +0100
-Message-Id: <20221123084636.598414244@linuxfoundation.org>
+Message-Id: <20221123084607.858251533@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Davide Tronchin <davide.tronchin.94@gmail.com>
 
-commit 65f20301607d07ee279b0804d11a05a62a6c1a1c upstream.
+commit 2ec106b96afc19698ff934323b633c0729d4c7f8 upstream.
 
-If iio_trigger_register() returns error, it should call iio_trigger_free()
-to give up the reference that hold in iio_trigger_alloc(), so that it can
-call iio_trig_release() to free memory when the refcount hit to 0.
+Remove the UBLOX_PRODUCT_R6XX 0x90fa association since LARA-R6 00B final
+product uses a new USB composition with different PID. 0x90fa PID used
+only by LARA-R6 internal prototypes.
 
-Fixes: 0e589d5fb317 ("ARM: AT91: IIO: Add AT91 ADC driver.")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221024084511.815096-1-yangyingliang@huawei.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Move 0x90fa PID directly in the option_ids array since used by other
+Qualcomm based modem vendors as pointed out in:
+
+  https://lore.kernel.org/all/6572c4e6-d8bc-b8d3-4396-d879e4e76338@gmail.com
+
+Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/at91_adc.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/iio/adc/at91_adc.c
-+++ b/drivers/iio/adc/at91_adc.c
-@@ -634,8 +634,10 @@ static struct iio_trigger *at91_adc_allo
- 	trig->ops = &at91_adc_trigger_ops;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -240,7 +240,6 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_UC15			0x9090
+ /* These u-blox products use Qualcomm's vendor ID */
+ #define UBLOX_PRODUCT_R410M			0x90b2
+-#define UBLOX_PRODUCT_R6XX			0x90fa
+ /* These Yuga products use Qualcomm's vendor ID */
+ #define YUGA_PRODUCT_CLM920_NC5			0x9625
  
- 	ret = iio_trigger_register(trig);
--	if (ret)
-+	if (ret) {
-+		iio_trigger_free(trig);
- 		return NULL;
-+	}
- 
- 	return trig;
- }
+@@ -1127,7 +1126,7 @@ static const struct usb_device_id option
+ 	/* u-blox products using Qualcomm vendor ID */
+ 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
+ 	  .driver_info = RSVD(1) | RSVD(3) },
+-	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R6XX),
++	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x90fa),
+ 	  .driver_info = RSVD(3) },
+ 	/* Quectel products using Quectel vendor ID */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0xff, 0xff),
 
 
