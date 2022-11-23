@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F84863587E
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:58:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A11C36355A6
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235968AbiKWJ6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:58:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52238 "EHLO
+        id S237448AbiKWJWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:22:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237029AbiKWJ5u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:57:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78DDF2BD5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:17 -0800 (PST)
+        with ESMTP id S237469AbiKWJVT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:21:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7590510AD1F
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:21:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B33CB81EF0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E93D5C433C1;
-        Wed, 23 Nov 2022 09:52:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2986AB81EF5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:21:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CEB9C433C1;
+        Wed, 23 Nov 2022 09:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197135;
-        bh=45mOl9QTSmGK5vOy62FjHPbIfzUM1gtX8bzEW+sl62w=;
+        s=korg; t=1669195272;
+        bh=L+qlthEoiwBqpgSREsk3W+lXkr265keGeaI0PJMrYzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oA0Oi9/ZMhndAf7l86WznsdfI4SR+jOMkT+FMg0wT78z/Fvkb6K+6+aMxGTRyHrH9
-         ugWLRIDVhhOkmHD2FjxFNhhMWO6lUOhvPJu+9m1xvyGk3Uo4SAy8w+kAK5kU924S8l
-         mFvWI7Y50VrZDnR7T0+h6fzbO0x6JipstnTrdZCA=
+        b=P9NNAhGvpkoTkEtll2TO4D8ipg8R2hagsIrfXzJLpSt0Zp5MshsaDAnO9YHq4rdS6
+         z61M8g81D2mxMFHjBvj5P5IAJDwpYxJVB1mhKsZK4rKwEE6zrw9s2uddwod2cLrPM9
+         l+SsZsidthnRyN9W8IM9D8ukFFH5PSDYUKcJkNoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vlad Buslov <vladbu@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 176/314] bridge: switchdev: Fix memory leaks when changing VLAN protocol
+Subject: [PATCH 5.10 038/149] serial: 8250_omap: remove wait loop from Errata i202 workaround
 Date:   Wed, 23 Nov 2022 09:50:21 +0100
-Message-Id: <20221123084633.551911600@linuxfoundation.org>
+Message-Id: <20221123084559.355653104@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,118 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-[ Upstream commit 9d45921ee4cb364910097e7d1b7558559c2f9fd2 ]
+[ Upstream commit e828e56684d61b17317e0cfdef83791fa61cb76b ]
 
-The bridge driver can offload VLANs to the underlying hardware either
-via switchdev or the 8021q driver. When the former is used, the VLAN is
-marked in the bridge driver with the 'BR_VLFLAG_ADDED_BY_SWITCHDEV'
-private flag.
+We were occasionally seeing the "Errata i202: timedout" on an AM335x
+board when repeatedly opening and closing a UART connected to an active
+sender. As new input may arrive at any time, it is possible to miss the
+"RX FIFO empty" condition, forcing the loop to wait until it times out.
 
-To avoid the memory leaks mentioned in the cited commit, the bridge
-driver will try to delete a VLAN via the 8021q driver if the VLAN is not
-marked with the previously mentioned flag.
+Nothing in the i202 Advisory states that such a wait is even necessary;
+other FIFO clear functions like serial8250_clear_fifos() do not wait
+either. For this reason, it seems safe to remove the wait, fixing the
+mentioned issue.
 
-When the VLAN protocol of the bridge changes, switchdev drivers are
-notified via the 'SWITCHDEV_ATTR_ID_BRIDGE_VLAN_PROTOCOL' attribute, but
-the 8021q driver is also called to add the existing VLANs with the new
-protocol and delete them with the old protocol.
-
-In case the VLANs were offloaded via switchdev, the above behavior is
-both redundant and buggy. Redundant because the VLANs are already
-programmed in hardware and drivers that support VLAN protocol change
-(currently only mlx5) change the protocol upon the switchdev attribute
-notification. Buggy because the 8021q driver is called despite these
-VLANs being marked with 'BR_VLFLAG_ADDED_BY_SWITCHDEV'. This leads to
-memory leaks [1] when the VLANs are deleted.
-
-Fix by not calling the 8021q driver for VLANs that were already
-programmed via switchdev.
-
-[1]
-unreferenced object 0xffff8881f6771200 (size 256):
-  comm "ip", pid 446855, jiffies 4298238841 (age 55.240s)
-  hex dump (first 32 bytes):
-    00 00 7f 0e 83 88 ff ff 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000012819ac>] vlan_vid_add+0x437/0x750
-    [<00000000f2281fad>] __br_vlan_set_proto+0x289/0x920
-    [<000000000632b56f>] br_changelink+0x3d6/0x13f0
-    [<0000000089d25f04>] __rtnl_newlink+0x8ae/0x14c0
-    [<00000000f6276baf>] rtnl_newlink+0x5f/0x90
-    [<00000000746dc902>] rtnetlink_rcv_msg+0x336/0xa00
-    [<000000001c2241c0>] netlink_rcv_skb+0x11d/0x340
-    [<0000000010588814>] netlink_unicast+0x438/0x710
-    [<00000000e1a4cd5c>] netlink_sendmsg+0x788/0xc40
-    [<00000000e8992d4e>] sock_sendmsg+0xb0/0xe0
-    [<00000000621b8f91>] ____sys_sendmsg+0x4ff/0x6d0
-    [<000000000ea26996>] ___sys_sendmsg+0x12e/0x1b0
-    [<00000000684f7e25>] __sys_sendmsg+0xab/0x130
-    [<000000004538b104>] do_syscall_64+0x3d/0x90
-    [<0000000091ed9678>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Fixes: 279737939a81 ("net: bridge: Fix VLANs memory leak")
-Reported-by: Vlad Buslov <vladbu@nvidia.com>
-Tested-by: Vlad Buslov <vladbu@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-Link: https://lore.kernel.org/r/20221114084509.860831-1-idosch@nvidia.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 61929cf0169d ("tty: serial: Add 8250-core based omap driver")
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Link: https://lore.kernel.org/r/20221013112339.2540767-1-matthias.schiffer@ew.tq-group.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_vlan.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_omap.c | 17 -----------------
+ 1 file changed, 17 deletions(-)
 
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 6e53dc991409..9ffd40b8270c 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -959,6 +959,8 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto,
- 	list_for_each_entry(p, &br->port_list, list) {
- 		vg = nbp_vlan_group(p);
- 		list_for_each_entry(vlan, &vg->vlan_list, vlist) {
-+			if (vlan->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
-+				continue;
- 			err = vlan_vid_add(p->dev, proto, vlan->vid);
- 			if (err)
- 				goto err_filt;
-@@ -973,8 +975,11 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto,
- 	/* Delete VLANs for the old proto from the device filter. */
- 	list_for_each_entry(p, &br->port_list, list) {
- 		vg = nbp_vlan_group(p);
--		list_for_each_entry(vlan, &vg->vlan_list, vlist)
-+		list_for_each_entry(vlan, &vg->vlan_list, vlist) {
-+			if (vlan->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
-+				continue;
- 			vlan_vid_del(p->dev, oldproto, vlan->vid);
-+		}
- 	}
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index 7c7cfd6d48d8..655553a3c78a 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -211,27 +211,10 @@ static void omap8250_set_mctrl(struct uart_port *port, unsigned int mctrl)
+ static void omap_8250_mdr1_errataset(struct uart_8250_port *up,
+ 				     struct omap8250_priv *priv)
+ {
+-	u8 timeout = 255;
+-
+ 	serial_out(up, UART_OMAP_MDR1, priv->mdr1);
+ 	udelay(2);
+ 	serial_out(up, UART_FCR, up->fcr | UART_FCR_CLEAR_XMIT |
+ 			UART_FCR_CLEAR_RCVR);
+-	/*
+-	 * Wait for FIFO to empty: when empty, RX_FIFO_E bit is 0 and
+-	 * TX_FIFO_E bit is 1.
+-	 */
+-	while (UART_LSR_THRE != (serial_in(up, UART_LSR) &
+-				(UART_LSR_THRE | UART_LSR_DR))) {
+-		timeout--;
+-		if (!timeout) {
+-			/* Should *never* happen. we warn and carry on */
+-			dev_crit(up->port.dev, "Errata i202: timedout %x\n",
+-				 serial_in(up, UART_LSR));
+-			break;
+-		}
+-		udelay(1);
+-	}
+ }
  
- 	return 0;
-@@ -983,13 +988,19 @@ int __br_vlan_set_proto(struct net_bridge *br, __be16 proto,
- 	attr.u.vlan_protocol = ntohs(oldproto);
- 	switchdev_port_attr_set(br->dev, &attr, NULL);
- 
--	list_for_each_entry_continue_reverse(vlan, &vg->vlan_list, vlist)
-+	list_for_each_entry_continue_reverse(vlan, &vg->vlan_list, vlist) {
-+		if (vlan->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
-+			continue;
- 		vlan_vid_del(p->dev, proto, vlan->vid);
-+	}
- 
- 	list_for_each_entry_continue_reverse(p, &br->port_list, list) {
- 		vg = nbp_vlan_group(p);
--		list_for_each_entry(vlan, &vg->vlan_list, vlist)
-+		list_for_each_entry(vlan, &vg->vlan_list, vlist) {
-+			if (vlan->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
-+				continue;
- 			vlan_vid_del(p->dev, proto, vlan->vid);
-+		}
- 	}
- 
- 	return err;
+ static void omap_8250_get_divisor(struct uart_port *port, unsigned int baud,
 -- 
 2.35.1
 
