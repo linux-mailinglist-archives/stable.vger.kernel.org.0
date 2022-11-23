@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05EDC635729
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB92E6358E9
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:05:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237614AbiKWJjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:39:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57226 "EHLO
+        id S236983AbiKWKEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:04:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238038AbiKWJij (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:38:39 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 463B51121D6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:36:23 -0800 (PST)
+        with ESMTP id S237224AbiKWKD5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:03:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2196910EA2A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:55:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0D9ACCE20F3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:36:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5964C433D6;
-        Wed, 23 Nov 2022 09:36:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3DF0B81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:55:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 006A5C433C1;
+        Wed, 23 Nov 2022 09:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196176;
-        bh=UyLaojOULzpRt/kL6TcbCknduzXuAjXyN9bB22h18Qw=;
+        s=korg; t=1669197317;
+        bh=lejnm8TqQXBQTMKiPPIqZ1GH9/2rkExeSV5QCBmCHjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wZ3qXkedyLmHwNjs26sysxvVs7TdFgwFCNNPl4b2fvafg6aJ9qOJIVl7ZKyi2BN0n
-         jX/KbuKwMdkLNk5glK7Hg7awNk1C4B6T0RWRA9kyWbX/MxJIruD3dfzopIo2genFGS
-         qDsN/wD9g7J6qe83vt2tWmRPiNlMCNlNC4dVFomU=
+        b=OHKRwH8gZ1sbcMhfUbh05NWnZmxadldNlP2DKVrfUuSyeJbDIw4fqsYJUmzdzBSgL
+         THRNTEARupUme4OhcN1n7lxRdj3wCoX6enX8sGm4YGyS5VI4OvQqwNpQNWk4JQ3kLY
+         Npaw8XaLUPhjDhib5Ei2ufJ85VQv5fAdmh0DC2R0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Srikanth Thokala <srikanth.thokala@intel.com>,
-        Aman Kumar <aman.kumar@intel.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.15 141/181] serial: 8250: Fall back to non-DMA Rx if IIR_RDI occurs
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.0 259/314] io_uring: fix multishot recv request leaks
 Date:   Wed, 23 Nov 2022 09:51:44 +0100
-Message-Id: <20221123084608.428172565@linuxfoundation.org>
+Message-Id: <20221123084637.257517848@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +52,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit a931237cbea256aff13bb403da13a97b2d1605d9 upstream.
+commit 100d6b17c06ee4c2b42fdddf0fe4ab77c86eb77e upstream.
 
-DW UART sometimes triggers IIR_RDI during DMA Rx when IIR_RX_TIMEOUT
-should have been triggered instead. Since IIR_RDI has higher priority
-than IIR_RX_TIMEOUT, this causes the Rx to hang into interrupt loop.
-The problem seems to occur at least with some combinations of
-small-sized transfers (I've reproduced the problem on Elkhart Lake PSE
-UARTs).
+Having REQ_F_POLLED set doesn't guarantee that the request is
+executed as a multishot from the polling path. Fortunately for us, if
+the code thinks it's multishot issue when it's not, it can only ask to
+skip completion so leaking the request. Use issue_flags to mark
+multipoll issues.
 
-If there's already an on-going Rx DMA and IIR_RDI triggers, fall
-graciously back to non-DMA Rx. That is, behave as if IIR_RX_TIMEOUT had
-occurred.
-
-8250_omap already considers IIR_RDI similar to this change so its
-nothing unheard of.
-
-Fixes: 75df022b5f89 ("serial: 8250_dma: Fix RX handling")
-Cc: <stable@vger.kernel.org>
-Co-developed-by: Srikanth Thokala <srikanth.thokala@intel.com>
-Signed-off-by: Srikanth Thokala <srikanth.thokala@intel.com>
-Co-developed-by: Aman Kumar <aman.kumar@intel.com>
-Signed-off-by: Aman Kumar <aman.kumar@intel.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221108121952.5497-2-ilpo.jarvinen@linux.intel.com
+Cc: stable@vger.kernel.org
+Fixes: 1300ebb20286b ("io_uring: multishot recv")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/37762040ba9c52b81b92a2f5ebfd4ee484088951.1668710222.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ io_uring/net.c |   16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1885,6 +1885,10 @@ EXPORT_SYMBOL_GPL(serial8250_modem_statu
- static bool handle_rx_dma(struct uart_8250_port *up, unsigned int iir)
+--- a/io_uring/net.c
++++ b/io_uring/net.c
+@@ -66,8 +66,6 @@ struct io_sr_msg {
+ 	struct io_kiocb 		*notif;
+ };
+ 
+-#define IO_APOLL_MULTI_POLLED (REQ_F_APOLL_MULTISHOT | REQ_F_POLLED)
+-
+ int io_shutdown_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
  {
- 	switch (iir & 0x3f) {
-+	case UART_IIR_RDI:
-+		if (!up->dma->rx_running)
-+			break;
-+		fallthrough;
- 	case UART_IIR_RX_TIMEOUT:
- 		serial8250_rx_dma_flush(up);
- 		fallthrough;
+ 	struct io_shutdown *shutdown = io_kiocb_to_cmd(req, struct io_shutdown);
+@@ -558,7 +556,8 @@ static inline void io_recv_prep_retry(st
+  * again (for multishot).
+  */
+ static inline bool io_recv_finish(struct io_kiocb *req, int *ret,
+-				  unsigned int cflags, bool mshot_finished)
++				  unsigned int cflags, bool mshot_finished,
++				  unsigned issue_flags)
+ {
+ 	if (!(req->flags & REQ_F_APOLL_MULTISHOT)) {
+ 		io_req_set_res(req, *ret, cflags);
+@@ -581,7 +580,7 @@ static inline bool io_recv_finish(struct
+ 
+ 	io_req_set_res(req, *ret, cflags);
+ 
+-	if (req->flags & REQ_F_POLLED)
++	if (issue_flags & IO_URING_F_MULTISHOT)
+ 		*ret = IOU_STOP_MULTISHOT;
+ 	else
+ 		*ret = IOU_OK;
+@@ -740,8 +739,7 @@ retry_multishot:
+ 	if (ret < min_ret) {
+ 		if (ret == -EAGAIN && force_nonblock) {
+ 			ret = io_setup_async_msg(req, kmsg, issue_flags);
+-			if (ret == -EAGAIN && (req->flags & IO_APOLL_MULTI_POLLED) ==
+-					       IO_APOLL_MULTI_POLLED) {
++			if (ret == -EAGAIN && (issue_flags & IO_URING_F_MULTISHOT)) {
+ 				io_kbuf_recycle(req, issue_flags);
+ 				return IOU_ISSUE_SKIP_COMPLETE;
+ 			}
+@@ -770,7 +768,7 @@ retry_multishot:
+ 	if (kmsg->msg.msg_inq)
+ 		cflags |= IORING_CQE_F_SOCK_NONEMPTY;
+ 
+-	if (!io_recv_finish(req, &ret, cflags, mshot_finished))
++	if (!io_recv_finish(req, &ret, cflags, mshot_finished, issue_flags))
+ 		goto retry_multishot;
+ 
+ 	if (mshot_finished) {
+@@ -836,7 +834,7 @@ retry_multishot:
+ 	ret = sock_recvmsg(sock, &msg, flags);
+ 	if (ret < min_ret) {
+ 		if (ret == -EAGAIN && force_nonblock) {
+-			if ((req->flags & IO_APOLL_MULTI_POLLED) == IO_APOLL_MULTI_POLLED) {
++			if (issue_flags & IO_URING_F_MULTISHOT) {
+ 				io_kbuf_recycle(req, issue_flags);
+ 				return IOU_ISSUE_SKIP_COMPLETE;
+ 			}
+@@ -869,7 +867,7 @@ out_free:
+ 	if (msg.msg_inq)
+ 		cflags |= IORING_CQE_F_SOCK_NONEMPTY;
+ 
+-	if (!io_recv_finish(req, &ret, cflags, ret <= 0))
++	if (!io_recv_finish(req, &ret, cflags, ret <= 0, issue_flags))
+ 		goto retry_multishot;
+ 
+ 	return ret;
 
 
