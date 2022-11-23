@@ -2,87 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2972635484
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF3CD6356D9
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:37:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237066AbiKWJG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:06:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44482 "EHLO
+        id S237942AbiKWJfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:35:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237065AbiKWJGU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:06:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA26105A9E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:03 -0800 (PST)
+        with ESMTP id S237715AbiKWJe7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:34:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1CDB12604
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:32:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21C1DB81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB8BC433D6;
-        Wed, 23 Nov 2022 09:06:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E16661B68
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:32:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 715DDC433D6;
+        Wed, 23 Nov 2022 09:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194360;
-        bh=wuJWHiB/xj696LBlF+zyBT8fZqHcArXBnnn52U7FBZk=;
+        s=korg; t=1669195960;
+        bh=lSh7dWGbiTy18SerLpyw2sdeqDmywC414TJRby9OZEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IpkqAxnB1njH4yXW+uZKTr8Ekr+6bxr5SeZwBnhytzRyiHHRI5XpyD7y6UNiBRD33
-         QeNp9A4IFZsPEQLSYWXjxbv4GN2jx4UKOZlBotzm9c4jCe4MvNoMSL28GrmhCbIsm5
-         RkQ7fGuQoocvt7l6pZIO2oLGEpjoTyhOuQ1QG5UQ=
+        b=v9v0Nw4ZJRBQr7dUEOrWNoGCYASgHnT+AFNN8UC5itOd9BUQ46shGRYvg3cQL0ii8
+         QJGOtZhlZFFIXCVDcgzh1WLRc7GeJlJ8vVmxv6OI72ts9ACE6Tr+0bgp767W5R7H2x
+         cKk0M5baVQJIOvndUzKRYCAj9zuPu0IYgOiU90Us=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tony Lindgren <tony@atomide.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 056/114] serial: 8250: omap: Flush PM QOS work on remove
+Subject: [PATCH 5.15 080/181] mISDN: fix possible memory leak in mISDN_dsp_element_register()
 Date:   Wed, 23 Nov 2022 09:50:43 +0100
-Message-Id: <20221123084554.122258540@linuxfoundation.org>
+Message-Id: <20221123084605.790261268@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit d0b68629bd2fb61e0171a62f2e8da3db322f5cf6 ]
+[ Upstream commit 98a2ac1ca8fd6eca6867726fe238d06e75eb1acd ]
 
-Rebinding 8250_omap in a loop will at some point produce a warning for
-kernel/power/qos.c:296 cpu_latency_qos_update_request() with error
-"cpu_latency_qos_update_request called for unknown object". Let's flush
-the possibly pending PM QOS work scheduled from omap8250_runtime_suspend()
-before we disable runtime PM.
+Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+use put_device() to give up the reference, so that the name can be
+freed in kobject_cleanup() when the refcount is 0.
 
-Fixes: 61929cf0169d ("tty: serial: Add 8250-core based omap driver")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20221028110044.54719-1-tony@atomide.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The 'entry' is going to be freed in mISDN_dsp_dev_release(), so the
+kfree() is removed. list_del() is called in mISDN_dsp_dev_release(),
+so it need be initialized.
+
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221109132832.3270119-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/isdn/mISDN/dsp_pipeline.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index b81fb44e2bd7..8cf4819312f5 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -1262,6 +1262,7 @@ static int omap8250_remove(struct platform_device *pdev)
+diff --git a/drivers/isdn/mISDN/dsp_pipeline.c b/drivers/isdn/mISDN/dsp_pipeline.c
+index c3b2c99b5cd5..cfbcd9e973c2 100644
+--- a/drivers/isdn/mISDN/dsp_pipeline.c
++++ b/drivers/isdn/mISDN/dsp_pipeline.c
+@@ -77,6 +77,7 @@ int mISDN_dsp_element_register(struct mISDN_dsp_element *elem)
+ 	if (!entry)
+ 		return -ENOMEM;
  
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
- 	pm_runtime_put_sync(&pdev->dev);
-+	flush_work(&priv->qos_work);
- 	pm_runtime_disable(&pdev->dev);
- 	serial8250_unregister_port(priv->line);
- 	pm_qos_remove_request(&priv->pm_qos_request);
++	INIT_LIST_HEAD(&entry->list);
+ 	entry->elem = elem;
+ 
+ 	entry->dev.class = elements_class;
+@@ -107,7 +108,7 @@ int mISDN_dsp_element_register(struct mISDN_dsp_element *elem)
+ 	device_unregister(&entry->dev);
+ 	return ret;
+ err1:
+-	kfree(entry);
++	put_device(&entry->dev);
+ 	return ret;
+ }
+ EXPORT_SYMBOL(mISDN_dsp_element_register);
 -- 
 2.35.1
 
