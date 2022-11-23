@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5539F635739
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00C1E635915
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238071AbiKWJlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:41:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59920 "EHLO
+        id S235632AbiKWKH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:07:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238015AbiKWJkz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:40:55 -0500
+        with ESMTP id S235979AbiKWKGm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 748CFDF23
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:38:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9657A1276A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:57:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1063A619F9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:38:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2E50C433C1;
-        Wed, 23 Nov 2022 09:38:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3255E61B60
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:57:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F6F0C433C1;
+        Wed, 23 Nov 2022 09:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196293;
-        bh=XsZSh6F8s2pFGPqES2VfvOwXvezIvJIKFoVC92IKz18=;
+        s=korg; t=1669197432;
+        bh=Ggfvxl0ZmSZPa8GC1v6biOunhDsqkf/NLhvT9TFQdQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZbRi1XqPOsBXfWdz0GBgygX7hlwvGhfxRre5kUaBfAk5s7B3Vkf3qRbUKxshiHT8s
-         F6kfEnxuX67Z/PAHaVIifAd1yIz9/GAlpyt9L4x/FFbLncop8v+EXpcZIPPBwuvp4a
-         IO6TEMe2zX2f6xlEIK9FAzrPdQYVdbcVgJZzJ9q0=
+        b=g8mQpoenpTNjaudmay/6gqqSMtIWuFZUmMeLSFc/pDfPzAsQVKvUNu+RHXNEcyOZd
+         2eGDiWA6jdgJi3gqUWEJLNPejSDiBI//Az5e2W+9DlIq1Au5fiD+YmZ/DaTz5vwjLq
+         U0wDm+d0S2g5xk//FpXUR9otNOYDEZg0xboQfAmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+dcf33a7aae997956fe06@syzkaller.appspotmail.com,
-        Andrew Price <anprice@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.15 173/181] gfs2: Check sb_bsize_shift after reading superblock
-Date:   Wed, 23 Nov 2022 09:52:16 +0100
-Message-Id: <20221123084609.827490826@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Mike Christie <michael.chritie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 292/314] scsi: target: tcm_loop: Fix possible name leak in tcm_loop_setup_hba_bus()
+Date:   Wed, 23 Nov 2022 09:52:17 +0100
+Message-Id: <20221123084638.768295973@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Price <anprice@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 670f8ce56dd0632dc29a0322e188cc73ce3c6b92 upstream.
+[ Upstream commit bc68e428d4963af0201e92159629ab96948f0893 ]
 
-Fuzzers like to scribble over sb_bsize_shift but in reality it's very
-unlikely that this field would be corrupted on its own. Nevertheless it
-should be checked to avoid the possibility of messy mount errors due to
-bad calculations. It's always a fixed value based on the block size so
-we can just check that it's the expected value.
+If device_register() fails in tcm_loop_setup_hba_bus(), the name allocated
+by dev_set_name() need be freed. As comment of device_register() says, it
+should use put_device() to give up the reference in the error path. So fix
+this by calling put_device(), then the name can be freed in kobject_cleanup().
+The 'tl_hba' will be freed in tcm_loop_release_adapter(), so it don't need
+goto error label in this case.
 
-Tested with:
-
-    mkfs.gfs2 -O -p lock_nolock /dev/vdb
-    for i in 0 -1 64 65 32 33; do
-        gfs2_edit -p sb field sb_bsize_shift $i /dev/vdb
-        mount /dev/vdb /mnt/test && umount /mnt/test
-    done
-
-Before this patch we get a withdraw after
-
-[   76.413681] gfs2: fsid=loop0.0: fatal: invalid metadata block
-[   76.413681]   bh = 19 (type: exp=5, found=4)
-[   76.413681]   function = gfs2_meta_buffer, file = fs/gfs2/meta_io.c, line = 492
-
-and with UBSAN configured we also get complaints like
-
-[   76.373395] UBSAN: shift-out-of-bounds in fs/gfs2/ops_fstype.c:295:19
-[   76.373815] shift exponent 4294967287 is too large for 64-bit type 'long unsigned int'
-
-After the patch, these complaints don't appear, mount fails immediately
-and we get an explanation in dmesg.
-
-Reported-by: syzbot+dcf33a7aae997956fe06@syzkaller.appspotmail.com
-Signed-off-by: Andrew Price <anprice@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3703b2c5d041 ("[SCSI] tcm_loop: Add multi-fabric Linux/SCSI LLD fabric module")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221115015042.3652261-1-yangyingliang@huawei.com
+Reviewed-by: Mike Christie <michael.chritie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/ops_fstype.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/target/loopback/tcm_loop.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -180,7 +180,10 @@ static int gfs2_check_sb(struct gfs2_sbd
- 		pr_warn("Invalid block size\n");
- 		return -EINVAL;
+diff --git a/drivers/target/loopback/tcm_loop.c b/drivers/target/loopback/tcm_loop.c
+index 4407b56aa6d1..139031ccb700 100644
+--- a/drivers/target/loopback/tcm_loop.c
++++ b/drivers/target/loopback/tcm_loop.c
+@@ -397,6 +397,7 @@ static int tcm_loop_setup_hba_bus(struct tcm_loop_hba *tl_hba, int tcm_loop_host
+ 	ret = device_register(&tl_hba->dev);
+ 	if (ret) {
+ 		pr_err("device_register() failed for tl_hba->dev: %d\n", ret);
++		put_device(&tl_hba->dev);
+ 		return -ENODEV;
  	}
--
-+	if (sb->sb_bsize_shift != ffs(sb->sb_bsize) - 1) {
-+		pr_warn("Invalid block size shift\n");
-+		return -EINVAL;
-+	}
- 	return 0;
- }
  
+@@ -1073,7 +1074,7 @@ static struct se_wwn *tcm_loop_make_scsi_hba(
+ 	 */
+ 	ret = tcm_loop_setup_hba_bus(tl_hba, tcm_loop_hba_no_cnt);
+ 	if (ret)
+-		goto out;
++		return ERR_PTR(ret);
+ 
+ 	sh = tl_hba->sh;
+ 	tcm_loop_hba_no_cnt++;
+-- 
+2.35.1
+
 
 
