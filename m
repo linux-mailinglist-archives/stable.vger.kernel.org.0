@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE67D635476
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A10FD63586D
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:58:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237064AbiKWJIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:08:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44992 "EHLO
+        id S235909AbiKWJ5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:57:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237078AbiKWJH2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15ABD1025D5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:07:20 -0800 (PST)
+        with ESMTP id S236743AbiKWJ4L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:56:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 788DD13FAE
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:51:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5EF561B4C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:07:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BB12C433D6;
-        Wed, 23 Nov 2022 09:07:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16FA161B22
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:51:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 142BDC433D7;
+        Wed, 23 Nov 2022 09:51:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194439;
-        bh=7r+6km4b+vXIeOkkyXEJz4P9pHvEd5OlxAOs/eJBiio=;
+        s=korg; t=1669197073;
+        bh=KmKB49GJz8EHtHKKI9mDkKv+O6ON21IldEClDjv7CyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k0kapvSycom8wiFPthK+oHhHd8ZRFGdDSJ9p65Pzb7LVdJeUvV3QyJ1TOUJCfRq+Q
-         CZz1vjyddr4Ab28cZhhqTEQ1CjK15+jr2LASjVaCQlq2i2imPEmtJQJ6/iLXvLXwX/
-         gQw7OdW/ZIhNLUamCp4vsF0CTF35vcYtpTXmaDpE=
+        b=nsi3k1ZIwclbzc8kt8WpWeeJqR2j4mXfQ2+/9g6MgQfL9n0koBDz6HlO4tgPuQlTh
+         3YiFPl0hSMojh6AGPQUgzoi3+asRohnq4WNnL4LD6pKUy8kyKryQnlBWqWbbRFi584
+         aoprL+8D22OenJWmtT3qbMNhjUAUCE77YYH8TNbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
-        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@igalia.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/114] selftests/futex: fix build for clang
-Date:   Wed, 23 Nov 2022 09:50:34 +0100
-Message-Id: <20221123084553.718406284@linuxfoundation.org>
+Subject: [PATCH 6.0 190/314] net: thunderbolt: Fix error handling in tbnet_init()
+Date:   Wed, 23 Nov 2022 09:50:35 +0100
+Message-Id: <20221123084634.168202058@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 03cab65a07e083b6c1010fbc8f9b817e9aca75d9 ]
+[ Upstream commit f524b7289bbb0c8ffaa2ba3c34c146e43da54fb2 ]
 
-Don't use the test-specific header files as source files to force a
-target dependency, as clang will complain if more than one source file
-is used for a compile command with a single '-o' flag.
+A problem about insmod thunderbolt-net failed is triggered with following
+log given while lsmod does not show thunderbolt_net:
 
-Use the proper Makefile variables instead as defined in
-tools/testing/selftests/lib.mk.
+ insmod: ERROR: could not insert module thunderbolt-net.ko: File exists
 
-Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Reviewed-by: André Almeida <andrealmeid@igalia.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+The reason is that tbnet_init() returns tb_register_service_driver()
+directly without checking its return value, if tb_register_service_driver()
+failed, it returns without removing property directory, resulting the
+property directory can never be created later.
+
+ tbnet_init()
+   tb_register_property_dir() # register property directory
+   tb_register_service_driver()
+     driver_register()
+       bus_add_driver()
+         priv = kzalloc(...) # OOM happened
+   # return without remove property directory
+
+Fix by remove property directory when tb_register_service_driver() returns
+error.
+
+Fixes: e69b6c02b4c3 ("net: Add support for networking over Thunderbolt cable")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/futex/functional/Makefile | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/thunderbolt.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/tools/testing/selftests/futex/functional/Makefile b/tools/testing/selftests/futex/functional/Makefile
-index 30996306cabc..479531f5865d 100644
---- a/tools/testing/selftests/futex/functional/Makefile
-+++ b/tools/testing/selftests/futex/functional/Makefile
-@@ -3,11 +3,11 @@ INCLUDES := -I../include -I../../
- CFLAGS := $(CFLAGS) -g -O2 -Wall -D_GNU_SOURCE -pthread $(INCLUDES)
- LDFLAGS := $(LDFLAGS) -pthread -lrt
+diff --git a/drivers/net/thunderbolt.c b/drivers/net/thunderbolt.c
+index ab3f04562980..8391f8303499 100644
+--- a/drivers/net/thunderbolt.c
++++ b/drivers/net/thunderbolt.c
+@@ -1379,12 +1379,21 @@ static int __init tbnet_init(void)
+ 				  TBNET_MATCH_FRAGS_ID | TBNET_64K_FRAMES);
  
--HEADERS := \
-+LOCAL_HDRS := \
- 	../include/futextest.h \
- 	../include/atomic.h \
- 	../include/logging.h
--TEST_GEN_FILES := \
-+TEST_GEN_PROGS := \
- 	futex_wait_timeout \
- 	futex_wait_wouldblock \
- 	futex_requeue_pi \
-@@ -21,5 +21,3 @@ TEST_PROGS := run.sh
- top_srcdir = ../../../../..
- KSFT_KHDR_INSTALL := 1
- include ../../lib.mk
--
--$(TEST_GEN_FILES): $(HEADERS)
+ 	ret = tb_register_property_dir("network", tbnet_dir);
+-	if (ret) {
+-		tb_property_free_dir(tbnet_dir);
+-		return ret;
+-	}
++	if (ret)
++		goto err_free_dir;
++
++	ret = tb_register_service_driver(&tbnet_driver);
++	if (ret)
++		goto err_unregister;
+ 
+-	return tb_register_service_driver(&tbnet_driver);
++	return 0;
++
++err_unregister:
++	tb_unregister_property_dir("network", tbnet_dir);
++err_free_dir:
++	tb_property_free_dir(tbnet_dir);
++
++	return ret;
+ }
+ module_init(tbnet_init);
+ 
 -- 
 2.35.1
 
