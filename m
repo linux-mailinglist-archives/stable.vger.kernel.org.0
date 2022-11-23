@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23CBD635563
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF3F663544D
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237381AbiKWJR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:17:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58250 "EHLO
+        id S236997AbiKWJCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:02:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237388AbiKWJR0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:17:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FC461095A5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:17:11 -0800 (PST)
+        with ESMTP id S236987AbiKWJCk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:02:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3932128718
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:02:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD6D061B59
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:17:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C670EC43148;
-        Wed, 23 Nov 2022 09:17:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAA61B81EEC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:02:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D243C433C1;
+        Wed, 23 Nov 2022 09:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195030;
-        bh=aAiuY6rW0c7HXcUdWczTasJjEkYlIBdNYolj6H01FiY=;
+        s=korg; t=1669194156;
+        bh=v+rcOIAi86dmxDnAA+LxYWuevQXRR4pMmZ2C1W5rqxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jw1wSstlOEeFgvtF074vf5AGTlwlETs7AKcSBSwq+vvTfiD3wMU5V6SzyIFTHBb7x
-         vTNFQ0HlunzB27jQOWY46L8a8aiYQNJTb2+UmcPpsbp8gl+Fua/mryw+7S27aLnTCk
-         RWXsP6kr1eK7boBkfor70MDkNQvhct4yUXLQYkWg=
+        b=vQiZm0alQQthhJBB6Mx6Ob2xYynMGO/svB/SmrYXyCxVP0+3cyymZtddTgGhXhtEG
+         ZZi5xst1Vpq3EpS/NUl42qediVkdUijc3idK6kJ+pIJs33x1QXpRzAVNs++WFFsgmD
+         qe8lQy+l+K2wKKCPgkEe0sxx2vGj0pLMPt7EF8e8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 097/156] net: bgmac: Drop free_netdev() from bgmac_enet_remove()
+        patches@lists.linux.dev,
+        syzbot+9abda841d636d86c41da@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 57/88] ALSA: usb-audio: Drop snd_BUG_ON() from snd_usbmidi_output_open()
 Date:   Wed, 23 Nov 2022 09:50:54 +0100
-Message-Id: <20221123084601.496858584@linuxfoundation.org>
+Message-Id: <20221123084550.534375203@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 6f928ab8ee9bfbcb0e631c47ea8a16c3d5116ff1 ]
+commit ad72c3c3f6eb81d2cb189ec71e888316adada5df upstream.
 
-netdev is allocated in bgmac_alloc() with devm_alloc_etherdev() and will
-be auto released in ->remove and ->probe failure path. Using free_netdev()
-in bgmac_enet_remove() leads to double free.
+snd_usbmidi_output_open() has a check of the NULL port with
+snd_BUG_ON().  snd_BUG_ON() was used as this shouldn't have happened,
+but in reality, the NULL port may be seen when the device gives an
+invalid endpoint setup at the descriptor, hence the driver skips the
+allocation.  That is, the check itself is valid and snd_BUG_ON()
+should be dropped from there.  Otherwise it's confusing as if it were
+a real bug, as recently syzbot stumbled on it.
 
-Fixes: 34a5102c3235 ("net: bgmac: allocate struct bgmac just once & don't copy it")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-
-Link: https://lore.kernel.org/r/20221109150136.2991171-1-weiyongjun@huaweicloud.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+9abda841d636d86c41da@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/syzbot+9abda841d636d86c41da@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20221112141223.6144-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bgmac.c | 1 -
- 1 file changed, 1 deletion(-)
+ sound/usb/midi.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bgmac.c b/drivers/net/ethernet/broadcom/bgmac.c
-index 979af8e878e3..193722334d93 100644
---- a/drivers/net/ethernet/broadcom/bgmac.c
-+++ b/drivers/net/ethernet/broadcom/bgmac.c
-@@ -1564,7 +1564,6 @@ void bgmac_enet_remove(struct bgmac *bgmac)
- 	phy_disconnect(bgmac->net_dev->phydev);
- 	netif_napi_del(&bgmac->napi);
- 	bgmac_dma_free(bgmac);
--	free_netdev(bgmac->net_dev);
- }
- EXPORT_SYMBOL_GPL(bgmac_enet_remove);
+--- a/sound/usb/midi.c
++++ b/sound/usb/midi.c
+@@ -1148,10 +1148,8 @@ static int snd_usbmidi_output_open(struc
+ 					port = &umidi->endpoints[i].out->ports[j];
+ 					break;
+ 				}
+-	if (!port) {
+-		snd_BUG();
++	if (!port)
+ 		return -ENXIO;
+-	}
  
--- 
-2.35.1
-
+ 	substream->runtime->private_data = port;
+ 	port->state = STATE_UNKNOWN;
 
 
