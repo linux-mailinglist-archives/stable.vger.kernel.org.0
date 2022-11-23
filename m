@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C936355F0
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:27:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A16F463570C
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237677AbiKWJ0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:26:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41736 "EHLO
+        id S237461AbiKWJfm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:35:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237563AbiKWJZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:25:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5C4F4091D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:24:45 -0800 (PST)
+        with ESMTP id S237835AbiKWJfK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:35:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC8DB3FBBE
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:32:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E589B81EEB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:24:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 994E7C433C1;
-        Wed, 23 Nov 2022 09:24:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7732361A02
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:32:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24536C433D6;
+        Wed, 23 Nov 2022 09:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195483;
-        bh=FZ9/NRy3jlbEtnSZoMRaBfFMmupLQmeV6gELIMPAcvM=;
+        s=korg; t=1669195977;
+        bh=6RZWYC1vgxe9Pqj4chLkaY/6M7VYNi4xgg2j5+MALRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZLd6xqomKvjd60DP/mZ1l7VOAI74D8L3MtUbFgIcawK/TF7X40vmwxL0mUGFFahM
-         od0kl+zB6wyAaZnPy3MNY1dTsx7TCn8K/BuE6+WBSEPeuO00lv31ze3hz0Rx8quz9g
-         4qvL8SnhK5dl0qLrrZbO8uazD8isN+cVMEiqrius=
+        b=F8+laYyZhrCx272+rEx79YG3wm+kjfZQUEyIiH/XQg8xe1UStFIyOxLDjKg6H+MiH
+         dFuf/Vt39PiZtYItdD8zO9Pl+oFgDRunpFTgic1wkyvgHEbwOSy+7hWN4CvlhQ4bmu
+         7lgCmAwSHrH5/ralAYgnIiVf7GtUyMPJfAP3tPhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 065/149] net: hinic: Fix error handling in hinic_module_init()
+Subject: [PATCH 5.15 085/181] mISDN: fix misuse of put_device() in mISDN_register_device()
 Date:   Wed, 23 Nov 2022 09:50:48 +0100
-Message-Id: <20221123084600.252761703@linuxfoundation.org>
+Message-Id: <20221123084605.995331477@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-[ Upstream commit 8eab9be56cc6b702a445d2b6d0256aa0992316b3 ]
+[ Upstream commit 2d25107e111a85c56f601a5470f1780ec054e6ac ]
 
-A problem about hinic create debugfs failed is triggered with the
-following log given:
+We should not release reference by put_device() before calling device_initialize().
 
- [  931.419023] debugfs: Directory 'hinic' with parent '/' already present!
-
-The reason is that hinic_module_init() returns pci_register_driver()
-directly without checking its return value, if pci_register_driver()
-failed, it returns without destroy the newly created debugfs, resulting
-the debugfs of hinic can never be created later.
-
- hinic_module_init()
-   hinic_dbg_register_debugfs() # create debugfs directory
-   pci_register_driver()
-     driver_register()
-       bus_add_driver()
-         priv = kzalloc(...) # OOM happened
-   # return without destroy debugfs directory
-
-Fix by removing debugfs when pci_register_driver() returns error.
-
-Fixes: 253ac3a97921 ("hinic: add support to query sq info")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20221110021642.80378-1-yuancan@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: e7d1d4d9ac0d ("mISDN: fix possible memory leak in mISDN_register_device()")
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/huawei/hinic/hinic_main.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/isdn/mISDN/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_main.c b/drivers/net/ethernet/huawei/hinic/hinic_main.c
-index 4f1d585485d7..6ec042d48cd1 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_main.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_main.c
-@@ -1502,8 +1502,15 @@ static struct pci_driver hinic_driver = {
+diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
+index 7ea0100f218a..90ee56d07a6e 100644
+--- a/drivers/isdn/mISDN/core.c
++++ b/drivers/isdn/mISDN/core.c
+@@ -222,7 +222,7 @@ mISDN_register_device(struct mISDNdevice *dev,
  
- static int __init hinic_module_init(void)
- {
-+	int ret;
-+
- 	hinic_dbg_register_debugfs(HINIC_DRV_NAME);
--	return pci_register_driver(&hinic_driver);
-+
-+	ret = pci_register_driver(&hinic_driver);
-+	if (ret)
-+		hinic_dbg_unregister_debugfs();
-+
-+	return ret;
- }
+ 	err = get_free_devid();
+ 	if (err < 0)
+-		goto error1;
++		return err;
+ 	dev->id = err;
  
- static void __exit hinic_module_exit(void)
+ 	device_initialize(&dev->dev);
 -- 
 2.35.1
 
