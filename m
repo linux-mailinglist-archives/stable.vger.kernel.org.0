@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F90A63557B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81EE56354B5
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237364AbiKWJTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:19:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57550 "EHLO
+        id S237075AbiKWJJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:09:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237202AbiKWJSo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:18:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2009662D9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:18:16 -0800 (PST)
+        with ESMTP id S237045AbiKWJIm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:08:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5D41EC0A2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:08:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B090661B4D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:18:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B227FC433C1;
-        Wed, 23 Nov 2022 09:18:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E9B5B81EF5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:08:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8204AC433D6;
+        Wed, 23 Nov 2022 09:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195095;
-        bh=bJLK9TtYJJiId5Bdeizaj6OdGcT549OyB9vacAEBJIA=;
+        s=korg; t=1669194516;
+        bh=SN3BZFFGmbsH+aakDdyP9OE2PoHA0WxBD8a4S5++v9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7Vu8+UGiPVgsFszTmM5wDsjiOWHxy1lJwM2hBAiwZcJ8hV6e+CIMpr7LOB2g3AOK
-         ezTuhzd01Oy2JOzdHa5Q/MNn+KwDy0/91PS1ESYhJiQRhTx/IL7xG2lL90NT47Cb/B
-         hKGR+dG3AjlZlVxgXt7/SnMcOoLPbQoZMlnGEB3E=
+        b=XZzyojwZHuedr6n1cUH/r/Sdu4aSP4Q8byaZrjcFeCDt+X7Cy1ZH0qy4oDuUcinlO
+         wlaKmK0dixQ02qb212AqIkuuAShq0bqYhURRE1glulrSQZUGx7ZtyZexY9Yj9f6e7C
+         LPa++Yc6fskdz5SgmTFy5YKwAbjeGV3G9rILFLm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mitja Spes <mitja@lxnav.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 128/156] iio: pressure: ms5611: changed hardcoded SPI speed to value limited
-Date:   Wed, 23 Nov 2022 09:51:25 +0100
-Message-Id: <20221123084602.558477496@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Mike Christie <michael.chritie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 099/114] scsi: target: tcm_loop: Fix possible name leak in tcm_loop_setup_hba_bus()
+Date:   Wed, 23 Nov 2022 09:51:26 +0100
+Message-Id: <20221123084555.714615701@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitja Spes <mitja@lxnav.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 741cec30cc52058d1c10d415f3b98319887e4f73 upstream.
+[ Upstream commit bc68e428d4963af0201e92159629ab96948f0893 ]
 
-Don't hardcode the ms5611 SPI speed, limit it instead.
+If device_register() fails in tcm_loop_setup_hba_bus(), the name allocated
+by dev_set_name() need be freed. As comment of device_register() says, it
+should use put_device() to give up the reference in the error path. So fix
+this by calling put_device(), then the name can be freed in kobject_cleanup().
+The 'tl_hba' will be freed in tcm_loop_release_adapter(), so it don't need
+goto error label in this case.
 
-Signed-off-by: Mitja Spes <mitja@lxnav.com>
-Fixes: c0644160a8b5 ("iio: pressure: add support for MS5611 pressure and temperature sensor")
-Link: https://lore.kernel.org/r/20221021135827.1444793-3-mitja@lxnav.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3703b2c5d041 ("[SCSI] tcm_loop: Add multi-fabric Linux/SCSI LLD fabric module")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221115015042.3652261-1-yangyingliang@huawei.com
+Reviewed-by: Mike Christie <michael.chritie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/pressure/ms5611_spi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/target/loopback/tcm_loop.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/pressure/ms5611_spi.c
-+++ b/drivers/iio/pressure/ms5611_spi.c
-@@ -92,7 +92,7 @@ static int ms5611_spi_probe(struct spi_d
- 	spi_set_drvdata(spi, indio_dev);
+diff --git a/drivers/target/loopback/tcm_loop.c b/drivers/target/loopback/tcm_loop.c
+index bc8918f382e4..80b74db4048b 100644
+--- a/drivers/target/loopback/tcm_loop.c
++++ b/drivers/target/loopback/tcm_loop.c
+@@ -409,6 +409,7 @@ static int tcm_loop_setup_hba_bus(struct tcm_loop_hba *tl_hba, int tcm_loop_host
+ 	ret = device_register(&tl_hba->dev);
+ 	if (ret) {
+ 		pr_err("device_register() failed for tl_hba->dev: %d\n", ret);
++		put_device(&tl_hba->dev);
+ 		return -ENODEV;
+ 	}
  
- 	spi->mode = SPI_MODE_0;
--	spi->max_speed_hz = 20000000;
-+	spi->max_speed_hz = min(spi->max_speed_hz, 20000000U);
- 	spi->bits_per_word = 8;
- 	ret = spi_setup(spi);
- 	if (ret < 0)
+@@ -1103,7 +1104,7 @@ static struct se_wwn *tcm_loop_make_scsi_hba(
+ 	 */
+ 	ret = tcm_loop_setup_hba_bus(tl_hba, tcm_loop_hba_no_cnt);
+ 	if (ret)
+-		goto out;
++		return ERR_PTR(ret);
+ 
+ 	sh = tl_hba->sh;
+ 	tcm_loop_hba_no_cnt++;
+-- 
+2.35.1
+
 
 
