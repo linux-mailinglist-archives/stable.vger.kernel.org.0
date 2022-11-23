@@ -2,71 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5BC3636868
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 19:16:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8049B636865
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 19:16:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239585AbiKWSNv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 13:13:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42240 "EHLO
+        id S239429AbiKWSOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 13:14:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240080AbiKWSN3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 13:13:29 -0500
-Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9450F15804
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 10:08:24 -0800 (PST)
-Received: by mail-pl1-x649.google.com with SMTP id p5-20020a170902e74500b001884ba979f8so14273709plf.17
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 10:08:24 -0800 (PST)
+        with ESMTP id S239536AbiKWSNc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 13:13:32 -0500
+Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9EA8BC3B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 10:09:25 -0800 (PST)
+Received: by mail-pl1-x64a.google.com with SMTP id b18-20020a170903229200b00186e357f3b9so14121587plh.6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 10:09:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=ZhRYpgjyXSj58WhO81SjAEi8hSt+BCz5HFDcwIe8pM8=;
-        b=eemCHDnPT999d32SWZB6wMX6suDtePfunnKNAKvzoIn3dNciBQ3Ljfi3yTquKoy4zi
-         pcrK20E0xXlpAUqIBXCsUy2HESlz6t7owcjQppn946VULCvKTSBqzveGqfypNqgpNaj6
-         iXJJ06APrWP4InCRCTIf8kHE2/VDWVF+MFQq0ndYTrBiNiLs+FjRyPNEHDsG5r2ooIeI
-         CsiIDq8CprGQJ677tUo/JkB1kA7RBtQGesqHsnudWvHEOOVStEsMkrcTe8XMdiBbDUUr
-         Wvup2PTocsoLNg5b9xVg9/tSx6vcK13d6i/NYpDI5r7NH1ZyRGnIfOvOepA7ESo1xmo0
-         LQrw==
+        bh=8AnrcGQxermayS9lzY4/PftYYJ1h7RYNfHX8xCVtV1c=;
+        b=mLkBARzh9DEoczzapN40SjDSvfSO9nAnK4l7SEQlkecJWP9ks6Bnl+jjSjXJFx96mP
+         X/zxr5Gdo+FYdbk0nY5U+gtLuL1HoNADzQsH1vNYJ3aHZjb5OWnAkVWeYx1Nr4cx608+
+         5rCF9s1+CsORn3Gva3cK6mJniR0xr8NdKtzQ/lt/wo61RW1zH4tnHKYqX+nl2bZMMJmO
+         P19cZl/P1PQEyizWuij5WoOIv41uIflr/80PPs00WtxoMR/gbsEqqJSyrAeFhZGKAW5v
+         9FWFTV250Y2UnKZXM0FOoER96PJUv6pk6HezB4soFYS5xu5FUh9wZ5o49oM2hkb5wfk+
+         uqWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=ZhRYpgjyXSj58WhO81SjAEi8hSt+BCz5HFDcwIe8pM8=;
-        b=pqbPmUQsHByuQsF6X3BRSbV+B8g0jTAjEihrVYhqqpjVwcicDXcRHqBneVBPExw5ty
-         4ibAd5zjx4tqJxq5f24QSFBsgRupK09x5fi4qe5OJDYBVVnFGTbi6r4OGs4SnTOgx4mk
-         E8/l4WANb9UNrwRbYzaETzmV5HF+FjmKXI4xQTuLsPbweUPpXB4PUuZlAxb8QUGEFvaa
-         v8PMIkIZFZZr4aUPtrHOZ5Ngp3OHFYUFVEonoZKRQwoQZmFXQ3Q/9J5Xm0QvfMn2QVxB
-         tueoX8HjuSQDGg709qf0RNaUJJ2iAqa5i5xMnAJQlWuyuUGpVA0LSMVtjQTJjivCc1+5
-         C27Q==
-X-Gm-Message-State: ANoB5pm6Zg5SeoUiFU103lX/WLqXZeXEtuIJ+W73vfmqZoZIohVB829j
-        3rnUZXWgZb2Zpv/ppqL3OxhZgedZVsfNuA==
-X-Google-Smtp-Source: AA0mqf41K5vmq3rhuByfU4W/AtqvhvmmSD+ilGqHI9sbx2YLgKgUB/+/zYf/bq4bL7Zu31IA6ToFXW/4h0yGow==
+        bh=8AnrcGQxermayS9lzY4/PftYYJ1h7RYNfHX8xCVtV1c=;
+        b=YXdDsyaIw+JBYYTFbkf5mOc2Ntrfyp8cOLQvihF529uWfKZrVikakMnMibqXjV4Rl8
+         I8KivRQ18QCiQqU8MnhRkiai9bqYbYTt3RQyY56MTQQXJIu5Js231a4eKR7BdnigB1oM
+         CMIOIkUvkGFuAOhVCHdbN5D7Mu1Q9P82ctmyQfJ3jkxaAsYlS4D0nT7/0fPNZKxhPw1u
+         kZ6eARPqkc920JXTimfngFDSY7Tm8FRUn2zFfkWp5cGemYV5Qd/VVc1gH7xL9OIl0mFE
+         iKmn+WeYO3rhv5Qc5BmcqcomK9vN150tRO0VjJpiFv31Vh+XL7SC3bm59cjFO7i8lIGV
+         HzAg==
+X-Gm-Message-State: ANoB5pkWeujZ7JApaHM8vUFpDBoMsFFU4Vd/A4jUWt7SPm9J8/luTUla
+        cPpGJkekRRjeg1o0kroDTp+nu2KWxxbuAw==
+X-Google-Smtp-Source: AA0mqf5Xc1KOJwNTNf49TsdXYL1qiDu6Xvj71CD7OpYTPMjz0vmWKZRCyaIGhUW8iWfg/r1x3ex8Wa7SZojBNw==
 X-Received: from xllamas.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5070])
- (user=cmllamas job=sendgmr) by 2002:aa7:83d3:0:b0:56e:8477:1add with SMTP id
- j19-20020aa783d3000000b0056e84771addmr19165796pfn.13.1669226904028; Wed, 23
- Nov 2022 10:08:24 -0800 (PST)
-Date:   Wed, 23 Nov 2022 18:08:09 +0000
+ (user=cmllamas job=sendgmr) by 2002:a17:90a:cf08:b0:218:6bd8:3114 with SMTP
+ id h8-20020a17090acf0800b002186bd83114mr31561207pju.128.1669226965293; Wed,
+ 23 Nov 2022 10:09:25 -0800 (PST)
+Date:   Wed, 23 Nov 2022 18:09:21 +0000
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.38.1.584.g0f3c55d4c2-goog
-Message-ID: <20221123180809.1501779-1-cmllamas@google.com>
-Subject: [PATCH 6.0] binder: validate alloc->mm in ->mmap() handler
+Message-ID: <20221123180922.1502550-1-cmllamas@google.com>
+Subject: [PATCH 5.15] binder: validate alloc->mm in ->mmap() handler
 From:   Carlos Llamas <cmllamas@google.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "=?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?=" <arve@android.com>,
         Todd Kjos <tkjos@android.com>,
         Martijn Coenen <maco@android.com>,
         Joel Fernandes <joel@joelfernandes.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Carlos Llamas <cmllamas@google.com>,
+        Christian Brauner <christian@brauner.io>,
+        Hridya Valsaraju <hridya@google.com>,
         Suren Baghdasaryan <surenb@google.com>,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Carlos Llamas <cmllamas@google.com>
 Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
         Jann Horn <jannh@google.com>, stable@vger.kernel.org,
         Todd Kjos <tkjos@google.com>
 Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -107,10 +108,10 @@ Signed-off-by: Carlos Llamas <cmllamas@google.com>
  1 file changed, 7 insertions(+)
 
 diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
-index 9b1778c00610..64999777e0bf 100644
+index 8ed450125c92..6acfb896b2e5 100644
 --- a/drivers/android/binder_alloc.c
 +++ b/drivers/android/binder_alloc.c
-@@ -760,6 +760,12 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
+@@ -753,6 +753,12 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
  	const char *failure_string;
  	struct binder_buffer *buffer;
  
@@ -123,7 +124,7 @@ index 9b1778c00610..64999777e0bf 100644
  	mutex_lock(&binder_alloc_mmap_lock);
  	if (alloc->buffer_size) {
  		ret = -EBUSY;
-@@ -806,6 +812,7 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
+@@ -799,6 +805,7 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
  	alloc->buffer_size = 0;
  err_already_mapped:
  	mutex_unlock(&binder_alloc_mmap_lock);
