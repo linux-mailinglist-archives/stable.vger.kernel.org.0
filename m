@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A55826354F7
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEF736355A7
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237146AbiKWJNV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:13:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54524 "EHLO
+        id S237430AbiKWJVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:21:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237232AbiKWJNU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:13:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD511682A4
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:13:19 -0800 (PST)
+        with ESMTP id S237448AbiKWJUu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:20:50 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 539AB8F3F5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:20:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 30282CE20EC
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:13:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D36BFC433C1;
-        Wed, 23 Nov 2022 09:13:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 54BE7CE20F3
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:20:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4054BC433D6;
+        Wed, 23 Nov 2022 09:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194796;
-        bh=s2ZugjKKraq1OoE+3K/jnt/bVrsxRgt3gJ3DKIDM/vs=;
+        s=korg; t=1669195244;
+        bh=Yju+PhhyVD9sWa2cDZ0LBKCrZ14Wgc8+ncDP2v35HR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJQR5TuaimlbT+2yUmmcbtM2Uyo8jEP4PwS7qBSdSvLr1qzaY1d3vBrDrgsoMv9ik
-         +/0nSb+R1ap5iIuoTZ7xUrnspY3vlpBo5oOr5tAX2W8L0M7SPvP1CU8TlFnefxpQw8
-         8Buq8UT//u4UxW7tmNArkQyHuR+sFjUfvwAuB7ss=
+        b=hG+AMVFM/9+7kHFIogtfeZ+ezq2/SgG7+m/NLMj4KQdVOk2YD6GJw53gbvc05nWAh
+         u5nG8K+ruevVORh+UiJ6XAcgKx/+iBbDRBiZAX5r3SGU3gCDqb3ahTwFkMTQsIBl9D
+         WuEWCv0rEPnnSV8mSkyXaQk4TzFGbbuJ1iYDtbyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Siarhei Volkau <lis8215@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 034/156] net: mv643xx_eth: disable napi when init rxq or txq failed in mv643xx_eth_open()
+Subject: [PATCH 5.10 008/149] ASoC: codecs: jz4725b: fix reported volume for Master ctl
 Date:   Wed, 23 Nov 2022 09:49:51 +0100
-Message-Id: <20221123084559.177459791@linuxfoundation.org>
+Message-Id: <20221123084558.270317826@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Siarhei Volkau <lis8215@gmail.com>
 
-[ Upstream commit f111606b63ff2282428ffbac0447c871eb957b6c ]
+[ Upstream commit 088777bf65b98cfa4b5378119d0a7d49a58ece44 ]
 
-When failed to init rxq or txq in mv643xx_eth_open() for opening device,
-napi isn't disabled. When open mv643xx_eth device next time, it will
-trigger a BUG_ON() in napi_enable(). Compile tested only.
+DAC volume control is the Master Playback Volume at the moment
+and it reports wrong levels in alsamixer and other alsa apps.
 
-Fixes: 2257e05c1705 ("mv643xx_eth: get rid of receive-side locking")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221109025432.80900-1-shaozhengchao@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+The patch fixes that, as stated in manual on the jz4725b SoC
+(16.6.3.4 Programmable attenuation: GOD) the ctl range varies
+from -22.5dB to 0dB with 1.5dB step.
+
+Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
+Link: https://lore.kernel.org/r/20221016132648.3011729-3-lis8215@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mv643xx_eth.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/jz4725b.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mv643xx_eth.c b/drivers/net/ethernet/marvell/mv643xx_eth.c
-index 82ea55ae5053..10e5c4c59657 100644
---- a/drivers/net/ethernet/marvell/mv643xx_eth.c
-+++ b/drivers/net/ethernet/marvell/mv643xx_eth.c
-@@ -2476,6 +2476,7 @@ static int mv643xx_eth_open(struct net_device *dev)
- 	for (i = 0; i < mp->rxq_count; i++)
- 		rxq_deinit(mp->rxq + i);
- out:
-+	napi_disable(&mp->napi);
- 	free_irq(dev->irq, dev);
+diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
+index 9f6f4e941e55..6f3d4ead9150 100644
+--- a/sound/soc/codecs/jz4725b.c
++++ b/sound/soc/codecs/jz4725b.c
+@@ -142,8 +142,8 @@ struct jz_icdc {
+ 	struct clk *clk;
+ };
  
- 	return err;
+-static const SNDRV_CTL_TLVD_DECLARE_DB_LINEAR(jz4725b_dac_tlv, -2250, 0);
+ static const SNDRV_CTL_TLVD_DECLARE_DB_LINEAR(jz4725b_line_tlv, -1500, 600);
++static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_dac_tlv, -2250, 150, 0);
+ 
+ static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
+ 	SOC_DOUBLE_TLV("Master Playback Volume",
 -- 
 2.35.1
 
