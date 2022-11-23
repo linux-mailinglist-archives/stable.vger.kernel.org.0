@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3140635500
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D87B863558B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237243AbiKWJNh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:13:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54898 "EHLO
+        id S237367AbiKWJUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:20:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237235AbiKWJNa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:13:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50C097ECBF
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:13:29 -0800 (PST)
+        with ESMTP id S237464AbiKWJTj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:19:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF9564731D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:19:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DAFBC61B4D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:13:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C362FC433D6;
-        Wed, 23 Nov 2022 09:13:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75D89B81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:19:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF878C433D6;
+        Wed, 23 Nov 2022 09:19:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194808;
-        bh=7yT/qy9CpyKuApulMTuLV7GxoWs9DfN329EH5pEAS10=;
+        s=korg; t=1669195176;
+        bh=NSYIezykGFvVUMwGYCG5DyKv09eJL769Py78ZlwLQuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ucYsgEg53w4viQ6nYau8y38KyP4TVdQApxX0C8bKJWYc3iKPSfIeohrOgFpSah0vi
-         TutEI+ihN5ZiTHbdawDuWasBC0eic6iO9oi+H7lNvyFuQzsIEPqgSleM3+w8rEMhQk
-         dYCdfgA+91ktpnBusYDCKQdU3eua7X5jwHOvoOIc=
+        b=G0v9OchNvpyQ+Bm+t4+/jbwOgqjgxgFZo1MIhY3xZI3aIsdzlu8QgJxV/VxanDpdc
+         IY/lrZW3cwu0l8A5tLLE3L5mYR+pauvecvI2Owb7a9HW4ttP2OBv3tH9zmWSfgyMiU
+         QJhV2B7mzxBREz+Qdnv1t1laB2kLonPq+i/HEaIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
-        Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 037/156] riscv: process: fix kernel info leakage
+Subject: [PATCH 5.10 011/149] ASoC: Intel: sof_sdw: add quirk variant for LAPBC710 NUC15
 Date:   Wed, 23 Nov 2022 09:49:54 +0100
-Message-Id: <20221123084559.273096806@linuxfoundation.org>
+Message-Id: <20221123084558.387879056@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 6510c78490c490a6636e48b61eeaa6fb65981f4b ]
+[ Upstream commit 41deb2db64997d01110faaf763bd911d490dfde7 ]
 
-thread_struct's s[12] may contain random kernel memory content, which
-may be finally leaked to userspace. This is a security hole. Fix it
-by clearing the s[12] array in thread_struct when fork.
+Some NUC15 LAPBC710 devices don't expose the same DMI information as
+the Intel reference, add additional entry in the match table.
 
-As for kthread case, it's better to clear the s[12] array as well.
-
-Fixes: 7db91e57a0ac ("RISC-V: Task implementation")
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Tested-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/20221029113450.4027-1-jszhang@kernel.org
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/CAJF2gTSdVyAaM12T%2B7kXAdRPGS4VyuO08X1c7paE-n4Fr8OtRA@mail.gmail.com/
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+BugLink: https://github.com/thesofproject/linux/issues/3885
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20221017204054.207512-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/process.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/intel/boards/sof_sdw.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
-index 330b34706aa0..9d4b4098874b 100644
---- a/arch/riscv/kernel/process.c
-+++ b/arch/riscv/kernel/process.c
-@@ -104,6 +104,8 @@ int copy_thread_tls(unsigned long clone_flags, unsigned long usp,
- {
- 	struct pt_regs *childregs = task_pt_regs(p);
- 
-+	memset(&p->thread.s, 0, sizeof(p->thread.s));
-+
- 	/* p->thread holds context to be restored by __switch_to() */
- 	if (unlikely(p->flags & PF_KTHREAD)) {
- 		/* Kernel thread */
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index 25548555d8d7..5e1a718a64da 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -175,6 +175,17 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
+ 					SOF_SDW_PCH_DMIC |
+ 					SOF_RT711_JD_SRC_JD2),
+ 	},
++	{
++		/* NUC15 LAPBC710 skews */
++		.callback = sof_sdw_quirk_cb,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
++			DMI_MATCH(DMI_BOARD_NAME, "LAPBC710"),
++		},
++		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
++					SOF_SDW_PCH_DMIC |
++					RT711_JD1),
++	},
+ 	/* TigerLake-SDCA devices */
+ 	{
+ 		.callback = sof_sdw_quirk_cb,
 -- 
 2.35.1
 
