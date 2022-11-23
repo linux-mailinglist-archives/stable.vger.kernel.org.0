@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B079635848
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:54:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5708863541D
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237050AbiKWJyM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:54:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48848 "EHLO
+        id S237049AbiKWJEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:04:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236639AbiKWJxD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:53:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DB42F72FE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:49:34 -0800 (PST)
+        with ESMTP id S236929AbiKWJEM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:04:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF831100B02
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:03:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE74B61B60
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:49:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFFE9C433C1;
-        Wed, 23 Nov 2022 09:49:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFE7BB81ECB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:03:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7681C433C1;
+        Wed, 23 Nov 2022 09:03:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196973;
-        bh=1Clm3qitxJwgixKfBTtLTIZPEEec+aL2nHPMWogARe0=;
+        s=korg; t=1669194233;
+        bh=5HbzkVatp0g3AbejAztJgq1G/krFE8J0n5HgUG76pPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1crzY94AVxaBUXezxS5HCW1RfL/kEolMF3suhDLJEn3TryBT4/wZI67TGSxexqlY3
-         xfWVrQ0CGJZRacWXjBCLbjop8CitNrwKLDf1aZHQ/SkROTf/5dW7PC9hL2tf/iSVRR
-         dRtFzd7ugumPkzVHbf6MXzkXAxCPKrONJ0hm+wOc=
+        b=yNFb14HEch9tTtwYyNTOlm1MOzayFt3nFPIhwLInTvS84cNMyXDVBflRoaBB2tGLw
+         /uFkswYrCSyCmeVWPxO7ziUkvfcQk2sUtCi8MWO2zG7gLeDZMGlqEcjq56P2mMk0f4
+         M6Fb69AR7YANdvKzlGlwitNYkQz4aHMu1znCBLXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
+        Guo Ren <guoren@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 162/314] octeon_ep: fix potential memory leak in octep_device_setup()
-Date:   Wed, 23 Nov 2022 09:50:07 +0100
-Message-Id: <20221123084632.918468160@linuxfoundation.org>
+Subject: [PATCH 4.19 021/114] riscv: process: fix kernel info leakage
+Date:   Wed, 23 Nov 2022 09:50:08 +0100
+Message-Id: <20221123084552.689702260@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Jisheng Zhang <jszhang@kernel.org>
 
-[ Upstream commit e4041be97b15302ebfffda8bbd45f3b2d096048f ]
+[ Upstream commit 6510c78490c490a6636e48b61eeaa6fb65981f4b ]
 
-When occur unsupported_dev and mbox init errors, it did not free oct->conf
-and iounmap() oct->mmio[i].hw_addr. That would trigger memory leak problem.
-Add kfree() for oct->conf and iounmap() for oct->mmio[i].hw_addr under
-unsupported_dev and mbox init errors to fix the problem.
+thread_struct's s[12] may contain random kernel memory content, which
+may be finally leaked to userspace. This is a security hole. Fix it
+by clearing the s[12] array in thread_struct when fork.
 
-Fixes: 862cd659a6fb ("octeon_ep: Add driver framework and device initialization")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+As for kthread case, it's better to clear the s[12] array as well.
+
+Fixes: 7db91e57a0ac ("RISC-V: Task implementation")
+Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+Tested-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/20221029113450.4027-1-jszhang@kernel.org
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/CAJF2gTSdVyAaM12T%2B7kXAdRPGS4VyuO08X1c7paE-n4Fr8OtRA@mail.gmail.com/
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeon_ep/octep_main.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/riscv/kernel/process.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/octeon_ep/octep_main.c b/drivers/net/ethernet/marvell/octeon_ep/octep_main.c
-index 92ca3e502465..ac1e37afbe7b 100644
---- a/drivers/net/ethernet/marvell/octeon_ep/octep_main.c
-+++ b/drivers/net/ethernet/marvell/octeon_ep/octep_main.c
-@@ -956,7 +956,7 @@ int octep_device_setup(struct octep_device *oct)
- 	ret = octep_ctrl_mbox_init(ctrl_mbox);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to initialize control mbox\n");
--		return -1;
-+		goto unsupported_dev;
- 	}
- 	oct->ctrl_mbox_ifstats_offset = OCTEP_CTRL_MBOX_SZ(ctrl_mbox->h2fq.elem_sz,
- 							   ctrl_mbox->h2fq.elem_cnt,
-@@ -966,6 +966,10 @@ int octep_device_setup(struct octep_device *oct)
- 	return 0;
+diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
+index d7c6ca7c95ae..64180108072c 100644
+--- a/arch/riscv/kernel/process.c
++++ b/arch/riscv/kernel/process.c
+@@ -104,6 +104,8 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
+ {
+ 	struct pt_regs *childregs = task_pt_regs(p);
  
- unsupported_dev:
-+	for (i = 0; i < OCTEP_MMIO_REGIONS; i++)
-+		iounmap(oct->mmio[i].hw_addr);
++	memset(&p->thread.s, 0, sizeof(p->thread.s));
 +
-+	kfree(oct->conf);
- 	return -1;
- }
- 
+ 	/* p->thread holds context to be restored by __switch_to() */
+ 	if (unlikely(p->flags & PF_KTHREAD)) {
+ 		/* Kernel thread */
 -- 
 2.35.1
 
