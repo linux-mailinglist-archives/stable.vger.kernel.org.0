@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C59A5635565
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5446563570B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237336AbiKWJSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:18:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58402 "EHLO
+        id S237832AbiKWJhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:37:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237420AbiKWJRg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:17:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E553B10AD01
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:17:19 -0800 (PST)
+        with ESMTP id S237827AbiKWJg2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:36:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 224BED06D1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:33:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0D01B81EE6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:17:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0427EC433D6;
-        Wed, 23 Nov 2022 09:17:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B327161B44
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:33:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD87EC433C1;
+        Wed, 23 Nov 2022 09:33:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195037;
-        bh=zZwTBmOHh8NNLTfvKSOGm2tDuT/pN8Wxi+UisuVglP0=;
+        s=korg; t=1669196037;
+        bh=h6RcCJ0KUtB4xR20WEzzdRdH8XAPh3qyfEa9OaExBEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zl55+uscsRHqHawhhHb0IQRvAeyniy19eAzK+RMmPubKyE8VUcG6zuJbXZqOZXO4C
-         v5g6VoBa5v8woZW4Aq4C7Nq6NaIPSxOPRy2t7ayB4I8WwJK01uBRM7WhqSz40FhXpj
-         Oov6sZrdX+TQ7U3wv89+eg2505Gq/OFDYWFczQb8=
+        b=I/OIza152aRA5xro8JlUD0fbil7j8PPytCYcZOnRtCF0BezG+riU4S4VcvnG6vYz7
+         nZxxWEwvkPbmG88X5I1xFSGZ0aq3AOPEyg0jcXi5ruGPP3Rqz3KFMPmP8cayNYk7+b
+         02KHlhfguR0VcFztD0VPwADwLYORXR9mypHSSs1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        Hao Lan <lanhao@huawei.com>, Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 099/156] net: liquidio: release resources when liquidio driver open failed
-Date:   Wed, 23 Nov 2022 09:50:56 +0100
-Message-Id: <20221123084601.567737948@linuxfoundation.org>
+Subject: [PATCH 5.15 094/181] net: hns3: fix setting incorrect phy link ksettings for firmware in resetting process
+Date:   Wed, 23 Nov 2022 09:50:57 +0100
+Message-Id: <20221123084606.386855905@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,82 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-[ Upstream commit 8979f428a4afc215e390006e5ea19fd4e22c7ca9 ]
+[ Upstream commit 510d7b6ae842e59ee00d57e5f07ac15131b6d899 ]
 
-When liquidio driver open failed, it doesn't release resources. Compile
-tested only.
+Currently, if driver is in phy-imp(phy controlled by imp firmware) mode, as
+driver did not update phy link ksettings after initialization process or
+not update advertising when getting phy link ksettings from firmware, it
+may set incorrect phy link ksettings for firmware in resetting process.
+So fix it.
 
-Fixes: 5b07aee11227 ("liquidio: MSIX support for CN23XX")
-Fixes: dbc97bfd3918 ("net: liquidio: Add missing null pointer checks")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f5f2b3e4dcc0 ("net: hns3: add support for imp-controlled PHYs")
+Fixes: c5ef83cbb1e9 ("net: hns3: fix for phy_addr error in hclge_mac_mdio_config")
+Fixes: 2312e050f42b ("net: hns3: Fix for deadlock problem occurring when unregistering ae_algo")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Hao Lan <lanhao@huawei.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/cavium/liquidio/lio_main.c   | 34 ++++++++++++++-----
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c    | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/cavium/liquidio/lio_main.c b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-index d0c77ff9dbb1..69878589213a 100644
---- a/drivers/net/ethernet/cavium/liquidio/lio_main.c
-+++ b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-@@ -1836,13 +1836,10 @@ static int liquidio_open(struct net_device *netdev)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 15d10775a757..2102b38b9c35 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -3172,6 +3172,7 @@ static int hclge_update_tp_port_info(struct hclge_dev *hdev)
+ 	hdev->hw.mac.autoneg = cmd.base.autoneg;
+ 	hdev->hw.mac.speed = cmd.base.speed;
+ 	hdev->hw.mac.duplex = cmd.base.duplex;
++	linkmode_copy(hdev->hw.mac.advertising, cmd.link_modes.advertising);
  
- 	ifstate_set(lio, LIO_IFSTATE_RUNNING);
- 
--	if (OCTEON_CN23XX_PF(oct)) {
--		if (!oct->msix_on)
--			if (setup_tx_poll_fn(netdev))
--				return -1;
--	} else {
--		if (setup_tx_poll_fn(netdev))
--			return -1;
-+	if (!OCTEON_CN23XX_PF(oct) || (OCTEON_CN23XX_PF(oct) && !oct->msix_on)) {
-+		ret = setup_tx_poll_fn(netdev);
-+		if (ret)
-+			goto err_poll;
- 	}
- 
- 	netif_tx_start_all_queues(netdev);
-@@ -1855,7 +1852,7 @@ static int liquidio_open(struct net_device *netdev)
- 	/* tell Octeon to start forwarding packets to host */
- 	ret = send_rx_ctrl_cmd(lio, 1);
- 	if (ret)
--		return ret;
-+		goto err_rx_ctrl;
- 
- 	/* start periodical statistics fetch */
- 	INIT_DELAYED_WORK(&lio->stats_wk.work, lio_fetch_stats);
-@@ -1866,6 +1863,27 @@ static int liquidio_open(struct net_device *netdev)
- 	dev_info(&oct->pci_dev->dev, "%s interface is opened\n",
- 		 netdev->name);
- 
-+	return 0;
-+
-+err_rx_ctrl:
-+	if (!OCTEON_CN23XX_PF(oct) || (OCTEON_CN23XX_PF(oct) && !oct->msix_on))
-+		cleanup_tx_poll_fn(netdev);
-+err_poll:
-+	if (lio->ptp_clock) {
-+		ptp_clock_unregister(lio->ptp_clock);
-+		lio->ptp_clock = NULL;
-+	}
-+
-+	if (oct->props[lio->ifidx].napi_enabled == 1) {
-+		list_for_each_entry_safe(napi, n, &netdev->napi_list, dev_list)
-+			napi_disable(napi);
-+
-+		oct->props[lio->ifidx].napi_enabled = 0;
-+
-+		if (OCTEON_CN23XX_PF(oct))
-+			oct->droq[0]->ops.poll_mode = 0;
-+	}
-+
- 	return ret;
+ 	return 0;
  }
+@@ -11669,9 +11670,12 @@ static int hclge_init_ae_dev(struct hnae3_ae_dev *ae_dev)
+ 	if (ret)
+ 		goto err_msi_irq_uninit;
  
+-	if (hdev->hw.mac.media_type == HNAE3_MEDIA_TYPE_COPPER &&
+-	    !hnae3_dev_phy_imp_supported(hdev)) {
+-		ret = hclge_mac_mdio_config(hdev);
++	if (hdev->hw.mac.media_type == HNAE3_MEDIA_TYPE_COPPER) {
++		if (hnae3_dev_phy_imp_supported(hdev))
++			ret = hclge_update_tp_port_info(hdev);
++		else
++			ret = hclge_mac_mdio_config(hdev);
++
+ 		if (ret)
+ 			goto err_msi_irq_uninit;
+ 	}
 -- 
 2.35.1
 
