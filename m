@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 852ED6353F2
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD5C6635399
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236891AbiKWJBs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:01:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38054 "EHLO
+        id S236773AbiKWI5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:57:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236892AbiKWJBs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:01:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2041025D4
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:01:47 -0800 (PST)
+        with ESMTP id S236882AbiKWI5H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:57:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB29FF43F
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:57:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE54461B36
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:01:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0B49C433D6;
-        Wed, 23 Nov 2022 09:01:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D6CB61B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:57:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33557C433C1;
+        Wed, 23 Nov 2022 08:57:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194106;
-        bh=BqmV0dlf0J2tKlVx2gqvDigoQunsxpVZJo54U8idNFY=;
+        s=korg; t=1669193824;
+        bh=LvGTqrNkLp4i2txp2BKIlwxAtGdZlEeEmEXuAJNe9GE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CO8KuHC+e6WR1eI5Bq5FwoPFRqcMulkO4BWqhNuTJlQ92dWX9g4ZSXVeBCVvju0Dt
-         JRy5HL9CrDKBbIVFCmOGTwWeS6yatA33kC7gbdhgQg4R7Wj4dk0QA433lFOhpPS7BG
-         GedSdXdvWMJlqLJMP3slN5sWzMdnTJ5kwlc2bCLw=
+        b=n8GgbMagxU40okmdhOmQAxlVv70BajSISG9TdyBf+A1K0q6cXMFOqIJtXg9lHt9pJ
+         rO2+qL4C0egBogWHZSFXuo981sAxzXwAPmdLHk3R7P22NSaE+1f/AcV7EPcneQei3g
+         wLOrqnsNVd9/UUcgSw8uELvz2MEEGcFUAfjx/MDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+39be4da489ed2493ba25@syzkaller.appspotmail.com,
-        stable <stable@kernel.org>,
-        Alexander Potapenko <glider@google.com>,
-        Vishnu Dasa <vdasa@vmware.com>
-Subject: [PATCH 4.14 73/88] misc/vmw_vmci: fix an infoleak in vmci_host_do_receive_datagram()
-Date:   Wed, 23 Nov 2022 09:51:10 +0100
-Message-Id: <20221123084551.200292055@linuxfoundation.org>
+        syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 4.9 72/76] 9p/trans_fd: always use O_NONBLOCK read/write
+Date:   Wed, 23 Nov 2022 09:51:11 +0100
+Message-Id: <20221123084549.106391394@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
+References: <20221123084546.742331901@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit e5b0d06d9b10f5f43101bd6598b076c347f9295f upstream.
+commit ef575281b21e9a34dfae544a187c6aac2ae424a9 upstream.
 
-`struct vmci_event_qp` allocated by qp_notify_peer() contains padding,
-which may carry uninitialized data to the userspace, as observed by
-KMSAN:
+syzbot is reporting hung task at p9_fd_close() [1], for p9_mux_poll_stop()
+ from p9_conn_destroy() from p9_fd_close() is failing to interrupt already
+started kernel_read() from p9_fd_read() from p9_read_work() and/or
+kernel_write() from p9_fd_write() from p9_write_work() requests.
 
-  BUG: KMSAN: kernel-infoleak in instrument_copy_to_user ./include/linux/instrumented.h:121
-   instrument_copy_to_user ./include/linux/instrumented.h:121
-   _copy_to_user+0x5f/0xb0 lib/usercopy.c:33
-   copy_to_user ./include/linux/uaccess.h:169
-   vmci_host_do_receive_datagram drivers/misc/vmw_vmci/vmci_host.c:431
-   vmci_host_unlocked_ioctl+0x33d/0x43d0 drivers/misc/vmw_vmci/vmci_host.c:925
-   vfs_ioctl fs/ioctl.c:51
-  ...
+Since p9_socket_open() sets O_NONBLOCK flag, p9_mux_poll_stop() does not
+need to interrupt kernel_read()/kernel_write(). However, since p9_fd_open()
+does not set O_NONBLOCK flag, but pipe blocks unless signal is pending,
+p9_mux_poll_stop() needs to interrupt kernel_read()/kernel_write() when
+the file descriptor refers to a pipe. In other words, pipe file descriptor
+needs to be handled as if socket file descriptor.
 
-  Uninit was stored to memory at:
-   kmemdup+0x74/0xb0 mm/util.c:131
-   dg_dispatch_as_host drivers/misc/vmw_vmci/vmci_datagram.c:271
-   vmci_datagram_dispatch+0x4f8/0xfc0 drivers/misc/vmw_vmci/vmci_datagram.c:339
-   qp_notify_peer+0x19a/0x290 drivers/misc/vmw_vmci/vmci_queue_pair.c:1479
-   qp_broker_attach drivers/misc/vmw_vmci/vmci_queue_pair.c:1662
-   qp_broker_alloc+0x2977/0x2f30 drivers/misc/vmw_vmci/vmci_queue_pair.c:1750
-   vmci_qp_broker_alloc+0x96/0xd0 drivers/misc/vmw_vmci/vmci_queue_pair.c:1940
-   vmci_host_do_alloc_queuepair drivers/misc/vmw_vmci/vmci_host.c:488
-   vmci_host_unlocked_ioctl+0x24fd/0x43d0 drivers/misc/vmw_vmci/vmci_host.c:927
-  ...
+We somehow need to interrupt kernel_read()/kernel_write() on pipes.
 
-  Local variable ev created at:
-   qp_notify_peer+0x54/0x290 drivers/misc/vmw_vmci/vmci_queue_pair.c:1456
-   qp_broker_attach drivers/misc/vmw_vmci/vmci_queue_pair.c:1662
-   qp_broker_alloc+0x2977/0x2f30 drivers/misc/vmw_vmci/vmci_queue_pair.c:1750
+A minimal change, which this patch is doing, is to set O_NONBLOCK flag
+ from p9_fd_open(), for O_NONBLOCK flag does not affect reading/writing
+of regular files. But this approach changes O_NONBLOCK flag on userspace-
+supplied file descriptors (which might break userspace programs), and
+O_NONBLOCK flag could be changed by userspace. It would be possible to set
+O_NONBLOCK flag every time p9_fd_read()/p9_fd_write() is invoked, but still
+remains small race window for clearing O_NONBLOCK flag.
 
-  Bytes 28-31 of 48 are uninitialized
-  Memory access of size 48 starts at ffff888035155e00
-  Data copied to user address 0000000020000100
+If we don't want to manipulate O_NONBLOCK flag, we might be able to
+surround kernel_read()/kernel_write() with set_thread_flag(TIF_SIGPENDING)
+and recalc_sigpending(). Since p9_read_work()/p9_write_work() works are
+processed by kernel threads which process global system_wq workqueue,
+signals could not be delivered from remote threads when p9_mux_poll_stop()
+ from p9_conn_destroy() from p9_fd_close() is called. Therefore, calling
+set_thread_flag(TIF_SIGPENDING)/recalc_sigpending() every time would be
+needed if we count on signals for making kernel_read()/kernel_write()
+non-blocking.
 
-Use memset() to prevent the infoleaks.
-
-Also speculatively fix qp_notify_peer_local(), which may suffer from the
-same problem.
-
-Reported-by: syzbot+39be4da489ed2493ba25@syzkaller.appspotmail.com
-Cc: stable <stable@kernel.org>
-Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
-Link: https://lore.kernel.org/r/20221104175849.2782567-1-glider@google.com
+Link: https://lkml.kernel.org/r/345de429-a88b-7097-d177-adecf9fed342@I-love.SAKURA.ne.jp
+Link: https://syzkaller.appspot.com/bug?extid=8b41a1365f1106fd0f33 [1]
+Reported-by: syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>
+Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
+[Dominique: add comment at Christian's suggestion]
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/vmw_vmci/vmci_queue_pair.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/9p/trans_fd.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
-+++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-@@ -952,6 +952,7 @@ static int qp_notify_peer_local(bool att
- 	u32 context_id = vmci_get_context_id();
- 	struct vmci_event_qp ev;
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -820,11 +820,14 @@ static int p9_fd_open(struct p9_client *
+ 		goto out_free_ts;
+ 	if (!(ts->rd->f_mode & FMODE_READ))
+ 		goto out_put_rd;
++	/* prevent workers from hanging on IO when fd is a pipe */
++	ts->rd->f_flags |= O_NONBLOCK;
+ 	ts->wr = fget(wfd);
+ 	if (!ts->wr)
+ 		goto out_put_rd;
+ 	if (!(ts->wr->f_mode & FMODE_WRITE))
+ 		goto out_put_wr;
++	ts->wr->f_flags |= O_NONBLOCK;
  
-+	memset(&ev, 0, sizeof(ev));
- 	ev.msg.hdr.dst = vmci_make_handle(context_id, VMCI_EVENT_HANDLER);
- 	ev.msg.hdr.src = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
- 					  VMCI_CONTEXT_RESOURCE_ID);
-@@ -1563,6 +1564,7 @@ static int qp_notify_peer(bool attach,
- 	 * kernel.
- 	 */
- 
-+	memset(&ev, 0, sizeof(ev));
- 	ev.msg.hdr.dst = vmci_make_handle(peer_id, VMCI_EVENT_HANDLER);
- 	ev.msg.hdr.src = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
- 					  VMCI_CONTEXT_RESOURCE_ID);
+ 	client->trans = ts;
+ 	client->status = Connected;
 
 
