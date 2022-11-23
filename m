@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48E49635753
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E72FC635939
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:09:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237885AbiKWJje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:39:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56934 "EHLO
+        id S237001AbiKWKJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:09:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237918AbiKWJjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:39:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D801157BC
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:36:52 -0800 (PST)
+        with ESMTP id S235989AbiKWKIi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:08:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2426A56577
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:58:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5096F61B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:36:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2934CC433C1;
-        Wed, 23 Nov 2022 09:36:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4CD4B81EF1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:58:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08C59C433D6;
+        Wed, 23 Nov 2022 09:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196211;
+        s=korg; t=1669197488;
         bh=QUh22GpSmKRc2joQsuFnzIGvTBQlEpNUPURdx8JPZsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wq5nWMHm0Ff1a7O/DvCA/M+Wab0bS5DTAApPy3aYtYp18W5J9VELjSWfeYxlR8CRK
-         snF6O2hyEyhGCWiD43O7psBZKWWr+8hVBZCryD7A+fnGWtyBr4D3peURBvg1dlZ8yL
-         x8JUo47Rd5ZCYUWj6dCG34MIJJY9bAmfuF5F8ko4=
+        b=ENdXqxPGWSb3DXOt8IBICEf4OHJmDkJO/tQgq6q3wrNJPgaHv4dinyMQhO89Ua+X8
+         17cCTrTmY4GijkPxdA+sZmZ5VJqsVojiKqvrsMGp+1wtC8SB8yt3UdvnvNX6z+1fm4
+         EZjMHAi5OzO/YaUHTyFyjFws2t3ADkHxmvvKGJk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Brian Norris <briannorris@chromium.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH 5.15 150/181] firmware: coreboot: Register bus in module init
+Subject: [PATCH 6.0 268/314] firmware: coreboot: Register bus in module init
 Date:   Wed, 23 Nov 2022 09:51:53 +0100
-Message-Id: <20221123084608.837828910@linuxfoundation.org>
+Message-Id: <20221123084637.668295230@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
