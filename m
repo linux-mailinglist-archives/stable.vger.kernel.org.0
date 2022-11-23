@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C31E863537B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CED96353B0
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236751AbiKWI4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:56:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59344 "EHLO
+        id S236829AbiKWI6N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:58:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236758AbiKWI4D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:56:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEF34FDD8F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:56:01 -0800 (PST)
+        with ESMTP id S236799AbiKWI6G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:58:06 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBB924BE9
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:57:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B8B761B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:56:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 729C9C433D6;
-        Wed, 23 Nov 2022 08:56:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A1DA1CE20F8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:57:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E39DC433C1;
+        Wed, 23 Nov 2022 08:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193760;
-        bh=gDs1PHCKooCABvtqijtCQmt71YcV3VtQUnNa7OGn8Gc=;
+        s=korg; t=1669193870;
+        bh=tE2HAV8kIHJPsljpL3zxwrQsBovYKkLHTnkuxp7icLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fyVIsCp7jo9crNdyvxvmTvpkMHhTEGDINsHQMKW9PU//3DKFbe4NwbfXVdTf64f3Z
-         gyxYskvj/gIo2UK+VgagH35M/ZwFRr2ERuMY1VbV8JjWkds8fseRIwBSLmNuijyA2+
-         /BcWEia0nSMPDptqnUDVr72SMrfTwfeHqgSmO6vs=
+        b=Y2n/9bpVhXtaquRHV+cM0O33yURaP9654mwtg5qGqDHEAVP6ldFte2nBAo0K2NdCJ
+         XORWa6NgiEmC/UhbJP8RCp5ev3yarC48WPIph9XDkn5mJr7989r/4jAaFSRz5TvVN+
+         RyT+xREnWlEIw8DTrUk39+JXqUjNLZoGW9ts+Ynk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         Davide Tronchin <davide.tronchin.94@gmail.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 52/76] USB: serial: option: add u-blox LARA-R6 00B modem
-Date:   Wed, 23 Nov 2022 09:50:51 +0100
-Message-Id: <20221123084548.468140973@linuxfoundation.org>
+Subject: [PATCH 4.9 53/76] USB: serial: option: add u-blox LARA-L6 modem
+Date:   Wed, 23 Nov 2022 09:50:52 +0100
+Message-Id: <20221123084548.503575213@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
 References: <20221123084546.742331901@linuxfoundation.org>
@@ -55,36 +55,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Davide Tronchin <davide.tronchin.94@gmail.com>
 
-commit d9e37a5c4d80ea25a7171ab8557a449115554e76 upstream.
+commit c1547f12df8b8e9ca2686accee43213ecd117efe upstream.
 
-The official LARA-R6 (00B) modem uses 0x908b PID. LARA-R6 00B does not
-implement a QMI interface on port 4, the reservation (RSVD(4)) has been
-added to meet other companies that implement QMI on that interface.
+Add LARA-L6 PIDs for three different USB compositions.
 
-LARA-R6 00B USB composition exposes the following interfaces:
+LARA-L6 module can be configured (by AT interface) in three different
+USB modes:
+* Default mode (Vendor ID: 0x1546 Product ID: 0x1341) with 4 serial
+interfaces
+* RmNet mode (Vendor ID: 0x1546 Product ID: 0x1342) with 4 serial
+interfaces and 1 RmNet virtual network interface
+* CDC-ECM mode (Vendor ID: 0x1546 Product ID: 0x1343) with 4 serial
+interface and 1 CDC-ECM virtual network interface
+
+In default mode LARA-L6 exposes the following interfaces:
 If 0: Diagnostic
 If 1: AT parser
 If 2: AT parser
 If 3: AT parser/alternative functions
 
+In RmNet mode LARA-L6 exposes the following interfaces:
+If 0: Diagnostic
+If 1: AT parser
+If 2: AT parser
+If 3: AT parset/alternative functions
+If 4: RMNET interface
+
+In CDC-ECM mode LARA-L6 exposes the following interfaces:
+If 0: Diagnostic
+If 1: AT parser
+If 2: AT parser
+If 3: AT parset/alternative functions
+If 4: CDC-ECM interface
+
 Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
+[ johan: drop PID defines in favour of comments ]
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/option.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -1117,6 +1117,8 @@ static const struct usb_device_id option
- 	/* u-blox products using Qualcomm vendor ID */
- 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
- 	  .driver_info = RSVD(1) | RSVD(3) },
-+	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x908b),	/* u-blox LARA-R6 00B */
-+	  .driver_info = RSVD(4) },
+@@ -165,6 +165,8 @@ static void option_instat_callback(struc
+ #define NOVATELWIRELESS_PRODUCT_G2		0xA010
+ #define NOVATELWIRELESS_PRODUCT_MC551		0xB001
+ 
++#define UBLOX_VENDOR_ID				0x1546
++
+ /* AMOI PRODUCTS */
+ #define AMOI_VENDOR_ID				0x1614
+ #define AMOI_PRODUCT_H01			0x0800
+@@ -1121,6 +1123,12 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(4) },
  	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x90fa),
  	  .driver_info = RSVD(3) },
++	/* u-blox products */
++	{ USB_DEVICE(UBLOX_VENDOR_ID, 0x1341) },	/* u-blox LARA-L6 */
++	{ USB_DEVICE(UBLOX_VENDOR_ID, 0x1342),		/* u-blox LARA-L6 (RMNET) */
++	  .driver_info = RSVD(4) },
++	{ USB_DEVICE(UBLOX_VENDOR_ID, 0x1343),		/* u-blox LARA-L6 (ECM) */
++	  .driver_info = RSVD(4) },
  	/* Quectel products using Quectel vendor ID */
+ 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21),
+ 	  .driver_info = RSVD(4) },
 
 
