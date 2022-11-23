@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4458635571
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A07CC6358C3
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:04:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237323AbiKWJTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:19:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57842 "EHLO
+        id S236428AbiKWKD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:03:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237340AbiKWJTW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:19:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B38A26DA
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:19:21 -0800 (PST)
+        with ESMTP id S236849AbiKWKCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:02:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE4CD725E0
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:54:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEC2DB81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:19:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 365FBC433C1;
-        Wed, 23 Nov 2022 09:19:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C43661B40
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:54:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 552E3C433C1;
+        Wed, 23 Nov 2022 09:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195158;
-        bh=HlCaUuMmHfxMuJ0ffJRVaWlQ19yPja1m2apHeFztfrE=;
+        s=korg; t=1669197271;
+        bh=kULyYoPvu00hdw6bXMFo/3Gdct49krBAENS9no4KVCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LH/pQ8QtuuBRVAMDTuKHDba66dE3TSYaXOfSyQyQZ1JWB1NPLQZ/lXMvNZuXUwjva
-         N9B/aAG6ke2hmfAz4HNHlLAL0YHjeuMRTjy1UYB8esy2wG3Hz5vR6g0efu8EzI1nLp
-         GLMMrqJOyzfRAxN24cyz3P9vfWLgdbG6KfooOc3U=
+        b=rPRvH6TvWq7d7o7jr8bmdtM1Pyti8mJr3gT0nhK08gOnUtjLo1uyoBhLEmxtHfd8W
+         f3A4ppbGKlbMuPEFkty4oZJVT/R+8l9n682CDrbyY02HwBuPsZJmM05OyNNBU/ZpZh
+         2eRY3ix3XTkvLS+D1IHsEd47g/JbWy6hjBDGFOGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yann Gautier <yann.gautier@foss.st.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 134/156] mmc: core: properly select voltage range without power cycle
-Date:   Wed, 23 Nov 2022 09:51:31 +0100
-Message-Id: <20221123084602.763142352@linuxfoundation.org>
+        patches@lists.linux.dev, Saravanan Sekar <sravanhome@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.0 247/314] iio: adc: mp2629: fix wrong comparison of channel
+Date:   Wed, 23 Nov 2022 09:51:32 +0100
+Message-Id: <20221123084636.700387459@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yann Gautier <yann.gautier@foss.st.com>
+From: Saravanan Sekar <sravanhome@gmail.com>
 
-commit 39a72dbfe188291b156dd6523511e3d5761ce775 upstream.
+commit 1eb20332a082fa801fb89c347c5e62de916a4001 upstream.
 
-In mmc_select_voltage(), if there is no full power cycle, the voltage
-range selected at the end of the function will be on a single range
-(e.g. 3.3V/3.4V). To keep a range around the selected voltage (3.2V/3.4V),
-the mask shift should be reduced by 1.
+Input voltage channel enum is compared against iio address instead
+of the channel.
 
-This issue was triggered by using a specific SD-card (Verbatim Premium
-16GB UHS-1) on an STM32MP157C-DK2 board. This board cannot do UHS modes
-and there is no power cycle. And the card was failing to switch to
-high-speed mode. When adding the range 3.2V/3.3V for this card with the
-proposed shift change, the card can switch to high-speed mode.
-
-Fixes: ce69d37b7d8f ("mmc: core: Prevent violation of specs while initializing cards")
-Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221028073740.7259-1-yann.gautier@foss.st.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 7abd9fb64682 ("iio: adc: mp2629: Add support for mp2629 ADC driver")
+Signed-off-by: Saravanan Sekar <sravanhome@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20221029093000.45451-2-sravanhome@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/core.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/iio/adc/mp2629_adc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/core/core.c
-+++ b/drivers/mmc/core/core.c
-@@ -1145,7 +1145,13 @@ u32 mmc_select_voltage(struct mmc_host *
- 		mmc_power_cycle(host, ocr);
- 	} else {
- 		bit = fls(ocr) - 1;
--		ocr &= 3 << bit;
-+		/*
-+		 * The bit variable represents the highest voltage bit set in
-+		 * the OCR register.
-+		 * To keep a range of 2 values (e.g. 3.2V/3.3V and 3.3V/3.4V),
-+		 * we must shift the mask '3' with (bit - 1).
-+		 */
-+		ocr &= 3 << (bit - 1);
- 		if (bit != host->ios.vdd)
- 			dev_warn(mmc_dev(host), "exceeding card's volts\n");
- 	}
+--- a/drivers/iio/adc/mp2629_adc.c
++++ b/drivers/iio/adc/mp2629_adc.c
+@@ -74,7 +74,7 @@ static int mp2629_read_raw(struct iio_de
+ 		if (ret)
+ 			return ret;
+ 
+-		if (chan->address == MP2629_INPUT_VOLT)
++		if (chan->channel == MP2629_INPUT_VOLT)
+ 			rval &= GENMASK(6, 0);
+ 		*val = rval;
+ 		return IIO_VAL_INT;
 
 
