@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F90463565C
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DBB0635918
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237807AbiKWJ3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:29:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44316 "EHLO
+        id S235641AbiKWKGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:06:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237671AbiKWJ3I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:29:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 155C863C3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:27:24 -0800 (PST)
+        with ESMTP id S236161AbiKWKGL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A2DC12522A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8099B81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:27:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A474C433C1;
-        Wed, 23 Nov 2022 09:27:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85430B81EF0
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8357C433D6;
+        Wed, 23 Nov 2022 09:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195641;
-        bh=BDC7gb5JX6VFQic4aK/Xw5vyvyd55F9yZ7uBgdIImbA=;
+        s=korg; t=1669197389;
+        bh=Bh+0qot04Uekb+x/srQItX55tmV87W73TraLf0NtkqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dIoMMTes1M87+N2NXG6HiVhrbueBF3DWxXsI+x225eT4FUq0quA3FS0Oc0GZKRiDV
-         Y9qcMdI2z04j2ee1s0+XrWHk8sITdaM5hXQXZgrJKg+S+0j1ZT+HQ1YV7RSvz5CU43
-         cLHOq6UTbaomN20ead4Yqw2zky+jPLaVYYW9DI8g=
+        b=LNK06R7aj5hnHDyvpa2uVUj5ah7Q1qG8Sh9JsHpC5YcI1qiUIkhJ8ERmqBZqvAYqz
+         F5G8tYWqb3nb2CHmkNQ2Z94PU0xuut/VJFfzGlxqOMftHdqH3yeN+8GddiToxcvxYn
+         05DAgS9kixffaukkZqs3Jx0Fm3oM/mimo6M/cQkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+dcf33a7aae997956fe06@syzkaller.appspotmail.com,
-        Andrew Price <anprice@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.10 143/149] gfs2: Check sb_bsize_shift after reading superblock
+        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 6.0 281/314] nvme: restrict management ioctls to admin
 Date:   Wed, 23 Nov 2022 09:52:06 +0100
-Message-Id: <20221123084603.064150076@linuxfoundation.org>
+Message-Id: <20221123084638.276777129@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Price <anprice@redhat.com>
+From: Keith Busch <kbusch@kernel.org>
 
-commit 670f8ce56dd0632dc29a0322e188cc73ce3c6b92 upstream.
+commit 23e085b2dead13b51fe86d27069895b740f749c0 upstream.
 
-Fuzzers like to scribble over sb_bsize_shift but in reality it's very
-unlikely that this field would be corrupted on its own. Nevertheless it
-should be checked to avoid the possibility of messy mount errors due to
-bad calculations. It's always a fixed value based on the block size so
-we can just check that it's the expected value.
+The passthrough commands already have this restriction, but the other
+operations do not. Require the same capabilities for all users as all of
+these operations, which include resets and rescans, can be disruptive.
 
-Tested with:
-
-    mkfs.gfs2 -O -p lock_nolock /dev/vdb
-    for i in 0 -1 64 65 32 33; do
-        gfs2_edit -p sb field sb_bsize_shift $i /dev/vdb
-        mount /dev/vdb /mnt/test && umount /mnt/test
-    done
-
-Before this patch we get a withdraw after
-
-[   76.413681] gfs2: fsid=loop0.0: fatal: invalid metadata block
-[   76.413681]   bh = 19 (type: exp=5, found=4)
-[   76.413681]   function = gfs2_meta_buffer, file = fs/gfs2/meta_io.c, line = 492
-
-and with UBSAN configured we also get complaints like
-
-[   76.373395] UBSAN: shift-out-of-bounds in fs/gfs2/ops_fstype.c:295:19
-[   76.373815] shift exponent 4294967287 is too large for 64-bit type 'long unsigned int'
-
-After the patch, these complaints don't appear, mount fails immediately
-and we get an explanation in dmesg.
-
-Reported-by: syzbot+dcf33a7aae997956fe06@syzkaller.appspotmail.com
-Signed-off-by: Andrew Price <anprice@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/ops_fstype.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/nvme/host/ioctl.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -182,7 +182,10 @@ static int gfs2_check_sb(struct gfs2_sbd
- 		pr_warn("Invalid superblock size\n");
- 		return -EINVAL;
- 	}
--
-+	if (sb->sb_bsize_shift != ffs(sb->sb_bsize) - 1) {
-+		pr_warn("Invalid block size shift\n");
-+		return -EINVAL;
-+	}
- 	return 0;
- }
- 
+--- a/drivers/nvme/host/ioctl.c
++++ b/drivers/nvme/host/ioctl.c
+@@ -764,11 +764,17 @@ long nvme_dev_ioctl(struct file *file, u
+ 	case NVME_IOCTL_IO_CMD:
+ 		return nvme_dev_user_cmd(ctrl, argp);
+ 	case NVME_IOCTL_RESET:
++		if (!capable(CAP_SYS_ADMIN))
++			return -EACCES;
+ 		dev_warn(ctrl->device, "resetting controller\n");
+ 		return nvme_reset_ctrl_sync(ctrl);
+ 	case NVME_IOCTL_SUBSYS_RESET:
++		if (!capable(CAP_SYS_ADMIN))
++			return -EACCES;
+ 		return nvme_reset_subsystem(ctrl);
+ 	case NVME_IOCTL_RESCAN:
++		if (!capable(CAP_SYS_ADMIN))
++			return -EACCES;
+ 		nvme_queue_scan(ctrl);
+ 		return 0;
+ 	default:
 
 
