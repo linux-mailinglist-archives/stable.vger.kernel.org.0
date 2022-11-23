@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4716E63593A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:09:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D234635952
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:12:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236414AbiKWKIw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:08:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33460 "EHLO
+        id S236999AbiKWKK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:10:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236022AbiKWKHV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:07:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E773252B2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:57:47 -0800 (PST)
+        with ESMTP id S236540AbiKWKJB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:09:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0DC31173C8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:59:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19B67B81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:57:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B239C433C1;
-        Wed, 23 Nov 2022 09:57:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D1C7619EB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:59:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A6BFC433D7;
+        Wed, 23 Nov 2022 09:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197464;
-        bh=wt3XbCM6A1KA2PCRzQwfOqepKwTedlpJnOEaesghM9I=;
+        s=korg; t=1669197539;
+        bh=H7At9qYQ3/buVlEQdSTK/awlDtqr/RbiPK3w/SiG3/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05FpdQKew9FKUkVe8Wa/QyXWunYq1wkN80tNvIo8CRV8s/dRXvnyaypmKVzmm1GW/
-         5PSgB3RoCW4Ci7jG6/yvBpLMWrvThLbLRp9JcVz469xa6aECk05KFoL+qb7bTOUyOc
-         lgrUupn3gIeW5urXfM5aljSI+eGk+nwKupSxsiEg=
+        b=YtHiM0L6k28xQMxKYsVrqgbqF49v6rpxpFJzr++z2EVq3e8fO1m2gnfKHeCg9dL+f
+         6xvAGYilndTYMGgbVPl2UaSnWX+Kp1kl6ZTx6k5Xk63HNL8H86NjGnnbUdjIfdg3Tk
+         R821FYYiBa62eA5J51lGUFDNf8gR1sF/XNQGvCiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Tom Herbert <tom@herbertland.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.0 300/314] kcm: avoid potential race in kcm_tx_work
-Date:   Wed, 23 Nov 2022 09:52:25 +0100
-Message-Id: <20221123084639.144930835@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+6f0c896c5a9449a10ded@syzkaller.appspotmail.com,
+        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 6.0 301/314] KVM: x86/xen: Fix eventfd error handling in kvm_xen_eventfd_assign()
+Date:   Wed, 23 Nov 2022 09:52:26 +0100
+Message-Id: <20221123084639.193736190@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -54,72 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
 
-commit ec7eede369fe5b0d085ac51fdbb95184f87bfc6c upstream.
+commit 7353633814f6e5b4899fb9ee1483709d6bb0e1cd upstream.
 
-syzbot found that kcm_tx_work() could crash [1] in:
+Should not call eventfd_ctx_put() in case of error.
 
-	/* Primarily for SOCK_SEQPACKET sockets */
-	if (likely(sk->sk_socket) &&
-	    test_bit(SOCK_NOSPACE, &sk->sk_socket->flags)) {
-<<*>>	clear_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
-		sk->sk_write_space(sk);
-	}
-
-I think the reason is that another thread might concurrently
-run in kcm_release() and call sock_orphan(sk) while sk is not
-locked. kcm_tx_work() find sk->sk_socket being NULL.
-
-[1]
-BUG: KASAN: null-ptr-deref in instrument_atomic_write include/linux/instrumented.h:86 [inline]
-BUG: KASAN: null-ptr-deref in clear_bit include/asm-generic/bitops/instrumented-atomic.h:41 [inline]
-BUG: KASAN: null-ptr-deref in kcm_tx_work+0xff/0x160 net/kcm/kcmsock.c:742
-Write of size 8 at addr 0000000000000008 by task kworker/u4:3/53
-
-CPU: 0 PID: 53 Comm: kworker/u4:3 Not tainted 5.19.0-rc3-next-20220621-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: kkcmd kcm_tx_work
-Call Trace:
-<TASK>
-__dump_stack lib/dump_stack.c:88 [inline]
-dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
-kasan_report+0xbe/0x1f0 mm/kasan/report.c:495
-check_region_inline mm/kasan/generic.c:183 [inline]
-kasan_check_range+0x13d/0x180 mm/kasan/generic.c:189
-instrument_atomic_write include/linux/instrumented.h:86 [inline]
-clear_bit include/asm-generic/bitops/instrumented-atomic.h:41 [inline]
-kcm_tx_work+0xff/0x160 net/kcm/kcmsock.c:742
-process_one_work+0x996/0x1610 kernel/workqueue.c:2289
-worker_thread+0x665/0x1080 kernel/workqueue.c:2436
-kthread+0x2e9/0x3a0 kernel/kthread.c:376
-ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
-</TASK>
-
-Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Tom Herbert <tom@herbertland.com>
-Link: https://lore.kernel.org/r/20221012133412.519394-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 2fd6df2f2b47 ("KVM: x86/xen: intercept EVTCHNOP_send from guests")
+Reported-by: syzbot+6f0c896c5a9449a10ded@syzkaller.appspotmail.com
+Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+Message-Id: <20221028092631.117438-1-eiichi.tsukata@nutanix.com>
+[Introduce new goto target instead. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/kcm/kcmsock.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/xen.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/net/kcm/kcmsock.c
-+++ b/net/kcm/kcmsock.c
-@@ -1799,10 +1799,10 @@ static int kcm_release(struct socket *so
- 	kcm = kcm_sk(sk);
- 	mux = kcm->mux;
+--- a/arch/x86/kvm/xen.c
++++ b/arch/x86/kvm/xen.c
+@@ -1667,18 +1667,18 @@ static int kvm_xen_eventfd_assign(struct
+ 	case EVTCHNSTAT_ipi:
+ 		/* IPI  must map back to the same port# */
+ 		if (data->u.evtchn.deliver.port.port != data->u.evtchn.send_port)
+-			goto out; /* -EINVAL */
++			goto out_noeventfd; /* -EINVAL */
+ 		break;
  
-+	lock_sock(sk);
- 	sock_orphan(sk);
- 	kfree_skb(kcm->seq_skb);
- 
--	lock_sock(sk);
- 	/* Purge queue under lock to avoid race condition with tx_work trying
- 	 * to act when queue is nonempty. If tx_work runs after this point
- 	 * it will just return.
+ 	case EVTCHNSTAT_interdomain:
+ 		if (data->u.evtchn.deliver.port.port) {
+ 			if (data->u.evtchn.deliver.port.port >= max_evtchn_port(kvm))
+-				goto out; /* -EINVAL */
++				goto out_noeventfd; /* -EINVAL */
+ 		} else {
+ 			eventfd = eventfd_ctx_fdget(data->u.evtchn.deliver.eventfd.fd);
+ 			if (IS_ERR(eventfd)) {
+ 				ret = PTR_ERR(eventfd);
+-				goto out;
++				goto out_noeventfd;
+ 			}
+ 		}
+ 		break;
+@@ -1718,6 +1718,7 @@ static int kvm_xen_eventfd_assign(struct
+ out:
+ 	if (eventfd)
+ 		eventfd_ctx_put(eventfd);
++out_noeventfd:
+ 	kfree(evtchnfd);
+ 	return ret;
+ }
 
 
