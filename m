@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1950563576E
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DCB63577B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238070AbiKWJmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:42:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33464 "EHLO
+        id S237989AbiKWJmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:42:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237976AbiKWJlu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38FE1113730
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:39:42 -0800 (PST)
+        with ESMTP id S238101AbiKWJlz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:55 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E92113736
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:39:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB60C619F9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:39:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0E11C433D7;
-        Wed, 23 Nov 2022 09:39:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8E6BECE20E5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:39:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73E9AC433D6;
+        Wed, 23 Nov 2022 09:39:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196381;
-        bh=3zMWmOszjDzpqljc5lII61L0NPdiLX33EBtd277K06A=;
+        s=korg; t=1669196384;
+        bh=/r86lYsiJah6/50aG0EEfgpkTWbxtxN8e5PhYglchVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q6a87KJ0SnacVHXJluZLTiw/ti3n+e0WsJm+upomoRqgT+pu9/bDkgvGmlPp+o5RM
-         Abw3lXxanS3ZMqH8H+E7Dyhy9ibnPl6wVettq6BMBjzPRtCifCVWzRJPDN8z0MhsPt
-         VdarSJOEo0SZ/DSfQtM9iL3FwjRkD0dxjCc8iO0c=
+        b=IgTyNoratEWc0eivCWtFC8rhDcXN7uUjxpHdhmu16MN80uKcIQCEAiIIPHbZIcHlU
+         8ZmAll+Q8mQ5PSLCsqd+tSMN1zPcwjMwwKn7PVJ9jcg9OTtJTJaEG7PfJYl+pJHTW9
+         1SZHZ0fohJfM4fYBLmpNZU98vkg17Uxlija0cXGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Siarhei Volkau <lis8215@gmail.com>,
+        patches@lists.linux.dev,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 015/314] ASoC: codecs: jz4725b: fix capture selector naming
-Date:   Wed, 23 Nov 2022 09:47:40 +0100
-Message-Id: <20221123084626.180336142@linuxfoundation.org>
+Subject: [PATCH 6.0 016/314] ASoC: Intel: sof_sdw: add quirk variant for LAPBC710 NUC15
+Date:   Wed, 23 Nov 2022 09:47:41 +0100
+Message-Id: <20221123084626.228134904@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -53,62 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siarhei Volkau <lis8215@gmail.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 80852f8268769715db335a22305e81a0c4a38a84 ]
+[ Upstream commit 41deb2db64997d01110faaf763bd911d490dfde7 ]
 
-At the moment Capture source selector appears on Playback
-tab in the alsamixer and has a senseless name.
+Some NUC15 LAPBC710 devices don't expose the same DMI information as
+the Intel reference, add additional entry in the match table.
 
-Let's fix that.
-
-Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
-Link: https://lore.kernel.org/r/20221016132648.3011729-5-lis8215@gmail.com
+BugLink: https://github.com/thesofproject/linux/issues/3885
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20221017204054.207512-1-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/jz4725b.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ sound/soc/intel/boards/sof_sdw.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
-index 4363d898a7d4..d57c2c6a3add 100644
---- a/sound/soc/codecs/jz4725b.c
-+++ b/sound/soc/codecs/jz4725b.c
-@@ -183,7 +183,7 @@ static SOC_VALUE_ENUM_SINGLE_DECL(jz4725b_codec_adc_src_enum,
- 				  jz4725b_codec_adc_src_texts,
- 				  jz4725b_codec_adc_src_values);
- static const struct snd_kcontrol_new jz4725b_codec_adc_src_ctrl =
--			SOC_DAPM_ENUM("Route", jz4725b_codec_adc_src_enum);
-+	SOC_DAPM_ENUM("ADC Source Capture Route", jz4725b_codec_adc_src_enum);
- 
- static const struct snd_kcontrol_new jz4725b_codec_mixer_controls[] = {
- 	SOC_DAPM_SINGLE("Line In Bypass", JZ4725B_CODEC_REG_CR1,
-@@ -228,7 +228,7 @@ static const struct snd_soc_dapm_widget jz4725b_codec_dapm_widgets[] = {
- 	SND_SOC_DAPM_ADC("ADC", "Capture",
- 			 JZ4725B_CODEC_REG_PMR1, REG_PMR1_SB_ADC_OFFSET, 1),
- 
--	SND_SOC_DAPM_MUX("ADC Source", SND_SOC_NOPM, 0, 0,
-+	SND_SOC_DAPM_MUX("ADC Source Capture Route", SND_SOC_NOPM, 0, 0,
- 			 &jz4725b_codec_adc_src_ctrl),
- 
- 	/* Mixer */
-@@ -287,11 +287,11 @@ static const struct snd_soc_dapm_route jz4725b_codec_dapm_routes[] = {
- 	{"Mixer", NULL, "DAC to Mixer"},
- 
- 	{"Mixer to ADC", NULL, "Mixer"},
--	{"ADC Source", "Mixer", "Mixer to ADC"},
--	{"ADC Source", "Line In", "Line In"},
--	{"ADC Source", "Mic 1", "Mic 1"},
--	{"ADC Source", "Mic 2", "Mic 2"},
--	{"ADC", NULL, "ADC Source"},
-+	{"ADC Source Capture Route", "Mixer", "Mixer to ADC"},
-+	{"ADC Sourc Capture Routee", "Line In", "Line In"},
-+	{"ADC Source Capture Route", "Mic 1", "Mic 1"},
-+	{"ADC Source Capture Route", "Mic 2", "Mic 2"},
-+	{"ADC", NULL, "ADC Source Capture Route"},
- 
- 	{"Out Stage", NULL, "Mixer"},
- 	{"HP Out", NULL, "Out Stage"},
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index 2ff30b40a1e4..ee9857dc3135 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -202,6 +202,17 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
+ 					SOF_SDW_PCH_DMIC |
+ 					RT711_JD1),
+ 	},
++	{
++		/* NUC15 LAPBC710 skews */
++		.callback = sof_sdw_quirk_cb,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
++			DMI_MATCH(DMI_BOARD_NAME, "LAPBC710"),
++		},
++		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
++					SOF_SDW_PCH_DMIC |
++					RT711_JD1),
++	},
+ 	/* TigerLake-SDCA devices */
+ 	{
+ 		.callback = sof_sdw_quirk_cb,
 -- 
 2.35.1
 
