@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE02635813
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:50:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A011D6354CF
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238244AbiKWJuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:50:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45098 "EHLO
+        id S237192AbiKWJKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:10:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237953AbiKWJtr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13665115D07
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:46:41 -0800 (PST)
+        with ESMTP id S237163AbiKWJK1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:10:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B99D5EC0A2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:10:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71780B81EF6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6952C433D6;
-        Wed, 23 Nov 2022 09:46:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F81D61B56
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:10:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1186BC433D6;
+        Wed, 23 Nov 2022 09:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196799;
-        bh=i9YKgbz66W62bTZZ/sYKnXQ31Al/E83J/H6hI2xMtM0=;
+        s=korg; t=1669194622;
+        bh=GwcMWJ0EPLhLW47wwosOYK46SYIOhNwvIVKoKGOAQBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ooJ920U/iNZQ/jOLvKGhBXNo5skgdIvxm4QjTeuG+IWtA8GVpye90jAQQmQvYVdNl
-         HGfNb2rb35JCSU8rKVeM6UmSNLR3LzT943x73lVSRMcmhu7urpoRnHe/xMJXteXfFq
-         2LK4nTF7MphFlMimoMD8gNw2UZmR+CyGjoUFmeBw=
+        b=IuSgLwpKhQ56XCM8WXso7vu28YkslujtOmEvT647V9J5m8+71qtKMGRuQA37GQr6b
+         66QS2WbWbMKbBYNfxSMeH6SyDzIU2iR/0W+bHFqtKaOf+zhqrco7AjRB7fdgZmXDVu
+         a4qYnOYNRmNJ3fx3GWXts5aI4JYxA8I5MNljPcqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        patches@lists.linux.dev, Akshay Navgire <anavgire@purestorage.com>,
+        Alex Barba <alex.barba@broadcom.com>,
+        Andy Gospodarek <gospo@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 127/314] drm/vc4: kms: Fix IS_ERR() vs NULL check for vc4_kms
+Subject: [PATCH 5.4 015/156] bnxt_en: fix potentially incorrect return value for ndo_rx_flow_steer
 Date:   Wed, 23 Nov 2022 09:49:32 +0100
-Message-Id: <20221123084631.288197046@linuxfoundation.org>
+Message-Id: <20221123084558.437226071@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Alex Barba <alex.barba@broadcom.com>
 
-[ Upstream commit dba9e3467425800f9d3a14e8b6a0f85c731c1650 ]
+[ Upstream commit 02597d39145bb0aa81d04bf39b6a913ce9a9d465 ]
 
-The drm_atomic_get_new_private_obj_state() function returns NULL
-on error path, drm_atomic_get_old_private_obj_state() function
-returns NULL on error path, too, they does not return error pointers.
+In the bnxt_en driver ndo_rx_flow_steer returns '0' whenever an entry
+that we are attempting to steer is already found.  This is not the
+correct behavior.  The return code should be the value/index that
+corresponds to the entry.  Returning zero all the time causes the
+RFS records to be incorrect unless entry '0' is the correct one.  As
+flows migrate to different cores this can create entries that are not
+correct.
 
-By the way, vc4_hvs_get_new/old_global_state() should return
-ERR_PTR(-EINVAL), otherwise there will be null-ptr-defer issue,
-such as follows:
-
-In function vc4_atomic_commit_tail():
-  |-- old_hvs_state = vc4_hvs_get_old_global_state(state); <-- return NULL
-  |-- if (WARN_ON(IS_ERR(old_hvs_state))) <-- no return
-  |-- unsigned long state_rate = max(old_hvs_state->core_clock_rate,
-	new_hvs_state->core_clock_rate); <-- null-ptr-defer
-
-Fixes: 9ec03d7f1ed3 ("drm/vc4: kms: Wait on previous FIFO users before a commit")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221110094445.2930509-6-cuigaosheng1@huawei.com
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Reported-by: Akshay Navgire <anavgire@purestorage.com>
+Signed-off-by: Alex Barba <alex.barba@broadcom.com>
+Signed-off-by: Andy Gospodarek <gospo@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_kms.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_kms.c b/drivers/gpu/drm/vc4/vc4_kms.c
-index b45dcdfd7306..a3678178b022 100644
---- a/drivers/gpu/drm/vc4/vc4_kms.c
-+++ b/drivers/gpu/drm/vc4/vc4_kms.c
-@@ -198,8 +198,8 @@ vc4_hvs_get_new_global_state(struct drm_atomic_state *state)
- 	struct drm_private_state *priv_state;
- 
- 	priv_state = drm_atomic_get_new_private_obj_state(state, &vc4->hvs_channels);
--	if (IS_ERR(priv_state))
--		return ERR_CAST(priv_state);
-+	if (!priv_state)
-+		return ERR_PTR(-EINVAL);
- 
- 	return to_vc4_hvs_state(priv_state);
- }
-@@ -211,8 +211,8 @@ vc4_hvs_get_old_global_state(struct drm_atomic_state *state)
- 	struct drm_private_state *priv_state;
- 
- 	priv_state = drm_atomic_get_old_private_obj_state(state, &vc4->hvs_channels);
--	if (IS_ERR(priv_state))
--		return ERR_CAST(priv_state);
-+	if (!priv_state)
-+		return ERR_PTR(-EINVAL);
- 
- 	return to_vc4_hvs_state(priv_state);
- }
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 5a7d5e7f3b23..d7d7d6421c48 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -11182,8 +11182,8 @@ static int bnxt_rx_flow_steer(struct net_device *dev, const struct sk_buff *skb,
+ 	rcu_read_lock();
+ 	hlist_for_each_entry_rcu(fltr, head, hash) {
+ 		if (bnxt_fltr_match(fltr, new_fltr)) {
++			rc = fltr->sw_id;
+ 			rcu_read_unlock();
+-			rc = 0;
+ 			goto err_free;
+ 		}
+ 	}
 -- 
 2.35.1
 
