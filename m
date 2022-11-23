@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10A49635954
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:12:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10435635957
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:12:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237248AbiKWKKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:10:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33040 "EHLO
+        id S236545AbiKWKKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:10:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236472AbiKWKI5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:08:57 -0500
+        with ESMTP id S236367AbiKWKI6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:08:58 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B15CD2612
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:58:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C6BA116ABD
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:58:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63DC1B81EEB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:58:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F05BC433D6;
-        Wed, 23 Nov 2022 09:58:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5070B81EF0
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:58:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 363E2C433D7;
+        Wed, 23 Nov 2022 09:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197526;
-        bh=sA41tFFKBDDhAGEMirpc2D2Fcw/aIZdFOBNHE5PNnGI=;
+        s=korg; t=1669197529;
+        bh=RPG5qSX8gxOwT9HLzoJMVEcJ0jf9kOO4VChFLrKV11o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gTJJgWJKz5hHoXgkh0bCC5W0rzwwdWxyKIkBgZz83pHsMeww5FeZ3dCMcHGrWiPuz
-         Aak27YupE3AGLAn+I9DQ3bjunEr60FWVYmQ94oKRuktEdUTpgWan7BzTify//SoF/v
-         ALkeHhFoWhMkz3PJpxlW4xoeLumzB+JrhLTPxAAs=
+        b=G7eTVjAPJUbng/MzAKMUFTTWQ6u6ngUcVUnDMkg0aO+x20lPuJqrfgqRSdgfTQ/+f
+         kS+KOeVVtvl8hbtTm918G1KIvVD/uSAEtlQ5y7RzaLa/Iz1AjLpOBh6er9xJCRxk17
+         5RwCAJ6vQv6tkd/IXjzvCWMFj03hSZM+p8GjyRw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kees Cook <keescook@chromium.org>,
-        Hawkins Jiawei <yin31149@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        syzbot+473754e5af963cf014cf@syzkaller.appspotmail.com
-Subject: [PATCH 6.0 307/314] wifi: wext: use flex array destination for memcpy()
-Date:   Wed, 23 Nov 2022 09:52:32 +0100
-Message-Id: <20221123084639.478636723@linuxfoundation.org>
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 6.0 308/314] rseq: Use pr_warn_once() when deprecated/unknown ABI flags are encountered
+Date:   Wed, 23 Nov 2022 09:52:33 +0100
+Message-Id: <20221123084639.525039336@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -54,128 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit e3e6e1d16a4cf7b63159ec71774e822194071954 upstream.
+commit 448dca8c88755b768552e19bd1618be34ef6d1ff upstream.
 
-Syzkaller reports buffer overflow false positive as follows:
-------------[ cut here ]------------
-memcpy: detected field-spanning write (size 8) of single field
-	"&compat_event->pointer" at net/wireless/wext-core.c:623 (size 4)
-WARNING: CPU: 0 PID: 3607 at net/wireless/wext-core.c:623
-	wireless_send_event+0xab5/0xca0 net/wireless/wext-core.c:623
-Modules linked in:
-CPU: 1 PID: 3607 Comm: syz-executor659 Not tainted
-	6.0.0-rc6-next-20220921-syzkaller #0
-[...]
-Call Trace:
- <TASK>
- ioctl_standard_call+0x155/0x1f0 net/wireless/wext-core.c:1022
- wireless_process_ioctl+0xc8/0x4c0 net/wireless/wext-core.c:955
- wext_ioctl_dispatch net/wireless/wext-core.c:988 [inline]
- wext_ioctl_dispatch net/wireless/wext-core.c:976 [inline]
- wext_handle_ioctl+0x26b/0x280 net/wireless/wext-core.c:1049
- sock_ioctl+0x285/0x640 net/socket.c:1220
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:870 [inline]
- __se_sys_ioctl fs/ioctl.c:856 [inline]
- __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:856
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- [...]
- </TASK>
+These commits use WARN_ON_ONCE() and kill the offending processes when
+deprecated and unknown flags are encountered:
 
-Wireless events will be sent on the appropriate channels in
-wireless_send_event(). Different wireless events may have different
-payload structure and size, so kernel uses **len** and **cmd** field
-in struct __compat_iw_event as wireless event common LCP part, uses
-**pointer** as a label to mark the position of remaining different part.
+commit c17a6ff93213 ("rseq: Kill process when unknown flags are encountered in ABI structures")
+commit 0190e4198e47 ("rseq: Deprecate RSEQ_CS_FLAG_NO_RESTART_ON_* flags")
 
-Yet the problem is that, **pointer** is a compat_caddr_t type, which may
-be smaller than the relative structure at the same position. So during
-wireless_send_event() tries to parse the wireless events payload, it may
-trigger the memcpy() run-time destination buffer bounds checking when the
-relative structure's data is copied to the position marked by **pointer**.
+The WARN_ON_ONCE() triggered by userspace input prevents use of
+Syzkaller to fuzz the rseq system call.
 
-This patch solves it by introducing flexible-array field **ptr_bytes**,
-to mark the position of the wireless events remaining part next to
-LCP part. What's more, this patch also adds **ptr_len** variable in
-wireless_send_event() to improve its maintainability.
+Replace this WARN_ON_ONCE() by pr_warn_once() messages which contain
+actually useful information.
 
-Reported-and-tested-by: syzbot+473754e5af963cf014cf@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/all/00000000000070db2005e95a5984@google.com/
-Suggested-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Link: https://lkml.kernel.org/r/20221102130635.7379-1-mathieu.desnoyers@efficios.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/wireless.h |   10 +++++++++-
- net/wireless/wext-core.c |   17 ++++++++++-------
- 2 files changed, 19 insertions(+), 8 deletions(-)
+ kernel/rseq.c |   19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---- a/include/linux/wireless.h
-+++ b/include/linux/wireless.h
-@@ -26,7 +26,15 @@ struct compat_iw_point {
- struct __compat_iw_event {
- 	__u16		len;			/* Real length of this stuff */
- 	__u16		cmd;			/* Wireless IOCTL */
--	compat_caddr_t	pointer;
+--- a/kernel/rseq.c
++++ b/kernel/rseq.c
+@@ -171,12 +171,27 @@ static int rseq_get_rseq_cs(struct task_
+ 	return 0;
+ }
+ 
++static bool rseq_warn_flags(const char *str, u32 flags)
++{
++	u32 test_flags;
 +
-+	union {
-+		compat_caddr_t	pointer;
++	if (!flags)
++		return false;
++	test_flags = flags & RSEQ_CS_NO_RESTART_FLAGS;
++	if (test_flags)
++		pr_warn_once("Deprecated flags (%u) in %s ABI structure", test_flags, str);
++	test_flags = flags & ~RSEQ_CS_NO_RESTART_FLAGS;
++	if (test_flags)
++		pr_warn_once("Unknown flags (%u) in %s ABI structure", test_flags, str);
++	return true;
++}
 +
-+		/* we need ptr_bytes to make memcpy() run-time destination
-+		 * buffer bounds checking happy, nothing special
-+		 */
-+		DECLARE_FLEX_ARRAY(__u8, ptr_bytes);
-+	};
- };
- #define IW_EV_COMPAT_LCP_LEN offsetof(struct __compat_iw_event, pointer)
- #define IW_EV_COMPAT_POINT_OFF offsetof(struct compat_iw_point, length)
---- a/net/wireless/wext-core.c
-+++ b/net/wireless/wext-core.c
-@@ -468,6 +468,7 @@ void wireless_send_event(struct net_devi
- 	struct __compat_iw_event *compat_event;
- 	struct compat_iw_point compat_wrqu;
- 	struct sk_buff *compskb;
-+	int ptr_len;
- #endif
+ static int rseq_need_restart(struct task_struct *t, u32 cs_flags)
+ {
+ 	u32 flags, event_mask;
+ 	int ret;
+ 
+-	if (WARN_ON_ONCE(cs_flags & RSEQ_CS_NO_RESTART_FLAGS) || cs_flags)
++	if (rseq_warn_flags("rseq_cs", cs_flags))
+ 		return -EINVAL;
+ 
+ 	/* Get thread flags. */
+@@ -184,7 +199,7 @@ static int rseq_need_restart(struct task
+ 	if (ret)
+ 		return ret;
+ 
+-	if (WARN_ON_ONCE(flags & RSEQ_CS_NO_RESTART_FLAGS) || flags)
++	if (rseq_warn_flags("rseq", flags))
+ 		return -EINVAL;
  
  	/*
-@@ -582,6 +583,9 @@ void wireless_send_event(struct net_devi
- 	nlmsg_end(skb, nlh);
- #ifdef CONFIG_COMPAT
- 	hdr_len = compat_event_type_size[descr->header_type];
-+
-+	/* ptr_len is remaining size in event header apart from LCP */
-+	ptr_len = hdr_len - IW_EV_COMPAT_LCP_LEN;
- 	event_len = hdr_len + extra_len;
- 
- 	compskb = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_ATOMIC);
-@@ -612,16 +616,15 @@ void wireless_send_event(struct net_devi
- 	if (descr->header_type == IW_HEADER_TYPE_POINT) {
- 		compat_wrqu.length = wrqu->data.length;
- 		compat_wrqu.flags = wrqu->data.flags;
--		memcpy(&compat_event->pointer,
--			((char *) &compat_wrqu) + IW_EV_COMPAT_POINT_OFF,
--			hdr_len - IW_EV_COMPAT_LCP_LEN);
-+		memcpy(compat_event->ptr_bytes,
-+		       ((char *)&compat_wrqu) + IW_EV_COMPAT_POINT_OFF,
-+			ptr_len);
- 		if (extra_len)
--			memcpy(((char *) compat_event) + hdr_len,
--				extra, extra_len);
-+			memcpy(&compat_event->ptr_bytes[ptr_len],
-+			       extra, extra_len);
- 	} else {
- 		/* extra_len must be zero, so no if (extra) needed */
--		memcpy(&compat_event->pointer, wrqu,
--			hdr_len - IW_EV_COMPAT_LCP_LEN);
-+		memcpy(compat_event->ptr_bytes, wrqu, ptr_len);
- 	}
- 
- 	nlmsg_end(compskb, nlh);
 
 
