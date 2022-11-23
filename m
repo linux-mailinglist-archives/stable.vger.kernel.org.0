@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0088F635878
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:58:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24200635704
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236837AbiKWJ6D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:58:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52540 "EHLO
+        id S237916AbiKWJfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:35:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235466AbiKWJ5S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:57:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2520470A1B;
-        Wed, 23 Nov 2022 01:52:00 -0800 (PST)
+        with ESMTP id S237865AbiKWJfH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:35:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F39B1CB2C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:32:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDEDFB81EF6;
-        Wed, 23 Nov 2022 09:51:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E25FC433C1;
-        Wed, 23 Nov 2022 09:51:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD04661A02
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:32:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94955C433D6;
+        Wed, 23 Nov 2022 09:32:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197117;
-        bh=NTL4zNzGBVNwLVJXhb2ZeGTCX4f2rotC/aJta45h2nc=;
+        s=korg; t=1669195971;
+        bh=6TDrox1pFcyPxL42kEX1fUpLGFpDOc7GVAip7FwfN6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NlhhNtSJnB/2glbGqspF6opzWGRd3iZsTwI6RUj9jSXHVkJj/2Ccya0w6a3FS04Hw
-         Dyri8cQCW+94C9JCPHieEGdY//kYfiP1CjVpbDdWHjzLHc3DLgvC6chj2JgvZju0Id
-         iwO2zc2Z5kM+qYaReMCZTe98i3f94G0iNKgPiAXE=
+        b=hlFERx4K5Jp4QbB7Txc32tPjR/4tQvdgESL6xEYR0nAE7rKGYfme0pbFYTzPkCHP9
+         D4Q+Xnj6WRXYeZDtGSygTWjT4JbpfziOai6Z45q2Gh8/DUV4pAnO6TqNB8kajJSi93
+         FEIFg/89BX+ql1A4IwBRzQBSdBKRlZ7OIp8Zo29A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Primiano Tucci <primiano@google.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.0 201/314] tracing/ring-buffer: Have polling block on watermark
+        patches@lists.linux.dev, Xiaolei Wang <xiaolei.wang@windriver.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 083/181] soc: imx8m: Enable OCOTP clock before reading the register
 Date:   Wed, 23 Nov 2022 09:50:46 +0100
-Message-Id: <20221123084634.660315514@linuxfoundation.org>
+Message-Id: <20221123084605.902158314@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,187 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Xiaolei Wang <xiaolei.wang@windriver.com>
 
-commit 42fb0a1e84ff525ebe560e2baf9451ab69127e2b upstream.
+[ Upstream commit 836fb30949d9edf91d7de696a884ceeae7e426d2 ]
 
-Currently the way polling works on the ring buffer is broken. It will
-return immediately if there's any data in the ring buffer whereas a read
-will block until the watermark (defined by the tracefs buffer_percent file)
-is hit.
+Commit 7d981405d0fd ("soc: imx8m: change to use platform driver") ever
+removed the dependency on bootloader for enabling OCOTP clock.  It
+helped to fix a kexec kernel hang issue.  But unfortunately it caused
+a regression on CAAM driver and got reverted.
 
-That is, a select() or poll() will return as if there's data available,
-but then the following read will block. This is broken for the way
-select()s and poll()s are supposed to work.
+This is the second try to enable the OCOTP clock by directly calling
+clock API instead of indirectly enabling the clock via nvmem API.
 
-Have the polling on the ring buffer also block the same way reads and
-splice does on the ring buffer.
-
-Link: https://lkml.kernel.org/r/20221020231427.41be3f26@gandalf.local.home
-
-Cc: Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Primiano Tucci <primiano@google.com>
-Cc: stable@vger.kernel.org
-Fixes: 1e0d6714aceb7 ("ring-buffer: Do not wake up a splice waiter when page is not full")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ac34de14ac30 ("Revert "soc: imx8m: change to use platform driver"")
+Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ring_buffer.h |    2 -
- kernel/trace/ring_buffer.c  |   55 ++++++++++++++++++++++++++++----------------
- kernel/trace/trace.c        |    2 -
- 3 files changed, 38 insertions(+), 21 deletions(-)
+ drivers/soc/imx/soc-imx8m.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/include/linux/ring_buffer.h
-+++ b/include/linux/ring_buffer.h
-@@ -100,7 +100,7 @@ __ring_buffer_alloc(unsigned long size,
+diff --git a/drivers/soc/imx/soc-imx8m.c b/drivers/soc/imx/soc-imx8m.c
+index cc57a384d74d..28144c699b0c 100644
+--- a/drivers/soc/imx/soc-imx8m.c
++++ b/drivers/soc/imx/soc-imx8m.c
+@@ -11,6 +11,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/arm-smccc.h>
+ #include <linux/of.h>
++#include <linux/clk.h>
  
- int ring_buffer_wait(struct trace_buffer *buffer, int cpu, int full);
- __poll_t ring_buffer_poll_wait(struct trace_buffer *buffer, int cpu,
--			  struct file *filp, poll_table *poll_table);
-+			  struct file *filp, poll_table *poll_table, int full);
- void ring_buffer_wake_waiters(struct trace_buffer *buffer, int cpu);
+ #define REV_B1				0x21
  
- #define RING_BUFFER_ALL_CPUS -1
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -907,6 +907,21 @@ size_t ring_buffer_nr_dirty_pages(struct
- 	return cnt - read;
- }
+@@ -56,6 +57,7 @@ static u32 __init imx8mq_soc_revision(void)
+ 	void __iomem *ocotp_base;
+ 	u32 magic;
+ 	u32 rev;
++	struct clk *clk;
  
-+static __always_inline bool full_hit(struct trace_buffer *buffer, int cpu, int full)
-+{
-+	struct ring_buffer_per_cpu *cpu_buffer = buffer->buffers[cpu];
-+	size_t nr_pages;
-+	size_t dirty;
-+
-+	nr_pages = cpu_buffer->nr_pages;
-+	if (!nr_pages || !full)
-+		return true;
-+
-+	dirty = ring_buffer_nr_dirty_pages(buffer, cpu);
-+
-+	return (dirty * 100) > (full * nr_pages);
-+}
-+
- /*
-  * rb_wake_up_waiters - wake up tasks waiting for ring buffer input
-  *
-@@ -1046,22 +1061,20 @@ int ring_buffer_wait(struct trace_buffer
- 		    !ring_buffer_empty_cpu(buffer, cpu)) {
- 			unsigned long flags;
- 			bool pagebusy;
--			size_t nr_pages;
--			size_t dirty;
-+			bool done;
+ 	np = of_find_compatible_node(NULL, NULL, "fsl,imx8mq-ocotp");
+ 	if (!np)
+@@ -63,6 +65,13 @@ static u32 __init imx8mq_soc_revision(void)
  
- 			if (!full)
- 				break;
- 
- 			raw_spin_lock_irqsave(&cpu_buffer->reader_lock, flags);
- 			pagebusy = cpu_buffer->reader_page == cpu_buffer->commit_page;
--			nr_pages = cpu_buffer->nr_pages;
--			dirty = ring_buffer_nr_dirty_pages(buffer, cpu);
-+			done = !pagebusy && full_hit(buffer, cpu, full);
-+
- 			if (!cpu_buffer->shortest_full ||
- 			    cpu_buffer->shortest_full > full)
- 				cpu_buffer->shortest_full = full;
- 			raw_spin_unlock_irqrestore(&cpu_buffer->reader_lock, flags);
--			if (!pagebusy &&
--			    (!nr_pages || (dirty * 100) > full * nr_pages))
-+			if (done)
- 				break;
- 		}
- 
-@@ -1087,6 +1100,7 @@ int ring_buffer_wait(struct trace_buffer
-  * @cpu: the cpu buffer to wait on
-  * @filp: the file descriptor
-  * @poll_table: The poll descriptor
-+ * @full: wait until the percentage of pages are available, if @cpu != RING_BUFFER_ALL_CPUS
-  *
-  * If @cpu == RING_BUFFER_ALL_CPUS then the task will wake up as soon
-  * as data is added to any of the @buffer's cpu buffers. Otherwise
-@@ -1096,14 +1110,15 @@ int ring_buffer_wait(struct trace_buffer
-  * zero otherwise.
-  */
- __poll_t ring_buffer_poll_wait(struct trace_buffer *buffer, int cpu,
--			  struct file *filp, poll_table *poll_table)
-+			  struct file *filp, poll_table *poll_table, int full)
- {
- 	struct ring_buffer_per_cpu *cpu_buffer;
- 	struct rb_irq_work *work;
- 
--	if (cpu == RING_BUFFER_ALL_CPUS)
-+	if (cpu == RING_BUFFER_ALL_CPUS) {
- 		work = &buffer->irq_work;
--	else {
-+		full = 0;
-+	} else {
- 		if (!cpumask_test_cpu(cpu, buffer->cpumask))
- 			return -EINVAL;
- 
-@@ -1111,8 +1126,14 @@ __poll_t ring_buffer_poll_wait(struct tr
- 		work = &cpu_buffer->irq_work;
- 	}
- 
--	poll_wait(filp, &work->waiters, poll_table);
--	work->waiters_pending = true;
-+	if (full) {
-+		poll_wait(filp, &work->full_waiters, poll_table);
-+		work->full_waiters_pending = true;
-+	} else {
-+		poll_wait(filp, &work->waiters, poll_table);
-+		work->waiters_pending = true;
+ 	ocotp_base = of_iomap(np, 0);
+ 	WARN_ON(!ocotp_base);
++	clk = of_clk_get_by_name(np, NULL);
++	if (!clk) {
++		WARN_ON(!clk);
++		return 0;
 +	}
 +
++	clk_prepare_enable(clk);
+ 
  	/*
- 	 * There's a tight race between setting the waiters_pending and
- 	 * checking if the ring buffer is empty.  Once the waiters_pending bit
-@@ -1128,6 +1149,9 @@ __poll_t ring_buffer_poll_wait(struct tr
- 	 */
- 	smp_mb();
+ 	 * SOC revision on older imx8mq is not available in fuses so query
+@@ -79,6 +88,8 @@ static u32 __init imx8mq_soc_revision(void)
+ 	soc_uid <<= 32;
+ 	soc_uid |= readl_relaxed(ocotp_base + OCOTP_UID_LOW);
  
-+	if (full)
-+		return full_hit(buffer, cpu, full) ? EPOLLIN | EPOLLRDNORM : 0;
-+
- 	if ((cpu == RING_BUFFER_ALL_CPUS && !ring_buffer_empty(buffer)) ||
- 	    (cpu != RING_BUFFER_ALL_CPUS && !ring_buffer_empty_cpu(buffer, cpu)))
- 		return EPOLLIN | EPOLLRDNORM;
-@@ -3155,10 +3179,6 @@ static void rb_commit(struct ring_buffer
- static __always_inline void
- rb_wakeups(struct trace_buffer *buffer, struct ring_buffer_per_cpu *cpu_buffer)
- {
--	size_t nr_pages;
--	size_t dirty;
--	size_t full;
--
- 	if (buffer->irq_work.waiters_pending) {
- 		buffer->irq_work.waiters_pending = false;
- 		/* irq_work_queue() supplies it's own memory barriers */
-@@ -3182,10 +3202,7 @@ rb_wakeups(struct trace_buffer *buffer,
++	clk_disable_unprepare(clk);
++	clk_put(clk);
+ 	iounmap(ocotp_base);
+ 	of_node_put(np);
  
- 	cpu_buffer->last_pages_touch = local_read(&cpu_buffer->pages_touched);
- 
--	full = cpu_buffer->shortest_full;
--	nr_pages = cpu_buffer->nr_pages;
--	dirty = ring_buffer_nr_dirty_pages(buffer, cpu_buffer->cpu);
--	if (full && nr_pages && (dirty * 100) <= full * nr_pages)
-+	if (!full_hit(buffer, cpu_buffer->cpu, cpu_buffer->shortest_full))
- 		return;
- 
- 	cpu_buffer->irq_work.wakeup_full = true;
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -6682,7 +6682,7 @@ trace_poll(struct trace_iterator *iter,
- 		return EPOLLIN | EPOLLRDNORM;
- 	else
- 		return ring_buffer_poll_wait(iter->array_buffer->buffer, iter->cpu_file,
--					     filp, poll_table);
-+					     filp, poll_table, iter->tr->buffer_percent);
- }
- 
- static __poll_t
+-- 
+2.35.1
+
 
 
