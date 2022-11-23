@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15D52635524
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E85263588B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:00:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237320AbiKWJPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:15:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58010 "EHLO
+        id S236750AbiKWKAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:00:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237322AbiKWJPo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:15:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 227A0108925
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:15:42 -0800 (PST)
+        with ESMTP id S236297AbiKWJ7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:59:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DD761130
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C853EB81EF1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:15:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F15A3C433D6;
-        Wed, 23 Nov 2022 09:15:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B20361B8F
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4142FC433C1;
+        Wed, 23 Nov 2022 09:52:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194939;
-        bh=f4OIY5sPcdq/5cbSNKkbC18Mb7eCCZ472eJlEn5OB+A=;
+        s=korg; t=1669197159;
+        bh=Vv438Qoi75yLyYc7xCoY2kB40fj1RvhLEvmhFcrJ6Ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S2gdzwREkl0Q6dBkgEnwyUeWYsyTgHe4zoKlfAPL0tnKNeSqDXew/zFcmeRhmk9gY
-         SMHKD768DmqhfgXZlByVmsDdFLTkoAfkD61iiBVoPwALlFlWAs9s4h2HsVYqCqWnC/
-         PMuiKRXxkGXmxmwCvGejQCY0OuClatkx+7mx1gkA=
+        b=zHSxGgqp7dmhmSRpY4xAGodrtEvFjvLwFZCV42zaSz30N9VhTo5WrahjDPgYzYHJl
+         89Hq4x0wGgAjJ+o0iMJaguRcd4gFKeBHUkBH3CyseVWleUeSFvfwt39FSgXM3705yX
+         B+hDajOzJmjWi72ZnnNGrYkLJeD1t7cKV/JmfQzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 103/156] bnxt_en: Remove debugfs when pci_register_driver failed
+        patches@lists.linux.dev,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Tom Chung <chiahsuan.chung@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.0 215/314] drm/amd/display: Add HUBP surface flip interrupt handler
 Date:   Wed, 23 Nov 2022 09:51:00 +0100
-Message-Id: <20221123084601.700840088@linuxfoundation.org>
+Message-Id: <20221123084635.284275030@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
 
-[ Upstream commit 991aef4ee4f6eb999924f429b943441a32835c8f ]
+commit 7af87fc1ba136143314c870059b8f60180247cbd upstream.
 
-When pci_register_driver failed, we need to remove debugfs,
-which will caused a resource leak, fix it.
+On IGT, there is a test named amd_hotplug, and when the subtest basic is
+executed on DCN31, we get the following error:
 
-Resource leak logs as follows:
-[   52.184456] debugfs: Directory 'bnxt_en' with parent '/' already present!
+[drm] *ERROR* [CRTC:71:crtc-0] flip_done timed out
+[drm] *ERROR* flip_done timed out
+[drm] *ERROR* [CRTC:71:crtc-0] commit wait timed out
+[drm] *ERROR* flip_done timed out
+[drm] *ERROR* [CONNECTOR:88:DP-1] commit wait timed out
+[drm] *ERROR* flip_done timed out
+[drm] *ERROR* [PLANE:59:plane-3] commit wait timed out
 
-Fixes: cabfb09d87bd ("bnxt_en: add debugfs support for DIM")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+After enable the page flip log with the below command:
+
+ echo -n 'format "[PFLIP]" +p' > /sys/kernel/debug/dynamic_debug/control
+
+It is possible to see that the flip was submitted, but DC never replied
+back, which generates time-out issues. This is an indication that the
+HUBP surface flip is missing. This commit fixes this issue by adding
+hubp1_set_flip_int to DCN31.
+
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Tom Chung <chiahsuan.chung@amd.com>
+Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubp.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index d7d7d6421c48..3636849f6365 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -12232,8 +12232,16 @@ static struct pci_driver bnxt_pci_driver = {
- 
- static int __init bnxt_init(void)
- {
-+	int err;
-+
- 	bnxt_debug_init();
--	return pci_register_driver(&bnxt_pci_driver);
-+	err = pci_register_driver(&bnxt_pci_driver);
-+	if (err) {
-+		bnxt_debug_exit();
-+		return err;
-+	}
-+
-+	return 0;
- }
- 
- static void __exit bnxt_exit(void)
--- 
-2.35.1
-
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubp.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubp.c
+@@ -87,6 +87,7 @@ static struct hubp_funcs dcn31_hubp_func
+ 	.hubp_init = hubp3_init,
+ 	.set_unbounded_requesting = hubp31_set_unbounded_requesting,
+ 	.hubp_soft_reset = hubp31_soft_reset,
++	.hubp_set_flip_int = hubp1_set_flip_int,
+ 	.hubp_in_blank = hubp1_in_blank,
+ 	.program_extended_blank = hubp31_program_extended_blank,
+ };
 
 
