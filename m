@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B94BC63572B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD3216358E1
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:04:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238025AbiKWJlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:41:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60092 "EHLO
+        id S236461AbiKWKEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:04:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238030AbiKWJkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:40:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 190A3388F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:37:54 -0800 (PST)
+        with ESMTP id S235989AbiKWKCp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:02:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 342FEBBC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:54:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 652C8B81E54
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:37:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66E59C433C1;
-        Wed, 23 Nov 2022 09:37:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD19FB81EE6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:54:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15B29C433C1;
+        Wed, 23 Nov 2022 09:54:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196272;
-        bh=/3MmBgNPkEOeL6Rxo23TuvoJCvk1cr0WYMXS4xHgAPE=;
+        s=korg; t=1669197292;
+        bh=jdBXSeEYU3hsHhmFY/kuVQwiYTcyBcn090H7i87y3Fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EQRe1nlYigr6Vl7auwNM2I0uSc/3k4GdpDGfhBxSMY4M9EokSGaKrE3OWQvSUa8IO
-         pI3YWjXMWlYGdbcpDgm8v00Css1/YFgjb92YNoqUR+ZlI/Ad69HiIqJFUoztdISXOr
-         nxm/Eu95bQ6ujGTyf+POioAxOQ2u17mQTB8y8EiQ=
+        b=Gi9D3wfLo/cfvVcd/yD0hU3Xtbsek7UatTEiVzqn4oMIWU/t388QgJsu0N+UIqlhL
+         gokm3AvtOkkb59lpsW9HlUQ8/qvTY6Ti2rtq0njXlsdlcodoBluc5Yo/jJ6mYiiPt4
+         0kerdXwSPXDbmNJHRM8GYuL7rKxhc1xEEpUiMIKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 135/181] iio: adc: at91_adc: fix possible memory leak in at91_adc_allocate_trigger()
+        patches@lists.linux.dev,
+        Srikanth Thokala <srikanth.thokala@intel.com>,
+        Aman Kumar <aman.kumar@intel.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 6.0 253/314] serial: 8250: Fall back to non-DMA Rx if IIR_RDI occurs
 Date:   Wed, 23 Nov 2022 09:51:38 +0100
-Message-Id: <20221123084608.173991911@linuxfoundation.org>
+Message-Id: <20221123084636.972114320@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 65f20301607d07ee279b0804d11a05a62a6c1a1c upstream.
+commit a931237cbea256aff13bb403da13a97b2d1605d9 upstream.
 
-If iio_trigger_register() returns error, it should call iio_trigger_free()
-to give up the reference that hold in iio_trigger_alloc(), so that it can
-call iio_trig_release() to free memory when the refcount hit to 0.
+DW UART sometimes triggers IIR_RDI during DMA Rx when IIR_RX_TIMEOUT
+should have been triggered instead. Since IIR_RDI has higher priority
+than IIR_RX_TIMEOUT, this causes the Rx to hang into interrupt loop.
+The problem seems to occur at least with some combinations of
+small-sized transfers (I've reproduced the problem on Elkhart Lake PSE
+UARTs).
 
-Fixes: 0e589d5fb317 ("ARM: AT91: IIO: Add AT91 ADC driver.")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221024084511.815096-1-yangyingliang@huawei.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+If there's already an on-going Rx DMA and IIR_RDI triggers, fall
+graciously back to non-DMA Rx. That is, behave as if IIR_RX_TIMEOUT had
+occurred.
+
+8250_omap already considers IIR_RDI similar to this change so its
+nothing unheard of.
+
+Fixes: 75df022b5f89 ("serial: 8250_dma: Fix RX handling")
+Cc: <stable@vger.kernel.org>
+Co-developed-by: Srikanth Thokala <srikanth.thokala@intel.com>
+Signed-off-by: Srikanth Thokala <srikanth.thokala@intel.com>
+Co-developed-by: Aman Kumar <aman.kumar@intel.com>
+Signed-off-by: Aman Kumar <aman.kumar@intel.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221108121952.5497-2-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/at91_adc.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_port.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/iio/adc/at91_adc.c
-+++ b/drivers/iio/adc/at91_adc.c
-@@ -634,8 +634,10 @@ static struct iio_trigger *at91_adc_allo
- 	trig->ops = &at91_adc_trigger_ops;
- 
- 	ret = iio_trigger_register(trig);
--	if (ret)
-+	if (ret) {
-+		iio_trigger_free(trig);
- 		return NULL;
-+	}
- 
- 	return trig;
- }
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1892,6 +1892,10 @@ EXPORT_SYMBOL_GPL(serial8250_modem_statu
+ static bool handle_rx_dma(struct uart_8250_port *up, unsigned int iir)
+ {
+ 	switch (iir & 0x3f) {
++	case UART_IIR_RDI:
++		if (!up->dma->rx_running)
++			break;
++		fallthrough;
+ 	case UART_IIR_RX_TIMEOUT:
+ 		serial8250_rx_dma_flush(up);
+ 		fallthrough;
 
 
