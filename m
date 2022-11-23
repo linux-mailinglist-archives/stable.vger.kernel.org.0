@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6820C635762
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50FB563565F
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237922AbiKWJmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:42:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58330 "EHLO
+        id S237592AbiKWJ32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:29:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237760AbiKWJln (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 286E11121C8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:39:17 -0800 (PST)
+        with ESMTP id S237607AbiKWJ3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:29:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9E9F6164
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:27:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CEB0AB81E5E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:39:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D393C433C1;
-        Wed, 23 Nov 2022 09:39:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 546B1B81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:27:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95028C433C1;
+        Wed, 23 Nov 2022 09:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196354;
-        bh=/q1Q19sjThwbJOAJNs5cfkv8H3eaEcL60YAmzym5ptA=;
+        s=korg; t=1669195634;
+        bh=Q9A91qhkduaPRmOcW1+8ym4gxsSzJ5m39iXWq/uEAp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vrnWdG672wHumq0BuCnXmyNd+aOVNZ5GC+ryHdxeGKrV7oE0dNGY1F3MQ4RmuMOD9
-         h4/KsIUm2xTYVbUu/IudZ9GVL2fuPf6V8diiO4rnmI+aGML59NZxRHfdy0wrxxQUOJ
-         WhZkKFNBMrhIrk++93Iobli0F5wb7JWzd7G4vGPU=
+        b=WinyEPlT75aUpokIIIN0Ft6pLdDU6HOk6+IS9oxidrtXL8PA84du6A5KtvqjwOUvS
+         T6r42ah++8hs19zbf/phpk2zMsh80xVNululE5LdqYZuaIDRyZQrRybvwZItmFokrU
+         d0guhAdrQ1fs/iM9rRkbuPd/23vyjxm5Jc6TiLaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+b8ded3e2e2c6adde4990@syzkaller.appspotmail.com,
-        Marco Elver <elver@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 160/181] perf: Improve missing SIGTRAP checking
-Date:   Wed, 23 Nov 2022 09:52:03 +0100
-Message-Id: <20221123084609.261699555@linuxfoundation.org>
+        syzbot+278279efdd2730dd14bf@syzkaller.appspotmail.com,
+        shaozhengchao <shaozhengchao@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Tom Herbert <tom@herbertland.com>,
+        Cong Wang <cong.wang@bytedance.com>
+Subject: [PATCH 5.10 141/149] kcm: close race conditions on sk_receive_queue
+Date:   Wed, 23 Nov 2022 09:52:04 +0100
+Message-Id: <20221123084603.002641285@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,102 +56,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit bb88f9695460bec25aa30ba9072595025cf6c8af ]
+commit 5121197ecc5db58c07da95eb1ff82b98b121a221 upstream.
 
-To catch missing SIGTRAP we employ a WARN in __perf_event_overflow(),
-which fires if pending_sigtrap was already set: returning to user space
-without consuming pending_sigtrap, and then having the event fire again
-would re-enter the kernel and trigger the WARN.
+sk->sk_receive_queue is protected by skb queue lock, but for KCM
+sockets its RX path takes mux->rx_lock to protect more than just
+skb queue. However, kcm_recvmsg() still only grabs the skb queue
+lock, so race conditions still exist.
 
-This, however, seemed to miss the case where some events not associated
-with progress in the user space task can fire and the interrupt handler
-runs before the IRQ work meant to consume pending_sigtrap (and generate
-the SIGTRAP).
+We can teach kcm_recvmsg() to grab mux->rx_lock too but this would
+introduce a potential performance regression as struct kcm_mux can
+be shared by multiple KCM sockets.
 
-syzbot gifted us this stack trace:
+So we have to enforce skb queue lock in requeue_rx_msgs() and handle
+skb peek case carefully in kcm_wait_data(). Fortunately,
+skb_recv_datagram() already handles it nicely and is widely used by
+other sockets, we can just switch to skb_recv_datagram() after
+getting rid of the unnecessary sock lock in kcm_recvmsg() and
+kcm_splice_read(). Side note: SOCK_DONE is not used by KCM sockets,
+so it is safe to get rid of this check too.
 
- | WARNING: CPU: 0 PID: 3607 at kernel/events/core.c:9313 __perf_event_overflow
- | Modules linked in:
- | CPU: 0 PID: 3607 Comm: syz-executor100 Not tainted 6.1.0-rc2-syzkaller-00073-g88619e77b33d #0
- | Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/11/2022
- | RIP: 0010:__perf_event_overflow+0x498/0x540 kernel/events/core.c:9313
- | <...>
- | Call Trace:
- |  <TASK>
- |  perf_swevent_hrtimer+0x34f/0x3c0 kernel/events/core.c:10729
- |  __run_hrtimer kernel/time/hrtimer.c:1685 [inline]
- |  __hrtimer_run_queues+0x1c6/0xfb0 kernel/time/hrtimer.c:1749
- |  hrtimer_interrupt+0x31c/0x790 kernel/time/hrtimer.c:1811
- |  local_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1096 [inline]
- |  __sysvec_apic_timer_interrupt+0x17c/0x640 arch/x86/kernel/apic/apic.c:1113
- |  sysvec_apic_timer_interrupt+0x40/0xc0 arch/x86/kernel/apic/apic.c:1107
- |  asm_sysvec_apic_timer_interrupt+0x16/0x20 arch/x86/include/asm/idtentry.h:649
- | <...>
- |  </TASK>
+I ran the original syzbot reproducer for 30 min without seeing any
+issue.
 
-In this case, syzbot produced a program with event type
-PERF_TYPE_SOFTWARE and config PERF_COUNT_SW_CPU_CLOCK. The hrtimer
-manages to fire again before the IRQ work got a chance to run, all while
-never having returned to user space.
-
-Improve the WARN to check for real progress in user space: approximate
-this by storing a 32-bit hash of the current IP into pending_sigtrap,
-and if an event fires while pending_sigtrap still matches the previous
-IP, we assume no progress (false negatives are possible given we could
-return to user space and trigger again on the same IP).
-
-Fixes: ca6c21327c6a ("perf: Fix missing SIGTRAPs")
-Reported-by: syzbot+b8ded3e2e2c6adde4990@syzkaller.appspotmail.com
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20221031093513.3032814-1-elver@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
+Reported-by: syzbot+278279efdd2730dd14bf@syzkaller.appspotmail.com
+Reported-by: shaozhengchao <shaozhengchao@huawei.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Tom Herbert <tom@herbertland.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/20221114005119.597905-1-xiyou.wangcong@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c | 25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ net/kcm/kcmsock.c |   60 +++++++-----------------------------------------------
+ 1 file changed, 8 insertions(+), 52 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 59654c737168..60cb300fa0d0 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -9323,14 +9323,27 @@ static int __perf_event_overflow(struct perf_event *event,
+--- a/net/kcm/kcmsock.c
++++ b/net/kcm/kcmsock.c
+@@ -221,7 +221,7 @@ static void requeue_rx_msgs(struct kcm_m
+ 	struct sk_buff *skb;
+ 	struct kcm_sock *kcm;
+ 
+-	while ((skb = __skb_dequeue(head))) {
++	while ((skb = skb_dequeue(head))) {
+ 		/* Reset destructor to avoid calling kcm_rcv_ready */
+ 		skb->destructor = sock_rfree;
+ 		skb_orphan(skb);
+@@ -1084,53 +1084,18 @@ out_error:
+ 	return err;
+ }
+ 
+-static struct sk_buff *kcm_wait_data(struct sock *sk, int flags,
+-				     long timeo, int *err)
+-{
+-	struct sk_buff *skb;
+-
+-	while (!(skb = skb_peek(&sk->sk_receive_queue))) {
+-		if (sk->sk_err) {
+-			*err = sock_error(sk);
+-			return NULL;
+-		}
+-
+-		if (sock_flag(sk, SOCK_DONE))
+-			return NULL;
+-
+-		if ((flags & MSG_DONTWAIT) || !timeo) {
+-			*err = -EAGAIN;
+-			return NULL;
+-		}
+-
+-		sk_wait_data(sk, &timeo, NULL);
+-
+-		/* Handle signals */
+-		if (signal_pending(current)) {
+-			*err = sock_intr_errno(timeo);
+-			return NULL;
+-		}
+-	}
+-
+-	return skb;
+-}
+-
+ static int kcm_recvmsg(struct socket *sock, struct msghdr *msg,
+ 		       size_t len, int flags)
+ {
++	int noblock = flags & MSG_DONTWAIT;
+ 	struct sock *sk = sock->sk;
+ 	struct kcm_sock *kcm = kcm_sk(sk);
+ 	int err = 0;
+-	long timeo;
+ 	struct strp_msg *stm;
+ 	int copied = 0;
+ 	struct sk_buff *skb;
+ 
+-	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
+-
+-	lock_sock(sk);
+-
+-	skb = kcm_wait_data(sk, flags, timeo, &err);
++	skb = skb_recv_datagram(sk, flags, noblock, &err);
+ 	if (!skb)
+ 		goto out;
+ 
+@@ -1161,14 +1126,11 @@ msg_finished:
+ 			/* Finished with message */
+ 			msg->msg_flags |= MSG_EOR;
+ 			KCM_STATS_INCR(kcm->stats.rx_msgs);
+-			skb_unlink(skb, &sk->sk_receive_queue);
+-			kfree_skb(skb);
+ 		}
  	}
  
- 	if (event->attr.sigtrap) {
--		/*
--		 * Should not be able to return to user space without processing
--		 * pending_sigtrap (kernel events can overflow multiple times).
--		 */
--		WARN_ON_ONCE(event->pending_sigtrap && event->attr.exclude_kernel);
-+		unsigned int pending_id = 1;
-+
-+		if (regs)
-+			pending_id = hash32_ptr((void *)instruction_pointer(regs)) ?: 1;
- 		if (!event->pending_sigtrap) {
--			event->pending_sigtrap = 1;
-+			event->pending_sigtrap = pending_id;
- 			local_inc(&event->ctx->nr_pending);
-+		} else if (event->attr.exclude_kernel) {
-+			/*
-+			 * Should not be able to return to user space without
-+			 * consuming pending_sigtrap; with exceptions:
-+			 *
-+			 *  1. Where !exclude_kernel, events can overflow again
-+			 *     in the kernel without returning to user space.
-+			 *
-+			 *  2. Events that can overflow again before the IRQ-
-+			 *     work without user space progress (e.g. hrtimer).
-+			 *     To approximate progress (with false negatives),
-+			 *     check 32-bit hash of the current IP.
-+			 */
-+			WARN_ON_ONCE(event->pending_sigtrap != pending_id);
- 		}
- 		event->pending_addr = data->addr;
- 		irq_work_queue(&event->pending_irq);
--- 
-2.35.1
-
+ out:
+-	release_sock(sk);
+-
++	skb_free_datagram(sk, skb);
+ 	return copied ? : err;
+ }
+ 
+@@ -1176,9 +1138,9 @@ static ssize_t kcm_splice_read(struct so
+ 			       struct pipe_inode_info *pipe, size_t len,
+ 			       unsigned int flags)
+ {
++	int noblock = flags & MSG_DONTWAIT;
+ 	struct sock *sk = sock->sk;
+ 	struct kcm_sock *kcm = kcm_sk(sk);
+-	long timeo;
+ 	struct strp_msg *stm;
+ 	int err = 0;
+ 	ssize_t copied;
+@@ -1186,11 +1148,7 @@ static ssize_t kcm_splice_read(struct so
+ 
+ 	/* Only support splice for SOCKSEQPACKET */
+ 
+-	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
+-
+-	lock_sock(sk);
+-
+-	skb = kcm_wait_data(sk, flags, timeo, &err);
++	skb = skb_recv_datagram(sk, flags, noblock, &err);
+ 	if (!skb)
+ 		goto err_out;
+ 
+@@ -1218,13 +1176,11 @@ static ssize_t kcm_splice_read(struct so
+ 	 * finish reading the message.
+ 	 */
+ 
+-	release_sock(sk);
+-
++	skb_free_datagram(sk, skb);
+ 	return copied;
+ 
+ err_out:
+-	release_sock(sk);
+-
++	skb_free_datagram(sk, skb);
+ 	return err;
+ }
+ 
 
 
