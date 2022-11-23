@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF25C635520
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 559A563571E
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237347AbiKWJQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:16:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58012 "EHLO
+        id S238062AbiKWJiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:38:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237321AbiKWJPx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:15:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2BD810891E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:15:50 -0800 (PST)
+        with ESMTP id S237991AbiKWJhi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DF6ED2F8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D23A61B4C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:15:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECC5AC433D6;
-        Wed, 23 Nov 2022 09:15:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3AC2BB81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64953C433C1;
+        Wed, 23 Nov 2022 09:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194949;
-        bh=OhVqUg8/S4pczckgxiJd6ilmCDLQnXigCBfeQCpfJuw=;
+        s=korg; t=1669196141;
+        bh=n/RV/cAZxCqMVbhNjgokIf+BQo30eFY4xz9Ml7UwoMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pcr06vaurw+UgPQIZrz4U6+1T8M1ILtj488OvvZV33ar4LY3wGh+JYbTnEbXswS8O
-         86+nwalJCj2loMnZJC3K1uROZD8yjlsqd2ESUw60r25/H5xHHGH8uw+/nRKuOA9vJA
-         ybnRv91OoTNrENPsloh3AkKe/+Hcf0SMK7BwqNGk=
+        b=GOldNvBJ8Clcgg3tQJI7DSfnh3t3rY81uWtHnOYx04SjC7+NuV+cV5OMIkMHDBsef
+         WqNnP6xC1evtDODbWCVXm/cCcyXY9atfkDkSYOG+WK5R33xHQxZyjOGrEbo/dNV1Hb
+         c4HuQVwuePTBZ1awQBfnNlvoVNT43IwxHeZ4ZD50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        "David E. Box" <david.e.box@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Liu Jian <liujian56@huawei.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 106/156] platform/x86/intel: pmc: Dont unconditionally attach Intel PMC when virtualized
+Subject: [PATCH 5.15 100/181] net: ag71xx: call phylink_disconnect_phy if ag71xx_hw_enable() fail in ag71xx_open()
 Date:   Wed, 23 Nov 2022 09:51:03 +0100
-Message-Id: <20221123084601.815356743@linuxfoundation.org>
+Message-Id: <20221123084606.650704135@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,68 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monné <roger.pau@citrix.com>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit 2dbfb3f33350e1e868d3d7ed4c176d8777150878 ]
+[ Upstream commit c9b895c6878bdb6789dc1d7af60fd10f4a9f1937 ]
 
-The current logic in the Intel PMC driver will forcefully attach it
-when detecting any CPU on the intel_pmc_core_platform_ids array,
-even if the matching ACPI device is not present.
+If ag71xx_hw_enable() fails, call phylink_disconnect_phy() to clean up.
+And if phylink_of_phy_connect() fails, nothing needs to be done.
+Compile tested only.
 
-There's no checking in pmc_core_probe() to assert that the PMC device
-is present, and hence on virtualized environments the PMC device
-probes successfully, even if the underlying registers are not present.
-Before commit 21ae43570940 ("platform/x86: intel_pmc_core: Substitute PCI
-with CPUID enumeration") the driver would check for the presence of a
-specific PCI device, and that prevented the driver from attaching when
-running virtualized.
-
-Fix by only forcefully attaching the PMC device when not running
-virtualized.  Note that virtualized platforms can still get the device
-to load if the appropriate ACPI device is present on the tables
-provided to the VM.
-
-Make an exception for the Xen initial domain, which does have full
-hardware access, and hence can attach to the PMC if present.
-
-Fixes: 21ae43570940 ("platform/x86: intel_pmc_core: Substitute PCI with CPUID enumeration")
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Acked-by: David E. Box <david.e.box@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221110163145.80374-1-roger.pau@citrix.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 892e09153fa3 ("net: ag71xx: port to phylink")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20221114095549.40342-1-liujian56@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_pmc_core_pltdrv.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/atheros/ag71xx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/intel_pmc_core_pltdrv.c b/drivers/platform/x86/intel_pmc_core_pltdrv.c
-index e1266f5c6359..42ed02ab8a61 100644
---- a/drivers/platform/x86/intel_pmc_core_pltdrv.c
-+++ b/drivers/platform/x86/intel_pmc_core_pltdrv.c
-@@ -18,6 +18,8 @@
- #include <asm/cpu_device_id.h>
- #include <asm/intel-family.h>
+diff --git a/drivers/net/ethernet/atheros/ag71xx.c b/drivers/net/ethernet/atheros/ag71xx.c
+index 416a5c99db5a..7295244b78d0 100644
+--- a/drivers/net/ethernet/atheros/ag71xx.c
++++ b/drivers/net/ethernet/atheros/ag71xx.c
+@@ -1480,7 +1480,7 @@ static int ag71xx_open(struct net_device *ndev)
+ 	if (ret) {
+ 		netif_err(ag, link, ndev, "phylink_of_phy_connect filed with err: %i\n",
+ 			  ret);
+-		goto err;
++		return ret;
+ 	}
  
-+#include <xen/xen.h>
-+
- static void intel_pmc_core_release(struct device *dev)
- {
- 	/* Nothing to do. */
-@@ -56,6 +58,13 @@ static int __init pmc_core_platform_init(void)
- 	if (acpi_dev_present("INT33A1", NULL, -1))
- 		return -ENODEV;
+ 	max_frame_len = ag71xx_max_frame_len(ndev->mtu);
+@@ -1501,6 +1501,7 @@ static int ag71xx_open(struct net_device *ndev)
  
-+	/*
-+	 * Skip forcefully attaching the device for VMs. Make an exception for
-+	 * Xen dom0, which does have full hardware access.
-+	 */
-+	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR) && !xen_initial_domain())
-+		return -ENODEV;
-+
- 	if (!x86_match_cpu(intel_pmc_core_platform_ids))
- 		return -ENODEV;
+ err:
+ 	ag71xx_rings_cleanup(ag);
++	phylink_disconnect_phy(ag->phylink);
+ 	return ret;
+ }
  
 -- 
 2.35.1
