@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8004963540F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 937396353F9
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236887AbiKWJBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:01:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37780 "EHLO
+        id S236959AbiKWJCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:02:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236908AbiKWJB3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:01:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886AA100B0B
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:01:27 -0800 (PST)
+        with ESMTP id S236958AbiKWJCJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:02:09 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04FA61001DF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:02:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A9ABB81EF2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:01:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB680C433D7;
-        Wed, 23 Nov 2022 09:01:24 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 143ECCE20F4
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:02:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECFF0C433D6;
+        Wed, 23 Nov 2022 09:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194085;
-        bh=G68ezDfW2/Yn+3+TkEuZKc9w+waiy+oLGHeii3Kmrzw=;
+        s=korg; t=1669194124;
+        bh=KrvNOB/jWRk0+sIQgnh6ZQSThFAyEoNxallyG23zNL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PjTJEI6YxwfE0ejFQWR5SmnLseMlkBbRgFzuBOPyUy9lfOWvwsyTj9tZucDKu/P04
-         Ym4W7SC3AyUcVC48NqxqDsc3wlI40lvrSldPAceQHRMPf3Pq4RLeiSiIscJGqNC3Sr
-         DRLlnaVYVYk9WaF34HOZDCWex6Iop6qdbPPy2KSM=
+        b=KGnUarTP9L8F4d6KXAIhTb4WVDyZOomDfu12eN4zSYnbrxFqhpUQTb8h0XbBC7qvu
+         W0p4VAKFFu1ySunulFg+e58QwMJrEPs9v3dnkHnXL5xv2ZRpINKSHwDT+409+4MqNi
+         MBWeo6L4tIvBxY2BVKi002nRr3+LCjDzlhCifbgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 50/88] drbd: use after free in drbd_create_device()
-Date:   Wed, 23 Nov 2022 09:50:47 +0100
-Message-Id: <20221123084550.256465963@linuxfoundation.org>
+Subject: [PATCH 4.14 51/88] net/x25: Fix skb leak in x25_lapb_receive_frame()
+Date:   Wed, 23 Nov 2022 09:50:48 +0100
+Message-Id: <20221123084550.291854144@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
 References: <20221123084548.535439312@linuxfoundation.org>
@@ -54,45 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit a7a1598189228b5007369a9622ccdf587be0730f ]
+[ Upstream commit 2929cceb2fcf0ded7182562e4888afafece82cce ]
 
-The drbd_destroy_connection() frees the "connection" so use the _safe()
-iterator to prevent a use after free.
+x25_lapb_receive_frame() using skb_copy() to get a private copy of
+skb, the new skb should be freed in the undersized/fragmented skb
+error handling path. Otherwise there is a memory leak.
 
-Fixes: b6f85ef9538b ("drbd: Iterate over all connections")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Link: https://lore.kernel.org/r/Y3Jd5iZRbNQ9w6gm@kili
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: cb101ed2c3c7 ("x25: Handle undersized/fragmented skbs")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Link: https://lore.kernel.org/r/20221114110519.514538-1-weiyongjun@huaweicloud.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/x25/x25_dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 1e02cb60b65b..872e70f5b4d6 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -2804,7 +2804,7 @@ static int init_submitter(struct drbd_device *device)
- enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsigned int minor)
- {
- 	struct drbd_resource *resource = adm_ctx->resource;
--	struct drbd_connection *connection;
-+	struct drbd_connection *connection, *n;
- 	struct drbd_device *device;
- 	struct drbd_peer_device *peer_device, *tmp_peer_device;
- 	struct gendisk *disk;
-@@ -2933,7 +2933,7 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
- out_idr_remove_vol:
- 	idr_remove(&connection->peer_devices, vnr);
- out_idr_remove_from_resource:
--	for_each_connection(connection, resource) {
-+	for_each_connection_safe(connection, n, resource) {
- 		peer_device = idr_remove(&connection->peer_devices, vnr);
- 		if (peer_device)
- 			kref_put(&connection->kref, drbd_destroy_connection);
+diff --git a/net/x25/x25_dev.c b/net/x25/x25_dev.c
+index 30f71620d4e3..24f2676e3b66 100644
+--- a/net/x25/x25_dev.c
++++ b/net/x25/x25_dev.c
+@@ -122,7 +122,7 @@ int x25_lapb_receive_frame(struct sk_buff *skb, struct net_device *dev,
+ 
+ 	if (!pskb_may_pull(skb, 1)) {
+ 		x25_neigh_put(nb);
+-		return 0;
++		goto drop;
+ 	}
+ 
+ 	switch (skb->data[0]) {
 -- 
 2.35.1
 
