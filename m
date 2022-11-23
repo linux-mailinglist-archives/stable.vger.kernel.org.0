@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B558F635446
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DC6B6356AD
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237043AbiKWJEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:04:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41242 "EHLO
+        id S237838AbiKWJc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:32:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236993AbiKWJEI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:04:08 -0500
+        with ESMTP id S237792AbiKWJbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0712105588
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:03:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AA7385A12
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:30:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C15F61B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:03:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 528D2C433D6;
-        Wed, 23 Nov 2022 09:03:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF83761B5C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:30:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0DA6C433C1;
+        Wed, 23 Nov 2022 09:30:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194229;
-        bh=Yid+yyW1qNKfxubp3qL6JxjdfX9WSQGXTsPmd5Q3Z4Q=;
+        s=korg; t=1669195828;
+        bh=rvoXpDnMHR6CBYgwvGitUozbwCVc9iIt5ox64UjXL5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f4Z1MrgA5VuFFJJoh7sTNe+nGCyvS/HWArze9pYlndxWidHvIaygpjBe58h3qo6xO
-         SXThyxkx6GdZ2UweIlgtosBt01BkcpW7KW2z1T3DaFTRPCyWcSV+VftnkJN4eIA240
-         rLur5JahnwfI8oGIHihtGDoLcSUXol94F1VSrgi0=
+        b=ymVrRMVPwlYY5UaVYSfx0zyp2ElqtEiG1chLm7zpfDl///OjrT7iacmNZ3Ou8n1Aq
+         naO6TrU3x4kBOWJ4ksYK2hcAAOWa82Srt9hhi4Loqd6+GYRPAeqF7SC+9Swu86DkAk
+         NDq8+aAsUiUS0VCpRTNHNP/ZR0aGq131/YAlXZuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chuang Wang <nashuiliang@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 020/114] net: macvlan: fix memory leaks of macvlan_common_newlink
+Subject: [PATCH 5.15 044/181] ASoC: core: Fix use-after-free in snd_soc_exit()
 Date:   Wed, 23 Nov 2022 09:50:07 +0100
-Message-Id: <20221123084552.648272328@linuxfoundation.org>
+Message-Id: <20221123084604.257523992@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuang Wang <nashuiliang@gmail.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 23569b5652ee8e8e55a12f7835f59af6f3cefc30 ]
+[ Upstream commit 6ec27c53886c8963729885bcf2dd996eba2767a7 ]
 
-kmemleak reports memory leaks in macvlan_common_newlink, as follows:
+KASAN reports a use-after-free:
 
- ip link add link eth0 name .. type macvlan mode source macaddr add
- <MAC-ADDR>
+BUG: KASAN: use-after-free in device_del+0xb5b/0xc60
+Read of size 8 at addr ffff888008655050 by task rmmod/387
+CPU: 2 PID: 387 Comm: rmmod
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+Call Trace:
+<TASK>
+dump_stack_lvl+0x79/0x9a
+print_report+0x17f/0x47b
+kasan_report+0xbb/0xf0
+device_del+0xb5b/0xc60
+platform_device_del.part.0+0x24/0x200
+platform_device_unregister+0x2e/0x40
+snd_soc_exit+0xa/0x22 [snd_soc_core]
+__do_sys_delete_module.constprop.0+0x34f/0x5b0
+do_syscall_64+0x3a/0x90
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+...
+</TASK>
 
-kmemleak reports:
+It's bacause in snd_soc_init(), snd_soc_util_init() is possble to fail,
+but its ret is ignored, which makes soc_dummy_dev unregistered twice.
 
-unreferenced object 0xffff8880109bb140 (size 64):
-  comm "ip", pid 284, jiffies 4294986150 (age 430.108s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 b8 aa 5a 12 80 88 ff ff  ..........Z.....
-    80 1b fa 0d 80 88 ff ff 1e ff ac af c7 c1 6b 6b  ..............kk
-  backtrace:
-    [<ffffffff813e06a7>] kmem_cache_alloc_trace+0x1c7/0x300
-    [<ffffffff81b66025>] macvlan_hash_add_source+0x45/0xc0
-    [<ffffffff81b66a67>] macvlan_changelink_sources+0xd7/0x170
-    [<ffffffff81b6775c>] macvlan_common_newlink+0x38c/0x5a0
-    [<ffffffff81b6797e>] macvlan_newlink+0xe/0x20
-    [<ffffffff81d97f8f>] __rtnl_newlink+0x7af/0xa50
-    [<ffffffff81d98278>] rtnl_newlink+0x48/0x70
-    ...
+snd_soc_init()
+    snd_soc_util_init()
+        platform_device_register_simple(soc_dummy_dev)
+        platform_driver_register() # fail
+    	platform_device_unregister(soc_dummy_dev)
+    platform_driver_register() # success
+...
+snd_soc_exit()
+    snd_soc_util_exit()
+    # soc_dummy_dev will be unregistered for second time
 
-In the scenario where the macvlan mode is configured as 'source',
-macvlan_changelink_sources() will be execured to reconfigure list of
-remote source mac addresses, at the same time, if register_netdevice()
-return an error, the resource generated by macvlan_changelink_sources()
-is not cleaned up.
+To fix it, handle error and stop snd_soc_init() when util_init() fail.
+Also clean debugfs when util_init() or driver_register() fail.
 
-Using this patch, in the case of an error, it will execute
-macvlan_flush_sources() to ensure that the resource is cleaned up.
-
-Fixes: aa5fd0fb7748 ("driver: macvlan: Destroy new macvlan port if macvlan_common_newlink failed.")
-Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
-Link: https://lore.kernel.org/r/20221109090735.690500-1-nashuiliang@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: fb257897bf20 ("ASoC: Work around allmodconfig failure")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221028031603.59416-1-chenzhongjin@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macvlan.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/soc-core.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
-index e226a96da3a3..6c6fa821aad5 100644
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -1471,8 +1471,10 @@ int macvlan_common_newlink(struct net *src_net, struct net_device *dev,
- 	/* the macvlan port may be freed by macvlan_uninit when fail to register.
- 	 * so we destroy the macvlan port only when it's valid.
- 	 */
--	if (create && macvlan_port_get_rtnl(lowerdev))
-+	if (create && macvlan_port_get_rtnl(lowerdev)) {
-+		macvlan_flush_sources(port, vlan);
- 		macvlan_port_destroy(port->dev);
-+	}
- 	return err;
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 5da762807824..1b1749b920f4 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -3366,10 +3366,23 @@ EXPORT_SYMBOL_GPL(snd_soc_of_get_dai_link_codecs);
+ 
+ static int __init snd_soc_init(void)
+ {
++	int ret;
++
+ 	snd_soc_debugfs_init();
+-	snd_soc_util_init();
++	ret = snd_soc_util_init();
++	if (ret)
++		goto err_util_init;
+ 
+-	return platform_driver_register(&soc_driver);
++	ret = platform_driver_register(&soc_driver);
++	if (ret)
++		goto err_register;
++	return 0;
++
++err_register:
++	snd_soc_util_exit();
++err_util_init:
++	snd_soc_debugfs_exit();
++	return ret;
  }
- EXPORT_SYMBOL_GPL(macvlan_common_newlink);
+ module_init(snd_soc_init);
+ 
 -- 
 2.35.1
 
