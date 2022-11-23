@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E37EF6354BC
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 483FB635674
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237191AbiKWJK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:10:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51526 "EHLO
+        id S237744AbiKWJao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:30:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237215AbiKWJKl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:10:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34C5A106130
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:10:35 -0800 (PST)
+        with ESMTP id S237743AbiKWJaZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB1D1122C8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:28:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1A50B81EF2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:10:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 148A6C433C1;
-        Wed, 23 Nov 2022 09:10:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CC7B61B22
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:28:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB2E7C433D7;
+        Wed, 23 Nov 2022 09:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194632;
-        bh=kt6BhAaOpVBl8YsCeC/iSF6b8DRYnBw9LOTo6khK7Gg=;
+        s=korg; t=1669195713;
+        bh=tcmw91E/VgJ/lrc8DHnLO8OS8xE5koXY1a4vGdg2D/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p2yU5kB9RNbGzGz5h1nGJa9VW9hDIlh8h4fMD1cH4ZRRp89F2QmbQUFdFrqDNg9Ir
-         bnhF6nUkIYU1e/8ZZnw6GLNkUoj9+Z+ZO684UMIqW5fd6zpj7EqUzkECy/tfUZUixl
-         yvd0NlDl++CSVGbbr22O+vGIbzJiduWEK4Fw8jXs=
+        b=CxKHvz/oy9rGqY1LEEuf3kmQx5HbkNDFm3/fEJgIyp1wx4UzV7U2oCljPydViZ2xE
+         5J375CyFsOrklS9vUNaM99x3pH9uUkLqHS6I1p+eLpiWPYo/Kxdny3WYSRI+ccBXPv
+         rLse+bHZIpxMd9pVX5M2SxxkRZ3phjMm7/31iXmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Siarhei Volkau <lis8215@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 018/156] net: lapbether: fix issue of dev reference count leakage in lapbeth_device_event()
-Date:   Wed, 23 Nov 2022 09:49:35 +0100
-Message-Id: <20221123084558.558730677@linuxfoundation.org>
+Subject: [PATCH 5.15 013/181] ASoC: codecs: jz4725b: use right control for Capture Volume
+Date:   Wed, 23 Nov 2022 09:49:36 +0100
+Message-Id: <20221123084603.143017179@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Siarhei Volkau <lis8215@gmail.com>
 
-[ Upstream commit 531705a765493655472c993627106e19f7e5a6d2 ]
+[ Upstream commit 1538e2c8c9b7e7a656effcc6e4e7cfe8c1b405fd ]
 
-When following tests are performed, it will cause dev reference counting
-leakage.
-a)ip link add bond2 type bond mode balance-rr
-b)ip link set bond2 up
-c)ifenslave -f bond2 rose1
-d)ip link del bond2
+Line In Bypass control is used as Master Capture at the moment
+this is completely incorrect.
 
-When new bond device is created, the default type of the bond device is
-ether. And the bond device is up, lapbeth_device_event() receives the
-message and creates a new lapbeth device. In this case, the reference
-count value of dev is hold once. But after "ifenslave -f bond2 rose1"
-command is executed, the type of the bond device is changed to rose. When
-the bond device is unregistered, lapbeth_device_event() will not put the
-dev reference count.
+Current control routed to Mixer instead of ADC, thus can't affect
+Capture path. ADC control shall be used instead.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ADC volume control parameters are different, so the patch fixes that
+as well. Manual says (16.6.3.2 Programmable input attenuation amplifier:
+PGATM) that gain varies in range 0dB..22.5dB with 1.5dB step.
+
+Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
+Link: https://lore.kernel.org/r/20221016132648.3011729-4-lis8215@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/lapbether.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/jz4725b.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index 4e42954d8cbf..bbcd8ef2873f 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -403,7 +403,7 @@ static int lapbeth_device_event(struct notifier_block *this,
- 	if (dev_net(dev) != &init_net)
- 		return NOTIFY_DONE;
+diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
+index 72549ee2e789..4363d898a7d4 100644
+--- a/sound/soc/codecs/jz4725b.c
++++ b/sound/soc/codecs/jz4725b.c
+@@ -136,13 +136,16 @@ enum {
+ #define REG_CGR3_GO1L_OFFSET		0
+ #define REG_CGR3_GO1L_MASK		(0x1f << REG_CGR3_GO1L_OFFSET)
  
--	if (!dev_is_ethdev(dev))
-+	if (!dev_is_ethdev(dev) && !lapbeth_get_x25_dev(dev))
- 		return NOTIFY_DONE;
++#define REG_CGR10_GIL_OFFSET		0
++#define REG_CGR10_GIR_OFFSET		4
++
+ struct jz_icdc {
+ 	struct regmap *regmap;
+ 	void __iomem *base;
+ 	struct clk *clk;
+ };
  
- 	switch (event) {
+-static const SNDRV_CTL_TLVD_DECLARE_DB_LINEAR(jz4725b_line_tlv, -1500, 600);
++static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_adc_tlv,     0, 150, 0);
+ static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_dac_tlv, -2250, 150, 0);
+ 
+ static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
+@@ -151,11 +154,11 @@ static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
+ 		       REG_CGR1_GODL_OFFSET,
+ 		       REG_CGR1_GODR_OFFSET,
+ 		       0xf, 1, jz4725b_dac_tlv),
+-	SOC_DOUBLE_R_TLV("Master Capture Volume",
+-			 JZ4725B_CODEC_REG_CGR3,
+-			 JZ4725B_CODEC_REG_CGR2,
+-			 REG_CGR2_GO1R_OFFSET,
+-			 0x1f, 1, jz4725b_line_tlv),
++	SOC_DOUBLE_TLV("Master Capture Volume",
++		       JZ4725B_CODEC_REG_CGR10,
++		       REG_CGR10_GIL_OFFSET,
++		       REG_CGR10_GIR_OFFSET,
++		       0xf, 0, jz4725b_adc_tlv),
+ 
+ 	SOC_SINGLE("Master Playback Switch", JZ4725B_CODEC_REG_CR1,
+ 		   REG_CR1_DAC_MUTE_OFFSET, 1, 1),
 -- 
 2.35.1
 
