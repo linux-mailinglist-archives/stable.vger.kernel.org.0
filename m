@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50FB563565F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 824C5635751
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237592AbiKWJ32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:29:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43828 "EHLO
+        id S238032AbiKWJlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:41:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237607AbiKWJ3E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:29:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9E9F6164
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:27:16 -0800 (PST)
+        with ESMTP id S238061AbiKWJkl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:40:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB5ADC76D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:37:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 546B1B81EF2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:27:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95028C433C1;
-        Wed, 23 Nov 2022 09:27:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66CE361B44
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:37:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 470F8C433C1;
+        Wed, 23 Nov 2022 09:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195634;
-        bh=Q9A91qhkduaPRmOcW1+8ym4gxsSzJ5m39iXWq/uEAp0=;
+        s=korg; t=1669196278;
+        bh=WzC4sH3Tvi+T5uH2aKJaOCbP6e2Uclrw4hF5fnw9GDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WinyEPlT75aUpokIIIN0Ft6pLdDU6HOk6+IS9oxidrtXL8PA84du6A5KtvqjwOUvS
-         T6r42ah++8hs19zbf/phpk2zMsh80xVNululE5LdqYZuaIDRyZQrRybvwZItmFokrU
-         d0guhAdrQ1fs/iM9rRkbuPd/23vyjxm5Jc6TiLaI=
+        b=EgAE6GhaKPJHU6hi8c+PtXdST05XcFJzqAHk3YiE/26mV4naE21la8khmWHZM8eXo
+         E9wilhq2Bc1vKf5fVi7UZqQ3I81izl66DJ8B5k2KtoPoQNWlOn1fQKc/zNtQttyByw
+         Vzaq9hy/Jah4i8rUMdltDqgFdTZh+qOxuFfd4pM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+278279efdd2730dd14bf@syzkaller.appspotmail.com,
-        shaozhengchao <shaozhengchao@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Tom Herbert <tom@herbertland.com>,
-        Cong Wang <cong.wang@bytedance.com>
-Subject: [PATCH 5.10 141/149] kcm: close race conditions on sk_receive_queue
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 161/181] ring-buffer: Include dropped pages in counting dirty patches
 Date:   Wed, 23 Nov 2022 09:52:04 +0100
-Message-Id: <20221123084603.002641285@linuxfoundation.org>
+Message-Id: <20221123084609.307089624@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,165 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 5121197ecc5db58c07da95eb1ff82b98b121a221 upstream.
+[ Upstream commit 31029a8b2c7e656a0289194ef16415050ae4c4ac ]
 
-sk->sk_receive_queue is protected by skb queue lock, but for KCM
-sockets its RX path takes mux->rx_lock to protect more than just
-skb queue. However, kcm_recvmsg() still only grabs the skb queue
-lock, so race conditions still exist.
+The function ring_buffer_nr_dirty_pages() was created to find out how many
+pages are filled in the ring buffer. There's two running counters. One is
+incremented whenever a new page is touched (pages_touched) and the other
+is whenever a page is read (pages_read). The dirty count is the number
+touched minus the number read. This is used to determine if a blocked task
+should be woken up if the percentage of the ring buffer it is waiting for
+is hit.
 
-We can teach kcm_recvmsg() to grab mux->rx_lock too but this would
-introduce a potential performance regression as struct kcm_mux can
-be shared by multiple KCM sockets.
+The problem is that it does not take into account dropped pages (when the
+new writes overwrite pages that were not read). And then the dirty pages
+will always be greater than the percentage.
 
-So we have to enforce skb queue lock in requeue_rx_msgs() and handle
-skb peek case carefully in kcm_wait_data(). Fortunately,
-skb_recv_datagram() already handles it nicely and is widely used by
-other sockets, we can just switch to skb_recv_datagram() after
-getting rid of the unnecessary sock lock in kcm_recvmsg() and
-kcm_splice_read(). Side note: SOCK_DONE is not used by KCM sockets,
-so it is safe to get rid of this check too.
+This makes the "buffer_percent" file inaccurate, as the number of dirty
+pages end up always being larger than the percentage, event when it's not
+and this causes user space to be woken up more than it wants to be.
 
-I ran the original syzbot reproducer for 30 min without seeing any
-issue.
+Add a new counter to keep track of lost pages, and include that in the
+accounting of dirty pages so that it is actually accurate.
 
-Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
-Reported-by: syzbot+278279efdd2730dd14bf@syzkaller.appspotmail.com
-Reported-by: shaozhengchao <shaozhengchao@huawei.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Tom Herbert <tom@herbertland.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/r/20221114005119.597905-1-xiyou.wangcong@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20221021123013.55fb6055@gandalf.local.home
+
+Fixes: 2c2b0a78b3739 ("ring-buffer: Add percentage of ring buffer full to wake up reader")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/kcm/kcmsock.c |   60 +++++++-----------------------------------------------
- 1 file changed, 8 insertions(+), 52 deletions(-)
+ kernel/trace/ring_buffer.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/net/kcm/kcmsock.c
-+++ b/net/kcm/kcmsock.c
-@@ -221,7 +221,7 @@ static void requeue_rx_msgs(struct kcm_m
- 	struct sk_buff *skb;
- 	struct kcm_sock *kcm;
- 
--	while ((skb = __skb_dequeue(head))) {
-+	while ((skb = skb_dequeue(head))) {
- 		/* Reset destructor to avoid calling kcm_rcv_ready */
- 		skb->destructor = sock_rfree;
- 		skb_orphan(skb);
-@@ -1084,53 +1084,18 @@ out_error:
- 	return err;
- }
- 
--static struct sk_buff *kcm_wait_data(struct sock *sk, int flags,
--				     long timeo, int *err)
--{
--	struct sk_buff *skb;
--
--	while (!(skb = skb_peek(&sk->sk_receive_queue))) {
--		if (sk->sk_err) {
--			*err = sock_error(sk);
--			return NULL;
--		}
--
--		if (sock_flag(sk, SOCK_DONE))
--			return NULL;
--
--		if ((flags & MSG_DONTWAIT) || !timeo) {
--			*err = -EAGAIN;
--			return NULL;
--		}
--
--		sk_wait_data(sk, &timeo, NULL);
--
--		/* Handle signals */
--		if (signal_pending(current)) {
--			*err = sock_intr_errno(timeo);
--			return NULL;
--		}
--	}
--
--	return skb;
--}
--
- static int kcm_recvmsg(struct socket *sock, struct msghdr *msg,
- 		       size_t len, int flags)
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index 5346405fc4b9..ffc8696e6746 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -510,6 +510,7 @@ struct ring_buffer_per_cpu {
+ 	local_t				committing;
+ 	local_t				commits;
+ 	local_t				pages_touched;
++	local_t				pages_lost;
+ 	local_t				pages_read;
+ 	long				last_pages_touch;
+ 	size_t				shortest_full;
+@@ -858,10 +859,18 @@ size_t ring_buffer_nr_pages(struct trace_buffer *buffer, int cpu)
+ size_t ring_buffer_nr_dirty_pages(struct trace_buffer *buffer, int cpu)
  {
-+	int noblock = flags & MSG_DONTWAIT;
- 	struct sock *sk = sock->sk;
- 	struct kcm_sock *kcm = kcm_sk(sk);
- 	int err = 0;
--	long timeo;
- 	struct strp_msg *stm;
- 	int copied = 0;
- 	struct sk_buff *skb;
+ 	size_t read;
++	size_t lost;
+ 	size_t cnt;
  
--	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
--
--	lock_sock(sk);
--
--	skb = kcm_wait_data(sk, flags, timeo, &err);
-+	skb = skb_recv_datagram(sk, flags, noblock, &err);
- 	if (!skb)
- 		goto out;
- 
-@@ -1161,14 +1126,11 @@ msg_finished:
- 			/* Finished with message */
- 			msg->msg_flags |= MSG_EOR;
- 			KCM_STATS_INCR(kcm->stats.rx_msgs);
--			skb_unlink(skb, &sk->sk_receive_queue);
--			kfree_skb(skb);
+ 	read = local_read(&buffer->buffers[cpu]->pages_read);
++	lost = local_read(&buffer->buffers[cpu]->pages_lost);
+ 	cnt = local_read(&buffer->buffers[cpu]->pages_touched);
++
++	if (WARN_ON_ONCE(cnt < lost))
++		return 0;
++
++	cnt -= lost;
++
+ 	/* The reader can read an empty page, but not more than that */
+ 	if (cnt < read) {
+ 		WARN_ON_ONCE(read > cnt + 1);
+@@ -1995,6 +2004,7 @@ rb_remove_pages(struct ring_buffer_per_cpu *cpu_buffer, unsigned long nr_pages)
+ 			 */
+ 			local_add(page_entries, &cpu_buffer->overrun);
+ 			local_sub(BUF_PAGE_SIZE, &cpu_buffer->entries_bytes);
++			local_inc(&cpu_buffer->pages_lost);
  		}
- 	}
  
- out:
--	release_sock(sk);
--
-+	skb_free_datagram(sk, skb);
- 	return copied ? : err;
- }
+ 		/*
+@@ -2479,6 +2489,7 @@ rb_handle_head_page(struct ring_buffer_per_cpu *cpu_buffer,
+ 		 */
+ 		local_add(entries, &cpu_buffer->overrun);
+ 		local_sub(BUF_PAGE_SIZE, &cpu_buffer->entries_bytes);
++		local_inc(&cpu_buffer->pages_lost);
  
-@@ -1176,9 +1138,9 @@ static ssize_t kcm_splice_read(struct so
- 			       struct pipe_inode_info *pipe, size_t len,
- 			       unsigned int flags)
- {
-+	int noblock = flags & MSG_DONTWAIT;
- 	struct sock *sk = sock->sk;
- 	struct kcm_sock *kcm = kcm_sk(sk);
--	long timeo;
- 	struct strp_msg *stm;
- 	int err = 0;
- 	ssize_t copied;
-@@ -1186,11 +1148,7 @@ static ssize_t kcm_splice_read(struct so
- 
- 	/* Only support splice for SOCKSEQPACKET */
- 
--	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
--
--	lock_sock(sk);
--
--	skb = kcm_wait_data(sk, flags, timeo, &err);
-+	skb = skb_recv_datagram(sk, flags, noblock, &err);
- 	if (!skb)
- 		goto err_out;
- 
-@@ -1218,13 +1176,11 @@ static ssize_t kcm_splice_read(struct so
- 	 * finish reading the message.
- 	 */
- 
--	release_sock(sk);
--
-+	skb_free_datagram(sk, skb);
- 	return copied;
- 
- err_out:
--	release_sock(sk);
--
-+	skb_free_datagram(sk, skb);
- 	return err;
- }
- 
+ 		/*
+ 		 * The entries will be zeroed out when we move the
+@@ -5223,6 +5234,7 @@ rb_reset_cpu(struct ring_buffer_per_cpu *cpu_buffer)
+ 	local_set(&cpu_buffer->committing, 0);
+ 	local_set(&cpu_buffer->commits, 0);
+ 	local_set(&cpu_buffer->pages_touched, 0);
++	local_set(&cpu_buffer->pages_lost, 0);
+ 	local_set(&cpu_buffer->pages_read, 0);
+ 	cpu_buffer->last_pages_touch = 0;
+ 	cpu_buffer->shortest_full = 0;
+-- 
+2.35.1
+
 
 
