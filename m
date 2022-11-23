@@ -2,108 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3E4563543B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 594EF6356B3
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236957AbiKWJFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:05:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39378 "EHLO
+        id S237912AbiKWJdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:33:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237045AbiKWJEr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:04:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CF44102E75
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:04:37 -0800 (PST)
+        with ESMTP id S237797AbiKWJcS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:32:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B8A51A3A3
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 303B761B43
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:04:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16270C433C1;
-        Wed, 23 Nov 2022 09:04:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C04361B49
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D9CBC433D6;
+        Wed, 23 Nov 2022 09:31:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194276;
-        bh=MOtZ+1XwF9L8NClGNVvYDcoL1pj78xnTuxPaniLfDdE=;
+        s=korg; t=1669195880;
+        bh=9QPTpe3O4Wdgo90IBeO2bl3KONhzK17Ryo0NBFw1d58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wZciey6jPcouyO7o/T5S5fTUGc7RjmhHtYwwjYwFa2o+t6zfGrNXK+yD0SbTOwqNU
-         8gc7LXOzz5c1hLnS2NzPrCLz8TiZ2r656JAqrnsznx9cuYhprM3BKXKlXvpgkxIIOe
-         ZhxeLNTZwX96Lp835KaRN+i/i6jA3Xgm2YoVikoE=
+        b=qFyoK3xp/mZtdpzrxfBJoxUp2iaqjIyVRxM4njkx0U85Kw6d5oXxl27OGclPfHH37
+         KOeojycvO48hxH0S+NYq6eKp8uRwbCZJAX5rwtBrrI+LpoN6oG4FVag1SGTFHY0wP3
+         2DXX+mXwzaxGSvIMYvTMnOR2VntkxpRG2R1j/MSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anand Jain <anand.jain@oracle.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 032/114] btrfs: selftests: fix wrong error check in btrfs_free_dummy_root()
-Date:   Wed, 23 Nov 2022 09:50:19 +0100
-Message-Id: <20221123084553.126365418@linuxfoundation.org>
+        patches@lists.linux.dev, John Garry <john.g.garry@oracle.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Jason Yan <yanaijie@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 057/181] scsi: scsi_transport_sas: Fix error handling in sas_phy_add()
+Date:   Wed, 23 Nov 2022 09:50:20 +0100
+Message-Id: <20221123084604.837593646@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 9b2f20344d450137d015b380ff0c2e2a6a170135 upstream.
+[ Upstream commit 5d7bebf2dfb0dc97aac1fbace0910e557ecdb16f ]
 
-The btrfs_alloc_dummy_root() uses ERR_PTR as the error return value
-rather than NULL, if error happened, there will be a NULL pointer
-dereference:
+If transport_add_device() fails in sas_phy_add(), the kernel will crash
+trying to delete the device in transport_remove_device() called from
+sas_remove_host().
 
-  BUG: KASAN: null-ptr-deref in btrfs_free_dummy_root+0x21/0x50 [btrfs]
-  Read of size 8 at addr 000000000000002c by task insmod/258926
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000108
+CPU: 61 PID: 42829 Comm: rmmod Kdump: loaded Tainted: G        W          6.1.0-rc1+ #173
+pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : device_del+0x54/0x3d0
+lr : device_del+0x37c/0x3d0
+Call trace:
+ device_del+0x54/0x3d0
+ attribute_container_class_device_del+0x28/0x38
+ transport_remove_classdev+0x6c/0x80
+ attribute_container_device_trigger+0x108/0x110
+ transport_remove_device+0x28/0x38
+ sas_phy_delete+0x30/0x60 [scsi_transport_sas]
+ do_sas_phy_delete+0x6c/0x80 [scsi_transport_sas]
+ device_for_each_child+0x68/0xb0
+ sas_remove_children+0x40/0x50 [scsi_transport_sas]
+ sas_remove_host+0x20/0x38 [scsi_transport_sas]
+ hisi_sas_remove+0x40/0x68 [hisi_sas_main]
+ hisi_sas_v2_remove+0x20/0x30 [hisi_sas_v2_hw]
+ platform_remove+0x2c/0x60
 
-  CPU: 2 PID: 258926 Comm: insmod Tainted: G        W          6.1.0-rc2+ #5
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x34/0x44
-   kasan_report+0xb7/0x140
-   kasan_check_range+0x145/0x1a0
-   btrfs_free_dummy_root+0x21/0x50 [btrfs]
-   btrfs_test_free_space_cache+0x1a8c/0x1add [btrfs]
-   btrfs_run_sanity_tests+0x65/0x80 [btrfs]
-   init_btrfs_fs+0xec/0x154 [btrfs]
-   do_one_initcall+0x87/0x2a0
-   do_init_module+0xdf/0x320
-   load_module+0x3006/0x3390
-   __do_sys_finit_module+0x113/0x1b0
-   do_syscall_64+0x35/0x80
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
+Fix this by checking and handling return value of transport_add_device()
+in sas_phy_add().
 
-Fixes: aaedb55bc08f ("Btrfs: add tests for btrfs_get_extent")
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c7ebbbce366c ("[SCSI] SAS transport class")
+Suggested-by: John Garry <john.g.garry@oracle.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221107124828.115557-1-yangyingliang@huawei.com
+Reviewed-by: John Garry <john.g.garry@oracle.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tests/btrfs-tests.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_transport_sas.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/tests/btrfs-tests.c
-+++ b/fs/btrfs/tests/btrfs-tests.c
-@@ -174,7 +174,7 @@ void btrfs_free_dummy_fs_info(struct btr
+diff --git a/drivers/scsi/scsi_transport_sas.c b/drivers/scsi/scsi_transport_sas.c
+index 4a96fb05731d..c6256fdc24b1 100644
+--- a/drivers/scsi/scsi_transport_sas.c
++++ b/drivers/scsi/scsi_transport_sas.c
+@@ -716,12 +716,17 @@ int sas_phy_add(struct sas_phy *phy)
+ 	int error;
  
- void btrfs_free_dummy_root(struct btrfs_root *root)
- {
--	if (!root)
-+	if (IS_ERR_OR_NULL(root))
- 		return;
- 	/* Will be freed by btrfs_free_fs_roots */
- 	if (WARN_ON(test_bit(BTRFS_ROOT_IN_RADIX, &root->state)))
+ 	error = device_add(&phy->dev);
+-	if (!error) {
+-		transport_add_device(&phy->dev);
+-		transport_configure_device(&phy->dev);
++	if (error)
++		return error;
++
++	error = transport_add_device(&phy->dev);
++	if (error) {
++		device_del(&phy->dev);
++		return error;
+ 	}
++	transport_configure_device(&phy->dev);
+ 
+-	return error;
++	return 0;
+ }
+ EXPORT_SYMBOL(sas_phy_add);
+ 
+-- 
+2.35.1
+
 
 
