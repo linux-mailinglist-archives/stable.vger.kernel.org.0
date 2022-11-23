@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80DC5635EA0
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BC4F635EA3
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 13:58:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238291AbiKWM4i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 07:56:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50168 "EHLO
+        id S238225AbiKWM4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 07:56:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238556AbiKWMzZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:55:25 -0500
+        with ESMTP id S238576AbiKWMz2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 07:55:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 698348B872;
-        Wed, 23 Nov 2022 04:45:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4242A6B21D;
+        Wed, 23 Nov 2022 04:45:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2494BB81F5D;
-        Wed, 23 Nov 2022 12:45:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4150FC433B5;
-        Wed, 23 Nov 2022 12:45:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CDCA7B81F6F;
+        Wed, 23 Nov 2022 12:45:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6341EC43470;
+        Wed, 23 Nov 2022 12:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207531;
-        bh=3MviyrC2njBscUAbTJZ9qmoodCR9Uz6Jufyhkr1+Q0c=;
+        s=k20201202; t=1669207533;
+        bh=U5PgJSJEgKci12VURAi+I06Nj07M+i+FJPLQV67ZDc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HLmm8tTV82h51H7NkAeuZ5lQTdlKhem4i08Q88xYPXjKftaTrCmjZAUdPK424zCq5
-         Yam86Ub2tQi957hBlaUQiSLO7qEq6PfM/+gLOxYDKr5mavzW68dGzpBD35ScokIrpE
-         85+qteydds8EzD+HwF3N3pivkNM6HWiCoZH0PqjIFPJAcGpTG06vUGsJfPuxlnh+sd
-         77EBoY6N/pB2i51DFfcoraRLSYx6NoXFCNPYyr7ppb+u9P4gUzqCL4dCDt9eHU2Qa4
-         erSxLZmy+1T34JEIB0/o58QnD8XKfBQashYpJWmWA9zPBAbLirdGqZDPJkvGHC7N3M
-         OLMLFJg1LZqSA==
+        b=HjoAywjRmOwYo+fSovANgtTUyt8AOElXwefJhrV/hLBEEB4CH7vUIPzt6KwY2iOI2
+         XkirevWJ8wiK9fnj08IfRU/Jn3lohy/k4160M31k0FrHc6m1i24Kzei9Xt6JWmoEqa
+         Exzs95fGzIgAkrR9B46QlcFiYBMi9HEzjKT7HSjK/IwnR+St5npL/VgHEvAfNZAoCd
+         KwcE4Y8UJFZv5ZaYEeMrNsrWIGbANL8Df+v3gzwPrHedXkWRR7ZFrCzPKTT7G1GiBI
+         3fqcwM/YE74UOLXMw9oHd06DBNEQTu9oJnlulCCYiEqat0yx5AHFX0rWVIYYKwxx9m
+         cTB/KVipxC0+Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 06/10] platform/x86: hp-wmi: Ignore Smart Experience App event
-Date:   Wed, 23 Nov 2022 07:45:14 -0500
-Message-Id: <20221123124520.266643-6-sashal@kernel.org>
+Cc:     Gleb Mazovetskiy <glex.spb@gmail.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, yoshfuji@linux-ipv6.org,
+        dsahern@kernel.org, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 07/10] tcp: configurable source port perturb table size
+Date:   Wed, 23 Nov 2022 07:45:15 -0500
+Message-Id: <20221123124520.266643-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124520.266643-1-sashal@kernel.org>
 References: <20221123124520.266643-1-sashal@kernel.org>
@@ -56,46 +58,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Gleb Mazovetskiy <glex.spb@gmail.com>
 
-[ Upstream commit 8b9b6a044b408283b086702b1d9e3cf4ba45b426 ]
+[ Upstream commit aeac4ec8f46d610a10adbaeff5e2edf6a88ffc62 ]
 
-Sometimes hp-wmi driver complains on system resume:
-[ 483.116451] hp_wmi: Unknown event_id - 33 - 0x0
+On embedded systems with little memory and no relevant
+security concerns, it is beneficial to reduce the size
+of the table.
 
-According to HP it's a feature called "HP Smart Experience App" and it's
-safe to be ignored.
+Reducing the size from 2^16 to 2^8 saves 255 KiB
+of kernel RAM.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20221114073842.205392-1-kai.heng.feng@canonical.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Makes the table size configurable as an expert option.
+
+The size was previously increased from 2^8 to 2^16
+in commit 4c2c8f03a5ab ("tcp: increase source port perturb table to
+2^16").
+
+Signed-off-by: Gleb Mazovetskiy <glex.spb@gmail.com>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/hp-wmi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv4/Kconfig           | 10 ++++++++++
+ net/ipv4/inet_hashtables.c | 10 +++++-----
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
-index f911410bb4c7..6f35becaa743 100644
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -76,6 +76,7 @@ enum hp_wmi_event_ids {
- 	HPWMI_PEAKSHIFT_PERIOD		= 0x0F,
- 	HPWMI_BATTERY_CHARGE_PERIOD	= 0x10,
- 	HPWMI_SANITIZATION_MODE		= 0x17,
-+	HPWMI_SMART_EXPERIENCE_APP	= 0x21,
- };
+diff --git a/net/ipv4/Kconfig b/net/ipv4/Kconfig
+index 4abc4ba733bf..33f124a69f53 100644
+--- a/net/ipv4/Kconfig
++++ b/net/ipv4/Kconfig
+@@ -383,6 +383,16 @@ config INET_IPCOMP
  
- struct bios_args {
-@@ -634,6 +635,8 @@ static void hp_wmi_notify(u32 value, void *context)
- 		break;
- 	case HPWMI_SANITIZATION_MODE:
- 		break;
-+	case HPWMI_SMART_EXPERIENCE_APP:
-+		break;
- 	default:
- 		pr_info("Unknown event_id - %d - 0x%x\n", event_id, event_data);
- 		break;
+ 	  If unsure, say Y.
+ 
++config INET_TABLE_PERTURB_ORDER
++	int "INET: Source port perturbation table size (as power of 2)" if EXPERT
++	default 16
++	help
++	  Source port perturbation table size (as power of 2) for
++	  RFC 6056 3.3.4.  Algorithm 4: Double-Hash Port Selection Algorithm.
++
++	  The default is almost always what you want.
++	  Only change this if you know what you are doing.
++
+ config INET_XFRM_TUNNEL
+ 	tristate
+ 	select INET_TUNNEL
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index 19369fc9bcda..48c7a3a51fc1 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -591,13 +591,13 @@ EXPORT_SYMBOL_GPL(inet_unhash);
+  * Note that we use 32bit integers (vs RFC 'short integers')
+  * because 2^16 is not a multiple of num_ephemeral and this
+  * property might be used by clever attacker.
++ *
+  * RFC claims using TABLE_LENGTH=10 buckets gives an improvement, though
+- * attacks were since demonstrated, thus we use 65536 instead to really
+- * give more isolation and privacy, at the expense of 256kB of kernel
+- * memory.
++ * attacks were since demonstrated, thus we use 65536 by default instead
++ * to really give more isolation and privacy, at the expense of 256kB
++ * of kernel memory.
+  */
+-#define INET_TABLE_PERTURB_SHIFT 16
+-#define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
++#define INET_TABLE_PERTURB_SIZE (1 << CONFIG_INET_TABLE_PERTURB_ORDER)
+ static u32 *table_perturb;
+ 
+ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
 -- 
 2.35.1
 
