@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85CDB635609
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CFCF635705
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237631AbiKWJ0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:26:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36886 "EHLO
+        id S237933AbiKWJgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:36:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237541AbiKWJZx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:25:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D9AB490A5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:24:47 -0800 (PST)
+        with ESMTP id S237098AbiKWJfX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:35:23 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82DA8DEC3
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:33:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF68E61B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:24:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0BDEC433D6;
-        Wed, 23 Nov 2022 09:24:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EE0BECE20F1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:33:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A650DC433D7;
+        Wed, 23 Nov 2022 09:33:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195486;
-        bh=9+L60O73mmTtw6dOEpOhJ4VuTITV0DJuXpKL0zV7WRE=;
+        s=korg; t=1669195985;
+        bh=WKy/QIwOLmozVOUmRd2OzMBA0ZXu92OC9RsslkRq8iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dsl4ukeMoaLawfwPX3iwZK3n0ID/VdQEoqkJFzEo9/d+T9+hr00Qx4oUC7Tg5R+m2
-         4sDEr5F3i6Q+GwAEPrfzvxM9ZB9FzvnjzS3KxCWgohg0ekmQUBmSGl4nIBrMM14nZ1
-         rZVBufUrNKoLgx9B98Xxv4B6/vx9itoTL9/osoUA=
+        b=eg147kruCxHNJygu0jZ7VH4Jfz/q6GFCxiVi5I/ejnKAkmB1sF7vRp4hOR1OzGbVe
+         Wcr52BPzqR5fEPN79PiF5GQFXXMUC+YG/f1oWm81fvGn7TWoikgsuAJfm/OXOkPvWZ
+         lFaZZVpYwOcpSB7F2OGndq+Zvjxz5FwAfJjGiAkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 066/149] net: liquidio: release resources when liquidio driver open failed
-Date:   Wed, 23 Nov 2022 09:50:49 +0100
-Message-Id: <20221123084600.282217347@linuxfoundation.org>
+Subject: [PATCH 5.15 087/181] net: caif: fix double disconnect client in chnl_net_open()
+Date:   Wed, 23 Nov 2022 09:50:50 +0100
+Message-Id: <20221123084606.088904555@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,80 +55,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 8979f428a4afc215e390006e5ea19fd4e22c7ca9 ]
+[ Upstream commit 8fbb53c8bfd8c56ecf1f78dc821778b58f505503 ]
 
-When liquidio driver open failed, it doesn't release resources. Compile
-tested only.
+When connecting to client timeout, disconnect client for twice in
+chnl_net_open(). Remove one. Compile tested only.
 
-Fixes: 5b07aee11227 ("liquidio: MSIX support for CN23XX")
-Fixes: dbc97bfd3918 ("net: liquidio: Add missing null pointer checks")
+Fixes: 2aa40aef9deb ("caif: Use link layer MTU instead of fixed MTU")
 Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/cavium/liquidio/lio_main.c   | 34 ++++++++++++++-----
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ net/caif/chnl_net.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/cavium/liquidio/lio_main.c b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-index e0d18e917108..c4dc6e2ccd6b 100644
---- a/drivers/net/ethernet/cavium/liquidio/lio_main.c
-+++ b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-@@ -1798,13 +1798,10 @@ static int liquidio_open(struct net_device *netdev)
+diff --git a/net/caif/chnl_net.c b/net/caif/chnl_net.c
+index 414dc5671c45..2de6b44deb2c 100644
+--- a/net/caif/chnl_net.c
++++ b/net/caif/chnl_net.c
+@@ -310,9 +310,6 @@ static int chnl_net_open(struct net_device *dev)
  
- 	ifstate_set(lio, LIO_IFSTATE_RUNNING);
- 
--	if (OCTEON_CN23XX_PF(oct)) {
--		if (!oct->msix_on)
--			if (setup_tx_poll_fn(netdev))
--				return -1;
--	} else {
--		if (setup_tx_poll_fn(netdev))
--			return -1;
-+	if (!OCTEON_CN23XX_PF(oct) || (OCTEON_CN23XX_PF(oct) && !oct->msix_on)) {
-+		ret = setup_tx_poll_fn(netdev);
-+		if (ret)
-+			goto err_poll;
+ 	if (result == 0) {
+ 		pr_debug("connect timeout\n");
+-		caif_disconnect_client(dev_net(dev), &priv->chnl);
+-		priv->state = CAIF_DISCONNECTED;
+-		pr_debug("state disconnected\n");
+ 		result = -ETIMEDOUT;
+ 		goto error;
  	}
- 
- 	netif_tx_start_all_queues(netdev);
-@@ -1817,7 +1814,7 @@ static int liquidio_open(struct net_device *netdev)
- 	/* tell Octeon to start forwarding packets to host */
- 	ret = send_rx_ctrl_cmd(lio, 1);
- 	if (ret)
--		return ret;
-+		goto err_rx_ctrl;
- 
- 	/* start periodical statistics fetch */
- 	INIT_DELAYED_WORK(&lio->stats_wk.work, lio_fetch_stats);
-@@ -1828,6 +1825,27 @@ static int liquidio_open(struct net_device *netdev)
- 	dev_info(&oct->pci_dev->dev, "%s interface is opened\n",
- 		 netdev->name);
- 
-+	return 0;
-+
-+err_rx_ctrl:
-+	if (!OCTEON_CN23XX_PF(oct) || (OCTEON_CN23XX_PF(oct) && !oct->msix_on))
-+		cleanup_tx_poll_fn(netdev);
-+err_poll:
-+	if (lio->ptp_clock) {
-+		ptp_clock_unregister(lio->ptp_clock);
-+		lio->ptp_clock = NULL;
-+	}
-+
-+	if (oct->props[lio->ifidx].napi_enabled == 1) {
-+		list_for_each_entry_safe(napi, n, &netdev->napi_list, dev_list)
-+			napi_disable(napi);
-+
-+		oct->props[lio->ifidx].napi_enabled = 0;
-+
-+		if (OCTEON_CN23XX_PF(oct))
-+			oct->droq[0]->ops.poll_mode = 0;
-+	}
-+
- 	return ret;
- }
- 
 -- 
 2.35.1
 
