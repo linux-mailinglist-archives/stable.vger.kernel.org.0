@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E0FB63578D
+	by mail.lfdr.de (Postfix) with ESMTP id 8B59363578E
 	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238102AbiKWJnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:43:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60246 "EHLO
+        id S238111AbiKWJnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:43:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238109AbiKWJmp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:42:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31E91113737
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:40:15 -0800 (PST)
+        with ESMTP id S238114AbiKWJmq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:42:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBF9111578D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:40:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1096B81EF0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:40:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 300CBC433D6;
-        Wed, 23 Nov 2022 09:40:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7929161B6D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:40:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66C92C433D6;
+        Wed, 23 Nov 2022 09:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196412;
-        bh=Xr2JnALXiCEHV6yOKw+uqHFWEolwa49PFgHJkuLuG2o=;
+        s=korg; t=1669196415;
+        bh=kAigqeMZPJBt2ntHZIObOuDoIoBub1ivzXrK8HvDdIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vCE+zpJEu81lcqilIGnBfjJq4P6E+GQC6G+2Dsq3nI6eai4YLJ40rB/a75OidaeKT
-         3jZ6D5aj1Dq3Y9XWOiCGSSZjKPVx9OqfuS2Yk0CW/6cOMJduFqEUlr8JBkkDMl1nW8
-         R7ihm5Qnkulwwboq75mdrI9uN2iWGR62dyPipr8g=
+        b=ePXD5CDyQa0oNufCcridtkx9d2kitr5vvyxXN0jrhc1SGt0X9FfTDap4ybza+f5ug
+         90jXb5nykqAAcjef4e5o9vSaSMuYza++jfAmu1DZvH2tFIExTHHQ4D0/Wd5bNpk9jA
+         hl+gNa4BORwzKAu5kYlr5scYevvQ5ZSfAP8bVdq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linkt <xazrael@hotmail.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
+        patches@lists.linux.dev, Taroe Leohearts <leohearts@leohearts.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 023/314] ASoC: amd: yc: Adding Lenovo ThinkBook 14 Gen 4+ ARA and Lenovo ThinkBook 16 Gen 4+ ARA to the Quirks List
-Date:   Wed, 23 Nov 2022 09:47:48 +0100
-Message-Id: <20221123084626.545317575@linuxfoundation.org>
+Subject: [PATCH 6.0 024/314] ASoC: amd: yc: Add Lenovo Thinkbook 14+ 2022 21D0 to quirks table
+Date:   Wed, 23 Nov 2022 09:47:49 +0100
+Message-Id: <20221123084626.594803001@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -54,42 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: linkt <xazrael@hotmail.com>
+From: Leohearts <leohearts@leohearts.com>
 
-[ Upstream commit a450b5c8739248069e11f72129fca61a56125577 ]
+[ Upstream commit a75481fa00cc06a8763e1795b93140407948c03a ]
 
-Lenovo ThinkBook 14 Gen 4+ ARA and ThinkBook 16 Gen 4+ ARA
-need to be added to the list of quirks for the microphone to work properly.
+Lenovo Thinkbook 14+ 2022 (ThinkBook 14 G4+ ARA) uses Ryzen
+6000 processor, and has the same microphone problem as other
+ThinkPads with AMD Ryzen 6000 series CPUs, which has been
+listed in https://bugzilla.kernel.org/show_bug.cgi?id=216267.
 
-Signed-off-by: linkt <xazrael@hotmail.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://lore.kernel.org/r/MEYPR01MB8397A3C27DE6206FA3EF834DB6239@MEYPR01MB8397.ausprd01.prod.outlook.com
+Adding 21D0 to quirks table solves this microphone problem
+for ThinkBook 14 G4+ ARA.
+
+Signed-off-by: Taroe Leohearts <leohearts@leohearts.com>
+Link: https://lore.kernel.org/r/26B141B486BEF706+313d1732-e00c-ea41-3123-0d048d40ebb6@leohearts.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/yc/acp6x-mach.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ sound/soc/amd/yc/acp6x-mach.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
-index 2cb50d5cf1a9..09a8aceff22f 100644
+index 09a8aceff22f..6c0f1de10429 100644
 --- a/sound/soc/amd/yc/acp6x-mach.c
 +++ b/sound/soc/amd/yc/acp6x-mach.c
-@@ -45,6 +45,20 @@ static struct snd_soc_card acp6x_card = {
- };
- 
- static const struct dmi_system_id yc_acp_quirk_table[] = {
+@@ -52,6 +52,13 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "21D0"),
+ 		}
+ 	},
 +	{
 +		.driver_data = &acp6x_card,
 +		.matches = {
 +			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
 +			DMI_MATCH(DMI_PRODUCT_NAME, "21D0"),
-+		}
-+	},
-+	{
-+		.driver_data = &acp6x_card,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "21D1"),
 +		}
 +	},
  	{
