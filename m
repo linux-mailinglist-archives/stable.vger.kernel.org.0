@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2564635755
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45DBA63593D
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:09:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237827AbiKWJlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:41:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56936 "EHLO
+        id S236565AbiKWKIG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:08:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238016AbiKWJlB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE34128E32
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:38:24 -0800 (PST)
+        with ESMTP id S236879AbiKWKGq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED79413CEE
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:57:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 698B361B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:38:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59DC3C433D6;
-        Wed, 23 Nov 2022 09:38:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B7FA61B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:57:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72A3DC433C1;
+        Wed, 23 Nov 2022 09:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196303;
-        bh=sA41tFFKBDDhAGEMirpc2D2Fcw/aIZdFOBNHE5PNnGI=;
+        s=korg; t=1669197443;
+        bh=MFevkjK4Km5E5MgdatlZan6/En6MRZnPBJO5ogmUvr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oI54zCp+vOWAfwfEu8yNEaM4J+b5xlX1QkU09W4Dte2K67IKnag0kWCH2++oIaj1F
-         4izffI1ihSn/e85xq9/kpPMGh3t8cryEhFPzag0/725F0tpR3yIEYw6fcm5hMkJNMf
-         aLEn92wFdr8Xgp+kr9AVmJdy+sz8UzyNJ5++z4bI=
+        b=YWmsYsxU5nEOkcBFN1LXrg6qHvvqF64O4Aw/cle1QWdZ9euU7iioflSczLBiMMnCZ
+         NGcnXBxI/85HjXcGc4ymSXppmcON3kaiMIwqF1GiHivIt2RA4nbmxGjryXheqhyWLB
+         Zo4l+9AiIgkwJj+dfOe5ZCbg47lli8P+TT/OvoCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kees Cook <keescook@chromium.org>,
-        Hawkins Jiawei <yin31149@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        syzbot+473754e5af963cf014cf@syzkaller.appspotmail.com
-Subject: [PATCH 5.15 176/181] wifi: wext: use flex array destination for memcpy()
-Date:   Wed, 23 Nov 2022 09:52:19 +0100
-Message-Id: <20221123084609.949318027@linuxfoundation.org>
+        patches@lists.linux.dev, Zheng Yejian <zhengyejian1@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 295/314] tracing: Fix potential null-pointer-access of entry in list tr->err_log
+Date:   Wed, 23 Nov 2022 09:52:20 +0100
+Message-Id: <20221123084638.893376943@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,128 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Zheng Yejian <zhengyejian1@huawei.com>
 
-commit e3e6e1d16a4cf7b63159ec71774e822194071954 upstream.
+[ Upstream commit 067df9e0ad48a97382ab2179bbe773a13a846028 ]
 
-Syzkaller reports buffer overflow false positive as follows:
-------------[ cut here ]------------
-memcpy: detected field-spanning write (size 8) of single field
-	"&compat_event->pointer" at net/wireless/wext-core.c:623 (size 4)
-WARNING: CPU: 0 PID: 3607 at net/wireless/wext-core.c:623
-	wireless_send_event+0xab5/0xca0 net/wireless/wext-core.c:623
-Modules linked in:
-CPU: 1 PID: 3607 Comm: syz-executor659 Not tainted
-	6.0.0-rc6-next-20220921-syzkaller #0
-[...]
-Call Trace:
- <TASK>
- ioctl_standard_call+0x155/0x1f0 net/wireless/wext-core.c:1022
- wireless_process_ioctl+0xc8/0x4c0 net/wireless/wext-core.c:955
- wext_ioctl_dispatch net/wireless/wext-core.c:988 [inline]
- wext_ioctl_dispatch net/wireless/wext-core.c:976 [inline]
- wext_handle_ioctl+0x26b/0x280 net/wireless/wext-core.c:1049
- sock_ioctl+0x285/0x640 net/socket.c:1220
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:870 [inline]
- __se_sys_ioctl fs/ioctl.c:856 [inline]
- __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:856
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- [...]
- </TASK>
+Entries in list 'tr->err_log' will be reused after entry number
+exceed TRACING_LOG_ERRS_MAX.
 
-Wireless events will be sent on the appropriate channels in
-wireless_send_event(). Different wireless events may have different
-payload structure and size, so kernel uses **len** and **cmd** field
-in struct __compat_iw_event as wireless event common LCP part, uses
-**pointer** as a label to mark the position of remaining different part.
+The cmd string of the to be reused entry will be freed first then
+allocated a new one. If the allocation failed, then the entry will
+still be in list 'tr->err_log' but its 'cmd' field is set to be NULL,
+later access of 'cmd' is risky.
 
-Yet the problem is that, **pointer** is a compat_caddr_t type, which may
-be smaller than the relative structure at the same position. So during
-wireless_send_event() tries to parse the wireless events payload, it may
-trigger the memcpy() run-time destination buffer bounds checking when the
-relative structure's data is copied to the position marked by **pointer**.
+Currently above problem can cause the loss of 'cmd' information of first
+entry in 'tr->err_log'. When execute `cat /sys/kernel/tracing/error_log`,
+reproduce logs like:
+  [   37.495100] trace_kprobe: error: Maxactive is not for kprobe(null) ^
+  [   38.412517] trace_kprobe: error: Maxactive is not for kprobe
+    Command: p4:myprobe2 do_sys_openat2
+            ^
 
-This patch solves it by introducing flexible-array field **ptr_bytes**,
-to mark the position of the wireless events remaining part next to
-LCP part. What's more, this patch also adds **ptr_len** variable in
-wireless_send_event() to improve its maintainability.
+Link: https://lore.kernel.org/linux-trace-kernel/20221114104632.3547266-1-zhengyejian1@huawei.com
 
-Reported-and-tested-by: syzbot+473754e5af963cf014cf@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/all/00000000000070db2005e95a5984@google.com/
-Suggested-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1581a884b7ca ("tracing: Remove size restriction on tracing_log_err cmd strings")
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/wireless.h |   10 +++++++++-
- net/wireless/wext-core.c |   17 ++++++++++-------
- 2 files changed, 19 insertions(+), 8 deletions(-)
+ kernel/trace/trace.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/include/linux/wireless.h
-+++ b/include/linux/wireless.h
-@@ -26,7 +26,15 @@ struct compat_iw_point {
- struct __compat_iw_event {
- 	__u16		len;			/* Real length of this stuff */
- 	__u16		cmd;			/* Wireless IOCTL */
--	compat_caddr_t	pointer;
-+
-+	union {
-+		compat_caddr_t	pointer;
-+
-+		/* we need ptr_bytes to make memcpy() run-time destination
-+		 * buffer bounds checking happy, nothing special
-+		 */
-+		DECLARE_FLEX_ARRAY(__u8, ptr_bytes);
-+	};
- };
- #define IW_EV_COMPAT_LCP_LEN offsetof(struct __compat_iw_event, pointer)
- #define IW_EV_COMPAT_POINT_OFF offsetof(struct compat_iw_point, length)
---- a/net/wireless/wext-core.c
-+++ b/net/wireless/wext-core.c
-@@ -468,6 +468,7 @@ void wireless_send_event(struct net_devi
- 	struct __compat_iw_event *compat_event;
- 	struct compat_iw_point compat_wrqu;
- 	struct sk_buff *compskb;
-+	int ptr_len;
- #endif
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 87d2f04152f9..7132e21e90d6 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -7803,6 +7803,7 @@ static struct tracing_log_err *get_tracing_log_err(struct trace_array *tr,
+ 						   int len)
+ {
+ 	struct tracing_log_err *err;
++	char *cmd;
  
- 	/*
-@@ -582,6 +583,9 @@ void wireless_send_event(struct net_devi
- 	nlmsg_end(skb, nlh);
- #ifdef CONFIG_COMPAT
- 	hdr_len = compat_event_type_size[descr->header_type];
-+
-+	/* ptr_len is remaining size in event header apart from LCP */
-+	ptr_len = hdr_len - IW_EV_COMPAT_LCP_LEN;
- 	event_len = hdr_len + extra_len;
+ 	if (tr->n_err_log_entries < TRACING_LOG_ERRS_MAX) {
+ 		err = alloc_tracing_log_err(len);
+@@ -7811,12 +7812,12 @@ static struct tracing_log_err *get_tracing_log_err(struct trace_array *tr,
  
- 	compskb = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_ATOMIC);
-@@ -612,16 +616,15 @@ void wireless_send_event(struct net_devi
- 	if (descr->header_type == IW_HEADER_TYPE_POINT) {
- 		compat_wrqu.length = wrqu->data.length;
- 		compat_wrqu.flags = wrqu->data.flags;
--		memcpy(&compat_event->pointer,
--			((char *) &compat_wrqu) + IW_EV_COMPAT_POINT_OFF,
--			hdr_len - IW_EV_COMPAT_LCP_LEN);
-+		memcpy(compat_event->ptr_bytes,
-+		       ((char *)&compat_wrqu) + IW_EV_COMPAT_POINT_OFF,
-+			ptr_len);
- 		if (extra_len)
--			memcpy(((char *) compat_event) + hdr_len,
--				extra, extra_len);
-+			memcpy(&compat_event->ptr_bytes[ptr_len],
-+			       extra, extra_len);
- 	} else {
- 		/* extra_len must be zero, so no if (extra) needed */
--		memcpy(&compat_event->pointer, wrqu,
--			hdr_len - IW_EV_COMPAT_LCP_LEN);
-+		memcpy(compat_event->ptr_bytes, wrqu, ptr_len);
+ 		return err;
  	}
+-
++	cmd = kzalloc(len, GFP_KERNEL);
++	if (!cmd)
++		return ERR_PTR(-ENOMEM);
+ 	err = list_first_entry(&tr->err_log, struct tracing_log_err, list);
+ 	kfree(err->cmd);
+-	err->cmd = kzalloc(len, GFP_KERNEL);
+-	if (!err->cmd)
+-		return ERR_PTR(-ENOMEM);
++	err->cmd = cmd;
+ 	list_del(&err->list);
  
- 	nlmsg_end(compskb, nlh);
+ 	return err;
+-- 
+2.35.1
+
 
 
