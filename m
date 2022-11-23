@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0377635375
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F06F6353DE
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236260AbiKWIze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:55:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58728 "EHLO
+        id S236836AbiKWJAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:00:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236766AbiKWIzZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:55:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCACBFFA94
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:55:18 -0800 (PST)
+        with ESMTP id S236825AbiKWJAG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:00:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE4FEC09E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:00:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6816661B48
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:55:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61CB1C433D6;
-        Wed, 23 Nov 2022 08:55:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C30BB81EF1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:00:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACEC7C433C1;
+        Wed, 23 Nov 2022 09:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193717;
-        bh=BUm0QnloEu5jTmCS/qr9CvSCsce7s8EsWk/BKN/eiN4=;
+        s=korg; t=1669194002;
+        bh=tchkfE+5pcdYSQLUfY/mhppFV/Ys4URz6PLkwT8XoL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RCccc3vbm0rMh7gUujN9QsDW50CuqvHF88B54fzFQJLXz4zhUSQcl39YNbvCn5caZ
-         Vw+jHigrofXjJVsQDKdURtgKArs5kBzUPN7xluDhOZFn3++9UODJD3BwjzbDGvzJCa
-         PcIDFevMzcu1gUDIQiEC2xFNV+4mc5QwAjSmZcn0=
+        b=wFCCB/Ry4ZKA5qY/veMVigrs3MVAWsctwitxiQymISYPD8V5KFjRLrrY+3m6zDJ+x
+         JGgQhDjPhnLaBz14+16RKL5wCJuVTGzA2QPB5Gf/B+XTVwMY4FBafJ3NtwuOvSpNxn
+         qjBGe992+qJiqznBdof3PmC3JNFSMxMXvNpvWwBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 41/76] mISDN: fix misuse of put_device() in mISDN_register_device()
+Subject: [PATCH 4.14 43/88] parport_pc: Avoid FIFO port location truncation
 Date:   Wed, 23 Nov 2022 09:50:40 +0100
-Message-Id: <20221123084548.082137362@linuxfoundation.org>
+Message-Id: <20221123084549.997181592@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit 2d25107e111a85c56f601a5470f1780ec054e6ac ]
+[ Upstream commit ab126f51c93a15093df604f661c9480854c005a3 ]
 
-We should not release reference by put_device() before calling device_initialize().
+Match the data type of a temporary holding a reference to the FIFO port
+with the type of the original reference coming from `struct parport',
+avoiding data truncation with LP64 ports such as SPARC64 that refer to
+PCI port I/O locations via their corresponding MMIO addresses and will
+therefore have non-zero bits in the high 32-bit part of the reference.
+And in any case it is cleaner to have the data types matching here.
 
-Fixes: e7d1d4d9ac0d ("mISDN: fix possible memory leak in mISDN_register_device()")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Link: https://lore.kernel.org/linux-pci/20220419033752.GA1101844@bhelgaas/
+Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2209231912550.29493@angie.orcam.me.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/mISDN/core.c | 2 +-
+ drivers/parport/parport_pc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
-index 5cd53b2c47c7..e542439f4950 100644
---- a/drivers/isdn/mISDN/core.c
-+++ b/drivers/isdn/mISDN/core.c
-@@ -231,7 +231,7 @@ mISDN_register_device(struct mISDNdevice *dev,
- 
- 	err = get_free_devid();
- 	if (err < 0)
--		goto error1;
-+		return err;
- 	dev->id = err;
- 
- 	device_initialize(&dev->dev);
+diff --git a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
+index dee5b9e35ffd..d99ac73a1d89 100644
+--- a/drivers/parport/parport_pc.c
++++ b/drivers/parport/parport_pc.c
+@@ -474,7 +474,7 @@ static size_t parport_pc_fifo_write_block_pio(struct parport *port,
+ 	const unsigned char *bufp = buf;
+ 	size_t left = length;
+ 	unsigned long expire = jiffies + port->physport->cad->timeout;
+-	const int fifo = FIFO(port);
++	const unsigned long fifo = FIFO(port);
+ 	int poll_for = 8; /* 80 usecs */
+ 	const struct parport_pc_private *priv = port->physport->private_data;
+ 	const int fifo_depth = priv->fifo_depth;
 -- 
 2.35.1
 
