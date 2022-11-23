@@ -2,45 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45DBA63593D
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:09:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA521635757
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236565AbiKWKIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:08:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32938 "EHLO
+        id S237722AbiKWJlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:41:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236879AbiKWKGq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED79413CEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:57:23 -0800 (PST)
+        with ESMTP id S238030AbiKWJlD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66ADB5C774
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:38:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B7FA61B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:57:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72A3DC433C1;
-        Wed, 23 Nov 2022 09:57:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01888619F9
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:38:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7966C433D6;
+        Wed, 23 Nov 2022 09:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197443;
-        bh=MFevkjK4Km5E5MgdatlZan6/En6MRZnPBJO5ogmUvr4=;
+        s=korg; t=1669196307;
+        bh=Yy+t0oE4BwigkjLGN22WUepdLztyr4IcIjCf1IkvnYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWmsYsxU5nEOkcBFN1LXrg6qHvvqF64O4Aw/cle1QWdZ9euU7iioflSczLBiMMnCZ
-         NGcnXBxI/85HjXcGc4ymSXppmcON3kaiMIwqF1GiHivIt2RA4nbmxGjryXheqhyWLB
-         Zo4l+9AiIgkwJj+dfOe5ZCbg47lli8P+TT/OvoCU=
+        b=VE+OIbXc3qqo1CwIwVVTfc5dVVUWn/GwMyMDADnIhbfDN9zXYZaSS2/O7p7WLtqbE
+         WLPzAaKkeKKcyq01bQk5b3kB5f9FgQB50Pt+yXV9hrSDC+b0WCKU9NLHAgtG89XKQQ
+         IOdnXmggraoTX2iMu5oFlTL1mMAYFAEZSLrQv5SU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Yejian <zhengyejian1@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 295/314] tracing: Fix potential null-pointer-access of entry in list tr->err_log
+        patches@lists.linux.dev, Alexander Potapenko <glider@google.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+        Christoph Hellwig <hch@lst.de>,
+        Christoph Lameter <cl@linux.com>,
+        David Rientjes <rientjes@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Kees Cook <keescook@chromium.org>,
+        Marco Elver <elver@google.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 177/181] mm: fs: initialize fsdata passed to write_begin/write_end interface
 Date:   Wed, 23 Nov 2022 09:52:20 +0100
-Message-Id: <20221123084638.893376943@linuxfoundation.org>
+Message-Id: <20221123084609.999008225@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +83,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Alexander Potapenko <glider@google.com>
 
-[ Upstream commit 067df9e0ad48a97382ab2179bbe773a13a846028 ]
+commit 1468c6f4558b1bcd92aa0400f2920f9dc7588402 upstream.
 
-Entries in list 'tr->err_log' will be reused after entry number
-exceed TRACING_LOG_ERRS_MAX.
+Functions implementing the a_ops->write_end() interface accept the `void
+*fsdata` parameter that is supposed to be initialized by the corresponding
+a_ops->write_begin() (which accepts `void **fsdata`).
 
-The cmd string of the to be reused entry will be freed first then
-allocated a new one. If the allocation failed, then the entry will
-still be in list 'tr->err_log' but its 'cmd' field is set to be NULL,
-later access of 'cmd' is risky.
+However not all a_ops->write_begin() implementations initialize `fsdata`
+unconditionally, so it may get passed uninitialized to a_ops->write_end(),
+resulting in undefined behavior.
 
-Currently above problem can cause the loss of 'cmd' information of first
-entry in 'tr->err_log'. When execute `cat /sys/kernel/tracing/error_log`,
-reproduce logs like:
-  [   37.495100] trace_kprobe: error: Maxactive is not for kprobe(null) ^
-  [   38.412517] trace_kprobe: error: Maxactive is not for kprobe
-    Command: p4:myprobe2 do_sys_openat2
-            ^
+Fix this by initializing fsdata with NULL before the call to
+write_begin(), rather than doing so in all possible a_ops implementations.
 
-Link: https://lore.kernel.org/linux-trace-kernel/20221114104632.3547266-1-zhengyejian1@huawei.com
+This patch covers only the following cases found by running x86 KMSAN
+under syzkaller:
 
-Fixes: 1581a884b7ca ("tracing: Remove size restriction on tracing_log_err cmd strings")
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ - generic_perform_write()
+ - cont_expand_zero() and generic_cont_expand_simple()
+ - page_symlink()
+
+Other cases of passing uninitialized fsdata may persist in the codebase.
+
+Link: https://lkml.kernel.org/r/20220915150417.722975-43-glider@google.com
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Eric Biggers <ebiggers@google.com>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Marco Elver <elver@google.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vegard Nossum <vegard.nossum@oracle.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/buffer.c  |    4 ++--
+ fs/namei.c   |    2 +-
+ mm/filemap.c |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 87d2f04152f9..7132e21e90d6 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -7803,6 +7803,7 @@ static struct tracing_log_err *get_tracing_log_err(struct trace_array *tr,
- 						   int len)
+--- a/fs/buffer.c
++++ b/fs/buffer.c
+@@ -2352,7 +2352,7 @@ int generic_cont_expand_simple(struct in
  {
- 	struct tracing_log_err *err;
-+	char *cmd;
+ 	struct address_space *mapping = inode->i_mapping;
+ 	struct page *page;
+-	void *fsdata;
++	void *fsdata = NULL;
+ 	int err;
  
- 	if (tr->n_err_log_entries < TRACING_LOG_ERRS_MAX) {
- 		err = alloc_tracing_log_err(len);
-@@ -7811,12 +7812,12 @@ static struct tracing_log_err *get_tracing_log_err(struct trace_array *tr,
+ 	err = inode_newsize_ok(inode, size);
+@@ -2378,7 +2378,7 @@ static int cont_expand_zero(struct file
+ 	struct inode *inode = mapping->host;
+ 	unsigned int blocksize = i_blocksize(inode);
+ 	struct page *page;
+-	void *fsdata;
++	void *fsdata = NULL;
+ 	pgoff_t index, curidx;
+ 	loff_t curpos;
+ 	unsigned zerofrom, offset, len;
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -5013,7 +5013,7 @@ int __page_symlink(struct inode *inode,
+ {
+ 	struct address_space *mapping = inode->i_mapping;
+ 	struct page *page;
+-	void *fsdata;
++	void *fsdata = NULL;
+ 	int err;
+ 	unsigned int flags = 0;
+ 	if (nofs)
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -3749,7 +3749,7 @@ ssize_t generic_perform_write(struct fil
+ 		unsigned long offset;	/* Offset into pagecache page */
+ 		unsigned long bytes;	/* Bytes to write to page */
+ 		size_t copied;		/* Bytes copied from user */
+-		void *fsdata;
++		void *fsdata = NULL;
  
- 		return err;
- 	}
--
-+	cmd = kzalloc(len, GFP_KERNEL);
-+	if (!cmd)
-+		return ERR_PTR(-ENOMEM);
- 	err = list_first_entry(&tr->err_log, struct tracing_log_err, list);
- 	kfree(err->cmd);
--	err->cmd = kzalloc(len, GFP_KERNEL);
--	if (!err->cmd)
--		return ERR_PTR(-ENOMEM);
-+	err->cmd = cmd;
- 	list_del(&err->list);
- 
- 	return err;
--- 
-2.35.1
-
+ 		offset = (pos & (PAGE_SIZE - 1));
+ 		bytes = min_t(unsigned long, PAGE_SIZE - offset,
 
 
