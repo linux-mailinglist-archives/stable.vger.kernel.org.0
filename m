@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D75C6635582
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED76C635736
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237327AbiKWJTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:19:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57800 "EHLO
+        id S237973AbiKWJjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:39:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237399AbiKWJSx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:18:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EC791C90E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:18:39 -0800 (PST)
+        with ESMTP id S237982AbiKWJiy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:38:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96EF3DEAE2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:36:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A05CF619EB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:18:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B31AC433C1;
-        Wed, 23 Nov 2022 09:18:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46611B81EEB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:36:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1D58C433D7;
+        Wed, 23 Nov 2022 09:36:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195118;
-        bh=TYV6c/cQBV2lcM+1eBrBmaG/e+1re+6n/ECJycD4cdg=;
+        s=korg; t=1669196198;
+        bh=D/WIh5R2adg4XBCeMwf3pUWG66pCNDtgGxKWD/bliWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aor3fh0fK9xFlPt0D1xlBTjmG6KSXWUjVK65TVvgnaXqZqpa/mGSw9WB2zkzUVbZq
-         7aeA5XDLumQo1nSITYw025fcHOHQndy3jFSi7Y7S/yh8QEB8F2nc9Kn0vXD9CtTSwq
-         G6GSOH+qiZPcOX2gMMpsvIa03TFvx20cv5zNul7M=
+        b=VvP1W1J0NfqAQfTZSlijIJ0SC/m0Z3u1i2VgkN0n2huF67N14G/JYAiQHD0d2fA/H
+         A+QqzSPuHQvyEjBpLc6NLlhLnj2xg252klh7JunsQxCidVaFHm77xhw1lRDDjSW5DL
+         GsSYgtGRsoEh/JkmRDLYkR8sKqHvE85exRKCxXh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.4 151/156] gfs2: Switch from strlcpy to strscpy
-Date:   Wed, 23 Nov 2022 09:51:48 +0100
-Message-Id: <20221123084603.292062733@linuxfoundation.org>
+        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
+        Aminuddin Jamaluddin <aminuddin.jamaluddin@intel.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.15 146/181] net: phy: marvell: add sleep time after enabling the loopback bit
+Date:   Wed, 23 Nov 2022 09:51:49 +0100
+Message-Id: <20221123084608.675937796@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Aminuddin Jamaluddin <aminuddin.jamaluddin@intel.com>
 
-commit 204c0300c4e99707e9fb6e57840aa1127060e63f upstream.
+commit 18c532e44939caa17f1fa380f7ac50dbc0718dbb upstream.
 
-Switch from strlcpy to strscpy and make sure that @count is the size of
-the smaller of the source and destination buffers.  This prevents
-reading beyond the end of the source buffer when the source string isn't
-null terminated.
+Sleep time is added to ensure the phy to be ready after loopback
+bit was set. This to prevent the phy loopback test from failing.
 
-Found by a modified version of syzkaller.
-
-Suggested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: 020a45aff119 ("net: phy: marvell: add Marvell specific PHY loopback")
+Cc: <stable@vger.kernel.org> # 5.15.x
+Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+Signed-off-by: Aminuddin Jamaluddin <aminuddin.jamaluddin@intel.com>
+Link: https://lore.kernel.org/r/20221114065302.10625-1-aminuddin.jamaluddin@intel.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/ops_fstype.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/net/phy/marvell.c |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -380,8 +380,10 @@ static int init_names(struct gfs2_sbd *s
- 	if (!table[0])
- 		table = sdp->sd_vfs->s_id;
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -1976,14 +1976,16 @@ static int m88e1510_loopback(struct phy_
+ 		if (err < 0)
+ 			return err;
  
--	strlcpy(sdp->sd_proto_name, proto, GFS2_FSNAME_LEN);
--	strlcpy(sdp->sd_table_name, table, GFS2_FSNAME_LEN);
-+	BUILD_BUG_ON(GFS2_LOCKNAME_LEN > GFS2_FSNAME_LEN);
-+
-+	strscpy(sdp->sd_proto_name, proto, GFS2_LOCKNAME_LEN);
-+	strscpy(sdp->sd_table_name, table, GFS2_LOCKNAME_LEN);
+-		/* FIXME: Based on trial and error test, it seem 1G need to have
+-		 * delay between soft reset and loopback enablement.
+-		 */
+-		if (phydev->speed == SPEED_1000)
+-			msleep(1000);
++		err = phy_modify(phydev, MII_BMCR, BMCR_LOOPBACK,
++				 BMCR_LOOPBACK);
  
- 	table = sdp->sd_table_name;
- 	while ((table = strchr(table, '/')))
-@@ -1352,13 +1354,13 @@ static int gfs2_parse_param(struct fs_co
- 
- 	switch (o) {
- 	case Opt_lockproto:
--		strlcpy(args->ar_lockproto, param->string, GFS2_LOCKNAME_LEN);
-+		strscpy(args->ar_lockproto, param->string, GFS2_LOCKNAME_LEN);
- 		break;
- 	case Opt_locktable:
--		strlcpy(args->ar_locktable, param->string, GFS2_LOCKNAME_LEN);
-+		strscpy(args->ar_locktable, param->string, GFS2_LOCKNAME_LEN);
- 		break;
- 	case Opt_hostdata:
--		strlcpy(args->ar_hostdata, param->string, GFS2_LOCKNAME_LEN);
-+		strscpy(args->ar_hostdata, param->string, GFS2_LOCKNAME_LEN);
- 		break;
- 	case Opt_spectator:
- 		args->ar_spectator = 1;
+-		return phy_modify(phydev, MII_BMCR, BMCR_LOOPBACK,
+-				  BMCR_LOOPBACK);
++		if (!err) {
++			/* It takes some time for PHY device to switch
++			 * into/out-of loopback mode.
++			 */
++			msleep(1000);
++		}
++		return err;
+ 	} else {
+ 		err = phy_modify(phydev, MII_BMCR, BMCR_LOOPBACK, 0);
+ 		if (err < 0)
 
 
