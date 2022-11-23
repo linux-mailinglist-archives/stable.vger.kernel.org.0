@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6412635531
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6B106355BD
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237213AbiKWJOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:14:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56332 "EHLO
+        id S237571AbiKWJXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:23:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237313AbiKWJOW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:14:22 -0500
+        with ESMTP id S237614AbiKWJW5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:22:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2C95106124
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:14:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3D5110CEAB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C907B81EF5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:14:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB438C433D6;
-        Wed, 23 Nov 2022 09:14:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54DCCB81EF6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78734C433D6;
+        Wed, 23 Nov 2022 09:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194852;
-        bh=mBMxvOdaYARyoLBecNfLqpjoFwYzmtsFdHD5cc88Tlk=;
+        s=korg; t=1669195329;
+        bh=PeH0bQ5hq3OYDgHLt4GIjlCYjOdRkgAUNW2des0hxPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UmgF60HJkt2tGXZ52neAxJpJABBUtoDx0tAWESKwdZsRjSE9ve5Sg1X2uk4E4OSlO
-         IzQlq/8UeECvJ7XEzWZV5fihjrVwqaTdVjsJZU4L/mZZZvap9IiM3hzMKj5XxUcwx+
-         yjVG1zu1MAYaulm7mhGal7BKt8afDhQz23Knlzf0=
+        b=oGPOzNviLe1Dhm7kzmKK2VgxdQ03VQ1c0YIvhO5Zx/dxbcBtnigRNAWfqNNWJfioz
+         kk8s/9ypfRdWUS8Ott4teo8sEbkmYXudRJAYv7MVTg0XuFA6uedTFq1yf14jIsi4By
+         eryF/hla25fadx51uVCjI8+T/SjVIHuwOln0aqyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 079/156] btrfs: remove pointless and double ulist frees in error paths of qgroup tests
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 053/149] drm/drv: Fix potential memory leak in drm_dev_init()
 Date:   Wed, 23 Nov 2022 09:50:36 +0100
-Message-Id: <20221123084600.865767688@linuxfoundation.org>
+Message-Id: <20221123084559.837742649@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,131 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit d0ea17aec12ea0f7b9d2ed727d8ef8169d1e7699 ]
+[ Upstream commit ff963634f7b2e0dc011349abb3fb81a0d074f443 ]
 
-Several places in the qgroup self tests follow the pattern of freeing the
-ulist pointer they passed to btrfs_find_all_roots() if the call to that
-function returned an error. That is pointless because that function always
-frees the ulist in case it returns an error.
+drm_dev_init() will add drm_dev_init_release() as a callback. When
+drmm_add_action() failed, the release function won't be added. As the
+result, the ref cnt added by device_get() in drm_dev_init() won't be put
+by drm_dev_init_release(), which leads to the memleak. Use
+drmm_add_action_or_reset() instead of drmm_add_action() to prevent
+memleak.
 
-Also In some places like at test_multiple_refs(), after a call to
-btrfs_qgroup_account_extent() we also leave "old_roots" and "new_roots"
-pointing to ulists that were freed, because btrfs_qgroup_account_extent()
-has freed those ulists, and if after that the next call to
-btrfs_find_all_roots() fails, we call ulist_free() on the "old_roots"
-ulist again, resulting in a double free.
+unreferenced object 0xffff88810bc0c800 (size 2048):
+  comm "modprobe", pid 8322, jiffies 4305809845 (age 15.292s)
+  hex dump (first 32 bytes):
+    e8 cc c0 0b 81 88 ff ff ff ff ff ff 00 00 00 00  ................
+    20 24 3c 0c 81 88 ff ff 18 c8 c0 0b 81 88 ff ff   $<.............
+  backtrace:
+    [<000000007251f72d>] __kmalloc+0x4b/0x1c0
+    [<0000000045f21f26>] platform_device_alloc+0x2d/0xe0
+    [<000000004452a479>] platform_device_register_full+0x24/0x1c0
+    [<0000000089f4ea61>] 0xffffffffa0736051
+    [<00000000235b2441>] do_one_initcall+0x7a/0x380
+    [<0000000001a4a177>] do_init_module+0x5c/0x230
+    [<000000002bf8a8e2>] load_module+0x227d/0x2420
+    [<00000000637d6d0a>] __do_sys_finit_module+0xd5/0x140
+    [<00000000c99fc324>] do_syscall_64+0x3f/0x90
+    [<000000004d85aa77>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-So remove those calls to reduce the code size and avoid double ulist
-free in case of an error.
-
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 2cbf7fc6718b ("drm: Use drmm_ for drm_dev_init cleanup")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221101070716.9189-2-shangxiaojing@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tests/qgroup-tests.c | 16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/drm_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/tests/qgroup-tests.c b/fs/btrfs/tests/qgroup-tests.c
-index f312ed5abb19..f6169bece7c0 100644
---- a/fs/btrfs/tests/qgroup-tests.c
-+++ b/fs/btrfs/tests/qgroup-tests.c
-@@ -230,7 +230,6 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &old_roots,
- 			false);
- 	if (ret) {
--		ulist_free(old_roots);
- 		test_err("couldn't find old roots: %d", ret);
- 		return ret;
- 	}
-@@ -246,7 +245,6 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
- 			false);
- 	if (ret) {
- 		ulist_free(old_roots);
--		ulist_free(new_roots);
- 		test_err("couldn't find old roots: %d", ret);
- 		return ret;
- 	}
-@@ -258,18 +256,19 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
- 		return ret;
- 	}
+diff --git a/drivers/gpu/drm/drm_drv.c b/drivers/gpu/drm/drm_drv.c
+index 006e3b896cae..4ca995ce19af 100644
+--- a/drivers/gpu/drm/drm_drv.c
++++ b/drivers/gpu/drm/drm_drv.c
+@@ -610,7 +610,7 @@ static int drm_dev_init(struct drm_device *dev,
+ 	mutex_init(&dev->clientlist_mutex);
+ 	mutex_init(&dev->master_mutex);
  
-+	/* btrfs_qgroup_account_extent() always frees the ulists passed to it. */
-+	old_roots = NULL;
-+	new_roots = NULL;
-+
- 	if (btrfs_verify_qgroup_counts(fs_info, BTRFS_FS_TREE_OBJECTID,
- 				nodesize, nodesize)) {
- 		test_err("qgroup counts didn't match expected values");
- 		return -EINVAL;
- 	}
--	old_roots = NULL;
--	new_roots = NULL;
+-	ret = drmm_add_action(dev, drm_dev_init_release, NULL);
++	ret = drmm_add_action_or_reset(dev, drm_dev_init_release, NULL);
+ 	if (ret)
+ 		return ret;
  
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &old_roots,
- 			false);
- 	if (ret) {
--		ulist_free(old_roots);
- 		test_err("couldn't find old roots: %d", ret);
- 		return ret;
- 	}
-@@ -284,7 +283,6 @@ static int test_no_shared_qgroup(struct btrfs_root *root,
- 			false);
- 	if (ret) {
- 		ulist_free(old_roots);
--		ulist_free(new_roots);
- 		test_err("couldn't find old roots: %d", ret);
- 		return ret;
- 	}
-@@ -335,7 +333,6 @@ static int test_multiple_refs(struct btrfs_root *root,
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &old_roots,
- 			false);
- 	if (ret) {
--		ulist_free(old_roots);
- 		test_err("couldn't find old roots: %d", ret);
- 		return ret;
- 	}
-@@ -351,7 +348,6 @@ static int test_multiple_refs(struct btrfs_root *root,
- 			false);
- 	if (ret) {
- 		ulist_free(old_roots);
--		ulist_free(new_roots);
- 		test_err("couldn't find old roots: %d", ret);
- 		return ret;
- 	}
-@@ -372,7 +368,6 @@ static int test_multiple_refs(struct btrfs_root *root,
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &old_roots,
- 			false);
- 	if (ret) {
--		ulist_free(old_roots);
- 		test_err("couldn't find old roots: %d", ret);
- 		return ret;
- 	}
-@@ -388,7 +383,6 @@ static int test_multiple_refs(struct btrfs_root *root,
- 			false);
- 	if (ret) {
- 		ulist_free(old_roots);
--		ulist_free(new_roots);
- 		test_err("couldn't find old roots: %d", ret);
- 		return ret;
- 	}
-@@ -415,7 +409,6 @@ static int test_multiple_refs(struct btrfs_root *root,
- 	ret = btrfs_find_all_roots(&trans, fs_info, nodesize, 0, &old_roots,
- 			false);
- 	if (ret) {
--		ulist_free(old_roots);
- 		test_err("couldn't find old roots: %d", ret);
- 		return ret;
- 	}
-@@ -431,7 +424,6 @@ static int test_multiple_refs(struct btrfs_root *root,
- 			false);
- 	if (ret) {
- 		ulist_free(old_roots);
--		ulist_free(new_roots);
- 		test_err("couldn't find old roots: %d", ret);
- 		return ret;
- 	}
 -- 
 2.35.1
 
