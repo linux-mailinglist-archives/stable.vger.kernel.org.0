@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C6066356DF
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:37:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C73F363585E
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:56:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237946AbiKWJgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:36:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51174 "EHLO
+        id S237186AbiKWJ4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:56:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237949AbiKWJfo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:35:44 -0500
+        with ESMTP id S237082AbiKWJy5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:54:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3BE4BE266
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:33:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B3C91165A1;
+        Wed, 23 Nov 2022 01:50:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8EB03B81E5E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:33:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B803BC433D6;
-        Wed, 23 Nov 2022 09:33:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C348AB81EF3;
+        Wed, 23 Nov 2022 09:50:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 036EDC433D7;
+        Wed, 23 Nov 2022 09:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195995;
-        bh=Lw/0qUIlufrW3yWXwArHp40lUGROJTp8vd8y2eiTc50=;
+        s=korg; t=1669197038;
+        bh=6f9kMGYCqPXsi0k0LVBuzTEbJ5fILjVvpxN31nNOmZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EH1rBfieL10IX3aBNF6Gu7EKHDJX0IOnPQzI1ZEsKMPipr9btHWYppxF2/96tXYJe
-         Su0s2z8DG61k8Ip6BzIWrrWm4/YG3plD2KrehfcTsHZpBU+5Q9nUP/6SnqBSjGFQJS
-         lb5xWgy/K+JOY4f8DKqnCoBMEgI/MuIKAQ0fvS0c=
+        b=NEN9xmE8HYT91cNbV8FNHiw/kLFBH2RAHGFKuUrQ4vUpfZGlsvOMNxEAVbsE2gNlw
+         CVBFf9yPVCxWYmsxlWA0NzJ8CrScBNJTrxgGC2FE9/PQgeTcNfWdTG+kApJT9kUOrH
+         zbxKWNWA1qxhOmYIIC3m4QB/0cA9Q4XYyz0330Ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Matthew Wilcox <willy@infradead.org>,
+        David Howells <dhowells@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Jingbo Xu <jefflexu@linux.alibaba.com>,
+        linux-cachefs@redhat.com, linux-fsdevel@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 063/181] pinctrl: devicetree: fix null pointer dereferencing in pinctrl_dt_to_map
+Subject: [PATCH 6.0 181/314] netfs: Fix dodgy maths
 Date:   Wed, 23 Nov 2022 09:50:26 +0100
-Message-Id: <20221123084605.083918995@linuxfoundation.org>
+Message-Id: <20221123084633.777016204@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +56,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Heng <zengheng4@huawei.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 91d5c5060ee24fe8da88cd585bb43b843d2f0dce ]
+[ Upstream commit 5e51c627c5acbcf82bb552e17533a79d2a6a2600 ]
 
-Here is the BUG report by KASAN about null pointer dereference:
+Fix the dodgy maths in netfs_rreq_unlock_folios().  start_page could be
+inside the folio, in which case the calculation of pgpos will be come up
+with a negative number (though for the moment rreq->start is rounded down
+earlier and folios would have to get merged whilst locked)
 
-BUG: KASAN: null-ptr-deref in strcmp+0x2e/0x50
-Read of size 1 at addr 0000000000000000 by task python3/2640
-Call Trace:
- strcmp
- __of_find_property
- of_find_property
- pinctrl_dt_to_map
+Alter how this works to just frame the tracking in terms of absolute file
+positions, rather than offsets from the start of the I/O request.  This
+simplifies the maths and makes it easier to follow.
 
-kasprintf() would return NULL pointer when kmalloc() fail to allocate.
-So directly return ENOMEM, if kasprintf() return NULL pointer.
+Fix the issue by using folio_pos() and folio_size() to calculate the end
+position of the page.
 
-Fixes: 57291ce295c0 ("pinctrl: core device tree mapping table parsing support")
-Signed-off-by: Zeng Heng <zengheng4@huawei.com>
-Link: https://lore.kernel.org/r/20221110082056.2014898-1-zengheng4@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 3d3c95046742 ("netfs: Provide readahead and readpage netfs helpers")
+Reported-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+cc: linux-cachefs@redhat.com
+cc: linux-fsdevel@vger.kernel.org
+Link: https://lore.kernel.org/r/Y2SJw7w1IsIik3nb@casper.infradead.org/
+Link: https://lore.kernel.org/r/166757988611.950645.7626959069846893164.stgit@warthog.procyon.org.uk/ # v2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/devicetree.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/netfs/buffered_read.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/pinctrl/devicetree.c b/drivers/pinctrl/devicetree.c
-index 3fb238714718..eac55fee5281 100644
---- a/drivers/pinctrl/devicetree.c
-+++ b/drivers/pinctrl/devicetree.c
-@@ -220,6 +220,8 @@ int pinctrl_dt_to_map(struct pinctrl *p, struct pinctrl_dev *pctldev)
- 	for (state = 0; ; state++) {
- 		/* Retrieve the pinctrl-* property */
- 		propname = kasprintf(GFP_KERNEL, "pinctrl-%d", state);
-+		if (!propname)
-+			return -ENOMEM;
- 		prop = of_find_property(np, propname, &size);
- 		kfree(propname);
- 		if (!prop) {
+diff --git a/fs/netfs/buffered_read.c b/fs/netfs/buffered_read.c
+index baf668fb4315..7679a68e8193 100644
+--- a/fs/netfs/buffered_read.c
++++ b/fs/netfs/buffered_read.c
+@@ -17,9 +17,9 @@ void netfs_rreq_unlock_folios(struct netfs_io_request *rreq)
+ {
+ 	struct netfs_io_subrequest *subreq;
+ 	struct folio *folio;
+-	unsigned int iopos, account = 0;
+ 	pgoff_t start_page = rreq->start / PAGE_SIZE;
+ 	pgoff_t last_page = ((rreq->start + rreq->len) / PAGE_SIZE) - 1;
++	size_t account = 0;
+ 	bool subreq_failed = false;
+ 
+ 	XA_STATE(xas, &rreq->mapping->i_pages, start_page);
+@@ -39,23 +39,23 @@ void netfs_rreq_unlock_folios(struct netfs_io_request *rreq)
+ 	 */
+ 	subreq = list_first_entry(&rreq->subrequests,
+ 				  struct netfs_io_subrequest, rreq_link);
+-	iopos = 0;
+ 	subreq_failed = (subreq->error < 0);
+ 
+ 	trace_netfs_rreq(rreq, netfs_rreq_trace_unlock);
+ 
+ 	rcu_read_lock();
+ 	xas_for_each(&xas, folio, last_page) {
+-		unsigned int pgpos, pgend;
++		loff_t pg_end;
+ 		bool pg_failed = false;
+ 
+ 		if (xas_retry(&xas, folio))
+ 			continue;
+ 
+-		pgpos = (folio_index(folio) - start_page) * PAGE_SIZE;
+-		pgend = pgpos + folio_size(folio);
++		pg_end = folio_pos(folio) + folio_size(folio) - 1;
+ 
+ 		for (;;) {
++			loff_t sreq_end;
++
+ 			if (!subreq) {
+ 				pg_failed = true;
+ 				break;
+@@ -63,11 +63,11 @@ void netfs_rreq_unlock_folios(struct netfs_io_request *rreq)
+ 			if (test_bit(NETFS_SREQ_COPY_TO_CACHE, &subreq->flags))
+ 				folio_start_fscache(folio);
+ 			pg_failed |= subreq_failed;
+-			if (pgend < iopos + subreq->len)
++			sreq_end = subreq->start + subreq->len - 1;
++			if (pg_end < sreq_end)
+ 				break;
+ 
+ 			account += subreq->transferred;
+-			iopos += subreq->len;
+ 			if (!list_is_last(&subreq->rreq_link, &rreq->subrequests)) {
+ 				subreq = list_next_entry(subreq, rreq_link);
+ 				subreq_failed = (subreq->error < 0);
+@@ -75,7 +75,8 @@ void netfs_rreq_unlock_folios(struct netfs_io_request *rreq)
+ 				subreq = NULL;
+ 				subreq_failed = false;
+ 			}
+-			if (pgend == iopos)
++
++			if (pg_end == sreq_end)
+ 				break;
+ 		}
+ 
 -- 
 2.35.1
 
