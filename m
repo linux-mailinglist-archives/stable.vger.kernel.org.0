@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B500C6356A2
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C70F63543F
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237776AbiKWJcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:32:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51358 "EHLO
+        id S236941AbiKWJEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:04:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237739AbiKWJbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 120058E2B8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:30:45 -0800 (PST)
+        with ESMTP id S236930AbiKWJEQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:04:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 805A11025E8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:04:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFDB0B81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:30:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF536C43470;
-        Wed, 23 Nov 2022 09:30:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B7F8B81EEE
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:04:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61314C433D6;
+        Wed, 23 Nov 2022 09:03:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195842;
-        bh=BwL/lmsgmZ0VIWJ2aV/tfzveO0mqGIsEDhAZ2p/WCN0=;
+        s=korg; t=1669194239;
+        bh=cCiJFGSK7fn9NCfE6/a+mCeAsqUGHU3BEeDud0XZZGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbidBKrTRrVUwfldMaQ4zCXF19Hyzp9dTNXJVTO5a6YwZ4iv2vADd7PpZf5aYyHSf
-         IAJJYgk7JntkmmxHHTsPw427/uPdcp8nigNIXzEXV9SjBQD6RttcZECsKM6lsWMlef
-         +EjUzIXbzxpcgQ3eFIKphbmKDix1UCl++khXR6w0=
+        b=GZsjrVUZbv7fu3ttzMjw1rvvGI3j31euk/9haF1SF46G0iIlAmwkiVucuUHuh5s3v
+         d+AiM6spDifSvec4x4lYuYSN74o92j//BRyQepxmK5SlAkOzKDKRRXoCZCyFVn2wB6
+         7zNGSxS4zgn7mu0DSIMA5IG0ZhwKmFPe5ahbLaSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 047/181] ARM: at91: pm: avoid soft resetting AC DLL
+        patches@lists.linux.dev, Xian Wang <dev@xianwang.io>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 023/114] ALSA: hda/ca0132: add quirk for EVGA Z390 DARK
 Date:   Wed, 23 Nov 2022 09:50:10 +0100
-Message-Id: <20221123084604.402250668@linuxfoundation.org>
+Message-Id: <20221123084552.760507196@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Xian Wang <dev@xianwang.io>
 
-[ Upstream commit cef8cdc0d0e7c701fe4dcfba4ed3fd25d28a6020 ]
+commit 0c423e2ffa7edd3f8f9bcf17ce73fa9c7509b99e upstream.
 
-Do not soft reset AC DLL as controller is buggy and this operation my
-introduce glitches in the controller leading to undefined behavior.
+The Z390 DARK mainboard uses a CA0132 audio controller. The quirk is
+needed to enable surround sound and 3.5mm headphone jack handling in
+the front audio connector as well as in the rear of the board when in
+stereo mode.
 
-Fixes: f0bbf17958e8 ("ARM: at91: pm: add self-refresh support for sama7g5")
-Depends-on: a02875c4cbd6 ("ARM: at91: pm: fix self-refresh for sama7g5")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20221026124114.985876-2-claudiu.beznea@microchip.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Page 97 of the linked manual contains instructions to setup the
+controller.
+
+Signed-off-by: Xian Wang <dev@xianwang.io>
+Cc: stable@vger.kernel.org
+Link: https://www.evga.com/support/manuals/files/131-CS-E399.pdf
+Link: https://lore.kernel.org/r/20221104202913.13904-1-dev@xianwang.io
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-at91/pm_suspend.S | 7 ++++++-
- include/soc/at91/sama7-ddr.h    | 5 ++++-
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_ca0132.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/mach-at91/pm_suspend.S b/arch/arm/mach-at91/pm_suspend.S
-index 65cfcc19a936..2f0a370a1309 100644
---- a/arch/arm/mach-at91/pm_suspend.S
-+++ b/arch/arm/mach-at91/pm_suspend.S
-@@ -169,10 +169,15 @@ sr_ena_2:
- 	cmp	tmp1, #UDDRC_STAT_SELFREF_TYPE_SW
- 	bne	sr_ena_2
- 
--	/* Put DDR PHY's DLL in bypass mode for non-backup modes. */
-+	/* Disable DX DLLs for non-backup modes. */
- 	cmp	r7, #AT91_PM_BACKUP
- 	beq	sr_ena_3
- 
-+	/* Do not soft reset the AC DLL. */
-+	ldr	tmp1, [r3, DDR3PHY_ACDLLCR]
-+	bic	tmp1, tmp1, DDR3PHY_ACDLLCR_DLLSRST
-+	str	tmp1, [r3, DDR3PHY_ACDLLCR]
-+
- 	/* Disable DX DLLs. */
- 	ldr	tmp1, [r3, #DDR3PHY_DX0DLLCR]
- 	orr	tmp1, tmp1, #DDR3PHY_DXDLLCR_DLLDIS
-diff --git a/include/soc/at91/sama7-ddr.h b/include/soc/at91/sama7-ddr.h
-index f203f34dba12..cac3f9cd25f9 100644
---- a/include/soc/at91/sama7-ddr.h
-+++ b/include/soc/at91/sama7-ddr.h
-@@ -26,7 +26,10 @@
- #define	DDR3PHY_PGSR				(0x0C)		/* DDR3PHY PHY General Status Register */
- #define		DDR3PHY_PGSR_IDONE		(1 << 0)	/* Initialization Done */
- 
--#define DDR3PHY_ACIOCR				(0x24)		/*  DDR3PHY AC I/O Configuration Register */
-+#define	DDR3PHY_ACDLLCR				(0x14)		/* DDR3PHY AC DLL Control Register */
-+#define		DDR3PHY_ACDLLCR_DLLSRST		(1 << 30)	/* DLL Soft Reset */
-+
-+#define DDR3PHY_ACIOCR				(0x24)		/* DDR3PHY AC I/O Configuration Register */
- #define		DDR3PHY_ACIOCR_CSPDD_CS0	(1 << 18)	/* CS#[0] Power Down Driver */
- #define		DDR3PHY_ACIOCR_CKPDD_CK0	(1 << 8)	/* CK[0] Power Down Driver */
- #define		DDR3PHY_ACIORC_ACPDD		(1 << 3)	/* AC Power Down Driver */
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -1070,6 +1070,7 @@ static const struct snd_pci_quirk ca0132
+ 	SND_PCI_QUIRK(0x1458, 0xA026, "Gigabyte G1.Sniper Z97", QUIRK_R3DI),
+ 	SND_PCI_QUIRK(0x1458, 0xA036, "Gigabyte GA-Z170X-Gaming 7", QUIRK_R3DI),
+ 	SND_PCI_QUIRK(0x3842, 0x1038, "EVGA X99 Classified", QUIRK_R3DI),
++	SND_PCI_QUIRK(0x3842, 0x1055, "EVGA Z390 DARK", QUIRK_R3DI),
+ 	SND_PCI_QUIRK(0x1102, 0x0013, "Recon3D", QUIRK_R3D),
+ 	{}
+ };
 
 
