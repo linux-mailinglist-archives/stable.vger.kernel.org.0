@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 086306357C8
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:47:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E73A6357B0
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:46:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238169AbiKWJnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:43:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35468 "EHLO
+        id S238173AbiKWJnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:43:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237752AbiKWJnT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:43:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AFB114B88
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:40:43 -0800 (PST)
+        with ESMTP id S237980AbiKWJnW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:43:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A262A1157BD
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:40:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C5F1B81E54
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:40:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0D0AC433B5;
-        Wed, 23 Nov 2022 09:40:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBBEF61B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:40:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8A6AC433D7;
+        Wed, 23 Nov 2022 09:40:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196441;
-        bh=/NiMo/wrEOascdcvbbrGjZmpvDphjSdGKHk1PUjRYWU=;
+        s=korg; t=1669196444;
+        bh=1KI/XL3dP3u5ToDBRNRYqK7q6h6denR/AjAnQMzJ4B4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjXdsljHzsjWgczfCbWpPqqVjE9mfEcNQ1Qs9tpeUGm1vC1cYvHAILH/cQ8V6tQYy
-         HejofxSHRkOYZRtqJcLEJItQLldNdEy6jgWz8rPqOX5jpzGLRfSOo9lNVjgc0kY58h
-         ayD+vv6IFRJYSaxRuZQ0/B33+DiYfZrMJY/FMunY=
+        b=yVbsFdqiBTNKfK4cs9fNf36L4EpgbG7QVpRsBcYW564XEhqATe7Lbli7NQzLLqh/b
+         NRdTSTdsKf3bDfR7S5gHmWwMI5G9kGoiBVc0BaS/Qm0k3ewt8/ucsVTIwYXokY+pc4
+         MeoQ1UtlciNG4AKgGIIioCmLVHBfCJz7RoKW8YUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Dan Williams <dan.j.williams@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 031/314] ACPI: scan: Add LATT2021 to acpi_ignore_dep_ids[]
-Date:   Wed, 23 Nov 2022 09:47:56 +0100
-Message-Id: <20221123084626.938327228@linuxfoundation.org>
+Subject: [PATCH 6.0 032/314] cxl/mbox: Add a check on input payload size
+Date:   Wed, 23 Nov 2022 09:47:57 +0100
+Message-Id: <20221123084626.978485272@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -53,42 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit fa153b7cddce795662d38f78a87612c166c0f692 ]
+[ Upstream commit cf00b33058b196b4db928419dde68993b15a975b ]
 
-Some x86/ACPI laptops with MIPI cameras have a LATT2021 ACPI device
-in the _DEP dependency list of the ACPI devices for the camera-sensors
-(which have flags.honor_deps set).
+A bug in the LSA code resulted in transfers slightly larger
+than the mailbox size. Let us make it easier to catch similar
+issues in future by adding a low level check.
 
-The _DDN for the LATT2021 device is "Lattice FW Update Client Driver",
-suggesting that this is used for firmware updates of something. There
-is no Linux driver for this and if Linux gets support for updates it
-will likely be in userspace through fwupd.
-
-For now add the LATT2021 HID to acpi_ignore_dep_ids[] so that
-acpi_dev_ready_for_enumeration() will return true once the other _DEP
-dependencies are met.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Link: https://lore.kernel.org/r/20220815154044.24733-2-Jonathan.Cameron@huawei.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/scan.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/cxl/core/mbox.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 42cec8120f18..adfeb5770efd 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -796,6 +796,7 @@ static bool acpi_info_matches_ids(struct acpi_device_info *info,
- static const char * const acpi_ignore_dep_ids[] = {
- 	"PNP0D80", /* Windows-compatible System Power Management Controller */
- 	"INT33BD", /* Intel Baytrail Mailbox Device */
-+	"LATT2021", /* Lattice FW Update Client Driver */
- 	NULL
- };
+diff --git a/drivers/cxl/core/mbox.c b/drivers/cxl/core/mbox.c
+index 16176b9278b4..0c90f13870a4 100644
+--- a/drivers/cxl/core/mbox.c
++++ b/drivers/cxl/core/mbox.c
+@@ -174,7 +174,7 @@ int cxl_mbox_send_cmd(struct cxl_dev_state *cxlds, u16 opcode, void *in,
+ 	};
+ 	int rc;
  
+-	if (out_size > cxlds->payload_size)
++	if (in_size > cxlds->payload_size || out_size > cxlds->payload_size)
+ 		return -E2BIG;
+ 
+ 	rc = cxlds->mbox_send(cxlds, &mbox_cmd);
 -- 
 2.35.1
 
