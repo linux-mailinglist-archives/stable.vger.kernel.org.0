@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8ED46356E0
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:37:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AEBC6355EE
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:27:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237906AbiKWJfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:35:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51204 "EHLO
+        id S237429AbiKWJ0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:26:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237788AbiKWJe4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:34:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2BA812D0B
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:32:44 -0800 (PST)
+        with ESMTP id S237645AbiKWJZm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:25:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25609CE37
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:24:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E5EB61B66
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:32:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95825C433C1;
-        Wed, 23 Nov 2022 09:32:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C515CB81EEB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:24:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B737C433D7;
+        Wed, 23 Nov 2022 09:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195964;
-        bh=eNwbElfpjoYX+eKqbB93aiUjQFdjIuR6s5gPOYje37A=;
+        s=korg; t=1669195468;
+        bh=/IsUeQ5TSeFo1EJeRR10jo5s/IPoa5AniyKUTFgwv1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VJ8bZdHVJdxiH3S9vABIO5OAP7FyKeIUtt3GiWtEOw9oa2RdhBfLAHYowj9Dl/73w
-         wVzTlEWfMzxW/hgKyXrzk5+Zn2blmll5ZQiFzqULiafsOU37RQxCfl1qiIoqKc8p31
-         E+Yv0N3f3GuMVVM2zxh/ZN7bHGpvsLWNq82w0IHs=
+        b=sDs60iIPB1qXETAlpRqaAgRZFpr6/okG5ad6K21MtTGC1JWjRalvaHUL5FG1niTWV
+         VIQCc8QIN5hB9Ez7Jk7rDM/d677/d8RsxBxHYI+MHpEQrmQOSRBBQV1S3hXrvz8I1s
+         5B+L7oUg3dgAtX8Pjcjpzx9ZrSEhwsnQQQmgKKSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 081/181] net: hinic: Fix error handling in hinic_module_init()
+Subject: [PATCH 5.10 061/149] ata: libata-transport: fix error handling in ata_tdev_add()
 Date:   Wed, 23 Nov 2022 09:50:44 +0100
-Message-Id: <20221123084605.835952588@linuxfoundation.org>
+Message-Id: <20221123084600.118003661@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 8eab9be56cc6b702a445d2b6d0256aa0992316b3 ]
+[ Upstream commit 1ff36351309e3eadcff297480baf4785e726de9b ]
 
-A problem about hinic create debugfs failed is triggered with the
-following log given:
+In ata_tdev_add(), the return value of transport_add_device() is
+not checked. As a result, it causes null-ptr-deref while removing
+the module, because transport_remove_device() is called to remove
+the device that was not added.
 
- [  931.419023] debugfs: Directory 'hinic' with parent '/' already present!
+Unable to handle kernel NULL pointer dereference at virtual address 00000000000000d0
+CPU: 13 PID: 13603 Comm: rmmod Kdump: loaded Tainted: G        W          6.1.0-rc3+ #36
+pstate: 60400009 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : device_del+0x48/0x3a0
+lr : device_del+0x44/0x3a0
+Call trace:
+ device_del+0x48/0x3a0
+ attribute_container_class_device_del+0x28/0x40
+ transport_remove_classdev+0x60/0x7c
+ attribute_container_device_trigger+0x118/0x120
+ transport_remove_device+0x20/0x30
+ ata_tdev_delete+0x24/0x50 [libata]
+ ata_tlink_delete+0x40/0xa0 [libata]
+ ata_tport_delete+0x2c/0x60 [libata]
+ ata_port_detach+0x148/0x1b0 [libata]
+ ata_pci_remove_one+0x50/0x80 [libata]
+ ahci_remove_one+0x4c/0x8c [ahci]
 
-The reason is that hinic_module_init() returns pci_register_driver()
-directly without checking its return value, if pci_register_driver()
-failed, it returns without destroy the newly created debugfs, resulting
-the debugfs of hinic can never be created later.
+Fix this by checking and handling return value of transport_add_device()
+in ata_tdev_add(). In the error path, device_del() is called to delete
+the device which was added earlier in this function, and ata_tdev_free()
+is called to free ata_dev.
 
- hinic_module_init()
-   hinic_dbg_register_debugfs() # create debugfs directory
-   pci_register_driver()
-     driver_register()
-       bus_add_driver()
-         priv = kzalloc(...) # OOM happened
-   # return without destroy debugfs directory
-
-Fix by removing debugfs when pci_register_driver() returns error.
-
-Fixes: 253ac3a97921 ("hinic: add support to query sq info")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20221110021642.80378-1-yuancan@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d9027470b886 ("[libata] Add ATA transport class")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/huawei/hinic/hinic_main.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/ata/libata-transport.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_main.c b/drivers/net/ethernet/huawei/hinic/hinic_main.c
-index 8c6ec7c25809..92fba9a0c371 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_main.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_main.c
-@@ -1482,8 +1482,15 @@ static struct pci_driver hinic_driver = {
+diff --git a/drivers/ata/libata-transport.c b/drivers/ata/libata-transport.c
+index e386e5f35015..31a66fc0c31d 100644
+--- a/drivers/ata/libata-transport.c
++++ b/drivers/ata/libata-transport.c
+@@ -683,7 +683,13 @@ static int ata_tdev_add(struct ata_device *ata_dev)
+ 		return error;
+ 	}
  
- static int __init hinic_module_init(void)
- {
-+	int ret;
+-	transport_add_device(dev);
++	error = transport_add_device(dev);
++	if (error) {
++		device_del(dev);
++		ata_tdev_free(ata_dev);
++		return error;
++	}
 +
- 	hinic_dbg_register_debugfs(HINIC_DRV_NAME);
--	return pci_register_driver(&hinic_driver);
-+
-+	ret = pci_register_driver(&hinic_driver);
-+	if (ret)
-+		hinic_dbg_unregister_debugfs();
-+
-+	return ret;
+ 	transport_configure_device(dev);
+ 	return 0;
  }
- 
- static void __exit hinic_module_exit(void)
 -- 
 2.35.1
 
