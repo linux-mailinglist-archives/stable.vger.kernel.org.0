@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89B536354F9
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63FC76355E5
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:27:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237209AbiKWJMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:12:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53266 "EHLO
+        id S237642AbiKWJYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:24:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237225AbiKWJMh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:12:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E9B6E08
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:12:31 -0800 (PST)
+        with ESMTP id S237586AbiKWJYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:24:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609BF1C108
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4795761B14
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:12:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DA28C433C1;
-        Wed, 23 Nov 2022 09:12:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 27C3A61B22
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E931FC433C1;
+        Wed, 23 Nov 2022 09:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194750;
-        bh=+emQ56EQx0N9JK4pbhuTttMoASuXe/c2+0BreFmvKRo=;
+        s=korg; t=1669195367;
+        bh=d0zj5rT3Hd8veX7kySCjO6ZD/o9+VkfEgKeQuMfbh/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GRc5F/E93ho7Pq6Xtao6nCFzdecWm6G3XgDbsxsKLuTXEjsp6nOmWZnnDZqAC5z51
-         avqdOv9LhHZaNpOvMs9oEx92FuECG2zXzyhEOJmVacrECcwTtYu3yOdzsrVT6RAzKg
-         TVcL2zuaX5TwhkjIeFvh5kxzsWQN2hVmI59QM/0k=
+        b=aZlvUiq8EuvfExoNTKgFi+DfpHi4lFKaNTOIYipPKUACIkc+P4kJ834liFbtgrNq9
+         31KwN0HPoofLirkSzdpbwQrN606KcEnLErxXXQev+B97/aBph9AjJy1iHXHb2+Gtbx
+         kqaynQoUSX7p+Z+XNR+VXKW/aFHhOK5VyK8ErDV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthew Auld <matthew.auld@intel.com>,
-        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.4 050/156] drm/i915/dmabuf: fix sg_table handling in map_dma_buf
+        patches@lists.linux.dev, Alexander Sergeyev <sergeev917@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 024/149] ALSA: hda/realtek: fix speakers and micmute on HP 855 G8
 Date:   Wed, 23 Nov 2022 09:50:07 +0100
-Message-Id: <20221123084559.730000174@linuxfoundation.org>
+Message-Id: <20221123084558.880131844@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,52 +52,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Auld <matthew.auld@intel.com>
+From: Alexander Sergeyev <sergeev917@gmail.com>
 
-commit f90daa975911961b65070ec72bd7dd8d448f9ef7 upstream.
+[ Upstream commit 91502a9a0b0d5252cf3f32ebd898823c2f5aadab ]
 
-We need to iterate over the original entries here for the sg_table,
-pulling out the struct page for each one, to be remapped. However
-currently this incorrectly iterates over the final dma mapped entries,
-which is likely just one gigantic sg entry if the iommu is enabled,
-leading to us only mapping the first struct page (and any physically
-contiguous pages following it), even if there is potentially lots more
-data to follow.
+There are several PCI ids associated with HP EliteBook 855 G8 Notebook
+PC. Commit 0e68c4b11f1e6 ("ALSA: hda/realtek: fix mute/micmute LEDs for
+HP 855 G8") covers 0x103c:0x8896, while this commit covers 0x103c:0x8895
+which needs some additional work on top of the quirk from 0e68c4b11f1e6.
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7306
-Fixes: 1286ff739773 ("i915: add dmabuf/prime buffer sharing support.")
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Cc: <stable@vger.kernel.org> # v3.5+
-Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221028155029.494736-1-matthew.auld@intel.com
-(cherry picked from commit 28d52f99bbca7227008cf580c9194c9b3516968e)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note that the device can boot up with working speakers and micmute LED
+without this patch, but the success rate would be quite low (order of
+16 working boots across 709 boots) at least for the built-in drivers
+scenario. This also means that there are some timing issues during early
+boot and this patch is a workaround.
+
+With this patch applied speakers and headphones are consistenly working,
+as well as mute/micmute LEDs and the internal microphone.
+
+Signed-off-by: Alexander Sergeyev <sergeev917@gmail.com>
+Link: https://lore.kernel.org/r/20220114165050.ouw2nknuspclynro@localhost.localdomain
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
-@@ -36,13 +36,13 @@ static struct sg_table *i915_gem_map_dma
- 		goto err_unpin_pages;
- 	}
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index e3f6b930ad4a..d427e8939a0e 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6883,6 +6883,7 @@ enum {
+ 	ALC256_FIXUP_MIC_NO_PRESENCE_AND_RESUME,
+ 	ALC285_FIXUP_LEGION_Y9000X_SPEAKERS,
+ 	ALC285_FIXUP_LEGION_Y9000X_AUTOMUTE,
++	ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED,
+ };
  
--	ret = sg_alloc_table(st, obj->mm.pages->nents, GFP_KERNEL);
-+	ret = sg_alloc_table(st, obj->mm.pages->orig_nents, GFP_KERNEL);
- 	if (ret)
- 		goto err_free;
+ /* A special fixup for Lenovo C940 and Yoga Duet 7;
+@@ -8693,6 +8694,16 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
+ 	},
++	[ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			 { 0x20, AC_VERB_SET_COEF_INDEX, 0x19 },
++			 { 0x20, AC_VERB_SET_PROC_COEF, 0x8e11 },
++			 { }
++		},
++		.chained = true,
++		.chain_id = ALC285_FIXUP_HP_MUTE_LED,
++	},
+ };
  
- 	src = obj->mm.pages->sgl;
- 	dst = st->sgl;
--	for (i = 0; i < obj->mm.pages->nents; i++) {
-+	for (i = 0; i < obj->mm.pages->orig_nents; i++) {
- 		sg_set_page(dst, sg_page(src), src->length, 0);
- 		dst = sg_next(dst);
- 		src = sg_next(src);
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -8915,6 +8926,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x8870, "HP ZBook Fury 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8873, "HP ZBook Studio 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x888d, "HP ZBook Power 15.6 inch G8 Mobile Workstation PC", ALC236_FIXUP_HP_GPIO_LED),
++	SND_PCI_QUIRK(0x103c, 0x8895, "HP EliteBook 855 G8 Notebook PC", ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8896, "HP EliteBook 855 G8 Notebook PC", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x89aa, "HP EliteBook 630 G9", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+-- 
+2.35.1
+
 
 
