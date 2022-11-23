@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92EFB635680
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 238F763584F
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:54:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237772AbiKWJbH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:31:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45136 "EHLO
+        id S237268AbiKWJyn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:54:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237762AbiKWJar (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2E8FC9A81
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:29:08 -0800 (PST)
+        with ESMTP id S238027AbiKWJxc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:53:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87BB0F72DE
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:49:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F53C619F9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:29:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7CCCC433D6;
-        Wed, 23 Nov 2022 09:29:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2300D61B22
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:49:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0222EC433C1;
+        Wed, 23 Nov 2022 09:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195748;
-        bh=NssqwD5/Gv4Zq01FZfPoyFmZ9zR/cF/rab9d/sMdA+Q=;
+        s=korg; t=1669196998;
+        bh=ud4z6vADdP4eLfxdSxz/cO9+WcvawO85qnZUMB5hkNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3PCH9kXmo3/5sfhwLn05ohaXaLchaxC1WmzSQX9F3ypgGGoD2982llrZQaR67ck1
-         GKZzuOmsM9AlBEtrTpzIrCsfIv2lDigS0f+OrUXubw4JrSh/8XkP+W/ZnF4P8fU63N
-         SGVcYL6KIv5UOHtcrFP3CwBRBoqnAS03Ec+g62OQ=
+        b=bgsFyj+HOOWKEdIa27N4Lei2KJA+EIWMFgkVrJkXZk+2fU7Nrng4PMtfS32hxS3or
+         D6ab+9xQWj/VJWFG9m8tigdeDWl5yug3yNlP4puZSYky6t66Q4vko98aoe4zxV3XUJ
+         +OZo+Xi+DyJCTvwJJF/SLSCBWWI92s1dZJSJ4OTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 021/181] ACPI: scan: Add LATT2021 to acpi_ignore_dep_ids[]
+Subject: [PATCH 6.0 139/314] ata: libata-transport: fix error handling in ata_tlink_add()
 Date:   Wed, 23 Nov 2022 09:49:44 +0100
-Message-Id: <20221123084603.377195384@linuxfoundation.org>
+Message-Id: <20221123084631.838298084@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit fa153b7cddce795662d38f78a87612c166c0f692 ]
+[ Upstream commit cf0816f6322c5c37ee52655f928e91ecf32da103 ]
 
-Some x86/ACPI laptops with MIPI cameras have a LATT2021 ACPI device
-in the _DEP dependency list of the ACPI devices for the camera-sensors
-(which have flags.honor_deps set).
+In ata_tlink_add(), the return value of transport_add_device() is
+not checked. As a result, it causes null-ptr-deref while removing
+the module, because transport_remove_device() is called to remove
+the device that was not added.
 
-The _DDN for the LATT2021 device is "Lattice FW Update Client Driver",
-suggesting that this is used for firmware updates of something. There
-is no Linux driver for this and if Linux gets support for updates it
-will likely be in userspace through fwupd.
+Unable to handle kernel NULL pointer dereference at virtual address 00000000000000d0
+CPU: 33 PID: 13850 Comm: rmmod Kdump: loaded Tainted: G        W          6.1.0-rc3+ #12
+pstate: 60400009 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : device_del+0x48/0x39c
+lr : device_del+0x44/0x39c
+Call trace:
+ device_del+0x48/0x39c
+ attribute_container_class_device_del+0x28/0x40
+ transport_remove_classdev+0x60/0x7c
+ attribute_container_device_trigger+0x118/0x120
+ transport_remove_device+0x20/0x30
+ ata_tlink_delete+0x88/0xb0 [libata]
+ ata_tport_delete+0x2c/0x60 [libata]
+ ata_port_detach+0x148/0x1b0 [libata]
+ ata_pci_remove_one+0x50/0x80 [libata]
+ ahci_remove_one+0x4c/0x8c [ahci]
 
-For now add the LATT2021 HID to acpi_ignore_dep_ids[] so that
-acpi_dev_ready_for_enumeration() will return true once the other _DEP
-dependencies are met.
+Fix this by checking and handling return value of transport_add_device()
+in ata_tlink_add().
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: d9027470b886 ("[libata] Add ATA transport class")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/scan.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/ata/libata-transport.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 6e9cd41c5f9b..ae74720888db 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -793,6 +793,7 @@ static bool acpi_info_matches_ids(struct acpi_device_info *info,
- static const char * const acpi_ignore_dep_ids[] = {
- 	"PNP0D80", /* Windows-compatible System Power Management Controller */
- 	"INT33BD", /* Intel Baytrail Mailbox Device */
-+	"LATT2021", /* Lattice FW Update Client Driver */
- 	NULL
- };
+diff --git a/drivers/ata/libata-transport.c b/drivers/ata/libata-transport.c
+index ef53bdfbcbb2..aac9336e8153 100644
+--- a/drivers/ata/libata-transport.c
++++ b/drivers/ata/libata-transport.c
+@@ -458,7 +458,9 @@ int ata_tlink_add(struct ata_link *link)
+ 		goto tlink_err;
+ 	}
  
+-	transport_add_device(dev);
++	error = transport_add_device(dev);
++	if (error)
++		goto tlink_transport_err;
+ 	transport_configure_device(dev);
+ 
+ 	ata_for_each_dev(ata_dev, link, ALL) {
+@@ -473,6 +475,7 @@ int ata_tlink_add(struct ata_link *link)
+ 		ata_tdev_delete(ata_dev);
+ 	}
+ 	transport_remove_device(dev);
++  tlink_transport_err:
+ 	device_del(dev);
+   tlink_err:
+ 	transport_destroy_device(dev);
 -- 
 2.35.1
 
