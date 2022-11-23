@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE7496356F7
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86FF2635548
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237715AbiKWJhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:37:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57156 "EHLO
+        id S237460AbiKWJRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:17:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238062AbiKWJhP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B83675FC7
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:34:57 -0800 (PST)
+        with ESMTP id S237365AbiKWJRV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:17:21 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76269109596
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:17:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 555F161B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:34:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D2CEC433D7;
-        Wed, 23 Nov 2022 09:34:56 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DDEA4CE0FBB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:17:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE50C433D7;
+        Wed, 23 Nov 2022 09:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196096;
-        bh=Qts2eUS7impzPN8SqLPQq4uQlEHeRqTDJWcTql6E7Qs=;
+        s=korg; t=1669195023;
+        bh=JnJnvlZZy9vjTNKlPvZjDSsxAK8c+iBV6yQeRvO3Kug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oE9IQ4G/vLTI2Mg39zy0lGrQP7io7oKUhsVI38ZDG0MWFyMnuTupIZO74XYw8B6Re
-         MLj/wlrq/zHLS87VZ7io2LjK4uMpinmNlJ8stlDOlCxuONibUtrU29IdhIF78E8aGX
-         7vx9n1NdYecQNK0WSw0HRsMYiVeHSFVbrDJ0HzOk=
+        b=aX7pYLY8EjvRUBwd7jb4qONnPmFaMVv8LXnNyLnMmNENWokCm2shGyIou/dN2+5DV
+         jLN30/T2UA29kR+qZ46izU20/34j60Mkr4HjxEs7mADbw5Hr862drT2vLmDFL63xGC
+         tm26TKN6TUrBDuSDQFf01tnV9yVAz/NhOgQzqVTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+9abda841d636d86c41da@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 118/181] ALSA: usb-audio: Drop snd_BUG_ON() from snd_usbmidi_output_open()
+        patches@lists.linux.dev, Nicolas Dumazet <ndumazet@google.com>
+Subject: [PATCH 5.4 124/156] usb: add NO_LPM quirk for Realforce 87U Keyboard
 Date:   Wed, 23 Nov 2022 09:51:21 +0100
-Message-Id: <20221123084607.471299834@linuxfoundation.org>
+Message-Id: <20221123084602.424466908@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +51,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Nicolas Dumazet <ndumazet@google.com>
 
-commit ad72c3c3f6eb81d2cb189ec71e888316adada5df upstream.
+commit 181135bb20dcb184edd89817831b888eb8132741 upstream.
 
-snd_usbmidi_output_open() has a check of the NULL port with
-snd_BUG_ON().  snd_BUG_ON() was used as this shouldn't have happened,
-but in reality, the NULL port may be seen when the device gives an
-invalid endpoint setup at the descriptor, hence the driver skips the
-allocation.  That is, the check itself is valid and snd_BUG_ON()
-should be dropped from there.  Otherwise it's confusing as if it were
-a real bug, as recently syzbot stumbled on it.
+Before adding this quirk, this (mechanical keyboard) device would not be
+recognized, logging:
 
-Reported-by: syzbot+9abda841d636d86c41da@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/syzbot+9abda841d636d86c41da@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20221112141223.6144-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  new full-speed USB device number 56 using xhci_hcd
+  unable to read config index 0 descriptor/start: -32
+  chopping to 0 config(s)
+
+It would take dozens of plugging/unpuggling cycles for the keyboard to
+be recognized. Keyboard seems to simply work after applying this quirk.
+
+This issue had been reported by users in two places already ([1], [2])
+but nobody tried upstreaming a patch yet. After testing I believe their
+suggested fix (DELAY_INIT + NO_LPM + DEVICE_QUALIFIER) was probably a
+little overkill. I assume this particular combination was tested because
+it had been previously suggested in [3], but only NO_LPM seems
+sufficient for this device.
+
+[1]: https://qiita.com/float168/items/fed43d540c8e2201b543
+[2]: https://blog.kostic.dev/posts/making-the-realforce-87ub-work-with-usb30-on-Ubuntu/
+[3]: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1678477
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Nicolas Dumazet <ndumazet@google.com>
+Link: https://lore.kernel.org/r/20221109122946.706036-1-ndumazet@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/midi.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/usb/midi.c
-+++ b/sound/usb/midi.c
-@@ -1133,10 +1133,8 @@ static int snd_usbmidi_output_open(struc
- 					port = &umidi->endpoints[i].out->ports[j];
- 					break;
- 				}
--	if (!port) {
--		snd_BUG();
-+	if (!port)
- 		return -ENXIO;
--	}
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -362,6 +362,9 @@ static const struct usb_device_id usb_qu
+ 	{ USB_DEVICE(0x0781, 0x5583), .driver_info = USB_QUIRK_NO_LPM },
+ 	{ USB_DEVICE(0x0781, 0x5591), .driver_info = USB_QUIRK_NO_LPM },
  
- 	substream->runtime->private_data = port;
- 	port->state = STATE_UNKNOWN;
++	/* Realforce 87U Keyboard */
++	{ USB_DEVICE(0x0853, 0x011b), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* M-Systems Flash Disk Pioneers */
+ 	{ USB_DEVICE(0x08ec, 0x1000), .driver_info = USB_QUIRK_RESET_RESUME },
+ 
 
 
