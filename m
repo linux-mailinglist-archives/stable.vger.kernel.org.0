@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86EE96354FF
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B72886356A6
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237231AbiKWJNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:13:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54346 "EHLO
+        id S237797AbiKWJeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:34:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237233AbiKWJNQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:13:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B34825C761
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:13:13 -0800 (PST)
+        with ESMTP id S237902AbiKWJdz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:33:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C4061121C9
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CF5C61B10
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:13:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39179C433D6;
-        Wed, 23 Nov 2022 09:13:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0C2161B49
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91A95C433C1;
+        Wed, 23 Nov 2022 09:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194792;
-        bh=EQuquYpOFErvQ9LwwZhl7Qzo5P3w1LAmHOOkud6qvug=;
+        s=korg; t=1669195912;
+        bh=upNkdi5O0O2ZCLZhuIgCzfblffSeZQe7x+ufoQQ0hg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HvwWMCi9qX8pzMdQmD0b7590Sw1GI7oVnWJUldurqeICdLxxIuygW63F1IqrpTFaY
-         e2uz4DSX9y3duNtXg9iHvkY84dULkK1AClDNHh5Ul6/nkGeaeiubsIb4a4VyYrcn+J
-         761tMGpnYo9KW8vorhIvMTtlKd4HxaoSSF40Ep0s=
+        b=FuHRRcFBCSA8owgOaNZYofPVhNbqrnStZkgtRg0ZnTC6bvSrFIY5qmYE/MK3dw2Xf
+         kWxAFMxUJOGzvEdHQhhfAvxViX3WOcn4NgoZNc5rN5m3izq6PNTgqgQM4VdCWCVYNG
+         fkAPTwkQMAdUSS+j1WQgQEtsrfOazEmO/Wdil2Tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 033/156] ethernet: s2io: disable napi when start nic failed in s2io_card_up()
+        patches@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 027/181] i2c: tegra: Allocate DMA memory for DMA engine
 Date:   Wed, 23 Nov 2022 09:49:50 +0100
-Message-Id: <20221123084559.146073430@linuxfoundation.org>
+Message-Id: <20221123084603.585449145@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,84 +53,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 0348c1ab980c1d43fb37b758d4b760990c066cb5 ]
+[ Upstream commit cdbf26251d3b35c4ccaea0c3a6de4318f727d3d2 ]
 
-When failed to start nic or add interrupt service routine in
-s2io_card_up() for opening device, napi isn't disabled. When open
-s2io device next time, it will trigger a BUG_ON()in napi_enable().
-Compile tested only.
+When the I2C controllers are running in DMA mode, it is the DMA engine
+that performs the memory accesses rather than the I2C controller. Pass
+the DMA engine's struct device pointer to the DMA API to make sure the
+correct DMA operations are used.
 
-Fixes: 5f490c968056 ("S2io: Fixed synchronization between scheduling of napi with card reset and close")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221109023741.131552-1-shaozhengchao@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+This fixes an issue where the DMA engine's SMMU stream ID needs to be
+misleadingly set for the I2C controllers in device tree.
+
+Suggested-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/neterion/s2io.c | 29 +++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-tegra.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/neterion/s2io.c b/drivers/net/ethernet/neterion/s2io.c
-index 71ab4e9c9a17..69316ddcf067 100644
---- a/drivers/net/ethernet/neterion/s2io.c
-+++ b/drivers/net/ethernet/neterion/s2io.c
-@@ -7122,9 +7122,8 @@ static int s2io_card_up(struct s2io_nic *sp)
- 		if (ret) {
- 			DBG_PRINT(ERR_DBG, "%s: Out of memory in Open\n",
- 				  dev->name);
--			s2io_reset(sp);
--			free_rx_buffers(sp);
--			return -ENOMEM;
-+			ret = -ENOMEM;
-+			goto err_fill_buff;
- 		}
- 		DBG_PRINT(INFO_DBG, "Buf in ring:%d is %d:\n", i,
- 			  ring->rx_bufs_left);
-@@ -7162,18 +7161,16 @@ static int s2io_card_up(struct s2io_nic *sp)
- 	/* Enable Rx Traffic and interrupts on the NIC */
- 	if (start_nic(sp)) {
- 		DBG_PRINT(ERR_DBG, "%s: Starting NIC failed\n", dev->name);
--		s2io_reset(sp);
--		free_rx_buffers(sp);
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_out;
- 	}
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index c883044715f3..444867cef682 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -283,6 +283,7 @@ struct tegra_i2c_dev {
+ 	struct dma_chan *tx_dma_chan;
+ 	struct dma_chan *rx_dma_chan;
+ 	unsigned int dma_buf_size;
++	struct device *dma_dev;
+ 	dma_addr_t dma_phys;
+ 	void *dma_buf;
  
- 	/* Add interrupt service routine */
- 	if (s2io_add_isr(sp) != 0) {
- 		if (sp->config.intr_type == MSI_X)
- 			s2io_rem_isr(sp);
--		s2io_reset(sp);
--		free_rx_buffers(sp);
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_out;
+@@ -419,7 +420,7 @@ static int tegra_i2c_dma_submit(struct tegra_i2c_dev *i2c_dev, size_t len)
+ static void tegra_i2c_release_dma(struct tegra_i2c_dev *i2c_dev)
+ {
+ 	if (i2c_dev->dma_buf) {
+-		dma_free_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
++		dma_free_coherent(i2c_dev->dma_dev, i2c_dev->dma_buf_size,
+ 				  i2c_dev->dma_buf, i2c_dev->dma_phys);
+ 		i2c_dev->dma_buf = NULL;
  	}
+@@ -466,10 +467,13 @@ static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
  
- 	timer_setup(&sp->alarm_timer, s2io_alarm_handle, 0);
-@@ -7193,6 +7190,20 @@ static int s2io_card_up(struct s2io_nic *sp)
- 	}
+ 	i2c_dev->tx_dma_chan = chan;
  
- 	return 0;
++	WARN_ON(i2c_dev->tx_dma_chan->device != i2c_dev->rx_dma_chan->device);
++	i2c_dev->dma_dev = chan->device->dev;
 +
-+err_out:
-+	if (config->napi) {
-+		if (config->intr_type == MSI_X) {
-+			for (i = 0; i < sp->config.rx_ring_num; i++)
-+				napi_disable(&sp->mac_control.rings[i].napi);
-+		} else {
-+			napi_disable(&sp->napi);
-+		}
-+	}
-+err_fill_buff:
-+	s2io_reset(sp);
-+	free_rx_buffers(sp);
-+	return ret;
- }
+ 	i2c_dev->dma_buf_size = i2c_dev->hw->quirks->max_write_len +
+ 				I2C_PACKET_HEADER_SIZE;
  
- /**
+-	dma_buf = dma_alloc_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
++	dma_buf = dma_alloc_coherent(i2c_dev->dma_dev, i2c_dev->dma_buf_size,
+ 				     &dma_phys, GFP_KERNEL | __GFP_NOWARN);
+ 	if (!dma_buf) {
+ 		dev_err(i2c_dev->dev, "failed to allocate DMA buffer\n");
+@@ -1255,7 +1259,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 
+ 	if (i2c_dev->dma_mode) {
+ 		if (i2c_dev->msg_read) {
+-			dma_sync_single_for_device(i2c_dev->dev,
++			dma_sync_single_for_device(i2c_dev->dma_dev,
+ 						   i2c_dev->dma_phys,
+ 						   xfer_size, DMA_FROM_DEVICE);
+ 
+@@ -1263,7 +1267,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 			if (err)
+ 				return err;
+ 		} else {
+-			dma_sync_single_for_cpu(i2c_dev->dev,
++			dma_sync_single_for_cpu(i2c_dev->dma_dev,
+ 						i2c_dev->dma_phys,
+ 						xfer_size, DMA_TO_DEVICE);
+ 		}
+@@ -1276,7 +1280,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 			memcpy(i2c_dev->dma_buf + I2C_PACKET_HEADER_SIZE,
+ 			       msg->buf, msg->len);
+ 
+-			dma_sync_single_for_device(i2c_dev->dev,
++			dma_sync_single_for_device(i2c_dev->dma_dev,
+ 						   i2c_dev->dma_phys,
+ 						   xfer_size, DMA_TO_DEVICE);
+ 
+@@ -1327,7 +1331,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 		}
+ 
+ 		if (i2c_dev->msg_read && i2c_dev->msg_err == I2C_ERR_NONE) {
+-			dma_sync_single_for_cpu(i2c_dev->dev,
++			dma_sync_single_for_cpu(i2c_dev->dma_dev,
+ 						i2c_dev->dma_phys,
+ 						xfer_size, DMA_FROM_DEVICE);
+ 
 -- 
 2.35.1
 
