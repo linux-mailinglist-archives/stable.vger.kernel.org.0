@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56F1D635814
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:50:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 458376354A4
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237166AbiKWJuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:50:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43622 "EHLO
+        id S237169AbiKWJLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:11:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238278AbiKWJtx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:53 -0500
+        with ESMTP id S237199AbiKWJKs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:10:48 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B52FB18
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:47:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FEFF1025FC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:10:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43ABAB81E5E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6432BC433C1;
-        Wed, 23 Nov 2022 09:46:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 399BFB81EF1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:10:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DA61C433C1;
+        Wed, 23 Nov 2022 09:10:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196817;
-        bh=PibUpeYMLBbUQiYCyPbuF/slTeh4Hlr4bhqqK+lE9bs=;
+        s=korg; t=1669194636;
+        bh=+jxuUetz6/AHFTUaB/M1wDvPnR8Pv/0B1K+209du3cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2FLBLXz3wj7CPjI/WT9U01w7xYelixGF/o5bAkW3anzEbYXpkSCVqH5sS7vBcsQs
-         V0Xi0MxYML7v9mwWZPi/U8IkC6D6Pl6SvOWLNiYQ7cuhdvsny+rhxHgmDD+e9FAwAe
-         fEEaHSlDK70sIYPawi+Yrl9Ey3I99OSJYplIKd8w=
+        b=X9m8Mbm3VMKxSkxkphkL+cSPFXhAGdl91EHsR5wKzhFwn7Ck2UmMPBvGnpuguPr67
+         fLQ7tA/RmGNZF5QxzDBFi9Elu/VUFXMwSiEYW3lZPg8twT0blLelM8S8LCXwKmh78r
+         zzOwlokCbPuY7zDxuCl3LaGdJTv0Wc5ksyt0iwm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 131/314] arm64: dts: imx8mm-tqma8mqml-mba8mx: Fix USB DR
+Subject: [PATCH 5.4 019/156] hamradio: fix issue of dev reference count leakage in bpq_device_event()
 Date:   Wed, 23 Nov 2022 09:49:36 +0100
-Message-Id: <20221123084631.474405706@linuxfoundation.org>
+Message-Id: <20221123084558.605998818@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,86 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 63fd9437ec81899fc36bb642d558378bc89aa4f9 ]
+[ Upstream commit 85cbaf032d3cd9f595152625eda5d4ecb1d6d78d ]
 
-Using extcon USB host mode works properly on DR interface, e.g.
-enabling/disabling VBUS. But USB device mode is not working.
-Fix this by switching to usb-role-switch instead.
+When following tests are performed, it will cause dev reference counting
+leakage.
+a)ip link add bond2 type bond mode balance-rr
+b)ip link set bond2 up
+c)ifenslave -f bond2 rose1
+d)ip link del bond2
 
-Fixes: dfcd1b6f7620 ("arm64: dts: freescale: add initial device tree for TQMa8MQML with i.MX8MM")
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+When new bond device is created, the default type of the bond device is
+ether. And the bond device is up, bpq_device_event() receives the message
+and creates a new bpq device. In this case, the reference count value of
+dev is hold once. But after "ifenslave -f bond2 rose1" command is
+executed, the type of the bond device is changed to rose. When the bond
+device is unregistered, bpq_device_event() will not put the dev reference
+count.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../dts/freescale/imx8mm-tqma8mqml-mba8mx.dts | 32 +++++++++++++++----
- 1 file changed, 26 insertions(+), 6 deletions(-)
+ drivers/net/hamradio/bpqether.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts b/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts
-index 7e0aeb2db305..a0aeac619929 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-tqma8mqml-mba8mx.dts
-@@ -34,11 +34,25 @@ reg_usdhc2_vmmc: regulator-vmmc {
- 		off-on-delay-us = <12000>;
- 	};
+diff --git a/drivers/net/hamradio/bpqether.c b/drivers/net/hamradio/bpqether.c
+index e2ad3c2e8df5..e0b9823170bf 100644
+--- a/drivers/net/hamradio/bpqether.c
++++ b/drivers/net/hamradio/bpqether.c
+@@ -511,7 +511,7 @@ static int bpq_device_event(struct notifier_block *this,
+ 	if (!net_eq(dev_net(dev), &init_net))
+ 		return NOTIFY_DONE;
  
--	extcon_usbotg1: extcon-usbotg1 {
--		compatible = "linux,extcon-usb-gpio";
-+	connector {
-+		compatible = "gpio-usb-b-connector", "usb-b-connector";
-+		type = "micro";
-+		label = "X19";
- 		pinctrl-names = "default";
--		pinctrl-0 = <&pinctrl_usb1_extcon>;
--		id-gpio = <&gpio1 10 GPIO_ACTIVE_HIGH>;
-+		pinctrl-0 = <&pinctrl_usb1_connector>;
-+		id-gpios = <&gpio1 10 GPIO_ACTIVE_HIGH>;
-+
-+		ports {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			port@0 {
-+				reg = <0>;
-+				usb_dr_connector: endpoint {
-+					remote-endpoint = <&usb1_drd_sw>;
-+				};
-+			};
-+		};
- 	};
- };
+-	if (!dev_is_ethdev(dev))
++	if (!dev_is_ethdev(dev) && !bpq_get_ax25_dev(dev))
+ 		return NOTIFY_DONE;
  
-@@ -105,13 +119,19 @@ &usbotg1 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_usbotg1>;
- 	dr_mode = "otg";
--	extcon = <&extcon_usbotg1>;
- 	srp-disable;
- 	hnp-disable;
- 	adp-disable;
- 	power-active-high;
- 	over-current-active-low;
-+	usb-role-switch;
- 	status = "okay";
-+
-+	port {
-+		usb1_drd_sw: endpoint {
-+			remote-endpoint = <&usb_dr_connector>;
-+		};
-+	};
- };
- 
- &usbotg2 {
-@@ -231,7 +251,7 @@ pinctrl_usbotg1: usbotg1grp {
- 			   <MX8MM_IOMUXC_GPIO1_IO13_USB1_OTG_OC		0x84>;
- 	};
- 
--	pinctrl_usb1_extcon: usb1-extcongrp {
-+	pinctrl_usb1_connector: usb1-connectorgrp {
- 		fsl,pins = <MX8MM_IOMUXC_GPIO1_IO10_GPIO1_IO10		0x1c0>;
- 	};
- 
+ 	switch (event) {
 -- 
 2.35.1
 
