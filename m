@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C49635713
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F096354B8
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238054AbiKWJhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:37:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55776 "EHLO
+        id S237127AbiKWJJB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:09:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237877AbiKWJhS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:18 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC573B0F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:09 -0800 (PST)
+        with ESMTP id S237166AbiKWJIe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:08:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C8272B626
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:08:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 55A89CE20F6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42A21C433C1;
-        Wed, 23 Nov 2022 09:35:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56D0BB81EF8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:08:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8652FC433D6;
+        Wed, 23 Nov 2022 09:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196106;
-        bh=3jjkmEEo7x4ZAG1NUt7AJvALdp+qBET0zfbfPrdKwnQ=;
+        s=korg; t=1669194509;
+        bh=yyRLcOZkVFdF4LGAYIWZzTY3gJNCP7TaUXIpFbcdzNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YmYcW6C0GNXkwCyk1LLOoa0u5Jld2OxxyW/lf68QDas4LI3Cy/aiVlB601tPFJaNM
-         e3GTrY6xaBS50bfCDf8bwOWX5RC5yVla9zgXZv2+cyMUbGrCST/5aHSxt9MJqOr1tA
-         bXns4FyvtP/HDpEPXWEnF60KBTnEkaVQJXUiLKiI=
+        b=or1pq2zaDxECgELCHuZvttrp7kTVEkA5FPi8qT+Q+heqGAXc3HLQ6ellchStQ8dhV
+         mp2iqY8TKreiKsMFTbnwWSleoMXMew+DiutxU61AgU0n/FvT+qsGPisE8t7RDPbmMe
+         H2t66uL5a6U0PYcEqKUL2jwqrPlj9A77UF0XMgxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefan Agner <stefan@agner.ch>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.15 121/181] Revert "usb: dwc3: disable USB core PHY management"
+        patches@lists.linux.dev, Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 4.19 097/114] docs: update mediator contact information in CoC doc
 Date:   Wed, 23 Nov 2022 09:51:24 +0100
-Message-Id: <20221123084607.608784875@linuxfoundation.org>
+Message-Id: <20221123084555.649872832@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +51,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit 5c294de36e7fb3e0cba0c4e1ef9a5f57bc080d0f upstream.
+commit 5fddf8962b429b8303c4a654291ecb6e61a7d747 upstream.
 
-This reverts commit 6000b8d900cd5f52fbcd0776d0cc396e88c8c2ea.
+Update mediator contact information in CoC interpretation document.
 
-The offending commit disabled the USB core PHY management as the dwc3
-already manages the PHYs in question.
-
-Unfortunately some platforms have started relying on having USB core
-also controlling the PHY and this is specifically currently needed on
-some Exynos platforms for PHY calibration or connected device may fail
-to enumerate.
-
-The PHY calibration was previously handled in the dwc3 driver, but to
-work around some issues related to how the dwc3 driver interacts with
-xhci (e.g. using multiple drivers) this was moved to USB core by commits
-34c7ed72f4f0 ("usb: core: phy: add support for PHY calibration") and
-a0a465569b45 ("usb: dwc3: remove generic PHY calibrate() calls").
-
-The same PHY obviously should not be controlled from two different
-places, which for example do no agree on the PHY mode or power state
-during suspend, but as the offending patch was backported to stable,
-let's revert it for now.
-
-Reported-by: Stefan Agner <stefan@agner.ch>
-Link: https://lore.kernel.org/lkml/808bdba846bb60456adf10a3016911ee@agner.ch/
-Fixes: 6000b8d900cd ("usb: dwc3: disable USB core PHY management")
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/20221103144648.14197-1-johan+linaro@kernel.org
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20221011171417.34286-1-skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/host.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ Documentation/process/code-of-conduct-interpretation.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/host.c
-+++ b/drivers/usb/dwc3/host.c
-@@ -10,13 +10,8 @@
- #include <linux/acpi.h>
- #include <linux/platform_device.h>
+--- a/Documentation/process/code-of-conduct-interpretation.rst
++++ b/Documentation/process/code-of-conduct-interpretation.rst
+@@ -51,7 +51,7 @@ the Technical Advisory Board (TAB) or ot
+ uncertain how to handle situations that come up.  It will not be
+ considered a violation report unless you want it to be.  If you are
+ uncertain about approaching the TAB or any other maintainers, please
+-reach out to our conflict mediator, Joanna Lee <joanna.lee@gesmer.com>.
++reach out to our conflict mediator, Joanna Lee <jlee@linuxfoundation.org>.
  
--#include "../host/xhci-plat.h"
- #include "core.h"
- 
--static const struct xhci_plat_priv dwc3_xhci_plat_priv = {
--	.quirks = XHCI_SKIP_PHY_INIT,
--};
--
- static int dwc3_host_get_irq(struct dwc3 *dwc)
- {
- 	struct platform_device	*dwc3_pdev = to_platform_device(dwc->dev);
-@@ -92,11 +87,6 @@ int dwc3_host_init(struct dwc3 *dwc)
- 		goto err;
- 	}
- 
--	ret = platform_device_add_data(xhci, &dwc3_xhci_plat_priv,
--					sizeof(dwc3_xhci_plat_priv));
--	if (ret)
--		goto err;
--
- 	memset(props, 0, sizeof(struct property_entry) * ARRAY_SIZE(props));
- 
- 	if (dwc->usb3_lpm_capable)
+ In the end, "be kind to each other" is really what the end goal is for
+ everybody.  We know everyone is human and we all fail at times, but the
 
 
