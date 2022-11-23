@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F0A6354E0
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:12:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 304F3635839
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:52:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236953AbiKWJML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:12:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52390 "EHLO
+        id S236987AbiKWJvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:51:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236424AbiKWJLo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:11:44 -0500
+        with ESMTP id S236704AbiKWJuy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:50:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEF01DF35
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:11:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A0753EEA
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:48:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AF8461B10
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:11:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69379C433C1;
-        Wed, 23 Nov 2022 09:11:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A419761B91
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:48:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC29AC433C1;
+        Wed, 23 Nov 2022 09:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194702;
-        bh=z5SwGXztJxkjCnIJ9MX5LVXFHzQmKRAKEX9A9neLyD0=;
+        s=korg; t=1669196883;
+        bh=1nDiu51BcouoQu9gSf8emitN7XxEOTSnRgz2cvPZO5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vwE9+aiM8FQ/Dk0uUfBR1vXFyl/93UnTUd+VPMaMhsbGpDAa2FzqppTx0Pfid2hoP
-         1HBWiltr4Dd+GBIrEaP2J+tAIM31+CtIMAgFt7Q5QY3KtoldijAkLtUnMZLEJN+vic
-         BOr10nRWDqtmlYT/+cccvu+ZkqZ643Upq2nsDYr8=
+        b=OKyvHnFQOR1H4eOPUKhFsKxwejcDjgKyRZY6yzh9J819lhgrtqmX6vVdkBXA+FY/e
+         CJFaxcUto/Zk4xengr4mmv7Mg5B4z5tf8Oz1U7Isapdb2LvEOzLA2Uth/r29SvNtmJ
+         +cz2Bqq9cuhu5rZO522uXD0qtSepfKdq3dRgXlqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.4 038/156] arm64: efi: Fix handling of misaligned runtime regions and drop warning
-Date:   Wed, 23 Nov 2022 09:49:55 +0100
-Message-Id: <20221123084559.303205850@linuxfoundation.org>
+        Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 151/314] net: phy: dp83867: Fix SGMII FIFO depth for non OF devices
+Date:   Wed, 23 Nov 2022 09:49:56 +0100
+Message-Id: <20221123084632.407753817@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,117 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>
 
-commit 9b9eaee9828fe98b030cf43ac50065a54a2f5d52 upstream.
+[ Upstream commit e2a54350dc9642e7dfc07335ca355581caa9dbfe ]
 
-Currently, when mapping the EFI runtime regions in the EFI page tables,
-we complain about misaligned regions in a rather noisy way, using
-WARN().
+Current driver code will read device tree node information,
+and set default values if there is no info provided.
 
-Not only does this produce a lot of irrelevant clutter in the log, it is
-factually incorrect, as misaligned runtime regions are actually allowed
-by the EFI spec as long as they don't require conflicting memory types
-within the same 64k page.
+This is not done in non-OF devices leading to SGMII fifo depths being
+set to the smallest size.
 
-So let's drop the warning, and tweak the code so that we
-- take both the start and end of the region into account when checking
-  for misalignment
-- only revert to RWX mappings for non-code regions if misaligned code
-  regions are also known to exist.
+This patch sets the value to the default value of the PHY as stated in the
+PHY datasheet.
 
-Cc: <stable@vger.kernel.org>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4dc08dcc9f6f ("net: phy: dp83867: introduce critical chip default init for non-of platform")
+Signed-off-by: Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20221110054938.925347-1-michael.wei.hong.sit@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/efi.c |   52 +++++++++++++++++++++++++++++++-----------------
- 1 file changed, 34 insertions(+), 18 deletions(-)
+ drivers/net/phy/dp83867.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/arm64/kernel/efi.c
-+++ b/arch/arm64/kernel/efi.c
-@@ -12,6 +12,14 @@
+diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
+index 417527f8bbf5..7446d5c6c714 100644
+--- a/drivers/net/phy/dp83867.c
++++ b/drivers/net/phy/dp83867.c
+@@ -682,6 +682,13 @@ static int dp83867_of_init(struct phy_device *phydev)
+ 	 */
+ 	dp83867->io_impedance = DP83867_IO_MUX_CFG_IO_IMPEDANCE_MIN / 2;
  
- #include <asm/efi.h>
- 
-+static bool region_is_misaligned(const efi_memory_desc_t *md)
-+{
-+	if (PAGE_SIZE == EFI_PAGE_SIZE)
-+		return false;
-+	return !PAGE_ALIGNED(md->phys_addr) ||
-+	       !PAGE_ALIGNED(md->num_pages << EFI_PAGE_SHIFT);
-+}
-+
- /*
-  * Only regions of type EFI_RUNTIME_SERVICES_CODE need to be
-  * executable, everything else can be mapped with the XN bits
-@@ -25,14 +33,22 @@ static __init pteval_t create_mapping_pr
- 	if (type == EFI_MEMORY_MAPPED_IO)
- 		return PROT_DEVICE_nGnRE;
- 
--	if (WARN_ONCE(!PAGE_ALIGNED(md->phys_addr),
--		      "UEFI Runtime regions are not aligned to 64 KB -- buggy firmware?"))
-+	if (region_is_misaligned(md)) {
-+		static bool __initdata code_is_misaligned;
-+
- 		/*
--		 * If the region is not aligned to the page size of the OS, we
--		 * can not use strict permissions, since that would also affect
--		 * the mapping attributes of the adjacent regions.
-+		 * Regions that are not aligned to the OS page size cannot be
-+		 * mapped with strict permissions, as those might interfere
-+		 * with the permissions that are needed by the adjacent
-+		 * region's mapping. However, if we haven't encountered any
-+		 * misaligned runtime code regions so far, we can safely use
-+		 * non-executable permissions for non-code regions.
- 		 */
--		return pgprot_val(PAGE_KERNEL_EXEC);
-+		code_is_misaligned |= (type == EFI_RUNTIME_SERVICES_CODE);
-+
-+		return code_is_misaligned ? pgprot_val(PAGE_KERNEL_EXEC)
-+					  : pgprot_val(PAGE_KERNEL);
-+	}
- 
- 	/* R-- */
- 	if ((attr & (EFI_MEMORY_XP | EFI_MEMORY_RO)) ==
-@@ -62,19 +78,16 @@ int __init efi_create_mapping(struct mm_
- 	bool page_mappings_only = (md->type == EFI_RUNTIME_SERVICES_CODE ||
- 				   md->type == EFI_RUNTIME_SERVICES_DATA);
- 
--	if (!PAGE_ALIGNED(md->phys_addr) ||
--	    !PAGE_ALIGNED(md->num_pages << EFI_PAGE_SHIFT)) {
--		/*
--		 * If the end address of this region is not aligned to page
--		 * size, the mapping is rounded up, and may end up sharing a
--		 * page frame with the next UEFI memory region. If we create
--		 * a block entry now, we may need to split it again when mapping
--		 * the next region, and support for that is going to be removed
--		 * from the MMU routines. So avoid block mappings altogether in
--		 * that case.
--		 */
-+	/*
-+	 * If this region is not aligned to the page size used by the OS, the
-+	 * mapping will be rounded outwards, and may end up sharing a page
-+	 * frame with an adjacent runtime memory region. Given that the page
-+	 * table descriptor covering the shared page will be rewritten when the
-+	 * adjacent region gets mapped, we must avoid block mappings here so we
-+	 * don't have to worry about splitting them when that happens.
++	/* For non-OF device, the RX and TX FIFO depths are taken from
++	 * default value. So, we init RX & TX FIFO depths here
++	 * so that it is configured correctly later in dp83867_config_init();
 +	 */
-+	if (region_is_misaligned(md))
- 		page_mappings_only = true;
--	}
- 
- 	create_pgd_mapping(mm, md->phys_addr, md->virt_addr,
- 			   md->num_pages << EFI_PAGE_SHIFT,
-@@ -101,6 +114,9 @@ int __init efi_set_mapping_permissions(s
- 	BUG_ON(md->type != EFI_RUNTIME_SERVICES_CODE &&
- 	       md->type != EFI_RUNTIME_SERVICES_DATA);
- 
-+	if (region_is_misaligned(md))
-+		return 0;
++	dp83867->tx_fifo_depth = DP83867_PHYCR_FIFO_DEPTH_4_B_NIB;
++	dp83867->rx_fifo_depth = DP83867_PHYCR_FIFO_DEPTH_4_B_NIB;
 +
- 	/*
- 	 * Calling apply_to_page_range() is only safe on regions that are
- 	 * guaranteed to be mapped down to pages. Since we are only called
+ 	return 0;
+ }
+ #endif /* CONFIG_OF_MDIO */
+-- 
+2.35.1
+
 
 
