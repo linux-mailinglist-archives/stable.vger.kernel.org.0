@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E1B4635742
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CA1963556D
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237668AbiKWJlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:41:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32894 "EHLO
+        id S237440AbiKWJTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:19:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237722AbiKWJkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:40:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3505C5F92
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:37:56 -0800 (PST)
+        with ESMTP id S237305AbiKWJTO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:19:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAD5E2B25B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:19:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EF3A61B5C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:37:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 198A4C433C1;
-        Wed, 23 Nov 2022 09:37:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7CA16B81EEB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:19:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C74EC433D6;
+        Wed, 23 Nov 2022 09:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196275;
-        bh=XLhMLZb6XiLLtPgxe/0OyAMI6SvnqSR49NwowbBrBYg=;
+        s=korg; t=1669195151;
+        bh=N/Asc+ng/E5TIeoHflsTOYUgjf/lNvHFivHxZ5Itzlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lnnXZ0Th6t+K4zrNhsqYkSDZD6T3OCXsY/MnOFbHh8QfsMrrplhnDNz2+udu6rBJF
-         M5X7U/belHgc+x3MNfbOzk2aPxXs1jgfP2xLOPpXT9WC7sk5eDI3YNfN3r74RSkbK5
-         6ukDzmmAF7IH8yzFuPbvMXIvBh5wP8Fy4+E3w1nU=
+        b=2DhtyQARDMlG4vETYQbYTsmGvBnezBfhpKtvam/W85eB+sYq8DxEWnzI5yXTWtAUO
+         xkOzb0aOxsG9aSXf4xmlZUI+5/HCZLXJVUGRjchGjcz0F7qWAh2xqlDb7hWtV9rfW4
+         WExPfefqyBRD18w9V4p2+1UAK/IpT6AVTU+xkyJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Beno=C3=AEt=20Monin?= <benoit.monin@gmx.fr>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.15 126/181] USB: serial: option: add Sierra Wireless EM9191
+        syzbot <syzbot+4dd880c1184280378821@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 132/156] Input: iforce - invert valid length check when fetching device IDs
 Date:   Wed, 23 Nov 2022 09:51:29 +0100
-Message-Id: <20221123084607.822432490@linuxfoundation.org>
+Message-Id: <20221123084602.696467327@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoît Monin <benoit.monin@gmx.fr>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit df3414b0a245f43476061fddd78cee7d6cff797f upstream.
+commit b8ebf250997c5fb253582f42bfe98673801ebebd upstream.
 
-Add support for the AT and diag ports, similar to other qualcomm SDX55
-modems. In QDL mode, the modem uses a different device ID and support
-is provided by qcserial in commit 11c52d250b34 ("USB: serial: qcserial:
-add EM9191 QDL support").
+syzbot is reporting uninitialized value at iforce_init_device() [1], for
+commit 6ac0aec6b0a6 ("Input: iforce - allow callers supply data buffer
+when fetching device IDs") is checking that valid length is shorter than
+bytes to read. Since iforce_get_id_packet() stores valid length when
+returning 0, the caller needs to check that valid length is longer than or
+equals to bytes to read.
 
-T:  Bus=08 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
-P:  Vendor=1199 ProdID=90d3 Rev=00.06
-S:  Manufacturer=Sierra Wireless, Incorporated
-S:  Product=Sierra Wireless EM9191
-S:  SerialNumber=xxxxxxxxxxxxxxxx
-C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
-
-Signed-off-by: Benoît Monin <benoit.monin@gmx.fr>
+Reported-by: syzbot <syzbot+4dd880c1184280378821@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 6ac0aec6b0a6 ("Input: iforce - allow callers supply data buffer when fetching device IDs")
+Link: https://lore.kernel.org/r/531fb432-7396-ad37-ecba-3e42e7f56d5c@I-love.SAKURA.ne.jp
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/input/joystick/iforce/iforce-main.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -581,6 +581,9 @@ static void option_instat_callback(struc
- #define OPPO_VENDOR_ID				0x22d9
- #define OPPO_PRODUCT_R11			0x276c
+--- a/drivers/input/joystick/iforce/iforce-main.c
++++ b/drivers/input/joystick/iforce/iforce-main.c
+@@ -273,22 +273,22 @@ int iforce_init_device(struct device *pa
+  * Get device info.
+  */
  
-+/* Sierra Wireless products */
-+#define SIERRA_VENDOR_ID			0x1199
-+#define SIERRA_PRODUCT_EM9191			0x90d3
+-	if (!iforce_get_id_packet(iforce, 'M', buf, &len) || len < 3)
++	if (!iforce_get_id_packet(iforce, 'M', buf, &len) && len >= 3)
+ 		input_dev->id.vendor = get_unaligned_le16(buf + 1);
+ 	else
+ 		dev_warn(&iforce->dev->dev, "Device does not respond to id packet M\n");
  
- /* Device flags */
+-	if (!iforce_get_id_packet(iforce, 'P', buf, &len) || len < 3)
++	if (!iforce_get_id_packet(iforce, 'P', buf, &len) && len >= 3)
+ 		input_dev->id.product = get_unaligned_le16(buf + 1);
+ 	else
+ 		dev_warn(&iforce->dev->dev, "Device does not respond to id packet P\n");
  
-@@ -2176,6 +2179,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(OPPO_VENDOR_ID, OPPO_PRODUCT_R11, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(SIERRA_VENDOR_ID, SIERRA_PRODUCT_EM9191, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(SIERRA_VENDOR_ID, SIERRA_PRODUCT_EM9191, 0xff, 0, 0) },
- 	{ } /* Terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, option_ids);
+-	if (!iforce_get_id_packet(iforce, 'B', buf, &len) || len < 3)
++	if (!iforce_get_id_packet(iforce, 'B', buf, &len) && len >= 3)
+ 		iforce->device_memory.end = get_unaligned_le16(buf + 1);
+ 	else
+ 		dev_warn(&iforce->dev->dev, "Device does not respond to id packet B\n");
+ 
+-	if (!iforce_get_id_packet(iforce, 'N', buf, &len) || len < 2)
++	if (!iforce_get_id_packet(iforce, 'N', buf, &len) && len >= 2)
+ 		ff_effects = buf[1];
+ 	else
+ 		dev_warn(&iforce->dev->dev, "Device does not respond to id packet N\n");
 
 
