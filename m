@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B11B6354BD
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A663C635617
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237143AbiKWJJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:09:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47766 "EHLO
+        id S237419AbiKWJZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:25:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237113AbiKWJJa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:09:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 675205F62
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:09:29 -0800 (PST)
+        with ESMTP id S237417AbiKWJZN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:25:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22A4B10AD32
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:23:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04A5761B43
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:09:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9A96C433C1;
-        Wed, 23 Nov 2022 09:09:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1F90B81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:23:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2841BC433C1;
+        Wed, 23 Nov 2022 09:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194568;
-        bh=g6rBtnX8N6x0v9jIEVpqaQTkgz6zPnZzn1UOYWgNPSQ=;
+        s=korg; t=1669195421;
+        bh=BPu3BVWP+VyGSB9iSqvVgk/d67IQof73lthAzGoLkoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V4XTnXv8ayiGeElb7q/KjcCSvAlwi/rHfUOj0tzhD6x0W1BGr1OJQgOKExkE+j1pB
-         FZlu11gm7gm/SidX1az7ammyQRLkcKf1+ZEqi5fSKW9QxVmIKUOJF437Q2rueyC4hC
-         ffYpoKMgwVMFIkB9grzN72o+2nmyaZKhuKiNcBo8=
+        b=V/kr7TPaAuD2TVtOgRSc1S9ZnApSLxHd0HhHq5yNR4Fx8rIbgZMepg7EHZLkmqrQP
+         JjjkQA3S6gyWsb9iW1+F/RBPKgcrHa6UnXZstHZj3UOv0Ot1X4PpYvRNLH8CduGNaV
+         DTNkk0NydO3TWtRyjjivsaErAg2oxcp1XRJcXl6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, mhiramat@kernel.org, mark.rutland@arm.com,
-        Wang Wensheng <wangwensheng4@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 075/114] ftrace: Fix the possible incorrect kernel message
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 079/149] cifs: Fix wrong return value checking when GETFLAGS
 Date:   Wed, 23 Nov 2022 09:51:02 +0100
-Message-Id: <20221123084554.872124042@linuxfoundation.org>
+Message-Id: <20221123084600.806465735@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit 08948caebe93482db1adfd2154eba124f66d161d upstream.
+[ Upstream commit 92bbd67a55fee50743b42825d1c016e7fd5c79f9 ]
 
-If the number of mcount entries is an integer multiple of
-ENTRIES_PER_PAGE, the page count showing on the console would be wrong.
+The return value of CIFSGetExtAttr is negative, should be checked
+with -EOPNOTSUPP rather than EOPNOTSUPP.
 
-Link: https://lkml.kernel.org/r/20221109094434.84046-2-wangwensheng4@huawei.com
-
-Cc: <mhiramat@kernel.org>
-Cc: <mark.rutland@arm.com>
-Cc: stable@vger.kernel.org
-Fixes: 5821e1b74f0d0 ("function tracing: fix wrong pos computing when read buffer has been fulfilled")
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 64a5cfa6db94 ("Allow setting per-file compression via SMB2/3")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/ioctl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -6229,7 +6229,7 @@ void __init ftrace_init(void)
- 	}
+diff --git a/fs/cifs/ioctl.c b/fs/cifs/ioctl.c
+index dcde44ff6cf9..e45598b62242 100644
+--- a/fs/cifs/ioctl.c
++++ b/fs/cifs/ioctl.c
+@@ -193,7 +193,7 @@ long cifs_ioctl(struct file *filep, unsigned int command, unsigned long arg)
+ 					rc = put_user(ExtAttrBits &
+ 						FS_FL_USER_VISIBLE,
+ 						(int __user *)arg);
+-				if (rc != EOPNOTSUPP)
++				if (rc != -EOPNOTSUPP)
+ 					break;
+ 			}
+ #endif /* CONFIG_CIFS_POSIX */
+@@ -222,7 +222,7 @@ long cifs_ioctl(struct file *filep, unsigned int command, unsigned long arg)
+ 			 *		       pSMBFile->fid.netfid,
+ 			 *		       extAttrBits,
+ 			 *		       &ExtAttrMask);
+-			 * if (rc != EOPNOTSUPP)
++			 * if (rc != -EOPNOTSUPP)
+ 			 *	break;
+ 			 */
  
- 	pr_info("ftrace: allocating %ld entries in %ld pages\n",
--		count, count / ENTRIES_PER_PAGE + 1);
-+		count, DIV_ROUND_UP(count, ENTRIES_PER_PAGE));
- 
- 	last_ftrace_enabled = ftrace_enabled = 1;
- 
+-- 
+2.35.1
+
 
 
