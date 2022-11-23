@@ -2,136 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EB0E6354C0
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B44A56355AC
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237228AbiKWJLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:11:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51796 "EHLO
+        id S237624AbiKWJX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:23:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237252AbiKWJKy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:10:54 -0500
-Received: from mail-il1-f198.google.com (mail-il1-f198.google.com [209.85.166.198])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1D00105A9B
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:10:48 -0800 (PST)
-Received: by mail-il1-f198.google.com with SMTP id d2-20020a056e020be200b00300ecc7e0d4so12528193ilu.5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:10:48 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=JKRy0CJM2YQG2Hu2gnfO6l4tPm0XXvuBZUpkz/Gz8Fc=;
-        b=lg9e0Ms3SmixDM5Cg9heWQ8UEQvIn4D61gROHrOnA7do8pPGt0ytjqojc+8PpnfyE8
-         Hv3coqeSAbgZspfG08uuEfAvaitn0oGNi7U1XSf19DLod7MsAXCFHXzjiYevdJGbtd+I
-         Kr/rzjrFD0RZ//nLRdamDUQGQsVbk8nSLIvZFW+GddvMu4x7hL4+Hye9SuRB3vGokqeV
-         DisojAyH1AnsyAVEV2+j7qxOtSpEsLCyia6A6RJ4yW1R52SYoFlYsn0gLLKBcntwpZwJ
-         y2Pd+ElcC7VAQoyQnv4hdoD6aP91TxGUrWtApI9Od2+8eoU2Vx/twQ+zruLzHn7iYrtl
-         nA/A==
-X-Gm-Message-State: ANoB5pmDGlMjf8PRnOQ3I2Imm5wHPsuPw9/6x0+zC9vCGmylbERlDZ5V
-        dLY/yB9WXXWjMaqKAhhcaAkV2O5r8UK0D/u0BBT4R3ujExlM
-X-Google-Smtp-Source: AA0mqf40CnljasP7XyrK6T0jA+h60K+n/TPxI7zyfqTFe4dT+717LMK8iMmeRlfO+w05jW+8Sl8M1t9aF1N5jHQvb6/FV/RPVRPB
+        with ESMTP id S237601AbiKWJXY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:23:24 -0500
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6CE410EA0E;
+        Wed, 23 Nov 2022 01:22:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1669195343; x=1700731343;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=XNUC41sj9TAoUktgPlv113YVQY4kW0T4VrpDBMKfCPo=;
+  b=hW7m6ngchhbDOQEbD2HO1oQSgges5lx997cAe4iSmHoVsqENLug4MmnX
+   QiBATfXwYy6AOczizuzMFknzlpGFp0zy6g55CgvWLZteQp9tWTqm8JLrr
+   dZDzCAvCH8Xhakq7f421W6CwO7AXiCBdFTpkuAyzLlDPHSFXis1BrU1wo
+   DgIiKp3pfZCbHiH9LA51b7Jd0j0NVcDto/6ArKZdJdY2CV82a+1oxMgy2
+   r5C83YF1pI1IkfqqKsImE9p6HMDfu04a3sGRMSs4WYwrcA8vWbzhhxQoP
+   pdJoU10SkiyDDKnwd0MOeK95ZC3skbYIEEaPw8T8E6CYmKADyNM5Pb0er
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10539"; a="311652596"
+X-IronPort-AV: E=Sophos;i="5.96,187,1665471600"; 
+   d="scan'208";a="311652596"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Nov 2022 01:22:22 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10539"; a="784171557"
+X-IronPort-AV: E=Sophos;i="5.96,187,1665471600"; 
+   d="scan'208";a="784171557"
+Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
+  by fmsmga001.fm.intel.com with ESMTP; 23 Nov 2022 01:22:20 -0800
+From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, Todd Brandt <todd.e.brandt@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] usb: typec: ucsi: Resume in separate work
+Date:   Wed, 23 Nov 2022 11:22:46 +0200
+Message-Id: <20221123092246.22007-1-heikki.krogerus@linux.intel.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-X-Received: by 2002:a92:c506:0:b0:302:4981:64b with SMTP id
- r6-20020a92c506000000b003024981064bmr3432850ilg.200.1669194648289; Wed, 23
- Nov 2022 01:10:48 -0800 (PST)
-Date:   Wed, 23 Nov 2022 01:10:48 -0800
-In-Reply-To: <20221123084558.693459104@linuxfoundation.org>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <00000000000012891b05ee1faa57@google.com>
-Subject: Re: [PATCH 5.4 021/156] ipv6: addrlabel: fix infoleak when sending
- struct ifaddrlblmsg to network
-From:   syzbot <syzbot+@syzkaller.appspotmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     davem@davemloft.net, dsahern@kernel.org, glider@google.com,
-        gregkh@linuxfoundation.org, patches@lists.linux.dev,
-        sashal@kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> From: Alexander Potapenko <glider@google.com>
->
-> [ Upstream commit c23fb2c82267638f9d206cb96bb93e1f93ad7828 ]
->
-> When copying a `struct ifaddrlblmsg` to the network, __ifal_reserved
-> remained uninitialized, resulting in a 1-byte infoleak:
->
->   BUG: KMSAN: kernel-network-infoleak in __netdev_start_xmit ./include/linux/netdevice.h:4841
->    __netdev_start_xmit ./include/linux/netdevice.h:4841
->    netdev_start_xmit ./include/linux/netdevice.h:4857
->    xmit_one net/core/dev.c:3590
->    dev_hard_start_xmit+0x1dc/0x800 net/core/dev.c:3606
->    __dev_queue_xmit+0x17e8/0x4350 net/core/dev.c:4256
->    dev_queue_xmit ./include/linux/netdevice.h:3009
->    __netlink_deliver_tap_skb net/netlink/af_netlink.c:307
->    __netlink_deliver_tap+0x728/0xad0 net/netlink/af_netlink.c:325
->    netlink_deliver_tap net/netlink/af_netlink.c:338
->    __netlink_sendskb net/netlink/af_netlink.c:1263
->    netlink_sendskb+0x1d9/0x200 net/netlink/af_netlink.c:1272
->    netlink_unicast+0x56d/0xf50 net/netlink/af_netlink.c:1360
->    nlmsg_unicast ./include/net/netlink.h:1061
->    rtnl_unicast+0x5a/0x80 net/core/rtnetlink.c:758
->    ip6addrlbl_get+0xfad/0x10f0 net/ipv6/addrlabel.c:628
->    rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
->   ...
->   Uninit was created at:
->    slab_post_alloc_hook+0x118/0xb00 mm/slab.h:742
->    slab_alloc_node mm/slub.c:3398
->    __kmem_cache_alloc_node+0x4f2/0x930 mm/slub.c:3437
->    __do_kmalloc_node mm/slab_common.c:954
->    __kmalloc_node_track_caller+0x117/0x3d0 mm/slab_common.c:975
->    kmalloc_reserve net/core/skbuff.c:437
->    __alloc_skb+0x27a/0xab0 net/core/skbuff.c:509
->    alloc_skb ./include/linux/skbuff.h:1267
->    nlmsg_new ./include/net/netlink.h:964
->    ip6addrlbl_get+0x490/0x10f0 net/ipv6/addrlabel.c:608
->    rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
->    netlink_rcv_skb+0x299/0x550 net/netlink/af_netlink.c:2540
->    rtnetlink_rcv+0x26/0x30 net/core/rtnetlink.c:6109
->    netlink_unicast_kernel net/netlink/af_netlink.c:1319
->    netlink_unicast+0x9ab/0xf50 net/netlink/af_netlink.c:1345
->    netlink_sendmsg+0xebc/0x10f0 net/netlink/af_netlink.c:1921
->   ...
->
-> This patch ensures that the reserved field is always initialized.
->
-> Reported-by: syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com
-> Fixes: 2a8cc6c89039 ("[IPV6] ADDRCONF: Support RFC3484 configurable address selection policy table.")
-> Signed-off-by: Alexander Potapenko <glider@google.com>
-> Reviewed-by: David Ahern <dsahern@kernel.org>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  net/ipv6/addrlabel.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/net/ipv6/addrlabel.c b/net/ipv6/addrlabel.c
-> index 8a22486cf270..17ac45aa7194 100644
-> --- a/net/ipv6/addrlabel.c
-> +++ b/net/ipv6/addrlabel.c
-> @@ -437,6 +437,7 @@ static void ip6addrlbl_putmsg(struct nlmsghdr *nlh,
->  {
->  	struct ifaddrlblmsg *ifal = nlmsg_data(nlh);
->  	ifal->ifal_family = AF_INET6;
-> +	ifal->__ifal_reserved = 0;
->  	ifal->ifal_prefixlen = prefixlen;
->  	ifal->ifal_flags = 0;
->  	ifal->ifal_index = ifindex;
-> -- 
-> 2.35.1
->
->
->
+It can take more than one second to check each connector
+when the system is resumed. So if you have, say, eight
+connectors, it may take eight seconds for ucsi_resume() to
+finish. That's a bit too much.
 
-I see the command but can't find the corresponding bug.
-The email is sent to  syzbot+HASH@syzkaller.appspotmail.com address
-but the HASH does not correspond to any known bug.
-Please double check the address.
+This will modify ucsi_resume() so that it schedules a work
+where the interface is actually resumed instead of checking
+the connectors directly. The connections will also be
+checked in separate tasks which are queued for each connector
+separately.
+
+Reported-by: Todd Brandt <todd.e.brandt@intel.com>
+Fixes: f9f019f7d849 ("usb: typec: ucsi: Resume in separate work")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216706
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+---
+ drivers/usb/typec/ucsi/ucsi.c | 17 +++++++++++++----
+ drivers/usb/typec/ucsi/ucsi.h |  1 +
+ 2 files changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+index a7987fc764cc6..eabe519013e78 100644
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -1270,8 +1270,9 @@ static int ucsi_init(struct ucsi *ucsi)
+ 	return ret;
+ }
+ 
+-int ucsi_resume(struct ucsi *ucsi)
++static void ucsi_resume_work(struct work_struct *work)
+ {
++	struct ucsi *ucsi = container_of(work, struct ucsi, resume_work);
+ 	struct ucsi_connector *con;
+ 	u64 command;
+ 	int ret;
+@@ -1279,15 +1280,21 @@ int ucsi_resume(struct ucsi *ucsi)
+ 	/* Restore UCSI notification enable mask after system resume */
+ 	command = UCSI_SET_NOTIFICATION_ENABLE | ucsi->ntfy;
+ 	ret = ucsi_send_command(ucsi, command, NULL, 0);
+-	if (ret < 0)
+-		return ret;
++	if (ret < 0) {
++		dev_err(ucsi->dev, "failed to re-enable notifications (%d)\n", ret);
++		return;
++	}
+ 
+ 	for (con = ucsi->connector; con->port; con++) {
+ 		mutex_lock(&con->lock);
+-		ucsi_check_connection(con);
++		ucsi_partner_task(con, ucsi_check_connection, 1, 0);
+ 		mutex_unlock(&con->lock);
+ 	}
++}
+ 
++int ucsi_resume(struct ucsi *ucsi)
++{
++	queue_work(system_long_wq, &ucsi->resume_work);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(ucsi_resume);
+@@ -1347,6 +1354,7 @@ struct ucsi *ucsi_create(struct device *dev, const struct ucsi_operations *ops)
+ 	if (!ucsi)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	INIT_WORK(&ucsi->resume_work, ucsi_resume_work);
+ 	INIT_DELAYED_WORK(&ucsi->work, ucsi_init_work);
+ 	mutex_init(&ucsi->ppm_lock);
+ 	ucsi->dev = dev;
+@@ -1401,6 +1409,7 @@ void ucsi_unregister(struct ucsi *ucsi)
+ 
+ 	/* Make sure that we are not in the middle of driver initialization */
+ 	cancel_delayed_work_sync(&ucsi->work);
++	cancel_work_sync(&ucsi->resume_work);
+ 
+ 	/* Disable notifications */
+ 	ucsi->ops->async_write(ucsi, UCSI_CONTROL, &cmd, sizeof(cmd));
+diff --git a/drivers/usb/typec/ucsi/ucsi.h b/drivers/usb/typec/ucsi/ucsi.h
+index 8eb391e3e592c..c968474ee5473 100644
+--- a/drivers/usb/typec/ucsi/ucsi.h
++++ b/drivers/usb/typec/ucsi/ucsi.h
+@@ -287,6 +287,7 @@ struct ucsi {
+ 	struct ucsi_capability cap;
+ 	struct ucsi_connector *connector;
+ 
++	struct work_struct resume_work;
+ 	struct delayed_work work;
+ 	int work_count;
+ #define UCSI_ROLE_SWITCH_RETRY_PER_HZ	10
+-- 
+2.35.1
 
