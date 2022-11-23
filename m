@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E09463572E
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1125635667
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238006AbiKWJkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:40:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33838 "EHLO
+        id S237761AbiKWJ3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:29:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238016AbiKWJjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:39:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF929266E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:37:29 -0800 (PST)
+        with ESMTP id S237762AbiKWJ24 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:28:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB50447307
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:27:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F997B81E5E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:37:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F8D0C433C1;
-        Wed, 23 Nov 2022 09:37:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 954C9B81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:27:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D5F9C433D6;
+        Wed, 23 Nov 2022 09:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196247;
-        bh=2m8LLEGJbLkwwTxqwEBxKbFXh8IYg7QgwVeifRWO8Mk=;
+        s=korg; t=1669195623;
+        bh=yOA/maDKMxR+3oqFJtz+fvzP8pXN59kHJ7DmH75AB4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pMw1adEyVm2/H/OJSidFTz1wxaS39bpw+2iZg7P43nEkuLQ26cmxlJ8aw5jkVyo9z
-         jbXsAzQ/HHX7EF6R/nDrlCoaWKibGyR/u3mW+wl5nHr6qD2zzZ9SNpTkDOD0p4CSlu
-         9NQk5oyYtEfp0LGTguJ3jXOjyYUo/uPI8K1m5HhE=
+        b=ZrgRJSffQLRT9GgUcNwOJ6PvWOkPganjUIGrLJeLuqF2E+tHeXhPqtBq3FPwZqPO3
+         9pDua0qiq/AafoSF98vfcPxvJRA2URxi0daH/envk+tr97T+wiTRV2DmzcR/W+P16a
+         jSHTggXNLvVkzp1xCaMguhJFRTG9dgo02ERt0otM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.15 158/181] nvme: ensure subsystem reset is single threaded
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 138/149] macvlan: enforce a consistent minimal mtu
 Date:   Wed, 23 Nov 2022 09:52:01 +0100
-Message-Id: <20221123084609.178182029@linuxfoundation.org>
+Message-Id: <20221123084602.902884815@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 1e866afd4bcdd01a70a5eddb4371158d3035ce03 upstream.
+commit b64085b00044bdf3cd1c9825e9ef5b2e0feae91a upstream.
 
-The subsystem reset writes to a register, so we have to ensure the
-device state is capable of handling that otherwise the driver may access
-unmapped registers. Use the state machine to ensure the subsystem reset
-doesn't try to write registers on a device already undergoing this type
-of reset.
+macvlan should enforce a minimal mtu of 68, even at link creation.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214771
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+This patch avoids the current behavior (which could lead to crashes
+in ipv6 stack if the link is brought up)
+
+$ ip link add macvlan1 link eno1 mtu 8 type macvlan  # This should fail !
+$ ip link sh dev macvlan1
+5: macvlan1@eno1: <BROADCAST,MULTICAST> mtu 8 qdisc noop
+    state DOWN mode DEFAULT group default qlen 1000
+    link/ether 02:47:6c:24:74:82 brd ff:ff:ff:ff:ff:ff
+$ ip link set macvlan1 mtu 67
+Error: mtu less than device minimum.
+$ ip link set macvlan1 mtu 68
+$ ip link set macvlan1 mtu 8
+Error: mtu less than device minimum.
+
+Fixes: 91572088e3fd ("net: use core MTU range checking in core net infra")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/nvme.h |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/net/macvlan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -558,11 +558,23 @@ static inline void nvme_fault_inject_fin
- static inline void nvme_should_fail(struct request *req) {}
- #endif
- 
-+bool nvme_wait_reset(struct nvme_ctrl *ctrl);
-+int nvme_try_sched_reset(struct nvme_ctrl *ctrl);
-+
- static inline int nvme_reset_subsystem(struct nvme_ctrl *ctrl)
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -1176,7 +1176,7 @@ void macvlan_common_setup(struct net_dev
  {
-+	int ret;
-+
- 	if (!ctrl->subsystem)
- 		return -ENOTTY;
--	return ctrl->ops->reg_write32(ctrl, NVME_REG_NSSR, 0x4E564D65);
-+	if (!nvme_wait_reset(ctrl))
-+		return -EBUSY;
-+
-+	ret = ctrl->ops->reg_write32(ctrl, NVME_REG_NSSR, 0x4E564D65);
-+	if (ret)
-+		return ret;
-+
-+	return nvme_try_sched_reset(ctrl);
- }
+ 	ether_setup(dev);
  
- /*
-@@ -650,7 +662,6 @@ void nvme_cancel_tagset(struct nvme_ctrl
- void nvme_cancel_admin_tagset(struct nvme_ctrl *ctrl);
- bool nvme_change_ctrl_state(struct nvme_ctrl *ctrl,
- 		enum nvme_ctrl_state new_state);
--bool nvme_wait_reset(struct nvme_ctrl *ctrl);
- int nvme_disable_ctrl(struct nvme_ctrl *ctrl);
- int nvme_enable_ctrl(struct nvme_ctrl *ctrl);
- int nvme_shutdown_ctrl(struct nvme_ctrl *ctrl);
-@@ -734,7 +745,6 @@ int nvme_set_queue_count(struct nvme_ctr
- void nvme_stop_keep_alive(struct nvme_ctrl *ctrl);
- int nvme_reset_ctrl(struct nvme_ctrl *ctrl);
- int nvme_reset_ctrl_sync(struct nvme_ctrl *ctrl);
--int nvme_try_sched_reset(struct nvme_ctrl *ctrl);
- int nvme_delete_ctrl(struct nvme_ctrl *ctrl);
- void nvme_queue_scan(struct nvme_ctrl *ctrl);
- int nvme_get_log(struct nvme_ctrl *ctrl, u32 nsid, u8 log_page, u8 lsp, u8 csi,
+-	dev->min_mtu		= 0;
++	/* ether_setup() has set dev->min_mtu to ETH_MIN_MTU. */
+ 	dev->max_mtu		= ETH_MAX_MTU;
+ 	dev->priv_flags	       &= ~IFF_TX_SKB_SHARING;
+ 	netif_keep_dst(dev);
 
 
