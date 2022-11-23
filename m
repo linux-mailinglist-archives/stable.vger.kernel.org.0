@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5074D6355EA
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:27:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33151635722
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237463AbiKWJZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:25:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36498 "EHLO
+        id S238023AbiKWJiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:38:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237469AbiKWJYr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:24:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75C148FF8F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:23:20 -0800 (PST)
+        with ESMTP id S238026AbiKWJhp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C6A913FAD
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BE5D8CE20DB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:23:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CC22C433C1;
-        Wed, 23 Nov 2022 09:23:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F02E561B65
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00B1DC433C1;
+        Wed, 23 Nov 2022 09:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195397;
-        bh=r7TCqYdhccG16jbLPuh3M3onDTOS79O2F0bXMmexU1A=;
+        s=korg; t=1669196151;
+        bh=bEJp0eN4Xyj/drU/WKRhmg9hOTg0irbKme0KMCkZ76Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cwq/DgPJvKzemmvXlfblQEUWIprj42d0VCjnDensHg7PvlUrSs0S0/KiXRuBtdnnY
-         j3D24kNYo4nh42ApVfueK7bUc6rfcKUENhitca/FDQhOSKlgP+QIcFHgztFIwGwxBx
-         PFcxSABOk73VYyKZvEIEB4IPg6HMH5MbGivP8Ajo=
+        b=w12Wl4dDbheJ8cS9jtlu/8iNjZU/MpSmDUPEv6oA9ZEX6laMriSmm2xq2vI0SgLHt
+         c41ljrUwi8pvXd8vJN6k7MEEnIpYpyO65F2tuY7AGHDx1cfDe3vtUpP18ncNjQoTZl
+         sSCB31X/0Unnx4yQky2k+TOR3WHeMeDItt+iOwhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +35,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Shay Agroskin <shayagr@amazon.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/149] net: ena: Fix error handling in ena_init()
+Subject: [PATCH 5.15 093/181] net: ena: Fix error handling in ena_init()
 Date:   Wed, 23 Nov 2022 09:50:56 +0100
-Message-Id: <20221123084600.507946700@linuxfoundation.org>
+Message-Id: <20221123084606.334700379@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -74,10 +75,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 52414ac2c901..1722d4091ea3 100644
+index 8f08e0bae300..f032e58a4c3c 100644
 --- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
 +++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -4488,13 +4488,19 @@ static struct pci_driver ena_pci_driver = {
+@@ -4583,13 +4583,19 @@ static struct pci_driver ena_pci_driver = {
  
  static int __init ena_init(void)
  {
