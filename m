@@ -2,98 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FB34635919
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C44635650
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236774AbiKWKGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:06:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33460 "EHLO
+        id S237750AbiKWJaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:30:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235763AbiKWKFn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:05:43 -0500
+        with ESMTP id S237754AbiKWJ3k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:29:40 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B47D12520C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 902C18EB72
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:28:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C72D61B40
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5343DC433D6;
-        Wed, 23 Nov 2022 09:56:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51B0361B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:28:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD37AC433D7;
+        Wed, 23 Nov 2022 09:28:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197374;
-        bh=otipebz5FZOSrM673V+MVCBljUMUVYaq2rOyzdBOFmY=;
+        s=korg; t=1669195688;
+        bh=4wo/w9JKvQ1JwILnmjIRqQEkvwcUj/vMy/ZQWq6SqMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UoQDVkYtigBT9hcfhnKavG4JSuWX/5+U7DYtq70KbatJ4kJe3OidoOhIYYtKeca3j
-         lS2roGRY47wvtG/JAniZDH5m6Rj5+7N/E7IJV5yPDQbIj45X29lVdr/EVbhkwdkxtJ
-         a0aQ0NYRWfFAwbRwNtubHYHt4GaJ8CBlOtFoNZtc=
+        b=VzpFGmP0vd2saPgi+9OFCionjTOf8VoDpHlv9GaTHvvZ1OJUK6c1uyf4u/bWWFVig
+         QAvL2/r83xwtu4KGTASQ9AiTSaRkcI2qu1QP9XTyLzu7LBih6pZfVREbTR8UmR8n2A
+         VNjadyx2U0RZ+Mi7v9PZmxO8bu6fpsqEiHE5LQio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yann Gautier <yann.gautier@foss.st.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.0 269/314] mmc: core: properly select voltage range without power cycle
-Date:   Wed, 23 Nov 2022 09:51:54 +0100
-Message-Id: <20221123084637.715300081@linuxfoundation.org>
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 132/149] net: use struct_group to copy ip/ipv6 header addresses
+Date:   Wed, 23 Nov 2022 09:51:55 +0100
+Message-Id: <20221123084602.677943392@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yann Gautier <yann.gautier@foss.st.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit 39a72dbfe188291b156dd6523511e3d5761ce775 upstream.
+[ Upstream commit 58e0be1ef6118c5352b56a4d06e974c5599993a5 ]
 
-In mmc_select_voltage(), if there is no full power cycle, the voltage
-range selected at the end of the function will be on a single range
-(e.g. 3.3V/3.4V). To keep a range around the selected voltage (3.2V/3.4V),
-the mask shift should be reduced by 1.
+kernel test robot reported warnings when build bonding module with
+make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash drivers/net/bonding/:
 
-This issue was triggered by using a specific SD-card (Verbatim Premium
-16GB UHS-1) on an STM32MP157C-DK2 board. This board cannot do UHS modes
-and there is no power cycle. And the card was failing to switch to
-high-speed mode. When adding the range 3.2V/3.3V for this card with the
-proposed shift change, the card can switch to high-speed mode.
+                 from ../drivers/net/bonding/bond_main.c:35:
+In function ‘fortify_memcpy_chk’,
+    inlined from ‘iph_to_flow_copy_v4addrs’ at ../include/net/ip.h:566:2,
+    inlined from ‘bond_flow_ip’ at ../drivers/net/bonding/bond_main.c:3984:3:
+../include/linux/fortify-string.h:413:25: warning: call to ‘__read_overflow2_field’ declared with attribute warning: detected read beyond size of f
+ield (2nd parameter); maybe use struct_group()? [-Wattribute-warning]
+  413 |                         __read_overflow2_field(q_size_field, size);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function ‘fortify_memcpy_chk’,
+    inlined from ‘iph_to_flow_copy_v6addrs’ at ../include/net/ipv6.h:900:2,
+    inlined from ‘bond_flow_ip’ at ../drivers/net/bonding/bond_main.c:3994:3:
+../include/linux/fortify-string.h:413:25: warning: call to ‘__read_overflow2_field’ declared with attribute warning: detected read beyond size of f
+ield (2nd parameter); maybe use struct_group()? [-Wattribute-warning]
+  413 |                         __read_overflow2_field(q_size_field, size);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Fixes: ce69d37b7d8f ("mmc: core: Prevent violation of specs while initializing cards")
-Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221028073740.7259-1-yann.gautier@foss.st.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is because we try to copy the whole ip/ip6 address to the flow_key,
+while we only point the to ip/ip6 saddr. Note that since these are UAPI
+headers, __struct_group() is used to avoid the compiler warnings.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: c3f8324188fa ("net: Add full IPv6 addresses to flow_keys")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Link: https://lore.kernel.org/r/20221115142400.1204786-1-liuhangbin@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/core.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ include/net/ip.h          | 2 +-
+ include/net/ipv6.h        | 2 +-
+ include/uapi/linux/ip.h   | 6 ++++--
+ include/uapi/linux/ipv6.h | 6 ++++--
+ 4 files changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/mmc/core/core.c
-+++ b/drivers/mmc/core/core.c
-@@ -1134,7 +1134,13 @@ u32 mmc_select_voltage(struct mmc_host *
- 		mmc_power_cycle(host, ocr);
- 	} else {
- 		bit = fls(ocr) - 1;
--		ocr &= 3 << bit;
-+		/*
-+		 * The bit variable represents the highest voltage bit set in
-+		 * the OCR register.
-+		 * To keep a range of 2 values (e.g. 3.2V/3.3V and 3.3V/3.4V),
-+		 * we must shift the mask '3' with (bit - 1).
-+		 */
-+		ocr &= 3 << (bit - 1);
- 		if (bit != host->ios.vdd)
- 			dev_warn(mmc_dev(host), "exceeding card's volts\n");
- 	}
+diff --git a/include/net/ip.h b/include/net/ip.h
+index c5822d7824cd..4b775af57268 100644
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -545,7 +545,7 @@ static inline void iph_to_flow_copy_v4addrs(struct flow_keys *flow,
+ 	BUILD_BUG_ON(offsetof(typeof(flow->addrs), v4addrs.dst) !=
+ 		     offsetof(typeof(flow->addrs), v4addrs.src) +
+ 			      sizeof(flow->addrs.v4addrs.src));
+-	memcpy(&flow->addrs.v4addrs, &iph->saddr, sizeof(flow->addrs.v4addrs));
++	memcpy(&flow->addrs.v4addrs, &iph->addrs, sizeof(flow->addrs.v4addrs));
+ 	flow->control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
+ }
+ 
+diff --git a/include/net/ipv6.h b/include/net/ipv6.h
+index 60601896d474..89ce8a50f236 100644
+--- a/include/net/ipv6.h
++++ b/include/net/ipv6.h
+@@ -842,7 +842,7 @@ static inline void iph_to_flow_copy_v6addrs(struct flow_keys *flow,
+ 	BUILD_BUG_ON(offsetof(typeof(flow->addrs), v6addrs.dst) !=
+ 		     offsetof(typeof(flow->addrs), v6addrs.src) +
+ 		     sizeof(flow->addrs.v6addrs.src));
+-	memcpy(&flow->addrs.v6addrs, &iph->saddr, sizeof(flow->addrs.v6addrs));
++	memcpy(&flow->addrs.v6addrs, &iph->addrs, sizeof(flow->addrs.v6addrs));
+ 	flow->control.addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
+ }
+ 
+diff --git a/include/uapi/linux/ip.h b/include/uapi/linux/ip.h
+index e42d13b55cf3..d2f143393780 100644
+--- a/include/uapi/linux/ip.h
++++ b/include/uapi/linux/ip.h
+@@ -100,8 +100,10 @@ struct iphdr {
+ 	__u8	ttl;
+ 	__u8	protocol;
+ 	__sum16	check;
+-	__be32	saddr;
+-	__be32	daddr;
++	__struct_group(/* no tag */, addrs, /* no attrs */,
++		__be32	saddr;
++		__be32	daddr;
++	);
+ 	/*The options start here. */
+ };
+ 
+diff --git a/include/uapi/linux/ipv6.h b/include/uapi/linux/ipv6.h
+index 13e8751bf24a..766ab5c8ee65 100644
+--- a/include/uapi/linux/ipv6.h
++++ b/include/uapi/linux/ipv6.h
+@@ -130,8 +130,10 @@ struct ipv6hdr {
+ 	__u8			nexthdr;
+ 	__u8			hop_limit;
+ 
+-	struct	in6_addr	saddr;
+-	struct	in6_addr	daddr;
++	__struct_group(/* no tag */, addrs, /* no attrs */,
++		struct	in6_addr	saddr;
++		struct	in6_addr	daddr;
++	);
+ };
+ 
+ 
+-- 
+2.35.1
+
 
 
