@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7443635838
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:52:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1240963550B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236479AbiKWJwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:52:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43984 "EHLO
+        id S237207AbiKWJMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:12:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237138AbiKWJvW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:51:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED56A56EC0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:48:33 -0800 (PST)
+        with ESMTP id S237254AbiKWJMC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:12:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 364E0105AB7
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:11:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB476B81E60
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:48:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0514C433C1;
-        Wed, 23 Nov 2022 09:48:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCD1861B10
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:11:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB81EC433D6;
+        Wed, 23 Nov 2022 09:11:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196911;
-        bh=6TDrox1pFcyPxL42kEX1fUpLGFpDOc7GVAip7FwfN6o=;
+        s=korg; t=1669194717;
+        bh=WPdsSyHXSMGlDKvu9WpZHFxwiKQwr6xg09XRJX9Erxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E9TOmVTxE/rlenV4qErxS57j0x3zf+KroQF1HIXoSqw0KYOWzaXcb1e7vKPjr9d8F
-         8jXFhbvR12xK1Cl7N6o0Evjp9PAM/SzZVNUNcooqNJUEcF7rPoEcMDwuafUG81Sb+A
-         wbvbe/QAhumiqchAsns5LaWb94iOTBKY9CSEVzrk=
+        b=OufCgTqUJlP5C+5DSqr76YHv3Q0VW+5o4d6ItEXhxdkEjsqcxP9zfiJf5+Q47iFAt
+         9g8VhZtjG06/fC6JV35Dxv8ct5FtqqraNBrYI4YID4FNKIMtZQwQT/LHdc31Kpr7PD
+         GmNVWwIDIYtrcAH9ZcPHRUJZKfX25nHf9hIcjzaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiaolei Wang <xiaolei.wang@windriver.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 154/314] soc: imx8m: Enable OCOTP clock before reading the register
+        patches@lists.linux.dev, Brian Norris <briannorris@chromium.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 042/156] mmc: sdhci-tegra: Fix SDHCI_RESET_ALL for CQHCI
 Date:   Wed, 23 Nov 2022 09:49:59 +0100
-Message-Id: <20221123084632.548358688@linuxfoundation.org>
+Message-Id: <20221123084559.438579398@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolei Wang <xiaolei.wang@windriver.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 836fb30949d9edf91d7de696a884ceeae7e426d2 ]
+commit 836078449464e6af3b66ae6652dae79af176f21e upstream.
 
-Commit 7d981405d0fd ("soc: imx8m: change to use platform driver") ever
-removed the dependency on bootloader for enabling OCOTP clock.  It
-helped to fix a kexec kernel hang issue.  But unfortunately it caused
-a regression on CAAM driver and got reverted.
+[[ NOTE: this is completely untested by the author, but included solely
+    because, as noted in commit df57d73276b8 ("mmc: sdhci-pci: Fix
+    SDHCI_RESET_ALL for CQHCI for Intel GLK-based controllers"), "other
+    drivers using CQHCI might benefit from a similar change, if they
+    also have CQHCI reset by SDHCI_RESET_ALL." We've now seen the same
+    bug on at least MSM, Arasan, and Intel hardware. ]]
 
-This is the second try to enable the OCOTP clock by directly calling
-clock API instead of indirectly enabling the clock via nvmem API.
+SDHCI_RESET_ALL resets will reset the hardware CQE state, but we aren't
+tracking that properly in software. When out of sync, we may trigger
+various timeouts.
 
-Fixes: ac34de14ac30 ("Revert "soc: imx8m: change to use platform driver"")
-Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It's not typical to perform resets while CQE is enabled, but this may
+occur in some suspend or error recovery scenarios.
+
+Include this fix by way of the new sdhci_and_cqhci_reset() helper.
+
+This patch depends on (and should not compile without) the patch
+entitled "mmc: cqhci: Provide helper for resetting both SDHCI and
+CQHCI".
+
+Fixes: 3c4019f97978 ("mmc: tegra: HW Command Queue Support for Tegra SDMMC")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221026124150.v4.5.I418c9eaaf754880fcd2698113e8c3ef821a944d7@changeid
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/imx/soc-imx8m.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/mmc/host/sdhci-tegra.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/soc/imx/soc-imx8m.c b/drivers/soc/imx/soc-imx8m.c
-index cc57a384d74d..28144c699b0c 100644
---- a/drivers/soc/imx/soc-imx8m.c
-+++ b/drivers/soc/imx/soc-imx8m.c
-@@ -11,6 +11,7 @@
- #include <linux/platform_device.h>
- #include <linux/arm-smccc.h>
- #include <linux/of.h>
-+#include <linux/clk.h>
+--- a/drivers/mmc/host/sdhci-tegra.c
++++ b/drivers/mmc/host/sdhci-tegra.c
+@@ -24,6 +24,7 @@
+ #include <linux/gpio/consumer.h>
+ #include <linux/ktime.h>
  
- #define REV_B1				0x21
++#include "sdhci-cqhci.h"
+ #include "sdhci-pltfm.h"
+ #include "cqhci.h"
  
-@@ -56,6 +57,7 @@ static u32 __init imx8mq_soc_revision(void)
- 	void __iomem *ocotp_base;
- 	u32 magic;
- 	u32 rev;
-+	struct clk *clk;
+@@ -347,7 +348,7 @@ static void tegra_sdhci_reset(struct sdh
+ 	const struct sdhci_tegra_soc_data *soc_data = tegra_host->soc_data;
+ 	u32 misc_ctrl, clk_ctrl, pad_ctrl;
  
- 	np = of_find_compatible_node(NULL, NULL, "fsl,imx8mq-ocotp");
- 	if (!np)
-@@ -63,6 +65,13 @@ static u32 __init imx8mq_soc_revision(void)
+-	sdhci_reset(host, mask);
++	sdhci_and_cqhci_reset(host, mask);
  
- 	ocotp_base = of_iomap(np, 0);
- 	WARN_ON(!ocotp_base);
-+	clk = of_clk_get_by_name(np, NULL);
-+	if (!clk) {
-+		WARN_ON(!clk);
-+		return 0;
-+	}
-+
-+	clk_prepare_enable(clk);
- 
- 	/*
- 	 * SOC revision on older imx8mq is not available in fuses so query
-@@ -79,6 +88,8 @@ static u32 __init imx8mq_soc_revision(void)
- 	soc_uid <<= 32;
- 	soc_uid |= readl_relaxed(ocotp_base + OCOTP_UID_LOW);
- 
-+	clk_disable_unprepare(clk);
-+	clk_put(clk);
- 	iounmap(ocotp_base);
- 	of_node_put(np);
- 
--- 
-2.35.1
-
+ 	if (!(mask & SDHCI_RESET_ALL))
+ 		return;
 
 
