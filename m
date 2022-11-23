@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E3446354D7
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:12:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A06D635803
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:49:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237195AbiKWJLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:11:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51170 "EHLO
+        id S238217AbiKWJtb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:49:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237155AbiKWJLR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:11:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0026622BF4
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:11:16 -0800 (PST)
+        with ESMTP id S235880AbiKWJsz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:48:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D10A5E3D22
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:46:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89970B81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:11:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC758C433D6;
-        Wed, 23 Nov 2022 09:11:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7E91B81EF3
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00675C433C1;
+        Wed, 23 Nov 2022 09:45:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194674;
-        bh=UZRt8IoWPhF7g7NjvxY+QSSbykdytTRY1M0UPlzj3+w=;
+        s=korg; t=1669196760;
+        bh=vYjTcDxjUZro+fLletC+0gecwRNWkga7YhOeS9UU+Hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CoM4lERC7raS68+xW7nbXgMd67CnspaSoElod8sk17wPuEufuSiN5CxcM+aHGtc6D
-         1e0UgJKfFEE4WMpmzI0IGntasrfNRRSbqQHbX7O4K4H/c7Sder+kG30zezushFQ89I
-         JKItRBndzftWkDwnjCl2B+cHtFIpQsxyI35dwP+U=
+        b=xwutitYoLa8/hPQVD/PONelckHAKd+kZLHs+U4y5NTZxwYMuaxxFRYbkP2LzdtsNr
+         2PFgztUr1sOZ/EKjW0RiXdtqC2bx7f3fz2zKZ9j61TWkljE5HNM3SIeyN5snMxNHzk
+         JBKWndh6fC2H3+8tZ5dSHu8oGJ7QLCzRlH2ilI0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dave Chinner <dchinner@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Chandan Babu R <chandan.babu@oracle.com>
-Subject: [PATCH 5.4 004/156] xfs: use MMAPLOCK around filemap_map_pages()
-Date:   Wed, 23 Nov 2022 09:49:21 +0100
-Message-Id: <20221123084558.001361802@linuxfoundation.org>
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 117/314] bpf: Fix memory leaks in __check_func_call
+Date:   Wed, 23 Nov 2022 09:49:22 +0100
+Message-Id: <20221123084630.811659605@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,64 +53,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-commit cd647d5651c0b0deaa26c1acb9e1789437ba9bc7 upstream.
+[ Upstream commit eb86559a691cea5fa63e57a03ec3dc9c31e97955 ]
 
-The page faultround path ->map_pages is implemented in XFS via
-filemap_map_pages(). This function checks that pages found in page
-cache lookups have not raced with truncate based invalidation by
-checking page->mapping is correct and page->index is within EOF.
+kmemleak reports this issue:
 
-However, we've known for a long time that this is not sufficient to
-protect against races with invalidations done by operations that do
-not change EOF. e.g. hole punching and other fallocate() based
-direct extent manipulations. The way we protect against these
-races is we wrap the page fault operations in a XFS_MMAPLOCK_SHARED
-lock so they serialise against fallocate and truncate before calling
-into the filemap function that processes the fault.
+unreferenced object 0xffff88817139d000 (size 2048):
+  comm "test_progs", pid 33246, jiffies 4307381979 (age 45851.820s)
+  hex dump (first 32 bytes):
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000045f075f0>] kmalloc_trace+0x27/0xa0
+    [<0000000098b7c90a>] __check_func_call+0x316/0x1230
+    [<00000000b4c3c403>] check_helper_call+0x172e/0x4700
+    [<00000000aa3875b7>] do_check+0x21d8/0x45e0
+    [<000000001147357b>] do_check_common+0x767/0xaf0
+    [<00000000b5a595b4>] bpf_check+0x43e3/0x5bc0
+    [<0000000011e391b1>] bpf_prog_load+0xf26/0x1940
+    [<0000000007f765c0>] __sys_bpf+0xd2c/0x3650
+    [<00000000839815d6>] __x64_sys_bpf+0x75/0xc0
+    [<00000000946ee250>] do_syscall_64+0x3b/0x90
+    [<0000000000506b7f>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Do the same for XFS's ->map_pages implementation to close this
-potential data corruption issue.
+The root case here is: In function prepare_func_exit(), the callee is
+not released in the abnormal scenario after "state->curframe--;". To
+fix, move "state->curframe--;" to the very bottom of the function,
+right when we free callee and reset frame[] pointer to NULL, as Andrii
+suggested.
 
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In addition, function __check_func_call() has a similar problem. In
+the abnormal scenario before "state->curframe++;", the callee also
+should be released by free_func_state().
+
+Fixes: 69c087ba6225 ("bpf: Add bpf_for_each_map_elem() helper")
+Fixes: fd978bf7fd31 ("bpf: Add reference tracking to verifier")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Link: https://lore.kernel.org/r/1667884291-15666-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_file.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ kernel/bpf/verifier.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/fs/xfs/xfs_file.c
-+++ b/fs/xfs/xfs_file.c
-@@ -1267,10 +1267,23 @@ xfs_filemap_pfn_mkwrite(
- 	return __xfs_filemap_fault(vmf, PE_SIZE_PTE, true);
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 69fb46fdf763..b781075dd510 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -6674,11 +6674,11 @@ static int __check_func_call(struct bpf_verifier_env *env, struct bpf_insn *insn
+ 	/* Transfer references to the callee */
+ 	err = copy_reference_state(callee, caller);
+ 	if (err)
+-		return err;
++		goto err_out;
+ 
+ 	err = set_callee_state_cb(env, caller, callee, *insn_idx);
+ 	if (err)
+-		return err;
++		goto err_out;
+ 
+ 	clear_caller_saved_regs(env, caller->regs);
+ 
+@@ -6695,6 +6695,11 @@ static int __check_func_call(struct bpf_verifier_env *env, struct bpf_insn *insn
+ 		print_verifier_state(env, callee, true);
+ 	}
+ 	return 0;
++
++err_out:
++	free_func_state(callee);
++	state->frame[state->curframe + 1] = NULL;
++	return err;
  }
  
-+static void
-+xfs_filemap_map_pages(
-+	struct vm_fault		*vmf,
-+	pgoff_t			start_pgoff,
-+	pgoff_t			end_pgoff)
-+{
-+	struct inode		*inode = file_inode(vmf->vma->vm_file);
-+
-+	xfs_ilock(XFS_I(inode), XFS_MMAPLOCK_SHARED);
-+	filemap_map_pages(vmf, start_pgoff, end_pgoff);
-+	xfs_iunlock(XFS_I(inode), XFS_MMAPLOCK_SHARED);
-+}
-+
- static const struct vm_operations_struct xfs_file_vm_ops = {
- 	.fault		= xfs_filemap_fault,
- 	.huge_fault	= xfs_filemap_huge_fault,
--	.map_pages	= filemap_map_pages,
-+	.map_pages	= xfs_filemap_map_pages,
- 	.page_mkwrite	= xfs_filemap_page_mkwrite,
- 	.pfn_mkwrite	= xfs_filemap_pfn_mkwrite,
- };
+ int map_set_for_each_callback_args(struct bpf_verifier_env *env,
+@@ -6880,8 +6885,7 @@ static int prepare_func_exit(struct bpf_verifier_env *env, int *insn_idx)
+ 		return -EINVAL;
+ 	}
+ 
+-	state->curframe--;
+-	caller = state->frame[state->curframe];
++	caller = state->frame[state->curframe - 1];
+ 	if (callee->in_callback_fn) {
+ 		/* enforce R0 return value range [0, 1]. */
+ 		struct tnum range = tnum_range(0, 1);
+@@ -6920,7 +6924,7 @@ static int prepare_func_exit(struct bpf_verifier_env *env, int *insn_idx)
+ 	}
+ 	/* clear everything in the callee */
+ 	free_func_state(callee);
+-	state->frame[state->curframe + 1] = NULL;
++	state->frame[state->curframe--] = NULL;
+ 	return 0;
+ }
+ 
+-- 
+2.35.1
+
 
 
