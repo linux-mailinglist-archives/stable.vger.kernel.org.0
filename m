@@ -2,74 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9036C636676
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 18:03:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECEB26367AE
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 18:53:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237705AbiKWRDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 12:03:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53528 "EHLO
+        id S239220AbiKWRx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 12:53:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236541AbiKWRDZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 12:03:25 -0500
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 841CA25D1;
-        Wed, 23 Nov 2022 09:03:24 -0800 (PST)
-Received: by mail-oi1-x229.google.com with SMTP id q83so19631825oib.10;
-        Wed, 23 Nov 2022 09:03:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Xvt9NMUMshKq6vZrNophFamB+BPLohd5Icmfx4xFrM8=;
-        b=bm9/oOvAW0+K3TJJ7Gj5sl3POoljrlM5fVEpGzyPYDn4OCbo2EeE67VBrIOriN/jqg
-         ht41OZVqCMlusFwyludo9TG2r5836OGVFluTeXayWnJN3BwV1XlA3NC5EVlIkCH5gHPJ
-         HN27HGz0DIoa4TEqjlB9O3zEO5gvarItsEocQ3K+jerWc0/bh90xxvNYnOYfAv/nSFQw
-         gMQOc6drXwiicuWIoc7v0eKNzPfOY3raHDwtA6vTKMmZbIBh/28u++jjNJblBh8RKK07
-         Io7YWkQaVhSTvIaweIs8MKe40rxEWQFmw7loCuk+6YlBZZUerx9FXPWKZgeSKXnez3Nu
-         U+mg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Xvt9NMUMshKq6vZrNophFamB+BPLohd5Icmfx4xFrM8=;
-        b=6L3rxPJMpOBZyxIH0mTPnahaBzVr1YgnbhcxYGpPWb1+MemObpznsx6NY5aCNT0qUY
-         Hi6EMGuLJoN+crUpcHSpWfcBJABi3Cup1+YgsM94VuXRc+8jOXjzdIwjXM8ta9d/vUeR
-         q45l8/GCEVXywGtiGdQgH02j66ZKXlGd8OhcPlSFQ/bwSg6dzftU14u+6bxLrfDWRV9y
-         UxV4yHgPnv9YT7vcMopdpE1M4kopz/1vZvG4S9Wm4dyTb0tPY4Pop+MtmCmV3T6OuZSG
-         DmNNwXl+uV78SLq7mjFpSL5tbA1wNP/HWcNlUkm4Jx+kIbKCUtEnjK/ltXARKkIVs6p7
-         eiEg==
-X-Gm-Message-State: ANoB5pkKT3EQ6DOpx6OExzpWSrMQSCW6UdQexLz7bzWIdWkS/s5vu4qK
-        CrGEnEI55tH74eMl3L9jER0=
-X-Google-Smtp-Source: AA0mqf5wBlGvPRLvp/pTWhAa3z7dqWlSRK2KNfpsujr/Ynf5V+BHlGBDdSDKcoDbs2wesz+bqx1Fbw==
-X-Received: by 2002:a05:6808:1115:b0:359:cb71:328b with SMTP id e21-20020a056808111500b00359cb71328bmr14023971oih.282.1669223003837;
-        Wed, 23 Nov 2022 09:03:23 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id s8-20020a056870248800b001431bf4e5a0sm2090707oaq.38.2022.11.23.09.03.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Nov 2022 09:03:23 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 23 Nov 2022 09:03:22 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.0 000/314] 6.0.10-rc1 review
-Message-ID: <20221123170322.GB3745358@roeck-us.net>
-References: <20221123084625.457073469@linuxfoundation.org>
+        with ESMTP id S239159AbiKWRx1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 12:53:27 -0500
+X-Greylist: delayed 83 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 23 Nov 2022 09:53:22 PST
+Received: from wedge010.net.lu.se (wedge010.net.lu.se [130.235.56.200])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4EF0532F6;
+        Wed, 23 Nov 2022 09:53:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; d=control.lth.se; s=edge;
+        c=relaxed/relaxed; t=1669225831; h=from:subject:to:date:message-id;
+        bh=NXkC0w2qN7VbeeKptq9p/JRTcNBvFhYe5qpUNxa79Bo=;
+        b=ilRKbS3EatBmhFqVqO++b0HSTfTjjsmqR7DOnB1eeU4ZXh5ap8a3oQ1zppbrp/4qOp7FKbBqC2K
+        HUUq1oPrTounI53EdJ/L1C7KVrioPUQggULqnG0EFga4/UoGpcVt3gDylT/ANY0WslYSa41EvfI5M
+        rFHKtNP62USTk8Edg2Qx+oOX2F/xUTj7VYx7G7JQ+Opwn27HzR8igi2qLx4EyKRMZ3j8IkpGYuz1w
+        0mCpkIUdhG0u7z+FiFvQF/nq3GaWlodrkjyy25/7Vv+i6uFWdkUfNBtC1cHTKPQdmDAad1QaXu/4V
+        J7ZB59Vr06JymhC8KxEuBgeSZDal2vF6sIEg==
+Received: from wexc007.uw.lu.se (130.235.59.251) by mail.lu.se
+ (130.235.56.200) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P256) id 15.1.2507.13; Wed, 23
+ Nov 2022 18:50:25 +0100
+Received: from [130.235.83.196] (130.235.139.100) by wexc007.uw.lu.se
+ (130.235.59.251) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P521) id 15.1.2507.13; Wed, 23
+ Nov 2022 18:50:11 +0100
+Message-ID: <ba550d60-7fd2-a68f-0ea1-798fd9eb3315@control.lth.se>
+Date:   Wed, 23 Nov 2022 18:50:10 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Content-Language: en-US
+From:   Anders Blomdell <anders.blomdell@control.lth.se>
+Subject: [PATCH 1/1] Make nfsd_splice_actor work with reads with a non-zero
+ offset that doesn't end on a page boundary
+To:     Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        "Al Viro" <viro@zeniv.linux.org.uk>
+CC:     <linux-nfs@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [130.235.139.100]
+X-ClientProxiedBy: wexc009.uw.lu.se (130.235.59.253) To wexc007.uw.lu.se
+ (130.235.59.251)
+X-CrossPremisesHeadersFilteredBySendConnector: wexc007.uw.lu.se
+X-OrganizationHeadersPreserved: wexc007.uw.lu.se
+Received-SPF: Pass (wedge010.net.lu.se: domain of
+ anders.blomdell@control.lth.se designates 130.235.59.251 as permitted sender)
+ receiver=wedge010.net.lu.se; client-ip=130.235.59.251; helo=wexc007.uw.lu.se;
+X-CrossPremisesHeadersFilteredBySendConnector: wedge010.net.lu.se
+X-OrganizationHeadersPreserved: wedge010.net.lu.se
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,24 +66,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 23, 2022 at 09:47:25AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.0.10 release.
-> There are 314 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 25 Nov 2022 08:45:20 +0000.
-> Anything received after that time might be too late.
-> 
+Make nfsd_splice_actor work with reads with a non-zero offset that doesn't end on a page boundary.
 
-Build reference: v6.0.9-315-gdcf677c
-Compiler version: arm-linux-gnueabi-gcc (GCC) 11.3.0
-Assembler version: GNU assembler (GNU Binutils) 2.39
+This was found when virtual machines with nfs-mounted qcow2 disks failed to boot properly (originally found
+on v6.0.5, fix also needed and tested on v6.0.9 and v6.1-rc6).
 
-Building arm:allmodconfig ... failed
---------------
-Error log:
-drivers/rtc/rtc-cmos.c:1347:13: error: 'rtc_wake_setup' defined but not used [-Werror=unused-function]
- 1347 | static void rtc_wake_setup(struct device *dev)
+Signed-off-by: Anders Blomdell <anders.blomdell@control.lth.se>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2142132
+Fixes: bfbfb6182ad1 "nfsd_splice_actor(): handle compound pages"
+Cc: stable@vger.kernel.org # v6.0+
 
-Guenter
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -873,7 +873,7 @@ nfsd_splice_actor(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
+         unsigned offset = buf->offset;
+  
+         page += offset / PAGE_SIZE;
+-       for (int i = sd->len; i > 0; i -= PAGE_SIZE)
++       for (int i = sd->len + offset % PAGE_SIZE; i > 0; i -= PAGE_SIZE)
+                 svc_rqst_replace_page(rqstp, page++);
+         if (rqstp->rq_res.page_len == 0)        // first call
+                 rqstp->rq_res.page_base = offset % PAGE_SIZE;
+
+
+-- 
+Anders Blomdell                  Email: anders.blomdell@control.lth.se
+Department of Automatic Control
+Lund University                  Phone:    +46 46 222 4625
+P.O. Box 118
+SE-221 00 Lund, Sweden
