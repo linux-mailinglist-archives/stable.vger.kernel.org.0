@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A3636354CE
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D58AC635588
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237150AbiKWJJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:09:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49856 "EHLO
+        id S237376AbiKWJSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:18:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237105AbiKWJJk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:09:40 -0500
+        with ESMTP id S237384AbiKWJSP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:18:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8303A19026
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:09:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 719E742995
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:17:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D3A361B14
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:09:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04D71C433D6;
-        Wed, 23 Nov 2022 09:09:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CFDF61B4C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:17:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F1E0C433C1;
+        Wed, 23 Nov 2022 09:17:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194578;
-        bh=Evs66yjHslM39+nI5Y1DpjlTKYID5kPPfKRBFM/MeIE=;
+        s=korg; t=1669195073;
+        bh=pjO5Ww3TUWclnNzgmIcwDjcDLFimvtMGdN2hlruu62Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNtSRBIhWqFO9QbUsQlnfZPaGhN2Hm3RnAaa525dVOE5NzLCNUicCuQUAebTVrihV
-         /6tmNBUcXbTmrPK9pyA5v51titfkRfvxo1kjQTWruWga9LxU6Q2vLeFxRArIF2IjSf
-         7gOrg5uZ4LEwuwRswTl9C5qFSRdG7j14iB9iezU0=
+        b=cMuZo9uA5XC2HL8J5SK0kK2jZLP8cn2jPNYw8hiS5a17044wbmHRz0Hoviwf/LZZC
+         SKS8vQfBq0q6FO/GrP6JQ2D3CcRPDmes1JsmsL/FInuvhuHIIUzkIbpMqVqde9AwgH
+         QNeIIicTVPx8mCSIhsv9dEFpjxbhD15NcRkr8Mv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Christian Schoenebeck <linux_oss@crudebyte.com>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 4.19 110/114] 9p/trans_fd: always use O_NONBLOCK read/write
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 140/156] ring-buffer: Include dropped pages in counting dirty patches
 Date:   Wed, 23 Nov 2022 09:51:37 +0100
-Message-Id: <20221123084556.070626002@linuxfoundation.org>
+Message-Id: <20221123084602.956479864@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit ef575281b21e9a34dfae544a187c6aac2ae424a9 upstream.
+[ Upstream commit 31029a8b2c7e656a0289194ef16415050ae4c4ac ]
 
-syzbot is reporting hung task at p9_fd_close() [1], for p9_mux_poll_stop()
- from p9_conn_destroy() from p9_fd_close() is failing to interrupt already
-started kernel_read() from p9_fd_read() from p9_read_work() and/or
-kernel_write() from p9_fd_write() from p9_write_work() requests.
+The function ring_buffer_nr_dirty_pages() was created to find out how many
+pages are filled in the ring buffer. There's two running counters. One is
+incremented whenever a new page is touched (pages_touched) and the other
+is whenever a page is read (pages_read). The dirty count is the number
+touched minus the number read. This is used to determine if a blocked task
+should be woken up if the percentage of the ring buffer it is waiting for
+is hit.
 
-Since p9_socket_open() sets O_NONBLOCK flag, p9_mux_poll_stop() does not
-need to interrupt kernel_read()/kernel_write(). However, since p9_fd_open()
-does not set O_NONBLOCK flag, but pipe blocks unless signal is pending,
-p9_mux_poll_stop() needs to interrupt kernel_read()/kernel_write() when
-the file descriptor refers to a pipe. In other words, pipe file descriptor
-needs to be handled as if socket file descriptor.
+The problem is that it does not take into account dropped pages (when the
+new writes overwrite pages that were not read). And then the dirty pages
+will always be greater than the percentage.
 
-We somehow need to interrupt kernel_read()/kernel_write() on pipes.
+This makes the "buffer_percent" file inaccurate, as the number of dirty
+pages end up always being larger than the percentage, event when it's not
+and this causes user space to be woken up more than it wants to be.
 
-A minimal change, which this patch is doing, is to set O_NONBLOCK flag
- from p9_fd_open(), for O_NONBLOCK flag does not affect reading/writing
-of regular files. But this approach changes O_NONBLOCK flag on userspace-
-supplied file descriptors (which might break userspace programs), and
-O_NONBLOCK flag could be changed by userspace. It would be possible to set
-O_NONBLOCK flag every time p9_fd_read()/p9_fd_write() is invoked, but still
-remains small race window for clearing O_NONBLOCK flag.
+Add a new counter to keep track of lost pages, and include that in the
+accounting of dirty pages so that it is actually accurate.
 
-If we don't want to manipulate O_NONBLOCK flag, we might be able to
-surround kernel_read()/kernel_write() with set_thread_flag(TIF_SIGPENDING)
-and recalc_sigpending(). Since p9_read_work()/p9_write_work() works are
-processed by kernel threads which process global system_wq workqueue,
-signals could not be delivered from remote threads when p9_mux_poll_stop()
- from p9_conn_destroy() from p9_fd_close() is called. Therefore, calling
-set_thread_flag(TIF_SIGPENDING)/recalc_sigpending() every time would be
-needed if we count on signals for making kernel_read()/kernel_write()
-non-blocking.
+Link: https://lkml.kernel.org/r/20221021123013.55fb6055@gandalf.local.home
 
-Link: https://lkml.kernel.org/r/345de429-a88b-7097-d177-adecf9fed342@I-love.SAKURA.ne.jp
-Link: https://syzkaller.appspot.com/bug?extid=8b41a1365f1106fd0f33 [1]
-Reported-by: syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+8b41a1365f1106fd0f33@syzkaller.appspotmail.com>
-Reviewed-by: Christian Schoenebeck <linux_oss@crudebyte.com>
-[Dominique: add comment at Christian's suggestion]
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2c2b0a78b3739 ("ring-buffer: Add percentage of ring buffer full to wake up reader")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_fd.c |    3 +++
- 1 file changed, 3 insertions(+)
+ kernel/trace/ring_buffer.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -836,11 +836,14 @@ static int p9_fd_open(struct p9_client *
- 		goto out_free_ts;
- 	if (!(ts->rd->f_mode & FMODE_READ))
- 		goto out_put_rd;
-+	/* prevent workers from hanging on IO when fd is a pipe */
-+	ts->rd->f_flags |= O_NONBLOCK;
- 	ts->wr = fget(wfd);
- 	if (!ts->wr)
- 		goto out_put_rd;
- 	if (!(ts->wr->f_mode & FMODE_WRITE))
- 		goto out_put_wr;
-+	ts->wr->f_flags |= O_NONBLOCK;
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index f1dd405b98a5..c4234430afea 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -477,6 +477,7 @@ struct ring_buffer_per_cpu {
+ 	local_t				committing;
+ 	local_t				commits;
+ 	local_t				pages_touched;
++	local_t				pages_lost;
+ 	local_t				pages_read;
+ 	long				last_pages_touch;
+ 	size_t				shortest_full;
+@@ -544,10 +545,18 @@ size_t ring_buffer_nr_pages(struct ring_buffer *buffer, int cpu)
+ size_t ring_buffer_nr_dirty_pages(struct ring_buffer *buffer, int cpu)
+ {
+ 	size_t read;
++	size_t lost;
+ 	size_t cnt;
  
- 	client->trans = ts;
- 	client->status = Connected;
+ 	read = local_read(&buffer->buffers[cpu]->pages_read);
++	lost = local_read(&buffer->buffers[cpu]->pages_lost);
+ 	cnt = local_read(&buffer->buffers[cpu]->pages_touched);
++
++	if (WARN_ON_ONCE(cnt < lost))
++		return 0;
++
++	cnt -= lost;
++
+ 	/* The reader can read an empty page, but not more than that */
+ 	if (cnt < read) {
+ 		WARN_ON_ONCE(read > cnt + 1);
+@@ -1599,6 +1608,7 @@ rb_remove_pages(struct ring_buffer_per_cpu *cpu_buffer, unsigned long nr_pages)
+ 			 */
+ 			local_add(page_entries, &cpu_buffer->overrun);
+ 			local_sub(BUF_PAGE_SIZE, &cpu_buffer->entries_bytes);
++			local_inc(&cpu_buffer->pages_lost);
+ 		}
+ 
+ 		/*
+@@ -2023,6 +2033,7 @@ rb_handle_head_page(struct ring_buffer_per_cpu *cpu_buffer,
+ 		 */
+ 		local_add(entries, &cpu_buffer->overrun);
+ 		local_sub(BUF_PAGE_SIZE, &cpu_buffer->entries_bytes);
++		local_inc(&cpu_buffer->pages_lost);
+ 
+ 		/*
+ 		 * The entries will be zeroed out when we move the
+@@ -4475,6 +4486,7 @@ rb_reset_cpu(struct ring_buffer_per_cpu *cpu_buffer)
+ 	local_set(&cpu_buffer->committing, 0);
+ 	local_set(&cpu_buffer->commits, 0);
+ 	local_set(&cpu_buffer->pages_touched, 0);
++	local_set(&cpu_buffer->pages_lost, 0);
+ 	local_set(&cpu_buffer->pages_read, 0);
+ 	cpu_buffer->last_pages_touch = 0;
+ 	cpu_buffer->shortest_full = 0;
+-- 
+2.35.1
+
 
 
