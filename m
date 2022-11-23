@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82A696358E3
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:04:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 916A06354A5
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236000AbiKWKET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:04:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60258 "EHLO
+        id S237107AbiKWJIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:08:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236223AbiKWKDW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:03:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0753B1121C8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:55:02 -0800 (PST)
+        with ESMTP id S237125AbiKWJIa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:08:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D445623BE9
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:08:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9C54B81EF0
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:55:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8BE6C433D6;
-        Wed, 23 Nov 2022 09:54:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F386B81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:08:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1C3EC433D7;
+        Wed, 23 Nov 2022 09:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197299;
-        bh=SiTJ9C3dPn9HvqBY93Akj6RRkHk43y2HXNtW85w7ibM=;
+        s=korg; t=1669194502;
+        bh=lN7LWd8fpUKRteACJxqs8EUEmMM5J6qINk4Mj9sT32o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OWzS7edEduCWINJuMHtn+SMSNtok+bUE697rrZcRu1CXRjIMqOqzlHIp789PnR9xl
-         qSwJA3oNAieFSRz91DYyUZTONNOFiKV/jtiYYn4/qUmGsJbY0Q527ZNeljcn2natv5
-         cVVLoVyu4KtdcKsDJgH95HHz63yK+ZSENJ5LbJTQ=
+        b=XeeROYqEDG2gao07I/QakkEHxc5oN9BGweQ1/zf0J8pjCjGBoNQfmlfxasQUijAP7
+         wlSbPy9g0nS0ryKOAHiIFRoyfiAhiz4UBEOvnCt3YHk2GzTF0P9uh4h9eqIgaNp/XC
+         /FKskcky9zwBMZgowMacnPitMJXT+oPGoyrksmz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Davide Tronchin <davide.tronchin.94@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 6.0 237/314] USB: serial: option: add u-blox LARA-L6 modem
+        patches@lists.linux.dev, Yann Gautier <yann.gautier@foss.st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 095/114] mmc: core: properly select voltage range without power cycle
 Date:   Wed, 23 Nov 2022 09:51:22 +0100
-Message-Id: <20221123084636.209317923@linuxfoundation.org>
+Message-Id: <20221123084555.589931514@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Tronchin <davide.tronchin.94@gmail.com>
+From: Yann Gautier <yann.gautier@foss.st.com>
 
-commit c1547f12df8b8e9ca2686accee43213ecd117efe upstream.
+commit 39a72dbfe188291b156dd6523511e3d5761ce775 upstream.
 
-Add LARA-L6 PIDs for three different USB compositions.
+In mmc_select_voltage(), if there is no full power cycle, the voltage
+range selected at the end of the function will be on a single range
+(e.g. 3.3V/3.4V). To keep a range around the selected voltage (3.2V/3.4V),
+the mask shift should be reduced by 1.
 
-LARA-L6 module can be configured (by AT interface) in three different
-USB modes:
-* Default mode (Vendor ID: 0x1546 Product ID: 0x1341) with 4 serial
-interfaces
-* RmNet mode (Vendor ID: 0x1546 Product ID: 0x1342) with 4 serial
-interfaces and 1 RmNet virtual network interface
-* CDC-ECM mode (Vendor ID: 0x1546 Product ID: 0x1343) with 4 serial
-interface and 1 CDC-ECM virtual network interface
+This issue was triggered by using a specific SD-card (Verbatim Premium
+16GB UHS-1) on an STM32MP157C-DK2 board. This board cannot do UHS modes
+and there is no power cycle. And the card was failing to switch to
+high-speed mode. When adding the range 3.2V/3.3V for this card with the
+proposed shift change, the card can switch to high-speed mode.
 
-In default mode LARA-L6 exposes the following interfaces:
-If 0: Diagnostic
-If 1: AT parser
-If 2: AT parser
-If 3: AT parser/alternative functions
-
-In RmNet mode LARA-L6 exposes the following interfaces:
-If 0: Diagnostic
-If 1: AT parser
-If 2: AT parser
-If 3: AT parset/alternative functions
-If 4: RMNET interface
-
-In CDC-ECM mode LARA-L6 exposes the following interfaces:
-If 0: Diagnostic
-If 1: AT parser
-If 2: AT parser
-If 3: AT parset/alternative functions
-If 4: CDC-ECM interface
-
-Signed-off-by: Davide Tronchin <davide.tronchin.94@gmail.com>
-[ johan: drop PID defines in favour of comments ]
+Fixes: ce69d37b7d8f ("mmc: core: Prevent violation of specs while initializing cards")
+Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20221028073740.7259-1-yann.gautier@foss.st.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/mmc/core/core.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -162,6 +162,8 @@ static void option_instat_callback(struc
- #define NOVATELWIRELESS_PRODUCT_G2		0xA010
- #define NOVATELWIRELESS_PRODUCT_MC551		0xB001
- 
-+#define UBLOX_VENDOR_ID				0x1546
-+
- /* AMOI PRODUCTS */
- #define AMOI_VENDOR_ID				0x1614
- #define AMOI_PRODUCT_H01			0x0800
-@@ -1130,6 +1132,12 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, 0x90fa),
- 	  .driver_info = RSVD(3) },
-+	/* u-blox products */
-+	{ USB_DEVICE(UBLOX_VENDOR_ID, 0x1341) },	/* u-blox LARA-L6 */
-+	{ USB_DEVICE(UBLOX_VENDOR_ID, 0x1342),		/* u-blox LARA-L6 (RMNET) */
-+	  .driver_info = RSVD(4) },
-+	{ USB_DEVICE(UBLOX_VENDOR_ID, 0x1343),		/* u-blox LARA-L6 (ECM) */
-+	  .driver_info = RSVD(4) },
- 	/* Quectel products using Quectel vendor ID */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0xff, 0xff),
- 	  .driver_info = NUMEP2 },
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -1461,7 +1461,13 @@ u32 mmc_select_voltage(struct mmc_host *
+ 		mmc_power_cycle(host, ocr);
+ 	} else {
+ 		bit = fls(ocr) - 1;
+-		ocr &= 3 << bit;
++		/*
++		 * The bit variable represents the highest voltage bit set in
++		 * the OCR register.
++		 * To keep a range of 2 values (e.g. 3.2V/3.3V and 3.3V/3.4V),
++		 * we must shift the mask '3' with (bit - 1).
++		 */
++		ocr &= 3 << (bit - 1);
+ 		if (bit != host->ios.vdd)
+ 			dev_warn(mmc_dev(host), "exceeding card's volts\n");
+ 	}
 
 
