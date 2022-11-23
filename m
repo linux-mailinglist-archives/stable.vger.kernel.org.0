@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C9686353D3
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D92E635347
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:54:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236802AbiKWI6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:58:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34578 "EHLO
+        id S235796AbiKWIxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:53:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236808AbiKWI6f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:58:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01A12EC09D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:58:24 -0800 (PST)
+        with ESMTP id S235979AbiKWIxN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:53:13 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEA1027FD0
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:53:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BD6CB81EED
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:58:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C04EC433D7;
-        Wed, 23 Nov 2022 08:58:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8551ACE20E5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:53:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29E20C433C1;
+        Wed, 23 Nov 2022 08:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193902;
-        bh=KxItM2fIxvzJQB9PTKchU5tR2R5iX7fV1lq9q5VPelE=;
+        s=korg; t=1669193586;
+        bh=ltgVwSfiV2GEztLdYLVwBU7SjhKV4d4MID3pEIDOxlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rx6gryNfllBXt3+SUPHWRLCEjcTfvru57xSW4NiEvyM4nOjayNdhPxyzz+twmSLO3
-         Muli16cum8QlCEljyUs0eZZkIg3arbALn5YfPNas7sfDh9DsUhPvFDjV32r9w3vxEL
-         AKlAzQX/6d9s8l260LBTmhJh0/WyW3ZJ041FA7Po=
+        b=dp2syjRWxYAAykiNwrLfDWOWUV95AYh/3NS6m0M4qdKkTVOa4WR/qB/4diR5JfAwT
+         +AAqjBAajspPTvMghZkZJFcMqAegaJMcL6fs1IGX033QwiiZNXZf0FACBWpE8raaFv
+         SzmDhtUdJl/pPamOw4dHfkbGZQa9aIx/CSIWK+t8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akshay Navgire <anavgire@purestorage.com>,
-        Alex Barba <alex.barba@broadcom.com>,
-        Andy Gospodarek <gospo@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Wei Liu <wei.liu@kernel.org>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/88] bnxt_en: fix potentially incorrect return value for ndo_rx_flow_steer
+Subject: [PATCH 4.9 01/76] HID: hyperv: fix possible memory leak in mousevsc_probe()
 Date:   Wed, 23 Nov 2022 09:50:00 +0100
-Message-Id: <20221123084548.657589437@linuxfoundation.org>
+Message-Id: <20221123084546.792182149@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
+References: <20221123084546.742331901@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,43 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Barba <alex.barba@broadcom.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 02597d39145bb0aa81d04bf39b6a913ce9a9d465 ]
+[ Upstream commit b5bcb94b0954a026bbd671741fdb00e7141f9c91 ]
 
-In the bnxt_en driver ndo_rx_flow_steer returns '0' whenever an entry
-that we are attempting to steer is already found.  This is not the
-correct behavior.  The return code should be the value/index that
-corresponds to the entry.  Returning zero all the time causes the
-RFS records to be incorrect unless entry '0' is the correct one.  As
-flows migrate to different cores this can create entries that are not
-correct.
+If hid_add_device() returns error, it should call hid_destroy_device()
+to free hid_dev which is allocated in hid_allocate_device().
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Reported-by: Akshay Navgire <anavgire@purestorage.com>
-Signed-off-by: Alex Barba <alex.barba@broadcom.com>
-Signed-off-by: Andy Gospodarek <gospo@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 74c4fb058083 ("HID: hv_mouse: Properly add the hid device")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 2 +-
+ drivers/hid/hid-hyperv.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 17592aeb2618..89782e8e0b91 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -7504,8 +7504,8 @@ static int bnxt_rx_flow_steer(struct net_device *dev, const struct sk_buff *skb,
- 	rcu_read_lock();
- 	hlist_for_each_entry_rcu(fltr, head, hash) {
- 		if (bnxt_fltr_match(fltr, new_fltr)) {
-+			rc = fltr->sw_id;
- 			rcu_read_unlock();
--			rc = 0;
- 			goto err_free;
- 		}
- 	}
+diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
+index 6039f071fab1..15e20d5e76dd 100644
+--- a/drivers/hid/hid-hyperv.c
++++ b/drivers/hid/hid-hyperv.c
+@@ -536,7 +536,7 @@ static int mousevsc_probe(struct hv_device *device,
+ 
+ 	ret = hid_add_device(hid_dev);
+ 	if (ret)
+-		goto probe_err1;
++		goto probe_err2;
+ 
+ 
+ 	ret = hid_parse(hid_dev);
 -- 
 2.35.1
 
