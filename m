@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DEC26353C1
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97980635397
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236821AbiKWI6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:58:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34428 "EHLO
+        id S236472AbiKWIyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:54:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236793AbiKWI6n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:58:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EC19769CF
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:58:42 -0800 (PST)
+        with ESMTP id S236489AbiKWIyW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:54:22 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31198EC7BC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:54:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F00B561B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:58:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAD05C433D6;
-        Wed, 23 Nov 2022 08:58:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1D67DCE20E5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:54:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0EC0C433D7;
+        Wed, 23 Nov 2022 08:54:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193921;
-        bh=t3hXwQq3L5B9fTd44C0XuYf3XzSZpJ5EgT9h6MXqXwo=;
+        s=korg; t=1669193657;
+        bh=h0DqhiKsHKlQ/FgoQm19iF6npzC7MQILPA3zQw/50p8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GrR7s4VcrR39yRJplMzUbZGiw6ySiyIpTrc6/vUYbFZt4oD24LHJs982qtdlJ4MCr
-         4KgZ5rLkQ81Cc6/NHhJ6t6xwm8SFE0KGbU+GxzoKapqnTIxxx5MvbZEUVa/sbOPiCl
-         TEPMrL950UqGrmMw74CKOF4EHa2CQdk2fDqBr5qo=
+        b=lL0UHHuZ+fi2ShnnY8BOrsz+41iL5a8OxQTZaRoPcu6ErM9u/RO15D7a2G0FezNjx
+         tpAC8cztLrSu0V1XAk7bVq1W7CLQKCOTeVOQasJVaFwbNcNpsr3X++hJRCIIgyj3g1
+         kibouQ6tUK9Yim8taLmppCzbUJmaJhD8S0vL8InY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/88] drm/vc4: Fix missing platform_unregister_drivers() call in vc4_drm_register()
+Subject: [PATCH 4.9 06/76] net: lapbether: fix issue of dev reference count leakage in lapbeth_device_event()
 Date:   Wed, 23 Nov 2022 09:50:05 +0100
-Message-Id: <20221123084548.817692871@linuxfoundation.org>
+Message-Id: <20221123084546.950523956@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
+References: <20221123084546.742331901@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit cf53db768a8790fdaae2fa3a81322b080285f7e5 ]
+[ Upstream commit 531705a765493655472c993627106e19f7e5a6d2 ]
 
-A problem about modprobe vc4 failed is triggered with the following log
-given:
+When following tests are performed, it will cause dev reference counting
+leakage.
+a)ip link add bond2 type bond mode balance-rr
+b)ip link set bond2 up
+c)ifenslave -f bond2 rose1
+d)ip link del bond2
 
- [  420.327987] Error: Driver 'vc4_hvs' is already registered, aborting...
- [  420.333904] failed to register platform driver vc4_hvs_driver [vc4]: -16
- modprobe: ERROR: could not insert 'vc4': Device or resource busy
+When new bond device is created, the default type of the bond device is
+ether. And the bond device is up, lapbeth_device_event() receives the
+message and creates a new lapbeth device. In this case, the reference
+count value of dev is hold once. But after "ifenslave -f bond2 rose1"
+command is executed, the type of the bond device is changed to rose. When
+the bond device is unregistered, lapbeth_device_event() will not put the
+dev reference count.
 
-The reason is that vc4_drm_register() returns platform_driver_register()
-directly without checking its return value, if platform_driver_register()
-fails, it returns without unregistering all the vc4 drivers, resulting the
-vc4 can never be installed later.
-A simple call graph is shown as below:
-
- vc4_drm_register()
-   platform_register_drivers() # all vc4 drivers are registered
-   platform_driver_register()
-     driver_register()
-       bus_add_driver()
-         priv = kzalloc(...) # OOM happened
-   # return without unregister drivers
-
-Fixing this problem by checking the return value of
-platform_driver_register() and do platform_unregister_drivers() if
-error happened.
-
-Fixes: c8b75bca92cb ("drm/vc4: Add KMS support for Raspberry Pi.")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221103014705.109322-1-yuancan@huawei.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_drv.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/wan/lapbether.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_drv.c b/drivers/gpu/drm/vc4/vc4_drv.c
-index 028dc2819a36..ad9e1fdf9fc8 100644
---- a/drivers/gpu/drm/vc4/vc4_drv.c
-+++ b/drivers/gpu/drm/vc4/vc4_drv.c
-@@ -364,7 +364,12 @@ static int __init vc4_drm_register(void)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 24daa1d0e9c5..2741bbe09ba4 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -407,7 +407,7 @@ static int lapbeth_device_event(struct notifier_block *this,
+ 	if (dev_net(dev) != &init_net)
+ 		return NOTIFY_DONE;
  
--	return platform_driver_register(&vc4_platform_driver);
-+	ret = platform_driver_register(&vc4_platform_driver);
-+	if (ret)
-+		platform_unregister_drivers(component_drivers,
-+					    ARRAY_SIZE(component_drivers));
-+
-+	return ret;
- }
+-	if (!dev_is_ethdev(dev))
++	if (!dev_is_ethdev(dev) && !lapbeth_get_x25_dev(dev))
+ 		return NOTIFY_DONE;
  
- static void __exit vc4_drm_unregister(void)
+ 	switch (event) {
 -- 
 2.35.1
 
