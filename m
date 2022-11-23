@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3961A6358E8
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:05:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4579B63574B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236851AbiKWKE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:04:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57714 "EHLO
+        id S238036AbiKWJjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:39:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237082AbiKWKD1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:03:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B7C8C0B7
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:55:06 -0800 (PST)
+        with ESMTP id S238042AbiKWJio (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:38:44 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C453115789
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:36:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B37461B56
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:55:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C223C433C1;
-        Wed, 23 Nov 2022 09:55:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A85BBCE0FC8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:36:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83DE7C433C1;
+        Wed, 23 Nov 2022 09:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197305;
-        bh=AaZEUOPEVCNu8SSax7Af4DD7Lyx32nmLqBE7HvFPhhQ=;
+        s=korg; t=1669196165;
+        bh=ueyR7L+d9cpercmhPCrL+EAngxxzdILW55t9R4nLp84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V++HwGaz7zPpOErrJT4wp5yCYrI4KYwomIIQTRW3lB5v2oHwfyZtitcuE5m39yzaD
-         q2ni9mX9eSb/miZmOYwj5nxhFLqd/3yNQUNKcFkeRgjokgLqRWLZ+2DUAusFeMBFgg
-         YaJv9ZT4DJAvvH4fz2NTCqFofuiHT3F6Gx4A+O+o=
+        b=zQUPkVIc+tw3eGFvnyvT5HFoZ2mMmdVTYDvYwEoAWt60RElfF+77xx46fVxeTboLZ
+         Evjvn7J9PobxD+4uCVwKKJiNBZ8JUg3I+MUn5BZnrp6MWaJHON+sq6bGMIl2CYJs+n
+         X+C/gNyrIgqIjvEootVnKWcCf4JR39rr+OCwNiXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wentong Wu <wentong.wu@intel.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 6.0 256/314] serial: 8250_lpss: Use 16B DMA burst with Elkhart Lake
+        patches@lists.linux.dev, Saravanan Sekar <sravanhome@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.15 138/181] iio: adc: mp2629: fix potential array out of bound access
 Date:   Wed, 23 Nov 2022 09:51:41 +0100
-Message-Id: <20221123084637.121521703@linuxfoundation.org>
+Message-Id: <20221123084608.308487062@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Saravanan Sekar <sravanhome@gmail.com>
 
-commit 7090abd6ad0610a144523ce4ffcb8560909bf2a8 upstream.
+commit ca1547ab15f48dc81624183ae17a2fd1bad06dfc upstream.
 
-Configure DMA to use 16B burst size with Elkhart Lake. This makes the
-bus use more efficient and works around an issue which occurs with the
-previously used 1B.
+Add sentinel at end of maps to avoid potential array out of
+bound access in iio core.
 
-The fix was initially developed by Srikanth Thokala and Aman Kumar.
-This together with the previous config change is the cleaned up version
-of the original fix.
-
-Fixes: 0a9410b981e9 ("serial: 8250_lpss: Enable DMA on Intel Elkhart Lake")
-Cc: <stable@vger.kernel.org> # serial: 8250_lpss: Configure DMA also w/o DMA filter
-Reported-by: Wentong Wu <wentong.wu@intel.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20221108121952.5497-4-ilpo.jarvinen@linux.intel.com
+Fixes: 7abd9fb64682 ("iio: adc: mp2629: Add support for mp2629 ADC driver")
+Signed-off-by: Saravanan Sekar <sravanhome@gmail.com>
+Link: https://lore.kernel.org/r/20221029093000.45451-4-sravanhome@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_lpss.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/adc/mp2629_adc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_lpss.c
-+++ b/drivers/tty/serial/8250/8250_lpss.c
-@@ -174,6 +174,8 @@ static int ehl_serial_setup(struct lpss8
- 	 */
- 	up->dma = dma;
+--- a/drivers/iio/adc/mp2629_adc.c
++++ b/drivers/iio/adc/mp2629_adc.c
+@@ -56,7 +56,8 @@ static struct iio_map mp2629_adc_maps[]
+ 	MP2629_MAP(SYSTEM_VOLT, "system-volt"),
+ 	MP2629_MAP(INPUT_VOLT, "input-volt"),
+ 	MP2629_MAP(BATT_CURRENT, "batt-current"),
+-	MP2629_MAP(INPUT_CURRENT, "input-current")
++	MP2629_MAP(INPUT_CURRENT, "input-current"),
++	{ }
+ };
  
-+	lpss->dma_maxburst = 16;
-+
- 	port->set_termios = dw8250_do_set_termios;
- 
- 	return 0;
+ static int mp2629_read_raw(struct iio_dev *indio_dev,
 
 
