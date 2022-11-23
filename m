@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA147635715
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F90A63557B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237753AbiKWJhz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:37:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56878 "EHLO
+        id S237364AbiKWJTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:19:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237897AbiKWJhT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2623DD95
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:13 -0800 (PST)
+        with ESMTP id S237202AbiKWJSo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:18:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2009662D9
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:18:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7104B81E54
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31F36C433D6;
-        Wed, 23 Nov 2022 09:35:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B090661B4D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:18:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B227FC433C1;
+        Wed, 23 Nov 2022 09:18:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196110;
-        bh=xFcXCQCI2IWt9k8sEkG9X6qihCmXclSIilK7GkX28+E=;
+        s=korg; t=1669195095;
+        bh=bJLK9TtYJJiId5Bdeizaj6OdGcT549OyB9vacAEBJIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aoIdpgXXFNf/Hif24ZgkYSFlVO6VNz9Y0NZZy6E/dJCUcAO36eyZwGP40gTvj+56W
-         mk/G4t8IOEsbINs4im2GrQy6KpDAEBLahyJk4s4To/h8LXoW39o0am9sEzoP/EKxb7
-         y2kx5iUtrW5YK9kkm8DUxukhD1nBag8PHvEkKLao=
+        b=J7Vu8+UGiPVgsFszTmM5wDsjiOWHxy1lJwM2hBAiwZcJ8hV6e+CIMpr7LOB2g3AOK
+         ezTuhzd01Oy2JOzdHa5Q/MNn+KwDy0/91PS1ESYhJiQRhTx/IL7xG2lL90NT47Cb/B
+         hKGR+dG3AjlZlVxgXt7/SnMcOoLPbQoZMlnGEB3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Zheng Bin <zhengbin13@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 5.15 122/181] slimbus: qcom-ngd: Fix build error when CONFIG_SLIM_QCOM_NGD_CTRL=y && CONFIG_QCOM_RPROC_COMMON=m
+        patches@lists.linux.dev, Mitja Spes <mitja@lxnav.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 128/156] iio: pressure: ms5611: changed hardcoded SPI speed to value limited
 Date:   Wed, 23 Nov 2022 09:51:25 +0100
-Message-Id: <20221123084607.647974074@linuxfoundation.org>
+Message-Id: <20221123084602.558477496@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Bin <zhengbin13@huawei.com>
+From: Mitja Spes <mitja@lxnav.com>
 
-commit e54fad8044db18cc400df8d01bfb86cada08b7cb upstream.
+commit 741cec30cc52058d1c10d415f3b98319887e4f73 upstream.
 
-If CONFIG_SLIM_QCOM_NGD_CTRL=y, CONFIG_QCOM_RPROC_COMMON=m, COMPILE_TEST=y,
-bulding fails:
+Don't hardcode the ms5611 SPI speed, limit it instead.
 
-drivers/slimbus/qcom-ngd-ctrl.o: In function `qcom_slim_ngd_ctrl_probe':
-qcom-ngd-ctrl.c:(.text+0x330): undefined reference to `qcom_register_ssr_notifier'
-qcom-ngd-ctrl.c:(.text+0x5fc): undefined reference to `qcom_unregister_ssr_notifier'
-drivers/slimbus/qcom-ngd-ctrl.o: In function `qcom_slim_ngd_remove':
-qcom-ngd-ctrl.c:(.text+0x90c): undefined reference to `qcom_unregister_ssr_notifier'
-
-Make SLIM_QCOM_NGD_CTRL depends on QCOM_RPROC_COMMON || (COMPILE_TEST && !QCOM_RPROC_COMMON) to fix this.
-
-Fixes: e291691c6977 ("slimbus: qcom-ngd-ctrl: allow compile testing without QCOM_RPROC_COMMON")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20221027095904.3388959-1-zhengbin13@huawei.com
+Signed-off-by: Mitja Spes <mitja@lxnav.com>
+Fixes: c0644160a8b5 ("iio: pressure: add support for MS5611 pressure and temperature sensor")
+Link: https://lore.kernel.org/r/20221021135827.1444793-3-mitja@lxnav.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/slimbus/Kconfig | 2 +-
+ drivers/iio/pressure/ms5611_spi.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/slimbus/Kconfig b/drivers/slimbus/Kconfig
-index 2ed821f75816..a0fdf9d792cb 100644
---- a/drivers/slimbus/Kconfig
-+++ b/drivers/slimbus/Kconfig
-@@ -23,7 +23,7 @@ config SLIM_QCOM_CTRL
- config SLIM_QCOM_NGD_CTRL
- 	tristate "Qualcomm SLIMbus Satellite Non-Generic Device Component"
- 	depends on HAS_IOMEM && DMA_ENGINE && NET
--	depends on QCOM_RPROC_COMMON || COMPILE_TEST
-+	depends on QCOM_RPROC_COMMON || (COMPILE_TEST && !QCOM_RPROC_COMMON)
- 	depends on ARCH_QCOM || COMPILE_TEST
- 	select QCOM_QMI_HELPERS
- 	select QCOM_PDR_HELPERS
--- 
-2.38.1
-
+--- a/drivers/iio/pressure/ms5611_spi.c
++++ b/drivers/iio/pressure/ms5611_spi.c
+@@ -92,7 +92,7 @@ static int ms5611_spi_probe(struct spi_d
+ 	spi_set_drvdata(spi, indio_dev);
+ 
+ 	spi->mode = SPI_MODE_0;
+-	spi->max_speed_hz = 20000000;
++	spi->max_speed_hz = min(spi->max_speed_hz, 20000000U);
+ 	spi->bits_per_word = 8;
+ 	ret = spi_setup(spi);
+ 	if (ret < 0)
 
 
