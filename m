@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C497635570
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24179635745
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237374AbiKWJTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:19:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58150 "EHLO
+        id S238049AbiKWJji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:39:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237416AbiKWJTB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:19:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B999B4B3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:19:01 -0800 (PST)
+        with ESMTP id S237932AbiKWJjP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:39:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E97115D11
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:36:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF691619F9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:19:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C44A2C433D6;
-        Wed, 23 Nov 2022 09:18:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F672B81E60
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:36:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97264C433D6;
+        Wed, 23 Nov 2022 09:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195140;
-        bh=9+ZLJWZ+edbJ5SV64rjAhzZBWoWw/nYmvN4vTgXSXP4=;
+        s=korg; t=1669196214;
+        bh=8DHrVtwZi9i0+QFz294GizastENKta+GWXf6gL2zSfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MvDt8sKgUsq4okwHgkNBlQtl/EnjUq8MMIP2PWZ8V2mYvyr+l8ntrrkQihYQW7zOD
-         oYJT811m4stWebJV3GUDoOivTjS2oPsD+CQbqEuREVc1/Bj0qqIK1AH09O0+StSVJd
-         1xrNFnARY9ryJfof640DUmjz898kZGm5QJOgIHxk=
+        b=LzaEoTboZtrN1r3gMNHXc47zkvphL/X2thPUDQah2A/sAjFNGw3Cv/aClDy1hzJFn
+         de5ccWwhQ4tECOo4pJk0CtvL5duSEjvMDUHvTP3y/VU6PQylp0doQDmIJCrU2ubgCq
+         T4cuwXa1vm58L7Q/Vt1AvMadRVs9ETxu8oJhsU7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hawkins Jiawei <yin31149@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        "chenxiaosong (A)" <chenxiaosong2@huawei.com>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 156/156] ntfs: check overflow when iterating ATTR_RECORDs
-Date:   Wed, 23 Nov 2022 09:51:53 +0100
-Message-Id: <20221123084603.441804323@linuxfoundation.org>
+        patches@lists.linux.dev, Yann Gautier <yann.gautier@foss.st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 151/181] mmc: core: properly select voltage range without power cycle
+Date:   Wed, 23 Nov 2022 09:51:54 +0100
+Message-Id: <20221123084608.878217130@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,52 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Yann Gautier <yann.gautier@foss.st.com>
 
-commit 63095f4f3af59322bea984a6ae44337439348fe0 upstream.
+commit 39a72dbfe188291b156dd6523511e3d5761ce775 upstream.
 
-Kernel iterates over ATTR_RECORDs in mft record in ntfs_attr_find().
-Because the ATTR_RECORDs are next to each other, kernel can get the next
-ATTR_RECORD from end address of current ATTR_RECORD, through current
-ATTR_RECORD length field.
+In mmc_select_voltage(), if there is no full power cycle, the voltage
+range selected at the end of the function will be on a single range
+(e.g. 3.3V/3.4V). To keep a range around the selected voltage (3.2V/3.4V),
+the mask shift should be reduced by 1.
 
-The problem is that during iteration, when kernel calculates the end
-address of current ATTR_RECORD, kernel may trigger an integer overflow bug
-in executing `a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))`.  This
-may wrap, leading to a forever iteration on 32bit systems.
+This issue was triggered by using a specific SD-card (Verbatim Premium
+16GB UHS-1) on an STM32MP157C-DK2 board. This board cannot do UHS modes
+and there is no power cycle. And the card was failing to switch to
+high-speed mode. When adding the range 3.2V/3.3V for this card with the
+proposed shift change, the card can switch to high-speed mode.
 
-This patch solves it by adding some checks on calculating end address
-of current ATTR_RECORD during iteration.
-
-Link: https://lkml.kernel.org/r/20220831160935.3409-4-yin31149@gmail.com
-Link: https://lore.kernel.org/all/20220827105842.GM2030@kadam/
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Cc: chenxiaosong (A) <chenxiaosong2@huawei.com>
-Cc: syzkaller-bugs <syzkaller-bugs@googlegroups.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: ce69d37b7d8f ("mmc: core: Prevent violation of specs while initializing cards")
+Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221028073740.7259-1-yann.gautier@foss.st.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs/attrib.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/mmc/core/core.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/fs/ntfs/attrib.c
-+++ b/fs/ntfs/attrib.c
-@@ -617,6 +617,14 @@ static int ntfs_attr_find(const ATTR_TYP
- 			return -ENOENT;
- 		if (unlikely(!a->length))
- 			break;
-+
-+		/* check whether ATTR_RECORD's length wrap */
-+		if ((u8 *)a + le32_to_cpu(a->length) < (u8 *)a)
-+			break;
-+		/* check whether ATTR_RECORD's length is within bounds */
-+		if ((u8 *)a + le32_to_cpu(a->length) > mrec_end)
-+			break;
-+
- 		if (a->type != type)
- 			continue;
- 		/*
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -1132,7 +1132,13 @@ u32 mmc_select_voltage(struct mmc_host *
+ 		mmc_power_cycle(host, ocr);
+ 	} else {
+ 		bit = fls(ocr) - 1;
+-		ocr &= 3 << bit;
++		/*
++		 * The bit variable represents the highest voltage bit set in
++		 * the OCR register.
++		 * To keep a range of 2 values (e.g. 3.2V/3.3V and 3.3V/3.4V),
++		 * we must shift the mask '3' with (bit - 1).
++		 */
++		ocr &= 3 << (bit - 1);
+ 		if (bit != host->ios.vdd)
+ 			dev_warn(mmc_dev(host), "exceeding card's volts\n");
+ 	}
 
 
