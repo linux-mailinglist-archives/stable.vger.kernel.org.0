@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5772635482
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A182A635553
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237095AbiKWJHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:07:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45050 "EHLO
+        id S237422AbiKWJSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:18:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237218AbiKWJHO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4C26105A85
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:55 -0800 (PST)
+        with ESMTP id S237338AbiKWJRh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:17:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D53310AD0A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:17:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51E4A61B59
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46658C433C1;
-        Wed, 23 Nov 2022 09:06:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20711B81E50
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:17:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6569FC433D6;
+        Wed, 23 Nov 2022 09:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194414;
-        bh=3ck9Xe5tg1QfdZeBDOx83UjQJzLEsPFRPeEwmuhrhc8=;
+        s=korg; t=1669195040;
+        bh=6RZWYC1vgxe9Pqj4chLkaY/6M7VYNi4xgg2j5+MALRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rXm1XIct4c7fCtyKSd0XABzqJfb6CWmXkbdXRke8PsXVRmSAzPZHMZ8rwiuXYd157
-         myx2QFlL4/CnN4chkHi0I3MOCvKz0fVdI+cANjuE9ecG244Et8FeHu3ZB+2NzN/0V/
-         E3hSvmjGkj469pn508VOt04scc9j335a+Ht1Fank=
+        b=AMwLSS2rAugh3gC86KOnGwVN8E/6zi1K6UmkzSNUeQXwfzz4ipBTajB0ti1wpT4pm
+         71G9OrFDRd5kVrutWLLbkUW0US1udv5I9DRZwtJwgQc7usskaZyn4wNwYCIIHI7ZBp
+         CdKxUTJxKgpZ7I7x9NRhnMnLnx0D63gewTgsS0wM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Juergen Gross <jgross@suse.com>,
+        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 070/114] xen/pcpu: fix possible memory leak in register_pcpu()
+Subject: [PATCH 5.4 100/156] mISDN: fix misuse of put_device() in mISDN_register_device()
 Date:   Wed, 23 Nov 2022 09:50:57 +0100
-Message-Id: <20221123084554.677714252@linuxfoundation.org>
+Message-Id: <20221123084601.603902782@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-[ Upstream commit da36a2a76b01b210ffaa55cdc2c99bc8783697c5 ]
+[ Upstream commit 2d25107e111a85c56f601a5470f1780ec054e6ac ]
 
-In device_add(), dev_set_name() is called to allocate name, if it returns
-error, the name need be freed. As comment of device_register() says, it
-should use put_device() to give up the reference in the error path. So fix
-this by calling put_device(), then the name can be freed in kobject_cleanup().
+We should not release reference by put_device() before calling device_initialize().
 
-Fixes: f65c9bb3fb72 ("xen/pcpu: Xen physical cpus online/offline sys interface")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221110152441.401630-1-yangyingliang@huawei.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: e7d1d4d9ac0d ("mISDN: fix possible memory leak in mISDN_register_device()")
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/pcpu.c | 2 +-
+ drivers/isdn/mISDN/core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/xen/pcpu.c b/drivers/xen/pcpu.c
-index cdc6daa7a9f6..9cf7085a260b 100644
---- a/drivers/xen/pcpu.c
-+++ b/drivers/xen/pcpu.c
-@@ -228,7 +228,7 @@ static int register_pcpu(struct pcpu *pcpu)
+diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
+index 7ea0100f218a..90ee56d07a6e 100644
+--- a/drivers/isdn/mISDN/core.c
++++ b/drivers/isdn/mISDN/core.c
+@@ -222,7 +222,7 @@ mISDN_register_device(struct mISDNdevice *dev,
  
- 	err = device_register(dev);
- 	if (err) {
--		pcpu_release(dev);
-+		put_device(dev);
- 		return err;
- 	}
+ 	err = get_free_devid();
+ 	if (err < 0)
+-		goto error1;
++		return err;
+ 	dev->id = err;
  
+ 	device_initialize(&dev->dev);
 -- 
 2.35.1
 
