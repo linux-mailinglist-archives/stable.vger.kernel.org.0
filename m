@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF13E635676
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E37EF6354BC
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237798AbiKWJak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:30:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45386 "EHLO
+        id S237191AbiKWJK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:10:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237695AbiKWJaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57E801121CB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:28:32 -0800 (PST)
+        with ESMTP id S237215AbiKWJKl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:10:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34C5A106130
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:10:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0197FB81EF2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:28:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38A5FC433D6;
-        Wed, 23 Nov 2022 09:28:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1A50B81EF2
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:10:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 148A6C433C1;
+        Wed, 23 Nov 2022 09:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195709;
-        bh=spFnfVlKiS7/MeFJFoXk3DlejXOfIoIgoxHhLFjuejU=;
+        s=korg; t=1669194632;
+        bh=kt6BhAaOpVBl8YsCeC/iSF6b8DRYnBw9LOTo6khK7Gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IK0pugAMPY6kx+O8+Btl6H1+wCgdiG5KpdX9dTiWCTMJmJZgwXiBZhiFjBWaTSw1e
-         DKN93t6PADyutU6Lj9HYQrjzMGmvtMbqWQiRlioozc8qVcamvRCvV9Z+ku47cWtd/u
-         FRwEhXhwHGKYH6mSgxZGruH8GQqJ9akjihRo64jE=
+        b=p2yU5kB9RNbGzGz5h1nGJa9VW9hDIlh8h4fMD1cH4ZRRp89F2QmbQUFdFrqDNg9Ir
+         bnhF6nUkIYU1e/8ZZnw6GLNkUoj9+Z+ZO684UMIqW5fd6zpj7EqUzkECy/tfUZUixl
+         yvd0NlDl++CSVGbbr22O+vGIbzJiduWEK4Fw8jXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Siarhei Volkau <lis8215@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 012/181] ASoC: codecs: jz4725b: fix reported volume for Master ctl
+Subject: [PATCH 5.4 018/156] net: lapbether: fix issue of dev reference count leakage in lapbeth_device_event()
 Date:   Wed, 23 Nov 2022 09:49:35 +0100
-Message-Id: <20221123084603.113699301@linuxfoundation.org>
+Message-Id: <20221123084558.558730677@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siarhei Volkau <lis8215@gmail.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 088777bf65b98cfa4b5378119d0a7d49a58ece44 ]
+[ Upstream commit 531705a765493655472c993627106e19f7e5a6d2 ]
 
-DAC volume control is the Master Playback Volume at the moment
-and it reports wrong levels in alsamixer and other alsa apps.
+When following tests are performed, it will cause dev reference counting
+leakage.
+a)ip link add bond2 type bond mode balance-rr
+b)ip link set bond2 up
+c)ifenslave -f bond2 rose1
+d)ip link del bond2
 
-The patch fixes that, as stated in manual on the jz4725b SoC
-(16.6.3.4 Programmable attenuation: GOD) the ctl range varies
-from -22.5dB to 0dB with 1.5dB step.
+When new bond device is created, the default type of the bond device is
+ether. And the bond device is up, lapbeth_device_event() receives the
+message and creates a new lapbeth device. In this case, the reference
+count value of dev is hold once. But after "ifenslave -f bond2 rose1"
+command is executed, the type of the bond device is changed to rose. When
+the bond device is unregistered, lapbeth_device_event() will not put the
+dev reference count.
 
-Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
-Link: https://lore.kernel.org/r/20221016132648.3011729-3-lis8215@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/jz4725b.c | 2 +-
+ drivers/net/wan/lapbether.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
-index cc7a48c96aa4..72549ee2e789 100644
---- a/sound/soc/codecs/jz4725b.c
-+++ b/sound/soc/codecs/jz4725b.c
-@@ -142,8 +142,8 @@ struct jz_icdc {
- 	struct clk *clk;
- };
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 4e42954d8cbf..bbcd8ef2873f 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -403,7 +403,7 @@ static int lapbeth_device_event(struct notifier_block *this,
+ 	if (dev_net(dev) != &init_net)
+ 		return NOTIFY_DONE;
  
--static const SNDRV_CTL_TLVD_DECLARE_DB_LINEAR(jz4725b_dac_tlv, -2250, 0);
- static const SNDRV_CTL_TLVD_DECLARE_DB_LINEAR(jz4725b_line_tlv, -1500, 600);
-+static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(jz4725b_dac_tlv, -2250, 150, 0);
+-	if (!dev_is_ethdev(dev))
++	if (!dev_is_ethdev(dev) && !lapbeth_get_x25_dev(dev))
+ 		return NOTIFY_DONE;
  
- static const struct snd_kcontrol_new jz4725b_codec_controls[] = {
- 	SOC_DOUBLE_TLV("Master Playback Volume",
+ 	switch (event) {
 -- 
 2.35.1
 
