@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 259346358DF
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:04:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 487A863559A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236177AbiKWKEO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:04:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58970 "EHLO
+        id S237446AbiKWJSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:18:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237035AbiKWKCe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:02:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B779AED5ED
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:54:47 -0800 (PST)
+        with ESMTP id S237447AbiKWJSK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:18:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF93B429AF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:17:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66AC7B81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:54:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B736EC433D6;
-        Wed, 23 Nov 2022 09:54:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25F7E61B10
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:17:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05B46C433D6;
+        Wed, 23 Nov 2022 09:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197285;
-        bh=oX18axhcbNRYilLpsZvzfG5kLTzdm0anos649hNoZ4I=;
+        s=korg; t=1669195069;
+        bh=d4KiiEoA/FPZHZPhQEpBH1nrt/tnOBHYBbigVyKZEuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V8Nc6GrrGkHjvaRg78gf/bc0N/ZypUFOxR4J2aTtb9i9PfeE+SGMGp/rm2bCiX5AE
-         Xy42DptG3QVQWwaAmTEGdtxNaR3dK4+TepJe/zBcOgsI4r3nZSsg58k2TMUFDchcJo
-         jnZKSbyMykDo21ZAoRjZ3qGOfv7RqNmdrFYY/API=
+        b=vAEaoAUk0L33zb5DlMGhP+DeiQk9zF2Ft9jdbY4UkudcmOHF63SZDPsBoqOO9NFpe
+         URRk8V7phinnDgcgfynMAEe3TGUVuiYGueAH9GziowwaeurcjcAN1X1c1qivV7TRnY
+         BWVFentcRZ07nh3Xp0+y2L9Awu9Poio/kEfdH3Cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 6.0 251/314] dm bufio: Fix missing decrement of no_sleep_enabled if dm_bufio_client_create failed
+        patches@lists.linux.dev,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 139/156] serial: 8250: Flush DMA Rx on RLSI
 Date:   Wed, 23 Nov 2022 09:51:36 +0100
-Message-Id: <20221123084636.876655552@linuxfoundation.org>
+Message-Id: <20221123084602.926546355@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 0dfc1f4ceae86a0d09d880ab87625c86c61ed33c upstream.
+commit 1980860e0c8299316cddaf0992dd9e1258ec9d88 upstream.
 
-The 'no_sleep_enabled' should be decreased in error handling path
-in dm_bufio_client_create() when the DM_BUFIO_CLIENT_NO_SLEEP flag
-is set, otherwise static_branch_unlikely() will always return true
-even if no dm_bufio_client instances have DM_BUFIO_CLIENT_NO_SLEEP
-flag set.
+Returning true from handle_rx_dma() without flushing DMA first creates
+a data ordering hazard. If DMA Rx has handled any character at the
+point when RLSI occurs, the non-DMA path handles any pending characters
+jumping them ahead of those characters that are pending under DMA.
 
-Cc: stable@vger.kernel.org
-Fixes: 3c1c875d0586 ("dm bufio: conditionally enable branching for DM_BUFIO_CLIENT_NO_SLEEP")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Fixes: 75df022b5f89 ("serial: 8250_dma: Fix RX handling")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221108121952.5497-5-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-bufio.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/8250/8250_port.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/md/dm-bufio.c b/drivers/md/dm-bufio.c
-index 9c5ef818ca36..bb786c39545e 100644
---- a/drivers/md/dm-bufio.c
-+++ b/drivers/md/dm-bufio.c
-@@ -1858,6 +1858,8 @@ struct dm_bufio_client *dm_bufio_client_create(struct block_device *bdev, unsign
- 	dm_io_client_destroy(c->dm_io);
- bad_dm_io:
- 	mutex_destroy(&c->lock);
-+	if (c->no_sleep)
-+		static_branch_dec(&no_sleep_enabled);
- 	kfree(c);
- bad_client:
- 	return ERR_PTR(r);
--- 
-2.38.1
-
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1824,10 +1824,9 @@ static bool handle_rx_dma(struct uart_82
+ 		if (!up->dma->rx_running)
+ 			break;
+ 		fallthrough;
++	case UART_IIR_RLSI:
+ 	case UART_IIR_RX_TIMEOUT:
+ 		serial8250_rx_dma_flush(up);
+-		/* fall-through */
+-	case UART_IIR_RLSI:
+ 		return true;
+ 	}
+ 	return up->dma->rx_dma(up);
 
 
