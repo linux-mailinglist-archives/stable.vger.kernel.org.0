@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30EB66354FE
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D524D63569A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237221AbiKWJNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:13:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54116 "EHLO
+        id S237852AbiKWJc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:32:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237231AbiKWJNI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:13:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56C7D450A9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:13:07 -0800 (PST)
+        with ESMTP id S237862AbiKWJbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8563B483A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7A6D61B43
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:13:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9095C433C1;
-        Wed, 23 Nov 2022 09:13:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 643D161B49
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D257C433C1;
+        Wed, 23 Nov 2022 09:31:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194786;
-        bh=f4DTjm8eehtJSlr9eFgABKYjMYKRS4hekLnUufWhVDE=;
+        s=korg; t=1669195862;
+        bh=uRbFWfUtx/zpDi+bsHqfqWNy55TaWubQjbrYU7J7o9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u05sLPJw29OCEqA0j9KzsRo1RweXe4chp73Dl3bsjpqhzKZ0FYgCs9amTdE6NDQ2O
-         9l23r3602TbAdjhreP4GLSoS06x47P/UtS+Y8Nu/GWWgvvnfsTvi2TiRj6NTleOxYv
-         Fan0nROrUWmdrtlJy7JTMU5Z3yKvF9h/nkKS3pY8=
+        b=OnGXgYN1nBzEvbIV2nC5xNNg5dyLUkwSvzf6XzI6Bx57es9ndIQvv3t1R49Xwtw8E
+         VbPRmzKrq4Lyi1iyp/8etkr1s/s7OjOfWd2FwCu5zWW6TQ7AZen+5RZSjbjkLS3ZhR
+         3YeQQm7ynczhfdxZZPT323f16uRfhThC6+PrRUl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Rosin <peda@axentia.se>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.4 059/156] dmaengine: at_hdmac: Dont allow CPU to reorder channel enable
+        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 053/181] tty: n_gsm: fix sleep-in-atomic-context bug in gsm_control_send
 Date:   Wed, 23 Nov 2022 09:50:16 +0100
-Message-Id: <20221123084600.091133184@linuxfoundation.org>
+Message-Id: <20221123084604.670602325@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 580ee84405c27d6ed419abe4d2b3de1968abdafd upstream.
+[ Upstream commit 7b7dfe4833c70a11cdfa51b38705103bd31eddaa ]
 
-at_hdmac uses __raw_writel for register writes. In the absence of a
-barrier, the CPU may reorder the register operations.
-Introduce a write memory barrier so that the CPU does not reorder the
-channel enable, thus the start of the transfer, without making sure that
-all the pre-required register fields are already written.
+The function gsm_dlci_t1() is a timer handler that runs in an
+atomic context, but it calls "kzalloc(..., GFP_KERNEL)" that
+may sleep. As a result, the sleep-in-atomic-context bug will
+happen. The process is shown below:
 
-Fixes: dc78baa2b90b ("dmaengine: at_hdmac: new driver for the Atmel AHB DMA Controller")
-Reported-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20221025090306.297886-1-tudor.ambarus@microchip.com
-Link: https://lore.kernel.org/r/20221025090306.297886-14-tudor.ambarus@microchip.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+gsm_dlci_t1()
+ gsm_dlci_open()
+  gsm_modem_update()
+   gsm_modem_upd_via_msc()
+    gsm_control_send()
+     kzalloc(sizeof(.., GFP_KERNEL) //may sleep
+
+This patch changes the gfp_t parameter of kzalloc() from GFP_KERNEL to
+GFP_ATOMIC in order to mitigate the bug.
+
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20221002040709.27849-1-duoming@zju.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/at_hdmac.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/n_gsm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/at_hdmac.c
-+++ b/drivers/dma/at_hdmac.c
-@@ -246,6 +246,8 @@ static void atc_dostart(struct at_dma_ch
- 		       ATC_SPIP_BOUNDARY(first->boundary));
- 	channel_writel(atchan, DPIP, ATC_DPIP_HOLE(first->dst_hole) |
- 		       ATC_DPIP_BOUNDARY(first->boundary));
-+	/* Don't allow CPU to reorder channel enable. */
-+	wmb();
- 	dma_writel(atdma, CHER, atchan->mask);
- 
- 	vdbg_dump_regs(atchan);
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 154697be11b0..813a45887171 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1577,7 +1577,7 @@ static struct gsm_control *gsm_control_send(struct gsm_mux *gsm,
+ 		unsigned int command, u8 *data, int clen)
+ {
+ 	struct gsm_control *ctrl = kzalloc(sizeof(struct gsm_control),
+-						GFP_KERNEL);
++						GFP_ATOMIC);
+ 	unsigned long flags;
+ 	if (ctrl == NULL)
+ 		return NULL;
+-- 
+2.35.1
+
 
 
