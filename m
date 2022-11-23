@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C142635551
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE46B63561E
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237389AbiKWJR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:17:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57912 "EHLO
+        id S237591AbiKWJ0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:26:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237443AbiKWJQ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:16:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8718110613D
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:16:26 -0800 (PST)
+        with ESMTP id S237589AbiKWJZi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:25:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54DBCDEBF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:24:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E3CCB81EF1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:16:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D928C433D6;
-        Wed, 23 Nov 2022 09:16:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E57F861B40
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:24:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E21D1C433D6;
+        Wed, 23 Nov 2022 09:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194983;
-        bh=5bD9rNzOYunLh3mlds2ckeyt9bHsHLlKe/4qKLUbPeU=;
+        s=korg; t=1669195457;
+        bh=mwgAUIh0GXwDHOaTxo6AwOWqBV+qlLL0o5J74KRgorQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/xig542jr7aXJSspiMIi+Oe053HxRzEO+pTbf1inIWnmSgUaTtH3CO7Fr9GMmdLz
-         0EEdW/WlgVnJVZwqzosWxMehnC6bz8olQkAPKGN0IucCzyHmSrcVvn2daAWxh2z2gN
-         b1CgO/SHIn6XMUbv8qk1d4irxnCrGKMFWYUAV5Co=
+        b=xXPF811sL8AkllmfTMx+Z3Hdj+8CDedjk7nC56q79UwxBFWpJgmaeoTB1c+8UQHHY
+         SZOlftPkdfSjsbayjxxXMrmaFEmtYDwFSBBy1CaoePrpp8CNYedtBIVu3NBMCaopAh
+         mQEvRK6OpR2uRzLMB3qE1xdCZwuy20R8zAPRQoOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        mhiramat@kernel.org, zanussi@kernel.org, fengguang.wu@intel.com,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 114/156] ring_buffer: Do not deactivate non-existant pages
+Subject: [PATCH 5.10 088/149] tracing: Fix wild-memory-access in register_synth_event()
 Date:   Wed, 23 Nov 2022 09:51:11 +0100
-Message-Id: <20221123084602.073872311@linuxfoundation.org>
+Message-Id: <20221123084601.154258049@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-commit 56f4ca0a79a9f1af98f26c54b9b89ba1f9bcc6bd upstream.
+commit 1b5f1c34d3f5a664a57a5a7557a50e4e3cc2505c upstream.
 
-rb_head_page_deactivate() expects cpu_buffer to contain a valid list of
-->pages, so verify that the list is actually present before calling it.
+In register_synth_event(), if set_synth_event_print_fmt() failed, then
+both trace_remove_event_call() and unregister_trace_event() will be
+called, which means the trace_event_call will call
+__unregister_trace_event() twice. As the result, the second unregister
+will causes the wild-memory-access.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
+register_synth_event
+    set_synth_event_print_fmt failed
+    trace_remove_event_call
+        event_remove
+            if call->event.funcs then
+            __unregister_trace_event (first call)
+    unregister_trace_event
+        __unregister_trace_event (second call)
 
-Link: https://lkml.kernel.org/r/20221114143129.3534443-1-d-tatianin@yandex-team.ru
+Fix the bug by avoiding to call the second __unregister_trace_event() by
+checking if the first one is called.
 
+general protection fault, probably for non-canonical address
+	0xfbd59c0000000024: 0000 [#1] SMP KASAN PTI
+KASAN: maybe wild-memory-access in range
+[0xdead000000000120-0xdead000000000127]
+CPU: 0 PID: 3807 Comm: modprobe Not tainted
+6.1.0-rc1-00186-g76f33a7eedb4 #299
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
+RIP: 0010:unregister_trace_event+0x6e/0x280
+Code: 00 fc ff df 4c 89 ea 48 c1 ea 03 80 3c 02 00 0f 85 0e 02 00 00 48
+b8 00 00 00 00 00 fc ff df 4c 8b 63 08 4c 89 e2 48 c1 ea 03 <80> 3c 02
+00 0f 85 e2 01 00 00 49 89 2c 24 48 85 ed 74 28 e8 7a 9b
+RSP: 0018:ffff88810413f370 EFLAGS: 00010a06
+RAX: dffffc0000000000 RBX: ffff888105d050b0 RCX: 0000000000000000
+RDX: 1bd5a00000000024 RSI: ffff888119e276e0 RDI: ffffffff835a8b20
+RBP: dead000000000100 R08: 0000000000000000 R09: fffffbfff0913481
+R10: ffffffff8489a407 R11: fffffbfff0913480 R12: dead000000000122
+R13: ffff888105d050b8 R14: 0000000000000000 R15: ffff888105d05028
+FS:  00007f7823e8d540(0000) GS:ffff888119e00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7823e7ebec CR3: 000000010a058002 CR4: 0000000000330ef0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __create_synth_event+0x1e37/0x1eb0
+ create_or_delete_synth_event+0x110/0x250
+ synth_event_run_command+0x2f/0x110
+ test_gen_synth_cmd+0x170/0x2eb [synth_event_gen_test]
+ synth_event_gen_test_init+0x76/0x9bc [synth_event_gen_test]
+ do_one_initcall+0xdb/0x480
+ do_init_module+0x1cf/0x680
+ load_module+0x6a50/0x70a0
+ __do_sys_finit_module+0x12f/0x1c0
+ do_syscall_64+0x3f/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Link: https://lkml.kernel.org/r/20221117012346.22647-3-shangxiaojing@huawei.com
+
+Fixes: 4b147936fa50 ("tracing: Add support for 'synthetic' events")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
 Cc: stable@vger.kernel.org
-Fixes: 77ae365eca895 ("ring-buffer: make lockless")
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Cc: <mhiramat@kernel.org>
+Cc: <zanussi@kernel.org>
+Cc: <fengguang.wu@intel.com>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/trace/trace_events_synth.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -1362,9 +1362,9 @@ static void rb_free_cpu_buffer(struct ri
+--- a/kernel/trace/trace_events_synth.c
++++ b/kernel/trace/trace_events_synth.c
+@@ -791,10 +791,9 @@ static int register_synth_event(struct s
+ 	}
  
- 	free_buffer_page(cpu_buffer->reader_page);
- 
--	rb_head_page_deactivate(cpu_buffer);
--
- 	if (head) {
-+		rb_head_page_deactivate(cpu_buffer);
-+
- 		list_for_each_entry_safe(bpage, tmp, head, list) {
- 			list_del_init(&bpage->list);
- 			free_buffer_page(bpage);
+ 	ret = set_synth_event_print_fmt(call);
+-	if (ret < 0) {
++	/* unregister_trace_event() will be called inside */
++	if (ret < 0)
+ 		trace_remove_event_call(call);
+-		goto err;
+-	}
+  out:
+ 	return ret;
+  err:
 
 
