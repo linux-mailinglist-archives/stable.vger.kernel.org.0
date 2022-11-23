@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3BA46354ED
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BE79635448
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237224AbiKWJMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:12:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53500 "EHLO
+        id S236950AbiKWJE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:04:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237221AbiKWJMu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:12:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F9F295B7
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:12:49 -0800 (PST)
+        with ESMTP id S237014AbiKWJEb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:04:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C98BC105586
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:04:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE11A61B14
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:12:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCEE1C433D6;
-        Wed, 23 Nov 2022 09:12:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 441DDB81EEC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:04:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F170C4347C;
+        Wed, 23 Nov 2022 09:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194768;
-        bh=NgcgWbgq+NHzd1MVDmZVgA4UGHow7sBhCZKIKBlN88o=;
+        s=korg; t=1669194247;
+        bh=cFLOritFGy24Cwf2eUPTfwECU3WBNxNCnfPg8GhNuAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jpE0z21u1e4aH8VAWv0SddHWbB2Ido7bOake1Tjf+bYGZPoLlbaB6FgkBRBTpXBgx
-         OaOjK02f8HeznlNQmlc+0MDekN37ph8BxbLiIaCQ7fLTRMKh0RCYue/lpUF9jsI3jh
-         2Tkl0JjHDwAQV3G1tQC3CvOOyOdPcz0pxKZFknxE=
+        b=1l/tHVc2/B6ymqg2Ed4VqEWTxDbu1SIvaC1v5NubuX4+5LZD4adU0oZ9uOTv7J2Eg
+         Hhj8x3FSIybQqX+ze2qCwJTvhn+GdI8yL3rtET/SJoXCWdAFIwagiC6GN2re3q6cJQ
+         7stqWunEySp4JFG09pJflQ85+XNm5icCj1BekuJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 055/156] cert host tools: Stop complaining about deprecated OpenSSL functions
+        patches@lists.linux.dev, Ash Logan <ash@heyquark.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 025/114] ALSA: usb-audio: Add quirk entry for M-Audio Micro
 Date:   Wed, 23 Nov 2022 09:50:12 +0100
-Message-Id: <20221123084559.927425430@linuxfoundation.org>
+Message-Id: <20221123084552.853608871@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,52 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 6bfb56e93bcef41859c2d5ab234ffd80b691be35 upstream.
+commit 2f01a612d4758b45f775dbb88a49cf534ba47275 upstream.
 
-OpenSSL 3.0 deprecated the OpenSSL's ENGINE API.  That is as may be, but
-the kernel build host tools still use it.  Disable the warning about
-deprecated declarations until somebody who cares fixes it.
+M-Audio Micro (0762:201a) defines the descriptor as vendor-specific,
+while the content seems class-compliant.  Just overriding the probe
+makes the device working.
 
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Ash Logan <ash@heyquark.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/7ecd4417-d860-4773-c1c1-b07433342390@heyquark.com
+Link: https://lore.kernel.org/r/20221108140721.24248-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/extract-cert.c |    7 +++++++
- scripts/sign-file.c    |    7 +++++++
- 2 files changed, 14 insertions(+)
+ sound/usb/quirks-table.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/scripts/extract-cert.c
-+++ b/scripts/extract-cert.c
-@@ -23,6 +23,13 @@
- #include <openssl/err.h>
- #include <openssl/engine.h>
- 
-+/*
-+ * OpenSSL 3.0 deprecates the OpenSSL's ENGINE API.
-+ *
-+ * Remove this if/when that API is no longer used
-+ */
-+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-+
- #define PKEY_ID_PKCS7 2
- 
- static __attribute__((noreturn))
---- a/scripts/sign-file.c
-+++ b/scripts/sign-file.c
-@@ -30,6 +30,13 @@
- #include <openssl/engine.h>
- 
- /*
-+ * OpenSSL 3.0 deprecates the OpenSSL's ENGINE API.
-+ *
-+ * Remove this if/when that API is no longer used
-+ */
-+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-+
-+/*
-  * Use CMS if we have openssl-1.0.0 or newer available - otherwise we have to
-  * assume that it's not available and its header file is missing and that we
-  * should use PKCS#7 instead.  Switching to the older PKCS#7 format restricts
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -2110,6 +2110,10 @@ YAMAHA_DEVICE(0x7010, "UB99"),
+ 	}
+ },
+ {
++	/* M-Audio Micro */
++	USB_DEVICE_VENDOR_SPEC(0x0763, 0x201a),
++},
++{
+ 	USB_DEVICE_VENDOR_SPEC(0x0763, 0x2030),
+ 	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
+ 		/* .vendor_name = "M-Audio", */
 
 
