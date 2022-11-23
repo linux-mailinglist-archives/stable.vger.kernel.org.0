@@ -2,44 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF36C63580A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:50:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DACD4635684
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236755AbiKWJuE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:50:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43740 "EHLO
+        id S237773AbiKWJbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:31:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236844AbiKWJth (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BF6DFAE99
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:46:20 -0800 (PST)
+        with ESMTP id S237673AbiKWJax (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 598E06164
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:29:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74A68B81EEB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE164C433D6;
-        Wed, 23 Nov 2022 09:46:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA430619F9
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:29:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C654C433C1;
+        Wed, 23 Nov 2022 09:29:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196778;
-        bh=mLO1JiiEIsXuH2DETePX1+A5i5ebwP1JmEG93V3NDpU=;
+        s=korg; t=1669195769;
+        bh=tYBtVuLghGj1IVRNT9l+TDsCZwlgI9Vqa/6GY+KEVGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N3XRF2dRSFbxm4HZ40GN3K/T4MAEEBnAwiOq9apzsJtLiKDHRckbgJJUeWpPlwtTV
-         1g49vNNaLW5iW5QVQYsNOZjFPn0/3IocsJIEN7BVyyKuwgADEM5wwFTgC+Lp0ljF4R
-         ea9/f2mb3HLs34WcHYNsYonxSW/ocwLTEHz1fHNw=
+        b=cRG1iFpuGXpvli4l4aQ/lrb89J7ojxfad51N9qSgSoU7uMXdLnm02Hx+HSiZaibZh
+         4nC6zb2ArP457OM4hQ9BcGa+v0Y9ewX/YQyaYgkbAkpmMwFtYSUANwnxscxkQtbxW1
+         P9Daa6w1W0wJ4mlVK1iDyhVx2uFhUe9P0YzmsEL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 121/314] nvmet: fix a memory leak
+        patches@lists.linux.dev, Yang Shi <shy828301@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, Hugh Dickins <hughd@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Peter Xu <peterx@redhat.com>,
+        Ajay Garg <ajaygargnsit@gmail.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Andy Lavr <andy.lavr@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Naoya Horiguchi <naoya.horiguchi@linux.dev>
+Subject: [PATCH 5.15 003/181] mm: shmem: dont truncate page if memory failure happens
 Date:   Wed, 23 Nov 2022 09:49:26 +0100
-Message-Id: <20221123084630.997878052@linuxfoundation.org>
+Message-Id: <20221123084602.818806597@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +63,223 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Yang Shi <shy828301@gmail.com>
 
-[ Upstream commit e65fdf530f55c5e387db14470a59a399faa29613 ]
+commit a7605426666196c5a460dd3de6f8dac1d3c21f00 upstream.
 
-We need to also free the dhchap_ctrl_secret when releasing nvmet_host.
-kmemleak complaint:
---
-unreferenced object 0xffff99b1cbca5140 (size 64):
-  comm "check", pid 4864, jiffies 4305092436 (age 2913.583s)
-  hex dump (first 32 bytes):
-    44 48 48 43 2d 31 3a 30 30 3a 65 36 2b 41 63 44  DHHC-1:00:e6+AcD
-    39 76 47 4d 52 57 59 78 67 54 47 44 51 59 47 78  9vGMRWYxgTGDQYGx
-  backtrace:
-    [<00000000c07d369d>] kstrdup+0x2e/0x60
-    [<000000001372171c>] 0xffffffffc0cceec6
-    [<0000000010dbf50b>] 0xffffffffc0cc6783
-    [<000000007465e93c>] configfs_write_iter+0xb1/0x120
-    [<0000000039c23f62>] vfs_write+0x2be/0x3c0
-    [<000000002da4351c>] ksys_write+0x5f/0xe0
-    [<00000000d5011e32>] do_syscall_64+0x38/0x90
-    [<00000000503870cf>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+The current behavior of memory failure is to truncate the page cache
+regardless of dirty or clean.  If the page is dirty the later access
+will get the obsolete data from disk without any notification to the
+users.  This may cause silent data loss.  It is even worse for shmem
+since shmem is in-memory filesystem, truncating page cache means
+discarding data blocks.  The later read would return all zero.
 
-Fixes: db1312dd9548 ("nvmet: implement basic In-Band Authentication")
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The right approach is to keep the corrupted page in page cache, any
+later access would return error for syscalls or SIGBUS for page fault,
+until the file is truncated, hole punched or removed.  The regular
+storage backed filesystems would be more complicated so this patch is
+focused on shmem.  This also unblock the support for soft offlining
+shmem THP.
+
+[akpm@linux-foundation.org: coding style fixes]
+[arnd@arndb.de: fix uninitialized variable use in me_pagecache_clean()]
+  Link: https://lkml.kernel.org/r/20211022064748.4173718-1-arnd@kernel.org
+[Fix invalid pointer dereference in shmem_read_mapping_page_gfp() with a
+ slight different implementation from what Ajay Garg <ajaygargnsit@gmail.com>
+ and Muchun Song <songmuchun@bytedance.com> proposed and reworked the
+ error handling of shmem_write_begin() suggested by Linus]
+  Link: https://lore.kernel.org/linux-mm/20211111084617.6746-1-ajaygargnsit@gmail.com/
+
+Link: https://lkml.kernel.org/r/20211020210755.23964-6-shy828301@gmail.com
+Link: https://lkml.kernel.org/r/20211116193247.21102-1-shy828301@gmail.com
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Ajay Garg <ajaygargnsit@gmail.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Andy Lavr <andy.lavr@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Naoya Horiguchi <naoya.horiguchi@linux.dev>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/target/configfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/memory-failure.c |   14 +++++++++++---
+ mm/shmem.c          |   51 +++++++++++++++++++++++++++++++++++++++++++++------
+ mm/userfaultfd.c    |    5 +++++
+ 3 files changed, 61 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/nvme/target/configfs.c b/drivers/nvme/target/configfs.c
-index 2bcd60758919..7f52d9dac443 100644
---- a/drivers/nvme/target/configfs.c
-+++ b/drivers/nvme/target/configfs.c
-@@ -1811,6 +1811,7 @@ static void nvmet_host_release(struct config_item *item)
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -57,6 +57,7 @@
+ #include <linux/ratelimit.h>
+ #include <linux/page-isolation.h>
+ #include <linux/pagewalk.h>
++#include <linux/shmem_fs.h>
+ #include "internal.h"
+ #include "ras/ras_event.h"
  
- #ifdef CONFIG_NVME_TARGET_AUTH
- 	kfree(host->dhchap_secret);
-+	kfree(host->dhchap_ctrl_secret);
- #endif
- 	kfree(host);
+@@ -871,6 +872,7 @@ static int me_pagecache_clean(struct pag
+ {
+ 	int ret;
+ 	struct address_space *mapping;
++	bool extra_pins;
+ 
+ 	delete_from_lru_cache(p);
+ 
+@@ -900,17 +902,23 @@ static int me_pagecache_clean(struct pag
+ 	}
+ 
+ 	/*
++	 * The shmem page is kept in page cache instead of truncating
++	 * so is expected to have an extra refcount after error-handling.
++	 */
++	extra_pins = shmem_mapping(mapping);
++
++	/*
+ 	 * Truncation is a bit tricky. Enable it per file system for now.
+ 	 *
+ 	 * Open: to take i_rwsem or not for this? Right now we don't.
+ 	 */
+ 	ret = truncate_error_page(p, page_to_pfn(p), mapping);
++	if (has_extra_refcount(ps, p, extra_pins))
++		ret = MF_FAILED;
++
+ out:
+ 	unlock_page(p);
+ 
+-	if (has_extra_refcount(ps, p, false))
+-		ret = MF_FAILED;
+-
+ 	return ret;
  }
--- 
-2.35.1
-
+ 
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2463,6 +2463,7 @@ shmem_write_begin(struct file *file, str
+ 	struct inode *inode = mapping->host;
+ 	struct shmem_inode_info *info = SHMEM_I(inode);
+ 	pgoff_t index = pos >> PAGE_SHIFT;
++	int ret = 0;
+ 
+ 	/* i_rwsem is held by caller */
+ 	if (unlikely(info->seals & (F_SEAL_GROW |
+@@ -2473,7 +2474,19 @@ shmem_write_begin(struct file *file, str
+ 			return -EPERM;
+ 	}
+ 
+-	return shmem_getpage(inode, index, pagep, SGP_WRITE);
++	ret = shmem_getpage(inode, index, pagep, SGP_WRITE);
++
++	if (ret)
++		return ret;
++
++	if (PageHWPoison(*pagep)) {
++		unlock_page(*pagep);
++		put_page(*pagep);
++		*pagep = NULL;
++		return -EIO;
++	}
++
++	return 0;
+ }
+ 
+ static int
+@@ -2560,6 +2573,12 @@ static ssize_t shmem_file_read_iter(stru
+ 			if (sgp == SGP_CACHE)
+ 				set_page_dirty(page);
+ 			unlock_page(page);
++
++			if (PageHWPoison(page)) {
++				put_page(page);
++				error = -EIO;
++				break;
++			}
+ 		}
+ 
+ 		/*
+@@ -3121,7 +3140,8 @@ static const char *shmem_get_link(struct
+ 		page = find_get_page(inode->i_mapping, 0);
+ 		if (!page)
+ 			return ERR_PTR(-ECHILD);
+-		if (!PageUptodate(page)) {
++		if (PageHWPoison(page) ||
++		    !PageUptodate(page)) {
+ 			put_page(page);
+ 			return ERR_PTR(-ECHILD);
+ 		}
+@@ -3129,6 +3149,13 @@ static const char *shmem_get_link(struct
+ 		error = shmem_getpage(inode, 0, &page, SGP_READ);
+ 		if (error)
+ 			return ERR_PTR(error);
++		if (!page)
++			return ERR_PTR(-ECHILD);
++		if (PageHWPoison(page)) {
++			unlock_page(page);
++			put_page(page);
++			return ERR_PTR(-ECHILD);
++		}
+ 		unlock_page(page);
+ 	}
+ 	set_delayed_call(done, shmem_put_link, page);
+@@ -3779,6 +3806,13 @@ static void shmem_destroy_inodecache(voi
+ 	kmem_cache_destroy(shmem_inode_cachep);
+ }
+ 
++/* Keep the page in page cache instead of truncating it */
++static int shmem_error_remove_page(struct address_space *mapping,
++				   struct page *page)
++{
++	return 0;
++}
++
+ const struct address_space_operations shmem_aops = {
+ 	.writepage	= shmem_writepage,
+ 	.set_page_dirty	= __set_page_dirty_no_writeback,
+@@ -3789,7 +3823,7 @@ const struct address_space_operations sh
+ #ifdef CONFIG_MIGRATION
+ 	.migratepage	= migrate_page,
+ #endif
+-	.error_remove_page = generic_error_remove_page,
++	.error_remove_page = shmem_error_remove_page,
+ };
+ EXPORT_SYMBOL(shmem_aops);
+ 
+@@ -4197,9 +4231,14 @@ struct page *shmem_read_mapping_page_gfp
+ 	error = shmem_getpage_gfp(inode, index, &page, SGP_CACHE,
+ 				  gfp, NULL, NULL, NULL);
+ 	if (error)
+-		page = ERR_PTR(error);
+-	else
+-		unlock_page(page);
++		return ERR_PTR(error);
++
++	unlock_page(page);
++	if (PageHWPoison(page)) {
++		put_page(page);
++		return ERR_PTR(-EIO);
++	}
++
+ 	return page;
+ #else
+ 	/*
+--- a/mm/userfaultfd.c
++++ b/mm/userfaultfd.c
+@@ -238,6 +238,11 @@ static int mcontinue_atomic_pte(struct m
+ 		goto out;
+ 	}
+ 
++	if (PageHWPoison(page)) {
++		ret = -EIO;
++		goto out_release;
++	}
++
+ 	ret = mfill_atomic_install_pte(dst_mm, dst_pmd, dst_vma, dst_addr,
+ 				       page, false, wp_copy);
+ 	if (ret)
 
 
