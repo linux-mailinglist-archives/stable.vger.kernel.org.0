@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 071576355CF
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FAE3635481
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237594AbiKWJX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:23:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37144 "EHLO
+        id S237094AbiKWJIG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:08:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237596AbiKWJXW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:23:22 -0500
+        with ESMTP id S237100AbiKWJHg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:36 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08D5010CEBE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B118B5B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:07:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6667B81EF6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D087BC433D7;
-        Wed, 23 Nov 2022 09:22:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F730B81EEE
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:07:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85729C433D7;
+        Wed, 23 Nov 2022 09:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195339;
-        bh=nvZTrhBnXULaYIkh0utOzkLR4LyToGCZxO6bBva3D04=;
+        s=korg; t=1669194453;
+        bh=VKtslqoKsQzbcRMmB1dvqG0AfN7VDOZ3O3RF399DhHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hes1FV649gsBoVRMpN8/OnSAdZII3e58O+aBuIeboFC/51Oak0+4CjzOShlTyjQAm
-         4z2WZo4n74vCS3q+i7p6VTVAp1hpeFymQAJPC/ClqNzU80kn+F6H55N6hEyBBOZ7ci
-         liVAwbIOqEddANEG5TqVdClPQCIuCOhjAJAcEGTM=
+        b=FiCkJDpRgiLOfolYIbs1htUayu3Ckn612wJJfhrnV9T1XOXGujfjdEkf8O18WJMLv
+         0i+WTMII2aNuiwTFHlUaJ7WY2Rg4WRmcAH1xkapYF28T/6Ib33+UZ5/KKbO9Lb/8op
+         ZSpM3weioClX7n8PnHpwXa6bpHN0nj66mahx0kNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        llvm@lists.linux.dev, Nathan Huckleberry <nhuck@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 055/149] ARM: dts: imx7: Fix NAND controller size-cells
+Subject: [PATCH 4.19 051/114] drm/imx: imx-tve: Fix return type of imx_tve_connector_mode_valid
 Date:   Wed, 23 Nov 2022 09:50:38 +0100
-Message-Id: <20221123084559.902834055@linuxfoundation.org>
+Message-Id: <20221123084553.896519510@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit 753395ea1e45c724150070b5785900b6a44bd5fb ]
+[ Upstream commit fc007fb815ab5395c3962c09b79a1630b0fbed9c ]
 
-The NAND controller size-cells should be 0 per DT bindings.
-Fix the following warning produces by DT bindings check:
-"
-nand-controller@33002000: #size-cells:0:0: 0 was expected
-nand-controller@33002000: Unevaluated properties are not allowed ('#address-cells', '#size-cells' were unexpected)
-"
-Fix the missing space in node name too.
+The mode_valid field in drm_connector_helper_funcs is expected to be of
+type:
+enum drm_mode_status (* mode_valid) (struct drm_connector *connector,
+                                     struct drm_display_mode *mode);
 
-Fixes: e7495a45a76de ("ARM: dts: imx7: add GPMI NAND and APBH DMA")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+The mismatched return type breaks forward edge kCFI since the underlying
+function definition does not match the function hook definition.
+
+The return type of imx_tve_connector_mode_valid should be changed from
+int to enum drm_mode_status.
+
+Reported-by: Dan Carpenter <error27@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1703
+Cc: llvm@lists.linux.dev
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220913205544.155106-1-nhuck@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx7s.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/imx/imx-tve.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx7s.dtsi b/arch/arm/boot/dts/imx7s.dtsi
-index 9e1b0af0aa43..e4ff47110a96 100644
---- a/arch/arm/boot/dts/imx7s.dtsi
-+++ b/arch/arm/boot/dts/imx7s.dtsi
-@@ -1221,10 +1221,10 @@ dma_apbh: dma-apbh@33000000 {
- 			clocks = <&clks IMX7D_NAND_USDHC_BUS_RAWNAND_CLK>;
- 		};
+diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
+index c19c1dfbfcdc..de3996fe90be 100644
+--- a/drivers/gpu/drm/imx/imx-tve.c
++++ b/drivers/gpu/drm/imx/imx-tve.c
+@@ -243,8 +243,9 @@ static int imx_tve_connector_get_modes(struct drm_connector *connector)
+ 	return ret;
+ }
  
--		gpmi: nand-controller@33002000{
-+		gpmi: nand-controller@33002000 {
- 			compatible = "fsl,imx7d-gpmi-nand";
- 			#address-cells = <1>;
--			#size-cells = <1>;
-+			#size-cells = <0>;
- 			reg = <0x33002000 0x2000>, <0x33004000 0x4000>;
- 			reg-names = "gpmi-nand", "bch";
- 			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+-static int imx_tve_connector_mode_valid(struct drm_connector *connector,
+-					struct drm_display_mode *mode)
++static enum drm_mode_status
++imx_tve_connector_mode_valid(struct drm_connector *connector,
++			     struct drm_display_mode *mode)
+ {
+ 	struct imx_tve *tve = con_to_tve(connector);
+ 	unsigned long rate;
 -- 
 2.35.1
 
