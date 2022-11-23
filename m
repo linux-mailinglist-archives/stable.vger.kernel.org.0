@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DC6B6356AD
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89B536354F9
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237838AbiKWJc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:32:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48850 "EHLO
+        id S237209AbiKWJMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:12:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237792AbiKWJbU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AA7385A12
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:30:29 -0800 (PST)
+        with ESMTP id S237225AbiKWJMh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:12:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E9B6E08
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:12:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF83761B5C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:30:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0DA6C433C1;
-        Wed, 23 Nov 2022 09:30:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4795761B14
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:12:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DA28C433C1;
+        Wed, 23 Nov 2022 09:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195828;
-        bh=rvoXpDnMHR6CBYgwvGitUozbwCVc9iIt5ox64UjXL5s=;
+        s=korg; t=1669194750;
+        bh=+emQ56EQx0N9JK4pbhuTttMoASuXe/c2+0BreFmvKRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ymVrRMVPwlYY5UaVYSfx0zyp2ElqtEiG1chLm7zpfDl///OjrT7iacmNZ3Ou8n1Aq
-         naO6TrU3x4kBOWJ4ksYK2hcAAOWa82Srt9hhi4Loqd6+GYRPAeqF7SC+9Swu86DkAk
-         NDq8+aAsUiUS0VCpRTNHNP/ZR0aGq131/YAlXZuA=
+        b=GRc5F/E93ho7Pq6Xtao6nCFzdecWm6G3XgDbsxsKLuTXEjsp6nOmWZnnDZqAC5z51
+         avqdOv9LhHZaNpOvMs9oEx92FuECG2zXzyhEOJmVacrECcwTtYu3yOdzsrVT6RAzKg
+         TVcL2zuaX5TwhkjIeFvh5kxzsWQN2hVmI59QM/0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 044/181] ASoC: core: Fix use-after-free in snd_soc_exit()
+        patches@lists.linux.dev, Matthew Auld <matthew.auld@intel.com>,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.4 050/156] drm/i915/dmabuf: fix sg_table handling in map_dma_buf
 Date:   Wed, 23 Nov 2022 09:50:07 +0100
-Message-Id: <20221123084604.257523992@linuxfoundation.org>
+Message-Id: <20221123084559.730000174@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Matthew Auld <matthew.auld@intel.com>
 
-[ Upstream commit 6ec27c53886c8963729885bcf2dd996eba2767a7 ]
+commit f90daa975911961b65070ec72bd7dd8d448f9ef7 upstream.
 
-KASAN reports a use-after-free:
+We need to iterate over the original entries here for the sg_table,
+pulling out the struct page for each one, to be remapped. However
+currently this incorrectly iterates over the final dma mapped entries,
+which is likely just one gigantic sg entry if the iommu is enabled,
+leading to us only mapping the first struct page (and any physically
+contiguous pages following it), even if there is potentially lots more
+data to follow.
 
-BUG: KASAN: use-after-free in device_del+0xb5b/0xc60
-Read of size 8 at addr ffff888008655050 by task rmmod/387
-CPU: 2 PID: 387 Comm: rmmod
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
-Call Trace:
-<TASK>
-dump_stack_lvl+0x79/0x9a
-print_report+0x17f/0x47b
-kasan_report+0xbb/0xf0
-device_del+0xb5b/0xc60
-platform_device_del.part.0+0x24/0x200
-platform_device_unregister+0x2e/0x40
-snd_soc_exit+0xa/0x22 [snd_soc_core]
-__do_sys_delete_module.constprop.0+0x34f/0x5b0
-do_syscall_64+0x3a/0x90
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-...
-</TASK>
-
-It's bacause in snd_soc_init(), snd_soc_util_init() is possble to fail,
-but its ret is ignored, which makes soc_dummy_dev unregistered twice.
-
-snd_soc_init()
-    snd_soc_util_init()
-        platform_device_register_simple(soc_dummy_dev)
-        platform_driver_register() # fail
-    	platform_device_unregister(soc_dummy_dev)
-    platform_driver_register() # success
-...
-snd_soc_exit()
-    snd_soc_util_exit()
-    # soc_dummy_dev will be unregistered for second time
-
-To fix it, handle error and stop snd_soc_init() when util_init() fail.
-Also clean debugfs when util_init() or driver_register() fail.
-
-Fixes: fb257897bf20 ("ASoC: Work around allmodconfig failure")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221028031603.59416-1-chenzhongjin@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7306
+Fixes: 1286ff739773 ("i915: add dmabuf/prime buffer sharing support.")
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Cc: <stable@vger.kernel.org> # v3.5+
+Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221028155029.494736-1-matthew.auld@intel.com
+(cherry picked from commit 28d52f99bbca7227008cf580c9194c9b3516968e)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-core.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 5da762807824..1b1749b920f4 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -3366,10 +3366,23 @@ EXPORT_SYMBOL_GPL(snd_soc_of_get_dai_link_codecs);
+--- a/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c
+@@ -36,13 +36,13 @@ static struct sg_table *i915_gem_map_dma
+ 		goto err_unpin_pages;
+ 	}
  
- static int __init snd_soc_init(void)
- {
-+	int ret;
-+
- 	snd_soc_debugfs_init();
--	snd_soc_util_init();
-+	ret = snd_soc_util_init();
-+	if (ret)
-+		goto err_util_init;
+-	ret = sg_alloc_table(st, obj->mm.pages->nents, GFP_KERNEL);
++	ret = sg_alloc_table(st, obj->mm.pages->orig_nents, GFP_KERNEL);
+ 	if (ret)
+ 		goto err_free;
  
--	return platform_driver_register(&soc_driver);
-+	ret = platform_driver_register(&soc_driver);
-+	if (ret)
-+		goto err_register;
-+	return 0;
-+
-+err_register:
-+	snd_soc_util_exit();
-+err_util_init:
-+	snd_soc_debugfs_exit();
-+	return ret;
- }
- module_init(snd_soc_init);
- 
--- 
-2.35.1
-
+ 	src = obj->mm.pages->sgl;
+ 	dst = st->sgl;
+-	for (i = 0; i < obj->mm.pages->nents; i++) {
++	for (i = 0; i < obj->mm.pages->orig_nents; i++) {
+ 		sg_set_page(dst, sg_page(src), src->length, 0);
+ 		dst = sg_next(dst);
+ 		src = sg_next(src);
 
 
