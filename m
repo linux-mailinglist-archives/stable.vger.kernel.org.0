@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26B5D635889
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:59:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2125D635473
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237093AbiKWJ7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:59:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55808 "EHLO
+        id S237108AbiKWJHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:07:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236545AbiKWJ6v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:58:51 -0500
+        with ESMTP id S237268AbiKWJHU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1CACE5F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E37661025FD
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:07:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC12061B91
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD18BC433C1;
-        Wed, 23 Nov 2022 09:52:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BCA161B4C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:07:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87FEAC433C1;
+        Wed, 23 Nov 2022 09:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197156;
-        bh=nwTYIszFR2D1cDmsmVWigrCJQ1xZTYGonN92I/EoYoU=;
+        s=korg; t=1669194425;
+        bh=KrvNOB/jWRk0+sIQgnh6ZQSThFAyEoNxallyG23zNL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ldm8oVnx0ZSjUce/xzdSuPJEen/FZMadZ1VI8JiToDXW+vY0ZZ2nbtElNbSK8aWuT
-         ZBHBhPc0MAPusc2THsiiGjBGDKSSyuJXyHPHuX6QPCYbzAXC2qeTcDwkuWbvMruCgO
-         BIeX+8bT/qfS7MaHCyJTm3P2AlGsmw5SzDIa7+m4=
+        b=B8kGyNWhE+B1UevKH6GmFpfdEvxXsBLc859vxDtqEDE5oeJx1d/FOgl6v+FmGmvO2
+         UqxoZPbNPeOwAIAXQHNmLnIvhM50atPSFfmRi/4vy9LbQzlaXJvdzZbFHh1Dm5Xsrb
+         Q1RImgQ1c9hQRv3DRaXBDbffsuktj0EHYUY3Mz5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roman Li <Roman.Li@amd.com>,
-        Tom Chung <chiahsuan.chung@amd.com>,
-        Stylon Wang <stylon.wang@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 214/314] drm/amd/display: Fix invalid DPIA AUX reply causing system hang
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 072/114] net/x25: Fix skb leak in x25_lapb_receive_frame()
 Date:   Wed, 23 Nov 2022 09:50:59 +0100
-Message-Id: <20221123084635.233993662@linuxfoundation.org>
+Message-Id: <20221123084554.759527007@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,90 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stylon Wang <stylon.wang@amd.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 8d8494c3467d366eb0f7c8198dab80be8bdc47d2 upstream.
+[ Upstream commit 2929cceb2fcf0ded7182562e4888afafece82cce ]
 
-[Why]
-Some DPIA AUX replies have incorrect data length from original request.
-This could lead to overwriting of destination buffer if reply length is
-larger, which could cause invalid access to stack since many destination
-buffers are declared as local variables.
+x25_lapb_receive_frame() using skb_copy() to get a private copy of
+skb, the new skb should be freed in the undersized/fragmented skb
+error handling path. Otherwise there is a memory leak.
 
-[How]
-Check for invalid length from DPIA AUX replies and trigger a retry if
-reply length is not the same as original request. A DRM_WARN() dmesg log
-is also produced.
-
-Reviewed-by: Roman Li <Roman.Li@amd.com>
-Acked-by: Tom Chung <chiahsuan.chung@amd.com>
-Signed-off-by: Stylon Wang <stylon.wang@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.0.x
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: cb101ed2c3c7 ("x25: Handle undersized/fragmented skbs")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Link: https://lore.kernel.org/r/20221114110519.514538-1-weiyongjun@huaweicloud.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   20 ++++++++++++++++++++
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h |    6 ------
- 2 files changed, 20 insertions(+), 6 deletions(-)
+ net/x25/x25_dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -146,6 +146,14 @@ MODULE_FIRMWARE(FIRMWARE_NAVI12_DMCU);
- /* Number of bytes in PSP footer for firmware. */
- #define PSP_FOOTER_BYTES 0x100
+diff --git a/net/x25/x25_dev.c b/net/x25/x25_dev.c
+index 30f71620d4e3..24f2676e3b66 100644
+--- a/net/x25/x25_dev.c
++++ b/net/x25/x25_dev.c
+@@ -122,7 +122,7 @@ int x25_lapb_receive_frame(struct sk_buff *skb, struct net_device *dev,
  
-+/*
-+ * DMUB Async to Sync Mechanism Status
-+ */
-+#define DMUB_ASYNC_TO_SYNC_ACCESS_FAIL 1
-+#define DMUB_ASYNC_TO_SYNC_ACCESS_TIMEOUT 2
-+#define DMUB_ASYNC_TO_SYNC_ACCESS_SUCCESS 3
-+#define DMUB_ASYNC_TO_SYNC_ACCESS_INVALID 4
-+
- /**
-  * DOC: overview
-  *
-@@ -10149,6 +10157,8 @@ static int amdgpu_dm_set_dmub_async_sync
- 			*operation_result = AUX_RET_ERROR_TIMEOUT;
- 		} else if (status_type == DMUB_ASYNC_TO_SYNC_ACCESS_FAIL) {
- 			*operation_result = AUX_RET_ERROR_ENGINE_ACQUIRE;
-+		} else if (status_type == DMUB_ASYNC_TO_SYNC_ACCESS_INVALID) {
-+			*operation_result = AUX_RET_ERROR_INVALID_REPLY;
- 		} else {
- 			*operation_result = AUX_RET_ERROR_UNKNOWN;
- 		}
-@@ -10196,6 +10206,16 @@ int amdgpu_dm_process_dmub_aux_transfer_
- 			payload->reply[0] = adev->dm.dmub_notify->aux_reply.command;
- 			if (!payload->write && adev->dm.dmub_notify->aux_reply.length &&
- 			    payload->reply[0] == AUX_TRANSACTION_REPLY_AUX_ACK) {
-+
-+				if (payload->length != adev->dm.dmub_notify->aux_reply.length) {
-+					DRM_WARN("invalid read from DPIA AUX %x(%d) got length %d!\n",
-+							payload->address, payload->length,
-+							adev->dm.dmub_notify->aux_reply.length);
-+					return amdgpu_dm_set_dmub_async_sync_status(is_cmd_aux, ctx,
-+							DMUB_ASYNC_TO_SYNC_ACCESS_INVALID,
-+							(uint32_t *)operation_result);
-+				}
-+
- 				memcpy(payload->data, adev->dm.dmub_notify->aux_reply.data,
- 				       adev->dm.dmub_notify->aux_reply.length);
- 			}
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-@@ -51,12 +51,6 @@
- #define AMDGPU_DMUB_NOTIFICATION_MAX 5
+ 	if (!pskb_may_pull(skb, 1)) {
+ 		x25_neigh_put(nb);
+-		return 0;
++		goto drop;
+ 	}
  
- /*
-- * DMUB Async to Sync Mechanism Status
-- */
--#define DMUB_ASYNC_TO_SYNC_ACCESS_FAIL 1
--#define DMUB_ASYNC_TO_SYNC_ACCESS_TIMEOUT 2
--#define DMUB_ASYNC_TO_SYNC_ACCESS_SUCCESS 3
--/*
- #include "include/amdgpu_dal_power_if.h"
- #include "amdgpu_dm_irq.h"
- */
+ 	switch (skb->data[0]) {
+-- 
+2.35.1
+
 
 
