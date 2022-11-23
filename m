@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85D30635602
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FA1A635469
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237601AbiKWJYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:24:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41750 "EHLO
+        id S237072AbiKWJH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:07:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237417AbiKWJYW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:24:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BBA482216
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:23:01 -0800 (PST)
+        with ESMTP id S237172AbiKWJHD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F32D10611A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:06:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0CA16B81EF5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:23:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E595C433C1;
-        Wed, 23 Nov 2022 09:22:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 382C961B4D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:06:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 290A4C433D6;
+        Wed, 23 Nov 2022 09:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195378;
-        bh=lkMK0xkhMTN/jpraeZPPD6HepizLa+NhnYCPB1crPH8=;
+        s=korg; t=1669194392;
+        bh=6hxc6MPuHJj9vFFflZOhIMbK1Bnk4vLqq1DobuXLxT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5UbrVL+PYK+mwzbKDnMAfJDlpIIiScAFbO7cD7qB0CXlUBXhcLsfaH662jePa4II
-         xB7inv93fKz0RCD+rl4rCvUNvyiCTTlmPe2UyQQ96sHnWRuQ7ckUbjs+Wlsu4CmsZz
-         t4LYNHYOII2GJyhJazmWU4rzVvvJJXvZbBJDH+V4=
+        b=rtPi3RQS+8j3ZGfRbEddC9fFNO9mqnMnvQVRs4SnPKn8EHHIkWU95fdlTiOoC1dKb
+         Ogu2nPqas+KfzMLniRXQam2rvBSuXljcwk9Pdz6CTX3ObImugRU5vHhPZipvLmrUxV
+         aTltoLcJhKKCjtdBgl8z/25HKx35bsBhL6opIvRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chuang Wang <nashuiliang@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/149] net: macvlan: Use built-in RCU list checking
+Subject: [PATCH 4.19 064/114] ata: libata-transport: fix double ata_host_put() in ata_tport_add()
 Date:   Wed, 23 Nov 2022 09:50:51 +0100
-Message-Id: <20221123084600.359858310@linuxfoundation.org>
+Message-Id: <20221123084554.446886094@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuang Wang <nashuiliang@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 5df1341ea822292275c56744aab9c536d75c33be ]
+[ Upstream commit 8c76310740807ade5ecdab5888f70ecb6d35732e ]
 
-hlist_for_each_entry_rcu() has built-in RCU and lock checking.
+In the error path in ata_tport_add(), when calling put_device(),
+ata_tport_release() is called, it will put the refcount of 'ap->host'.
 
-Pass cond argument to hlist_for_each_entry_rcu() to silence false
-lockdep warning when CONFIG_PROVE_RCU_LIST is enabled.
+And then ata_host_put() is called again, the refcount is decreased
+to 0, ata_host_release() is called, all ports are freed and set to
+null.
 
-Execute as follow:
+When unbinding the device after failure, ata_host_stop() is called
+to release the resources, it leads a null-ptr-deref(), because all
+the ports all freed and null.
 
- ip link add link eth0 type macvlan mode source macaddr add <MAC-ADDR>
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
+CPU: 7 PID: 18671 Comm: modprobe Kdump: loaded Tainted: G            E      6.1.0-rc3+ #8
+pstate: 80400009 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : ata_host_stop+0x3c/0x84 [libata]
+lr : release_nodes+0x64/0xd0
+Call trace:
+ ata_host_stop+0x3c/0x84 [libata]
+ release_nodes+0x64/0xd0
+ devres_release_all+0xbc/0x1b0
+ device_unbind_cleanup+0x20/0x70
+ really_probe+0x158/0x320
+ __driver_probe_device+0x84/0x120
+ driver_probe_device+0x44/0x120
+ __driver_attach+0xb4/0x220
+ bus_for_each_dev+0x78/0xdc
+ driver_attach+0x2c/0x40
+ bus_add_driver+0x184/0x240
+ driver_register+0x80/0x13c
+ __pci_register_driver+0x4c/0x60
+ ahci_pci_driver_init+0x30/0x1000 [ahci]
 
-The rtnl_lock is held when macvlan_hash_lookup_source() or
-macvlan_fill_info_macaddr() are called in the non-RCU read side section.
-So, pass lockdep_rtnl_is_held() to silence false lockdep warning.
+Fix this by removing redundant ata_host_put() in the error path.
 
-Fixes: 79cf79abce71 ("macvlan: add source mode")
-Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2623c7a5f279 ("libata: add refcounting to ata_host")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macvlan.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/ata/libata-transport.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
-index 6b269a72388b..5d6b4f76b519 100644
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -139,7 +139,7 @@ static struct macvlan_source_entry *macvlan_hash_lookup_source(
- 	u32 idx = macvlan_eth_hash(addr);
- 	struct hlist_head *h = &vlan->port->vlan_source_hash[idx];
+diff --git a/drivers/ata/libata-transport.c b/drivers/ata/libata-transport.c
+index 43a91495ee67..f04f4f977400 100644
+--- a/drivers/ata/libata-transport.c
++++ b/drivers/ata/libata-transport.c
+@@ -317,7 +317,6 @@ int ata_tport_add(struct device *parent,
+  tport_err:
+ 	transport_destroy_device(dev);
+ 	put_device(dev);
+-	ata_host_put(ap->host);
+ 	return error;
+ }
  
--	hlist_for_each_entry_rcu(entry, h, hlist) {
-+	hlist_for_each_entry_rcu(entry, h, hlist, lockdep_rtnl_is_held()) {
- 		if (ether_addr_equal_64bits(entry->addr, addr) &&
- 		    entry->vlan == vlan)
- 			return entry;
-@@ -1614,7 +1614,7 @@ static int macvlan_fill_info_macaddr(struct sk_buff *skb,
- 	struct hlist_head *h = &vlan->port->vlan_source_hash[i];
- 	struct macvlan_source_entry *entry;
- 
--	hlist_for_each_entry_rcu(entry, h, hlist) {
-+	hlist_for_each_entry_rcu(entry, h, hlist, lockdep_rtnl_is_held()) {
- 		if (entry->vlan != vlan)
- 			continue;
- 		if (nla_put(skb, IFLA_MACVLAN_MACADDR, ETH_ALEN, entry->addr))
 -- 
 2.35.1
 
