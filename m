@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C4A2635790
+	by mail.lfdr.de (Postfix) with ESMTP id D60D0635792
 	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238194AbiKWJng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238126AbiKWJng (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 23 Nov 2022 04:43:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35726 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238126AbiKWJmx (ORCPT
+        with ESMTP id S238128AbiKWJmx (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:42:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA98E3D16
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:40:19 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C083610AD27
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:40:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76BB5619F9
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:40:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83921C433C1;
-        Wed, 23 Nov 2022 09:40:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BCCD61B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:40:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C546C433C1;
+        Wed, 23 Nov 2022 09:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196418;
-        bh=2FHhCl+8gDNxm4q8X5lF/H2rmAqxjZI+LwQGOZJtzkw=;
+        s=korg; t=1669196422;
+        bh=GBvxC92X5aZMOeIL3/LdoqGdqXcHCSF6AmwTzSf1DqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbJapUWD1REVL6FLKE0DVTFyO3DxgoJH80uKy0pdJm38PxmWWlKFhmHysq7QPjs6/
-         w60iv5AusiT+U+SCdgJqJrFFY+BzSaMM26+5IbQbBDk03zUAZwDoNRvdEm1hn1tFpc
-         BZTeyaKeGOa+EIIgUBoEYCwYeAg8HmIM4pLrvAzg=
+        b=U/Zz9SvZVwlAawB1hZ7vyrN2awI1Y2YTgLY68FbJgisaFhFU7cfe/0fD6WiJ7tNu3
+         QY5YQ1ZUE1I+cktBQ2OU2OXqXHDOTPc030YJA7S3Ynt9ebdjiegdqCEYx959/IVR0J
+         qrczvySUPDD/3MRIV8YErY6uQl/8OUVDIy7i9Gjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yiqing Yao <yiqing.yao@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Jelle van der Waa <jvanderwaa@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 025/314] drm/amdgpu: Adjust MES polling timeout for sriov
-Date:   Wed, 23 Nov 2022 09:47:50 +0100
-Message-Id: <20221123084626.634286815@linuxfoundation.org>
+Subject: [PATCH 6.0 026/314] platform/x86: thinkpad_acpi: Fix reporting a non present second fan on some models
+Date:   Wed, 23 Nov 2022 09:47:51 +0100
+Message-Id: <20221123084626.685018340@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -53,55 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yiqing Yao <yiqing.yao@amd.com>
+From: Jelle van der Waa <jvanderwaa@redhat.com>
 
-[ Upstream commit 226dcfad349f23f7744d02b24f8ec3bc4f6198ac ]
+[ Upstream commit a10d50983f7befe85acf95ea7dbf6ba9187c2d70 ]
 
-[why]
-MES response time in sriov may be longer than default value
-due to reset or init in other VF. A timeout value specific
-to sriov is needed.
+thinkpad_acpi was reporting 2 fans on a ThinkPad T14s gen 1, even though
+the laptop has only 1 fan.
 
-[how]
-When in sriov, adjust the timeout value to calculated
-worst case scenario.
+The second, not present fan always reads 65535 (-1 in 16 bit signed),
+ignore fans which report 65535 to avoid reporting the non present fan.
 
-Signed-off-by: Yiqing Yao <yiqing.yao@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Jelle van der Waa <jvanderwaa@redhat.com>
+Link: https://lore.kernel.org/r/20221019194751.5392-1-jvanderwaa@redhat.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/mes_v11_0.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/platform/x86/thinkpad_acpi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
-index 2dd827472d6e..3bff0ae15e64 100644
---- a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
-@@ -96,7 +96,14 @@ static int mes_v11_0_submit_pkt_and_poll_completion(struct amdgpu_mes *mes,
- 	struct amdgpu_device *adev = mes->adev;
- 	struct amdgpu_ring *ring = &mes->ring;
- 	unsigned long flags;
-+	signed long timeout = adev->usec_timeout;
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 2dbb9fc011a7..353507d18e11 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -263,6 +263,8 @@ enum tpacpi_hkey_event_t {
+ #define TPACPI_DBG_BRGHT	0x0020
+ #define TPACPI_DBG_MIXER	0x0040
  
-+	if (amdgpu_emu_mode) {
-+		timeout *= 100;
-+	} else if (amdgpu_sriov_vf(adev)) {
-+		/* Worst case in sriov where all other 15 VF timeout, each VF needs about 600ms */
-+		timeout = 15 * 600 * 1000;
-+	}
- 	BUG_ON(size % 4 != 0);
++#define FAN_NOT_PRESENT		65535
++
+ #define strlencmp(a, b) (strncmp((a), (b), strlen(b)))
  
- 	spin_lock_irqsave(&mes->ring_lock, flags);
-@@ -116,7 +123,7 @@ static int mes_v11_0_submit_pkt_and_poll_completion(struct amdgpu_mes *mes,
- 	DRM_DEBUG("MES msg=%d was emitted\n", x_pkt->header.opcode);
  
- 	r = amdgpu_fence_wait_polling(ring, ring->fence_drv.sync_seq,
--		      adev->usec_timeout * (amdgpu_emu_mode ? 100 : 1));
-+		      timeout);
- 	if (r < 1) {
- 		DRM_ERROR("MES failed to response msg=%d\n",
- 			  x_pkt->header.opcode);
+@@ -8876,7 +8878,7 @@ static int __init fan_init(struct ibm_init_struct *iibm)
+ 			/* Try and probe the 2nd fan */
+ 			tp_features.second_fan = 1; /* needed for get_speed to work */
+ 			res = fan2_get_speed(&speed);
+-			if (res >= 0) {
++			if (res >= 0 && speed != FAN_NOT_PRESENT) {
+ 				/* It responded - so let's assume it's there */
+ 				tp_features.second_fan = 1;
+ 				tp_features.second_fan_ctl = 1;
 -- 
 2.35.1
 
