@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5708863541D
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 432BF635849
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:54:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237049AbiKWJEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:04:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40792 "EHLO
+        id S237081AbiKWJyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:54:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236929AbiKWJEM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:04:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF831100B02
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:03:55 -0800 (PST)
+        with ESMTP id S237267AbiKWJxM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:53:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED345E6762
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:49:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFE7BB81ECB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:03:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7681C433C1;
-        Wed, 23 Nov 2022 09:03:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B35661B22
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:49:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 668C8C433C1;
+        Wed, 23 Nov 2022 09:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194233;
-        bh=5HbzkVatp0g3AbejAztJgq1G/krFE8J0n5HgUG76pPA=;
+        s=korg; t=1669196977;
+        bh=SdcKlAwypcLs/pbgUt3hnQsTMteq0JL8OduNhqFzqt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yNFb14HEch9tTtwYyNTOlm1MOzayFt3nFPIhwLInTvS84cNMyXDVBflRoaBB2tGLw
-         /uFkswYrCSyCmeVWPxO7ziUkvfcQk2sUtCi8MWO2zG7gLeDZMGlqEcjq56P2mMk0f4
-         M6Fb69AR7YANdvKzlGlwitNYkQz4aHMu1znCBLXw=
+        b=OFCHgyPbM1ocCYQiu5lItOsXtRFbIbOBRqb6bCit4Psygin9nwiTcjlihfmG5i1Zb
+         uDC6xgEeJha375n8HahBjkhLltZ6zXyCf9PZOERnsehWm2DLlyyOYMgiebIhD+atRV
+         dx8z0n8J/DIKW317SBwfnQ4YGjkmHzWR2xltYt24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
-        Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 021/114] riscv: process: fix kernel info leakage
+Subject: [PATCH 6.0 163/314] octeon_ep: ensure get mac address successfully before eth_hw_addr_set()
 Date:   Wed, 23 Nov 2022 09:50:08 +0100
-Message-Id: <20221123084552.689702260@linuxfoundation.org>
+Message-Id: <20221123084632.957016975@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 6510c78490c490a6636e48b61eeaa6fb65981f4b ]
+[ Upstream commit 848ffce2f0c93f3481052340a919123a21f808b6 ]
 
-thread_struct's s[12] may contain random kernel memory content, which
-may be finally leaked to userspace. This is a security hole. Fix it
-by clearing the s[12] array in thread_struct when fork.
+octep_get_mac_addr() can fail because send mbox message failed. If this
+happens, octep_dev->mac_addr will be zero. It should not continue to
+initialize. Add exception handling for octep_get_mac_addr() to fix it.
 
-As for kthread case, it's better to clear the s[12] array as well.
-
-Fixes: 7db91e57a0ac ("RISC-V: Task implementation")
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Tested-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/20221029113450.4027-1-jszhang@kernel.org
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/CAJF2gTSdVyAaM12T%2B7kXAdRPGS4VyuO08X1c7paE-n4Fr8OtRA@mail.gmail.com/
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: 862cd659a6fb ("octeon_ep: Add driver framework and device initialization")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/process.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/marvell/octeon_ep/octep_main.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
-index d7c6ca7c95ae..64180108072c 100644
---- a/arch/riscv/kernel/process.c
-+++ b/arch/riscv/kernel/process.c
-@@ -104,6 +104,8 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
- {
- 	struct pt_regs *childregs = task_pt_regs(p);
+diff --git a/drivers/net/ethernet/marvell/octeon_ep/octep_main.c b/drivers/net/ethernet/marvell/octeon_ep/octep_main.c
+index ac1e37afbe7b..8a6a81bcec5c 100644
+--- a/drivers/net/ethernet/marvell/octeon_ep/octep_main.c
++++ b/drivers/net/ethernet/marvell/octeon_ep/octep_main.c
+@@ -1072,7 +1072,11 @@ static int octep_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	netdev->max_mtu = OCTEP_MAX_MTU;
+ 	netdev->mtu = OCTEP_DEFAULT_MTU;
  
-+	memset(&p->thread.s, 0, sizeof(p->thread.s));
-+
- 	/* p->thread holds context to be restored by __switch_to() */
- 	if (unlikely(p->flags & PF_KTHREAD)) {
- 		/* Kernel thread */
+-	octep_get_mac_addr(octep_dev, octep_dev->mac_addr);
++	err = octep_get_mac_addr(octep_dev, octep_dev->mac_addr);
++	if (err) {
++		dev_err(&pdev->dev, "Failed to get mac address\n");
++		goto register_dev_err;
++	}
+ 	eth_hw_addr_set(netdev, octep_dev->mac_addr);
+ 
+ 	err = register_netdev(netdev);
 -- 
 2.35.1
 
