@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34066635718
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B5D635889
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:59:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237897AbiKWJh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:37:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57392 "EHLO
+        id S237093AbiKWJ7x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:59:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237926AbiKWJhY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:24 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 759EE6148
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:18 -0800 (PST)
+        with ESMTP id S236545AbiKWJ6v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:58:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1CACE5F
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 968B9CE20E5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CF6DC433D6;
-        Wed, 23 Nov 2022 09:35:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC12061B91
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD18BC433C1;
+        Wed, 23 Nov 2022 09:52:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196113;
-        bh=y95hiEpU1E+Mm0GKGD7ZvHT8vZFZLFP4ZwJuKsKkSBs=;
+        s=korg; t=1669197156;
+        bh=nwTYIszFR2D1cDmsmVWigrCJQ1xZTYGonN92I/EoYoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qQNL5IOa4S3Q3p9w68apRWWrFVPe75k9EMqvhBlnfeRJH81y8iMY1x8QMVJbPimXP
-         mwb4XvWwdDgExL5STmIj+gPsfHQveNnp4ZHUEtk1ndtYMDApschs/2rf5biyoL4uFJ
-         EGE+iB6li/qPyxcZVDBkV99YMzfTz1N/phJramso=
+        b=Ldm8oVnx0ZSjUce/xzdSuPJEen/FZMadZ1VI8JiToDXW+vY0ZZ2nbtElNbSK8aWuT
+         ZBHBhPc0MAPusc2THsiiGjBGDKSSyuJXyHPHuX6QPCYbzAXC2qeTcDwkuWbvMruCgO
+         BIeX+8bT/qfS7MaHCyJTm3P2AlGsmw5SzDIa7+m4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 096/181] drbd: use after free in drbd_create_device()
+        patches@lists.linux.dev, Roman Li <Roman.Li@amd.com>,
+        Tom Chung <chiahsuan.chung@amd.com>,
+        Stylon Wang <stylon.wang@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.0 214/314] drm/amd/display: Fix invalid DPIA AUX reply causing system hang
 Date:   Wed, 23 Nov 2022 09:50:59 +0100
-Message-Id: <20221123084606.478755160@linuxfoundation.org>
+Message-Id: <20221123084635.233993662@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Stylon Wang <stylon.wang@amd.com>
 
-[ Upstream commit a7a1598189228b5007369a9622ccdf587be0730f ]
+commit 8d8494c3467d366eb0f7c8198dab80be8bdc47d2 upstream.
 
-The drbd_destroy_connection() frees the "connection" so use the _safe()
-iterator to prevent a use after free.
+[Why]
+Some DPIA AUX replies have incorrect data length from original request.
+This could lead to overwriting of destination buffer if reply length is
+larger, which could cause invalid access to stack since many destination
+buffers are declared as local variables.
 
-Fixes: b6f85ef9538b ("drbd: Iterate over all connections")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Link: https://lore.kernel.org/r/Y3Jd5iZRbNQ9w6gm@kili
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[How]
+Check for invalid length from DPIA AUX replies and trigger a retry if
+reply length is not the same as original request. A DRM_WARN() dmesg log
+is also produced.
+
+Reviewed-by: Roman Li <Roman.Li@amd.com>
+Acked-by: Tom Chung <chiahsuan.chung@amd.com>
+Signed-off-by: Stylon Wang <stylon.wang@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.0.x
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/drbd/drbd_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   20 ++++++++++++++++++++
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h |    6 ------
+ 2 files changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index d59af26d7703..f4e38c208b9f 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -2699,7 +2699,7 @@ static int init_submitter(struct drbd_device *device)
- enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsigned int minor)
- {
- 	struct drbd_resource *resource = adm_ctx->resource;
--	struct drbd_connection *connection;
-+	struct drbd_connection *connection, *n;
- 	struct drbd_device *device;
- 	struct drbd_peer_device *peer_device, *tmp_peer_device;
- 	struct gendisk *disk;
-@@ -2815,7 +2815,7 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
- 	return NO_ERROR;
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -146,6 +146,14 @@ MODULE_FIRMWARE(FIRMWARE_NAVI12_DMCU);
+ /* Number of bytes in PSP footer for firmware. */
+ #define PSP_FOOTER_BYTES 0x100
  
- out_idr_remove_from_resource:
--	for_each_connection(connection, resource) {
-+	for_each_connection_safe(connection, n, resource) {
- 		peer_device = idr_remove(&connection->peer_devices, vnr);
- 		if (peer_device)
- 			kref_put(&connection->kref, drbd_destroy_connection);
--- 
-2.35.1
-
++/*
++ * DMUB Async to Sync Mechanism Status
++ */
++#define DMUB_ASYNC_TO_SYNC_ACCESS_FAIL 1
++#define DMUB_ASYNC_TO_SYNC_ACCESS_TIMEOUT 2
++#define DMUB_ASYNC_TO_SYNC_ACCESS_SUCCESS 3
++#define DMUB_ASYNC_TO_SYNC_ACCESS_INVALID 4
++
+ /**
+  * DOC: overview
+  *
+@@ -10149,6 +10157,8 @@ static int amdgpu_dm_set_dmub_async_sync
+ 			*operation_result = AUX_RET_ERROR_TIMEOUT;
+ 		} else if (status_type == DMUB_ASYNC_TO_SYNC_ACCESS_FAIL) {
+ 			*operation_result = AUX_RET_ERROR_ENGINE_ACQUIRE;
++		} else if (status_type == DMUB_ASYNC_TO_SYNC_ACCESS_INVALID) {
++			*operation_result = AUX_RET_ERROR_INVALID_REPLY;
+ 		} else {
+ 			*operation_result = AUX_RET_ERROR_UNKNOWN;
+ 		}
+@@ -10196,6 +10206,16 @@ int amdgpu_dm_process_dmub_aux_transfer_
+ 			payload->reply[0] = adev->dm.dmub_notify->aux_reply.command;
+ 			if (!payload->write && adev->dm.dmub_notify->aux_reply.length &&
+ 			    payload->reply[0] == AUX_TRANSACTION_REPLY_AUX_ACK) {
++
++				if (payload->length != adev->dm.dmub_notify->aux_reply.length) {
++					DRM_WARN("invalid read from DPIA AUX %x(%d) got length %d!\n",
++							payload->address, payload->length,
++							adev->dm.dmub_notify->aux_reply.length);
++					return amdgpu_dm_set_dmub_async_sync_status(is_cmd_aux, ctx,
++							DMUB_ASYNC_TO_SYNC_ACCESS_INVALID,
++							(uint32_t *)operation_result);
++				}
++
+ 				memcpy(payload->data, adev->dm.dmub_notify->aux_reply.data,
+ 				       adev->dm.dmub_notify->aux_reply.length);
+ 			}
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
+@@ -51,12 +51,6 @@
+ #define AMDGPU_DMUB_NOTIFICATION_MAX 5
+ 
+ /*
+- * DMUB Async to Sync Mechanism Status
+- */
+-#define DMUB_ASYNC_TO_SYNC_ACCESS_FAIL 1
+-#define DMUB_ASYNC_TO_SYNC_ACCESS_TIMEOUT 2
+-#define DMUB_ASYNC_TO_SYNC_ACCESS_SUCCESS 3
+-/*
+ #include "include/amdgpu_dal_power_if.h"
+ #include "amdgpu_dm_irq.h"
+ */
 
 
