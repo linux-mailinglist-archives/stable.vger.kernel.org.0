@@ -2,151 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFE696356B4
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3E4563543B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237881AbiKWJc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:32:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50212 "EHLO
+        id S236957AbiKWJFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:05:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237920AbiKWJcC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:32:02 -0500
+        with ESMTP id S237045AbiKWJEr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:04:47 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E49F6571
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CF44102E75
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:04:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEB6161B65
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9601C433D7;
-        Wed, 23 Nov 2022 09:31:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 303B761B43
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:04:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16270C433C1;
+        Wed, 23 Nov 2022 09:04:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195873;
-        bh=Uw6ThUPtlGjZSzu0+6MMneBzgkM3pRG9ykStTPC+8uA=;
+        s=korg; t=1669194276;
+        bh=MOtZ+1XwF9L8NClGNVvYDcoL1pj78xnTuxPaniLfDdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c88xPgKfoDC0HwMgOUbVIvMqSqB6b8u1HdDB2ywNSh+fJgzQYLcd2oczwJtcT6BTQ
-         az5kYw4ifW2bgoCo30uGOVOwVNBbCj289aZIVO1ta+v5cpdZ+mziq4q+gQ6VFbbAn6
-         k/hQrpir5CP2hXKz6lG+FRmHd/sJ6xze1WILVYoA=
+        b=wZciey6jPcouyO7o/T5S5fTUGc7RjmhHtYwwjYwFa2o+t6zfGrNXK+yD0SbTOwqNU
+         8gc7LXOzz5c1hLnS2NzPrCLz8TiZ2r656JAqrnsznx9cuYhprM3BKXKlXvpgkxIIOe
+         ZhxeLNTZwX96Lp835KaRN+i/i6jA3Xgm2YoVikoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 056/181] pinctrl: rockchip: list all pins in a possible mux route for PX30
+        patches@lists.linux.dev, Anand Jain <anand.jain@oracle.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 032/114] btrfs: selftests: fix wrong error check in btrfs_free_dummy_root()
 Date:   Wed, 23 Nov 2022 09:50:19 +0100
-Message-Id: <20221123084604.788496891@linuxfoundation.org>
+Message-Id: <20221123084553.126365418@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit bee55f2e7a44e7a7676e264b42f026e34bd244d9 ]
+commit 9b2f20344d450137d015b380ff0c2e2a6a170135 upstream.
 
-The mux routes are incomplete for the PX30. This was discovered because
-we had a HW design using cif-clkoutm1 with the correct pinmux in the
-Device Tree but the clock would still not work.
+The btrfs_alloc_dummy_root() uses ERR_PTR as the error return value
+rather than NULL, if error happened, there will be a NULL pointer
+dereference:
 
-There are actually two muxing required: the pin muxing (performed by the
-usual Device Tree pinctrl nodes) and the "function" muxing (m0 vs m1;
-performed by the mux routing inside the driver). The pin muxing was
-correct but the function muxing was not.
+  BUG: KASAN: null-ptr-deref in btrfs_free_dummy_root+0x21/0x50 [btrfs]
+  Read of size 8 at addr 000000000000002c by task insmod/258926
 
-This adds the missing pins and their configuration for the mux routes
-that are already specified in the driver.
+  CPU: 2 PID: 258926 Comm: insmod Tainted: G        W          6.1.0-rc2+ #5
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc33 04/01/2014
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x44
+   kasan_report+0xb7/0x140
+   kasan_check_range+0x145/0x1a0
+   btrfs_free_dummy_root+0x21/0x50 [btrfs]
+   btrfs_test_free_space_cache+0x1a8c/0x1add [btrfs]
+   btrfs_run_sanity_tests+0x65/0x80 [btrfs]
+   init_btrfs_fs+0xec/0x154 [btrfs]
+   do_one_initcall+0x87/0x2a0
+   do_init_module+0xdf/0x320
+   load_module+0x3006/0x3390
+   __do_sys_finit_module+0x113/0x1b0
+   do_syscall_64+0x35/0x80
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Note that there are some "conflicts": it is possible *in Device Tree* to
-(attempt to) mux the pins for e.g. clkoutm1 and clkinm0 at the same time
-but this is actually not possible in hardware (because both share the
-same bit for the function muxing). Since it is an impossible hardware
-design, it is not deemed necessary to prevent the user from attempting
-to "misconfigure" the pins/functions.
-
-Fixes: 87065ca9b8e5 ("pinctrl: rockchip: Add pinctrl support for PX30")
-Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
-Link: https://lore.kernel.org/r/20221017-upstream-px30-cif-clkoutm1-v1-0-4ea1389237f7@theobroma-systems.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: aaedb55bc08f ("Btrfs: add tests for btrfs_get_extent")
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 40 ++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ fs/btrfs/tests/btrfs-tests.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index bae6cc83ea36..25ec0d22f184 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -608,14 +608,54 @@ static void rockchip_get_recalced_mux(struct rockchip_pin_bank *bank, int pin,
- }
+--- a/fs/btrfs/tests/btrfs-tests.c
++++ b/fs/btrfs/tests/btrfs-tests.c
+@@ -174,7 +174,7 @@ void btrfs_free_dummy_fs_info(struct btr
  
- static struct rockchip_mux_route_data px30_mux_route_data[] = {
-+	RK_MUXROUTE_SAME(2, RK_PB4, 1, 0x184, BIT(16 + 7)), /* cif-d0m0 */
-+	RK_MUXROUTE_SAME(3, RK_PA1, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d0m1 */
-+	RK_MUXROUTE_SAME(2, RK_PB6, 1, 0x184, BIT(16 + 7)), /* cif-d1m0 */
-+	RK_MUXROUTE_SAME(3, RK_PA2, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d1m1 */
- 	RK_MUXROUTE_SAME(2, RK_PA0, 1, 0x184, BIT(16 + 7)), /* cif-d2m0 */
- 	RK_MUXROUTE_SAME(3, RK_PA3, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d2m1 */
-+	RK_MUXROUTE_SAME(2, RK_PA1, 1, 0x184, BIT(16 + 7)), /* cif-d3m0 */
-+	RK_MUXROUTE_SAME(3, RK_PA5, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d3m1 */
-+	RK_MUXROUTE_SAME(2, RK_PA2, 1, 0x184, BIT(16 + 7)), /* cif-d4m0 */
-+	RK_MUXROUTE_SAME(3, RK_PA7, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d4m1 */
-+	RK_MUXROUTE_SAME(2, RK_PA3, 1, 0x184, BIT(16 + 7)), /* cif-d5m0 */
-+	RK_MUXROUTE_SAME(3, RK_PB0, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d5m1 */
-+	RK_MUXROUTE_SAME(2, RK_PA4, 1, 0x184, BIT(16 + 7)), /* cif-d6m0 */
-+	RK_MUXROUTE_SAME(3, RK_PB1, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d6m1 */
-+	RK_MUXROUTE_SAME(2, RK_PA5, 1, 0x184, BIT(16 + 7)), /* cif-d7m0 */
-+	RK_MUXROUTE_SAME(3, RK_PB4, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d7m1 */
-+	RK_MUXROUTE_SAME(2, RK_PA6, 1, 0x184, BIT(16 + 7)), /* cif-d8m0 */
-+	RK_MUXROUTE_SAME(3, RK_PB6, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d8m1 */
-+	RK_MUXROUTE_SAME(2, RK_PA7, 1, 0x184, BIT(16 + 7)), /* cif-d9m0 */
-+	RK_MUXROUTE_SAME(3, RK_PB7, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d9m1 */
-+	RK_MUXROUTE_SAME(2, RK_PB7, 1, 0x184, BIT(16 + 7)), /* cif-d10m0 */
-+	RK_MUXROUTE_SAME(3, RK_PC6, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d10m1 */
-+	RK_MUXROUTE_SAME(2, RK_PC0, 1, 0x184, BIT(16 + 7)), /* cif-d11m0 */
-+	RK_MUXROUTE_SAME(3, RK_PC7, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d11m1 */
-+	RK_MUXROUTE_SAME(2, RK_PB0, 1, 0x184, BIT(16 + 7)), /* cif-vsyncm0 */
-+	RK_MUXROUTE_SAME(3, RK_PD1, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-vsyncm1 */
-+	RK_MUXROUTE_SAME(2, RK_PB1, 1, 0x184, BIT(16 + 7)), /* cif-hrefm0 */
-+	RK_MUXROUTE_SAME(3, RK_PD2, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-hrefm1 */
-+	RK_MUXROUTE_SAME(2, RK_PB2, 1, 0x184, BIT(16 + 7)), /* cif-clkinm0 */
-+	RK_MUXROUTE_SAME(3, RK_PD3, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-clkinm1 */
-+	RK_MUXROUTE_SAME(2, RK_PB3, 1, 0x184, BIT(16 + 7)), /* cif-clkoutm0 */
-+	RK_MUXROUTE_SAME(3, RK_PD0, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-clkoutm1 */
- 	RK_MUXROUTE_SAME(3, RK_PC6, 2, 0x184, BIT(16 + 8)), /* pdm-m0 */
- 	RK_MUXROUTE_SAME(2, RK_PC6, 1, 0x184, BIT(16 + 8) | BIT(8)), /* pdm-m1 */
-+	RK_MUXROUTE_SAME(3, RK_PD3, 2, 0x184, BIT(16 + 8)), /* pdm-sdi0m0 */
-+	RK_MUXROUTE_SAME(2, RK_PC5, 2, 0x184, BIT(16 + 8) | BIT(8)), /* pdm-sdi0m1 */
- 	RK_MUXROUTE_SAME(1, RK_PD3, 2, 0x184, BIT(16 + 10)), /* uart2-rxm0 */
- 	RK_MUXROUTE_SAME(2, RK_PB6, 2, 0x184, BIT(16 + 10) | BIT(10)), /* uart2-rxm1 */
-+	RK_MUXROUTE_SAME(1, RK_PD2, 2, 0x184, BIT(16 + 10)), /* uart2-txm0 */
-+	RK_MUXROUTE_SAME(2, RK_PB4, 2, 0x184, BIT(16 + 10) | BIT(10)), /* uart2-txm1 */
- 	RK_MUXROUTE_SAME(0, RK_PC1, 2, 0x184, BIT(16 + 9)), /* uart3-rxm0 */
- 	RK_MUXROUTE_SAME(1, RK_PB7, 2, 0x184, BIT(16 + 9) | BIT(9)), /* uart3-rxm1 */
-+	RK_MUXROUTE_SAME(0, RK_PC0, 2, 0x184, BIT(16 + 9)), /* uart3-txm0 */
-+	RK_MUXROUTE_SAME(1, RK_PB6, 2, 0x184, BIT(16 + 9) | BIT(9)), /* uart3-txm1 */
-+	RK_MUXROUTE_SAME(0, RK_PC2, 2, 0x184, BIT(16 + 9)), /* uart3-ctsm0 */
-+	RK_MUXROUTE_SAME(1, RK_PB4, 2, 0x184, BIT(16 + 9) | BIT(9)), /* uart3-ctsm1 */
-+	RK_MUXROUTE_SAME(0, RK_PC3, 2, 0x184, BIT(16 + 9)), /* uart3-rtsm0 */
-+	RK_MUXROUTE_SAME(1, RK_PB5, 2, 0x184, BIT(16 + 9) | BIT(9)), /* uart3-rtsm1 */
- };
- 
- static struct rockchip_mux_route_data rk3128_mux_route_data[] = {
--- 
-2.35.1
-
+ void btrfs_free_dummy_root(struct btrfs_root *root)
+ {
+-	if (!root)
++	if (IS_ERR_OR_NULL(root))
+ 		return;
+ 	/* Will be freed by btrfs_free_fs_roots */
+ 	if (WARN_ON(test_bit(BTRFS_ROOT_IN_RADIX, &root->state)))
 
 
