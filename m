@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09EB2635853
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:55:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40EA76355CA
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236415AbiKWJzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:55:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51396 "EHLO
+        id S237413AbiKWJVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:21:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236376AbiKWJyL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:54:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 759011121D8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:50:15 -0800 (PST)
+        with ESMTP id S237454AbiKWJUl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:20:41 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8068147307
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:20:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28129B81EF3
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:50:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45CC5C433D6;
-        Wed, 23 Nov 2022 09:50:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B8340CE20F1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:20:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2CDCC433C1;
+        Wed, 23 Nov 2022 09:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197012;
-        bh=fJ0lPZa0ylFVhACa79Ytd26siB75fd7+pfkuz5h4/NE=;
+        s=korg; t=1669195235;
+        bh=1ORQlxAowSfhXvICF3tR/7GM3ipW9w9XtoSFsQVIZSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EaDiE8IKmO+YM+h8KxCfg02Uvxw+Vr3FnQt/2E+I9Rffxq5k+zaNZfHATYmTxhydJ
-         JD5hjkWg3dIUN/LL93Wvt7p3/UFM2pKBjrcV4q6mLnPJim/oFDp20aj63BTdJm8NUk
-         tpPMf7Kf0wB2nOcLDcKvggyynOjJy34M2hw2XaUc=
+        b=x+EyLdm66I7jwlKkEJG9yoRsF2TdxrN5EzFUE0jUYk7QajWEdLjGfibTwauA/d2mP
+         WvwoyaJVyZn6KiWRnJgHNWgVbHY8eqxHFRQdSAvcuTKgETVjkERBywtKYFhASkFX0l
+         DYBgnb1D9hcyvSaakN8lxbAjkzL+Vvp7oXF1af3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liao Chang <liaochang1@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        patches@lists.linux.dev, Xiaolei Wang <xiaolei.wang@windriver.com>,
+        Adam Ford <aford173@gmail.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 143/314] MIPS: Loongson64: Add WARN_ON on kexec related kmalloc failed
+Subject: [PATCH 5.10 005/149] ASoC: wm8962: Add an event handler for TEMP_HP and TEMP_SPK
 Date:   Wed, 23 Nov 2022 09:49:48 +0100
-Message-Id: <20221123084632.019197689@linuxfoundation.org>
+Message-Id: <20221123084558.154578395@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +55,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liao Chang <liaochang1@huawei.com>
+From: Xiaolei Wang <xiaolei.wang@windriver.com>
 
-[ Upstream commit fa706927f4722a2df723b2a28d139b1904a3e7fa ]
+[ Upstream commit ee1aa2ae3eaa96e70229fa61deee87ef4528ffdf ]
 
-Add WARN_ON on kexec related kmalloc failed, avoid to pass NULL pointer
-to following memcpy and loongson_kexec_prepare.
+In wm8962 driver, the WM8962_ADDITIONAL_CONTROL_4 is used as a volatile
+register, but this register mixes a bunch of volatile status bits and a
+bunch of non-volatile control bits. The dapm widgets TEMP_HP and
+TEMP_SPK leverages the control bits in this register. After the wm8962
+probe, the regmap will bet set to cache only mode, then a read error
+like below would be triggered when trying to read the initial power
+state of the dapm widgets TEMP_HP and TEMP_SPK.
+  wm8962 0-001a: ASoC: error at soc_component_read_no_lock
+  on wm8962.0-001a: -16
 
-Fixes: 6ce48897ce47 ("MIPS: Loongson64: Add kexec/kdump support")
-Signed-off-by: Liao Chang <liaochang1@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+In order to fix this issue, we add event handler to actually power
+up/down these widgets. With this change, we also need to explicitly
+power off these widgets in the wm8962 probe since they are enabled
+by default.
+
+Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
+Tested-by: Adam Ford <aford173@gmail.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20221010092014.2229246-1-xiaolei.wang@windriver.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/loongson64/reset.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/soc/codecs/wm8962.c | 54 +++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 52 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/loongson64/reset.c b/arch/mips/loongson64/reset.c
-index 758d5d26aaaa..e420800043b0 100644
---- a/arch/mips/loongson64/reset.c
-+++ b/arch/mips/loongson64/reset.c
-@@ -16,6 +16,7 @@
- #include <asm/bootinfo.h>
- #include <asm/idle.h>
- #include <asm/reboot.h>
-+#include <asm/bug.h>
+diff --git a/sound/soc/codecs/wm8962.c b/sound/soc/codecs/wm8962.c
+index 38651022e3d5..21574447650c 100644
+--- a/sound/soc/codecs/wm8962.c
++++ b/sound/soc/codecs/wm8962.c
+@@ -1840,6 +1840,49 @@ SOC_SINGLE_TLV("SPKOUTR Mixer DACR Volume", WM8962_SPEAKER_MIXER_5,
+ 	       4, 1, 0, inmix_tlv),
+ };
  
- #include <loongson.h>
- #include <boot_param.h>
-@@ -159,8 +160,17 @@ static int __init mips_reboot_setup(void)
++static int tp_event(struct snd_soc_dapm_widget *w,
++		    struct snd_kcontrol *kcontrol, int event)
++{
++	int ret, reg, val, mask;
++	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
++
++	ret = pm_runtime_resume_and_get(component->dev);
++	if (ret < 0) {
++		dev_err(component->dev, "Failed to resume device: %d\n", ret);
++		return ret;
++	}
++
++	reg = WM8962_ADDITIONAL_CONTROL_4;
++
++	if (!strcmp(w->name, "TEMP_HP")) {
++		mask = WM8962_TEMP_ENA_HP_MASK;
++		val = WM8962_TEMP_ENA_HP;
++	} else if (!strcmp(w->name, "TEMP_SPK")) {
++		mask = WM8962_TEMP_ENA_SPK_MASK;
++		val = WM8962_TEMP_ENA_SPK;
++	} else {
++		pm_runtime_put(component->dev);
++		return -EINVAL;
++	}
++
++	switch (event) {
++	case SND_SOC_DAPM_POST_PMD:
++		val = 0;
++		fallthrough;
++	case SND_SOC_DAPM_POST_PMU:
++		ret = snd_soc_component_update_bits(component, reg, mask, val);
++		break;
++	default:
++		WARN(1, "Invalid event %d\n", event);
++		pm_runtime_put(component->dev);
++		return -EINVAL;
++	}
++
++	pm_runtime_put(component->dev);
++
++	return 0;
++}
++
+ static int cp_event(struct snd_soc_dapm_widget *w,
+ 		    struct snd_kcontrol *kcontrol, int event)
+ {
+@@ -2133,8 +2176,10 @@ SND_SOC_DAPM_SUPPLY("TOCLK", WM8962_ADDITIONAL_CONTROL_1, 0, 0, NULL, 0),
+ SND_SOC_DAPM_SUPPLY_S("DSP2", 1, WM8962_DSP2_POWER_MANAGEMENT,
+ 		      WM8962_DSP2_ENA_SHIFT, 0, dsp2_event,
+ 		      SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_PRE_PMD),
+-SND_SOC_DAPM_SUPPLY("TEMP_HP", WM8962_ADDITIONAL_CONTROL_4, 2, 0, NULL, 0),
+-SND_SOC_DAPM_SUPPLY("TEMP_SPK", WM8962_ADDITIONAL_CONTROL_4, 1, 0, NULL, 0),
++SND_SOC_DAPM_SUPPLY("TEMP_HP", SND_SOC_NOPM, 0, 0, tp_event,
++		SND_SOC_DAPM_POST_PMU|SND_SOC_DAPM_POST_PMD),
++SND_SOC_DAPM_SUPPLY("TEMP_SPK", SND_SOC_NOPM, 0, 0, tp_event,
++		SND_SOC_DAPM_POST_PMU|SND_SOC_DAPM_POST_PMD),
  
- #ifdef CONFIG_KEXEC
- 	kexec_argv = kmalloc(KEXEC_ARGV_SIZE, GFP_KERNEL);
-+	if (WARN_ON(!kexec_argv))
-+		return -ENOMEM;
-+
- 	kdump_argv = kmalloc(KEXEC_ARGV_SIZE, GFP_KERNEL);
-+	if (WARN_ON(!kdump_argv))
-+		return -ENOMEM;
-+
- 	kexec_envp = kmalloc(KEXEC_ENVP_SIZE, GFP_KERNEL);
-+	if (WARN_ON(!kexec_envp))
-+		return -ENOMEM;
-+
- 	fw_arg1 = KEXEC_ARGV_ADDR;
- 	memcpy(kexec_envp, (void *)fw_arg2, KEXEC_ENVP_SIZE);
+ SND_SOC_DAPM_MIXER("INPGAL", WM8962_LEFT_INPUT_PGA_CONTROL, 4, 0,
+ 		   inpgal, ARRAY_SIZE(inpgal)),
+@@ -3760,6 +3805,11 @@ static int wm8962_i2c_probe(struct i2c_client *i2c,
+ 	if (ret < 0)
+ 		goto err_pm_runtime;
  
++	regmap_update_bits(wm8962->regmap, WM8962_ADDITIONAL_CONTROL_4,
++			    WM8962_TEMP_ENA_HP_MASK, 0);
++	regmap_update_bits(wm8962->regmap, WM8962_ADDITIONAL_CONTROL_4,
++			    WM8962_TEMP_ENA_SPK_MASK, 0);
++
+ 	regcache_cache_only(wm8962->regmap, true);
+ 
+ 	/* The drivers should power up as needed */
 -- 
 2.35.1
 
