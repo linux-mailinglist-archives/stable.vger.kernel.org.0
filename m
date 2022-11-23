@@ -2,136 +2,245 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8049B636865
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 19:16:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ECBD636897
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 19:20:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239429AbiKWSOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 13:14:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41608 "EHLO
+        id S237976AbiKWSUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 13:20:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239536AbiKWSNc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 13:13:32 -0500
-Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9EA8BC3B
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 10:09:25 -0800 (PST)
-Received: by mail-pl1-x64a.google.com with SMTP id b18-20020a170903229200b00186e357f3b9so14121587plh.6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 10:09:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=8AnrcGQxermayS9lzY4/PftYYJ1h7RYNfHX8xCVtV1c=;
-        b=mLkBARzh9DEoczzapN40SjDSvfSO9nAnK4l7SEQlkecJWP9ks6Bnl+jjSjXJFx96mP
-         X/zxr5Gdo+FYdbk0nY5U+gtLuL1HoNADzQsH1vNYJ3aHZjb5OWnAkVWeYx1Nr4cx608+
-         5rCF9s1+CsORn3Gva3cK6mJniR0xr8NdKtzQ/lt/wo61RW1zH4tnHKYqX+nl2bZMMJmO
-         P19cZl/P1PQEyizWuij5WoOIv41uIflr/80PPs00WtxoMR/gbsEqqJSyrAeFhZGKAW5v
-         9FWFTV250Y2UnKZXM0FOoER96PJUv6pk6HezB4soFYS5xu5FUh9wZ5o49oM2hkb5wfk+
-         uqWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=8AnrcGQxermayS9lzY4/PftYYJ1h7RYNfHX8xCVtV1c=;
-        b=YXdDsyaIw+JBYYTFbkf5mOc2Ntrfyp8cOLQvihF529uWfKZrVikakMnMibqXjV4Rl8
-         I8KivRQ18QCiQqU8MnhRkiai9bqYbYTt3RQyY56MTQQXJIu5Js231a4eKR7BdnigB1oM
-         CMIOIkUvkGFuAOhVCHdbN5D7Mu1Q9P82ctmyQfJ3jkxaAsYlS4D0nT7/0fPNZKxhPw1u
-         kZ6eARPqkc920JXTimfngFDSY7Tm8FRUn2zFfkWp5cGemYV5Qd/VVc1gH7xL9OIl0mFE
-         iKmn+WeYO3rhv5Qc5BmcqcomK9vN150tRO0VjJpiFv31Vh+XL7SC3bm59cjFO7i8lIGV
-         HzAg==
-X-Gm-Message-State: ANoB5pkWeujZ7JApaHM8vUFpDBoMsFFU4Vd/A4jUWt7SPm9J8/luTUla
-        cPpGJkekRRjeg1o0kroDTp+nu2KWxxbuAw==
-X-Google-Smtp-Source: AA0mqf5Xc1KOJwNTNf49TsdXYL1qiDu6Xvj71CD7OpYTPMjz0vmWKZRCyaIGhUW8iWfg/r1x3ex8Wa7SZojBNw==
-X-Received: from xllamas.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5070])
- (user=cmllamas job=sendgmr) by 2002:a17:90a:cf08:b0:218:6bd8:3114 with SMTP
- id h8-20020a17090acf0800b002186bd83114mr31561207pju.128.1669226965293; Wed,
- 23 Nov 2022 10:09:25 -0800 (PST)
-Date:   Wed, 23 Nov 2022 18:09:21 +0000
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.38.1.584.g0f3c55d4c2-goog
-Message-ID: <20221123180922.1502550-1-cmllamas@google.com>
-Subject: [PATCH 5.15] binder: validate alloc->mm in ->mmap() handler
-From:   Carlos Llamas <cmllamas@google.com>
+        with ESMTP id S238892AbiKWST7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 13:19:59 -0500
+Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAB36B85;
+        Wed, 23 Nov 2022 10:19:57 -0800 (PST)
+Received: from fedor-dummypc.intra.ispras.ru (unknown [10.10.165.4])
+        by mail.ispras.ru (Postfix) with ESMTPSA id 9D6E740D4004;
+        Wed, 23 Nov 2022 18:19:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.ispras.ru 9D6E740D4004
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ispras.ru;
+        s=default; t=1669227594;
+        bh=aEKfkaPDGkocbXhGsULGvnhKc/adpsBqQl1m77p2DtY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=TUR+KFDwSSrC5Lz00os7h8xYFwgRwXlyeeBHazGTle6pns2oEz0wCkQRRJX6HmCma
+         p/KWfKhfAcbIE59kFVIuDOI1B0tV7zQ72Iz5bDtFEZq4MRjLC1XSnibPQDqCKwB+ia
+         /gSTUaoBrjZt4IIFmd9TbhdLjzO5tg1IlqsM8CkM=
+From:   Fedor Pchelkin <pchelkin@ispras.ru>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "=?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?=" <arve@android.com>,
-        Todd Kjos <tkjos@android.com>,
-        Martijn Coenen <maco@android.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Christian Brauner <christian@brauner.io>,
-        Hridya Valsaraju <hridya@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Carlos Llamas <cmllamas@google.com>
-Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
-        Jann Horn <jannh@google.com>, stable@vger.kernel.org,
-        Todd Kjos <tkjos@google.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        stable@vger.kernel.org
+Cc:     Fedor Pchelkin <pchelkin@ispras.ru>, linux-kernel@vger.kernel.org,
+        Daniel Starke <daniel.starke@siemens.com>,
+        jirislaby@kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        lvc-project@linuxtesting.org
+Subject: [PATCH 5.10] Revert "tty: n_gsm: avoid call of sleeping functions from atomic context"
+Date:   Wed, 23 Nov 2022 21:19:16 +0300
+Message-Id: <20221123181916.6911-1-pchelkin@ispras.ru>
+X-Mailer: git-send-email 2.38.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 3ce00bb7e91cf57d723905371507af57182c37ef upstream.
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-Since commit 1da52815d5f1 ("binder: fix alloc->vma_vm_mm null-ptr
-dereference") binder caches a pointer to the current->mm during open().
-This fixes a null-ptr dereference reported by syzkaller. Unfortunately,
-it also opens the door for a process to update its mm after the open(),
-(e.g. via execve) making the cached alloc->mm pointer invalid.
+[ Upstream commit acdab4cb4ba7e5f94d2b422ebd7bf4bf68178fb2 ]
 
-Things get worse when the process continues to mmap() a vma. From this
-point forward, binder will attempt to find this vma using an obsolete
-alloc->mm reference. Such as in binder_update_page_range(), where the
-wrong vma is obtained via vma_lookup(), yet binder proceeds to happily
-insert new pages into it.
+This reverts commit eb75efdec8dd0f01ac85c88feafa6e63b34a2521.
 
-To avoid this issue fail the ->mmap() callback if we detect a mismatch
-between the vma->vm_mm and the original alloc->mm pointer. This prevents
-alloc->vm_addr from getting set, so that any subsequent vma_lookup()
-calls fail as expected.
+The above commit is reverted as the usage of tx_mutex seems not to solve
+the problem described in eb75efdec8dd ("tty: n_gsm: avoid call of sleeping
+functions from atomic context") and just moves the bug to another place.
 
-Fixes: 1da52815d5f1 ("binder: fix alloc->vma_vm_mm null-ptr dereference")
-Reported-by: Jann Horn <jannh@google.com>
-Cc: <stable@vger.kernel.org> # 5.15+
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Acked-by: Todd Kjos <tkjos@google.com>
-Link: https://lore.kernel.org/r/20221104231235.348958-1-cmllamas@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[cmllamas: renamed alloc->mm since missing e66b77e50522]
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Reviewed-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20221008110221.13645-2-pchelkin@ispras.ru
 ---
- drivers/android/binder_alloc.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/tty/n_gsm.c | 39 +++++++++++++++++++++------------------
+ 1 file changed, 21 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
-index 8ed450125c92..6acfb896b2e5 100644
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -753,6 +753,12 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
- 	const char *failure_string;
- 	struct binder_buffer *buffer;
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index c91a3004931f..c2212f52a603 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -235,7 +235,7 @@ struct gsm_mux {
+ 	int old_c_iflag;		/* termios c_iflag value before attach */
+ 	bool constipated;		/* Asked by remote to shut up */
  
-+	if (unlikely(vma->vm_mm != alloc->vma_vm_mm)) {
-+		ret = -EINVAL;
-+		failure_string = "invalid vma->vm_mm";
-+		goto err_invalid_mm;
-+	}
-+
- 	mutex_lock(&binder_alloc_mmap_lock);
- 	if (alloc->buffer_size) {
- 		ret = -EBUSY;
-@@ -799,6 +805,7 @@ int binder_alloc_mmap_handler(struct binder_alloc *alloc,
- 	alloc->buffer_size = 0;
- err_already_mapped:
- 	mutex_unlock(&binder_alloc_mmap_lock);
-+err_invalid_mm:
- 	binder_alloc_debug(BINDER_DEBUG_USER_ERROR,
- 			   "%s: %d %lx-%lx %s failed %d\n", __func__,
- 			   alloc->pid, vma->vm_start, vma->vm_end,
+-	struct mutex tx_mutex;
++	spinlock_t tx_lock;
+ 	unsigned int tx_bytes;		/* TX data outstanding */
+ #define TX_THRESH_HI		8192
+ #define TX_THRESH_LO		2048
+@@ -820,14 +820,15 @@ static void __gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
+  *
+  *	Add data to the transmit queue and try and get stuff moving
+  *	out of the mux tty if not already doing so. Take the
+- *	the gsm tx mutex and dlci lock.
++ *	the gsm tx lock and dlci lock.
+  */
+ 
+ static void gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
+ {
+-	mutex_lock(&dlci->gsm->tx_mutex);
++	unsigned long flags;
++	spin_lock_irqsave(&dlci->gsm->tx_lock, flags);
+ 	__gsm_data_queue(dlci, msg);
+-	mutex_unlock(&dlci->gsm->tx_mutex);
++	spin_unlock_irqrestore(&dlci->gsm->tx_lock, flags);
+ }
+ 
+ /**
+@@ -839,7 +840,7 @@ static void gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
+  *	is data. Keep to the MRU of the mux. This path handles the usual tty
+  *	interface which is a byte stream with optional modem data.
+  *
+- *	Caller must hold the tx_mutex of the mux.
++ *	Caller must hold the tx_lock of the mux.
+  */
+ 
+ static int gsm_dlci_data_output(struct gsm_mux *gsm, struct gsm_dlci *dlci)
+@@ -902,7 +903,7 @@ static int gsm_dlci_data_output(struct gsm_mux *gsm, struct gsm_dlci *dlci)
+  *	is data. Keep to the MRU of the mux. This path handles framed data
+  *	queued as skbuffs to the DLCI.
+  *
+- *	Caller must hold the tx_mutex of the mux.
++ *	Caller must hold the tx_lock of the mux.
+  */
+ 
+ static int gsm_dlci_data_output_framed(struct gsm_mux *gsm,
+@@ -918,7 +919,7 @@ static int gsm_dlci_data_output_framed(struct gsm_mux *gsm,
+ 	if (dlci->adaption == 4)
+ 		overhead = 1;
+ 
+-	/* dlci->skb is locked by tx_mutex */
++	/* dlci->skb is locked by tx_lock */
+ 	if (dlci->skb == NULL) {
+ 		dlci->skb = skb_dequeue_tail(&dlci->skb_list);
+ 		if (dlci->skb == NULL)
+@@ -1018,12 +1019,13 @@ static void gsm_dlci_data_sweep(struct gsm_mux *gsm)
+ 
+ static void gsm_dlci_data_kick(struct gsm_dlci *dlci)
+ {
++	unsigned long flags;
+ 	int sweep;
+ 
+ 	if (dlci->constipated)
+ 		return;
+ 
+-	mutex_lock(&dlci->gsm->tx_mutex);
++	spin_lock_irqsave(&dlci->gsm->tx_lock, flags);
+ 	/* If we have nothing running then we need to fire up */
+ 	sweep = (dlci->gsm->tx_bytes < TX_THRESH_LO);
+ 	if (dlci->gsm->tx_bytes == 0) {
+@@ -1034,7 +1036,7 @@ static void gsm_dlci_data_kick(struct gsm_dlci *dlci)
+ 	}
+ 	if (sweep)
+ 		gsm_dlci_data_sweep(dlci->gsm);
+-	mutex_unlock(&dlci->gsm->tx_mutex);
++	spin_unlock_irqrestore(&dlci->gsm->tx_lock, flags);
+ }
+ 
+ /*
+@@ -1256,6 +1258,7 @@ static void gsm_control_message(struct gsm_mux *gsm, unsigned int command,
+ 						const u8 *data, int clen)
+ {
+ 	u8 buf[1];
++	unsigned long flags;
+ 
+ 	switch (command) {
+ 	case CMD_CLD: {
+@@ -1277,9 +1280,9 @@ static void gsm_control_message(struct gsm_mux *gsm, unsigned int command,
+ 		gsm->constipated = false;
+ 		gsm_control_reply(gsm, CMD_FCON, NULL, 0);
+ 		/* Kick the link in case it is idling */
+-		mutex_lock(&gsm->tx_mutex);
++		spin_lock_irqsave(&gsm->tx_lock, flags);
+ 		gsm_data_kick(gsm, NULL);
+-		mutex_unlock(&gsm->tx_mutex);
++		spin_unlock_irqrestore(&gsm->tx_lock, flags);
+ 		break;
+ 	case CMD_FCOFF:
+ 		/* Modem wants us to STFU */
+@@ -2225,7 +2228,6 @@ static void gsm_free_mux(struct gsm_mux *gsm)
+ 			break;
+ 		}
+ 	}
+-	mutex_destroy(&gsm->tx_mutex);
+ 	mutex_destroy(&gsm->mutex);
+ 	kfree(gsm->txframe);
+ 	kfree(gsm->buf);
+@@ -2297,12 +2299,12 @@ static struct gsm_mux *gsm_alloc_mux(void)
+ 	}
+ 	spin_lock_init(&gsm->lock);
+ 	mutex_init(&gsm->mutex);
+-	mutex_init(&gsm->tx_mutex);
+ 	kref_init(&gsm->ref);
+ 	INIT_LIST_HEAD(&gsm->tx_list);
+ 	timer_setup(&gsm->t2_timer, gsm_control_retransmit, 0);
+ 	init_waitqueue_head(&gsm->event);
+ 	spin_lock_init(&gsm->control_lock);
++	spin_lock_init(&gsm->tx_lock);
+ 
+ 	gsm->t1 = T1;
+ 	gsm->t2 = T2;
+@@ -2327,7 +2329,6 @@ static struct gsm_mux *gsm_alloc_mux(void)
+ 	}
+ 	spin_unlock(&gsm_mux_lock);
+ 	if (i == MAX_MUX) {
+-		mutex_destroy(&gsm->tx_mutex);
+ 		mutex_destroy(&gsm->mutex);
+ 		kfree(gsm->txframe);
+ 		kfree(gsm->buf);
+@@ -2652,15 +2653,16 @@ static int gsmld_open(struct tty_struct *tty)
+ static void gsmld_write_wakeup(struct tty_struct *tty)
+ {
+ 	struct gsm_mux *gsm = tty->disc_data;
++	unsigned long flags;
+ 
+ 	/* Queue poll */
+ 	clear_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
+-	mutex_lock(&gsm->tx_mutex);
++	spin_lock_irqsave(&gsm->tx_lock, flags);
+ 	gsm_data_kick(gsm, NULL);
+ 	if (gsm->tx_bytes < TX_THRESH_LO) {
+ 		gsm_dlci_data_sweep(gsm);
+ 	}
+-	mutex_unlock(&gsm->tx_mutex);
++	spin_unlock_irqrestore(&gsm->tx_lock, flags);
+ }
+ 
+ /**
+@@ -2703,6 +2705,7 @@ static ssize_t gsmld_write(struct tty_struct *tty, struct file *file,
+ 			   const unsigned char *buf, size_t nr)
+ {
+ 	struct gsm_mux *gsm = tty->disc_data;
++	unsigned long flags;
+ 	int space;
+ 	int ret;
+ 
+@@ -2710,13 +2713,13 @@ static ssize_t gsmld_write(struct tty_struct *tty, struct file *file,
+ 		return -ENODEV;
+ 
+ 	ret = -ENOBUFS;
+-	mutex_lock(&gsm->tx_mutex);
++	spin_lock_irqsave(&gsm->tx_lock, flags);
+ 	space = tty_write_room(tty);
+ 	if (space >= nr)
+ 		ret = tty->ops->write(tty, buf, nr);
+ 	else
+ 		set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
+-	mutex_unlock(&gsm->tx_mutex);
++	spin_unlock_irqrestore(&gsm->tx_lock, flags);
+ 
+ 	return ret;
+ }
 -- 
-2.38.1.584.g0f3c55d4c2-goog
+2.38.1
 
