@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F35F63539D
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E49F16353F7
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236683AbiKWI5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:57:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33228 "EHLO
+        id S236876AbiKWJBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:01:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236697AbiKWI5c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:57:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99F7FC31
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:57:27 -0800 (PST)
+        with ESMTP id S236872AbiKWJA6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:00:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E681001C4
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:00:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36F8A61B4B
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:57:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1502CC4347C;
-        Wed, 23 Nov 2022 08:57:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DBDAB81EF0
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:00:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D20C433B5;
+        Wed, 23 Nov 2022 09:00:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193846;
-        bh=jC5ctidMD+rvvvSf0jBUaX3iTZ9SEWA5HHJqBvOC/V0=;
+        s=korg; t=1669194050;
+        bh=UGUIHjAjz5dv9pOuDdViwc7DVG/GyVhrQf5n/HP54Zg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNgELaBM1DAJZOTUH2r/p6Qo+IX3I7r/7n6XZCrQRIxFvzIk+QvN2dhiJyiM5RXeP
-         FP3xYMcv7X/9YreesUqKgggs/q2+xQIskdd1X1IXJjSkXsxc4zb1P2mq230f/hdehL
-         zPgmsWXSFx7qBeYddLR6XJmHGGPS0yizKPuWtbUM=
+        b=YTE7hHmUSa6NXT8CceA0qenp+oJgFXCGRNysNkd2ykfqO0PdRCtXdCUvHhBtjpWdk
+         yq/4FShdu3jOe8xeAn9T91zP1q48SVMPcVU/cAAgq1tskI87IpSYqumUzmwAXDCpoz
+         jkyQw+EEqdKJ12GSzrbMnUWwmZ2jNEJgy2i6F/Qs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Duoming Zhou <duoming@zju.edu.cn>
-Subject: [PATCH 4.9 56/76] usb: chipidea: fix deadlock in ci_otg_del_timer
+        patches@lists.linux.dev,
+        =?UTF-8?q?Beno=C3=AEt=20Monin?= <benoit.monin@gmx.fr>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 58/88] USB: serial: option: add Sierra Wireless EM9191
 Date:   Wed, 23 Nov 2022 09:50:55 +0100
-Message-Id: <20221123084548.595706939@linuxfoundation.org>
+Message-Id: <20221123084550.575734005@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Benoît Monin <benoit.monin@gmx.fr>
 
-commit 7a58b8d6021426b796eebfae80983374d9a80a75 upstream.
+commit df3414b0a245f43476061fddd78cee7d6cff797f upstream.
 
-There is a deadlock in ci_otg_del_timer(), the process is
-shown below:
+Add support for the AT and diag ports, similar to other qualcomm SDX55
+modems. In QDL mode, the modem uses a different device ID and support
+is provided by qcserial in commit 11c52d250b34 ("USB: serial: qcserial:
+add EM9191 QDL support").
 
-    (thread 1)                  |        (thread 2)
-ci_otg_del_timer()              | ci_otg_hrtimer_func()
-  ...                           |
-  spin_lock_irqsave() //(1)     |  ...
-  ...                           |
-  hrtimer_cancel()              |  spin_lock_irqsave() //(2)
-  (block forever)
+T:  Bus=08 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
+D:  Ver= 3.20 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
+P:  Vendor=1199 ProdID=90d3 Rev=00.06
+S:  Manufacturer=Sierra Wireless, Incorporated
+S:  Product=Sierra Wireless EM9191
+S:  SerialNumber=xxxxxxxxxxxxxxxx
+C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
 
-We hold ci->lock in position (1) and use hrtimer_cancel() to
-wait ci_otg_hrtimer_func() to stop, but ci_otg_hrtimer_func()
-also need ci->lock in position (2). As a result, the
-hrtimer_cancel() in ci_otg_del_timer() will be blocked forever.
-
-This patch extracts hrtimer_cancel() from the protection of
-spin_lock_irqsave() in order that the ci_otg_hrtimer_func()
-could obtain the ci->lock.
-
-What`s more, there will be no race happen. Because the
-"next_timer" is always under the protection of
-spin_lock_irqsave() and we only check whether "next_timer"
-equals to NUM_OTG_FSM_TIMERS in the following code.
-
-Fixes: 3a316ec4c91c ("usb: chipidea: use hrtimer for otg fsm timers")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220918033312.94348-1-duoming@zju.edu.cn
+Signed-off-by: Benoît Monin <benoit.monin@gmx.fr>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/chipidea/otg_fsm.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/option.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/usb/chipidea/otg_fsm.c
-+++ b/drivers/usb/chipidea/otg_fsm.c
-@@ -260,8 +260,10 @@ static void ci_otg_del_timer(struct ci_h
- 	ci->enabled_otg_timer_bits &= ~(1 << t);
- 	if (ci->next_otg_timer == t) {
- 		if (ci->enabled_otg_timer_bits == 0) {
-+			spin_unlock_irqrestore(&ci->lock, flags);
- 			/* No enabled timers after delete it */
- 			hrtimer_cancel(&ci->otg_fsm_hrtimer);
-+			spin_lock_irqsave(&ci->lock, flags);
- 			ci->next_otg_timer = NUM_OTG_FSM_TIMERS;
- 		} else {
- 			/* Find the next timer */
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -584,6 +584,9 @@ static void option_instat_callback(struc
+ #define OPPO_VENDOR_ID				0x22d9
+ #define OPPO_PRODUCT_R11			0x276c
+ 
++/* Sierra Wireless products */
++#define SIERRA_VENDOR_ID			0x1199
++#define SIERRA_PRODUCT_EM9191			0x90d3
+ 
+ /* Device flags */
+ 
+@@ -2178,6 +2181,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(OPPO_VENDOR_ID, OPPO_PRODUCT_R11, 0xff, 0xff, 0x30) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(SIERRA_VENDOR_ID, SIERRA_PRODUCT_EM9191, 0xff, 0xff, 0x30) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(SIERRA_VENDOR_ID, SIERRA_PRODUCT_EM9191, 0xff, 0, 0) },
+ 	{ } /* Terminating entry */
+ };
+ MODULE_DEVICE_TABLE(usb, option_ids);
 
 
