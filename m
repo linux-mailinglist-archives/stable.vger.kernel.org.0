@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10E426356AF
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D60316354FD
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237841AbiKWJc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:32:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45204 "EHLO
+        id S236849AbiKWJNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:13:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237857AbiKWJb3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:29 -0500
+        with ESMTP id S237229AbiKWJNG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:13:06 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884C1FD0A
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A02726ADC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:13:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25CD661B65
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 307C1C433D7;
-        Wed, 23 Nov 2022 09:30:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 528A261B10
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:13:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4695FC433D6;
+        Wed, 23 Nov 2022 09:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195859;
-        bh=7F/t3BCaqQ52NSh+yPgrBxY/e0O2jmGG/dw4tg+V2Hw=;
+        s=korg; t=1669194782;
+        bh=DHnu9Kj8lDXtv7Qud2tqVP72YccyPGWrtfhI/W4B+Ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRbeJ5jCgYSur9ULSoQN+WHM0sPjWWx4ERnFTkn7v3qMJg+PdQx+hRAkGM0CySx6y
-         ICSMLpraiDfCmGAssWQQXDcpUz3zvvKTuhx/m3Ug0HtuYfzw6pecWo2slqUWIk6OSN
-         YafXNJm4M2mHH3DWH3xvahTwwkz9PAclPTMa+lOs=
+        b=zKWRm4xHr66KKcIEWn7aWj2SIfQFKj8C6uxlT6FS1JHjxQJfHBb6nw37Bpxx4tjGz
+         X/X1gaN2GVlmtM1IVfrBrxm14exEKX0GXBi4Te8fXO2i31FXRzB9ZHOq45Dq2iMqXF
+         ts8RG9nYRvYdtoL8Wp7SraErxJa/iEJxp7wN3gYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin Kaiser <martin@kaiser.cx>,
-        Shawn Guo <shawn.guo@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 052/181] serial: imx: Add missing .thaw_noirq hook
+        patches@lists.linux.dev, Peter Rosin <peda@axentia.se>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 058/156] dmaengine: at_hdmac: Fix completion of unissued descriptor in case of errors
 Date:   Wed, 23 Nov 2022 09:50:15 +0100
-Message-Id: <20221123084604.621404983@linuxfoundation.org>
+Message-Id: <20221123084600.051447788@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,95 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Guo <shawn.guo@linaro.org>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-[ Upstream commit 4561d8008a467cb05ac632a215391d6b787f40aa ]
+commit ef2cb4f0ce479f77607b04c4b0414bf32f863ee8 upstream.
 
-The following warning is seen with non-console UART instance when
-system hibernates.
+In case the controller detected an error, the code took the chance to move
+all the queued (submitted) descriptors to the active (issued) list. This
+was wrong as if there were any descriptors in the submitted list they were
+moved to the issued list without actually issuing them to the controller,
+thus a completion could be raised without even fireing the descriptor.
 
-[   37.371969] ------------[ cut here ]------------
-[   37.376599] uart3_root_clk already disabled
-[   37.380810] WARNING: CPU: 0 PID: 296 at drivers/clk/clk.c:952 clk_core_disable+0xa4/0xb0
-...
-[   37.506986] Call trace:
-[   37.509432]  clk_core_disable+0xa4/0xb0
-[   37.513270]  clk_disable+0x34/0x50
-[   37.516672]  imx_uart_thaw+0x38/0x5c
-[   37.520250]  platform_pm_thaw+0x30/0x6c
-[   37.524089]  dpm_run_callback.constprop.0+0x3c/0xd4
-[   37.528972]  device_resume+0x7c/0x160
-[   37.532633]  dpm_resume+0xe8/0x230
-[   37.536036]  hibernation_snapshot+0x288/0x430
-[   37.540397]  hibernate+0x10c/0x2e0
-[   37.543798]  state_store+0xc4/0xd0
-[   37.547203]  kobj_attr_store+0x1c/0x30
-[   37.550953]  sysfs_kf_write+0x48/0x60
-[   37.554619]  kernfs_fop_write_iter+0x118/0x1ac
-[   37.559063]  new_sync_write+0xe8/0x184
-[   37.562812]  vfs_write+0x230/0x290
-[   37.566214]  ksys_write+0x68/0xf4
-[   37.569529]  __arm64_sys_write+0x20/0x2c
-[   37.573452]  invoke_syscall.constprop.0+0x50/0xf0
-[   37.578156]  do_el0_svc+0x11c/0x150
-[   37.581648]  el0_svc+0x30/0x140
-[   37.584792]  el0t_64_sync_handler+0xe8/0xf0
-[   37.588976]  el0t_64_sync+0x1a0/0x1a4
-[   37.592639] ---[ end trace 56e22eec54676d75 ]---
-
-On hibernating, pm core calls into related hooks in sequence like:
-
-    .freeze
-    .freeze_noirq
-    .thaw_noirq
-    .thaw
-
-With .thaw_noirq hook being absent, the clock will be disabled in a
-unbalanced call which results the warning above.
-
-    imx_uart_freeze()
-        clk_prepare_enable()
-    imx_uart_suspend_noirq()
-        clk_disable()
-    imx_uart_thaw
-        clk_disable_unprepare()
-
-Adding the missing .thaw_noirq hook as imx_uart_resume_noirq() will have
-the call sequence corrected as below and thus fix the warning.
-
-    imx_uart_freeze()
-        clk_prepare_enable()
-    imx_uart_suspend_noirq()
-        clk_disable()
-    imx_uart_resume_noirq()
-        clk_enable()
-    imx_uart_thaw
-        clk_disable_unprepare()
-
-Fixes: 09df0b3464e5 ("serial: imx: fix endless loop during suspend")
-Reviewed-by: Martin Kaiser <martin@kaiser.cx>
-Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-Link: https://lore.kernel.org/r/20221012121353.2346280-1-shawn.guo@linaro.org
+Fixes: dc78baa2b90b ("dmaengine: at_hdmac: new driver for the Atmel AHB DMA Controller")
+Reported-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20221025090306.297886-1-tudor.ambarus@microchip.com
+Link: https://lore.kernel.org/r/20221025090306.297886-13-tudor.ambarus@microchip.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/imx.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/at_hdmac.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index c6a93d6a9464..711edb835c27 100644
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -2563,6 +2563,7 @@ static const struct dev_pm_ops imx_uart_pm_ops = {
- 	.suspend_noirq = imx_uart_suspend_noirq,
- 	.resume_noirq = imx_uart_resume_noirq,
- 	.freeze_noirq = imx_uart_suspend_noirq,
-+	.thaw_noirq = imx_uart_resume_noirq,
- 	.restore_noirq = imx_uart_resume_noirq,
- 	.suspend = imx_uart_suspend,
- 	.resume = imx_uart_resume,
--- 
-2.35.1
-
+--- a/drivers/dma/at_hdmac.c
++++ b/drivers/dma/at_hdmac.c
+@@ -550,10 +550,6 @@ static void atc_handle_error(struct at_d
+ 	bad_desc = atc_first_active(atchan);
+ 	list_del_init(&bad_desc->desc_node);
+ 
+-	/* As we are stopped, take advantage to push queued descriptors
+-	 * in active_list */
+-	list_splice_init(&atchan->queue, atchan->active_list.prev);
+-
+ 	/* Try to restart the controller */
+ 	if (!list_empty(&atchan->active_list))
+ 		atc_dostart(atchan, atc_first_active(atchan));
 
 
