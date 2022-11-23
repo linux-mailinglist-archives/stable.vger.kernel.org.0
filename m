@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF9A4635807
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:50:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BE92635811
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:50:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236549AbiKWJuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:50:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43986 "EHLO
+        id S238150AbiKWJuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:50:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236610AbiKWJtf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F5A1112C41
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:46:17 -0800 (PST)
+        with ESMTP id S235466AbiKWJtv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0B97B38
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:46:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 153B6B81E54
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 690B9C433C1;
-        Wed, 23 Nov 2022 09:46:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82944B81E5E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87C7FC433C1;
+        Wed, 23 Nov 2022 09:46:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196774;
-        bh=3tLvJtMNbBd47YR9+bv6xKmABh2xvsfhJQRQlVP21c8=;
+        s=korg; t=1669196814;
+        bh=CGrDR4utkag3YGuxsoFh0/Qwbf6BHTkGQL0iBcWsr6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kb/6qWU2HKGqfhq+9WirBv1IYpDGcfonUaG6tmEzgai+w91vgaUhhbcdd5AGWosQG
-         YUk4Wl6jDd+ekiQrRtq64oVTE/N4E4yZ2n8gJ1M/eC/QyF5h2MuLbTknKrs5E04Lpu
-         Qg2vcc6HV0iqQK9detE3ocxEecGEMIoaLjwBb98c=
+        b=Z/6N5w/7OFKuQRYOulQYkedQJfPpVGz3WOhAIsIkamhZPHK9monflAAncap/oBJJM
+         KnsGjRtQ5O2peCJx/PzXKmfmDQSIskW/zTzdzA9IHqA8S0BVpGrZ8AkCbKMAkAdmA7
+         TK6i2jqtQYBV3ARLj+nz5mGrJh6zH0hufUL4+E9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Montleon <jmontleo@redhat.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Baisong Zhong <zhongbaisong@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Eric Dumazet <edumazet@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 103/314] ASoC: rt5677: fix legacy dai naming
-Date:   Wed, 23 Nov 2022 09:49:08 +0100
-Message-Id: <20221123084630.162795459@linuxfoundation.org>
+Subject: [PATCH 6.0 104/314] bpf, test_run: Fix alignment problem in bpf_prog_test_run_skb()
+Date:   Wed, 23 Nov 2022 09:49:09 +0100
+Message-Id: <20221123084630.207782379@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -54,54 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Montleon <jmontleo@redhat.com>
+From: Baisong Zhong <zhongbaisong@huawei.com>
 
-[ Upstream commit a1dca8774faf3f77eb34fa0ac6f3e2b82290b1e4 ]
+[ Upstream commit d3fd203f36d46aa29600a72d57a1b61af80e4a25 ]
 
-Starting with 6.0-rc1 the CPU DAI is not registered and the sound
-card is unavailable. Adding legacy_dai_naming causes it to function
-properly again.
+We got a syzkaller problem because of aarch64 alignment fault
+if KFENCE enabled. When the size from user bpf program is an odd
+number, like 399, 407, etc, it will cause the struct skb_shared_info's
+unaligned access. As seen below:
 
-Fixes: fc34ece41f71 ("ASoC: Refactor non_legacy_dai_naming flag")
-Signed-off-by: Jason Montleon <jmontleo@redhat.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20221103144612.4431-2-jmontleo@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  BUG: KFENCE: use-after-free read in __skb_clone+0x23c/0x2a0 net/core/skbuff.c:1032
+
+  Use-after-free read at 0xffff6254fffac077 (in kfence-#213):
+   __lse_atomic_add arch/arm64/include/asm/atomic_lse.h:26 [inline]
+   arch_atomic_add arch/arm64/include/asm/atomic.h:28 [inline]
+   arch_atomic_inc include/linux/atomic-arch-fallback.h:270 [inline]
+   atomic_inc include/asm-generic/atomic-instrumented.h:241 [inline]
+   __skb_clone+0x23c/0x2a0 net/core/skbuff.c:1032
+   skb_clone+0xf4/0x214 net/core/skbuff.c:1481
+   ____bpf_clone_redirect net/core/filter.c:2433 [inline]
+   bpf_clone_redirect+0x78/0x1c0 net/core/filter.c:2420
+   bpf_prog_d3839dd9068ceb51+0x80/0x330
+   bpf_dispatcher_nop_func include/linux/bpf.h:728 [inline]
+   bpf_test_run+0x3c0/0x6c0 net/bpf/test_run.c:53
+   bpf_prog_test_run_skb+0x638/0xa7c net/bpf/test_run.c:594
+   bpf_prog_test_run kernel/bpf/syscall.c:3148 [inline]
+   __do_sys_bpf kernel/bpf/syscall.c:4441 [inline]
+   __se_sys_bpf+0xad0/0x1634 kernel/bpf/syscall.c:4381
+
+  kfence-#213: 0xffff6254fffac000-0xffff6254fffac196, size=407, cache=kmalloc-512
+
+  allocated by task 15074 on cpu 0 at 1342.585390s:
+   kmalloc include/linux/slab.h:568 [inline]
+   kzalloc include/linux/slab.h:675 [inline]
+   bpf_test_init.isra.0+0xac/0x290 net/bpf/test_run.c:191
+   bpf_prog_test_run_skb+0x11c/0xa7c net/bpf/test_run.c:512
+   bpf_prog_test_run kernel/bpf/syscall.c:3148 [inline]
+   __do_sys_bpf kernel/bpf/syscall.c:4441 [inline]
+   __se_sys_bpf+0xad0/0x1634 kernel/bpf/syscall.c:4381
+   __arm64_sys_bpf+0x50/0x60 kernel/bpf/syscall.c:4381
+
+To fix the problem, we adjust @size so that (@size + @hearoom) is a
+multiple of SMP_CACHE_BYTES. So we make sure the struct skb_shared_info
+is aligned to a cache line.
+
+Fixes: 1cf1cae963c2 ("bpf: introduce BPF_PROG_TEST_RUN command")
+Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/bpf/20221102081620.1465154-1-zhongbaisong@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5677-spi.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ net/bpf/test_run.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/rt5677-spi.c b/sound/soc/codecs/rt5677-spi.c
-index 8f3993a4c1cc..d25703dd7499 100644
---- a/sound/soc/codecs/rt5677-spi.c
-+++ b/sound/soc/codecs/rt5677-spi.c
-@@ -396,15 +396,16 @@ static int rt5677_spi_pcm_probe(struct snd_soc_component *component)
- }
+diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
+index d11209367dd0..b422238f9f86 100644
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -733,6 +733,7 @@ static void *bpf_test_init(const union bpf_attr *kattr, u32 user_size,
+ 	if (user_size > size)
+ 		return ERR_PTR(-EMSGSIZE);
  
- static const struct snd_soc_component_driver rt5677_spi_dai_component = {
--	.name		= DRV_NAME,
--	.probe		= rt5677_spi_pcm_probe,
--	.open		= rt5677_spi_pcm_open,
--	.close		= rt5677_spi_pcm_close,
--	.hw_params	= rt5677_spi_hw_params,
--	.hw_free	= rt5677_spi_hw_free,
--	.prepare	= rt5677_spi_prepare,
--	.pointer	= rt5677_spi_pcm_pointer,
--	.pcm_construct	= rt5677_spi_pcm_new,
-+	.name			= DRV_NAME,
-+	.probe			= rt5677_spi_pcm_probe,
-+	.open			= rt5677_spi_pcm_open,
-+	.close			= rt5677_spi_pcm_close,
-+	.hw_params		= rt5677_spi_hw_params,
-+	.hw_free		= rt5677_spi_hw_free,
-+	.prepare		= rt5677_spi_prepare,
-+	.pointer		= rt5677_spi_pcm_pointer,
-+	.pcm_construct		= rt5677_spi_pcm_new,
-+	.legacy_dai_naming	= 1,
- };
- 
- /* Select a suitable transfer command for the next transfer to ensure
++	size = SKB_DATA_ALIGN(size);
+ 	data = kzalloc(size + headroom + tailroom, GFP_USER);
+ 	if (!data)
+ 		return ERR_PTR(-ENOMEM);
 -- 
 2.35.1
 
