@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17760635447
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D2B1635566
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236979AbiKWJDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:03:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39666 "EHLO
+        id S237357AbiKWJSM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:18:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236996AbiKWJC7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:02:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5C4E7EBEB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:02:58 -0800 (PST)
+        with ESMTP id S237455AbiKWJRl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:17:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C177BE28
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:17:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 459D061B4E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:02:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34B4BC433C1;
-        Wed, 23 Nov 2022 09:02:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 720EE61B10
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:17:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66F73C433C1;
+        Wed, 23 Nov 2022 09:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194177;
-        bh=CjEG3KaHCKgqxfFo0gGaul858Ch2xOM/UVF4Chf2oZY=;
+        s=korg; t=1669195055;
+        bh=eF1j130c0SZailNo6oQfzBp+HT2TeZ5zTXO6Y/j4im8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JrYExMzVIxbC8h17cxLxbHuLaJjCnKEYyaDaWVO0EOk3yYMFagy2ZaFNFdejs0DXJ
-         vcHH0egHewCNRG5a4zO1/f+T1I56JV9iKhnmxJiXptSUPYKCOQx1Rm6i4tVU4uO92g
-         OwEy2GEDx6W1wBsKv45Ezf0Pny31UOS/R42bewoc=
+        b=YyuOyt0kUPllFlUpdKekN0uDX5vaFt2aG2qfI4SYE6J8BbYloRf3aQ4AsJAz2GUzn
+         ww7Qz2iNx59PvEFN/BhmhW1gGGv2/f4nriROJA7HIYbXHsXkGgBWmnr0eOqDQvBGAh
+         /vvBYXgGfQlyi+LXZ1i/PlBJXJdKhUMVy6zPOAuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hawkins Jiawei <yin31149@gmail.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        ChenXiaoSong <chenxiaosong2@huawei.com>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 86/88] ntfs: fix use-after-free in ntfs_attr_find()
-Date:   Wed, 23 Nov 2022 09:51:23 +0100
-Message-Id: <20221123084551.679551606@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 127/156] iio: trigger: sysfs: fix possible memory leak in iio_sysfs_trig_init()
+Date:   Wed, 23 Nov 2022 09:51:24 +0100
+Message-Id: <20221123084602.523536130@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
-References: <20221123084548.535439312@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,124 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit d85a1bec8e8d552ab13163ca1874dcd82f3d1550 upstream.
+commit efa17e90e1711bdb084e3954fa44afb6647331c0 upstream.
 
-Patch series "ntfs: fix bugs about Attribute", v2.
+dev_set_name() allocates memory for name, it need be freed
+when device_add() fails, call put_device() to give up the
+reference that hold in device_initialize(), so that it can
+be freed in kobject_cleanup() when the refcount hit to 0.
 
-This patchset fixes three bugs relative to Attribute in record:
+Fault injection test can trigger this:
 
-Patch 1 adds a sanity check to ensure that, attrs_offset field in first
-mft record loading from disk is within bounds.
+unreferenced object 0xffff8e8340a7b4c0 (size 32):
+  comm "modprobe", pid 243, jiffies 4294678145 (age 48.845s)
+  hex dump (first 32 bytes):
+    69 69 6f 5f 73 79 73 66 73 5f 74 72 69 67 67 65  iio_sysfs_trigge
+    72 00 a7 40 83 8e ff ff 00 86 13 c4 f6 ee ff ff  r..@............
+  backtrace:
+    [<0000000074999de8>] __kmem_cache_alloc_node+0x1e9/0x360
+    [<00000000497fd30b>] __kmalloc_node_track_caller+0x44/0x1a0
+    [<000000003636c520>] kstrdup+0x2d/0x60
+    [<0000000032f84da2>] kobject_set_name_vargs+0x1e/0x90
+    [<0000000092efe493>] dev_set_name+0x4e/0x70
 
-Patch 2 moves the ATTR_RECORD's bounds checking earlier, to avoid
-dereferencing ATTR_RECORD before checking this ATTR_RECORD is within
-bounds.
-
-Patch 3 adds an overflow checking to avoid possible forever loop in
-ntfs_attr_find().
-
-Without patch 1 and patch 2, the kernel triggersa KASAN use-after-free
-detection as reported by Syzkaller.
-
-Although one of patch 1 or patch 2 can fix this, we still need both of
-them.  Because patch 1 fixes the root cause, and patch 2 not only fixes
-the direct cause, but also fixes the potential out-of-bounds bug.
-
-
-This patch (of 3):
-
-Syzkaller reported use-after-free read as follows:
-==================================================================
-BUG: KASAN: use-after-free in ntfs_attr_find+0xc02/0xce0 fs/ntfs/attrib.c:597
-Read of size 2 at addr ffff88807e352009 by task syz-executor153/3607
-
-[...]
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:317 [inline]
- print_report.cold+0x2ba/0x719 mm/kasan/report.c:433
- kasan_report+0xb1/0x1e0 mm/kasan/report.c:495
- ntfs_attr_find+0xc02/0xce0 fs/ntfs/attrib.c:597
- ntfs_attr_lookup+0x1056/0x2070 fs/ntfs/attrib.c:1193
- ntfs_read_inode_mount+0x89a/0x2580 fs/ntfs/inode.c:1845
- ntfs_fill_super+0x1799/0x9320 fs/ntfs/super.c:2854
- mount_bdev+0x34d/0x410 fs/super.c:1400
- legacy_get_tree+0x105/0x220 fs/fs_context.c:610
- vfs_get_tree+0x89/0x2f0 fs/super.c:1530
- do_new_mount fs/namespace.c:3040 [inline]
- path_mount+0x1326/0x1e20 fs/namespace.c:3370
- do_mount fs/namespace.c:3383 [inline]
- __do_sys_mount fs/namespace.c:3591 [inline]
- __se_sys_mount fs/namespace.c:3568 [inline]
- __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- [...]
- </TASK>
-
-The buggy address belongs to the physical page:
-page:ffffea0001f8d400 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x7e350
-head:ffffea0001f8d400 order:3 compound_mapcount:0 compound_pincount:0
-flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000010200 0000000000000000 dead000000000122 ffff888011842140
-raw: 0000000000000000 0000000000040004 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-Memory state around the buggy address:
- ffff88807e351f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff88807e351f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff88807e352000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                      ^
- ffff88807e352080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88807e352100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-Kernel will loads $MFT/$DATA's first mft record in
-ntfs_read_inode_mount().
-
-Yet the problem is that after loading, kernel doesn't check whether
-attrs_offset field is a valid value.
-
-To be more specific, if attrs_offset field is larger than bytes_allocated
-field, then it may trigger the out-of-bounds read bug(reported as
-use-after-free bug) in ntfs_attr_find(), when kernel tries to access the
-corresponding mft record's attribute.
-
-This patch solves it by adding the sanity check between attrs_offset field
-and bytes_allocated field, after loading the first mft record.
-
-Link: https://lkml.kernel.org/r/20220831160935.3409-1-yin31149@gmail.com
-Link: https://lkml.kernel.org/r/20220831160935.3409-2-yin31149@gmail.com
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Cc: ChenXiaoSong <chenxiaosong2@huawei.com>
-Cc: syzkaller-bugs <syzkaller-bugs@googlegroups.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 1f785681a870 ("staging:iio:trigger sysfs userspace trigger rework.")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221022074212.1386424-1-yangyingliang@huawei.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs/inode.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/iio/trigger/iio-trig-sysfs.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/ntfs/inode.c
-+++ b/fs/ntfs/inode.c
-@@ -1863,6 +1863,13 @@ int ntfs_read_inode_mount(struct inode *
- 		goto err_out;
- 	}
+--- a/drivers/iio/trigger/iio-trig-sysfs.c
++++ b/drivers/iio/trigger/iio-trig-sysfs.c
+@@ -209,9 +209,13 @@ static int iio_sysfs_trigger_remove(int
  
-+	/* Sanity check offset to the first attribute */
-+	if (le16_to_cpu(m->attrs_offset) >= le32_to_cpu(m->bytes_allocated)) {
-+		ntfs_error(sb, "Incorrect mft offset to the first attribute %u in superblock.",
-+			       le16_to_cpu(m->attrs_offset));
-+		goto err_out;
-+	}
-+
- 	/* Need this to sanity check attribute list references to $MFT. */
- 	vi->i_generation = ni->seq_no = le16_to_cpu(m->sequence_number);
+ static int __init iio_sysfs_trig_init(void)
+ {
++	int ret;
+ 	device_initialize(&iio_sysfs_trig_dev);
+ 	dev_set_name(&iio_sysfs_trig_dev, "iio_sysfs_trigger");
+-	return device_add(&iio_sysfs_trig_dev);
++	ret = device_add(&iio_sysfs_trig_dev);
++	if (ret)
++		put_device(&iio_sysfs_trig_dev);
++	return ret;
+ }
+ module_init(iio_sysfs_trig_init);
  
 
 
