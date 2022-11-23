@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5446563570B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74A27635887
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:59:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237832AbiKWJhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:37:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57622 "EHLO
+        id S236888AbiKWJ7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:59:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237827AbiKWJg2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:36:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 224BED06D1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:33:58 -0800 (PST)
+        with ESMTP id S236895AbiKWJ62 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:58:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56BF8D4
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B327161B44
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:33:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD87EC433C1;
-        Wed, 23 Nov 2022 09:33:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02FDA61B6F
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E17C6C433C1;
+        Wed, 23 Nov 2022 09:52:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196037;
-        bh=h6RcCJ0KUtB4xR20WEzzdRdH8XAPh3qyfEa9OaExBEQ=;
+        s=korg; t=1669197149;
+        bh=2OI2APBd1jExr1h7zXHFoK56XBYgjQyI4naM7V0+Tx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I/OIza152aRA5xro8JlUD0fbil7j8PPytCYcZOnRtCF0BezG+riU4S4VcvnG6vYz7
-         nZxxWEwvkPbmG88X5I1xFSGZ0aq3AOPEyg0jcXi5ruGPP3Rqz3KFMPmP8cayNYk7+b
-         02KHlhfguR0VcFztD0VPwADwLYORXR9mypHSSs1Q=
+        b=KlVxnt6KGpycemHsznd43iTt2/lmcckh3Ne5p9R2I7I75aiC0GhgqpA/uTj/edvu5
+         oA6ulvVk9vuVr2eH+3cri9zyMpYmOvMU3NCUeCogUI/RqFjoeC4X7v0WVzoUgrg0Rw
+         UrxPWGuqQEdI/sdG0awgRm1FZwd42kSeIM6CrcPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        Hao Lan <lanhao@huawei.com>, Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 094/181] net: hns3: fix setting incorrect phy link ksettings for firmware in resetting process
+        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Feifei Xu <Feifei.Xu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.0 212/314] drm/amd/pm: fix SMU13 runpm hang due to unintentional workaround
 Date:   Wed, 23 Nov 2022 09:50:57 +0100
-Message-Id: <20221123084606.386855905@linuxfoundation.org>
+Message-Id: <20221123084635.142971874@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit 510d7b6ae842e59ee00d57e5f07ac15131b6d899 ]
+commit 4b14841c9a820e484bc8c4c3f5a6fed1bc528cbc upstream.
 
-Currently, if driver is in phy-imp(phy controlled by imp firmware) mode, as
-driver did not update phy link ksettings after initialization process or
-not update advertising when getting phy link ksettings from firmware, it
-may set incorrect phy link ksettings for firmware in resetting process.
-So fix it.
+The workaround designed for some specific ASICs is wrongly applied
+to SMU13 ASICs. That leads to some runpm hang.
 
-Fixes: f5f2b3e4dcc0 ("net: hns3: add support for imp-controlled PHYs")
-Fixes: c5ef83cbb1e9 ("net: hns3: fix for phy_addr error in hclge_mac_mdio_config")
-Fixes: 2312e050f42b ("net: hns3: Fix for deadlock problem occurring when unregistering ae_algo")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Hao Lan <lanhao@huawei.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Reviewed-by: Feifei Xu <Feifei.Xu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c    | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c |   23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 15d10775a757..2102b38b9c35 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -3172,6 +3172,7 @@ static int hclge_update_tp_port_info(struct hclge_dev *hdev)
- 	hdev->hw.mac.autoneg = cmd.base.autoneg;
- 	hdev->hw.mac.speed = cmd.base.speed;
- 	hdev->hw.mac.duplex = cmd.base.duplex;
-+	linkmode_copy(hdev->hw.mac.advertising, cmd.link_modes.advertising);
+--- a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
+@@ -1131,22 +1131,21 @@ static int smu_smc_hw_setup(struct smu_c
+ 	uint64_t features_supported;
+ 	int ret = 0;
  
- 	return 0;
- }
-@@ -11669,9 +11670,12 @@ static int hclge_init_ae_dev(struct hnae3_ae_dev *ae_dev)
- 	if (ret)
- 		goto err_msi_irq_uninit;
- 
--	if (hdev->hw.mac.media_type == HNAE3_MEDIA_TYPE_COPPER &&
--	    !hnae3_dev_phy_imp_supported(hdev)) {
--		ret = hclge_mac_mdio_config(hdev);
-+	if (hdev->hw.mac.media_type == HNAE3_MEDIA_TYPE_COPPER) {
-+		if (hnae3_dev_phy_imp_supported(hdev))
-+			ret = hclge_update_tp_port_info(hdev);
-+		else
-+			ret = hclge_mac_mdio_config(hdev);
-+
- 		if (ret)
- 			goto err_msi_irq_uninit;
+-	if (adev->in_suspend && smu_is_dpm_running(smu)) {
+-		dev_info(adev->dev, "dpm has been enabled\n");
+-		/* this is needed specifically */
+-		switch (adev->ip_versions[MP1_HWIP][0]) {
+-		case IP_VERSION(11, 0, 7):
+-		case IP_VERSION(11, 0, 11):
+-		case IP_VERSION(11, 5, 0):
+-		case IP_VERSION(11, 0, 12):
++	switch (adev->ip_versions[MP1_HWIP][0]) {
++	case IP_VERSION(11, 0, 7):
++	case IP_VERSION(11, 0, 11):
++	case IP_VERSION(11, 5, 0):
++	case IP_VERSION(11, 0, 12):
++		if (adev->in_suspend && smu_is_dpm_running(smu)) {
++			dev_info(adev->dev, "dpm has been enabled\n");
+ 			ret = smu_system_features_control(smu, true);
+ 			if (ret)
+ 				dev_err(adev->dev, "Failed system features control!\n");
+-			break;
+-		default:
+-			break;
++			return ret;
+ 		}
+-		return ret;
++		break;
++	default:
++		break;
  	}
--- 
-2.35.1
-
+ 
+ 	ret = smu_init_display_count(smu, 0);
 
 
