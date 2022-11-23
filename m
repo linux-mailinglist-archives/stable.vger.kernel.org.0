@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC909635373
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:57:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC6706353D7
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236735AbiKWIzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:55:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58254 "EHLO
+        id S236726AbiKWJAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:00:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236564AbiKWIy7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:54:59 -0500
+        with ESMTP id S236875AbiKWI7q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:59:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 340D8EC0BF
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:54:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10EC7100B0A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:59:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5D186185C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:54:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7C98C433C1;
-        Wed, 23 Nov 2022 08:54:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A261661B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:59:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87B0AC433C1;
+        Wed, 23 Nov 2022 08:59:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193697;
-        bh=BpiMkt0Ka+oPJoqohNWa6CJreGbbQzrFG2TMvGhMeU0=;
+        s=korg; t=1669193985;
+        bh=mf8WevELyQ4aEldRiiDOrK5732Sb5lkKpuy2C8/yBTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MApWeCOKAml+wcD77DeMRybfkBP+sUO6k3QkNhx096LfHmWNY4gCQVAbrvTqh3EJw
-         H06YRYNhk/z4Pb9IgaV8aCyOx+bDi3Nt1Zi4xUMdBl9/5Gd4/Ppl8RTMyHDBh7teyg
-         SBC6jwxCh3aQcpVo9kr7IbPNTGPZLNIrZhoSMq3k=
+        b=jmt6mYFjl+z6aDIV9Xj5wzNVu8MIQ1nZmEg12yeETmKoTwgoMfK96HHGnvTmOX9Ps
+         6h8wv1GKOYwexaDoLpvinLcxWZHJ7Eap4yRt6itU1gCRAqcMI3dAQ73X+qqgeAPPij
+         PLEkogkzA51gAtodtm7cWZFFthFCzZP4N8KROHgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 36/76] tty: n_gsm: fix sleep-in-atomic-context bug in gsm_control_send
+Subject: [PATCH 4.14 38/88] serial: 8250_omap: remove wait loop from Errata i202 workaround
 Date:   Wed, 23 Nov 2022 09:50:35 +0100
-Message-Id: <20221123084547.913047429@linuxfoundation.org>
+Message-Id: <20221123084549.816907742@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-[ Upstream commit 7b7dfe4833c70a11cdfa51b38705103bd31eddaa ]
+[ Upstream commit e828e56684d61b17317e0cfdef83791fa61cb76b ]
 
-The function gsm_dlci_t1() is a timer handler that runs in an
-atomic context, but it calls "kzalloc(..., GFP_KERNEL)" that
-may sleep. As a result, the sleep-in-atomic-context bug will
-happen. The process is shown below:
+We were occasionally seeing the "Errata i202: timedout" on an AM335x
+board when repeatedly opening and closing a UART connected to an active
+sender. As new input may arrive at any time, it is possible to miss the
+"RX FIFO empty" condition, forcing the loop to wait until it times out.
 
-gsm_dlci_t1()
- gsm_dlci_open()
-  gsm_modem_update()
-   gsm_modem_upd_via_msc()
-    gsm_control_send()
-     kzalloc(sizeof(.., GFP_KERNEL) //may sleep
+Nothing in the i202 Advisory states that such a wait is even necessary;
+other FIFO clear functions like serial8250_clear_fifos() do not wait
+either. For this reason, it seems safe to remove the wait, fixing the
+mentioned issue.
 
-This patch changes the gfp_t parameter of kzalloc() from GFP_KERNEL to
-GFP_ATOMIC in order to mitigate the bug.
-
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20221002040709.27849-1-duoming@zju.edu.cn
+Fixes: 61929cf0169d ("tty: serial: Add 8250-core based omap driver")
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Link: https://lore.kernel.org/r/20221013112339.2540767-1-matthias.schiffer@ew.tq-group.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_omap.c | 17 -----------------
+ 1 file changed, 17 deletions(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 3badb10229ef..1131065a4ef3 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1377,7 +1377,7 @@ static struct gsm_control *gsm_control_send(struct gsm_mux *gsm,
- 		unsigned int command, u8 *data, int clen)
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index e32afaa94d36..e4e6b7cb3a16 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -160,27 +160,10 @@ static void omap8250_set_mctrl(struct uart_port *port, unsigned int mctrl)
+ static void omap_8250_mdr1_errataset(struct uart_8250_port *up,
+ 				     struct omap8250_priv *priv)
  {
- 	struct gsm_control *ctrl = kzalloc(sizeof(struct gsm_control),
--						GFP_KERNEL);
-+						GFP_ATOMIC);
- 	unsigned long flags;
- 	if (ctrl == NULL)
- 		return NULL;
+-	u8 timeout = 255;
+-
+ 	serial_out(up, UART_OMAP_MDR1, priv->mdr1);
+ 	udelay(2);
+ 	serial_out(up, UART_FCR, up->fcr | UART_FCR_CLEAR_XMIT |
+ 			UART_FCR_CLEAR_RCVR);
+-	/*
+-	 * Wait for FIFO to empty: when empty, RX_FIFO_E bit is 0 and
+-	 * TX_FIFO_E bit is 1.
+-	 */
+-	while (UART_LSR_THRE != (serial_in(up, UART_LSR) &
+-				(UART_LSR_THRE | UART_LSR_DR))) {
+-		timeout--;
+-		if (!timeout) {
+-			/* Should *never* happen. we warn and carry on */
+-			dev_crit(up->port.dev, "Errata i202: timedout %x\n",
+-				 serial_in(up, UART_LSR));
+-			break;
+-		}
+-		udelay(1);
+-	}
+ }
+ 
+ static void omap_8250_get_divisor(struct uart_port *port, unsigned int baud,
 -- 
 2.35.1
 
