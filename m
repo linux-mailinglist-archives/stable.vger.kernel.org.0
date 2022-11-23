@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9C44635650
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C4963591F
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237750AbiKWJaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:30:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48850 "EHLO
+        id S236071AbiKWKHR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:07:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237754AbiKWJ3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:29:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 902C18EB72
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:28:09 -0800 (PST)
+        with ESMTP id S236746AbiKWKGY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85B62F00D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51B0361B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:28:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD37AC433D7;
-        Wed, 23 Nov 2022 09:28:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38202B81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5435C433C1;
+        Wed, 23 Nov 2022 09:56:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195688;
-        bh=4wo/w9JKvQ1JwILnmjIRqQEkvwcUj/vMy/ZQWq6SqMQ=;
+        s=korg; t=1669197415;
+        bh=G6hue6ehH9qHTe38OMAlsZguvfZF3JRc32DvI9h0NzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VzpFGmP0vd2saPgi+9OFCionjTOf8VoDpHlv9GaTHvvZ1OJUK6c1uyf4u/bWWFVig
-         QAvL2/r83xwtu4KGTASQ9AiTSaRkcI2qu1QP9XTyLzu7LBih6pZfVREbTR8UmR8n2A
-         VNjadyx2U0RZ+Mi7v9PZmxO8bu6fpsqEiHE5LQio=
+        b=z6OD2h55k9mHg1oJPVCuLB3Tu2B1vA5gFg/NiEX2HR0xif+O2QJ4Sn0hQP4j//iG0
+         iD/0U4UH+k0K1o2OcB12+V9oh3UZouHKxbOeWCfETinXD+ClmnC5ZLGMyfNXUprqLZ
+         4H0IzZFrVEi3vldxZXc3xLLV+E84MQKoV6U47XSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 132/149] net: use struct_group to copy ip/ipv6 header addresses
+        patches@lists.linux.dev, Chevron Li <chevron.li@bayhubtech.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 6.0 270/314] mmc: sdhci-pci-o2micro: fix card detect fail issue caused by CD# debounce timeout
 Date:   Wed, 23 Nov 2022 09:51:55 +0100
-Message-Id: <20221123084602.677943392@linuxfoundation.org>
+Message-Id: <20221123084637.763652562@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,108 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Chevron Li <chevron.li@bayhubtech.com>
 
-[ Upstream commit 58e0be1ef6118c5352b56a4d06e974c5599993a5 ]
+commit 096cc0cddf58232bded309336961784f1d1c85f8 upstream.
 
-kernel test robot reported warnings when build bonding module with
-make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash drivers/net/bonding/:
+The SD card is recognized failed sometimes when resume from suspend.
+Because CD# debounce time too long then card present report wrong.
+Finally, card is recognized failed.
 
-                 from ../drivers/net/bonding/bond_main.c:35:
-In function ‘fortify_memcpy_chk’,
-    inlined from ‘iph_to_flow_copy_v4addrs’ at ../include/net/ip.h:566:2,
-    inlined from ‘bond_flow_ip’ at ../drivers/net/bonding/bond_main.c:3984:3:
-../include/linux/fortify-string.h:413:25: warning: call to ‘__read_overflow2_field’ declared with attribute warning: detected read beyond size of f
-ield (2nd parameter); maybe use struct_group()? [-Wattribute-warning]
-  413 |                         __read_overflow2_field(q_size_field, size);
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In function ‘fortify_memcpy_chk’,
-    inlined from ‘iph_to_flow_copy_v6addrs’ at ../include/net/ipv6.h:900:2,
-    inlined from ‘bond_flow_ip’ at ../drivers/net/bonding/bond_main.c:3994:3:
-../include/linux/fortify-string.h:413:25: warning: call to ‘__read_overflow2_field’ declared with attribute warning: detected read beyond size of f
-ield (2nd parameter); maybe use struct_group()? [-Wattribute-warning]
-  413 |                         __read_overflow2_field(q_size_field, size);
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This is because we try to copy the whole ip/ip6 address to the flow_key,
-while we only point the to ip/ip6 saddr. Note that since these are UAPI
-headers, __struct_group() is used to avoid the compiler warnings.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: c3f8324188fa ("net: Add full IPv6 addresses to flow_keys")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Link: https://lore.kernel.org/r/20221115142400.1204786-1-liuhangbin@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Chevron Li <chevron.li@bayhubtech.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221104095512.4068-1-chevron.li@bayhubtech.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/ip.h          | 2 +-
- include/net/ipv6.h        | 2 +-
- include/uapi/linux/ip.h   | 6 ++++--
- include/uapi/linux/ipv6.h | 6 ++++--
- 4 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/mmc/host/sdhci-pci-o2micro.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/include/net/ip.h b/include/net/ip.h
-index c5822d7824cd..4b775af57268 100644
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -545,7 +545,7 @@ static inline void iph_to_flow_copy_v4addrs(struct flow_keys *flow,
- 	BUILD_BUG_ON(offsetof(typeof(flow->addrs), v4addrs.dst) !=
- 		     offsetof(typeof(flow->addrs), v4addrs.src) +
- 			      sizeof(flow->addrs.v4addrs.src));
--	memcpy(&flow->addrs.v4addrs, &iph->saddr, sizeof(flow->addrs.v4addrs));
-+	memcpy(&flow->addrs.v4addrs, &iph->addrs, sizeof(flow->addrs.v4addrs));
- 	flow->control.addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
- }
- 
-diff --git a/include/net/ipv6.h b/include/net/ipv6.h
-index 60601896d474..89ce8a50f236 100644
---- a/include/net/ipv6.h
-+++ b/include/net/ipv6.h
-@@ -842,7 +842,7 @@ static inline void iph_to_flow_copy_v6addrs(struct flow_keys *flow,
- 	BUILD_BUG_ON(offsetof(typeof(flow->addrs), v6addrs.dst) !=
- 		     offsetof(typeof(flow->addrs), v6addrs.src) +
- 		     sizeof(flow->addrs.v6addrs.src));
--	memcpy(&flow->addrs.v6addrs, &iph->saddr, sizeof(flow->addrs.v6addrs));
-+	memcpy(&flow->addrs.v6addrs, &iph->addrs, sizeof(flow->addrs.v6addrs));
- 	flow->control.addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
- }
- 
-diff --git a/include/uapi/linux/ip.h b/include/uapi/linux/ip.h
-index e42d13b55cf3..d2f143393780 100644
---- a/include/uapi/linux/ip.h
-+++ b/include/uapi/linux/ip.h
-@@ -100,8 +100,10 @@ struct iphdr {
- 	__u8	ttl;
- 	__u8	protocol;
- 	__sum16	check;
--	__be32	saddr;
--	__be32	daddr;
-+	__struct_group(/* no tag */, addrs, /* no attrs */,
-+		__be32	saddr;
-+		__be32	daddr;
-+	);
- 	/*The options start here. */
- };
- 
-diff --git a/include/uapi/linux/ipv6.h b/include/uapi/linux/ipv6.h
-index 13e8751bf24a..766ab5c8ee65 100644
---- a/include/uapi/linux/ipv6.h
-+++ b/include/uapi/linux/ipv6.h
-@@ -130,8 +130,10 @@ struct ipv6hdr {
- 	__u8			nexthdr;
- 	__u8			hop_limit;
- 
--	struct	in6_addr	saddr;
--	struct	in6_addr	daddr;
-+	__struct_group(/* no tag */, addrs, /* no attrs */,
-+		struct	in6_addr	saddr;
-+		struct	in6_addr	daddr;
-+	);
- };
- 
- 
--- 
-2.35.1
-
+--- a/drivers/mmc/host/sdhci-pci-o2micro.c
++++ b/drivers/mmc/host/sdhci-pci-o2micro.c
+@@ -32,6 +32,7 @@
+ #define O2_SD_CAPS		0xE0
+ #define O2_SD_ADMA1		0xE2
+ #define O2_SD_ADMA2		0xE7
++#define O2_SD_MISC_CTRL2	0xF0
+ #define O2_SD_INF_MOD		0xF1
+ #define O2_SD_MISC_CTRL4	0xFC
+ #define O2_SD_MISC_CTRL		0x1C0
+@@ -874,6 +875,12 @@ static int sdhci_pci_o2_probe(struct sdh
+ 		/* Set Tuning Windows to 5 */
+ 		pci_write_config_byte(chip->pdev,
+ 				O2_SD_TUNING_CTRL, 0x55);
++		//Adjust 1st and 2nd CD debounce time
++		pci_read_config_dword(chip->pdev, O2_SD_MISC_CTRL2, &scratch_32);
++		scratch_32 &= 0xFFE7FFFF;
++		scratch_32 |= 0x00180000;
++		pci_write_config_dword(chip->pdev, O2_SD_MISC_CTRL2, scratch_32);
++		pci_write_config_dword(chip->pdev, O2_SD_DETECT_SETTING, 1);
+ 		/* Lock WP */
+ 		ret = pci_read_config_byte(chip->pdev,
+ 					   O2_SD_LOCK_WP, &scratch);
 
 
