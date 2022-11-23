@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 235E1635881
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5DC5635452
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236557AbiKWJ6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:58:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55810 "EHLO
+        id S236629AbiKWJFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:05:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236563AbiKWJ6O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:58:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D4CC10B50
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:25 -0800 (PST)
+        with ESMTP id S236991AbiKWJEd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:04:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F6F102E66
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:04:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05848B81EEB
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52512C433C1;
-        Wed, 23 Nov 2022 09:52:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F72B61B43
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:04:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 371FEC433C1;
+        Wed, 23 Nov 2022 09:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197142;
-        bh=DVzPFYmPxRKKl19tDbqvP0y3Z//i1XNc7JEovN0SF9w=;
+        s=korg; t=1669194255;
+        bh=xyIqQROCqa729HDL6Jul9/otBWrSig47Pk599ClpMjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQgDO4mLpXaJIELWYQDM+Sa6B730KeJ9mNqi1pZEY5FxU4v8x4udiUzR4Ei9H6RJg
-         5Bblaur4v7HGiTM9W6USHGD+Jso+8yAuj0pVuVtXTYoWzFmMqc3HIu8MMQ6ttj5qEF
-         4f3T8hlo4rzoQevcNBu1OeJJMbM2DFk6+lgqzY8g=
+        b=diftH5YO5+lih+ch3zhgo91WVtssSrX+Rn4wSOUTSH5CnILoD/WblrAe3ypP/x+Ko
+         9dHuC3RHRav7xtxxII402hQHqptrmC8Tn5liUCr1cCX3Q9lGPiX4g7QKOJbZI7wftP
+         GH4jlkRGC+BJtesikqcCvMOPztROVEXC6rZI7E5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Howells <dhowells@redhat.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Jia Zhu <zhujia.zj@bytedance.com>,
-        Jingbo Xu <jefflexu@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 168/314] erofs: fix missing xas_retry() in fscache mode
-Date:   Wed, 23 Nov 2022 09:50:13 +0100
-Message-Id: <20221123084633.181666314@linuxfoundation.org>
+        patches@lists.linux.dev, Zhao Wenhui <zhaowenhui8@huawei.com>,
+        xiafukun <xiafukun@huawei.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.19 027/114] vmlinux.lds.h: Fix placement of .data..decrypted section
+Date:   Wed, 23 Nov 2022 09:50:14 +0100
+Message-Id: <20221123084552.925933761@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 37020bbb71d911431e16c2c940b97cf86ae4f2f6 ]
+commit 000f8870a47bdc36730357883b6aef42bced91ee upstream.
 
-The xarray iteration only holds the RCU read lock and thus may encounter
-XA_RETRY_ENTRY if there's process modifying the xarray concurrently.
-This will cause oops when referring to the invalid entry.
+Commit d4c639990036 ("vmlinux.lds.h: Avoid orphan section with !SMP")
+fixed an orphan section warning by adding the '.data..decrypted' section
+to the linker script under the PERCPU_DECRYPTED_SECTION define but that
+placement introduced a panic with !SMP, as the percpu sections are not
+instantiated with that configuration so attempting to access variables
+defined with DEFINE_PER_CPU_DECRYPTED() will result in a page fault.
 
-Fix this by adding the missing xas_retry(), which will make the
-iteration wind back to the root node if XA_RETRY_ENTRY is encountered.
+Move the '.data..decrypted' section to the DATA_MAIN define so that the
+variables in it are properly instantiated at boot time with
+CONFIG_SMP=n.
 
-Fixes: d435d53228dd ("erofs: change to use asynchronous io for fscache readpage/readahead")
-Suggested-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Reviewed-by: Jia Zhu <zhujia.zj@bytedance.com>
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20221114121943.29987-1-jefflexu@linux.alibaba.com
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: d4c639990036 ("vmlinux.lds.h: Avoid orphan section with !SMP")
+Link: https://lore.kernel.org/cbbd3548-880c-d2ca-1b67-5bb93b291d5f@huawei.com/
+Debugged-by: Ard Biesheuvel <ardb@kernel.org>
+Reported-by: Zhao Wenhui <zhaowenhui8@huawei.com>
+Tested-by: xiafukun <xiafukun@huawei.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221108174934.3384275-1-nathan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/erofs/fscache.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ include/asm-generic/vmlinux.lds.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/erofs/fscache.c b/fs/erofs/fscache.c
-index 79af25f0a56c..46ab2b3f9a3c 100644
---- a/fs/erofs/fscache.c
-+++ b/fs/erofs/fscache.c
-@@ -69,11 +69,15 @@ static void erofs_fscache_rreq_unlock_folios(struct netfs_io_request *rreq)
- 
- 	rcu_read_lock();
- 	xas_for_each(&xas, folio, last_page) {
--		unsigned int pgpos =
--			(folio_index(folio) - start_page) * PAGE_SIZE;
--		unsigned int pgend = pgpos + folio_size(folio);
-+		unsigned int pgpos, pgend;
- 		bool pg_failed = false;
- 
-+		if (xas_retry(&xas, folio))
-+			continue;
-+
-+		pgpos = (folio_index(folio) - start_page) * PAGE_SIZE;
-+		pgend = pgpos + folio_size(folio);
-+
- 		for (;;) {
- 			if (!subreq) {
- 				pg_failed = true;
--- 
-2.35.1
-
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -242,6 +242,7 @@
+ #define DATA_DATA							\
+ 	*(.xiptext)							\
+ 	*(DATA_MAIN)							\
++	*(.data..decrypted)						\
+ 	*(.ref.data)							\
+ 	*(.data..shared_aligned) /* percpu related */			\
+ 	MEM_KEEP(init.data*)						\
+@@ -843,7 +844,6 @@
+ #ifdef CONFIG_AMD_MEM_ENCRYPT
+ #define PERCPU_DECRYPTED_SECTION					\
+ 	. = ALIGN(PAGE_SIZE);						\
+-	*(.data..decrypted)						\
+ 	*(.data..percpu..decrypted)					\
+ 	. = ALIGN(PAGE_SIZE);
+ #else
 
 
