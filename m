@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14C6E63548B
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02B6F6355BB
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237085AbiKWJIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:08:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44172 "EHLO
+        id S237595AbiKWJXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:23:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237080AbiKWJH2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE80105588
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:07:23 -0800 (PST)
+        with ESMTP id S237598AbiKWJWt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:22:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 598F910AD2D
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:22:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BD6961B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:07:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16927C433C1;
-        Wed, 23 Nov 2022 09:07:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED0DE61B4C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:22:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E91E5C433D6;
+        Wed, 23 Nov 2022 09:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194442;
-        bh=v8cGCJBDm0eZJLPzFSbLDbXewUjQNprW6ZfOK/nAJcc=;
+        s=korg; t=1669195325;
+        bh=Pgxsdvoa2KvgzRryZ9k7P8lB7Jk+R897S8XyFUhfWdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xmyex+/z5zm3MYq4IuMDlkbd8EK//WsAy/GHLjR3cIyPinOpCeDd3S5F3TvlTFSyO
-         s554wpHEwTU3F/i5g0eJpfSD26eN6tKeEb4FN+KhM+WEBvtCFys+Bor/S5vcJbSVxv
-         L5lbtsOAeK22Kb9NXZTGNLIxBruzdDJJ9SLuX4is=
+        b=1h3Yu3JITtUe5SO9WOfdL/99vAx0Quj5L3lW7GDSlwOwOiL/ut2CqnX8pz98RycrN
+         v9Og50v5OzrRA/vC7CutAaVX17H2ztBgyxAaN50c+OdrHN220PWdxiW9JlXa4q+Lfo
+         o6/Aju5LVtsZ7vsVBXdT5QzkUAvbwoMhYIfQ+e18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        Aishwarya Kothari <aishwarya.kothari@toradex.com>,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Douglas Anderson <dianders@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 048/114] selftests/intel_pstate: fix build for ARCH=x86_64
+Subject: [PATCH 5.10 052/149] drm/panel: simple: set bpc field for logic technologies displays
 Date:   Wed, 23 Nov 2022 09:50:35 +0100
-Message-Id: <20221123084553.767843263@linuxfoundation.org>
+Message-Id: <20221123084559.799206984@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+From: Aishwarya Kothari <aishwarya.kothari@toradex.com>
 
-[ Upstream commit beb7d862ed4ac6aa14625418970f22a7d55b8615 ]
+[ Upstream commit 876153ab068b2507a19aa3ef481f5b00a2cc780f ]
 
-Handle the scenario where the build is launched with the ARCH envvar
-defined as x86_64.
+In case bpc is not set for a panel it then throws a WARN(). Add bpc to
+the panels logictechno_lt170410_2whc and logictechno_lt161010_2nh.
 
-Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 5728fe7fa539 ("drm/panel: simple: add display timings for logic technologies displays")
+Signed-off-by: Aishwarya Kothari <aishwarya.kothari@toradex.com>
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220831141622.39605-1-francesco.dolcini@toradex.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/intel_pstate/Makefile | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/panel/panel-simple.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/intel_pstate/Makefile b/tools/testing/selftests/intel_pstate/Makefile
-index 7340fd6a9a9f..9fc1a40b0127 100644
---- a/tools/testing/selftests/intel_pstate/Makefile
-+++ b/tools/testing/selftests/intel_pstate/Makefile
-@@ -2,10 +2,10 @@
- CFLAGS := $(CFLAGS) -Wall -D_GNU_SOURCE
- LDLIBS := $(LDLIBS) -lm
- 
--uname_M := $(shell uname -m 2>/dev/null || echo not)
--ARCH ?= $(shell echo $(uname_M) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
-+ARCH ?= $(shell uname -m 2>/dev/null || echo not)
-+ARCH_PROCESSED := $(shell echo $(ARCH) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
- 
--ifeq (x86,$(ARCH))
-+ifeq (x86,$(ARCH_PROCESSED))
- TEST_GEN_FILES := msr aperf
- endif
- 
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index b7b37082a9d7..1a87cc445b5e 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -2655,6 +2655,7 @@ static const struct display_timing logictechno_lt161010_2nh_timing = {
+ static const struct panel_desc logictechno_lt161010_2nh = {
+ 	.timings = &logictechno_lt161010_2nh_timing,
+ 	.num_timings = 1,
++	.bpc = 6,
+ 	.size = {
+ 		.width = 154,
+ 		.height = 86,
+@@ -2684,6 +2685,7 @@ static const struct display_timing logictechno_lt170410_2whc_timing = {
+ static const struct panel_desc logictechno_lt170410_2whc = {
+ 	.timings = &logictechno_lt170410_2whc_timing,
+ 	.num_timings = 1,
++	.bpc = 8,
+ 	.size = {
+ 		.width = 217,
+ 		.height = 136,
 -- 
 2.35.1
 
