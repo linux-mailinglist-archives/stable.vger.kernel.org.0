@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7EB63580D
+	by mail.lfdr.de (Postfix) with ESMTP id 5C4BB63580E
 	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:50:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236986AbiKWJuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237234AbiKWJuK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 23 Nov 2022 04:50:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46216 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238240AbiKWJtl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46F8110AD26
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:46:34 -0800 (PST)
+        with ESMTP id S238246AbiKWJtm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 604D991C3E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:46:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5517B81E60
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 297B4C433C1;
-        Wed, 23 Nov 2022 09:46:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E27FD61A02
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD554C433D6;
+        Wed, 23 Nov 2022 09:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196791;
-        bh=RBHfiV6ctG5H4E9QhEOBnjB8iFT88OSDBL+qt/D9V2g=;
+        s=korg; t=1669196795;
+        bh=j7DB7TlvOvN44uwVzudms0ItbMwP4w6ehza4se1yK38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gv1Q1H92xL6DQ5Xx6Gwy4C4AX/c8yicMn/AGjge87HUxLAu9z9dJB8yPf/jpjLrEN
-         M7PWsOvKDQSryKFNs/x5ZFCl70dg+1uvQppO43ry04sMFYQ+ivOjmrQ7NzNUtdcpEF
-         Umgv0pfPHN4Jb3nxYcOop32sLbDpYIm+SGNq7hP0=
+        b=Q+I+/r2fxg7YmfpNYsAdbhjW1OyGBdKm2RD796S8C6naCaIRAj0972m95Y88LWn40
+         EHqWqKGI0oFgROPe66rsM0Gm2v78iTZrU42sarGu9kMwDH3Dik8yNuv2a2/Tw9t7zl
+         iyuVysGQ7/t+sMmVPtx91rRcN4t/l1aboD0V4spU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Jihong <yangjihong1@huawei.com>,
-        Yonghong Song <yhs@fb.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 125/314] selftests/bpf: Fix test_progs compilation failure in 32-bit arch
-Date:   Wed, 23 Nov 2022 09:49:30 +0100
-Message-Id: <20221123084631.189914289@linuxfoundation.org>
+Subject: [PATCH 6.0 126/314] pinctrl: devicetree: fix null pointer dereferencing in pinctrl_dt_to_map
+Date:   Wed, 23 Nov 2022 09:49:31 +0100
+Message-Id: <20221123084631.239075712@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
 References: <20221123084625.457073469@linuxfoundation.org>
@@ -54,48 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Zeng Heng <zengheng4@huawei.com>
 
-[ Upstream commit 5704bc7e8991164b14efb748b5afa0715c25fac3 ]
+[ Upstream commit 91d5c5060ee24fe8da88cd585bb43b843d2f0dce ]
 
-test_progs fails to be compiled in the 32-bit arch, log is as follows:
+Here is the BUG report by KASAN about null pointer dereference:
 
-  test_progs.c:1013:52: error: format '%ld' expects argument of type 'long int', but argument 3 has type 'size_t' {aka 'unsigned int'} [-Werror=format=]
-   1013 |                 sprintf(buf, "MSG_TEST_LOG (cnt: %ld, last: %d)",
-        |                                                  ~~^
-        |                                                    |
-        |                                                    long int
-        |                                                  %d
-   1014 |                         strlen(msg->test_log.log_buf),
-        |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        |                         |
-        |                         size_t {aka unsigned int}
+BUG: KASAN: null-ptr-deref in strcmp+0x2e/0x50
+Read of size 1 at addr 0000000000000000 by task python3/2640
+Call Trace:
+ strcmp
+ __of_find_property
+ of_find_property
+ pinctrl_dt_to_map
 
-Fix it.
+kasprintf() would return NULL pointer when kmalloc() fail to allocate.
+So directly return ENOMEM, if kasprintf() return NULL pointer.
 
-Fixes: 91b2c0afd00c ("selftests/bpf: Add parallelism to test_progs")
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/r/20221108015857.132457-1-yangjihong1@huawei.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Fixes: 57291ce295c0 ("pinctrl: core device tree mapping table parsing support")
+Signed-off-by: Zeng Heng <zengheng4@huawei.com>
+Link: https://lore.kernel.org/r/20221110082056.2014898-1-zengheng4@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_progs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/devicetree.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/test_progs.c b/tools/testing/selftests/bpf/test_progs.c
-index 3561c97701f2..a07b8ae64bf8 100644
---- a/tools/testing/selftests/bpf/test_progs.c
-+++ b/tools/testing/selftests/bpf/test_progs.c
-@@ -993,7 +993,7 @@ static inline const char *str_msg(const struct msg *msg, char *buf)
- 			msg->subtest_done.have_log);
- 		break;
- 	case MSG_TEST_LOG:
--		sprintf(buf, "MSG_TEST_LOG (cnt: %ld, last: %d)",
-+		sprintf(buf, "MSG_TEST_LOG (cnt: %zu, last: %d)",
- 			strlen(msg->test_log.log_buf),
- 			msg->test_log.is_last);
- 		break;
+diff --git a/drivers/pinctrl/devicetree.c b/drivers/pinctrl/devicetree.c
+index ef898ee8ca6b..6e0a40962f38 100644
+--- a/drivers/pinctrl/devicetree.c
++++ b/drivers/pinctrl/devicetree.c
+@@ -220,6 +220,8 @@ int pinctrl_dt_to_map(struct pinctrl *p, struct pinctrl_dev *pctldev)
+ 	for (state = 0; ; state++) {
+ 		/* Retrieve the pinctrl-* property */
+ 		propname = kasprintf(GFP_KERNEL, "pinctrl-%d", state);
++		if (!propname)
++			return -ENOMEM;
+ 		prop = of_find_property(np, propname, &size);
+ 		kfree(propname);
+ 		if (!prop) {
 -- 
 2.35.1
 
