@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B446D63588F
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D41DE635472
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236563AbiKWKAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:00:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55020 "EHLO
+        id S237116AbiKWJII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:08:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236729AbiKWKAA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:00:00 -0500
+        with ESMTP id S237110AbiKWJHm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 677531582E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:52:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25CBC5F60
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:07:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA4BD61B8F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:52:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7BCAC433D7;
-        Wed, 23 Nov 2022 09:52:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F12C61B5A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:07:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82EAEC433C1;
+        Wed, 23 Nov 2022 09:07:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197169;
-        bh=AAKqkl3uqeuK4e2cWRPZJ4l3NWqe3HZuYSnLijkIz74=;
+        s=korg; t=1669194460;
+        bh=SFLiyXJIsPNPOg/prYYiJnPLX7A1la6Ua8omJIwtJyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMNyelZcP4Betv7CqJHKibp9ZPrUQnPP0dp/c+zXJzp6/FN/wWhs6YV4N1cz+U84y
-         JtwhbUyxP4t8vpPUYzRMZchSuR/+w08bFiW2/TvP45EySuLOsx55IgyvWFl4n6uIZx
-         7PeA1WWED0gpHUKy8FPNccmnT+hnNlXFYJj8mg1U=
+        b=m8IT87WcscgEPUNXJSPci7IjsCFS/ke0ytv262KZz0ElX+i11Hr9VCn7qEcOkohe9
+         BQucZc0qnT2UCmjLdyxD4LqkVmZSR12oRrpA13u5rkbADnQaLYab7fqC6H+oR3n2OM
+         q3o8G1GuhxTNDG14GumaKfUB9F1DHk13UqQKGEGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Tom Chung <chiahsuan.chung@amd.com>,
-        Roman Li <roman.li@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 218/314] drm/amd/display: Fix optc2_configure warning on dcn314
+        patches@lists.linux.dev, mhiramat@kernel.org, mark.rutland@arm.com,
+        Wang Wensheng <wangwensheng4@huawei.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 076/114] ftrace: Optimize the allocation for mcount entries
 Date:   Wed, 23 Nov 2022 09:51:03 +0100
-Message-Id: <20221123084635.420464398@linuxfoundation.org>
+Message-Id: <20221123084554.913782462@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Li <roman.li@amd.com>
+From: Wang Wensheng <wangwensheng4@huawei.com>
 
-commit e7e4f77c991c9abf90924929a9d55f90b0bb78de upstream.
+commit bcea02b096333dc74af987cb9685a4dbdd820840 upstream.
 
-[Why]
-dcn314 uses optc2_configure_crc() that wraps
-optc1_configure_crc() + set additional registers
-not applicable to dcn314.
-It's not critical but when used leads to warning like:
-WARNING: drivers/gpu/drm/amd/amdgpu/../display/dc/dc_helper.c
-Call Trace:
-<TASK>
-generic_reg_set_ex+0x6d/0xe0 [amdgpu]
-optc2_configure_crc+0x60/0x80 [amdgpu]
-dc_stream_configure_crc+0x129/0x150 [amdgpu]
-amdgpu_dm_crtc_configure_crc_source+0x5d/0xe0 [amdgpu]
+If we can't allocate this size, try something smaller with half of the
+size. Its order should be decreased by one instead of divided by two.
 
-[How]
-Use optc1_configure_crc() directly
+Link: https://lkml.kernel.org/r/20221109094434.84046-3-wangwensheng4@huawei.com
 
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Tom Chung <chiahsuan.chung@amd.com>
-Signed-off-by: Roman Li <roman.li@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.0.x
+Cc: <mhiramat@kernel.org>
+Cc: <mark.rutland@arm.com>
+Cc: stable@vger.kernel.org
+Fixes: a79008755497d ("ftrace: Allocate the mcount record pages as groups")
+Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn314/dcn314_optc.c |    2 +-
+ kernel/trace/ftrace.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_optc.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_optc.c
-@@ -237,7 +237,7 @@ static struct timing_generator_funcs dcn
- 		.clear_optc_underflow = optc1_clear_optc_underflow,
- 		.setup_global_swap_lock = NULL,
- 		.get_crc = optc1_get_crc,
--		.configure_crc = optc2_configure_crc,
-+		.configure_crc = optc1_configure_crc,
- 		.set_dsc_config = optc3_set_dsc_config,
- 		.get_dsc_status = optc2_get_dsc_status,
- 		.set_dwb_source = NULL,
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -3033,7 +3033,7 @@ static int ftrace_allocate_records(struc
+ 		/* if we can't allocate this size, try something smaller */
+ 		if (!order)
+ 			return -ENOMEM;
+-		order >>= 1;
++		order--;
+ 		goto again;
+ 	}
+ 
 
 
