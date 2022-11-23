@@ -2,187 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9302063543D
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 789696356C2
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236998AbiKWJFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:05:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41302 "EHLO
+        id S237498AbiKWJdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:33:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236995AbiKWJEt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:04:49 -0500
+        with ESMTP id S237849AbiKWJc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:32:28 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6978F105583
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:04:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B485B24BE0
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0470061B36
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:04:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15AABC433D6;
-        Wed, 23 Nov 2022 09:04:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AE1F61B3B
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46646C4347C;
+        Wed, 23 Nov 2022 09:31:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194280;
-        bh=4sCWtU8kfBpK3x6VeZlHoFjPCyDHIeMKtEXK5XLIW9Y=;
+        s=korg; t=1669195883;
+        bh=Mbh//rgxz3VINRNhosHNkW5TiO1ag1/5pFNXo3aCBgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nzlAiwwC+cc+Bjus7Mq2tJqF2V+pH2iE9Vn2RP3mxQW53pOU1wMHp0rxtsFGar5m7
-         Z6vCNhzwA/2VLtb5KwkBZnnecbK/qp/b311Nc7OVbc8Tslv/Yp6OD8rB9dPexdqkQj
-         fHY81gbuYWsPo90j6cnYBp1y2FeM4uFajwjzNkyY=
+        b=fRlh7vfyc4wMkjZNAUf5EfMsUTIur8Q8q3RdmXwo8RRggJAZFyVJ2xlxxg8qZFViP
+         bb2nFU64Q1cLpvQ3KI50TeOcuKCzEOujbnpBYDUFOV73Ie3otEnFvzzI9Bjn0VPEH1
+         k81LC6mHGeX0XRjDhqJfjNcSi72HHWYcncAqZIDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+69c9fdccc6dd08961d34@syzkaller.appspotmail.com,
-        ZhangPeng <zhangpeng362@huawei.com>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.19 033/114] udf: Fix a slab-out-of-bounds write bug in udf_find_entry()
-Date:   Wed, 23 Nov 2022 09:50:20 +0100
-Message-Id: <20221123084553.167869909@linuxfoundation.org>
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 058/181] block: sed-opal: kmalloc the cmd/resp buffers
+Date:   Wed, 23 Nov 2022 09:50:21 +0100
+Message-Id: <20221123084604.878333557@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-commit c8af247de385ce49afabc3bf1cf4fd455c94bfe8 upstream.
+[ Upstream commit f829230dd51974c1f4478900ed30bb77ba530b40 ]
 
-Syzbot reported a slab-out-of-bounds Write bug:
+In accordance with [1] the DMA-able memory buffers must be
+cacheline-aligned otherwise the cache writing-back and invalidation
+performed during the mapping may cause the adjacent data being lost. It's
+specifically required for the DMA-noncoherent platforms [2]. Seeing the
+opal_dev.{cmd,resp} buffers are implicitly used for DMAs in the NVME and
+SCSI/SD drivers in framework of the nvme_sec_submit() and sd_sec_submit()
+methods respectively they must be cacheline-aligned to prevent the denoted
+problem. One of the option to guarantee that is to kmalloc the buffers
+[2]. Let's explicitly allocate them then instead of embedding into the
+opal_dev structure instance.
 
-loop0: detected capacity change from 0 to 2048
-==================================================================
-BUG: KASAN: slab-out-of-bounds in udf_find_entry+0x8a5/0x14f0
-fs/udf/namei.c:253
-Write of size 105 at addr ffff8880123ff896 by task syz-executor323/3610
+Note this fix was inspired by the commit c94b7f9bab22 ("nvme-hwmon:
+kmalloc the NVME SMART log buffer").
 
-CPU: 0 PID: 3610 Comm: syz-executor323 Not tainted
-6.1.0-rc2-syzkaller-00105-gb229b6ca5abb #0
-Hardware name: Google Compute Engine/Google Compute Engine, BIOS
-Google 10/11/2022
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
- print_address_description+0x74/0x340 mm/kasan/report.c:284
- print_report+0x107/0x1f0 mm/kasan/report.c:395
- kasan_report+0xcd/0x100 mm/kasan/report.c:495
- kasan_check_range+0x2a7/0x2e0 mm/kasan/generic.c:189
- memcpy+0x3c/0x60 mm/kasan/shadow.c:66
- udf_find_entry+0x8a5/0x14f0 fs/udf/namei.c:253
- udf_lookup+0xef/0x340 fs/udf/namei.c:309
- lookup_open fs/namei.c:3391 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x10e6/0x2df0 fs/namei.c:3710
- do_filp_open+0x264/0x4f0 fs/namei.c:3740
- do_sys_openat2+0x124/0x4e0 fs/open.c:1310
- do_sys_open fs/open.c:1326 [inline]
- __do_sys_creat fs/open.c:1402 [inline]
- __se_sys_creat fs/open.c:1396 [inline]
- __x64_sys_creat+0x11f/0x160 fs/open.c:1396
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7ffab0d164d9
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89
-f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
-f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffe1a7e6bb8 EFLAGS: 00000246 ORIG_RAX: 0000000000000055
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007ffab0d164d9
-RDX: 00007ffab0d164d9 RSI: 0000000000000000 RDI: 0000000020000180
-RBP: 00007ffab0cd5a10 R08: 0000000000000000 R09: 0000000000000000
-R10: 00005555573552c0 R11: 0000000000000246 R12: 00007ffab0cd5aa0
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
+[1] Documentation/core-api/dma-api.rst
+[2] Documentation/core-api/dma-api-howto.rst
 
-Allocated by task 3610:
- kasan_save_stack mm/kasan/common.c:45 [inline]
- kasan_set_track+0x3d/0x60 mm/kasan/common.c:52
- ____kasan_kmalloc mm/kasan/common.c:371 [inline]
- __kasan_kmalloc+0x97/0xb0 mm/kasan/common.c:380
- kmalloc include/linux/slab.h:576 [inline]
- udf_find_entry+0x7b6/0x14f0 fs/udf/namei.c:243
- udf_lookup+0xef/0x340 fs/udf/namei.c:309
- lookup_open fs/namei.c:3391 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x10e6/0x2df0 fs/namei.c:3710
- do_filp_open+0x264/0x4f0 fs/namei.c:3740
- do_sys_openat2+0x124/0x4e0 fs/open.c:1310
- do_sys_open fs/open.c:1326 [inline]
- __do_sys_creat fs/open.c:1402 [inline]
- __se_sys_creat fs/open.c:1396 [inline]
- __x64_sys_creat+0x11f/0x160 fs/open.c:1396
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-The buggy address belongs to the object at ffff8880123ff800
- which belongs to the cache kmalloc-256 of size 256
-The buggy address is located 150 bytes inside of
- 256-byte region [ffff8880123ff800, ffff8880123ff900)
-
-The buggy address belongs to the physical page:
-page:ffffea000048ff80 refcount:1 mapcount:0 mapping:0000000000000000
-index:0x0 pfn:0x123fe
-head:ffffea000048ff80 order:1 compound_mapcount:0 compound_pincount:0
-flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000010200 ffffea00004b8500 dead000000000003 ffff888012041b40
-raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-page_owner tracks the page as allocated
-page last allocated via order 0, migratetype Unmovable, gfp_mask 0x0(),
-pid 1, tgid 1 (swapper/0), ts 1841222404, free_ts 0
- create_dummy_stack mm/page_owner.c:67 [inline]
- register_early_stack+0x77/0xd0 mm/page_owner.c:83
- init_page_owner+0x3a/0x731 mm/page_owner.c:93
- kernel_init_freeable+0x41c/0x5d5 init/main.c:1629
- kernel_init+0x19/0x2b0 init/main.c:1519
-page_owner free stack trace missing
-
-Memory state around the buggy address:
- ffff8880123ff780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff8880123ff800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff8880123ff880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06
-                                                                ^
- ffff8880123ff900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff8880123ff980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-==================================================================
-
-Fix this by changing the memory size allocated for copy_name from
-UDF_NAME_LEN(254) to UDF_NAME_LEN_CS0(255), because the total length
-(lfi) of subsequent memcpy can be up to 255.
-
-CC: stable@vger.kernel.org
-Reported-by: syzbot+69c9fdccc6dd08961d34@syzkaller.appspotmail.com
-Fixes: 066b9cded00b ("udf: Use separate buffer for copying split names")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221109013542.442790-1-zhangpeng362@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 455a7b238cd6 ("block: Add Sed-opal library")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20221107203944.31686-1-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/namei.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/sed-opal.c | 32 ++++++++++++++++++++++++++++----
+ 1 file changed, 28 insertions(+), 4 deletions(-)
 
---- a/fs/udf/namei.c
-+++ b/fs/udf/namei.c
-@@ -241,7 +241,7 @@ static struct fileIdentDesc *udf_find_en
- 						      poffset - lfi);
- 			else {
- 				if (!copy_name) {
--					copy_name = kmalloc(UDF_NAME_LEN,
-+					copy_name = kmalloc(UDF_NAME_LEN_CS0,
- 							    GFP_NOFS);
- 					if (!copy_name) {
- 						fi = ERR_PTR(-ENOMEM);
+diff --git a/block/sed-opal.c b/block/sed-opal.c
+index daafadbb88ca..0ac5a4f3f226 100644
+--- a/block/sed-opal.c
++++ b/block/sed-opal.c
+@@ -88,8 +88,8 @@ struct opal_dev {
+ 	u64 lowest_lba;
+ 
+ 	size_t pos;
+-	u8 cmd[IO_BUFFER_LENGTH];
+-	u8 resp[IO_BUFFER_LENGTH];
++	u8 *cmd;
++	u8 *resp;
+ 
+ 	struct parsed_resp parsed;
+ 	size_t prev_d_len;
+@@ -2134,6 +2134,8 @@ void free_opal_dev(struct opal_dev *dev)
+ 		return;
+ 
+ 	clean_opal_dev(dev);
++	kfree(dev->resp);
++	kfree(dev->cmd);
+ 	kfree(dev);
+ }
+ EXPORT_SYMBOL(free_opal_dev);
+@@ -2146,17 +2148,39 @@ struct opal_dev *init_opal_dev(void *data, sec_send_recv *send_recv)
+ 	if (!dev)
+ 		return NULL;
+ 
++	/*
++	 * Presumably DMA-able buffers must be cache-aligned. Kmalloc makes
++	 * sure the allocated buffer is DMA-safe in that regard.
++	 */
++	dev->cmd = kmalloc(IO_BUFFER_LENGTH, GFP_KERNEL);
++	if (!dev->cmd)
++		goto err_free_dev;
++
++	dev->resp = kmalloc(IO_BUFFER_LENGTH, GFP_KERNEL);
++	if (!dev->resp)
++		goto err_free_cmd;
++
+ 	INIT_LIST_HEAD(&dev->unlk_lst);
+ 	mutex_init(&dev->dev_lock);
+ 	dev->data = data;
+ 	dev->send_recv = send_recv;
+ 	if (check_opal_support(dev) != 0) {
+ 		pr_debug("Opal is not supported on this device\n");
+-		kfree(dev);
+-		return NULL;
++		goto err_free_resp;
+ 	}
+ 
+ 	return dev;
++
++err_free_resp:
++	kfree(dev->resp);
++
++err_free_cmd:
++	kfree(dev->cmd);
++
++err_free_dev:
++	kfree(dev);
++
++	return NULL;
+ }
+ EXPORT_SYMBOL(init_opal_dev);
+ 
+-- 
+2.35.1
+
 
 
