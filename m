@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7899C6353B1
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9976B6353CA
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:00:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236799AbiKWI6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:58:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33920 "EHLO
+        id S236809AbiKWI6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 03:58:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236811AbiKWI6G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:58:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 176085985A
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:57:57 -0800 (PST)
+        with ESMTP id S236831AbiKWI6W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:58:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EAF874A92
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:58:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCCACB81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:57:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB907C433C1;
-        Wed, 23 Nov 2022 08:57:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 573BAB81EEF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:58:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D7C5C433D6;
+        Wed, 23 Nov 2022 08:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193874;
-        bh=ygAm6RSXQl/9LMN/0inpIbPnjcUxOb4cxbIGJebeWA8=;
+        s=korg; t=1669193898;
+        bh=Dl3E3AlKz4+RRjHTuk7ptxYP7XywWkAnFZjUO1/aMvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CBXofmviSn1tHBz/Ax2/dtiVYbSELWP5Np3Cv+AGghNGgW8mMrxV68pp7GIElZx09
-         G0kznsGKESEGxg+f6IXuCvGMz7NTjqdq0mc2TMPTP1lPmngaEeX0AQZG+JdONHRBnt
-         Ux+S798ckZSfZ2eYfQYHmgwS7VCJ5UCsiorQqjRs=
+        b=e9J4ElXQr/T/fVnPjftnQKtcR9E7S/4i1v/DxY37cHjzM2HWDacgW3epgXUSSysKJ
+         L/T+K+YbdOvDowAxh4QsyxoNiiJArlLzTbh+D9ViXKcuoUpSQHvPkm2eo0uqG56DK2
+         MpRzySWq5l5B6QrxBS36+xkzGh5BHiYFeN3pI4Sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Wei Liu <wei.liu@kernel.org>, Jiri Kosina <jkosina@suse.cz>,
+        patches@lists.linux.dev, Jiri Benc <jbenc@redhat.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/88] HID: hyperv: fix possible memory leak in mousevsc_probe()
-Date:   Wed, 23 Nov 2022 09:49:58 +0100
-Message-Id: <20221123084548.595390964@linuxfoundation.org>
+Subject: [PATCH 4.14 02/88] net: gso: fix panic on frag_list with mixed head alloc types
+Date:   Wed, 23 Nov 2022 09:49:59 +0100
+Message-Id: <20221123084548.627064026@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
 References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,35 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Jiri Benc <jbenc@redhat.com>
 
-[ Upstream commit b5bcb94b0954a026bbd671741fdb00e7141f9c91 ]
+[ Upstream commit 9e4b7a99a03aefd37ba7bb1f022c8efab5019165 ]
 
-If hid_add_device() returns error, it should call hid_destroy_device()
-to free hid_dev which is allocated in hid_allocate_device().
+Since commit 3dcbdb134f32 ("net: gso: Fix skb_segment splat when
+splitting gso_size mangled skb having linear-headed frag_list"), it is
+allowed to change gso_size of a GRO packet. However, that commit assumes
+that "checking the first list_skb member suffices; i.e if either of the
+list_skb members have non head_frag head, then the first one has too".
 
-Fixes: 74c4fb058083 ("HID: hv_mouse: Properly add the hid device")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+It turns out this assumption does not hold. We've seen BUG_ON being hit
+in skb_segment when skbs on the frag_list had differing head_frag with
+the vmxnet3 driver. This happens because __netdev_alloc_skb and
+__napi_alloc_skb can return a skb that is page backed or kmalloced
+depending on the requested size. As the result, the last small skb in
+the GRO packet can be kmalloced.
+
+There are three different locations where this can be fixed:
+
+(1) We could check head_frag in GRO and not allow GROing skbs with
+    different head_frag. However, that would lead to performance
+    regression on normal forward paths with unmodified gso_size, where
+    !head_frag in the last packet is not a problem.
+
+(2) Set a flag in bpf_skb_net_grow and bpf_skb_net_shrink indicating
+    that NETIF_F_SG is undesirable. That would need to eat a bit in
+    sk_buff. Furthermore, that flag can be unset when all skbs on the
+    frag_list are page backed. To retain good performance,
+    bpf_skb_net_grow/shrink would have to walk the frag_list.
+
+(3) Walk the frag_list in skb_segment when determining whether
+    NETIF_F_SG should be cleared. This of course slows things down.
+
+This patch implements (3). To limit the performance impact in
+skb_segment, the list is walked only for skbs with SKB_GSO_DODGY set
+that have gso_size changed. Normal paths thus will not hit it.
+
+We could check only the last skb but since we need to walk the whole
+list anyway, let's stay on the safe side.
+
+Fixes: 3dcbdb134f32 ("net: gso: Fix skb_segment splat when splitting gso_size mangled skb having linear-headed frag_list")
+Signed-off-by: Jiri Benc <jbenc@redhat.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/e04426a6a91baf4d1081e1b478c82b5de25fdf21.1667407944.git.jbenc@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-hyperv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/skbuff.c | 36 +++++++++++++++++++-----------------
+ 1 file changed, 19 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-index 220b3e5c9c39..d8ebaa5d8b58 100644
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -500,7 +500,7 @@ static int mousevsc_probe(struct hv_device *device,
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 11d0ffc51c24..0b672d71447f 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -3545,23 +3545,25 @@ struct sk_buff *skb_segment(struct sk_buff *head_skb,
+ 	int pos;
+ 	int dummy;
  
- 	ret = hid_add_device(hid_dev);
- 	if (ret)
--		goto probe_err1;
-+		goto probe_err2;
+-	if (list_skb && !list_skb->head_frag && skb_headlen(list_skb) &&
+-	    (skb_shinfo(head_skb)->gso_type & SKB_GSO_DODGY)) {
+-		/* gso_size is untrusted, and we have a frag_list with a linear
+-		 * non head_frag head.
+-		 *
+-		 * (we assume checking the first list_skb member suffices;
+-		 * i.e if either of the list_skb members have non head_frag
+-		 * head, then the first one has too).
+-		 *
+-		 * If head_skb's headlen does not fit requested gso_size, it
+-		 * means that the frag_list members do NOT terminate on exact
+-		 * gso_size boundaries. Hence we cannot perform skb_frag_t page
+-		 * sharing. Therefore we must fallback to copying the frag_list
+-		 * skbs; we do so by disabling SG.
+-		 */
+-		if (mss != GSO_BY_FRAGS && mss != skb_headlen(head_skb))
+-			features &= ~NETIF_F_SG;
++	if ((skb_shinfo(head_skb)->gso_type & SKB_GSO_DODGY) &&
++	    mss != GSO_BY_FRAGS && mss != skb_headlen(head_skb)) {
++		struct sk_buff *check_skb;
++
++		for (check_skb = list_skb; check_skb; check_skb = check_skb->next) {
++			if (skb_headlen(check_skb) && !check_skb->head_frag) {
++				/* gso_size is untrusted, and we have a frag_list with
++				 * a linear non head_frag item.
++				 *
++				 * If head_skb's headlen does not fit requested gso_size,
++				 * it means that the frag_list members do NOT terminate
++				 * on exact gso_size boundaries. Hence we cannot perform
++				 * skb_frag_t page sharing. Therefore we must fallback to
++				 * copying the frag_list skbs; we do so by disabling SG.
++				 */
++				features &= ~NETIF_F_SG;
++				break;
++			}
++		}
+ 	}
  
- 
- 	ret = hid_parse(hid_dev);
+ 	__skb_push(head_skb, doffset);
 -- 
 2.35.1
 
