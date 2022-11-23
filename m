@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C73F363585E
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:56:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A16B7635537
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:16:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237186AbiKWJ4S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:56:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50732 "EHLO
+        id S237297AbiKWJPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:15:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237082AbiKWJy5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:54:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B3C91165A1;
-        Wed, 23 Nov 2022 01:50:41 -0800 (PST)
+        with ESMTP id S237301AbiKWJPb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:15:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F69107E51
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:15:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C348AB81EF3;
-        Wed, 23 Nov 2022 09:50:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 036EDC433D7;
-        Wed, 23 Nov 2022 09:50:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69FC6B81EF7
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:15:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4F43C433C1;
+        Wed, 23 Nov 2022 09:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197038;
-        bh=6f9kMGYCqPXsi0k0LVBuzTEbJ5fILjVvpxN31nNOmZE=;
+        s=korg; t=1669194928;
+        bh=e1zY74w8f4+l/6QfJLwmoA1WI0KbNI093vQ5gi1TV2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEN9xmE8HYT91cNbV8FNHiw/kLFBH2RAHGFKuUrQ4vUpfZGlsvOMNxEAVbsE2gNlw
-         CVBFf9yPVCxWYmsxlWA0NzJ8CrScBNJTrxgGC2FE9/PQgeTcNfWdTG+kApJT9kUOrH
-         zbxKWNWA1qxhOmYIIC3m4QB/0cA9Q4XYyz0330Ps=
+        b=knKTJ1vTCrtPEn/YiDVeCArjfkfcrYdj1Z+U/yHrs5+a859AenfF1lVkF8ACHzMd3
+         kPidixxyXwh0JakhTXqpE0GU3cJV2uocSS6ZY5selqZqDgI6o74n2WVhwPL6fe3hLr
+         Q3NUNZtfSwH8SaisrxIOriiI+mii0Hfg7DpG1jnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthew Wilcox <willy@infradead.org>,
-        David Howells <dhowells@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Jingbo Xu <jefflexu@linux.alibaba.com>,
-        linux-cachefs@redhat.com, linux-fsdevel@vger.kernel.org,
+        patches@lists.linux.dev, Siarhei Volkau <lis8215@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 181/314] netfs: Fix dodgy maths
+Subject: [PATCH 5.4 069/156] ASoC: codecs: jz4725b: add missed Line In power control bit
 Date:   Wed, 23 Nov 2022 09:50:26 +0100
-Message-Id: <20221123084633.777016204@linuxfoundation.org>
+Message-Id: <20221123084600.452182779@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,102 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Siarhei Volkau <lis8215@gmail.com>
 
-[ Upstream commit 5e51c627c5acbcf82bb552e17533a79d2a6a2600 ]
+[ Upstream commit 1013999b431b4bcdc1f5ae47dd3338122751db31 ]
 
-Fix the dodgy maths in netfs_rreq_unlock_folios().  start_page could be
-inside the folio, in which case the calculation of pgpos will be come up
-with a negative number (though for the moment rreq->start is rounded down
-earlier and folios would have to get merged whilst locked)
+Line In path stayed powered off during capturing or
+bypass to mixer.
 
-Alter how this works to just frame the tracking in terms of absolute file
-positions, rather than offsets from the start of the I/O request.  This
-simplifies the maths and makes it easier to follow.
-
-Fix the issue by using folio_pos() and folio_size() to calculate the end
-position of the page.
-
-Fixes: 3d3c95046742 ("netfs: Provide readahead and readpage netfs helpers")
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-cc: linux-cachefs@redhat.com
-cc: linux-fsdevel@vger.kernel.org
-Link: https://lore.kernel.org/r/Y2SJw7w1IsIik3nb@casper.infradead.org/
-Link: https://lore.kernel.org/r/166757988611.950645.7626959069846893164.stgit@warthog.procyon.org.uk/ # v2
+Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
+Link: https://lore.kernel.org/r/20221016132648.3011729-2-lis8215@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/netfs/buffered_read.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ sound/soc/codecs/jz4725b.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/netfs/buffered_read.c b/fs/netfs/buffered_read.c
-index baf668fb4315..7679a68e8193 100644
---- a/fs/netfs/buffered_read.c
-+++ b/fs/netfs/buffered_read.c
-@@ -17,9 +17,9 @@ void netfs_rreq_unlock_folios(struct netfs_io_request *rreq)
- {
- 	struct netfs_io_subrequest *subreq;
- 	struct folio *folio;
--	unsigned int iopos, account = 0;
- 	pgoff_t start_page = rreq->start / PAGE_SIZE;
- 	pgoff_t last_page = ((rreq->start + rreq->len) / PAGE_SIZE) - 1;
-+	size_t account = 0;
- 	bool subreq_failed = false;
+diff --git a/sound/soc/codecs/jz4725b.c b/sound/soc/codecs/jz4725b.c
+index 2567a5d15b55..a04b8d5d1ded 100644
+--- a/sound/soc/codecs/jz4725b.c
++++ b/sound/soc/codecs/jz4725b.c
+@@ -236,7 +236,8 @@ static const struct snd_soc_dapm_widget jz4725b_codec_dapm_widgets[] = {
+ 	SND_SOC_DAPM_MIXER("DAC to Mixer", JZ4725B_CODEC_REG_CR1,
+ 			   REG_CR1_DACSEL_OFFSET, 0, NULL, 0),
  
- 	XA_STATE(xas, &rreq->mapping->i_pages, start_page);
-@@ -39,23 +39,23 @@ void netfs_rreq_unlock_folios(struct netfs_io_request *rreq)
- 	 */
- 	subreq = list_first_entry(&rreq->subrequests,
- 				  struct netfs_io_subrequest, rreq_link);
--	iopos = 0;
- 	subreq_failed = (subreq->error < 0);
- 
- 	trace_netfs_rreq(rreq, netfs_rreq_trace_unlock);
- 
- 	rcu_read_lock();
- 	xas_for_each(&xas, folio, last_page) {
--		unsigned int pgpos, pgend;
-+		loff_t pg_end;
- 		bool pg_failed = false;
- 
- 		if (xas_retry(&xas, folio))
- 			continue;
- 
--		pgpos = (folio_index(folio) - start_page) * PAGE_SIZE;
--		pgend = pgpos + folio_size(folio);
-+		pg_end = folio_pos(folio) + folio_size(folio) - 1;
- 
- 		for (;;) {
-+			loff_t sreq_end;
-+
- 			if (!subreq) {
- 				pg_failed = true;
- 				break;
-@@ -63,11 +63,11 @@ void netfs_rreq_unlock_folios(struct netfs_io_request *rreq)
- 			if (test_bit(NETFS_SREQ_COPY_TO_CACHE, &subreq->flags))
- 				folio_start_fscache(folio);
- 			pg_failed |= subreq_failed;
--			if (pgend < iopos + subreq->len)
-+			sreq_end = subreq->start + subreq->len - 1;
-+			if (pg_end < sreq_end)
- 				break;
- 
- 			account += subreq->transferred;
--			iopos += subreq->len;
- 			if (!list_is_last(&subreq->rreq_link, &rreq->subrequests)) {
- 				subreq = list_next_entry(subreq, rreq_link);
- 				subreq_failed = (subreq->error < 0);
-@@ -75,7 +75,8 @@ void netfs_rreq_unlock_folios(struct netfs_io_request *rreq)
- 				subreq = NULL;
- 				subreq_failed = false;
- 			}
--			if (pgend == iopos)
-+
-+			if (pg_end == sreq_end)
- 				break;
- 		}
+-	SND_SOC_DAPM_MIXER("Line In", SND_SOC_NOPM, 0, 0, NULL, 0),
++	SND_SOC_DAPM_MIXER("Line In", JZ4725B_CODEC_REG_PMR1,
++			   REG_PMR1_SB_LIN_OFFSET, 1, NULL, 0),
+ 	SND_SOC_DAPM_MIXER("HP Out", JZ4725B_CODEC_REG_CR1,
+ 			   REG_CR1_HP_DIS_OFFSET, 1, NULL, 0),
  
 -- 
 2.35.1
