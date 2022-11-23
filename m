@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF6C6354D5
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A173D635672
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237190AbiKWJLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:11:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51266 "EHLO
+        id S237812AbiKWJav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:30:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237205AbiKWJK4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:10:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9E0A10611C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:10:51 -0800 (PST)
+        with ESMTP id S237814AbiKWJac (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC948113724
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:28:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5EC2CB81EF1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:10:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF1FC433D7;
-        Wed, 23 Nov 2022 09:10:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7871561B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:28:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 626D0C433D6;
+        Wed, 23 Nov 2022 09:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194650;
-        bh=f1bDRj6OAyJRuUGqDEx6V/FpKuGuv4W1By/viGxlurQ=;
+        s=korg; t=1669195724;
+        bh=hcWqM5dE67uuplVflQAGo4eIRyUeZr2rhyv1ReIeg28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j2kvL4Dzs0zrij9AwFQqvxPUbWYWA3YbIubF0egT7wsC4EYtSJjr51mabpByma/J4
-         FD1oQVI9wyI3INUqGYB9nII77miz+otDvgjMDhTngj6y35lovUBhHNenxXN+m/qw/D
-         H6lFB/o+GcacJ4UrHbLPaQtqQA7s0vkn3X07wpDk=
+        b=b3U2LVPskyg9YxXncmKI4wlEBFJ3DCfBI0U0B4Epko8f7t1aknWiLZSU3tpK7iQvW
+         hOG7ZvG7P4Zr0LQ/AWHEVkne/cWrPDf8VoZBbus0AvmmPAjy+do3GDQD684/DB0dsi
+         UyNZCvMH8bxXkt8WArRF4dt3NpCJ/h1jGefub/y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
+        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@igalia.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 022/156] can: af_can: fix NULL pointer dereference in can_rx_register()
+Subject: [PATCH 5.15 016/181] selftests/futex: fix build for clang
 Date:   Wed, 23 Nov 2022 09:49:39 +0100
-Message-Id: <20221123084558.743823803@linuxfoundation.org>
+Message-Id: <20221123084603.230400756@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
 
-[ Upstream commit 8aa59e355949442c408408c2d836e561794c40a1 ]
+[ Upstream commit 03cab65a07e083b6c1010fbc8f9b817e9aca75d9 ]
 
-It causes NULL pointer dereference when testing as following:
-(a) use syscall(__NR_socket, 0x10ul, 3ul, 0) to create netlink socket.
-(b) use syscall(__NR_sendmsg, ...) to create bond link device and vxcan
-    link device, and bind vxcan device to bond device (can also use
-    ifenslave command to bind vxcan device to bond device).
-(c) use syscall(__NR_socket, 0x1dul, 3ul, 1) to create CAN socket.
-(d) use syscall(__NR_bind, ...) to bind the bond device to CAN socket.
+Don't use the test-specific header files as source files to force a
+target dependency, as clang will complain if more than one source file
+is used for a compile command with a single '-o' flag.
 
-The bond device invokes the can-raw protocol registration interface to
-receive CAN packets. However, ml_priv is not allocated to the dev,
-dev_rcv_lists is assigned to NULL in can_rx_register(). In this case,
-it will occur the NULL pointer dereference issue.
+Use the proper Makefile variables instead as defined in
+tools/testing/selftests/lib.mk.
 
-The following is the stack information:
-BUG: kernel NULL pointer dereference, address: 0000000000000008
-PGD 122a4067 P4D 122a4067 PUD 1223c067 PMD 0
-Oops: 0000 [#1] PREEMPT SMP
-RIP: 0010:can_rx_register+0x12d/0x1e0
-Call Trace:
-<TASK>
-raw_enable_filters+0x8d/0x120
-raw_enable_allfilters+0x3b/0x130
-raw_bind+0x118/0x4f0
-__sys_bind+0x163/0x1a0
-__x64_sys_bind+0x1e/0x30
-do_syscall_64+0x35/0x80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-</TASK>
-
-Fixes: 4e096a18867a ("net: introduce CAN specific pointer in the struct net_device")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Link: https://lore.kernel.org/all/20221028085650.170470-1-shaozhengchao@huawei.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+Reviewed-by: André Almeida <andrealmeid@igalia.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/af_can.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/futex/functional/Makefile | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/net/can/af_can.c b/net/can/af_can.c
-index c758a12ffe46..f7dc68cd86e4 100644
---- a/net/can/af_can.c
-+++ b/net/can/af_can.c
-@@ -450,7 +450,7 @@ int can_rx_register(struct net *net, struct net_device *dev, canid_t can_id,
+diff --git a/tools/testing/selftests/futex/functional/Makefile b/tools/testing/selftests/futex/functional/Makefile
+index bd1fec59e010..ece2e38fbb0b 100644
+--- a/tools/testing/selftests/futex/functional/Makefile
++++ b/tools/testing/selftests/futex/functional/Makefile
+@@ -4,11 +4,11 @@ INCLUDES := -I../include -I../../ -I../../../../../usr/include/ \
+ CFLAGS := $(CFLAGS) -g -O2 -Wall -D_GNU_SOURCE -pthread $(INCLUDES)
+ LDLIBS := -lpthread -lrt
  
- 	/* insert new receiver  (dev,canid,mask) -> (func,data) */
- 
--	if (dev && dev->type != ARPHRD_CAN)
-+	if (dev && (dev->type != ARPHRD_CAN || !can_get_ml_priv(dev)))
- 		return -ENODEV;
- 
- 	if (dev && !net_eq(net, dev_net(dev)))
+-HEADERS := \
++LOCAL_HDRS := \
+ 	../include/futextest.h \
+ 	../include/atomic.h \
+ 	../include/logging.h
+-TEST_GEN_FILES := \
++TEST_GEN_PROGS := \
+ 	futex_wait_timeout \
+ 	futex_wait_wouldblock \
+ 	futex_requeue_pi \
+@@ -24,5 +24,3 @@ TEST_PROGS := run.sh
+ top_srcdir = ../../../../..
+ KSFT_KHDR_INSTALL := 1
+ include ../../lib.mk
+-
+-$(TEST_GEN_FILES): $(HEADERS)
 -- 
 2.35.1
 
