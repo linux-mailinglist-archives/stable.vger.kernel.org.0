@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0522F635550
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CC3D63571C
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:38:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237445AbiKWJSL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:18:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58154 "EHLO
+        id S237965AbiKWJh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:37:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237453AbiKWJRk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:17:40 -0500
+        with ESMTP id S237961AbiKWJh1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:37:27 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C7CCE92
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:17:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDC086306
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:35:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 968ABB81E50
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:17:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDF62C433D6;
-        Wed, 23 Nov 2022 09:17:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EC50B81E60
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:35:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D057C433C1;
+        Wed, 23 Nov 2022 09:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195048;
-        bh=D28NUY+OgrZDPRI55/TXjC2f3gyGpINTmypgydaw21E=;
+        s=korg; t=1669196130;
+        bh=hcIHoOOr0mQPIoISV17umq8DPr5hm5Z2CXFa3EUYcnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NUscDXL+kZiIx7HfKNp7HT7AWmWQ9N0Ais6Chj3ChA6C49Ul4YeQHfAxwzXNTbxbH
-         qA3/hjGepbUU3l00YpA10f/x13H5yXHwMY5b3wf73yFT4fRMQ5rIaipHfH+My4cESs
-         UJYI2pr+davEnumjszrgpYRuiLxBpCqeGoyGfTng=
+        b=vkQiS6tJA2y+v9Nh94K9YqxayOt3FhqlbolLisMt2UlQKFM47rbG7d8fsfigl/dK1
+         XYED2TwAH9ixK8Cp1xPVd9a3GpQOonJ8+vvokA4vA2swszNviZyG0GEC1CRTdfctfx
+         PPz92nblIYZOTGjFb6XGRplXyLCBMKH9SmjbPf1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        "David E. Box" <david.e.box@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 102/156] net: caif: fix double disconnect client in chnl_net_open()
-Date:   Wed, 23 Nov 2022 09:50:59 +0100
-Message-Id: <20221123084601.669918826@linuxfoundation.org>
+Subject: [PATCH 5.15 097/181] platform/x86/intel: pmc: Dont unconditionally attach Intel PMC when virtualized
+Date:   Wed, 23 Nov 2022 09:51:00 +0100
+Message-Id: <20221123084606.520360389@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Roger Pau Monné <roger.pau@citrix.com>
 
-[ Upstream commit 8fbb53c8bfd8c56ecf1f78dc821778b58f505503 ]
+[ Upstream commit 2dbfb3f33350e1e868d3d7ed4c176d8777150878 ]
 
-When connecting to client timeout, disconnect client for twice in
-chnl_net_open(). Remove one. Compile tested only.
+The current logic in the Intel PMC driver will forcefully attach it
+when detecting any CPU on the intel_pmc_core_platform_ids array,
+even if the matching ACPI device is not present.
 
-Fixes: 2aa40aef9deb ("caif: Use link layer MTU instead of fixed MTU")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+There's no checking in pmc_core_probe() to assert that the PMC device
+is present, and hence on virtualized environments the PMC device
+probes successfully, even if the underlying registers are not present.
+Before commit 21ae43570940 ("platform/x86: intel_pmc_core: Substitute PCI
+with CPUID enumeration") the driver would check for the presence of a
+specific PCI device, and that prevented the driver from attaching when
+running virtualized.
+
+Fix by only forcefully attaching the PMC device when not running
+virtualized.  Note that virtualized platforms can still get the device
+to load if the appropriate ACPI device is present on the tables
+provided to the VM.
+
+Make an exception for the Xen initial domain, which does have full
+hardware access, and hence can attach to the PMC if present.
+
+Fixes: 21ae43570940 ("platform/x86: intel_pmc_core: Substitute PCI with CPUID enumeration")
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Acked-by: David E. Box <david.e.box@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221110163145.80374-1-roger.pau@citrix.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/caif/chnl_net.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/platform/x86/intel/pmc/pltdrv.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/net/caif/chnl_net.c b/net/caif/chnl_net.c
-index 910f164dd20c..4dfac31f9466 100644
---- a/net/caif/chnl_net.c
-+++ b/net/caif/chnl_net.c
-@@ -314,9 +314,6 @@ static int chnl_net_open(struct net_device *dev)
+diff --git a/drivers/platform/x86/intel/pmc/pltdrv.c b/drivers/platform/x86/intel/pmc/pltdrv.c
+index 15ca8afdd973..ddfba38c2104 100644
+--- a/drivers/platform/x86/intel/pmc/pltdrv.c
++++ b/drivers/platform/x86/intel/pmc/pltdrv.c
+@@ -18,6 +18,8 @@
+ #include <asm/cpu_device_id.h>
+ #include <asm/intel-family.h>
  
- 	if (result == 0) {
- 		pr_debug("connect timeout\n");
--		caif_disconnect_client(dev_net(dev), &priv->chnl);
--		priv->state = CAIF_DISCONNECTED;
--		pr_debug("state disconnected\n");
- 		result = -ETIMEDOUT;
- 		goto error;
- 	}
++#include <xen/xen.h>
++
+ static void intel_pmc_core_release(struct device *dev)
+ {
+ 	kfree(dev);
+@@ -53,6 +55,13 @@ static int __init pmc_core_platform_init(void)
+ 	if (acpi_dev_present("INT33A1", NULL, -1))
+ 		return -ENODEV;
+ 
++	/*
++	 * Skip forcefully attaching the device for VMs. Make an exception for
++	 * Xen dom0, which does have full hardware access.
++	 */
++	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR) && !xen_initial_domain())
++		return -ENODEV;
++
+ 	if (!x86_match_cpu(intel_pmc_core_platform_ids))
+ 		return -ENODEV;
+ 
 -- 
 2.35.1
 
