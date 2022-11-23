@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 538DC635852
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:55:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56B186355B6
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236340AbiKWJy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:54:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50730 "EHLO
+        id S237487AbiKWJVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:21:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236976AbiKWJyG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:54:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9AC0D08A6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:50:11 -0800 (PST)
+        with ESMTP id S237491AbiKWJUf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:20:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAC9A898FF
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:20:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADE8EB81E60
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:50:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AC2EC433B5;
-        Wed, 23 Nov 2022 09:50:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76476B81EEB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:20:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9046C433C1;
+        Wed, 23 Nov 2022 09:20:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197009;
-        bh=s+LaA2Wi8EUCX3BFfeokk0V07Q8RVJTayEln1EXQPvE=;
+        s=korg; t=1669195231;
+        bh=6xSy77Aw6z0fpoypOrp9uPxk6VC+ci3iUBhretptsqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v4ozNEi4h3Rh7zNoSes9gxT3ZOD5dJp+BLuz1g9mWmZjulvJS3uW3VREx1gmM3ylC
-         D6wF1RNM8VSwE5+kuv3MU+/IZRKsbeh1ROFOhAeoO5zIPjUU33Ds3PZAq1+1/7xknA
-         IrGnMTkzoHwOqZFqrUiDnSqbb8vZEVTW+LHD/W88=
+        b=Dg4pNU3PNUB+tBBypJCAwAE3ZCfa7pxd0WrTTBgw1qUI/M9gfiOfbJbT29VxchJF2
+         Alk7pY+SDy+TuOgVSDB1fwd+0HfzXa9zP6SbwrotfdB+hK3cjOzY5SJ7VPPymK8pNM
+         k1KWZU1KY87NYGATeECzqcx5q3qI683+gzLHnelQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rongwei Zhang <pudh4418@gmail.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 142/314] MIPS: fix duplicate definitions for exported symbols
+Subject: [PATCH 5.10 004/149] ASoC: mt6660: Keep the pm_runtime enables before component stuff in mt6660_i2c_probe
 Date:   Wed, 23 Nov 2022 09:49:47 +0100
-Message-Id: <20221123084631.976069259@linuxfoundation.org>
+Message-Id: <20221123084558.125414426@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rongwei Zhang <pudh4418@gmail.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 612d80784fdc0c2e2ee2e2d901a55ef2f72ebf4b ]
+[ Upstream commit c4ab29b0f3a6f1e167c5a627f7cd036c1d2b7d65 ]
 
-Building with clang-14 fails with:
+It would be better to keep the pm_runtime enables before the
+IRQ and component stuff. Both of those could start triggering
+PM runtime events.
 
-AS      arch/mips/kernel/relocate_kernel.o
-<unknown>:0: error: symbol 'kexec_args' is already defined
-<unknown>:0: error: symbol 'secondary_kexec_args' is already defined
-<unknown>:0: error: symbol 'kexec_start_address' is already defined
-<unknown>:0: error: symbol 'kexec_indirection_page' is already defined
-<unknown>:0: error: symbol 'relocate_new_kernel_size' is already defined
-
-It turns out EXPORT defined in asm/asm.h expands to a symbol definition,
-so there is no need to define these symbols again. Remove duplicated
-symbol definitions.
-
-Fixes: 7aa1c8f47e7e ("MIPS: kdump: Add support")
-Signed-off-by: Rongwei Zhang <pudh4418@gmail.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221008140522.134912-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/relocate_kernel.S | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ sound/soc/codecs/mt6660.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/mips/kernel/relocate_kernel.S b/arch/mips/kernel/relocate_kernel.S
-index cfde14b48fd8..f5b2ef979b43 100644
---- a/arch/mips/kernel/relocate_kernel.S
-+++ b/arch/mips/kernel/relocate_kernel.S
-@@ -145,8 +145,7 @@ LEAF(kexec_smp_wait)
-  * kexec_args[0..3] are used to prepare register values.
-  */
+diff --git a/sound/soc/codecs/mt6660.c b/sound/soc/codecs/mt6660.c
+index e18a58868273..3cee2ea4b85d 100644
+--- a/sound/soc/codecs/mt6660.c
++++ b/sound/soc/codecs/mt6660.c
+@@ -504,14 +504,14 @@ static int mt6660_i2c_probe(struct i2c_client *client,
+ 		dev_err(chip->dev, "read chip revision fail\n");
+ 		goto probe_fail;
+ 	}
++	pm_runtime_set_active(chip->dev);
++	pm_runtime_enable(chip->dev);
  
--kexec_args:
--	EXPORT(kexec_args)
-+EXPORT(kexec_args)
- arg0:	PTR_WD		0x0
- arg1:	PTR_WD		0x0
- arg2:	PTR_WD		0x0
-@@ -159,8 +158,7 @@ arg3:	PTR_WD		0x0
-  * their registers a0-a3. secondary_kexec_args[0..3] are used
-  * to prepare register values.
-  */
--secondary_kexec_args:
--	EXPORT(secondary_kexec_args)
-+EXPORT(secondary_kexec_args)
- s_arg0: PTR_WD		0x0
- s_arg1: PTR_WD		0x0
- s_arg2: PTR_WD		0x0
-@@ -171,19 +169,16 @@ kexec_flag:
+ 	ret = devm_snd_soc_register_component(chip->dev,
+ 					       &mt6660_component_driver,
+ 					       &mt6660_codec_dai, 1);
+-	if (!ret) {
+-		pm_runtime_set_active(chip->dev);
+-		pm_runtime_enable(chip->dev);
+-	}
++	if (ret)
++		pm_runtime_disable(chip->dev);
  
- #endif
+ 	return ret;
  
--kexec_start_address:
--	EXPORT(kexec_start_address)
-+EXPORT(kexec_start_address)
- 	PTR_WD		0x0
- 	.size		kexec_start_address, PTRSIZE
- 
--kexec_indirection_page:
--	EXPORT(kexec_indirection_page)
-+EXPORT(kexec_indirection_page)
- 	PTR_WD		0
- 	.size		kexec_indirection_page, PTRSIZE
- 
- relocate_new_kernel_end:
- 
--relocate_new_kernel_size:
--	EXPORT(relocate_new_kernel_size)
-+EXPORT(relocate_new_kernel_size)
- 	PTR_WD		relocate_new_kernel_end - relocate_new_kernel
- 	.size		relocate_new_kernel_size, PTRSIZE
 -- 
 2.35.1
 
