@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C81863557E
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7443635838
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:52:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237308AbiKWJUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:20:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35410 "EHLO
+        id S236479AbiKWJwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:52:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236984AbiKWJT6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:19:58 -0500
+        with ESMTP id S237138AbiKWJvW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:51:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 808CFDF7A
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:19:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED56A56EC0
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:48:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26BEFB81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:19:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6908FC433C1;
-        Wed, 23 Nov 2022 09:19:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB476B81E60
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:48:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0514C433C1;
+        Wed, 23 Nov 2022 09:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195194;
-        bh=Ho1dAhjOTbjMhnAGRIHqcSukLkGM2w9YjMXGNhLKLfQ=;
+        s=korg; t=1669196911;
+        bh=6TDrox1pFcyPxL42kEX1fUpLGFpDOc7GVAip7FwfN6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5tVyJXiaiWrXiIGdEFQUoZDcoQS0xKuFj/jAcfvVUBxr87kVs1y0bvf46k2TPhMu
-         6Il7g5bZ7nSUg0nxteBbPxpWBEBWlC+phbDv4ZrmOGQ18zCtJ8ydrp0+Ta0u4CHFvh
-         dLcRufvIYngvOT7ZSrohNYY0xW8oiRLFxsGrWWNY=
+        b=E9TOmVTxE/rlenV4qErxS57j0x3zf+KroQF1HIXoSqw0KYOWzaXcb1e7vKPjr9d8F
+         8jXFhbvR12xK1Cl7N6o0Evjp9PAM/SzZVNUNcooqNJUEcF7rPoEcMDwuafUG81Sb+A
+         wbvbe/QAhumiqchAsns5LaWb94iOTBKY9CSEVzrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Xiaolei Wang <xiaolei.wang@windriver.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 016/149] drm/amd/display: Remove wrong pipe control lock
+Subject: [PATCH 6.0 154/314] soc: imx8m: Enable OCOTP clock before reading the register
 Date:   Wed, 23 Nov 2022 09:49:59 +0100
-Message-Id: <20221123084558.578282184@linuxfoundation.org>
+Message-Id: <20221123084632.548358688@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-References: <20221123084557.945845710@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,91 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+From: Xiaolei Wang <xiaolei.wang@windriver.com>
 
-[ Upstream commit ca08a1725d0d78efca8d2dbdbce5ea70355da0f2 ]
+[ Upstream commit 836fb30949d9edf91d7de696a884ceeae7e426d2 ]
 
-When using a device based on DCN32/321,
-we have an issue where a second
-4k@60Hz display does not light up,
-and the system becomes unresponsive
-for a few minutes. In the debug process,
-it was possible to see a hang
-in the function dcn20_post_unlock_program_front_end
-in this part:
+Commit 7d981405d0fd ("soc: imx8m: change to use platform driver") ever
+removed the dependency on bootloader for enabling OCOTP clock.  It
+helped to fix a kexec kernel hang issue.  But unfortunately it caused
+a regression on CAAM driver and got reverted.
 
-for (j = 0; j < TIMEOUT_FOR_PIPE_ENABLE_MS*1000
-	&& hubp->funcs->hubp_is_flip_pending(hubp); j++)
-	mdelay(1);
-}
+This is the second try to enable the OCOTP clock by directly calling
+clock API instead of indirectly enabling the clock via nvmem API.
 
-The hubp_is_flip_pending always returns positive
-for waiting pending flips which is a symptom of
-pipe hang. Additionally, the dmesg log shows
-this message after a few minutes:
-
-  BUG: soft lockup - CPU#4 stuck for 26s!
-  ...
-  [  +0.000003]  dcn20_post_unlock_program_front_end+0x112/0x340 [amdgpu]
-  [  +0.000171]  dc_commit_state_no_check+0x63d/0xbf0 [amdgpu]
-  [  +0.000155]  ? dc_validate_global_state+0x358/0x3d0 [amdgpu]
-  [  +0.000154]  dc_commit_state+0xe2/0xf0 [amdgpu]
-
-This confirmed the hypothesis that we had a pipe
-hanging somewhere. Next, after checking the
-ftrace entries, we have the below weird
-sequence:
-
- [..]
-  2)               |        dcn10_lock_all_pipes [amdgpu]() {
-  2)   0.120 us    |          optc1_is_tg_enabled [amdgpu]();
-  2)               |          dcn20_pipe_control_lock [amdgpu]() {
-  2)               |            dc_dmub_srv_clear_inbox0_ack [amdgpu]() {
-  2)   0.121 us    |              amdgpu_dm_dmub_reg_write [amdgpu]();
-  2)   0.551 us    |            }
-  2)               |            dc_dmub_srv_send_inbox0_cmd [amdgpu]() {
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_write [amdgpu]();
-  2)   0.511 us    |            }
-  2)               |            dc_dmub_srv_wait_for_inbox0_ack [amdgpu]() {
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
- [..]
-
-We are not expected to read from dmub register
-so many times and for so long. From the trace log,
-it was possible to identify that the function
-dcn20_pipe_control_lock was triggering the dmub
-operation when it was unnecessary and causing
-the hang issue. This commit drops the unnecessary
-dmub code and, consequently, fixes the second display not
-lighting up the issue.
-
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: ac34de14ac30 ("Revert "soc: imx8m: change to use platform driver"")
+Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/imx/soc-imx8m.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index 8f66eef0c683..c6c4888c6665 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -1746,7 +1746,7 @@ void dcn20_post_unlock_program_front_end(
+diff --git a/drivers/soc/imx/soc-imx8m.c b/drivers/soc/imx/soc-imx8m.c
+index cc57a384d74d..28144c699b0c 100644
+--- a/drivers/soc/imx/soc-imx8m.c
++++ b/drivers/soc/imx/soc-imx8m.c
+@@ -11,6 +11,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/arm-smccc.h>
+ #include <linux/of.h>
++#include <linux/clk.h>
  
- 			for (j = 0; j < TIMEOUT_FOR_PIPE_ENABLE_MS*1000
- 					&& hubp->funcs->hubp_is_flip_pending(hubp); j++)
--				mdelay(1);
-+				udelay(1);
- 		}
- 	}
+ #define REV_B1				0x21
+ 
+@@ -56,6 +57,7 @@ static u32 __init imx8mq_soc_revision(void)
+ 	void __iomem *ocotp_base;
+ 	u32 magic;
+ 	u32 rev;
++	struct clk *clk;
+ 
+ 	np = of_find_compatible_node(NULL, NULL, "fsl,imx8mq-ocotp");
+ 	if (!np)
+@@ -63,6 +65,13 @@ static u32 __init imx8mq_soc_revision(void)
+ 
+ 	ocotp_base = of_iomap(np, 0);
+ 	WARN_ON(!ocotp_base);
++	clk = of_clk_get_by_name(np, NULL);
++	if (!clk) {
++		WARN_ON(!clk);
++		return 0;
++	}
++
++	clk_prepare_enable(clk);
+ 
+ 	/*
+ 	 * SOC revision on older imx8mq is not available in fuses so query
+@@ -79,6 +88,8 @@ static u32 __init imx8mq_soc_revision(void)
+ 	soc_uid <<= 32;
+ 	soc_uid |= readl_relaxed(ocotp_base + OCOTP_UID_LOW);
+ 
++	clk_disable_unprepare(clk);
++	clk_put(clk);
+ 	iounmap(ocotp_base);
+ 	of_node_put(np);
  
 -- 
 2.35.1
