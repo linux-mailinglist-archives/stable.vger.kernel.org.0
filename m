@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 385C463591E
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6820C635762
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236812AbiKWKGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:06:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32940 "EHLO
+        id S237922AbiKWJmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:42:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236819AbiKWKF5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:05:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DB83125225
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:19 -0800 (PST)
+        with ESMTP id S237760AbiKWJln (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 286E11121C8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:39:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D47461B65
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F40DC433D6;
-        Wed, 23 Nov 2022 09:56:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CEB0AB81E5E
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:39:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D393C433C1;
+        Wed, 23 Nov 2022 09:39:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197378;
-        bh=KPBHeO15Z7Rdm4vdRtOGfY9k/IKu9AIxzSZd2shTLKI=;
+        s=korg; t=1669196354;
+        bh=/q1Q19sjThwbJOAJNs5cfkv8H3eaEcL60YAmzym5ptA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tnz/0WAztO6mPKG4rN+WZQoaAE8xCBJeQ/ZnP51RHOjbezbShABeAV2QmjtY4H/y/
-         UT3TuvTGpXqlJ6rcTiFn5nvTVTBCuzZ4nJzaXCRh4tkXwu1jNt2rHix2bbJehyqJ12
-         UO4TTggWpnYKmY+d88ePAr6hLdv/4SEC6RDmO0TE=
+        b=vrnWdG672wHumq0BuCnXmyNd+aOVNZ5GC+ryHdxeGKrV7oE0dNGY1F3MQ4RmuMOD9
+         h4/KsIUm2xTYVbUu/IudZ9GVL2fuPf6V8diiO4rnmI+aGML59NZxRHfdy0wrxxQUOJ
+         WhZkKFNBMrhIrk++93Iobli0F5wb7JWzd7G4vGPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Galbraith <efault@gmx.de>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Borislav Petkov <bp@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 6.0 278/314] x86/fpu: Drop fpregs lock before inheriting FPU permissions
+        patches@lists.linux.dev,
+        syzbot+b8ded3e2e2c6adde4990@syzkaller.appspotmail.com,
+        Marco Elver <elver@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 160/181] perf: Improve missing SIGTRAP checking
 Date:   Wed, 23 Nov 2022 09:52:03 +0100
-Message-Id: <20221123084638.128273790@linuxfoundation.org>
+Message-Id: <20221123084609.261699555@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,101 +55,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mel Gorman <mgorman@techsingularity.net>
+From: Marco Elver <elver@google.com>
 
-commit 36b038791e1e2baea892e9276588815fd14894b4 upstream.
+[ Upstream commit bb88f9695460bec25aa30ba9072595025cf6c8af ]
 
-Mike Galbraith reported the following against an old fork of preempt-rt
-but the same issue also applies to the current preempt-rt tree.
+To catch missing SIGTRAP we employ a WARN in __perf_event_overflow(),
+which fires if pending_sigtrap was already set: returning to user space
+without consuming pending_sigtrap, and then having the event fire again
+would re-enter the kernel and trigger the WARN.
 
-   BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:46
-   in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1, name: systemd
-   preempt_count: 1, expected: 0
-   RCU nest depth: 0, expected: 0
-   Preemption disabled at:
-   fpu_clone
-   CPU: 6 PID: 1 Comm: systemd Tainted: G            E       (unreleased)
-   Call Trace:
-    <TASK>
-    dump_stack_lvl
-    ? fpu_clone
-    __might_resched
-    rt_spin_lock
-    fpu_clone
-    ? copy_thread
-    ? copy_process
-    ? shmem_alloc_inode
-    ? kmem_cache_alloc
-    ? kernel_clone
-    ? __do_sys_clone
-    ? do_syscall_64
-    ? __x64_sys_rt_sigprocmask
-    ? syscall_exit_to_user_mode
-    ? do_syscall_64
-    ? syscall_exit_to_user_mode
-    ? do_syscall_64
-    ? syscall_exit_to_user_mode
-    ? do_syscall_64
-    ? exc_page_fault
-    ? entry_SYSCALL_64_after_hwframe
-    </TASK>
+This, however, seemed to miss the case where some events not associated
+with progress in the user space task can fire and the interrupt handler
+runs before the IRQ work meant to consume pending_sigtrap (and generate
+the SIGTRAP).
 
-Mike says:
+syzbot gifted us this stack trace:
 
-  The splat comes from fpu_inherit_perms() being called under fpregs_lock(),
-  and us reaching the spin_lock_irq() therein due to fpu_state_size_dynamic()
-  returning true despite static key __fpu_state_size_dynamic having never
-  been enabled.
+ | WARNING: CPU: 0 PID: 3607 at kernel/events/core.c:9313 __perf_event_overflow
+ | Modules linked in:
+ | CPU: 0 PID: 3607 Comm: syz-executor100 Not tainted 6.1.0-rc2-syzkaller-00073-g88619e77b33d #0
+ | Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/11/2022
+ | RIP: 0010:__perf_event_overflow+0x498/0x540 kernel/events/core.c:9313
+ | <...>
+ | Call Trace:
+ |  <TASK>
+ |  perf_swevent_hrtimer+0x34f/0x3c0 kernel/events/core.c:10729
+ |  __run_hrtimer kernel/time/hrtimer.c:1685 [inline]
+ |  __hrtimer_run_queues+0x1c6/0xfb0 kernel/time/hrtimer.c:1749
+ |  hrtimer_interrupt+0x31c/0x790 kernel/time/hrtimer.c:1811
+ |  local_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1096 [inline]
+ |  __sysvec_apic_timer_interrupt+0x17c/0x640 arch/x86/kernel/apic/apic.c:1113
+ |  sysvec_apic_timer_interrupt+0x40/0xc0 arch/x86/kernel/apic/apic.c:1107
+ |  asm_sysvec_apic_timer_interrupt+0x16/0x20 arch/x86/include/asm/idtentry.h:649
+ | <...>
+ |  </TASK>
 
-Mike's assessment looks correct. fpregs_lock on a PREEMPT_RT kernel disables
-preemption so calling spin_lock_irq() in fpu_inherit_perms() is unsafe. This
-problem exists since commit
+In this case, syzbot produced a program with event type
+PERF_TYPE_SOFTWARE and config PERF_COUNT_SW_CPU_CLOCK. The hrtimer
+manages to fire again before the IRQ work got a chance to run, all while
+never having returned to user space.
 
-  9e798e9aa14c ("x86/fpu: Prepare fpu_clone() for dynamically enabled features").
+Improve the WARN to check for real progress in user space: approximate
+this by storing a 32-bit hash of the current IP into pending_sigtrap,
+and if an event fires while pending_sigtrap still matches the previous
+IP, we assume no progress (false negatives are possible given we could
+return to user space and trigger again on the same IP).
 
-Even though the original bug report should not have enabled the paths at
-all, the bug still exists.
-
-fpregs_lock is necessary when editing the FPU registers or a task's FP
-state but it is not necessary for fpu_inherit_perms(). The only write
-of any FP state in fpu_inherit_perms() is for the new child which is
-not running yet and cannot context switch or be borrowed by a kernel
-thread yet. Hence, fpregs_lock is not protecting anything in the new
-child until clone() completes and can be dropped earlier. The siglock
-still needs to be acquired by fpu_inherit_perms() as the read of the
-parent's permissions has to be serialised.
-
-  [ bp: Cleanup splat. ]
-
-Fixes: 9e798e9aa14c ("x86/fpu: Prepare fpu_clone() for dynamically enabled features")
-Reported-by: Mike Galbraith <efault@gmx.de>
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221110124400.zgymc2lnwqjukgfh@techsingularity.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ca6c21327c6a ("perf: Fix missing SIGTRAPs")
+Reported-by: syzbot+b8ded3e2e2c6adde4990@syzkaller.appspotmail.com
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20221031093513.3032814-1-elver@google.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/fpu/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/events/core.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index 3b28c5b25e12..d00db56a8868 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -605,9 +605,9 @@ int fpu_clone(struct task_struct *dst, unsigned long clone_flags, bool minimal)
- 	if (test_thread_flag(TIF_NEED_FPU_LOAD))
- 		fpregs_restore_userregs();
- 	save_fpregs_to_fpstate(dst_fpu);
-+	fpregs_unlock();
- 	if (!(clone_flags & CLONE_THREAD))
- 		fpu_inherit_perms(dst_fpu);
--	fpregs_unlock();
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 59654c737168..60cb300fa0d0 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -9323,14 +9323,27 @@ static int __perf_event_overflow(struct perf_event *event,
+ 	}
  
- 	/*
- 	 * Children never inherit PASID state.
+ 	if (event->attr.sigtrap) {
+-		/*
+-		 * Should not be able to return to user space without processing
+-		 * pending_sigtrap (kernel events can overflow multiple times).
+-		 */
+-		WARN_ON_ONCE(event->pending_sigtrap && event->attr.exclude_kernel);
++		unsigned int pending_id = 1;
++
++		if (regs)
++			pending_id = hash32_ptr((void *)instruction_pointer(regs)) ?: 1;
+ 		if (!event->pending_sigtrap) {
+-			event->pending_sigtrap = 1;
++			event->pending_sigtrap = pending_id;
+ 			local_inc(&event->ctx->nr_pending);
++		} else if (event->attr.exclude_kernel) {
++			/*
++			 * Should not be able to return to user space without
++			 * consuming pending_sigtrap; with exceptions:
++			 *
++			 *  1. Where !exclude_kernel, events can overflow again
++			 *     in the kernel without returning to user space.
++			 *
++			 *  2. Events that can overflow again before the IRQ-
++			 *     work without user space progress (e.g. hrtimer).
++			 *     To approximate progress (with false negatives),
++			 *     check 32-bit hash of the current IP.
++			 */
++			WARN_ON_ONCE(event->pending_sigtrap != pending_id);
+ 		}
+ 		event->pending_addr = data->addr;
+ 		irq_work_queue(&event->pending_irq);
 -- 
-2.38.1
+2.35.1
 
 
 
