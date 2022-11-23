@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 965E8635934
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:09:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECBA363574A
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236822AbiKWKJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:09:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37350 "EHLO
+        id S238055AbiKWJkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:40:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236820AbiKWKIg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:08:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2440F56D42
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:58:07 -0800 (PST)
+        with ESMTP id S237668AbiKWJjw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:39:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6BEAE19
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:37:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A026B81EE5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:58:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE4AC433D6;
-        Wed, 23 Nov 2022 09:58:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6307DB81E54
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:37:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3A74C433C1;
+        Wed, 23 Nov 2022 09:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197485;
-        bh=524KJ0GvA9MOIvlIeW3/G8LyQQ3ZrlW2tM5Z43f4KK0=;
+        s=korg; t=1669196250;
+        bh=Wm780JdXSbVE3bl+bwJfSmQibLKJzF9tiW4tKpyR8Ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LrdyYntrYsMEtHyeAkxLZNe/Vabj6S6qFKITxS8NgHHpPaYTs2aU8s5l1uKIOLjBt
-         6lXh5DDoE5hgdP6I2PkjHVlnQLMPMO4CxE7DP1xA5CJ8j4hCos6eDroRFjZFJpzaZn
-         x8GN9w1OTACxOEvb89Rx9bh1558HXGM1Ltoo0xc8=
+        b=C8z2VA36JRWju1eI3sQgJudHTSGSOgFrPdMX7OVROEQ27HgPcUnHEj3iDPVsfeJT5
+         2O5SCL/DUKmEIEpzw71dbbTwI7gy1H4Bq+MfRrLLcCdDTgNVnAg3NrIekNOxxfRaMh
+         Eb4VbGxdwaPF7i27DjQBR1JmZeUchZzm3Pd3Z8q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Borys=20Pop=C5=82awski?= <borysp@invisiblethingslab.com>,
-        Borislav Petkov <bp@suse.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 6.0 277/314] x86/sgx: Add overflow check in sgx_validate_offset_length()
+        patches@lists.linux.dev, Wentong Wu <wentong.wu@intel.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.15 159/181] serial: 8250_lpss: Use 16B DMA burst with Elkhart Lake
 Date:   Wed, 23 Nov 2022 09:52:02 +0100
-Message-Id: <20221123084638.078879506@linuxfoundation.org>
+Message-Id: <20221123084609.219780620@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borys Popławski <borysp@invisiblethingslab.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit f0861f49bd946ff94fce4f82509c45e167f63690 upstream.
+commit 7090abd6ad0610a144523ce4ffcb8560909bf2a8 upstream.
 
-sgx_validate_offset_length() function verifies "offset" and "length"
-arguments provided by userspace, but was missing an overflow check on
-their addition. Add it.
+Configure DMA to use 16B burst size with Elkhart Lake. This makes the
+bus use more efficient and works around an issue which occurs with the
+previously used 1B.
 
-Fixes: c6d26d370767 ("x86/sgx: Add SGX_IOC_ENCLAVE_ADD_PAGES")
-Signed-off-by: Borys Popławski <borysp@invisiblethingslab.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: stable@vger.kernel.org # v5.11+
-Link: https://lore.kernel.org/r/0d91ac79-6d84-abed-5821-4dbe59fa1a38@invisiblethingslab.com
+The fix was initially developed by Srikanth Thokala and Aman Kumar.
+This together with the previous config change is the cleaned up version
+of the original fix.
+
+Fixes: 0a9410b981e9 ("serial: 8250_lpss: Enable DMA on Intel Elkhart Lake")
+Cc: <stable@vger.kernel.org> # serial: 8250_lpss: Configure DMA also w/o DMA filter
+Reported-by: Wentong Wu <wentong.wu@intel.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221108121952.5497-4-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/sgx/ioctl.c |    3 +++
+ drivers/tty/serial/8250/8250_lpss.c |    3 +++
  1 file changed, 3 insertions(+)
 
---- a/arch/x86/kernel/cpu/sgx/ioctl.c
-+++ b/arch/x86/kernel/cpu/sgx/ioctl.c
-@@ -356,6 +356,9 @@ static int sgx_validate_offset_length(st
- 	if (!length || !IS_ALIGNED(length, PAGE_SIZE))
- 		return -EINVAL;
- 
-+	if (offset + length < offset)
-+		return -EINVAL;
+--- a/drivers/tty/serial/8250/8250_lpss.c
++++ b/drivers/tty/serial/8250/8250_lpss.c
+@@ -177,6 +177,9 @@ static int ehl_serial_setup(struct lpss8
+ 	 * matching with the registered General Purpose DMA controllers.
+ 	 */
+ 	up->dma = dma;
 +
- 	if (offset + length - PAGE_SIZE >= encl->size)
- 		return -EINVAL;
++	lpss->dma_maxburst = 16;
++
+ 	return 0;
+ }
  
 
 
