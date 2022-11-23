@@ -2,109 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E94EF6358F6
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:06:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F05163565D
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236131AbiKWKFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 05:05:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60260 "EHLO
+        id S237759AbiKWJ3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:29:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236032AbiKWKEU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:04:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1F01113732
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:55:49 -0800 (PST)
+        with ESMTP id S237768AbiKWJ3X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:29:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B8E71CB14
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:27:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C69261B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:55:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42B31C433D6;
-        Wed, 23 Nov 2022 09:55:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 236D4B81EFA
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:27:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51B10C433D7;
+        Wed, 23 Nov 2022 09:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197348;
-        bh=rt6xeuTgY5G7S4aRlqaMItYH9DQeLiy3Clgf1PZUOss=;
+        s=korg; t=1669195676;
+        bh=2rPV25vQ7nF4CdVTBGoMPi4w1TgPjx/y6JdUfityHgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nv0SGvXW61hQe9jfWdCsZyVNpJ41EIE7assoEy1xIHc2gj732VygDJBPOIPhXJWlr
-         qtt3p3ahp56VjGttujVZpLAMioZQ6eWXucM6qBm2s1LATe1prt9ATPHSVZYx0WqOAf
-         YwLDZRnbspWzdr1H5H7rGZlZ6j317nGSI3WRAnpQ=
+        b=LAGHe1/6T7bfmwIzdSGsyfYHtCsk3wd2CS/gTrRcvOB3t9j3xHISChIblOibBYOdB
+         +YD5UtGDF6uTx/eSWBzC5BoMgDs4s0ntwkklkqKKC5gnZ17X7P01ydy+snda/ueHpm
+         DtyYfQCOjZ/XZbLWfaNOBp5XMdB6CGPewBzTcw6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tina Zhang <tina.zhang@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 6.0 267/314] iommu/vt-d: Set SRE bit only when hardware has SRS cap
+        patches@lists.linux.dev,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 129/149] ring-buffer: Include dropped pages in counting dirty patches
 Date:   Wed, 23 Nov 2022 09:51:52 +0100
-Message-Id: <20221123084637.629603606@linuxfoundation.org>
+Message-Id: <20221123084602.560746219@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tina Zhang <tina.zhang@intel.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 7fc961cf7ffcb130c4e93ee9a5628134f9de700a upstream.
+[ Upstream commit 31029a8b2c7e656a0289194ef16415050ae4c4ac ]
 
-SRS cap is the hardware cap telling if the hardware IOMMU can support
-requests seeking supervisor privilege or not. SRE bit in scalable-mode
-PASID table entry is treated as Reserved(0) for implementation not
-supporting SRS cap.
+The function ring_buffer_nr_dirty_pages() was created to find out how many
+pages are filled in the ring buffer. There's two running counters. One is
+incremented whenever a new page is touched (pages_touched) and the other
+is whenever a page is read (pages_read). The dirty count is the number
+touched minus the number read. This is used to determine if a blocked task
+should be woken up if the percentage of the ring buffer it is waiting for
+is hit.
 
-Checking SRS cap before setting SRE bit can avoid the non-recoverable
-fault of "Non-zero reserved field set in PASID Table Entry" caused by
-setting SRE bit while there is no SRS cap support. The fault messages
-look like below:
+The problem is that it does not take into account dropped pages (when the
+new writes overwrite pages that were not read). And then the dirty pages
+will always be greater than the percentage.
 
- DMAR: DRHD: handling fault status reg 2
- DMAR: [DMA Read NO_PASID] Request device [00:0d.0] fault addr 0x1154e1000
-       [fault reason 0x5a]
-       SM: Non-zero reserved field set in PASID Table Entry
+This makes the "buffer_percent" file inaccurate, as the number of dirty
+pages end up always being larger than the percentage, event when it's not
+and this causes user space to be woken up more than it wants to be.
 
-Fixes: 6f7db75e1c46 ("iommu/vt-d: Add second level page table interface")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tina Zhang <tina.zhang@intel.com>
-Link: https://lore.kernel.org/r/20221115070346.1112273-1-tina.zhang@intel.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20221116051544.26540-3-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add a new counter to keep track of lost pages, and include that in the
+accounting of dirty pages so that it is actually accurate.
+
+Link: https://lkml.kernel.org/r/20221021123013.55fb6055@gandalf.local.home
+
+Fixes: 2c2b0a78b3739 ("ring-buffer: Add percentage of ring buffer full to wake up reader")
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/pasid.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/trace/ring_buffer.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/iommu/intel/pasid.c
-+++ b/drivers/iommu/intel/pasid.c
-@@ -652,7 +652,7 @@ int intel_pasid_setup_second_level(struc
- 	 * Since it is a second level only translation setup, we should
- 	 * set SRE bit as well (addresses are expected to be GPAs).
- 	 */
--	if (pasid != PASID_RID2PASID)
-+	if (pasid != PASID_RID2PASID && ecap_srs(iommu->ecap))
- 		pasid_set_sre(pte);
- 	pasid_set_present(pte);
- 	spin_unlock(&iommu->lock);
-@@ -695,7 +695,8 @@ int intel_pasid_setup_pass_through(struc
- 	 * We should set SRE bit as well since the addresses are expected
- 	 * to be GPAs.
- 	 */
--	pasid_set_sre(pte);
-+	if (ecap_srs(iommu->ecap))
-+		pasid_set_sre(pte);
- 	pasid_set_present(pte);
- 	spin_unlock(&iommu->lock);
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index 9a1f82cafad4..49ebb8c66268 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -517,6 +517,7 @@ struct ring_buffer_per_cpu {
+ 	local_t				committing;
+ 	local_t				commits;
+ 	local_t				pages_touched;
++	local_t				pages_lost;
+ 	local_t				pages_read;
+ 	long				last_pages_touch;
+ 	size_t				shortest_full;
+@@ -771,10 +772,18 @@ size_t ring_buffer_nr_pages(struct trace_buffer *buffer, int cpu)
+ size_t ring_buffer_nr_dirty_pages(struct trace_buffer *buffer, int cpu)
+ {
+ 	size_t read;
++	size_t lost;
+ 	size_t cnt;
  
+ 	read = local_read(&buffer->buffers[cpu]->pages_read);
++	lost = local_read(&buffer->buffers[cpu]->pages_lost);
+ 	cnt = local_read(&buffer->buffers[cpu]->pages_touched);
++
++	if (WARN_ON_ONCE(cnt < lost))
++		return 0;
++
++	cnt -= lost;
++
+ 	/* The reader can read an empty page, but not more than that */
+ 	if (cnt < read) {
+ 		WARN_ON_ONCE(read > cnt + 1);
+@@ -1897,6 +1906,7 @@ rb_remove_pages(struct ring_buffer_per_cpu *cpu_buffer, unsigned long nr_pages)
+ 			 */
+ 			local_add(page_entries, &cpu_buffer->overrun);
+ 			local_sub(BUF_PAGE_SIZE, &cpu_buffer->entries_bytes);
++			local_inc(&cpu_buffer->pages_lost);
+ 		}
+ 
+ 		/*
+@@ -2387,6 +2397,7 @@ rb_handle_head_page(struct ring_buffer_per_cpu *cpu_buffer,
+ 		 */
+ 		local_add(entries, &cpu_buffer->overrun);
+ 		local_sub(BUF_PAGE_SIZE, &cpu_buffer->entries_bytes);
++		local_inc(&cpu_buffer->pages_lost);
+ 
+ 		/*
+ 		 * The entries will be zeroed out when we move the
+@@ -4981,6 +4992,7 @@ rb_reset_cpu(struct ring_buffer_per_cpu *cpu_buffer)
+ 	local_set(&cpu_buffer->committing, 0);
+ 	local_set(&cpu_buffer->commits, 0);
+ 	local_set(&cpu_buffer->pages_touched, 0);
++	local_set(&cpu_buffer->pages_lost, 0);
+ 	local_set(&cpu_buffer->pages_read, 0);
+ 	cpu_buffer->last_pages_touch = 0;
+ 	cpu_buffer->shortest_full = 0;
+-- 
+2.35.1
+
 
 
