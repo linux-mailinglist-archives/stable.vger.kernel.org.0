@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57E40635454
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF356355BE
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236374AbiKWJFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:05:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41354 "EHLO
+        id S237482AbiKWJWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:22:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236117AbiKWJFI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:05:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 365331025EF
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:05:07 -0800 (PST)
+        with ESMTP id S237583AbiKWJVx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:21:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D76C210CE87
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:21:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6AF661B4C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:05:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8E2BC433B5;
-        Wed, 23 Nov 2022 09:05:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7677B61B4C
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:21:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B192C433C1;
+        Wed, 23 Nov 2022 09:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194306;
-        bh=gB527T6b3MrBiCk6/ln79ld7BZD9XlJqsAd/OFCqUZ8=;
+        s=korg; t=1669195295;
+        bh=MA59D5WIQvHUCpoCxRHqWsIPVJ/UvRO5gbe223FpQQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DHO5cQgZLgHmXKJ6BOhx2NBHOeMTYWPQn7XrGTbelxNlFSO6EE3vMy7NwZ6gI09mm
-         fX+i9+NzDsusb/qXaTL7kmBOsYpReHsJ9VN7cczw7V4t8TybpAzbdJ704h5MSEaypM
-         2sdyr/nTR42oY1FLF3tMs85dzNVRkDDExh0+XlIs=
+        b=pmXJdeBqC4mPPMRuoMJ5pfRc36RReYrMJTjApGQmc8N20Jv52RAk99xXDUlNEleFh
+         YNIdnQ7IKBVG9cSIUigKGYYmKqHfoPBnFvFFM8yxsRZvQsVoTdtZT1rmyUNW+A2Qoi
+         BiDVT1HBFA1HT6Xqt+9mL8hUU5yQfaVjt29M4yAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.19 039/114] dmaengine: at_hdmac: Fix impossible condition
-Date:   Wed, 23 Nov 2022 09:50:26 +0100
-Message-Id: <20221123084553.403020862@linuxfoundation.org>
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 044/149] ASoC: soc-utils: Remove __exit for snd_soc_util_exit()
+Date:   Wed, 23 Nov 2022 09:50:27 +0100
+Message-Id: <20221123084559.540186582@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-commit 28cbe5a0a46a6637adbda52337d7b2777fc04027 upstream.
+[ Upstream commit 314d34fe7f0a5836cb0472950c1f17744b4efde8 ]
 
-The iterator can not be greater than ATC_MAX_DSCR_TRIALS, as the for loop
-will stop when i == ATC_MAX_DSCR_TRIALS. While here, use the common "i"
-name for the iterator.
+snd_soc_util_exit() is called in __init snd_soc_init() for cleanup.
+Remove the __exit annotation for it to fix the build warning:
 
-Fixes: 93dce3a6434f ("dmaengine: at_hdmac: fix residue computation")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc: stable@vger.kernel.org
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20221025090306.297886-1-tudor.ambarus@microchip.com
-Link: https://lore.kernel.org/r/20221025090306.297886-15-tudor.ambarus@microchip.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+WARNING: modpost: sound/soc/snd-soc-core.o: section mismatch in reference: init_module (section: .init.text) -> snd_soc_util_exit (section: .exit.text)
+
+Fixes: 6ec27c53886c ("ASoC: core: Fix use-after-free in snd_soc_exit()")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221031134031.256511-1-chenzhongjin@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/at_hdmac.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/soc/soc-utils.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/at_hdmac.c
-+++ b/drivers/dma/at_hdmac.c
-@@ -314,7 +314,8 @@ static int atc_get_bytes_left(struct dma
- 	struct at_desc *desc_first = atc_first_active(atchan);
- 	struct at_desc *desc;
- 	int ret;
--	u32 ctrla, dscr, trials;
-+	u32 ctrla, dscr;
-+	unsigned int i;
+diff --git a/sound/soc/soc-utils.c b/sound/soc/soc-utils.c
+index f27f94ca064b..6b398ffabb02 100644
+--- a/sound/soc/soc-utils.c
++++ b/sound/soc/soc-utils.c
+@@ -171,7 +171,7 @@ int __init snd_soc_util_init(void)
+ 	return ret;
+ }
  
- 	/*
- 	 * If the cookie doesn't match to the currently running transfer then
-@@ -384,7 +385,7 @@ static int atc_get_bytes_left(struct dma
- 		dscr = channel_readl(atchan, DSCR);
- 		rmb(); /* ensure DSCR is read before CTRLA */
- 		ctrla = channel_readl(atchan, CTRLA);
--		for (trials = 0; trials < ATC_MAX_DSCR_TRIALS; ++trials) {
-+		for (i = 0; i < ATC_MAX_DSCR_TRIALS; ++i) {
- 			u32 new_dscr;
- 
- 			rmb(); /* ensure DSCR is read after CTRLA */
-@@ -410,7 +411,7 @@ static int atc_get_bytes_left(struct dma
- 			rmb(); /* ensure DSCR is read before CTRLA */
- 			ctrla = channel_readl(atchan, CTRLA);
- 		}
--		if (unlikely(trials >= ATC_MAX_DSCR_TRIALS))
-+		if (unlikely(i == ATC_MAX_DSCR_TRIALS))
- 			return -ETIMEDOUT;
- 
- 		/* for the first descriptor we can be more accurate */
+-void __exit snd_soc_util_exit(void)
++void snd_soc_util_exit(void)
+ {
+ 	platform_driver_unregister(&soc_dummy_driver);
+ 	platform_device_unregister(soc_dummy_dev);
+-- 
+2.35.1
+
 
 
