@@ -2,94 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12D496356CC
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:34:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55CE963544E
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:05:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237826AbiKWJe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:34:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51254 "EHLO
+        id S236638AbiKWJFM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:05:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237827AbiKWJeA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:34:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CF6085A12
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:31:57 -0800 (PST)
+        with ESMTP id S236962AbiKWJE7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:04:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E516100B07
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:04:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2625A61B66
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:31:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74192C433D6;
-        Wed, 23 Nov 2022 09:31:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2C99B81EF1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:04:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16596C433D6;
+        Wed, 23 Nov 2022 09:04:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195916;
-        bh=XpwRcAo2jfwOpMnSgLEF1oXMai8/FPRyv23ruHXnGqg=;
+        s=korg; t=1669194295;
+        bh=CFdpnmnm7xq+uwBk7n+7todtVXHuNAJoMp/hetiGxdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIf4JLfOBewM18GGTaR0qbqWDMJeJ3Q7smgMOt1c6M8FTO15Ry4r/d1sPpU/NaxzL
-         JbS71omyArvQ9zKHAAH1jpeHMq3e+4spg+1Qlf/R1xTOD12MpoNmYY9v/kdo3J6o4a
-         5+rLD1TJJI6EF6zbJcZY+CMP2NU44a4PD3SVrOnY=
+        b=KcTVhSqW+AWRrAVYmIVBymfPIcDsNOHbIdgKV8v3/wTZfHEcMsqPm+ZUHkLV5W+iD
+         lF6L3yycYRRWooSBRdmZC+WpO8zGnqsMEz2ZmR2cerlMdFZHlratGTOmWAQ+sZvt4m
+         /mAbdhSGu+oNEzbY7mDm49tQHwSo26/ZY2DV2VwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 061/181] siox: fix possible memory leak in siox_device_add()
+        patches@lists.linux.dev, Peter Rosin <peda@axentia.se>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.19 037/114] dmaengine: at_hdmac: Fix completion of unissued descriptor in case of errors
 Date:   Wed, 23 Nov 2022 09:50:24 +0100
-Message-Id: <20221123084605.006524154@linuxfoundation.org>
+Message-Id: <20221123084553.330270518@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
+References: <20221123084551.864610302@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-[ Upstream commit 6e63153db50059fb78b8a8447b132664887d24e3 ]
+commit ef2cb4f0ce479f77607b04c4b0414bf32f863ee8 upstream.
 
-If device_register() returns error in siox_device_add(),
-the name allocated by dev_set_name() need be freed. As
-comment of device_register() says, it should use put_device()
-to give up the reference in the error path. So fix this
-by calling put_device(), then the name can be freed in
-kobject_cleanup(), and sdevice is freed in siox_device_release(),
-set it to null in error path.
+In case the controller detected an error, the code took the chance to move
+all the queued (submitted) descriptors to the active (issued) list. This
+was wrong as if there were any descriptors in the submitted list they were
+moved to the issued list without actually issuing them to the controller,
+thus a completion could be raised without even fireing the descriptor.
 
-Fixes: bbecb07fa0af ("siox: new driver framework for eckelmann SIOX")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20221104021334.618189-1-yangyingliang@huawei.com
+Fixes: dc78baa2b90b ("dmaengine: at_hdmac: new driver for the Atmel AHB DMA Controller")
+Reported-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/lkml/13c6c9a2-6db5-c3bf-349b-4c127ad3496a@axentia.se/
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20221025090306.297886-1-tudor.ambarus@microchip.com
+Link: https://lore.kernel.org/r/20221025090306.297886-13-tudor.ambarus@microchip.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/siox/siox-core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/dma/at_hdmac.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/siox/siox-core.c b/drivers/siox/siox-core.c
-index 7c4f32d76966..561408583b2b 100644
---- a/drivers/siox/siox-core.c
-+++ b/drivers/siox/siox-core.c
-@@ -839,6 +839,8 @@ static struct siox_device *siox_device_add(struct siox_master *smaster,
+--- a/drivers/dma/at_hdmac.c
++++ b/drivers/dma/at_hdmac.c
+@@ -556,10 +556,6 @@ static void atc_handle_error(struct at_d
+ 	bad_desc = atc_first_active(atchan);
+ 	list_del_init(&bad_desc->desc_node);
  
- err_device_register:
- 	/* don't care to make the buffer smaller again */
-+	put_device(&sdevice->dev);
-+	sdevice = NULL;
- 
- err_buf_alloc:
- 	siox_master_unlock(smaster);
--- 
-2.35.1
-
+-	/* As we are stopped, take advantage to push queued descriptors
+-	 * in active_list */
+-	list_splice_init(&atchan->queue, atchan->active_list.prev);
+-
+ 	/* Try to restart the controller */
+ 	if (!list_empty(&atchan->active_list))
+ 		atc_dostart(atchan, atc_first_active(atchan));
 
 
