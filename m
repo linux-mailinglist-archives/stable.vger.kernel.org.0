@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 856BD635859
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:55:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 910B86355C5
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236395AbiKWJzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:55:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48458 "EHLO
+        id S237436AbiKWJWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:22:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237227AbiKWJyl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:54:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 041BE114BB2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:50:33 -0800 (PST)
+        with ESMTP id S237492AbiKWJVo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:21:44 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1366742C7
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:21:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5C7CB81EF1
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:50:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D90A1C433C1;
-        Wed, 23 Nov 2022 09:50:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BBAF3CE20EC
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:21:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 903D3C433C1;
+        Wed, 23 Nov 2022 09:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197030;
-        bh=1ZvjUImlXalUCBDKfH6n1MDHgSoTmVO8CGYNmVsqsR4=;
+        s=korg; t=1669195282;
+        bh=Gcm2vOwINZfHGnClrSruU8JdiWQJTCZzVKqmepiUpvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nasZyiBUVTtZ0MIkBU5VTHPRd9hhSS4+/SpimSsy7H0G5e9X8/lIVLYCj8s/Er2eJ
-         Hi0QG5zbx102FbZrDQSLYpP5fGb89kfzy1xDuD1E1Rf4WUGd8+XxtkGty3NAXqsxcH
-         djG5dy9pVqalQDMMJbMsGNkeUgOAXzEfTtS2hzfU=
+        b=aegMUP9SOkj9zLsQ3ijzch+vWQJfpgm/QnbasLqyOXaM8/8a4DPaZ+NvGSHnBj1zR
+         cOWKZmK9c/U5NAaKyE0UcJDFS+UIO6XYSL8GfoVo2g5IeNQHZ5mpLt9j4jJvZY5lrd
+         PKakixi0N9jJDsKQvOVdposCqgIfMhQ8iXWtD7vU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maximilian Luz <luzmaximilian@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Martin Kaiser <martin@kaiser.cx>,
+        Shawn Guo <shawn.guo@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 179/314] platform/surface: aggregator: Do not check for repeated unsequenced packets
+Subject: [PATCH 5.10 041/149] serial: imx: Add missing .thaw_noirq hook
 Date:   Wed, 23 Nov 2022 09:50:24 +0100
-Message-Id: <20221123084633.676911013@linuxfoundation.org>
+Message-Id: <20221123084559.444713067@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,99 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Shawn Guo <shawn.guo@linaro.org>
 
-[ Upstream commit d9a477f643eb3de71fbea5ae6103b800ceb8f547 ]
+[ Upstream commit 4561d8008a467cb05ac632a215391d6b787f40aa ]
 
-Currently, we check any received packet whether we have already seen it
-previously, regardless of the packet type (sequenced / unsequenced). We
-do this by checking the sequence number. This assumes that sequence
-numbers are valid for both sequenced and unsequenced packets. However,
-this assumption appears to be incorrect.
+The following warning is seen with non-console UART instance when
+system hibernates.
 
-On some devices, the sequence number field of unsequenced packets (in
-particular HID input events on the Surface Pro 9) is always zero. As a
-result, the current retransmission check kicks in and discards all but
-the first unsequenced packet, breaking (among other things) keyboard and
-touchpad input.
+[   37.371969] ------------[ cut here ]------------
+[   37.376599] uart3_root_clk already disabled
+[   37.380810] WARNING: CPU: 0 PID: 296 at drivers/clk/clk.c:952 clk_core_disable+0xa4/0xb0
+...
+[   37.506986] Call trace:
+[   37.509432]  clk_core_disable+0xa4/0xb0
+[   37.513270]  clk_disable+0x34/0x50
+[   37.516672]  imx_uart_thaw+0x38/0x5c
+[   37.520250]  platform_pm_thaw+0x30/0x6c
+[   37.524089]  dpm_run_callback.constprop.0+0x3c/0xd4
+[   37.528972]  device_resume+0x7c/0x160
+[   37.532633]  dpm_resume+0xe8/0x230
+[   37.536036]  hibernation_snapshot+0x288/0x430
+[   37.540397]  hibernate+0x10c/0x2e0
+[   37.543798]  state_store+0xc4/0xd0
+[   37.547203]  kobj_attr_store+0x1c/0x30
+[   37.550953]  sysfs_kf_write+0x48/0x60
+[   37.554619]  kernfs_fop_write_iter+0x118/0x1ac
+[   37.559063]  new_sync_write+0xe8/0x184
+[   37.562812]  vfs_write+0x230/0x290
+[   37.566214]  ksys_write+0x68/0xf4
+[   37.569529]  __arm64_sys_write+0x20/0x2c
+[   37.573452]  invoke_syscall.constprop.0+0x50/0xf0
+[   37.578156]  do_el0_svc+0x11c/0x150
+[   37.581648]  el0_svc+0x30/0x140
+[   37.584792]  el0t_64_sync_handler+0xe8/0xf0
+[   37.588976]  el0t_64_sync+0x1a0/0x1a4
+[   37.592639] ---[ end trace 56e22eec54676d75 ]---
 
-Note that we have, so far, only seen packets being retransmitted in
-sequenced communication. In particular, this happens when there is an
-ACK timeout, causing the EC (or us) to re-send the packet waiting for an
-ACK. Arguably, retransmission / duplication of unsequenced packets
-should not be an issue as there is no logical condition (such as an ACK
-timeout) to determine when a packet should be sent again.
+On hibernating, pm core calls into related hooks in sequence like:
 
-Therefore, remove the retransmission check for unsequenced packets
-entirely to resolve the issue.
+    .freeze
+    .freeze_noirq
+    .thaw_noirq
+    .thaw
 
-Fixes: c167b9c7e3d6 ("platform/surface: Add Surface Aggregator subsystem")
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Link: https://lore.kernel.org/r/20221113185951.224759-1-luzmaximilian@gmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+With .thaw_noirq hook being absent, the clock will be disabled in a
+unbalanced call which results the warning above.
+
+    imx_uart_freeze()
+        clk_prepare_enable()
+    imx_uart_suspend_noirq()
+        clk_disable()
+    imx_uart_thaw
+        clk_disable_unprepare()
+
+Adding the missing .thaw_noirq hook as imx_uart_resume_noirq() will have
+the call sequence corrected as below and thus fix the warning.
+
+    imx_uart_freeze()
+        clk_prepare_enable()
+    imx_uart_suspend_noirq()
+        clk_disable()
+    imx_uart_resume_noirq()
+        clk_enable()
+    imx_uart_thaw
+        clk_disable_unprepare()
+
+Fixes: 09df0b3464e5 ("serial: imx: fix endless loop during suspend")
+Reviewed-by: Martin Kaiser <martin@kaiser.cx>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Link: https://lore.kernel.org/r/20221012121353.2346280-1-shawn.guo@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../surface/aggregator/ssh_packet_layer.c     | 24 +++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+ drivers/tty/serial/imx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/surface/aggregator/ssh_packet_layer.c b/drivers/platform/surface/aggregator/ssh_packet_layer.c
-index 6748fe4ac5d5..def8d7ac541f 100644
---- a/drivers/platform/surface/aggregator/ssh_packet_layer.c
-+++ b/drivers/platform/surface/aggregator/ssh_packet_layer.c
-@@ -1596,16 +1596,32 @@ static void ssh_ptl_timeout_reap(struct work_struct *work)
- 		ssh_ptl_tx_wakeup_packet(ptl);
- }
- 
--static bool ssh_ptl_rx_retransmit_check(struct ssh_ptl *ptl, u8 seq)
-+static bool ssh_ptl_rx_retransmit_check(struct ssh_ptl *ptl, const struct ssh_frame *frame)
- {
- 	int i;
- 
-+	/*
-+	 * Ignore unsequenced packets. On some devices (notably Surface Pro 9),
-+	 * unsequenced events will always be sent with SEQ=0x00. Attempting to
-+	 * detect retransmission would thus just block all events.
-+	 *
-+	 * While sequence numbers would also allow detection of retransmitted
-+	 * packets in unsequenced communication, they have only ever been used
-+	 * to cover edge-cases in sequenced transmission. In particular, the
-+	 * only instance of packets being retransmitted (that we are aware of)
-+	 * is due to an ACK timeout. As this does not happen in unsequenced
-+	 * communication, skip the retransmission check for those packets
-+	 * entirely.
-+	 */
-+	if (frame->type == SSH_FRAME_TYPE_DATA_NSQ)
-+		return false;
-+
- 	/*
- 	 * Check if SEQ has been seen recently (i.e. packet was
- 	 * re-transmitted and we should ignore it).
- 	 */
- 	for (i = 0; i < ARRAY_SIZE(ptl->rx.blocked.seqs); i++) {
--		if (likely(ptl->rx.blocked.seqs[i] != seq))
-+		if (likely(ptl->rx.blocked.seqs[i] != frame->seq))
- 			continue;
- 
- 		ptl_dbg(ptl, "ptl: ignoring repeated data packet\n");
-@@ -1613,7 +1629,7 @@ static bool ssh_ptl_rx_retransmit_check(struct ssh_ptl *ptl, u8 seq)
- 	}
- 
- 	/* Update list of blocked sequence IDs. */
--	ptl->rx.blocked.seqs[ptl->rx.blocked.offset] = seq;
-+	ptl->rx.blocked.seqs[ptl->rx.blocked.offset] = frame->seq;
- 	ptl->rx.blocked.offset = (ptl->rx.blocked.offset + 1)
- 				  % ARRAY_SIZE(ptl->rx.blocked.seqs);
- 
-@@ -1624,7 +1640,7 @@ static void ssh_ptl_rx_dataframe(struct ssh_ptl *ptl,
- 				 const struct ssh_frame *frame,
- 				 const struct ssam_span *payload)
- {
--	if (ssh_ptl_rx_retransmit_check(ptl, frame->seq))
-+	if (ssh_ptl_rx_retransmit_check(ptl, frame))
- 		return;
- 
- 	ptl->ops.data_received(ptl, payload);
+diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
+index cf3d53165776..164597e2e004 100644
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -2626,6 +2626,7 @@ static const struct dev_pm_ops imx_uart_pm_ops = {
+ 	.suspend_noirq = imx_uart_suspend_noirq,
+ 	.resume_noirq = imx_uart_resume_noirq,
+ 	.freeze_noirq = imx_uart_suspend_noirq,
++	.thaw_noirq = imx_uart_resume_noirq,
+ 	.restore_noirq = imx_uart_resume_noirq,
+ 	.suspend = imx_uart_suspend,
+ 	.resume = imx_uart_resume,
 -- 
 2.35.1
 
