@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 850C3635656
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04489635816
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:50:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237680AbiKWJaf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:30:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46488 "EHLO
+        id S238248AbiKWJuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:50:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237811AbiKWJaM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9315B11091E
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:28:24 -0800 (PST)
+        with ESMTP id S238149AbiKWJtv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:49:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 916E8E3D16
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:46:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5160DB81EF5
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:28:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB6E7C433C1;
-        Wed, 23 Nov 2022 09:28:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D82A61B29
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:46:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE9CAC433D6;
+        Wed, 23 Nov 2022 09:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195702;
-        bh=xQF0jd4vAlo1a0bwEqYmq8NGnNEGxxUiKpQE6/53kLc=;
+        s=korg; t=1669196807;
+        bh=yf3JpUtYzTIib1rR6CQkYecF2hOhzTnzXHpbhvZvBq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EFNGzYBLtLq1Sx+m8O6UeHmGBO47jWKIbwSJBoW7ptBFP0DOPaoiLIloLhPVVpqmf
-         QuVngVAQKinLgjv3J8YSNQjfwTgmo50CyHLRpQgEqxz6JAjf3KHHBGfWlHO/cFMRdQ
-         xutXoZBc19KJxiIaVOPlACYMAbnmAovs3QdhaGqU=
+        b=hU+7jmEirUBW57PCIqm3fJNyfKXuON3xToTF8dOyOJt1vHKV9KUTaupJi1GHf53lG
+         EguopEgoRJbFZ+7rHzhIL47rpvWnyk+wJZ/dcUf4WWBUi0XfckHCb3Kt7FQXN7bkP3
+         8jMHXnWke7isA/twxuwVk4XrDaTTm6FKBvaFdL5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mauro Lima <mauro.lima@eclypsium.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 010/181] spi: intel: Fix the offset to get the 64K erase opcode
-Date:   Wed, 23 Nov 2022 09:49:33 +0100
-Message-Id: <20221123084603.053054727@linuxfoundation.org>
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 129/314] drm/drv: Fix potential memory leak in drm_dev_init()
+Date:   Wed, 23 Nov 2022 09:49:34 +0100
+Message-Id: <20221123084631.377147663@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Lima <mauro.lima@eclypsium.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 6a43cd02ddbc597dc9a1f82c1e433f871a2f6f06 ]
+[ Upstream commit ff963634f7b2e0dc011349abb3fb81a0d074f443 ]
 
-According to documentation, the 64K erase opcode is located in VSCC
-range [16:23] instead of [8:15].
-Use the proper value to shift the mask over the correct range.
+drm_dev_init() will add drm_dev_init_release() as a callback. When
+drmm_add_action() failed, the release function won't be added. As the
+result, the ref cnt added by device_get() in drm_dev_init() won't be put
+by drm_dev_init_release(), which leads to the memleak. Use
+drmm_add_action_or_reset() instead of drmm_add_action() to prevent
+memleak.
 
-Signed-off-by: Mauro Lima <mauro.lima@eclypsium.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Link: https://lore.kernel.org/r/20221012152135.28353-1-mauro.lima@eclypsium.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+unreferenced object 0xffff88810bc0c800 (size 2048):
+  comm "modprobe", pid 8322, jiffies 4305809845 (age 15.292s)
+  hex dump (first 32 bytes):
+    e8 cc c0 0b 81 88 ff ff ff ff ff ff 00 00 00 00  ................
+    20 24 3c 0c 81 88 ff ff 18 c8 c0 0b 81 88 ff ff   $<.............
+  backtrace:
+    [<000000007251f72d>] __kmalloc+0x4b/0x1c0
+    [<0000000045f21f26>] platform_device_alloc+0x2d/0xe0
+    [<000000004452a479>] platform_device_register_full+0x24/0x1c0
+    [<0000000089f4ea61>] 0xffffffffa0736051
+    [<00000000235b2441>] do_one_initcall+0x7a/0x380
+    [<0000000001a4a177>] do_init_module+0x5c/0x230
+    [<000000002bf8a8e2>] load_module+0x227d/0x2420
+    [<00000000637d6d0a>] __do_sys_finit_module+0xd5/0x140
+    [<00000000c99fc324>] do_syscall_64+0x3f/0x90
+    [<000000004d85aa77>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: 2cbf7fc6718b ("drm: Use drmm_ for drm_dev_init cleanup")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221101070716.9189-2-shangxiaojing@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/spi-nor/controllers/intel-spi.c | 2 +-
+ drivers/gpu/drm/drm_drv.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/spi-nor/controllers/intel-spi.c b/drivers/mtd/spi-nor/controllers/intel-spi.c
-index a413892ff449..72dab5937df1 100644
---- a/drivers/mtd/spi-nor/controllers/intel-spi.c
-+++ b/drivers/mtd/spi-nor/controllers/intel-spi.c
-@@ -116,7 +116,7 @@
- #define ERASE_OPCODE_SHIFT		8
- #define ERASE_OPCODE_MASK		(0xff << ERASE_OPCODE_SHIFT)
- #define ERASE_64K_OPCODE_SHIFT		16
--#define ERASE_64K_OPCODE_MASK		(0xff << ERASE_OPCODE_SHIFT)
-+#define ERASE_64K_OPCODE_MASK		(0xff << ERASE_64K_OPCODE_SHIFT)
+diff --git a/drivers/gpu/drm/drm_drv.c b/drivers/gpu/drm/drm_drv.c
+index 8214a0b1ab7f..203bf8d6c34c 100644
+--- a/drivers/gpu/drm/drm_drv.c
++++ b/drivers/gpu/drm/drm_drv.c
+@@ -615,7 +615,7 @@ static int drm_dev_init(struct drm_device *dev,
+ 	mutex_init(&dev->clientlist_mutex);
+ 	mutex_init(&dev->master_mutex);
  
- #define INTEL_SPI_TIMEOUT		5000 /* ms */
- #define INTEL_SPI_FIFO_SZ		64
+-	ret = drmm_add_action(dev, drm_dev_init_release, NULL);
++	ret = drmm_add_action_or_reset(dev, drm_dev_init_release, NULL);
+ 	if (ret)
+ 		return ret;
+ 
 -- 
 2.35.1
 
