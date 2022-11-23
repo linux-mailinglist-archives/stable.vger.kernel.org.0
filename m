@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8289635468
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:08:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0352363561B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:28:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237157AbiKWJID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:08:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45462 "EHLO
+        id S237585AbiKWJZh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:25:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237077AbiKWJH1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:07:27 -0500
+        with ESMTP id S237574AbiKWJY5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:24:57 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DD20105A96
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:07:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC19D10AD02
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:23:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE62861B29
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:07:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB9DC433C1;
-        Wed, 23 Nov 2022 09:07:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AC5461B22
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:23:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7300AC433C1;
+        Wed, 23 Nov 2022 09:23:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194432;
-        bh=E/NhUDaHwWPmdJbD7eIzxc1Mw+Qc1TdxA3Mx/EinVfI=;
+        s=korg; t=1669195417;
+        bh=RbTjZk2cy9m5HP6NBRnKTUBHw62JRHbrcuQY1H0EGRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kYu91diK9zpkJJYj0klFqYIlSoIC3eXGa8MUzgX8Ye3fPd8tVVH8XOekXkX7tgl4p
-         rIZGAAalGGvocU0lfEUJXySWvxmAWsIgeuQRI4KhIZ+ZylR7KPXguwWBgBAFQadjqw
-         TtkZQhxi3BtjbxKhW9lhjOhbNWg5RxP53I3+Cj4E=
+        b=pbXNrXkbJyd4KFVhJc/w1TA6MK6RIVO8Nj+4wC03a3fW8h5Xv79JEpszNu2V1ygfK
+         Erswbhk89BYwR6nNaKuAkrpQIzvbLzHlCMf/OE2V7ky7qx4TRFRo8FDl/iss64lMMh
+         rq7anG6JS4keJxZO3Zf4DaKuL4lW97kkwLgJ+A5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 074/114] net: thunderbolt: Fix error handling in tbnet_init()
+Subject: [PATCH 5.10 078/149] net/x25: Fix skb leak in x25_lapb_receive_frame()
 Date:   Wed, 23 Nov 2022 09:51:01 +0100
-Message-Id: <20221123084554.841004847@linuxfoundation.org>
+Message-Id: <20221123084600.757320415@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit f524b7289bbb0c8ffaa2ba3c34c146e43da54fb2 ]
+[ Upstream commit 2929cceb2fcf0ded7182562e4888afafece82cce ]
 
-A problem about insmod thunderbolt-net failed is triggered with following
-log given while lsmod does not show thunderbolt_net:
+x25_lapb_receive_frame() using skb_copy() to get a private copy of
+skb, the new skb should be freed in the undersized/fragmented skb
+error handling path. Otherwise there is a memory leak.
 
- insmod: ERROR: could not insert module thunderbolt-net.ko: File exists
-
-The reason is that tbnet_init() returns tb_register_service_driver()
-directly without checking its return value, if tb_register_service_driver()
-failed, it returns without removing property directory, resulting the
-property directory can never be created later.
-
- tbnet_init()
-   tb_register_property_dir() # register property directory
-   tb_register_service_driver()
-     driver_register()
-       bus_add_driver()
-         priv = kzalloc(...) # OOM happened
-   # return without remove property directory
-
-Fix by remove property directory when tb_register_service_driver() returns
-error.
-
-Fixes: e69b6c02b4c3 ("net: Add support for networking over Thunderbolt cable")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: cb101ed2c3c7 ("x25: Handle undersized/fragmented skbs")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Link: https://lore.kernel.org/r/20221114110519.514538-1-weiyongjun@huaweicloud.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/thunderbolt.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ net/x25/x25_dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/thunderbolt.c b/drivers/net/thunderbolt.c
-index 4b5af2413970..51b5442fbc66 100644
---- a/drivers/net/thunderbolt.c
-+++ b/drivers/net/thunderbolt.c
-@@ -1342,12 +1342,21 @@ static int __init tbnet_init(void)
- 				  TBNET_MATCH_FRAGS_ID);
+diff --git a/net/x25/x25_dev.c b/net/x25/x25_dev.c
+index 25bf72ee6cad..226397add422 100644
+--- a/net/x25/x25_dev.c
++++ b/net/x25/x25_dev.c
+@@ -117,7 +117,7 @@ int x25_lapb_receive_frame(struct sk_buff *skb, struct net_device *dev,
  
- 	ret = tb_register_property_dir("network", tbnet_dir);
--	if (ret) {
--		tb_property_free_dir(tbnet_dir);
--		return ret;
--	}
-+	if (ret)
-+		goto err_free_dir;
-+
-+	ret = tb_register_service_driver(&tbnet_driver);
-+	if (ret)
-+		goto err_unregister;
+ 	if (!pskb_may_pull(skb, 1)) {
+ 		x25_neigh_put(nb);
+-		return 0;
++		goto drop;
+ 	}
  
--	return tb_register_service_driver(&tbnet_driver);
-+	return 0;
-+
-+err_unregister:
-+	tb_unregister_property_dir("network", tbnet_dir);
-+err_free_dir:
-+	tb_property_free_dir(tbnet_dir);
-+
-+	return ret;
- }
- module_init(tbnet_init);
- 
+ 	switch (skb->data[0]) {
 -- 
 2.35.1
 
