@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD32635380
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 09:58:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F6A86353E6
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:02:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236197AbiKWI5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 03:57:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59542 "EHLO
+        id S236931AbiKWJCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:02:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236774AbiKWI5Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 03:57:24 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D345EA126
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 00:57:23 -0800 (PST)
+        with ESMTP id S236972AbiKWJCK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:02:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C102FFAB7
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:02:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6A8E3CE20F7
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 08:57:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36C67C433C1;
-        Wed, 23 Nov 2022 08:57:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF6B961B43
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:02:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9838C433D6;
+        Wed, 23 Nov 2022 09:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669193839;
-        bh=2OLNWatJJrSTJi1lrfP1du4PfQg8OKWnA/Yn+SZDzbg=;
+        s=korg; t=1669194128;
+        bh=ozvKxBch8i4IK4aMjrMX0xPTwZ1icZ+HFk7kcr4vvhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkLj/HF00qV11WSqDPws4A2wjjQj23n4ogsEFEoROET/vwCr+5ic5AH5pGLMZSBFI
-         egF9SSPRL+4xgFbYk4J9YxGVTRZWryuGpWPZQPNxs2kxgAJ6ac/AKI8oBHCqpwzHrW
-         jrNK+yZNSWNne4sqP6I0E2l30lA0ADZkYtktAYp8=
+        b=sivYdCDkx5lY3rEeUrN7HEd5AC0CTqKcsTtZcqe6VRQ/AUnJjWBIu5N58/LC7EBzk
+         Uu7DOOJ7qXl3i4RiEv+0jtLK5FAUX94LS2i9RXsYaBg4hmN303eTT9JIhuymqs8pfP
+         6aGSG/MzZv5dley2OLGIjPQyP/HEGVeSktEqmGZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "chenxiaosong (A)" <chenxiaosong2@huawei.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Hawkins Jiawei <yin31149@gmail.com>,
-        syzbot+5f8dcabe4a3b2c51c607@syzkaller.appspotmail.com,
-        Anton Altaparmakov <anton@tuxera.com>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.9 75/76] ntfs: fix out-of-bounds read in ntfs_attr_find()
-Date:   Wed, 23 Nov 2022 09:51:14 +0100
-Message-Id: <20221123084549.207054229@linuxfoundation.org>
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Tom Herbert <tom@herbertland.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 78/88] kcm: avoid potential race in kcm_tx_work
+Date:   Wed, 23 Nov 2022 09:51:15 +0100
+Message-Id: <20221123084551.382939122@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084546.742331901@linuxfoundation.org>
-References: <20221123084546.742331901@linuxfoundation.org>
+In-Reply-To: <20221123084548.535439312@linuxfoundation.org>
+References: <20221123084548.535439312@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,116 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 36a4d82dddbbd421d2b8e79e1cab68c8126d5075 upstream.
+commit ec7eede369fe5b0d085ac51fdbb95184f87bfc6c upstream.
 
-Kernel iterates over ATTR_RECORDs in mft record in ntfs_attr_find().  To
-ensure access on these ATTR_RECORDs are within bounds, kernel will do some
-checking during iteration.
+syzbot found that kcm_tx_work() could crash [1] in:
 
-The problem is that during checking whether ATTR_RECORD's name is within
-bounds, kernel will dereferences the ATTR_RECORD name_offset field, before
-checking this ATTR_RECORD strcture is within bounds.  This problem may
-result out-of-bounds read in ntfs_attr_find(), reported by Syzkaller:
+	/* Primarily for SOCK_SEQPACKET sockets */
+	if (likely(sk->sk_socket) &&
+	    test_bit(SOCK_NOSPACE, &sk->sk_socket->flags)) {
+<<*>>	clear_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
+		sk->sk_write_space(sk);
+	}
 
-==================================================================
-BUG: KASAN: use-after-free in ntfs_attr_find+0xc02/0xce0 fs/ntfs/attrib.c:597
-Read of size 2 at addr ffff88807e352009 by task syz-executor153/3607
+I think the reason is that another thread might concurrently
+run in kcm_release() and call sock_orphan(sk) while sk is not
+locked. kcm_tx_work() find sk->sk_socket being NULL.
 
-[...]
+[1]
+BUG: KASAN: null-ptr-deref in instrument_atomic_write include/linux/instrumented.h:86 [inline]
+BUG: KASAN: null-ptr-deref in clear_bit include/asm-generic/bitops/instrumented-atomic.h:41 [inline]
+BUG: KASAN: null-ptr-deref in kcm_tx_work+0xff/0x160 net/kcm/kcmsock.c:742
+Write of size 8 at addr 0000000000000008 by task kworker/u4:3/53
+
+CPU: 0 PID: 53 Comm: kworker/u4:3 Not tainted 5.19.0-rc3-next-20220621-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: kkcmd kcm_tx_work
 Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:317 [inline]
- print_report.cold+0x2ba/0x719 mm/kasan/report.c:433
- kasan_report+0xb1/0x1e0 mm/kasan/report.c:495
- ntfs_attr_find+0xc02/0xce0 fs/ntfs/attrib.c:597
- ntfs_attr_lookup+0x1056/0x2070 fs/ntfs/attrib.c:1193
- ntfs_read_inode_mount+0x89a/0x2580 fs/ntfs/inode.c:1845
- ntfs_fill_super+0x1799/0x9320 fs/ntfs/super.c:2854
- mount_bdev+0x34d/0x410 fs/super.c:1400
- legacy_get_tree+0x105/0x220 fs/fs_context.c:610
- vfs_get_tree+0x89/0x2f0 fs/super.c:1530
- do_new_mount fs/namespace.c:3040 [inline]
- path_mount+0x1326/0x1e20 fs/namespace.c:3370
- do_mount fs/namespace.c:3383 [inline]
- __do_sys_mount fs/namespace.c:3591 [inline]
- __se_sys_mount fs/namespace.c:3568 [inline]
- __x64_sys_mount+0x27f/0x300 fs/namespace.c:3568
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- [...]
- </TASK>
+<TASK>
+__dump_stack lib/dump_stack.c:88 [inline]
+dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+kasan_report+0xbe/0x1f0 mm/kasan/report.c:495
+check_region_inline mm/kasan/generic.c:183 [inline]
+kasan_check_range+0x13d/0x180 mm/kasan/generic.c:189
+instrument_atomic_write include/linux/instrumented.h:86 [inline]
+clear_bit include/asm-generic/bitops/instrumented-atomic.h:41 [inline]
+kcm_tx_work+0xff/0x160 net/kcm/kcmsock.c:742
+process_one_work+0x996/0x1610 kernel/workqueue.c:2289
+worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+kthread+0x2e9/0x3a0 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
+</TASK>
 
-The buggy address belongs to the physical page:
-page:ffffea0001f8d400 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x7e350
-head:ffffea0001f8d400 order:3 compound_mapcount:0 compound_pincount:0
-flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000010200 0000000000000000 dead000000000122 ffff888011842140
-raw: 0000000000000000 0000000000040004 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-Memory state around the buggy address:
- ffff88807e351f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff88807e351f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff88807e352000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                      ^
- ffff88807e352080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88807e352100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-This patch solves it by moving the ATTR_RECORD strcture's bounds checking
-earlier, then checking whether ATTR_RECORD's name is within bounds.
-What's more, this patch also add some comments to improve its
-maintainability.
-
-Link: https://lkml.kernel.org/r/20220831160935.3409-3-yin31149@gmail.com
-Link: https://lore.kernel.org/all/1636796c-c85e-7f47-e96f-e074fee3c7d3@huawei.com/
-Link: https://groups.google.com/g/syzkaller-bugs/c/t_XdeKPGTR4/m/LECAuIGcBgAJ
-Signed-off-by: chenxiaosong (A) <chenxiaosong2@huawei.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Reported-by: syzbot+5f8dcabe4a3b2c51c607@syzkaller.appspotmail.com
-Tested-by: syzbot+5f8dcabe4a3b2c51c607@syzkaller.appspotmail.com
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Cc: syzkaller-bugs <syzkaller-bugs@googlegroups.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Tom Herbert <tom@herbertland.com>
+Link: https://lore.kernel.org/r/20221012133412.519394-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs/attrib.c |   20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ net/kcm/kcmsock.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ntfs/attrib.c
-+++ b/fs/ntfs/attrib.c
-@@ -608,11 +608,23 @@ static int ntfs_attr_find(const ATTR_TYP
- 	for (;;	a = (ATTR_RECORD*)((u8*)a + le32_to_cpu(a->length))) {
- 		u8 *mrec_end = (u8 *)ctx->mrec +
- 		               le32_to_cpu(ctx->mrec->bytes_allocated);
--		u8 *name_end = (u8 *)a + le16_to_cpu(a->name_offset) +
--			       a->name_length * sizeof(ntfschar);
--		if ((u8*)a < (u8*)ctx->mrec || (u8*)a > mrec_end ||
--		    name_end > mrec_end)
-+		u8 *name_end;
-+
-+		/* check whether ATTR_RECORD wrap */
-+		if ((u8 *)a < (u8 *)ctx->mrec)
- 			break;
-+
-+		/* check whether Attribute Record Header is within bounds */
-+		if ((u8 *)a > mrec_end ||
-+		    (u8 *)a + sizeof(ATTR_RECORD) > mrec_end)
-+			break;
-+
-+		/* check whether ATTR_RECORD's name is within bounds */
-+		name_end = (u8 *)a + le16_to_cpu(a->name_offset) +
-+			   a->name_length * sizeof(ntfschar);
-+		if (name_end > mrec_end)
-+			break;
-+
- 		ctx->attr = a;
- 		if (unlikely(le32_to_cpu(a->type) > le32_to_cpu(type) ||
- 				a->type == AT_END))
+--- a/net/kcm/kcmsock.c
++++ b/net/kcm/kcmsock.c
+@@ -1850,10 +1850,10 @@ static int kcm_release(struct socket *so
+ 	kcm = kcm_sk(sk);
+ 	mux = kcm->mux;
+ 
++	lock_sock(sk);
+ 	sock_orphan(sk);
+ 	kfree_skb(kcm->seq_skb);
+ 
+-	lock_sock(sk);
+ 	/* Purge queue under lock to avoid race condition with tx_work trying
+ 	 * to act when queue is nonempty. If tx_work runs after this point
+ 	 * it will just return.
 
 
