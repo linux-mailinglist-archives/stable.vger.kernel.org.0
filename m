@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A011D6354CF
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5177363568B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237192AbiKWJKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:10:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50972 "EHLO
+        id S237824AbiKWJbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:31:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237163AbiKWJK1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:10:27 -0500
+        with ESMTP id S237827AbiKWJbD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:31:03 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B99D5EC0A2
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:10:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 737D8248F1
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:29:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F81D61B56
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:10:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1186BC433D6;
-        Wed, 23 Nov 2022 09:10:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 112BF61A02
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:29:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0C8DC433D6;
+        Wed, 23 Nov 2022 09:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194622;
-        bh=GwcMWJ0EPLhLW47wwosOYK46SYIOhNwvIVKoKGOAQBY=;
+        s=korg; t=1669195790;
+        bh=blrU5POMMjcvR24QCC3s33yEJDcl1a7y+lUMpzpd9MM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IuSgLwpKhQ56XCM8WXso7vu28YkslujtOmEvT647V9J5m8+71qtKMGRuQA37GQr6b
-         66QS2WbWbMKbBYNfxSMeH6SyDzIU2iR/0W+bHFqtKaOf+zhqrco7AjRB7fdgZmXDVu
-         a4qYnOYNRmNJ3fx3GWXts5aI4JYxA8I5MNljPcqI=
+        b=hGr86XLMAKeUbuRJTsPXVFA3gUcARsoup4Ky+qjphh8y1c9YSUrrpUsbQk0DfbxTx
+         S9uW4d6Qo374wFeihfZWxJT3dbg/bkeHc7fL7jIni3MtDAMXxKX2CQzcFTftbaGgwr
+         p1YE2GcqCDTqf73cxGbTyuaMGYJmbqlcUM6xzf7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akshay Navgire <anavgire@purestorage.com>,
-        Alex Barba <alex.barba@broadcom.com>,
-        Andy Gospodarek <gospo@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Xiaolei Wang <xiaolei.wang@windriver.com>,
+        Adam Ford <aford173@gmail.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 015/156] bnxt_en: fix potentially incorrect return value for ndo_rx_flow_steer
+Subject: [PATCH 5.15 009/181] ASoC: wm8962: Add an event handler for TEMP_HP and TEMP_SPK
 Date:   Wed, 23 Nov 2022 09:49:32 +0100
-Message-Id: <20221123084558.437226071@linuxfoundation.org>
+Message-Id: <20221123084603.022961021@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +55,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Barba <alex.barba@broadcom.com>
+From: Xiaolei Wang <xiaolei.wang@windriver.com>
 
-[ Upstream commit 02597d39145bb0aa81d04bf39b6a913ce9a9d465 ]
+[ Upstream commit ee1aa2ae3eaa96e70229fa61deee87ef4528ffdf ]
 
-In the bnxt_en driver ndo_rx_flow_steer returns '0' whenever an entry
-that we are attempting to steer is already found.  This is not the
-correct behavior.  The return code should be the value/index that
-corresponds to the entry.  Returning zero all the time causes the
-RFS records to be incorrect unless entry '0' is the correct one.  As
-flows migrate to different cores this can create entries that are not
-correct.
+In wm8962 driver, the WM8962_ADDITIONAL_CONTROL_4 is used as a volatile
+register, but this register mixes a bunch of volatile status bits and a
+bunch of non-volatile control bits. The dapm widgets TEMP_HP and
+TEMP_SPK leverages the control bits in this register. After the wm8962
+probe, the regmap will bet set to cache only mode, then a read error
+like below would be triggered when trying to read the initial power
+state of the dapm widgets TEMP_HP and TEMP_SPK.
+  wm8962 0-001a: ASoC: error at soc_component_read_no_lock
+  on wm8962.0-001a: -16
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Reported-by: Akshay Navgire <anavgire@purestorage.com>
-Signed-off-by: Alex Barba <alex.barba@broadcom.com>
-Signed-off-by: Andy Gospodarek <gospo@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+In order to fix this issue, we add event handler to actually power
+up/down these widgets. With this change, we also need to explicitly
+power off these widgets in the wm8962 probe since they are enabled
+by default.
+
+Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
+Tested-by: Adam Ford <aford173@gmail.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20221010092014.2229246-1-xiaolei.wang@windriver.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/wm8962.c | 54 +++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 52 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 5a7d5e7f3b23..d7d7d6421c48 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -11182,8 +11182,8 @@ static int bnxt_rx_flow_steer(struct net_device *dev, const struct sk_buff *skb,
- 	rcu_read_lock();
- 	hlist_for_each_entry_rcu(fltr, head, hash) {
- 		if (bnxt_fltr_match(fltr, new_fltr)) {
-+			rc = fltr->sw_id;
- 			rcu_read_unlock();
--			rc = 0;
- 			goto err_free;
- 		}
- 	}
+diff --git a/sound/soc/codecs/wm8962.c b/sound/soc/codecs/wm8962.c
+index a5a4ae4440cc..09a73b854964 100644
+--- a/sound/soc/codecs/wm8962.c
++++ b/sound/soc/codecs/wm8962.c
+@@ -1840,6 +1840,49 @@ SOC_SINGLE_TLV("SPKOUTR Mixer DACR Volume", WM8962_SPEAKER_MIXER_5,
+ 	       4, 1, 0, inmix_tlv),
+ };
+ 
++static int tp_event(struct snd_soc_dapm_widget *w,
++		    struct snd_kcontrol *kcontrol, int event)
++{
++	int ret, reg, val, mask;
++	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
++
++	ret = pm_runtime_resume_and_get(component->dev);
++	if (ret < 0) {
++		dev_err(component->dev, "Failed to resume device: %d\n", ret);
++		return ret;
++	}
++
++	reg = WM8962_ADDITIONAL_CONTROL_4;
++
++	if (!strcmp(w->name, "TEMP_HP")) {
++		mask = WM8962_TEMP_ENA_HP_MASK;
++		val = WM8962_TEMP_ENA_HP;
++	} else if (!strcmp(w->name, "TEMP_SPK")) {
++		mask = WM8962_TEMP_ENA_SPK_MASK;
++		val = WM8962_TEMP_ENA_SPK;
++	} else {
++		pm_runtime_put(component->dev);
++		return -EINVAL;
++	}
++
++	switch (event) {
++	case SND_SOC_DAPM_POST_PMD:
++		val = 0;
++		fallthrough;
++	case SND_SOC_DAPM_POST_PMU:
++		ret = snd_soc_component_update_bits(component, reg, mask, val);
++		break;
++	default:
++		WARN(1, "Invalid event %d\n", event);
++		pm_runtime_put(component->dev);
++		return -EINVAL;
++	}
++
++	pm_runtime_put(component->dev);
++
++	return 0;
++}
++
+ static int cp_event(struct snd_soc_dapm_widget *w,
+ 		    struct snd_kcontrol *kcontrol, int event)
+ {
+@@ -2133,8 +2176,10 @@ SND_SOC_DAPM_SUPPLY("TOCLK", WM8962_ADDITIONAL_CONTROL_1, 0, 0, NULL, 0),
+ SND_SOC_DAPM_SUPPLY_S("DSP2", 1, WM8962_DSP2_POWER_MANAGEMENT,
+ 		      WM8962_DSP2_ENA_SHIFT, 0, dsp2_event,
+ 		      SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_PRE_PMD),
+-SND_SOC_DAPM_SUPPLY("TEMP_HP", WM8962_ADDITIONAL_CONTROL_4, 2, 0, NULL, 0),
+-SND_SOC_DAPM_SUPPLY("TEMP_SPK", WM8962_ADDITIONAL_CONTROL_4, 1, 0, NULL, 0),
++SND_SOC_DAPM_SUPPLY("TEMP_HP", SND_SOC_NOPM, 0, 0, tp_event,
++		SND_SOC_DAPM_POST_PMU|SND_SOC_DAPM_POST_PMD),
++SND_SOC_DAPM_SUPPLY("TEMP_SPK", SND_SOC_NOPM, 0, 0, tp_event,
++		SND_SOC_DAPM_POST_PMU|SND_SOC_DAPM_POST_PMD),
+ 
+ SND_SOC_DAPM_MIXER("INPGAL", WM8962_LEFT_INPUT_PGA_CONTROL, 4, 0,
+ 		   inpgal, ARRAY_SIZE(inpgal)),
+@@ -3763,6 +3808,11 @@ static int wm8962_i2c_probe(struct i2c_client *i2c,
+ 	if (ret < 0)
+ 		goto err_pm_runtime;
+ 
++	regmap_update_bits(wm8962->regmap, WM8962_ADDITIONAL_CONTROL_4,
++			    WM8962_TEMP_ENA_HP_MASK, 0);
++	regmap_update_bits(wm8962->regmap, WM8962_ADDITIONAL_CONTROL_4,
++			    WM8962_TEMP_ENA_SPK_MASK, 0);
++
+ 	regcache_cache_only(wm8962->regmap, true);
+ 
+ 	/* The drivers should power up as needed */
 -- 
 2.35.1
 
