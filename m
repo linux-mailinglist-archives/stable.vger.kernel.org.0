@@ -2,138 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AD02636110
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 15:05:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3D66361E3
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 15:32:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238408AbiKWOFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 09:05:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52774 "EHLO
+        id S236185AbiKWOcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 09:32:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236038AbiKWOFB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 09:05:01 -0500
-Received: from mail-ua1-x933.google.com (mail-ua1-x933.google.com [IPv6:2607:f8b0:4864:20::933])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A914856ECD
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 06:00:56 -0800 (PST)
-Received: by mail-ua1-x933.google.com with SMTP id x24so295949uaf.4
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 06:00:56 -0800 (PST)
+        with ESMTP id S238859AbiKWObz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 09:31:55 -0500
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B331719C0F
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 06:31:18 -0800 (PST)
+Received: by mail-pg1-x535.google.com with SMTP id v3so16909690pgh.4
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 06:31:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=WTYTRYk6f/wEnl7mJzNrGBfYtp6molz9on9Z5eyVh7Y=;
-        b=dOyMTxXjwVGwKVthIhRYDaAtrpahmmifx8Qf979kDzdG0O/ly0ey6ZDqNlFtRNv0AZ
-         MyT2vWpH1YkG0bi8xh2pfB3jFxZW4ZdpH9ABAlvtdqPgGq91GkzUqq5Xy7e/WrsONF3h
-         2Yx9mKtvq/I4tZS5dehNlBDNTUbfEpbokf7NdBWRPbQ2uhQRb1OFOzKJQYRNkJ+1gMK6
-         527rH3q6Rxu2s6TlwOGnCyv8f4dVbAPTZBahB8OLE1x0YHAR07AIV/nOTD1BviYEXQev
-         sn59XdvndRwckymR2UIH3GH0jWU9TzCkcTwfhWWEQQS9RvMWn1L3FCljBfQ8Vp9UfsRw
-         YpAg==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=sbC1GoOjrWlIkABwvg4cHNjdrbdOEEGHXCfTBJkC79Q=;
+        b=KeEcOKmHk+HSmG5y5n/4c8QRn0bQHcsfZPEzPQrN+W580bgM5WNixPAPF3E4oWJtB2
+         JsVMOt8jqFO16moKNyYYXtZra8wuMDBkwNDyA9vrRixsviRHTwwEA0FwqjuQY7BEgbSl
+         qu5TmCHi+BQ9jIKiPx0Dmhyfqq0eZ1olMA05Fc5DaKBdBEfB5jvYfM6qV6re6tSryhXI
+         8N4Pe2eLG9I2mmSeYjpf981PpbDYEN6GoQc7QudAs5mkFeam5w0i3I+Y3Cf3E3yK3no3
+         cWJWMGoR0mn4GdBnCFka3z8XftkVBZ1AcOh1f4srF3AmaRw/6nTnsZt4dXhj/KW8C1rJ
+         3Qqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=WTYTRYk6f/wEnl7mJzNrGBfYtp6molz9on9Z5eyVh7Y=;
-        b=vCJnF3OxhqR0J4qN5X3jPT/MRsAggnGH+2alwOplRfTMUv36qQ3v15HvSoKnxJ5Tr2
-         YHN178tnWZuuvbMifijndZC6JL9Xt4qyPOMwfVTup/GVx6YSD5F4TlkeLavht31PWVU+
-         wKHU67j/OBk+m05ijsMJaO4jKx1uBZcmZTY13Cife9m+ZGNe5v5ORU8AgQb1qWoLjfuK
-         20st9PBnab4iRiH7dKIMLIbzcyOeru7NgcERNh4kxJNYecaoK4vJPJS2XHCj2KyEuQIA
-         Lq+gn3pK0W+Jd3MhymBM6DPpH1f15fsa36kQwaD0+0V8oWFJSTkFRqOqtHVdA29fWb0w
-         xT2A==
-X-Gm-Message-State: ANoB5pmT6tRetM6aumfb6Mu4hmLZOqHjABXUaLq/OzhmL3N8ja3nZgzF
-        HFrrW0eXyl8iiT+MpuO18n6p/uIyym16ABerOyUQw2v7WQk0iw==
-X-Google-Smtp-Source: AA0mqf5sFmUBzHQ+l6kKNO0dh5atgZv8TBPL9cQGGpRXs3zWuwYppj+h7nEHVfjqs/k/q5ZejLgXlnCiIXc05201a7E=
-X-Received: by 2002:a5b:f0f:0:b0:6d2:5835:301f with SMTP id
- x15-20020a5b0f0f000000b006d25835301fmr16235642ybr.336.1669212026059; Wed, 23
- Nov 2022 06:00:26 -0800 (PST)
+        bh=sbC1GoOjrWlIkABwvg4cHNjdrbdOEEGHXCfTBJkC79Q=;
+        b=afkOh3ZIdOphvAdjvgI/mS+Icc40bXaYys1SUJSrbhfBC9uCgiIpactbRnS2l/JguY
+         Cc5lh0JHVuIul+I6+sgFDG4AnNbOD5i2Sfv5pu77xMfIkLi4BnpeKJjWV6yvKWr81Eq4
+         l4Izg65SNH0sWg0Qrq1Svg4t6bQO35bAeadog1RTxCNDy8jVhJ+hsdZ3y5g/vT6Mfqa6
+         OTcgiJvDSAkv35s3fSpUbgF0zgfgjNe6Yt1C49cTzdVMa91XutkIVR6UG1TwwJTIDzat
+         girPVQ6UJnuiEdJzD2pafKTHUjFq2zcMrF3b4Fkp0UudCPDXW6Hc+FOszeXugL9JN56v
+         q61A==
+X-Gm-Message-State: ANoB5plVnOhq4E5kSoTYZCkkzLB9s7DsGyWYGg6ipqM95Uvav0Dq5Qkn
+        RmoxYQgv1gu6yxnaMz1yk8CIFZFsGcc9rBry
+X-Google-Smtp-Source: AA0mqf6KxgAyNO04g/FgaNUHN9se4d+6k4dDkNcbfleIPKoxQalcTBu8K4G+onDpjjPUSv34dQ+WDA==
+X-Received: by 2002:a62:1582:0:b0:563:f32:2c9d with SMTP id 124-20020a621582000000b005630f322c9dmr8929532pfv.32.1669213877523;
+        Wed, 23 Nov 2022 06:31:17 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g4-20020aa796a4000000b00573a1f0589bsm6805153pfk.186.2022.11.23.06.31.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Nov 2022 06:31:16 -0800 (PST)
+Message-ID: <637e2eb4.a70a0220.7b852.b25b@mx.google.com>
+Date:   Wed, 23 Nov 2022 06:31:16 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20221123084557.945845710@linuxfoundation.org>
-In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 23 Nov 2022 19:30:14 +0530
-Message-ID: <CA+G9fYvKfbJHcMZtybf_0Ru3+6fKPg9HwWTOhdCLrOBXMaeG1A@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/149] 5.10.156-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-        Netdev <netdev@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Kernel: v5.10.155-150-g38866e257e18
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.10.y baseline: 133 runs,
+ 1 regressions (v5.10.155-150-g38866e257e18)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 23 Nov 2022 at 14:50, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.156 release.
-> There are 149 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 25 Nov 2022 08:45:20 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.156-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+stable-rc/linux-5.10.y baseline: 133 runs, 1 regressions (v5.10.155-150-g38=
+866e257e18)
+
+Regressions Summary
+-------------------
+
+platform          | arch | lab     | compiler | defconfig          | regres=
+sions
+------------------+------+---------+----------+--------------------+-------=
+-----
+r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig | 1     =
+     =
 
 
-With stable rc 5.10.156-rc1 Raspberry Pi 4 Model B failed to boot due to
-following warnings / errors [1]. The NFS mount failed and failed to boot.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.155-150-g38866e257e18/plan/baseline/
 
-I have to bisect this problem.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.155-150-g38866e257e18
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      38866e257e18dbc209f4c355fe57123b0c2e0e4a =
 
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Test Regressions
+---------------- =
 
 
-[    0.000000] Linux version 5.10.156-rc1 (tuxmake@tuxmake)
-(aarch64-linux-gnu-gcc (Debian 11.3.0-6) 11.3.0, GNU ld (GNU Binutils
-for Debian) 2.39) #1 SMP PREEMPT @1669194931
-[    0.000000] Machine model: Raspberry Pi 4 Model B
----
-[    3.253965] mmc0: new high speed SDIO card at address 0001
-[    7.229502] bcmgenet fd580000.ethernet eth0: Link is Up -
-1Gbps/Full - flow control off
-[    7.237710] IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
-[    7.253259] Sending DHCP requests ......
-[   81.086546] DHCP/BOOTP: Reply not for us on eth0, op[2] xid[42e6766b]
-[   89.106504] DHCP/BOOTP: Reply not for us on eth0, op[2] xid[42e6766b]
-[   98.657252]  timed out!
-[   98.683997] bcmgenet fd580000.ethernet eth0: Link is Down
-[   98.691276] IP-Config: Retrying forever (NFS root)...
-[   98.698404] bcmgenet fd580000.ethernet: configuring instance for
-external RGMII (RX delay)
-[   98.707190] bcmgenet fd580000.ethernet eth0: Link is Down
-[  102.813504] bcmgenet fd580000.ethernet eth0: Link is Up -
-1Gbps/Full - flow control off
-[  102.821680] IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
-[  102.841257] Sending DHCP requests ....
-[  119.840915] DHCP/BOOTP: Reply not for us on eth0, op[2] xid[34e6766b]
-[  127.860148] DHCP/BOOTP: Reply not for us on eth0, op[2] xid[34e6766b]
-[  132.513252] .. timed out!
 
-[1] https://lkft.validation.linaro.org/scheduler/job/5880584#L392
+platform          | arch | lab     | compiler | defconfig          | regres=
+sions
+------------------+------+---------+----------+--------------------+-------=
+-----
+r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig | 1     =
+     =
 
---
-Linaro LKFT
-https://lkft.linaro.org
+
+  Details:     https://kernelci.org/test/plan/id/637df9ab16ad2823a42abd11
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: shmobile_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+55-150-g38866e257e18/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
+-iwg20d-q7.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+55-150-g38866e257e18/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
+-iwg20d-q7.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20221107.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/637df9ab16ad2823a42ab=
+d12
+        failing since 8 days (last pass: v5.10.154, first fail: v5.10.154-9=
+6-gd59f46a55fcd) =
+
+ =20
