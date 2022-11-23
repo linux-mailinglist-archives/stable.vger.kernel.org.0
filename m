@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F21A96354CD
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC2C4635596
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237082AbiKWJJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:09:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48778 "EHLO
+        id S237305AbiKWJTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:19:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237105AbiKWJIy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:08:54 -0500
+        with ESMTP id S237323AbiKWJTS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:19:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F244CBA8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:08:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B0B5DF7A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:19:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3032B81EEE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:08:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1F31C433C1;
-        Wed, 23 Nov 2022 09:08:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 291B0B81EF6
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:19:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FD3EC433C1;
+        Wed, 23 Nov 2022 09:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194530;
-        bh=U1qsKe8S+XeNROSVa/Ny/ER8zXdrzfQZBN4qyak8asg=;
+        s=korg; t=1669195154;
+        bh=k+ghh7sJyy/cpHD9ynxFZGn+w4JxZwPg0VvGDNJekdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mpsjX5zFm6T6bDhVbOL+WOjz45xVbEFGGug/rXYvNnGk8M0PD0TpmaVcAzXgOE6oF
-         TlEGiXbNFh6Vamf9aVB8Zidzrxv4CWi9Y4hwriodb9lw4AwLqdmkvMv4rDac/rJDsw
-         Jq+bre+4XFUrgWSC5WsvTarpm538GQKV4XzLuOBs=
+        b=gIaZMXc7ZsQ0GCb9L5V+2fPZfGc1ysCZhgdhNkeu96OWEMV5kT74wysT18/S/1kzl
+         NAYVHEC56fIRIC7bVA5tHKetQBeWE0aQt44ESEs9UjlkGi9Jx0GayV4M9x8TGUqypo
+         72F1fC0WQvQUJtyPY8bv1nxhBgnmwDvIKZFnvwSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 103/114] tcp: cdg: allow tcp_cdg_release() to be called multiple times
+        patches@lists.linux.dev, Benjamin Block <bblock@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 133/156] scsi: zfcp: Fix double free of FSF request when qdio send fails
 Date:   Wed, 23 Nov 2022 09:51:30 +0100
-Message-Id: <20221123084555.849398511@linuxfoundation.org>
+Message-Id: <20221123084602.731267365@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084551.864610302@linuxfoundation.org>
-References: <20221123084551.864610302@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,155 +53,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Benjamin Block <bblock@linux.ibm.com>
 
-commit 72e560cb8c6f80fc2b4afc5d3634a32465e13a51 upstream.
+commit 0954256e970ecf371b03a6c9af2cf91b9c4085ff upstream.
 
-Apparently, mptcp is able to call tcp_disconnect() on an already
-disconnected flow. This is generally fine, unless current congestion
-control is CDG, because it might trigger a double-free [1]
+We used to use the wrong type of integer in 'zfcp_fsf_req_send()' to cache
+the FSF request ID when sending a new FSF request. This is used in case the
+sending fails and we need to remove the request from our internal hash
+table again (so we don't keep an invalid reference and use it when we free
+the request again).
 
-Instead of fixing MPTCP, and future bugs, we can make tcp_disconnect()
-more resilient.
+In 'zfcp_fsf_req_send()' we used to cache the ID as 'int' (signed and 32
+bit wide), but the rest of the zfcp code (and the firmware specification)
+handles the ID as 'unsigned long'/'u64' (unsigned and 64 bit wide [s390x
+ELF ABI]).  For one this has the obvious problem that when the ID grows
+past 32 bit (this can happen reasonably fast) it is truncated to 32 bit
+when storing it in the cache variable and so doesn't match the original ID
+anymore.  The second less obvious problem is that even when the original ID
+has not yet grown past 32 bit, as soon as the 32nd bit is set in the
+original ID (0x80000000 = 2'147'483'648) we will have a mismatch when we
+cast it back to 'unsigned long'. As the cached variable is of a signed
+type, the compiler will choose a sign-extending instruction to load the 32
+bit variable into a 64 bit register (e.g.: 'lgf %r11,188(%r15)'). So once
+we pass the cached variable into 'zfcp_reqlist_find_rm()' to remove the
+request again all the leading zeros will be flipped to ones to extend the
+sign and won't match the original ID anymore (this has been observed in
+practice).
 
-[1]
-BUG: KASAN: double-free in slab_free mm/slub.c:3539 [inline]
-BUG: KASAN: double-free in kfree+0xe2/0x580 mm/slub.c:4567
+If we can't successfully remove the request from the hash table again after
+'zfcp_qdio_send()' fails (this happens regularly when zfcp cannot notify
+the adapter about new work because the adapter is already gone during
+e.g. a ChpID toggle) we will end up with a double free.  We unconditionally
+free the request in the calling function when 'zfcp_fsf_req_send()' fails,
+but because the request is still in the hash table we end up with a stale
+memory reference, and once the zfcp adapter is either reset during recovery
+or shutdown we end up freeing the same memory twice.
 
-CPU: 0 PID: 3645 Comm: kworker/0:7 Not tainted 6.0.0-syzkaller-02734-g0326074ff465 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/22/2022
-Workqueue: events mptcp_worker
-Call Trace:
-<TASK>
-__dump_stack lib/dump_stack.c:88 [inline]
-dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
-print_address_description mm/kasan/report.c:317 [inline]
-print_report.cold+0x2ba/0x719 mm/kasan/report.c:433
-kasan_report_invalid_free+0x81/0x190 mm/kasan/report.c:462
-____kasan_slab_free+0x18b/0x1c0 mm/kasan/common.c:356
-kasan_slab_free include/linux/kasan.h:200 [inline]
-slab_free_hook mm/slub.c:1759 [inline]
-slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1785
-slab_free mm/slub.c:3539 [inline]
-kfree+0xe2/0x580 mm/slub.c:4567
-tcp_disconnect+0x980/0x1e20 net/ipv4/tcp.c:3145
-__mptcp_close_ssk+0x5ca/0x7e0 net/mptcp/protocol.c:2327
-mptcp_do_fastclose net/mptcp/protocol.c:2592 [inline]
-mptcp_worker+0x78c/0xff0 net/mptcp/protocol.c:2627
-process_one_work+0x991/0x1610 kernel/workqueue.c:2289
-worker_thread+0x665/0x1080 kernel/workqueue.c:2436
-kthread+0x2e4/0x3a0 kernel/kthread.c:376
-ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
-</TASK>
+The resulting stack traces vary depending on the kernel and have no direct
+correlation to the place where the bug occurs. Here are three examples that
+have been seen in practice:
 
-Allocated by task 3671:
-kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
-kasan_set_track mm/kasan/common.c:45 [inline]
-set_alloc_info mm/kasan/common.c:437 [inline]
-____kasan_kmalloc mm/kasan/common.c:516 [inline]
-____kasan_kmalloc mm/kasan/common.c:475 [inline]
-__kasan_kmalloc+0xa9/0xd0 mm/kasan/common.c:525
-kmalloc_array include/linux/slab.h:640 [inline]
-kcalloc include/linux/slab.h:671 [inline]
-tcp_cdg_init+0x10d/0x170 net/ipv4/tcp_cdg.c:380
-tcp_init_congestion_control+0xab/0x550 net/ipv4/tcp_cong.c:193
-tcp_reinit_congestion_control net/ipv4/tcp_cong.c:217 [inline]
-tcp_set_congestion_control+0x96c/0xaa0 net/ipv4/tcp_cong.c:391
-do_tcp_setsockopt+0x505/0x2320 net/ipv4/tcp.c:3513
-tcp_setsockopt+0xd4/0x100 net/ipv4/tcp.c:3801
-mptcp_setsockopt+0x35f/0x2570 net/mptcp/sockopt.c:844
-__sys_setsockopt+0x2d6/0x690 net/socket.c:2252
-__do_sys_setsockopt net/socket.c:2263 [inline]
-__se_sys_setsockopt net/socket.c:2260 [inline]
-__x64_sys_setsockopt+0xba/0x150 net/socket.c:2260
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  list_del corruption. next->prev should be 00000001b9d13800, but was 00000000dead4ead. (next=00000001bd131a00)
+  ------------[ cut here ]------------
+  kernel BUG at lib/list_debug.c:62!
+  monitor event: 0040 ilc:2 [#1] PREEMPT SMP
+  Modules linked in: ...
+  CPU: 9 PID: 1617 Comm: zfcperp0.0.1740 Kdump: loaded
+  Hardware name: ...
+  Krnl PSW : 0704d00180000000 00000003cbeea1f8 (__list_del_entry_valid+0x98/0x140)
+             R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
+  Krnl GPRS: 00000000916d12f1 0000000080000000 000000000000006d 00000003cb665cd6
+             0000000000000001 0000000000000000 0000000000000000 00000000d28d21e8
+             00000000d3844000 00000380099efd28 00000001bd131a00 00000001b9d13800
+             00000000d3290100 0000000000000000 00000003cbeea1f4 00000380099efc70
+  Krnl Code: 00000003cbeea1e8: c020004f68a7        larl    %r2,00000003cc8d7336
+             00000003cbeea1ee: c0e50027fd65        brasl   %r14,00000003cc3e9cb8
+            #00000003cbeea1f4: af000000            mc      0,0
+            >00000003cbeea1f8: c02000920440        larl    %r2,00000003cd12aa78
+             00000003cbeea1fe: c0e500289c25        brasl   %r14,00000003cc3fda48
+             00000003cbeea204: b9040043            lgr     %r4,%r3
+             00000003cbeea208: b9040051            lgr     %r5,%r1
+             00000003cbeea20c: b9040032            lgr     %r3,%r2
+  Call Trace:
+   [<00000003cbeea1f8>] __list_del_entry_valid+0x98/0x140
+  ([<00000003cbeea1f4>] __list_del_entry_valid+0x94/0x140)
+   [<000003ff7ff502fe>] zfcp_fsf_req_dismiss_all+0xde/0x150 [zfcp]
+   [<000003ff7ff49cd0>] zfcp_erp_strategy_do_action+0x160/0x280 [zfcp]
+   [<000003ff7ff4a22e>] zfcp_erp_strategy+0x21e/0xca0 [zfcp]
+   [<000003ff7ff4ad34>] zfcp_erp_thread+0x84/0x1a0 [zfcp]
+   [<00000003cb5eece8>] kthread+0x138/0x150
+   [<00000003cb557f3c>] __ret_from_fork+0x3c/0x60
+   [<00000003cc4172ea>] ret_from_fork+0xa/0x40
+  INFO: lockdep is turned off.
+  Last Breaking-Event-Address:
+   [<00000003cc3e9d04>] _printk+0x4c/0x58
+  Kernel panic - not syncing: Fatal exception: panic_on_oops
 
-Freed by task 16:
-kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
-kasan_set_track+0x21/0x30 mm/kasan/common.c:45
-kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
-____kasan_slab_free mm/kasan/common.c:367 [inline]
-____kasan_slab_free+0x166/0x1c0 mm/kasan/common.c:329
-kasan_slab_free include/linux/kasan.h:200 [inline]
-slab_free_hook mm/slub.c:1759 [inline]
-slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1785
-slab_free mm/slub.c:3539 [inline]
-kfree+0xe2/0x580 mm/slub.c:4567
-tcp_cleanup_congestion_control+0x70/0x120 net/ipv4/tcp_cong.c:226
-tcp_v4_destroy_sock+0xdd/0x750 net/ipv4/tcp_ipv4.c:2254
-tcp_v6_destroy_sock+0x11/0x20 net/ipv6/tcp_ipv6.c:1969
-inet_csk_destroy_sock+0x196/0x440 net/ipv4/inet_connection_sock.c:1157
-tcp_done+0x23b/0x340 net/ipv4/tcp.c:4649
-tcp_rcv_state_process+0x40e7/0x4990 net/ipv4/tcp_input.c:6624
-tcp_v6_do_rcv+0x3fc/0x13c0 net/ipv6/tcp_ipv6.c:1525
-tcp_v6_rcv+0x2e8e/0x3830 net/ipv6/tcp_ipv6.c:1759
-ip6_protocol_deliver_rcu+0x2db/0x1950 net/ipv6/ip6_input.c:439
-ip6_input_finish+0x14c/0x2c0 net/ipv6/ip6_input.c:484
-NF_HOOK include/linux/netfilter.h:302 [inline]
-NF_HOOK include/linux/netfilter.h:296 [inline]
-ip6_input+0x9c/0xd0 net/ipv6/ip6_input.c:493
-dst_input include/net/dst.h:455 [inline]
-ip6_rcv_finish+0x193/0x2c0 net/ipv6/ip6_input.c:79
-ip_sabotage_in net/bridge/br_netfilter_hooks.c:874 [inline]
-ip_sabotage_in+0x1fa/0x260 net/bridge/br_netfilter_hooks.c:865
-nf_hook_entry_hookfn include/linux/netfilter.h:142 [inline]
-nf_hook_slow+0xc5/0x1f0 net/netfilter/core.c:614
-nf_hook.constprop.0+0x3ac/0x650 include/linux/netfilter.h:257
-NF_HOOK include/linux/netfilter.h:300 [inline]
-ipv6_rcv+0x9e/0x380 net/ipv6/ip6_input.c:309
-__netif_receive_skb_one_core+0x114/0x180 net/core/dev.c:5485
-__netif_receive_skb+0x1f/0x1c0 net/core/dev.c:5599
-netif_receive_skb_internal net/core/dev.c:5685 [inline]
-netif_receive_skb+0x12f/0x8d0 net/core/dev.c:5744
-NF_HOOK include/linux/netfilter.h:302 [inline]
-NF_HOOK include/linux/netfilter.h:296 [inline]
-br_pass_frame_up+0x303/0x410 net/bridge/br_input.c:68
-br_handle_frame_finish+0x909/0x1aa0 net/bridge/br_input.c:199
-br_nf_hook_thresh+0x2f8/0x3d0 net/bridge/br_netfilter_hooks.c:1041
-br_nf_pre_routing_finish_ipv6+0x695/0xef0 net/bridge/br_netfilter_ipv6.c:207
-NF_HOOK include/linux/netfilter.h:302 [inline]
-br_nf_pre_routing_ipv6+0x417/0x7c0 net/bridge/br_netfilter_ipv6.c:237
-br_nf_pre_routing+0x1496/0x1fe0 net/bridge/br_netfilter_hooks.c:507
-nf_hook_entry_hookfn include/linux/netfilter.h:142 [inline]
-nf_hook_bridge_pre net/bridge/br_input.c:255 [inline]
-br_handle_frame+0x9c9/0x12d0 net/bridge/br_input.c:399
-__netif_receive_skb_core+0x9fe/0x38f0 net/core/dev.c:5379
-__netif_receive_skb_one_core+0xae/0x180 net/core/dev.c:5483
-__netif_receive_skb+0x1f/0x1c0 net/core/dev.c:5599
-process_backlog+0x3a0/0x7c0 net/core/dev.c:5927
-__napi_poll+0xb3/0x6d0 net/core/dev.c:6494
-napi_poll net/core/dev.c:6561 [inline]
-net_rx_action+0x9c1/0xd90 net/core/dev.c:6672
-__do_softirq+0x1d0/0x9c8 kernel/softirq.c:571
+or:
 
-Fixes: 2b0a8c9eee81 ("tcp: add CDG congestion control")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  Unable to handle kernel pointer dereference in virtual kernel address space
+  Failing address: 6b6b6b6b6b6b6000 TEID: 6b6b6b6b6b6b6803
+  Fault in home space mode while using kernel ASCE.
+  AS:0000000063b10007 R3:0000000000000024
+  Oops: 0038 ilc:3 [#1] SMP
+  Modules linked in: ...
+  CPU: 10 PID: 0 Comm: swapper/10 Kdump: loaded
+  Hardware name: ...
+  Krnl PSW : 0404d00180000000 000003ff7febaf8e (zfcp_fsf_reqid_check+0x86/0x158 [zfcp])
+             R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
+  Krnl GPRS: 5a6f1cfa89c49ac3 00000000aff2c4c8 6b6b6b6b6b6b6b6b 00000000000002a8
+             0000000000000000 0000000000000055 0000000000000000 00000000a8515800
+             0700000000000000 00000000a6e14500 00000000aff2c000 000000008003c44c
+             000000008093c700 0000000000000010 00000380009ebba8 00000380009ebb48
+  Krnl Code: 000003ff7febaf7e: a7f4003d            brc     15,000003ff7febaff8
+             000003ff7febaf82: e32020000004        lg      %r2,0(%r2)
+            #000003ff7febaf88: ec2100388064        cgrj    %r2,%r1,8,000003ff7febaff8
+            >000003ff7febaf8e: e3b020100020        cg      %r11,16(%r2)
+             000003ff7febaf94: a774fff7            brc     7,000003ff7febaf82
+             000003ff7febaf98: ec280030007c        cgij    %r2,0,8,000003ff7febaff8
+             000003ff7febaf9e: e31020080004        lg      %r1,8(%r2)
+             000003ff7febafa4: e33020000004        lg      %r3,0(%r2)
+  Call Trace:
+   [<000003ff7febaf8e>] zfcp_fsf_reqid_check+0x86/0x158 [zfcp]
+   [<000003ff7febbdbc>] zfcp_qdio_int_resp+0x6c/0x170 [zfcp]
+   [<000003ff7febbf90>] zfcp_qdio_irq_tasklet+0xd0/0x108 [zfcp]
+   [<0000000061d90a04>] tasklet_action_common.constprop.0+0xdc/0x128
+   [<000000006292f300>] __do_softirq+0x130/0x3c0
+   [<0000000061d906c6>] irq_exit_rcu+0xfe/0x118
+   [<000000006291e818>] do_io_irq+0xc8/0x168
+   [<000000006292d516>] io_int_handler+0xd6/0x110
+   [<000000006292d596>] psw_idle_exit+0x0/0xa
+  ([<0000000061d3be50>] arch_cpu_idle+0x40/0xd0)
+   [<000000006292ceea>] default_idle_call+0x52/0xf8
+   [<0000000061de4fa4>] do_idle+0xd4/0x168
+   [<0000000061de51fe>] cpu_startup_entry+0x36/0x40
+   [<0000000061d4faac>] smp_start_secondary+0x12c/0x138
+   [<000000006292d88e>] restart_int_handler+0x6e/0x90
+  Last Breaking-Event-Address:
+   [<000003ff7febaf94>] zfcp_fsf_reqid_check+0x8c/0x158 [zfcp]
+  Kernel panic - not syncing: Fatal exception in interrupt
+
+or:
+
+  Unable to handle kernel pointer dereference in virtual kernel address space
+  Failing address: 523b05d3ae76a000 TEID: 523b05d3ae76a803
+  Fault in home space mode while using kernel ASCE.
+  AS:0000000077c40007 R3:0000000000000024
+  Oops: 0038 ilc:3 [#1] SMP
+  Modules linked in: ...
+  CPU: 3 PID: 453 Comm: kworker/3:1H Kdump: loaded
+  Hardware name: ...
+  Workqueue: kblockd blk_mq_run_work_fn
+  Krnl PSW : 0404d00180000000 0000000076fc0312 (__kmalloc+0xd2/0x398)
+             R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
+  Krnl GPRS: ffffffffffffffff 523b05d3ae76abf6 0000000000000000 0000000000092a20
+             0000000000000002 00000007e49b5cc0 00000007eda8f000 0000000000092a20
+             00000007eda8f000 00000003b02856b9 00000000000000a8 523b05d3ae76abf6
+             00000007dd662000 00000007eda8f000 0000000076fc02b2 000003e0037637a0
+  Krnl Code: 0000000076fc0302: c004000000d4	brcl	0,76fc04aa
+             0000000076fc0308: b904001b		lgr	%r1,%r11
+            #0000000076fc030c: e3106020001a	algf	%r1,32(%r6)
+            >0000000076fc0312: e31010000082	xg	%r1,0(%r1)
+             0000000076fc0318: b9040001		lgr	%r0,%r1
+             0000000076fc031c: e30061700082	xg	%r0,368(%r6)
+             0000000076fc0322: ec59000100d9	aghik	%r5,%r9,1
+             0000000076fc0328: e34003b80004	lg	%r4,952
+  Call Trace:
+   [<0000000076fc0312>] __kmalloc+0xd2/0x398
+   [<0000000076f318f2>] mempool_alloc+0x72/0x1f8
+   [<000003ff8027c5f8>] zfcp_fsf_req_create.isra.7+0x40/0x268 [zfcp]
+   [<000003ff8027f1bc>] zfcp_fsf_fcp_cmnd+0xac/0x3f0 [zfcp]
+   [<000003ff80280f1a>] zfcp_scsi_queuecommand+0x122/0x1d0 [zfcp]
+   [<000003ff800b4218>] scsi_queue_rq+0x778/0xa10 [scsi_mod]
+   [<00000000771782a0>] __blk_mq_try_issue_directly+0x130/0x208
+   [<000000007717a124>] blk_mq_request_issue_directly+0x4c/0xa8
+   [<000003ff801302e2>] dm_mq_queue_rq+0x2ea/0x468 [dm_mod]
+   [<0000000077178c12>] blk_mq_dispatch_rq_list+0x33a/0x818
+   [<000000007717f064>] __blk_mq_do_dispatch_sched+0x284/0x2f0
+   [<000000007717f44c>] __blk_mq_sched_dispatch_requests+0x1c4/0x218
+   [<000000007717fa7a>] blk_mq_sched_dispatch_requests+0x52/0x90
+   [<0000000077176d74>] __blk_mq_run_hw_queue+0x9c/0xc0
+   [<0000000076da6d74>] process_one_work+0x274/0x4d0
+   [<0000000076da7018>] worker_thread+0x48/0x560
+   [<0000000076daef18>] kthread+0x140/0x160
+   [<000000007751d144>] ret_from_fork+0x28/0x30
+  Last Breaking-Event-Address:
+   [<0000000076fc0474>] __kmalloc+0x234/0x398
+  Kernel panic - not syncing: Fatal exception: panic_on_oops
+
+To fix this, simply change the type of the cache variable to 'unsigned
+long', like the rest of zfcp and also the argument for
+'zfcp_reqlist_find_rm()'. This prevents truncation and wrong sign extension
+and so can successfully remove the request from the hash table.
+
+Fixes: e60a6d69f1f8 ("[SCSI] zfcp: Remove function zfcp_reqlist_find_safe")
+Cc: <stable@vger.kernel.org> #v2.6.34+
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Link: https://lore.kernel.org/r/979f6e6019d15f91ba56182f1aaf68d61bf37fc6.1668595505.git.bblock@linux.ibm.com
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_cdg.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/s390/scsi/zfcp_fsf.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/tcp_cdg.c
-+++ b/net/ipv4/tcp_cdg.c
-@@ -374,6 +374,7 @@ static void tcp_cdg_init(struct sock *sk
- 	struct cdg *ca = inet_csk_ca(sk);
- 	struct tcp_sock *tp = tcp_sk(sk);
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -755,7 +755,7 @@ static int zfcp_fsf_req_send(struct zfcp
+ 	const bool is_srb = zfcp_fsf_req_is_status_read_buffer(req);
+ 	struct zfcp_adapter *adapter = req->adapter;
+ 	struct zfcp_qdio *qdio = adapter->qdio;
+-	int req_id = req->req_id;
++	unsigned long req_id = req->req_id;
  
-+	ca->gradients = NULL;
- 	/* We silently fall back to window = 1 if allocation fails. */
- 	if (window > 1)
- 		ca->gradients = kcalloc(window, sizeof(ca->gradients[0]),
-@@ -387,6 +388,7 @@ static void tcp_cdg_release(struct sock
- 	struct cdg *ca = inet_csk_ca(sk);
+ 	zfcp_reqlist_add(adapter->req_list, req);
  
- 	kfree(ca->gradients);
-+	ca->gradients = NULL;
- }
- 
- static struct tcp_congestion_ops tcp_cdg __read_mostly = {
 
 
