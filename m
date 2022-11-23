@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B4D763558C
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:20:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98EE6635737
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:41:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237304AbiKWJTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:19:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60522 "EHLO
+        id S238019AbiKWJjC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:39:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237307AbiKWJSv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:18:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D76F918352
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:18:31 -0800 (PST)
+        with ESMTP id S238035AbiKWJii (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:38:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3544B1121C8
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:36:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 741AA61B54
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:18:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B79CC433C1;
-        Wed, 23 Nov 2022 09:18:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B218A619F9
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:36:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A207C433C1;
+        Wed, 23 Nov 2022 09:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195110;
-        bh=yYhp8Hn/124hrHXNT+nRAm36mEF9eGnbHttfrnpJ3Ts=;
+        s=korg; t=1669196183;
+        bh=1SNR9n1I1v+UsF5E8fIOpmz9J3MZJB4RmLrXvjL6RDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NThX06MvUewH7QG+THfIKlvjahXM4sJHBuXFZ4jCstudfNDRDTrhfSRk2oo2c2sOD
-         Klxyzj7LTdNTbzxHnTejANt4b9zw1j52B+rX+b/U8z2C9URh/3jC2TRushic0ssCTp
-         DMcy0E2jzjUJwoKCSq4BYM1jU71xOijSgSfd5NjI=
+        b=bZIk9XVf/jkDH62m6PjZU5JUTJqVnwV51sQkCP6ifewMO5a1gM8uWcG7MKr5l3CqC
+         8mdQWdy9lGh5paPlNhSHK6ys/51bhMxvlm1A9BxZK+w28gvSusoMTLfKEjqFVhCN0T
+         tWa0lDQNacvz1+OIvkTxUebh+9ulrDLw2tqOMJX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Schspa Shi <schspa@gmail.com>
-Subject: [PATCH 5.4 149/156] 9p: trans_fd/p9_conn_cancel: drop client lock earlier
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.15 143/181] serial: 8250_lpss: Configure DMA also w/o DMA filter
 Date:   Wed, 23 Nov 2022 09:51:46 +0100
-Message-Id: <20221123084603.233916508@linuxfoundation.org>
+Message-Id: <20221123084608.528755422@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominique Martinet <asmadeus@codewreck.org>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 52f1c45dde9136f964d63a77d19826c8a74e2c7f upstream.
+commit 1bfcbe5805d0cfc83c3544dcd01e0a282c1f6790 upstream.
 
-syzbot reported a double-lock here and we no longer need this
-lock after requests have been moved off to local list:
-just drop the lock earlier.
+If the platform doesn't use DMA device filter (as is the case with
+Elkhart Lake), whole lpss8250_dma_setup() setup is skipped. This
+results in skipping also *_maxburst setup which is undesirable.
+Refactor lpss8250_dma_setup() to configure DMA even if filter is not
+setup.
 
-Link: https://lkml.kernel.org/r/20220904064028.1305220-1-asmadeus@codewreck.org
-Reported-by: syzbot+50f7e8d06c3768dd97f3@syzkaller.appspotmail.com
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Tested-by: Schspa Shi <schspa@gmail.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221108121952.5497-3-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/9p/trans_fd.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_lpss.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/net/9p/trans_fd.c
-+++ b/net/9p/trans_fd.c
-@@ -205,6 +205,8 @@ static void p9_conn_cancel(struct p9_con
- 		list_move(&req->req_list, &cancel_list);
- 	}
+--- a/drivers/tty/serial/8250/8250_lpss.c
++++ b/drivers/tty/serial/8250/8250_lpss.c
+@@ -278,8 +278,13 @@ static int lpss8250_dma_setup(struct lps
+ 	struct dw_dma_slave *rx_param, *tx_param;
+ 	struct device *dev = port->port.dev;
  
-+	spin_unlock(&m->client->lock);
+-	if (!lpss->dma_param.dma_dev)
++	if (!lpss->dma_param.dma_dev) {
++		dma = port->dma;
++		if (dma)
++			goto out_configuration_only;
 +
- 	list_for_each_entry_safe(req, rtmp, &cancel_list, req_list) {
- 		p9_debug(P9_DEBUG_ERROR, "call back req %p\n", req);
- 		list_del(&req->req_list);
-@@ -212,7 +214,6 @@ static void p9_conn_cancel(struct p9_con
- 			req->t_err = err;
- 		p9_client_cb(m->client, req, REQ_STATUS_ERROR);
- 	}
--	spin_unlock(&m->client->lock);
+ 		return 0;
++	}
+ 
+ 	rx_param = devm_kzalloc(dev, sizeof(*rx_param), GFP_KERNEL);
+ 	if (!rx_param)
+@@ -290,16 +295,18 @@ static int lpss8250_dma_setup(struct lps
+ 		return -ENOMEM;
+ 
+ 	*rx_param = lpss->dma_param;
+-	dma->rxconf.src_maxburst = lpss->dma_maxburst;
+-
+ 	*tx_param = lpss->dma_param;
+-	dma->txconf.dst_maxburst = lpss->dma_maxburst;
+ 
+ 	dma->fn = lpss8250_dma_filter;
+ 	dma->rx_param = rx_param;
+ 	dma->tx_param = tx_param;
+ 
+ 	port->dma = dma;
++
++out_configuration_only:
++	dma->rxconf.src_maxburst = lpss->dma_maxburst;
++	dma->txconf.dst_maxburst = lpss->dma_maxburst;
++
+ 	return 0;
  }
  
- static __poll_t
 
 
