@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CF1463576A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:43:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0296063591B
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 11:07:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238089AbiKWJlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:41:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59776 "EHLO
+        id S236339AbiKWKHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 05:07:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238087AbiKWJle (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:41:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6103EFC738
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:39:08 -0800 (PST)
+        with ESMTP id S236414AbiKWKGX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 05:06:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62DDC25A
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:56:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3673A61B22
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:39:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EB11C433D6;
-        Wed, 23 Nov 2022 09:39:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3F8861B56
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:56:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 074D3C433D7;
+        Wed, 23 Nov 2022 09:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669196347;
-        bh=+8AODrq2tiX3TsgZ4ShGAGAmb0PFxVzOIoEHdT7ao+w=;
+        s=korg; t=1669197411;
+        bh=lPKHhzfzRA4VfQr5c8y5RM97W9VQYAEaAnU2/u+v8LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zhx+aepzUNQ6D3XZH2Bqa7ifHnCRMJ/Jfl3/IA528eZrqD8ZjlYi80jnfXzj6qegh
-         qoTzjEigvCo1vgl3YEnNjYvWbLY8kDLC/r+1LrQYX3i0CYxJ3I7a486MLvnFGxaRVy
-         QLAwcX4MBY3EZ/tlajCCFYZmDB/bpd00eWp6AliQ=
+        b=Jcm4mkj6ZTjD/xui8Z+MPaG/leM0fJ+R7WM/N9m7uspewxLg75jYbXP7ixucYLaLM
+         Yquwc3nr/Th9d1isJ718yZvKSTkwe+Jp5RMxOgoFbn6LSFG3ZwLAPklG5cokrvzEVq
+         3gDD4ce3ZKgW6a2a4mo/x0EMO3BkAzApuQ5to7MQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 168/181] macvlan: enforce a consistent minimal mtu
-Date:   Wed, 23 Nov 2022 09:52:11 +0100
-Message-Id: <20221123084609.597223807@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Ravi Bangoria <ravi.bangoria@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 287/314] perf/x86/amd: Fix crash due to race between amd_pmu_enable_all, perf NMI and throttling
+Date:   Wed, 23 Nov 2022 09:52:12 +0100
+Message-Id: <20221123084638.533510476@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
+References: <20221123084625.457073469@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ravi Bangoria <ravi.bangoria@amd.com>
 
-commit b64085b00044bdf3cd1c9825e9ef5b2e0feae91a upstream.
+[ Upstream commit baa014b9543c8e5e94f5d15b66abfe60750b8284 ]
 
-macvlan should enforce a minimal mtu of 68, even at link creation.
+amd_pmu_enable_all() does:
 
-This patch avoids the current behavior (which could lead to crashes
-in ipv6 stack if the link is brought up)
+      if (!test_bit(idx, cpuc->active_mask))
+              continue;
 
-$ ip link add macvlan1 link eno1 mtu 8 type macvlan  # This should fail !
-$ ip link sh dev macvlan1
-5: macvlan1@eno1: <BROADCAST,MULTICAST> mtu 8 qdisc noop
-    state DOWN mode DEFAULT group default qlen 1000
-    link/ether 02:47:6c:24:74:82 brd ff:ff:ff:ff:ff:ff
-$ ip link set macvlan1 mtu 67
-Error: mtu less than device minimum.
-$ ip link set macvlan1 mtu 68
-$ ip link set macvlan1 mtu 8
-Error: mtu less than device minimum.
+      amd_pmu_enable_event(cpuc->events[idx]);
 
-Fixes: 91572088e3fd ("net: use core MTU range checking in core net infra")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+A perf NMI of another event can come between these two steps. Perf NMI
+handler internally disables and enables _all_ events, including the one
+which nmi-intercepted amd_pmu_enable_all() was in process of enabling.
+If that unintentionally enabled event has very low sampling period and
+causes immediate successive NMI, causing the event to be throttled,
+cpuc->events[idx] and cpuc->active_mask gets cleared by x86_pmu_stop().
+This will result in amd_pmu_enable_event() getting called with event=NULL
+when amd_pmu_enable_all() resumes after handling the NMIs. This causes a
+kernel crash:
+
+  BUG: kernel NULL pointer dereference, address: 0000000000000198
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  [...]
+  Call Trace:
+   <TASK>
+   amd_pmu_enable_all+0x68/0xb0
+   ctx_resched+0xd9/0x150
+   event_function+0xb8/0x130
+   ? hrtimer_start_range_ns+0x141/0x4a0
+   ? perf_duration_warn+0x30/0x30
+   remote_function+0x4d/0x60
+   __flush_smp_call_function_queue+0xc4/0x500
+   flush_smp_call_function_queue+0x11d/0x1b0
+   do_idle+0x18f/0x2d0
+   cpu_startup_entry+0x19/0x20
+   start_secondary+0x121/0x160
+   secondary_startup_64_no_verify+0xe5/0xeb
+   </TASK>
+
+amd_pmu_disable_all()/amd_pmu_enable_all() calls inside perf NMI handler
+were recently added as part of BRS enablement but I'm not sure whether
+we really need them. We can just disable BRS in the beginning and enable
+it back while returning from NMI. This will solve the issue by not
+enabling those events whose active_masks are set but are not yet enabled
+in hw pmu.
+
+Fixes: ada543459cab ("perf/x86/amd: Add AMD Fam19h Branch Sampling support")
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Signed-off-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20221114044029.373-1-ravi.bangoria@amd.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macvlan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/amd/core.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -1181,7 +1181,7 @@ void macvlan_common_setup(struct net_dev
- {
- 	ether_setup(dev);
+diff --git a/arch/x86/events/amd/core.c b/arch/x86/events/amd/core.c
+index 9ac3718410ce..7e39c47d7759 100644
+--- a/arch/x86/events/amd/core.c
++++ b/arch/x86/events/amd/core.c
+@@ -896,8 +896,7 @@ static int amd_pmu_handle_irq(struct pt_regs *regs)
+ 	pmu_enabled = cpuc->enabled;
+ 	cpuc->enabled = 0;
  
--	dev->min_mtu		= 0;
-+	/* ether_setup() has set dev->min_mtu to ETH_MIN_MTU. */
- 	dev->max_mtu		= ETH_MAX_MTU;
- 	dev->priv_flags	       &= ~IFF_TX_SKB_SHARING;
- 	netif_keep_dst(dev);
+-	/* stop everything (includes BRS) */
+-	amd_pmu_disable_all();
++	amd_brs_disable_all();
+ 
+ 	/* Drain BRS is in use (could be inactive) */
+ 	if (cpuc->lbr_users)
+@@ -908,7 +907,7 @@ static int amd_pmu_handle_irq(struct pt_regs *regs)
+ 
+ 	cpuc->enabled = pmu_enabled;
+ 	if (pmu_enabled)
+-		amd_pmu_enable_all(0);
++		amd_brs_enable_all();
+ 
+ 	return amd_pmu_adjust_nmi_window(handled);
+ }
+-- 
+2.35.1
+
 
 
