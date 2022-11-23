@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84E736354CC
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F98635675
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237186AbiKWJLR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:11:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51518 "EHLO
+        id S237777AbiKWJav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:30:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237188AbiKWJK4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:10:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 458AF105ABE
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:10:49 -0800 (PST)
+        with ESMTP id S237813AbiKWJac (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD7E8112C45
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:28:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00D97B81EF7
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:10:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F5F1C433C1;
-        Wed, 23 Nov 2022 09:10:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 961FEB81EE5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:28:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8B7BC433C1;
+        Wed, 23 Nov 2022 09:28:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669194646;
-        bh=sun2Z1GG3xPPxE+oBoADHbJltqL/2m3iWLgXTzsuyy8=;
+        s=korg; t=1669195721;
+        bh=g2k/FEYP9fROvEXLILh3lPJPckgC02LOkNh4YKc3GSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tshEHEewtI3rAJu9kbKukI5h8kxMAwxjEhViDx2NolH1sX11U0FhWtjMXIFG3wuZN
-         hjHajQzZ+GOQTmQZLLtWO8l2/gm87IulTs2yxas1O8HYGLdqxS840ev3nWIl4xe+NF
-         BwmW2Ihxyvo0tKh4UASU5YGuxBNNoEFJHIGt25JM=
+        b=mIv6so67LbeIv8JUxZtEk2+A7i9EQuKoDZNJZXpaxYjALU+CHI2mZ03NYfIpXpSVA
+         DIi3+Ly7oH5SBW1BCW/Pcj88ikdzMuauslM7OcgmUj+Le2KXd2xY//MbKe9rIG2FIB
+         Qu2MyuTSKPRRF5vu2mLXgCfdgudSuAf8S48rID0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 021/156] ipv6: addrlabel: fix infoleak when sending struct ifaddrlblmsg to network
+Subject: [PATCH 5.15 015/181] ASoC: Intel: sof_sdw: add quirk variant for LAPBC710 NUC15
 Date:   Wed, 23 Nov 2022 09:49:38 +0100
-Message-Id: <20221123084558.693459104@linuxfoundation.org>
+Message-Id: <20221123084603.201466581@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit c23fb2c82267638f9d206cb96bb93e1f93ad7828 ]
+[ Upstream commit 41deb2db64997d01110faaf763bd911d490dfde7 ]
 
-When copying a `struct ifaddrlblmsg` to the network, __ifal_reserved
-remained uninitialized, resulting in a 1-byte infoleak:
+Some NUC15 LAPBC710 devices don't expose the same DMI information as
+the Intel reference, add additional entry in the match table.
 
-  BUG: KMSAN: kernel-network-infoleak in __netdev_start_xmit ./include/linux/netdevice.h:4841
-   __netdev_start_xmit ./include/linux/netdevice.h:4841
-   netdev_start_xmit ./include/linux/netdevice.h:4857
-   xmit_one net/core/dev.c:3590
-   dev_hard_start_xmit+0x1dc/0x800 net/core/dev.c:3606
-   __dev_queue_xmit+0x17e8/0x4350 net/core/dev.c:4256
-   dev_queue_xmit ./include/linux/netdevice.h:3009
-   __netlink_deliver_tap_skb net/netlink/af_netlink.c:307
-   __netlink_deliver_tap+0x728/0xad0 net/netlink/af_netlink.c:325
-   netlink_deliver_tap net/netlink/af_netlink.c:338
-   __netlink_sendskb net/netlink/af_netlink.c:1263
-   netlink_sendskb+0x1d9/0x200 net/netlink/af_netlink.c:1272
-   netlink_unicast+0x56d/0xf50 net/netlink/af_netlink.c:1360
-   nlmsg_unicast ./include/net/netlink.h:1061
-   rtnl_unicast+0x5a/0x80 net/core/rtnetlink.c:758
-   ip6addrlbl_get+0xfad/0x10f0 net/ipv6/addrlabel.c:628
-   rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
-  ...
-  Uninit was created at:
-   slab_post_alloc_hook+0x118/0xb00 mm/slab.h:742
-   slab_alloc_node mm/slub.c:3398
-   __kmem_cache_alloc_node+0x4f2/0x930 mm/slub.c:3437
-   __do_kmalloc_node mm/slab_common.c:954
-   __kmalloc_node_track_caller+0x117/0x3d0 mm/slab_common.c:975
-   kmalloc_reserve net/core/skbuff.c:437
-   __alloc_skb+0x27a/0xab0 net/core/skbuff.c:509
-   alloc_skb ./include/linux/skbuff.h:1267
-   nlmsg_new ./include/net/netlink.h:964
-   ip6addrlbl_get+0x490/0x10f0 net/ipv6/addrlabel.c:608
-   rtnetlink_rcv_msg+0xb33/0x1570 net/core/rtnetlink.c:6082
-   netlink_rcv_skb+0x299/0x550 net/netlink/af_netlink.c:2540
-   rtnetlink_rcv+0x26/0x30 net/core/rtnetlink.c:6109
-   netlink_unicast_kernel net/netlink/af_netlink.c:1319
-   netlink_unicast+0x9ab/0xf50 net/netlink/af_netlink.c:1345
-   netlink_sendmsg+0xebc/0x10f0 net/netlink/af_netlink.c:1921
-  ...
-
-This patch ensures that the reserved field is always initialized.
-
-Reported-by: syzbot+3553517af6020c4f2813f1003fe76ef3cbffe98d@syzkaller.appspotmail.com
-Fixes: 2a8cc6c89039 ("[IPV6] ADDRCONF: Support RFC3484 configurable address selection policy table.")
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BugLink: https://github.com/thesofproject/linux/issues/3885
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20221017204054.207512-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/addrlabel.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/intel/boards/sof_sdw.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/net/ipv6/addrlabel.c b/net/ipv6/addrlabel.c
-index 8a22486cf270..17ac45aa7194 100644
---- a/net/ipv6/addrlabel.c
-+++ b/net/ipv6/addrlabel.c
-@@ -437,6 +437,7 @@ static void ip6addrlbl_putmsg(struct nlmsghdr *nlh,
- {
- 	struct ifaddrlblmsg *ifal = nlmsg_data(nlh);
- 	ifal->ifal_family = AF_INET6;
-+	ifal->__ifal_reserved = 0;
- 	ifal->ifal_prefixlen = prefixlen;
- 	ifal->ifal_flags = 0;
- 	ifal->ifal_index = ifindex;
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index abe39a0ef14b..294e76d590ad 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -201,6 +201,17 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
+ 					SOF_SDW_PCH_DMIC |
+ 					RT711_JD1),
+ 	},
++	{
++		/* NUC15 LAPBC710 skews */
++		.callback = sof_sdw_quirk_cb,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
++			DMI_MATCH(DMI_BOARD_NAME, "LAPBC710"),
++		},
++		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
++					SOF_SDW_PCH_DMIC |
++					RT711_JD1),
++	},
+ 	/* TigerLake-SDCA devices */
+ 	{
+ 		.callback = sof_sdw_quirk_cb,
 -- 
 2.35.1
 
