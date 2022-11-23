@@ -2,46 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 662E263567A
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:31:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D706354B0
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:11:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237694AbiKWJbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:31:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44176 "EHLO
+        id S237179AbiKWJL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:11:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237706AbiKWJan (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:30:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64EC9112C5C
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:29:04 -0800 (PST)
+        with ESMTP id S237223AbiKWJLK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:11:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9313105A97
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:11:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 027CB61B43
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:29:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2109C433D7;
-        Wed, 23 Nov 2022 09:29:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 804C9B81EEB
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:11:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72099C433D7;
+        Wed, 23 Nov 2022 09:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195743;
-        bh=iPxNq6OZIAYYK2AOMlVT08B1wcF9j2sMEKlxUF6HeFA=;
+        s=korg; t=1669194667;
+        bh=GXMwyAFHH9LtUUd0vupv4sOaQtEdgJicv+5Xo2PzPp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZCbnSohoI1vhBpY8iAWVRDRUP1KpPBT6Yi7Aarqvgt94F7WiZw0jOlsfJ2E9PWXT
-         TnrVz1wgqihBU0zC3ltSX5RAvYLhLFR1OpHiZE5x46hH3kb/1IyOqXgKkd5I5OC00u
-         v+6d7ErsOzn/8MnzfmWps/uiOsgBTBYtAfIhTXXY=
+        b=tTDWWV/i8ylNnUWJxVvj8KqwYxHX714nE3j4F0xJMRsvPCoterdNRmDk2JVHw2ajU
+         yug61nlIFnIfEZBwTnbV2scDW45w4UM/28BUclpF6i65Q2wCz75leSH2ppLd7S/vLn
+         SOQIULes3lczErsuWPh0jNlPEVMEAiyjU+1jWeQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Disha Goel <disgoel@linux.vnet.ibm.com>,
+        Kajol Jain <kjain@linux.ibm.com>,
+        Athira Jajeev <atrajeev@linux.vnet.ibm.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        James Clark <james.clark@arm.com>,
+        Jiri Olsa <jolsa@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nageswara R Sastry <rnsastry@linux.ibm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 020/181] drm/amd/display: Remove wrong pipe control lock
-Date:   Wed, 23 Nov 2022 09:49:43 +0100
-Message-Id: <20221123084603.348224420@linuxfoundation.org>
+Subject: [PATCH 5.4 027/156] perf stat: Fix printing os->prefix in CSV metrics output
+Date:   Wed, 23 Nov 2022 09:49:44 +0100
+Message-Id: <20221123084558.941921215@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
-References: <20221123084602.707860461@linuxfoundation.org>
+In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
+References: <20221123084557.816085212@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,92 +63,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit ca08a1725d0d78efca8d2dbdbce5ea70355da0f2 ]
+[ Upstream commit ad353b710c7493df3d4fc2d3a51819126bed2e81 ]
 
-When using a device based on DCN32/321,
-we have an issue where a second
-4k@60Hz display does not light up,
-and the system becomes unresponsive
-for a few minutes. In the debug process,
-it was possible to see a hang
-in the function dcn20_post_unlock_program_front_end
-in this part:
+'perf stat' with CSV output option prints an extra empty string as first
+field in metrics output line.  Sample output below:
 
-for (j = 0; j < TIMEOUT_FOR_PIPE_ENABLE_MS*1000
-	&& hubp->funcs->hubp_is_flip_pending(hubp); j++)
-	mdelay(1);
-}
+	# ./perf stat -x, --per-socket -a -C 1 ls
+	S0,1,1.78,msec,cpu-clock,1785146,100.00,0.973,CPUs utilized
+	S0,1,26,,context-switches,1781750,100.00,0.015,M/sec
+	S0,1,1,,cpu-migrations,1780526,100.00,0.561,K/sec
+	S0,1,1,,page-faults,1779060,100.00,0.561,K/sec
+	S0,1,875807,,cycles,1769826,100.00,0.491,GHz
+	S0,1,85281,,stalled-cycles-frontend,1767512,100.00,9.74,frontend cycles idle
+	S0,1,576839,,stalled-cycles-backend,1766260,100.00,65.86,backend cycles idle
+	S0,1,288430,,instructions,1762246,100.00,0.33,insn per cycle
+====>	,S0,1,,,,,,,2.00,stalled cycles per insn
 
-The hubp_is_flip_pending always returns positive
-for waiting pending flips which is a symptom of
-pipe hang. Additionally, the dmesg log shows
-this message after a few minutes:
+The above command line uses field separator as "," via "-x," option and
+per-socket option displays socket value as first field. But here the
+last line for "stalled cycles per insn" has "," in the beginning.
 
-  BUG: soft lockup - CPU#4 stuck for 26s!
-  ...
-  [  +0.000003]  dcn20_post_unlock_program_front_end+0x112/0x340 [amdgpu]
-  [  +0.000171]  dc_commit_state_no_check+0x63d/0xbf0 [amdgpu]
-  [  +0.000155]  ? dc_validate_global_state+0x358/0x3d0 [amdgpu]
-  [  +0.000154]  dc_commit_state+0xe2/0xf0 [amdgpu]
+Sample output using interval mode:
 
-This confirmed the hypothesis that we had a pipe
-hanging somewhere. Next, after checking the
-ftrace entries, we have the below weird
-sequence:
+	# ./perf stat -I 1000 -x, --per-socket -a -C 1 ls
+	0.001813453,S0,1,1.87,msec,cpu-clock,1872052,100.00,0.002,CPUs utilized
+	0.001813453,S0,1,2,,context-switches,1868028,100.00,1.070,K/sec
+	------
+	0.001813453,S0,1,85379,,instructions,1856754,100.00,0.32,insn per cycle
+====>	0.001813453,,S0,1,,,,,,,1.34,stalled cycles per insn
 
- [..]
-  2)               |        dcn10_lock_all_pipes [amdgpu]() {
-  2)   0.120 us    |          optc1_is_tg_enabled [amdgpu]();
-  2)               |          dcn20_pipe_control_lock [amdgpu]() {
-  2)               |            dc_dmub_srv_clear_inbox0_ack [amdgpu]() {
-  2)   0.121 us    |              amdgpu_dm_dmub_reg_write [amdgpu]();
-  2)   0.551 us    |            }
-  2)               |            dc_dmub_srv_send_inbox0_cmd [amdgpu]() {
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_write [amdgpu]();
-  2)   0.511 us    |            }
-  2)               |            dc_dmub_srv_wait_for_inbox0_ack [amdgpu]() {
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
-  2)   0.110 us    |              amdgpu_dm_dmub_reg_read [amdgpu]();
- [..]
+Above result also has an extra CSV separator after
+the timestamp. Patch addresses extra field separator
+in the beginning of the metric output line.
 
-We are not expected to read from dmub register
-so many times and for so long. From the trace log,
-it was possible to identify that the function
-dcn20_pipe_control_lock was triggering the dmub
-operation when it was unnecessary and causing
-the hang issue. This commit drops the unnecessary
-dmub code and, consequently, fixes the second display not
-lighting up the issue.
+The counter stats are displayed by function
+"perf_stat__print_shadow_stats" in code
+"util/stat-shadow.c". While printing the stats info
+for "stalled cycles per insn", function "new_line_csv"
+is used as new_line callback.
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The new_line_csv function has check for "os->prefix"
+and if prefix is not null, it will be printed along
+with cvs separator.
+Snippet from "new_line_csv":
+	if (os->prefix)
+               fprintf(os->fh, "%s%s", os->prefix, config->csv_sep);
+
+Here os->prefix gets printed followed by ","
+which is the cvs separator. The os->prefix is
+used in interval mode option ( -I ), to print
+time stamp on every new line. But prefix is
+already set to contain CSV separator when used
+in interval mode for CSV option.
+
+Reference: Function "static void print_interval"
+Snippet:
+	sprintf(prefix, "%6lu.%09lu%s", ts->tv_sec, ts->tv_nsec, config->csv_sep);
+
+Also if prefix is not assigned (if not used with
+-I option), it gets set to empty string.
+Reference: function printout() in util/stat-display.c
+Snippet:
+	.prefix = prefix ? prefix : "",
+
+Since prefix already set to contain cvs_sep in interval
+option, patch removes printing config->csv_sep in
+new_line_csv function to avoid printing extra field.
+
+After the patch:
+
+	# ./perf stat -x, --per-socket -a -C 1 ls
+	S0,1,2.04,msec,cpu-clock,2045202,100.00,1.013,CPUs utilized
+	S0,1,2,,context-switches,2041444,100.00,979.289,/sec
+	S0,1,0,,cpu-migrations,2040820,100.00,0.000,/sec
+	S0,1,2,,page-faults,2040288,100.00,979.289,/sec
+	S0,1,254589,,cycles,2036066,100.00,0.125,GHz
+	S0,1,82481,,stalled-cycles-frontend,2032420,100.00,32.40,frontend cycles idle
+	S0,1,113170,,stalled-cycles-backend,2031722,100.00,44.45,backend cycles idle
+	S0,1,88766,,instructions,2030942,100.00,0.35,insn per cycle
+	S0,1,,,,,,,1.27,stalled cycles per insn
+
+Fixes: 92a61f6412d3a09d ("perf stat: Implement CSV metrics output")
+Reported-by: Disha Goel <disgoel@linux.vnet.ibm.com>
+Reviewed-By: Kajol Jain <kjain@linux.ibm.com>
+Signed-off-by: Athira Jajeev <atrajeev@linux.vnet.ibm.com>
+Tested-by: Disha Goel <disgoel@linux.vnet.ibm.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: James Clark <james.clark@arm.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lore.kernel.org/r/20221018085605.63834-1-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 2 +-
+ tools/perf/util/stat-display.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index 0de1bbbabf9a..58eea3aa3bfc 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -1765,7 +1765,7 @@ void dcn20_post_unlock_program_front_end(
+diff --git a/tools/perf/util/stat-display.c b/tools/perf/util/stat-display.c
+index 93147cc40162..e18c26501a7f 100644
+--- a/tools/perf/util/stat-display.c
++++ b/tools/perf/util/stat-display.c
+@@ -193,7 +193,7 @@ static void new_line_csv(struct perf_stat_config *config, void *ctx)
  
- 			for (j = 0; j < TIMEOUT_FOR_PIPE_ENABLE_MS*1000
- 					&& hubp->funcs->hubp_is_flip_pending(hubp); j++)
--				mdelay(1);
-+				udelay(1);
- 		}
- 	}
- 
+ 	fputc('\n', os->fh);
+ 	if (os->prefix)
+-		fprintf(os->fh, "%s%s", os->prefix, config->csv_sep);
++		fprintf(os->fh, "%s", os->prefix);
+ 	aggr_printout(config, os->evsel, os->id, os->nr);
+ 	for (i = 0; i < os->nfields; i++)
+ 		fputs(config->csv_sep, os->fh);
 -- 
 2.35.1
 
