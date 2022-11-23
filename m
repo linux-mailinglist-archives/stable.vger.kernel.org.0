@@ -2,87 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1119A635874
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:58:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D2086356DA
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:37:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236824AbiKWJ5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:57:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52122 "EHLO
+        id S237901AbiKWJfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:35:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237119AbiKWJ4x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:56:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEAEC116AB6
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:51:38 -0800 (PST)
+        with ESMTP id S237922AbiKWJey (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:34:54 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C98ECE36
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:32:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57AFC61B6F
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:51:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 336EDC433D6;
-        Wed, 23 Nov 2022 09:51:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0A611CE20E5
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:32:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4569C433C1;
+        Wed, 23 Nov 2022 09:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669197097;
-        bh=bkh8KexJ7FMiW24TXYuGzo2amSjnSY0TnQyHfUNygik=;
+        s=korg; t=1669195954;
+        bh=M0X5vE/1fNOAU29TL66l9d+hmJsrVXyqo+TNDEzPlf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wSZzVfveMHOTqobgAXVtOmMPOrbh5V8HKnW/sGPl6B/TqpLyazflPGt8owIzI6IWe
-         GMtXXco3/EihYSstXoVSevgTnNHGTCa1U8XgJNpUpSCIka8QdU3KXMJE+m5a5SNc8R
-         G0roSfpNcjdpw6Z+8ag9uKyA7noEOAYNE9BcvOhw=
+        b=s505TZljinoTw+mhntk6pXwBLepC7/sN5/xdlMP7IdKaLtvIjbsUtfOaDG9DfHDkl
+         t7W/MXpwB6g0qObvqEAvhC2448ev5EZ6dOCOsWj1SjISVIsws8yBjW5yEENp3R1lRe
+         fgSfbHeZIGmyuCBWNRVuL40Npln+V6wEzMErGduU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, mhiramat@kernel.org, mark.rutland@arm.com,
-        Wang Wensheng <wangwensheng4@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.0 197/314] ftrace: Optimize the allocation for mcount entries
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 079/181] net: bgmac: Drop free_netdev() from bgmac_enet_remove()
 Date:   Wed, 23 Nov 2022 09:50:42 +0100
-Message-Id: <20221123084634.474911613@linuxfoundation.org>
+Message-Id: <20221123084605.758265972@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084625.457073469@linuxfoundation.org>
-References: <20221123084625.457073469@linuxfoundation.org>
+In-Reply-To: <20221123084602.707860461@linuxfoundation.org>
+References: <20221123084602.707860461@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit bcea02b096333dc74af987cb9685a4dbdd820840 upstream.
+[ Upstream commit 6f928ab8ee9bfbcb0e631c47ea8a16c3d5116ff1 ]
 
-If we can't allocate this size, try something smaller with half of the
-size. Its order should be decreased by one instead of divided by two.
+netdev is allocated in bgmac_alloc() with devm_alloc_etherdev() and will
+be auto released in ->remove and ->probe failure path. Using free_netdev()
+in bgmac_enet_remove() leads to double free.
 
-Link: https://lkml.kernel.org/r/20221109094434.84046-3-wangwensheng4@huawei.com
+Fixes: 34a5102c3235 ("net: bgmac: allocate struct bgmac just once & don't copy it")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 
-Cc: <mhiramat@kernel.org>
-Cc: <mark.rutland@arm.com>
-Cc: stable@vger.kernel.org
-Fixes: a79008755497d ("ftrace: Allocate the mcount record pages as groups")
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20221109150136.2991171-1-weiyongjun@huaweicloud.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bgmac.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -3193,7 +3193,7 @@ static int ftrace_allocate_records(struc
- 		/* if we can't allocate this size, try something smaller */
- 		if (!order)
- 			return -ENOMEM;
--		order >>= 1;
-+		order--;
- 		goto again;
- 	}
+diff --git a/drivers/net/ethernet/broadcom/bgmac.c b/drivers/net/ethernet/broadcom/bgmac.c
+index 6e8bc6726031..fa2a43d465db 100644
+--- a/drivers/net/ethernet/broadcom/bgmac.c
++++ b/drivers/net/ethernet/broadcom/bgmac.c
+@@ -1568,7 +1568,6 @@ void bgmac_enet_remove(struct bgmac *bgmac)
+ 	phy_disconnect(bgmac->net_dev->phydev);
+ 	netif_napi_del(&bgmac->napi);
+ 	bgmac_dma_free(bgmac);
+-	free_netdev(bgmac->net_dev);
+ }
+ EXPORT_SYMBOL_GPL(bgmac_enet_remove);
  
+-- 
+2.35.1
+
 
 
