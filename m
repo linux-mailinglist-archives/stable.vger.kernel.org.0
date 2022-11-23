@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B0CA635547
-	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:18:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28E166355E9
+	for <lists+stable@lfdr.de>; Wed, 23 Nov 2022 10:27:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237343AbiKWJSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Nov 2022 04:18:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57862 "EHLO
+        id S237541AbiKWJ0t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Nov 2022 04:26:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237202AbiKWJRy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:17:54 -0500
+        with ESMTP id S237666AbiKWJ00 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Nov 2022 04:26:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ED2825D8
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:17:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A334FED5E9
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 01:25:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E84B61B10
-        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:17:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E553C433D6;
-        Wed, 23 Nov 2022 09:17:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4071261B43
+        for <stable@vger.kernel.org>; Wed, 23 Nov 2022 09:25:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C003C433C1;
+        Wed, 23 Nov 2022 09:25:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1669195059;
-        bh=bd3ntbbQYOuOvmoZf9fzo++h3Jhhk5K/ZRBajluowik=;
+        s=korg; t=1669195527;
+        bh=u/s33k08WmlBc5YODo+KAW2RhSMTD8O4/IU91YQ1fJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cOKC329iqqL/fIPDfsix2+/1HVRQvyn32t9uEq+r+gc3p27ycuPx6GtfFRGayVMLw
-         PGxnd51/iBP1976h+uKkgKf59UhWvb2TjWrwuKKbE1yhRQlq9mlEcnjewBmSgD0WV2
-         SjTC4uivTTd9wq3gx9bx3fflLsSYui44vukJbblY=
+        b=DCN329ebP4tT6lY5Hk5Jj2STMmG/hwwnMpJ/0g02BkTDSq6DqcOGu5YVc8AO3QnrM
+         Sflj0oLqvCRkbgtqje2JVtIO2O6OMMYr8y/COgj57QebV71kZlIaPyayyjwNtcy003
+         370ii5wn/vMhiYNs9iYb8mdGuE5LUaox+4/tsvko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 136/156] mmc: sdhci-pci: Fix possible memory leak caused by missing pci_dev_put()
+        patches@lists.linux.dev, Mitja Spes <mitja@lxnav.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 110/149] iio: pressure: ms5611: changed hardcoded SPI speed to value limited
 Date:   Wed, 23 Nov 2022 09:51:33 +0100
-Message-Id: <20221123084602.831695465@linuxfoundation.org>
+Message-Id: <20221123084601.918704123@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221123084557.816085212@linuxfoundation.org>
-References: <20221123084557.816085212@linuxfoundation.org>
+In-Reply-To: <20221123084557.945845710@linuxfoundation.org>
+References: <20221123084557.945845710@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Mitja Spes <mitja@lxnav.com>
 
-commit 222cfa0118aa68687ace74aab8fdf77ce8fbd7e6 upstream.
+commit 741cec30cc52058d1c10d415f3b98319887e4f73 upstream.
 
-pci_get_device() will increase the reference count for the returned
-pci_dev. We need to use pci_dev_put() to decrease the reference count
-before amd_probe() returns. There is no problem for the 'smbus_dev ==
-NULL' branch because pci_dev_put() can also handle the NULL input
-parameter case.
+Don't hardcode the ms5611 SPI speed, limit it instead.
 
-Fixes: 659c9bc114a8 ("mmc: sdhci-pci: Build o2micro support in the same module")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221114083100.149200-1-wangxiongfeng2@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Mitja Spes <mitja@lxnav.com>
+Fixes: c0644160a8b5 ("iio: pressure: add support for MS5611 pressure and temperature sensor")
+Link: https://lore.kernel.org/r/20221021135827.1444793-3-mitja@lxnav.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-pci-core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/pressure/ms5611_spi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -1795,6 +1795,8 @@ static int amd_probe(struct sdhci_pci_ch
- 		}
- 	}
+--- a/drivers/iio/pressure/ms5611_spi.c
++++ b/drivers/iio/pressure/ms5611_spi.c
+@@ -94,7 +94,7 @@ static int ms5611_spi_probe(struct spi_d
+ 	spi_set_drvdata(spi, indio_dev);
  
-+	pci_dev_put(smbus_dev);
-+
- 	if (gen == AMD_CHIPSET_BEFORE_ML || gen == AMD_CHIPSET_CZ)
- 		chip->quirks2 |= SDHCI_QUIRK2_CLEAR_TRANSFERMODE_REG_BEFORE_CMD;
- 
+ 	spi->mode = SPI_MODE_0;
+-	spi->max_speed_hz = 20000000;
++	spi->max_speed_hz = min(spi->max_speed_hz, 20000000U);
+ 	spi->bits_per_word = 8;
+ 	ret = spi_setup(spi);
+ 	if (ret < 0)
 
 
